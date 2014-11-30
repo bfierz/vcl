@@ -1,0 +1,24 @@
+PROJECT(vcl_geometry)
+
+# VCL / GEOMETRY
+SET(VCL_GEOMETRY_INC
+	vcl/geometry/distance.h
+)
+SET(VCL_GEOMETRY_SRC
+	vcl/geometry/distance.cpp
+)
+
+SOURCE_GROUP("" FILES ${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC})
+
+SET(SOURCE
+	${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC}
+)
+
+# Generate library
+ADD_LIBRARY(vcl_geometry STATIC ${SOURCE})
+SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES FOLDER libs)
+TARGET_INCLUDE_DIRECTORIES(vcl_geometry PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+TARGET_LINK_LIBRARIES(vcl_geometry
+	vcl_core
+)
