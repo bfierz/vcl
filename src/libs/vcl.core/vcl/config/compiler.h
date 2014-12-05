@@ -93,13 +93,31 @@
 #		define VCL_ARCH_X64
 #	endif /* _M_X64 */
 
+#ifdef VCL_VECTORIZE_AVX2
+#include <immintrin.h>
+#endif
+#ifdef VCL_VECTORIZE_AVX
+#include <immintrin.h>
+#endif
+#ifdef VCL_VECTORIZE_SSE4_2
+#include <nmmintrin.h>
+#endif
+#ifdef VCL_VECTORIZE_SSE4_1
+#include <smmintrin.h>
+#endif
+#ifdef VCL_VECTORIZE_SSSE3
+#include <tmmintrin.h>
+#endif
+#ifdef VCL_VECTORIZE_SSE3
+#include <pmmintrin.h>
+#endif
+#include <xmmintrin.h>
+#include <mmintrin.h>
+
 // Inlining
 #	define VCL_STRONG_INLINE inline
-
 #	define VCL_DEBUG_BREAK __builtin_trap
-
-#	define VCL_ALIGN(x) __attribute__(aligned(x))
-
+#	define VCL_ALIGN(x) __attribute__((aligned(x)))
 #	define VCL_CALLBACK __attribute__ ((__stdcall__))
 
 #else // No compiler found

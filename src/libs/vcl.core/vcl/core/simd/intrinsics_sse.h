@@ -60,8 +60,9 @@ namespace Vcl
 
 	__m128 _mm_acos_ps(__m128 v);
 	__m128 _mm_asin_ps(__m128 v);
-
+#ifdef VCL_VECTORIZE_AVX
 	__m128 _mm_atan2_ps(__m256 y, __m256 x);	
+#endif
 	__m128 _mm_pow_ps(__m128 x, __m128 y);
 	
 #ifndef _mm_floor_ps
