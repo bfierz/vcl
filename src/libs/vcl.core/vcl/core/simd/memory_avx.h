@@ -163,7 +163,7 @@ namespace Vcl
 	{
 		__m256 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, base);
-		load(x1, y1, z1, base + 4);
+		load(x1, y1, z1, base + 8);
 
 		loaded =
 		{
@@ -181,7 +181,7 @@ namespace Vcl
 	{
 		__m256 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
-		load(x1, y1, z1, reinterpret_cast<const Eigen::Vector3f*>(base) +4);
+		load(x1, y1, z1, reinterpret_cast<const Eigen::Vector3f*>(base) + 8);
 
 		loaded =
 		{
@@ -217,7 +217,7 @@ namespace Vcl
 		
 		store
 		(
-			reinterpret_cast<Eigen::Vector3f*>(base) + 4,
+			reinterpret_cast<Eigen::Vector3f*>(base) + 8,
 			_mm256_castsi256_ps(value(0).get(1)),
 			_mm256_castsi256_ps(value(1).get(1)),
 			_mm256_castsi256_ps(value(2).get(1))

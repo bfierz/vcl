@@ -75,21 +75,21 @@ namespace Vcl
 	public:
 		int& operator[] (int idx)
 		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
+			Require(0 <= idx && idx < 16, "Access is in range.");
 
-			return mF8[idx / 4].m256i_i32[idx % 4];
+			return mF8[idx / 8].m256i_i32[idx % 8];
 		}
 
 		int operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
+			Require(0 <= idx && idx < 16, "Access is in range.");
 
-			return mF8[idx / 4].m256i_i32[idx % 4];
+			return mF8[idx / 8].m256i_i32[idx % 8];
 		}
 
 		__m256i get(int i) const
 		{
-			Require(0 <= idx && idx < 2, "Access is in range.");
+			Require(0 <= i && i < 2, "Access is in range.");
 
 			return mF8[i];
 		}

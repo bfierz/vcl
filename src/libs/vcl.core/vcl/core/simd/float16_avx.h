@@ -80,7 +80,7 @@ namespace Vcl
 
 		__m256 get(int i) const
 		{
-			Require(0 <= idx && idx < 2, "Access is in range.");
+			Require(0 <= i && i < 2, "Access is in range.");
 
 			return mF8[i];
 		}
