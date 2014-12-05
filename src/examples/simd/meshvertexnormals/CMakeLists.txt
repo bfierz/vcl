@@ -6,6 +6,7 @@ SET(INC
 
 SET(SRC
 	main.cpp
+	liver.cpp
 )
 
 SOURCE_GROUP("" FILES ${SRC} ${INC})

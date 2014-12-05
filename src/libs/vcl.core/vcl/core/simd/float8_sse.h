@@ -33,7 +33,7 @@
 
 // VCL 
 #include <vcl/core/simd/bool8_sse.h>
-#include <vcl/core/simd/floatn.h>
+#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
 
 namespace Vcl
@@ -48,21 +48,36 @@ namespace Vcl
 			mF4[0] = _mm_set_ps1(s);
 			mF4[1] = _mm_set_ps1(s);
 		}
-		explicit VectorScalar(__m128 F4_0, __m128 F4_1)
+		VCL_STRONG_INLINE explicit VectorScalar(__m128 F4_0, __m128 F4_1)
 		{
 			mF4[0] = F4_0;
 			mF4[1] = F4_1;
 		}
 
 	public:
-		VectorScalar<float, 8>& operator = (const VectorScalar<float, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 8>& operator = (const VectorScalar<float, 8>& rhs)
 		{
 			mF4[0] = rhs.mF4[0];
 			mF4[1] = rhs.mF4[1];
 
 			return *this;
 		}
-		
+
+	public:
+		float& operator[] (int idx)
+		{
+			Require(0 <= idx && idx < 8, "Access is in range.");
+
+			return mF4[idx / 4].m128_f32[idx % 4];
+		}
+
+		float operator[] (int idx) const
+		{
+			Require(0 <= idx && idx < 8, "Access is in range.");
+
+			return mF4[idx / 4].m128_f32[idx % 4];
+		}
+
 	public:
 		VectorScalar<float, 8> operator- () const
 		{
@@ -156,7 +171,17 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 8> sqrt() const { return VectorScalar<float, 8>(_mm_sqrt_ps(mF4[0]), _mm_sqrt_ps(mF4[1])); }
 		VCL_STRONG_INLINE VectorScalar<float, 8> rcp()  const { return VectorScalar<float, 8>(_mm_rcp_ps (mF4[0]), _mm_rcp_ps (mF4[1])); }
 
+		VCL_STRONG_INLINE VectorScalar<float, 8> acos() const { return VectorScalar<float, 8>(_mm_acos_ps(mF4[0]), _mm_acos_ps(mF4[1])); }
+
 	public:
+		VCL_STRONG_INLINE VectorScalar<float, 8> min(const VectorScalar<float, 8>& rhs) const
+		{
+			return VectorScalar<float, 8>
+			(
+				_mm_min_ps(mF4[0], rhs.mF4[0]),
+				_mm_min_ps(mF4[1], rhs.mF4[1])
+			);
+		}
 		VCL_STRONG_INLINE VectorScalar<float, 8> max(const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<float, 8>
@@ -195,17 +220,4 @@ namespace Vcl
 			_mm_xor_ps(b.mF4[1], _mm_and_ps(mask.mF4[1], _mm_xor_ps(b.mF4[1], a.mF4[1])))
 		);
 	}
-
-	VCL_STRONG_INLINE VectorScalar<float, 8> abs (const VectorScalar<float, 8>& x) { return x.abs();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> abs2(const VectorScalar<float, 8>& x) { return x*x;      }
-	VCL_STRONG_INLINE VectorScalar<float, 8> sqrt(const VectorScalar<float, 8>& x) { return x.sqrt(); }
-	VCL_STRONG_INLINE VectorScalar<float, 8> exp (const VectorScalar<float, 8>& x) { return x.exp();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> log (const VectorScalar<float, 8>& x) { return x.log();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> sin (const VectorScalar<float, 8>& x) { return x.sin();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> cos (const VectorScalar<float, 8>& x) { return x.cos();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> sgn (const VectorScalar<float, 8>& x) { return x.sgn();  }
-	VCL_STRONG_INLINE VectorScalar<float, 8> rcp (const VectorScalar<float, 8>& x) { return x.rcp();  }
-
-	VCL_STRONG_INLINE VectorScalar<float, 8> max (const VectorScalar<float, 8>& x, const VectorScalar<float, 8>& y)  { return x.max(y); }
-	VCL_STRONG_INLINE VectorScalar<float, 8> pow (const VectorScalar<float, 8>& x, const VectorScalar<float, 8>& y)  { return exp(log(x) * y); }
 }

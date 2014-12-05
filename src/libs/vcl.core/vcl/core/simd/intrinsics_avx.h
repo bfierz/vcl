@@ -32,19 +32,41 @@ namespace Vcl
 {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
 	{
-		return _mm256_andnot_ps(_mm256_set1_ps(-0.0f), v);
+		return _mm256_andnot_ps(_mm256_castsi256_ps(_mm256_set1_epi32(0x80000000)), v);
 	}
-
 	VCL_STRONG_INLINE __m256 _mm256_sgn_ps(__m256 v)
 	{
-		return _mm256_and_ps(_mm256_or_ps(_mm256_and_ps(v, _mm256_set1_ps(-0.0f)), _mm256_set1_ps(1.0f)), _mm256_cmp_ps(v, _mm256_setzero_ps(), _CMP_NEQ_OQ));
+		return _mm256_and_ps(_mm256_or_ps(_mm256_and_ps(v, _mm256_castsi256_ps(_mm256_set1_epi32(0x80000000))), _mm256_set1_ps(1.0f)), _mm256_cmp_ps(v, _mm256_setzero_ps(), _CMP_NEQ_OQ));
 	}
+
+#ifdef VCL_VECTORIZE_AVX2
+	VCL_STRONG_INLINE __m256i _mm256_cmplt_epi32(__m256i a, __m256i b)
+	{
+		return _mm256_cmpgt_epi32(b, a);
+	}
+	VCL_STRONG_INLINE __m256i _mm256_cmpneq_epi32(__m256i a, __m256i b)
+	{
+		return _mm256_andnot_si256(_mm256_cmpeq_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+	}	
+	VCL_STRONG_INLINE __m256i _mm256_cmple_epi32(__m256i a, __m256i b)
+	{
+		return _mm256_andnot_si256(_mm256_cmpgt_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+	}
+	VCL_STRONG_INLINE __m256i _mm256_cmpge_epi32(__m256i a, __m256i b)
+	{
+		return _mm256_andnot_si256(_mm256_cmplt_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+	}
+#endif // VCL_VECTORIZE_AVX2
 
 	__m256 _mm256_sin_ps(__m256 v);	
 	__m256 _mm256_cos_ps(__m256 v);
 	__m256 _mm256_log_ps(__m256 v);
 	__m256 _mm256_exp_ps(__m256 v);
 
+	__m256 _mm256_acos_ps(__m256 v);
+	__m256 _mm256_asin_ps(__m256 v);
+
+	__m256 _mm256_atan2_ps(__m256 y, __m256 x);
 	__m256 _mm256_pow_ps(__m256 x, __m256 y);
 
 	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }

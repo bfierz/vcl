@@ -110,7 +110,7 @@
 #endif
 
 // Configure macros for SIMD
-#if (defined(VCL_ARCH_X86)||defined(VCL_ARCH_X64))
+#if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64))
 #	ifdef VCL_VECTORIZE_AVX2
 #		define VCL_VECTORIZE_AVX_LEVEL_MAJOR 2
 #		define VCL_VECTORIZE_AVX_LEVEL_MINOR 0
@@ -133,7 +133,10 @@
 #		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 2
 #		define VCL_VECTORIZE_SSE_LEVEL_MINOR 0
 #	endif
-#	if (!defined(VCL_VECTORIZE_AVX) && !defined(VCL_VECTORIZE_SSE))
+#	if defined VCL_VECTORIZE_AVX2 && !defined VCL_VECTORIZE_AVX
+#		define VCL_VECTORIZE_AVX
+#	endif
+#	if (defined(VCL_ARCH_X64) && !defined(VCL_VECTORIZE_SSE))
 #		define VCL_VECTORIZE_SSE
 #	endif
 #	if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
@@ -148,7 +151,7 @@
 #if defined (VCL_COMPILER_MSVC)
 		
 // Support for fmin/fmax with low overhead
-#	if (_MSC_VER <= 1800)
+#	if (_MSC_VER < 1800)
 namespace std
 {
 #		if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
@@ -178,5 +181,5 @@ namespace std
 	}
 #		endif
 }
-#	endif /* _MSC_VER <= 1800 */
+#	endif // _MSC_VER < 1800
 #endif

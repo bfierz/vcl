@@ -32,7 +32,7 @@
 #include <array>
 
 // VCL
-#include <vcl/core/simd/floatn.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -42,6 +42,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE VectorScalar() = default;
 		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4) : mF4(F4) {}
+		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) : mF4(_mm_castsi128_ps(I4)) {}
 		
 	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) { return VectorScalar<bool, 4>(_mm_and_ps(mF4, rhs.mF4)); }
@@ -49,6 +50,7 @@ namespace Vcl
 
 	public:
 		friend VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b);
+		friend VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b);
 		friend bool any(const VectorScalar<bool, 4>& b);
 		friend bool all(const VectorScalar<bool, 4>& b);
 

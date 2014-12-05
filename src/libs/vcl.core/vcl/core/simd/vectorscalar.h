@@ -113,6 +113,7 @@ namespace Vcl
 #if defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
 #	include <vcl/core/simd/bool4_sse.h>
 #	include <vcl/core/simd/float4_sse.h>
+#	include <vcl/core/simd/int4_sse.h>
 #endif
 
 #if defined VCL_VECTORIZE_AVX
@@ -120,6 +121,11 @@ namespace Vcl
 #	include <vcl/core/simd/bool16_avx.h>
 #	include <vcl/core/simd/float8_avx.h>
 #	include <vcl/core/simd/float16_avx.h>
+
+#	if defined VCL_VECTORIZE_AVX2
+#		include <vcl/core/simd/int8_avx.h>
+#		include <vcl/core/simd/int16_avx.h>
+#	endif // defined VCL_VECTORIZE_AVX2
 
 namespace Vcl
 {
@@ -135,6 +141,8 @@ namespace Vcl
 #	include <vcl/core/simd/bool16_sse.h>
 #	include <vcl/core/simd/float8_sse.h>
 #	include <vcl/core/simd/float16_sse.h>
+#	include <vcl/core/simd/int8_sse.h>
+#	include <vcl/core/simd/int16_sse.h>
 
 namespace Vcl
 {
@@ -149,6 +157,47 @@ namespace Vcl
 	
 namespace Vcl
 {
+	template<typename Scalar, int Width>
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator +(Scalar a, const VectorScalar<Scalar, Width>& b)
+	{
+		return VectorScalar<Scalar, Width>(a) + b;
+	}
+	template<typename Scalar, int Width>
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator -(Scalar a, const VectorScalar<Scalar, Width>& b)
+	{
+		return VectorScalar<Scalar, Width>(a) -b;
+	}
+	template<typename Scalar, int Width>
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator *(Scalar a, const VectorScalar<Scalar, Width>& b)
+	{
+		return VectorScalar<Scalar, Width>(a) * b;
+	}
+	template<typename Scalar, int Width>
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator /(Scalar a, const VectorScalar<Scalar, Width>& b)
+	{
+		return VectorScalar<Scalar, Width>(a) / b;
+	}
+
+
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs(const Vcl::VectorScalar<Scalar, Width>& x) { return x.abs(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs2(const Vcl::VectorScalar<Scalar, Width>& x) { return x*x; }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sqrt(const Vcl::VectorScalar<Scalar, Width>& x) { return x.sqrt(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> exp(const Vcl::VectorScalar<Scalar, Width>& x) { return x.exp(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> log(const Vcl::VectorScalar<Scalar, Width>& x) { return x.log(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sgn(const Vcl::VectorScalar<Scalar, Width>& x) { return x.sgn(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rcp(const Vcl::VectorScalar<Scalar, Width>& x) { return x.rcp(); }
+
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sin(const Vcl::VectorScalar<Scalar, Width>& x) { return x.sin(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> cos(const Vcl::VectorScalar<Scalar, Width>& x) { return x.cos(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> acos(const Vcl::VectorScalar<Scalar, Width>& x) { return x.acos(); }
+
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> pow(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return exp(log(x) * y); }
+
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> min(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return x.min(y); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> max(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return x.max(y); }
+
+
+
 	VCL_STRONG_INLINE bool any(bool b)
 	{
 		return b;
@@ -217,6 +266,11 @@ namespace Vcl
 	typedef VectorScalar<float,  8> float8;
 	typedef VectorScalar<float, 16> float16;
 	typedef VectorScalar<float, 32> float32;
+
+	typedef VectorScalar<int,  4> int4;
+	typedef VectorScalar<int,  8> int8;
+	typedef VectorScalar<int, 16> int16;
+	typedef VectorScalar<int, 32> int32;
 }
 
 namespace Eigen

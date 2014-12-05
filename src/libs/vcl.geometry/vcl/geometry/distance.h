@@ -65,6 +65,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion1(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real numer = c + e - b - d;
@@ -123,6 +125,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion2(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real tmp0 = b + d;
@@ -169,6 +173,11 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion3(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(a);
+			VCL_UNREFERENCED_PARAMETER(b);
+			VCL_UNREFERENCED_PARAMETER(d);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real t_a = 0;
@@ -209,6 +218,9 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion4(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(b);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real s_a = 1;
@@ -250,6 +262,11 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion5(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(b);
+			VCL_UNREFERENCED_PARAMETER(c);
+			VCL_UNREFERENCED_PARAMETER(e);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real s_a = 0;
@@ -273,6 +290,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion6(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			Eigen::Matrix<Real, 3, 1> dist;
 
 			Real tmp0 = b + e;

@@ -37,14 +37,31 @@ namespace Vcl
 
 	VCL_STRONG_INLINE __m128 _mm_sgn_ps(__m128 v)
 	{
-		return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_set1_ps(-0.0f)), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
+		return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(_mm_set1_epi32(0x80000000))), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
+	}
+
+	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b)
+	{
+		return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), _mm_set1_epi32(0xffffffff));
+	}	
+	VCL_STRONG_INLINE __m128i _mm_cmple_epi32(__m128i a, __m128i b)
+	{
+		return _mm_andnot_si128(_mm_cmpgt_epi32(a, b), _mm_set1_epi32(0xffffffff));
+	}
+	VCL_STRONG_INLINE __m128i _mm_cmpge_epi32(__m128i a, __m128i b)
+	{
+		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), _mm_set1_epi32(0xffffffff));
 	}
 
 	__m128 _mm_sin_ps(__m128 v);	
 	__m128 _mm_cos_ps(__m128 v);
 	__m128 _mm_log_ps(__m128 v);
 	__m128 _mm_exp_ps(__m128 v);
-	
+
+	__m128 _mm_acos_ps(__m128 v);
+	__m128 _mm_asin_ps(__m128 v);
+
+	__m128 _mm_atan2_ps(__m256 y, __m256 x);	
 	__m128 _mm_pow_ps(__m128 x, __m128 y);
 	
 #ifndef _mm_floor_ps

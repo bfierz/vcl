@@ -36,11 +36,17 @@ SET(VCL_CORE_SIMD_INC
 	vcl/core/simd/float8_sse.h
 	vcl/core/simd/float16_avx.h
 	vcl/core/simd/float16_sse.h
-	vcl/core/simd/floatn.h
+	vcl/core/simd/int4_sse.h
+	vcl/core/simd/int8_avx.h
+	vcl/core/simd/int8_sse.h
+	vcl/core/simd/int16_avx.h
+	vcl/core/simd/int16_sse.h
 	vcl/core/simd/intrinsics_avx.h
 	vcl/core/simd/intrinsics_sse.h
 	vcl/core/simd/memory.h
 	vcl/core/simd/memory_avx.h
+	vcl/core/simd/memory_sse.h
+	vcl/core/simd/vectorscalar.h
 )
 
 # VCL / MATH

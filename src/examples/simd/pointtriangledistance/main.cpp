@@ -36,7 +36,7 @@
 #endif // _OPENMP
 
 // VCL
-#include <vcl/core/simd/floatn.h>
+#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/InterleavedArray.h>
 #include <vcl/geometry/distance.h>
 #include <vcl/util/precisetimer.h>

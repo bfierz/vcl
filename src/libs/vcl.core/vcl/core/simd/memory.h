@@ -28,16 +28,40 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/floatn.h>
+#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 
 
-#if defined VCL_VECTORIZE_AVX2
+#if defined VCL_VECTORIZE_SSE
+#	include <vcl/core/simd/memory_sse.h>
+#endif //VCL_VECTORIZE_SSE
+
+#if defined VCL_VECTORIZE_AVX
 #	include <vcl/core/simd/memory_avx.h>
-#endif //VCL_VECTORIZE_AVX2
+#endif //VCL_VECTORIZE_AVX
 
 namespace Vcl
 {
+	VCL_STRONG_INLINE void load(Eigen::Vector3f& value, const Eigen::Vector3f* base)
+	{
+		value = base[0];
+	}
+
+	VCL_STRONG_INLINE void load(Eigen::Vector3i& value, const Eigen::Vector3i* base)
+	{
+		value = base[0];
+	}
+
+	VCL_STRONG_INLINE void store(Eigen::Vector3f* base, const Eigen::Vector3f& loaded)
+	{
+		base[0] = loaded;
+	}
+
+	VCL_STRONG_INLINE void store(Eigen::Vector3i* base, const Eigen::Vector3i& loaded)
+	{
+		base[0] = loaded;
+	}
+
 	template<typename Scalar, int Width>
 	VectorScalar<Scalar, Width> gather(Scalar const * base, VectorScalar<int, Width>& vindex, const int scale)
 	{
@@ -156,6 +180,29 @@ namespace Vcl
 				{
 					Scalar val = value(r, c)[i];
 					base.at<Scalar>(vindex[i] * scale)(r, c) = val;
+				}
+			}
+		}
+	}
+	
+	template<typename Scalar, int Width, int Rows, int Cols>
+	void scatter
+	(
+		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> value, 
+		Eigen::Matrix<Scalar, Rows, Cols>* base,
+		VectorScalar<int, Width>& vindex,
+		const int scale
+	)
+	{
+		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
+
+		for (int i = 0; i < Width; i++)
+		{
+			for (int c = 0; c < Cols; c++)
+			{
+				for (int r = 0; r < Rows; r++)
+				{
+					base[vindex[i] * scale](r, c) = value(r, c)[i];
 				}
 			}
 		}
