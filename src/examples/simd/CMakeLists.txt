@@ -1,5 +1,3 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
-
 # Compute the vertex normals on a triangle mesh
 SUBDIRS(meshvertexnormals)
 
