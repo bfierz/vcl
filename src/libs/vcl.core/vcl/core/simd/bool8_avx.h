@@ -43,9 +43,9 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar() = default;
 		explicit VCL_STRONG_INLINE VectorScalar(__m256 F8) : mF8(F8) { }
 
-#if VCL_VECTORIZE_AVX_LEVEL_MAJOR >= 2
+#ifdef VCL_VECTORIZE_AVX2
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) : mF8(_mm256_castsi256_ps(I8)) {}
-#endif // VCL_VECTORIZE_AVX_LEVEL_MAJOR >= 2
+#endif // VCL_VECTORIZE_AVX2
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs)

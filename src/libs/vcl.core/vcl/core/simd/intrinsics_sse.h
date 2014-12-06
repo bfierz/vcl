@@ -58,6 +58,7 @@ namespace Vcl
 	__m128 _mm_log_ps(__m128 v);
 	__m128 _mm_exp_ps(__m128 v);
 
+ 
 	__m128 _mm_acos_ps(__m128 v);
 	__m128 _mm_asin_ps(__m128 v);
 
