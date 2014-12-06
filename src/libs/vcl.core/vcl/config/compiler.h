@@ -112,34 +112,44 @@
 // Configure macros for SIMD
 #if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64))
 
-#	if defined(VCL_VECTORIZE_AVX)
+#	if defined VCL_VECTORIZE_AVX2 || !defined VCL_VECTORIZE_AVX
+#		define VCL_VECTORIZE_AVX
+#	endif
+
+#	if defined VCL_VECTORIZE_SSE4_2 || defined VCL_VECTORIZE_SSE4_1 || defined VCL_VECTORIZE_SSSE3 || defined VCL_VECTORIZE_SSE3 || defined VCL_VECTORIZE_SSE2
+#		define VCL_VECTORIZE_SSE
+#	endif
+
+#	if defined VCL_VECTORIZE_AVX
 		extern "C"
 		{
-#		if VCL_VECTORIZE_AVX_LEVEL_MAJOR == 2
+#		ifdef VCL_VECTORIZE_AVX2
+#			include <immintrin.h>
+#		else
 #			include <immintrin.h>
 #		endif
-#		if VCL_VECTORIZE_AVX_LEVEL_MAJOR == 1
-#			include <immintrin.h>
-#		endif
-#	endif // defined(VCL_VECTORIZE_AVX)
 		}
+#	endif // defined(VCL_VECTORIZE_AVX)
+
 #	if defined(VCL_VECTORIZE_SSE)
 		extern "C"
 		{
-#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 4 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 2
+#		ifdef VCL_VECTORIZE_SSE4_2
 #			include <nmmintrin.h>
 #		endif
-#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 4 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 1
+#		ifdef VCL_VECTORIZE_SSE4_1
 #			include <smmintrin.h>
 #		endif
-#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 3 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 1
+#		ifdef VCL_VECTORIZE_SSSE3
 #			include <tmmintrin.h>
 #		endif
-#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 3 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 0
+#		ifdef VCL_VECTORIZE_SSE3
 #			include <pmmintrin.h>
 #		endif
-#		include <xmmintrin.h>
-#		include <mmintrin.h>
+#		ifdef VCL_VECTORIZE_SSE2
+#			include <xmmintrin.h>
+#			include <mmintrin.h>
+#		endif
 		}
 #	endif // defined(VCL_VECTORIZE_SSE)
 

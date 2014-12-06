@@ -46,6 +46,11 @@ namespace Vcl
 			for (size_t i = 0; i < Width; i++)
 				mData[i] = s;
 		}
+		explicit VectorScalar(Scalar s[Width])
+		{
+			for (size_t i = 0; i < Width; i++)
+				mData[i] = s[i];
+		}
 
 	public:
 		Scalar& operator[] (int idx)
