@@ -111,40 +111,38 @@
 
 // Configure macros for SIMD
 #if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64))
-#	ifdef VCL_VECTORIZE_AVX2
-#		define VCL_VECTORIZE_AVX_LEVEL_MAJOR 2
-#		define VCL_VECTORIZE_AVX_LEVEL_MINOR 0
-#	elif defined(VCL_VECTORIZE_AVX)
-#		define VCL_VECTORIZE_AVX_LEVEL_MAJOR 1
-#		define VCL_VECTORIZE_AVX_LEVEL_MINOR 0
-#	elif defined(VCL_VECTORIZE_SSE4_2)
-#		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 4
-#		define VCL_VECTORIZE_SSE_LEVEL_MINOR 2
-#	elif defined(VCL_VECTORIZE_SSE4_1)
-#		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 4
-#		define VCL_VECTORIZE_SSE_LEVEL_MINOR 1
-#	elif defined(VCL_VECTORIZE_SSSE3)
-#		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 3
-#		define VCL_VECTORIZE_SSE_LEVEL_MINOR 1
-#	elif defined(VCL_VECTORIZE_SSE3)
-#		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 3
-#		define VCL_VECTORIZE_SSE_LEVEL_MINOR 0
-#	else
-#		define VCL_VECTORIZE_SSE_LEVEL_MAJOR 2
-#		define VCL_VECTORIZE_SSE_LEVEL_MINOR 0
-#	endif
-#	if defined VCL_VECTORIZE_AVX2 && !defined VCL_VECTORIZE_AVX
-#		define VCL_VECTORIZE_AVX
-#	endif
-#	if (defined(VCL_ARCH_X64) && !defined(VCL_VECTORIZE_SSE))
-#		define VCL_VECTORIZE_SSE
-#	endif
-#	if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
+
+#	if defined(VCL_VECTORIZE_AVX)
 		extern "C"
 		{
+#		if VCL_VECTORIZE_AVX_LEVEL_MAJOR == 2
 #			include <immintrin.h>
+#		endif
+#		if VCL_VECTORIZE_AVX_LEVEL_MAJOR == 1
+#			include <immintrin.h>
+#		endif
+#	endif // defined(VCL_VECTORIZE_AVX)
 		}
-#	endif
+#	if defined(VCL_VECTORIZE_SSE)
+		extern "C"
+		{
+#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 4 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 2
+#			include <nmmintrin.h>
+#		endif
+#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 4 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 1
+#			include <smmintrin.h>
+#		endif
+#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 3 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 1
+#			include <tmmintrin.h>
+#		endif
+#		if VCL_VECTORIZE_SSE_LEVEL_MAJOR == 3 && VCL_VECTORIZE_SSE_LEVEL_MINOR == 0
+#			include <pmmintrin.h>
+#		endif
+#		include <xmmintrin.h>
+#		include <mmintrin.h>
+		}
+#	endif // defined(VCL_VECTORIZE_SSE)
+
 #endif
 
 // Implement missing standard function

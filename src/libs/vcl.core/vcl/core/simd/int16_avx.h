@@ -35,7 +35,6 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_avx.h>
 
-#if defined VCL_VECTORIZE_AVX2
 namespace Vcl
 {
 	template<>
@@ -232,4 +231,3 @@ namespace Vcl
 		return s;
 	}
 }
-#endif // VCL_VECTORIZE_AVX2

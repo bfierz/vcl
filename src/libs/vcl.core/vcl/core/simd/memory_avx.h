@@ -33,7 +33,7 @@
 #if defined VCL_VECTORIZE_AVX
 namespace Vcl
 {
-#if defined VCL_VECTORIZE_AVX2
+#if VCL_VECTORIZE_AVX_LEVEL_MAJOR >= 2
 //	VCL_STRONG_INLINE VectorScalar<float, 4> gather(const float* base, const VectorScalar<int, 4>& vindex, int scale)
 //	{
 //		__m128i idx = static_cast<__m128i>(vindex);
@@ -336,6 +336,6 @@ namespace Vcl
 			base[i].z() = value.z()[i];
 		}
 	}
-#endif // VCL_VECTORIZE_AVX2
+#endif // VCL_VECTORIZE_AVX_LEVEL_MAJOR >= 2
 }
 #endif // VCL_VECTORIZE_AVX

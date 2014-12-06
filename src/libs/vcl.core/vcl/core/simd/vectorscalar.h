@@ -122,10 +122,10 @@ namespace Vcl
 #	include <vcl/core/simd/float8_avx.h>
 #	include <vcl/core/simd/float16_avx.h>
 
-#	if defined VCL_VECTORIZE_AVX2
+#	if VCL_VECTORIZE_AVX_LEVEL_MAJOR >= 2
 #		include <vcl/core/simd/int8_avx.h>
 #		include <vcl/core/simd/int16_avx.h>
-#	endif // defined VCL_VECTORIZE_AVX2
+#	endif
 
 namespace Vcl
 {
