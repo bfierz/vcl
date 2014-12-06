@@ -1,4 +1,5 @@
 /bin_*
 /bin-*
-/build_*
 /build-*
+/build_*
+/build

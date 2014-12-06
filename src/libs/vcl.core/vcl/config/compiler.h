@@ -98,7 +98,7 @@
 
 #	define VCL_DEBUG_BREAK __builtin_trap
 
-#	define VCL_ALIGN(x) __attribute__(aligned(x))
+#	define VCL_ALIGN(x) __attribute__((aligned(x)))
 
 #	define VCL_CALLBACK __attribute__ ((__stdcall__))
 
