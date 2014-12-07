@@ -113,8 +113,8 @@ namespace Vcl
 		{
 			return VectorScalar<int, 16>
 			(
-				_mm256_mul_epi32(mF8[0], rhs.mF8[0]),
-				_mm256_mul_epi32(mF8[1], rhs.mF8[1])
+				_mm256_mullo_epi32(mF8[0], rhs.mF8[0]),
+				_mm256_mullo_epi32(mF8[1], rhs.mF8[1])
 			);
 		}
 

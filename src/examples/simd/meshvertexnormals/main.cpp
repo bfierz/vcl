@@ -107,9 +107,9 @@ void simdAccumulateNormals
 		vector3i_t idx;
 		load(idx, faces.data() + Width * i);
 		
-		vector3_t p0 = gather<float, Width, 3, 1>(points.data(), idx(0), 1);
-		vector3_t p1 = gather<float, Width, 3, 1>(points.data(), idx(1), 1);
-		vector3_t p2 = gather<float, Width, 3, 1>(points.data(), idx(2), 1);
+		vector3_t p0 = gather<float, Width, 3, 1>(points.data(), idx(0));
+		vector3_t p1 = gather<float, Width, 3, 1>(points.data(), idx(1));
+		vector3_t p2 = gather<float, Width, 3, 1>(points.data(), idx(2));
 
 		// Compute the edges
 		vector3_t p0p1 = p1 - p0; wfloat_t p0p1_l = p0p1.norm();

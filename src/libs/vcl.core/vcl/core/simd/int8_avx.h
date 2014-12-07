@@ -75,7 +75,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mm256_add_epi32(mF8, rhs.mF8)); }
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator- (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mm256_sub_epi32(mF8, rhs.mF8)); }
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator* (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mm256_mul_epi32(mF8, rhs.mF8)); }
+		VCL_STRONG_INLINE VectorScalar<int, 8> operator* (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mm256_mullo_epi32(mF8, rhs.mF8)); }
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> abs() const { return VectorScalar<int, 8>(_mm256_abs_epi32(mF8)); }

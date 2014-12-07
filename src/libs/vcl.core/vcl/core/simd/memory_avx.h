@@ -33,17 +33,27 @@
 #if defined VCL_VECTORIZE_AVX
 namespace Vcl
 {
-//	VCL_STRONG_INLINE VectorScalar<float, 4> gather(const float* base, const VectorScalar<int, 4>& vindex, int scale)
-//	{
-//		__m128i idx = static_cast<__m128i>(vindex);
-//		return VectorScalar<float, 4>(_mm_i32gather_ps(base, idx, scale));
-//	}
-//
-//	VCL_STRONG_INLINE VectorScalar<float, 8> gather(const float* base, const VectorScalar<int, 8>& vindex, int scale)
-//	{
-//		__m256i idx = static_cast<__m256i>(vindex);
-//		return VectorScalar<float, 8>(_mm256_i32gather_ps(base, idx, scale));
-//	}
+	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, VectorScalar<int, 4>& vindex)
+	{
+		__m128i idx = static_cast<__m128i>(vindex);
+		__m128 val = _mm_i32gather_ps(base, idx, 4);
+		return VectorScalar<float, 4>(val);
+	}
+
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, VectorScalar<int, 8>& vindex)
+	{
+		__m256i idx = static_cast<__m256i>(vindex);
+		return VectorScalar<float, 8>(_mm256_i32gather_ps(base, idx, 4));
+	}
+
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, VectorScalar<int, 16>& vindex)
+	{
+		return VectorScalar<float, 16>
+		(
+			_mm256_i32gather_ps(base, vindex.get(0), 4),
+			_mm256_i32gather_ps(base, vindex.get(1), 4)
+		);
+	}
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load

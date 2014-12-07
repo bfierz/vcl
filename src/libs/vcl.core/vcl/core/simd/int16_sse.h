@@ -108,10 +108,10 @@ namespace Vcl
 		{
 			return VectorScalar<int, 16>
 			(
-				_mm_mul_epi32(mF4[0], rhs.mF4[0]),
-				_mm_mul_epi32(mF4[1], rhs.mF4[1]),
-				_mm_mul_epi32(mF4[2], rhs.mF4[2]),
-				_mm_mul_epi32(mF4[3], rhs.mF4[3])
+				_mm_mullo_epi32(mF4[0], rhs.mF4[0]),
+				_mm_mullo_epi32(mF4[1], rhs.mF4[1]),
+				_mm_mullo_epi32(mF4[2], rhs.mF4[2]),
+				_mm_mullo_epi32(mF4[3], rhs.mF4[3])
 			);
 		}
 

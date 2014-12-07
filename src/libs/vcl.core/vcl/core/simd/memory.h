@@ -63,43 +63,45 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	VectorScalar<Scalar, Width> gather(Scalar const * base, VectorScalar<int, Width>& vindex, const int scale)
+	VectorScalar<Scalar, Width> gather(Scalar const * base, VectorScalar<int, Width>& vindex)
 	{
 		VectorScalar<Scalar, Width> res;
 		for (int i = 0; i < Width; i++)
 		{
-			res[i] = *(base + vindex[i] * scale);
+			res[i] = *(base + vindex[i] * 1);
 		}
 
 		return res;
 	}
 
 	template<typename Scalar>
-	Scalar gather(Scalar const * base, int vindex, const int scale)
+	Scalar gather(Scalar const * base, int vindex)
 	{
-		return *(base + vindex * scale);
+		return *(base + vindex * 1);
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
 	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
 	(
 		const Eigen::Matrix<Scalar, Rows, Cols>* base,
-		VectorScalar<int, Width>& vindex,
-		const int scale
+		VectorScalar<int, Width>& vindex
 	)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
+		static_assert(sizeof(Eigen::Matrix<Scalar, Rows, Cols>) == Rows*Cols*sizeof(Scalar), "Size of matrix type does not contain any padding.");
+
+		using wint_t = VectorScalar<int, Width>;
 
 		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> res;
 
-		for (int i = 0; i < Width; i++)
+		for (int c = 0; c < Cols; c++)
 		{
-			for (int c = 0; c < Cols; c++)
+			for (int r = 0; r < Rows; r++)
 			{
-				for (int r = 0; r < Rows; r++)
-				{
-					res(r, c)[i] = base[vindex[i] * scale](r, c);
-				}
+				wint_t scale = wint_t(Rows*Cols);
+				wint_t offset = wint_t(Rows*c + r);
+				wint_t idx = scale*vindex + offset;
+				res(r, c) = gather((Scalar*) base, idx);
 			}
 		}
 
@@ -110,8 +112,7 @@ namespace Vcl
 	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
 	(
 		const Vcl::Core::InterleavedArray<Scalar, Rows, Cols, Stride>& base,
-		VectorScalar<int, Width>& vindex,
-		const int scale
+		VectorScalar<int, Width>& vindex
 	)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
@@ -124,7 +125,7 @@ namespace Vcl
 				VectorScalar<Scalar, Width> tmp;
 				for (int i = 0; i < Width; i++)
 				{
-					tmp[i] = base.at<Scalar>(vindex[i] * scale)(r, c);
+					tmp[i] = base.at<Scalar>(vindex[i] * 1)(r, c);
 				}
 
 				res(r, c) = tmp;
@@ -135,11 +136,11 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Rows, int Cols, int Stride>
-	Eigen::Matrix<Scalar, Rows, Cols> gather(const Vcl::Core::InterleavedArray<Scalar, Rows, Cols, Stride>& base, int vindex, const int scale)
+	Eigen::Matrix<Scalar, Rows, Cols> gather(const Vcl::Core::InterleavedArray<Scalar, Rows, Cols, Stride>& base, int vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
-		return base.at<Scalar>(vindex * scale);
+		return base.at<Scalar>(vindex * 1);
 	}
 
 
