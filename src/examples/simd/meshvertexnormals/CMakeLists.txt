@@ -2,11 +2,13 @@ PROJECT(meshvertexnormals)
 
 SET(INC
 	liver.h
+	pitbull.h
 )
 
 SET(SRC
 	main.cpp
 	liver.cpp
+	pitbull.cpp
 )
 
 SOURCE_GROUP("" FILES ${SRC} ${INC})
