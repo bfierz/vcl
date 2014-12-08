@@ -33,6 +33,7 @@
 #if defined VCL_VECTORIZE_AVX
 namespace Vcl
 {
+#ifdef VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, VectorScalar<int, 4>& vindex)
 	{
 		__m128i idx = static_cast<__m128i>(vindex);
@@ -54,6 +55,7 @@ namespace Vcl
 			_mm256_i32gather_ps(base, vindex.get(1), 4)
 		);
 	}
+#endif
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
