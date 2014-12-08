@@ -7597,7 +7597,7 @@ float pitbull_core_points[] =
 	46.043098, 5.909448, 1.474450,
 	42.843018, 5.788778, 1.074440,
 	46.043098, 5.889100, -0.125591,
-	44.043049, 6.206028, 0.274420,
+	44.043049, 6.206028, 0.274420
 };
 int num_pitbull_core_points = sizeof(pitbull_core_points) / sizeof(float);
 
@@ -15174,7 +15174,7 @@ float pitbull_core_texcoords[] =
 	0.889528, 0.994233,
 	0.946641, 0.991945,
 	0.890048, 0.993839,
-	0.925527, 1.000008,
+	0.925527, 1.000008
 };
 int num_pitbull_core_texcoords = sizeof(pitbull_core_texcoords) / sizeof(float);
 
@@ -22751,11 +22751,11 @@ float pitbull_core_normals[] =
 	0.127274, 0.349214, 0.928359,
 	0.223488, -0.322079, 0.919955,
 	-0.081131, 0.305909, 0.948598,
-	-0.017771, -0.046300, 0.998770,
-}
+	-0.017771, -0.046300, 0.998770
+};
 int num_pitbull_core_normals = sizeof(pitbull_core_normals) / sizeof(float);
 
-int pitbull_core_false[] =
+int pitbull_core_faces[] =
 {
 	4, 4, 4, 2, 2, 2, 3, 3, 3,
 	6, 6, 6, 4, 4, 4, 3, 3, 3,
@@ -37925,5 +37925,5 @@ int pitbull_core_false[] =
 	7571, 7571, 7571, 7568, 7568, 7568, 7569, 7569, 7569,
 	7568, 7568, 7568, 7571, 7571, 7571, 7572, 7572, 7572,
 	7572, 7572, 7572, 7563, 7563, 7563, 7562, 7562, 7562,
-}
+};
 int num_pitbull_core_faces = sizeof(pitbull_core_faces) / sizeof(int);

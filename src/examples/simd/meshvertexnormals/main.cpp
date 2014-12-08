@@ -40,21 +40,33 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/util/precisetimer.h>
 
-#include "liver.h"
+#include "pitbull.h"
+
+// Tangent space computation is based on 
+// Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”.
+// Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+
 
 void accumulateNormals
 (
 	std::vector<Eigen::Vector3i>::const_iterator f_begin,
 	std::vector<Eigen::Vector3i>::const_iterator f_end,
+	std::vector<Eigen::Vector3i>::const_iterator tf_begin,
+	std::vector<Eigen::Vector3i>::const_iterator tf_end,
 	const std::vector<Eigen::Vector3f>& points,
-	std::vector<Eigen::Vector3f>& normals
+	const std::vector<Eigen::Vector2f>& texcoords,
+	std::vector<Eigen::Vector3f>& normals,
+	std::vector<Eigen::Vector3f>& tangents,
+	std::vector<Eigen::Vector3f>& bitangents
 )
 {
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (auto f_itr = f_begin; f_itr != f_end; ++f_itr)
+	for (auto f_itr = f_begin; f_itr != f_end; ++f_itr, ++tf_begin)
 	{
+		Check(tf_begin != tf_end, "Size of faces and texture faces match.");
+
 		Eigen::Vector3f p0 = points[f_itr->x()];
 		Eigen::Vector3f p1 = points[f_itr->y()];
 		Eigen::Vector3f p2 = points[f_itr->z()];
@@ -78,6 +90,35 @@ void accumulateNormals
 		normals[f_itr->x()] += angles.x() * n;
 		normals[f_itr->y()] += angles.y() * n;
 		normals[f_itr->z()] += angles.z() * n;
+
+		// Tangent / bitangent
+		Eigen::Vector2f w1 = texcoords[tf_begin->x()];
+		Eigen::Vector2f w2 = texcoords[tf_begin->y()];
+		Eigen::Vector2f w3 = texcoords[tf_begin->z()];
+
+		float x1 =  p0p1.x();
+		float x2 = -p2p0.x();
+		float y1 =  p0p1.y();
+		float y2 = -p2p0.y();
+		float z1 =  p0p1.z();
+		float z2 = -p2p0.z();
+
+		float s1 = w2.x() - w1.x();
+		float s2 = w3.x() - w1.x();
+		float t1 = w2.y() - w1.y();
+		float t2 = w3.y() - w1.y();
+
+		float r = 1.0F / (s1 * t2 - s2 * t1);
+		Eigen::Vector3f sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+		Eigen::Vector3f tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+		tangents[tf_begin->x()] += angles.x() * sdir;
+		tangents[tf_begin->y()] += angles.y() * sdir;
+		tangents[tf_begin->z()] += angles.z() * sdir;
+
+		bitangents[tf_begin->x()] += angles.x() * tdir;
+		bitangents[tf_begin->y()] += angles.y() * tdir;
+		bitangents[tf_begin->z()] += angles.z() * tdir;
 	}
 }
 
@@ -85,8 +126,12 @@ template<int Width>
 void simdAccumulateNormals
 (
 	const std::vector<Eigen::Vector3i>& faces,
+	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
-	std::vector<Eigen::Vector3f>& normals
+	const std::vector<Eigen::Vector2f>& texcoords,
+	std::vector<Eigen::Vector3f>& normals,
+	std::vector<Eigen::Vector3f>& tangents,
+	std::vector<Eigen::Vector3f>& bitangents
 )
 {
 	using Vcl::acos;
@@ -97,6 +142,7 @@ void simdAccumulateNormals
 	using wfloat_t = Vcl::VectorScalar<float, Width>;
 
 	using vector3i_t = Eigen::Matrix<wint_t, 3, 1>;
+	using vector2_t = Eigen::Matrix<wfloat_t, 2, 1>;
 	using vector3_t = Eigen::Matrix<wfloat_t, 3, 1>;
 	
 #ifdef _OPENMP
@@ -136,20 +182,71 @@ void simdAccumulateNormals
 			normals[idx(1)[j]] += Vcl::Vector3f{ n1.x()[j], n1.y()[j], n1.z()[j] };
 			normals[idx(2)[j]] += Vcl::Vector3f{ n2.x()[j], n2.y()[j], n2.z()[j] };
 		}
+
+		// Tangent / bitangent
+		vector3i_t tidx;
+		load(tidx, tex_faces.data() + Width * i);
+		vector2_t w1 = gather<float, Width, 2, 1>(texcoords.data(), tidx(0));
+		vector2_t w2 = gather<float, Width, 2, 1>(texcoords.data(), tidx(1));
+		vector2_t w3 = gather<float, Width, 2, 1>(texcoords.data(), tidx(2));
+
+		wfloat_t x1 = p0p1.x();
+		wfloat_t x2 = -p2p0.x();
+		wfloat_t y1 = p0p1.y();
+		wfloat_t y2 = -p2p0.y();
+		wfloat_t z1 = p0p1.z();
+		wfloat_t z2 = -p2p0.z();
+
+		wfloat_t s1 = w2.x() - w1.x();
+		wfloat_t s2 = w3.x() - w1.x();
+		wfloat_t t1 = w2.y() - w1.y();
+		wfloat_t t2 = w3.y() - w1.y();
+
+		wfloat_t r = 1.0F / (s1 * t2 - s2 * t1);
+		vector3_t sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+		vector3_t tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+		vector3_t sdir0 = angles.x() * sdir;
+		vector3_t sdir1 = angles.y() * sdir;
+		vector3_t sdir2 = angles.z() * sdir;
+		vector3_t tdir0 = angles.x() * tdir;
+		vector3_t tdir1 = angles.y() * tdir;
+		vector3_t tdir2 = angles.z() * tdir;
+
+		for (int j = 0; j < Width; j++)
+		{
+			tangents[tidx(0)[j]] += Vcl::Vector3f{ sdir0.x()[j], sdir0.y()[j], sdir0.z()[j] };
+			tangents[tidx(1)[j]] += Vcl::Vector3f{ sdir1.x()[j], sdir1.y()[j], sdir1.z()[j] };
+			tangents[tidx(2)[j]] += Vcl::Vector3f{ sdir2.x()[j], sdir2.y()[j], sdir2.z()[j] };
+
+			bitangents[tidx(0)[j]] += Vcl::Vector3f{ tdir0.x()[j], tdir0.y()[j], tdir0.z()[j] };
+			bitangents[tidx(1)[j]] += Vcl::Vector3f{ tdir1.x()[j], tdir1.y()[j], tdir1.z()[j] };
+			bitangents[tidx(2)[j]] += Vcl::Vector3f{ tdir2.x()[j], tdir2.y()[j], tdir2.z()[j] };
+		}
 	}
 }
 
 void computeNormals
 (
 	const std::vector<Eigen::Vector3i>& faces,
+	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
-	std::vector<Eigen::Vector3f>& normals
+	const std::vector<Eigen::Vector2f>& texcoords,
+	std::vector<Eigen::Vector3f>& normals,
+	std::vector<Eigen::Vector3f>& tangents,
+	std::vector<Eigen::Vector3f>& bitangents
 )
 {
 	Vcl::Util::PreciseTimer timer;
 	timer.start();
 
-	accumulateNormals(std::begin(faces), std::end(faces), points, normals);
+	accumulateNormals
+	(
+		std::begin(faces), std::end(faces),
+		std::begin(tex_faces), std::end(tex_faces),
+		points, texcoords,
+		normals, tangents, bitangents
+	);
 
 #ifdef _OPENMP
 #	pragma omp parallel for
@@ -166,8 +263,12 @@ template<int Width>
 void computeNormalsSIMD
 (
 	const std::vector<Eigen::Vector3i>& faces,
+	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
-	std::vector<Eigen::Vector3f>& normals
+	const std::vector<Eigen::Vector2f>& texcoords,
+	std::vector<Eigen::Vector3f>& normals,
+	std::vector<Eigen::Vector3f>& tangents,
+	std::vector<Eigen::Vector3f>& bitangents
 )
 {
 	using Vcl::load;
@@ -180,9 +281,15 @@ void computeNormalsSIMD
 
 	Vcl::Util::PreciseTimer timer;
 	timer.start();
-	simdAccumulateNormals<Width>(faces, points, normals);
+	simdAccumulateNormals<Width>(faces, tex_faces, points, texcoords, normals, tangents, bitangents);
 
-	accumulateNormals(std::begin(faces) + static_cast<int>(faces.size() / Width)*Width, std::end(faces), points, normals);
+	accumulateNormals
+	(
+		std::begin(faces) + static_cast<int>(faces.size() / Width)*Width, std::end(faces),
+		std::begin(tex_faces) + static_cast<int>(tex_faces.size() / Width)*Width, std::end(tex_faces),
+		points, texcoords,
+		normals, tangents, bitangents
+	);
 
 #ifdef _OPENMP
 #	pragma omp parallel for
@@ -218,11 +325,29 @@ int main(int argc, char* argv[])
 	VCL_UNREFERENCED_PARAMETER(argv);
 	
 	// Data set
-	std::vector<Eigen::Vector3f> points((Eigen::Vector3f*) liver_points, (Eigen::Vector3f*) (liver_points + num_liver_points));
-	std::vector<Eigen::Vector3i> faces((Eigen::Vector3i*) liver_faces, (Eigen::Vector3i*) (liver_faces + num_liver_faces));
-	for (auto& idx : faces)
+	std::vector<Eigen::Vector3f> points((Eigen::Vector3f*) pitbull_core_points, (Eigen::Vector3f*) (pitbull_core_points + num_pitbull_core_points));
+	std::vector<Eigen::Vector2f> texcoords((Eigen::Vector2f*) pitbull_core_texcoords, (Eigen::Vector2f*) (pitbull_core_texcoords + num_pitbull_core_texcoords));
+	std::vector<Eigen::Vector3i> faces, tex_faces;
+
+	int num_faces = num_pitbull_core_faces / 9;
+	faces.reserve(num_faces);
+	tex_faces.reserve(num_faces);
+	for (int i = 0; i < num_faces; i++)
 	{
-		idx -= Eigen::Vector3i::Ones();
+		int i00 = pitbull_core_faces[9 * i + 0] - 1;
+		int i01 = pitbull_core_faces[9 * i + 1] - 1;
+		int i02 = pitbull_core_faces[9 * i + 2] - 1;
+
+		int i10 = pitbull_core_faces[9 * i + 3] - 1;
+		int i11 = pitbull_core_faces[9 * i + 4] - 1;
+		int i12 = pitbull_core_faces[9 * i + 5] - 1;
+
+		int i20 = pitbull_core_faces[9 * i + 6] - 1;
+		int i21 = pitbull_core_faces[9 * i + 7] - 1;
+		int i22 = pitbull_core_faces[9 * i + 8] - 1;
+
+		faces.emplace_back(i00, i10, i20);
+		tex_faces.emplace_back(i01, i11, i21);
 	}
 
 	// Computation output
@@ -231,13 +356,23 @@ int main(int argc, char* argv[])
 	std::vector<Eigen::Vector3f> normals_008(points.size(), Eigen::Vector3f::Zero());
 	std::vector<Eigen::Vector3f> normals_016(points.size(), Eigen::Vector3f::Zero());
 
+	std::vector<Eigen::Vector3f> tangents_ref(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> tangents_004(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> tangents_008(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> tangents_016(texcoords.size(), Eigen::Vector3f::Zero());
+
+	std::vector<Eigen::Vector3f> bitangents_ref(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> bitangents_004(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> bitangents_008(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> bitangents_016(texcoords.size(), Eigen::Vector3f::Zero());
+
 	// Test Performance: Use scalar version
-	computeNormals(faces, points, normals_ref);
+	computeNormals(faces, tex_faces, points, texcoords, normals_ref, tangents_ref, bitangents_ref);
 
 	// Test Performance: Use paralle versions
-	computeNormalsSIMD< 4>(faces, points, normals_004);
-	computeNormalsSIMD< 8>(faces, points, normals_008);
-	computeNormalsSIMD<16>(faces, points, normals_016);
+	computeNormalsSIMD< 4>(faces, tex_faces, points, texcoords, normals_004, tangents_004, bitangents_004);
+	computeNormalsSIMD< 8>(faces, tex_faces, points, texcoords, normals_008, tangents_008, bitangents_008);
+	computeNormalsSIMD<16>(faces, tex_faces, points, texcoords, normals_016, tangents_016, bitangents_016);
 	
 	float L1_004 = 0;
 	float L1_008 = 0;
@@ -248,10 +383,24 @@ int main(int argc, char* argv[])
 		L1_008 += (normals_ref[i] - normals_008[i]).norm();
 		L1_016 += (normals_ref[i] - normals_016[i]).norm();
 	}
-	std::cout << "Average error: " << std::endl;
+	std::cout << "Average error (normals): " << std::endl;
 	std::cout << "* SIMD  4: " << L1_004 / normals_ref.size() << std::endl;
 	std::cout << "* SIMD  8: " << L1_008 / normals_ref.size() << std::endl;
 	std::cout << "* SIMD 16: " << L1_016 / normals_ref.size() << std::endl;
+
+	L1_004 = 0;
+	L1_008 = 0;
+	L1_016 = 0;
+	for (size_t i = 0; i < tangents_ref.size(); i++)
+	{
+		L1_004 += (tangents_ref[i] - tangents_004[i]).norm();
+		L1_008 += (tangents_ref[i] - tangents_008[i]).norm();
+		L1_016 += (tangents_ref[i] - tangents_016[i]).norm();
+	}
+	std::cout << "Average error (tangents): " << std::endl;
+	std::cout << "* SIMD  4: " << L1_004 / tangents_ref.size() << std::endl;
+	std::cout << "* SIMD  8: " << L1_008 / tangents_ref.size() << std::endl;
+	std::cout << "* SIMD 16: " << L1_016 / tangents_ref.size() << std::endl;
 
 	return 0;
 }
