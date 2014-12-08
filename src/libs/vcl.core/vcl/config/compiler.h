@@ -112,12 +112,41 @@
 // Configure macros for SIMD
 #if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64))
 
-#	if defined VCL_VECTORIZE_AVX2 || !defined VCL_VECTORIZE_AVX
-#		define VCL_VECTORIZE_AVX
+#	ifdef VCL_VECTORIZE_AVX2
+#		ifndef VCL_VECTORIZE_AVX
+#			define VCL_VECTORIZE_AVX
+#		endif
+#	endif 
+#	ifdef VCL_VECTORIZE_AVX
+#		ifndef VCL_VECTORIZE_SSE4_2
+#			define VCL_VECTORIZE_SSE4_2
+#		endif
 #	endif
 
-#	if defined VCL_VECTORIZE_SSE4_2 || defined VCL_VECTORIZE_SSE4_1 || defined VCL_VECTORIZE_SSSE3 || defined VCL_VECTORIZE_SSE3 || defined VCL_VECTORIZE_SSE2
-#		define VCL_VECTORIZE_SSE
+#	ifdef VCL_VECTORIZE_SSE4_2
+#		ifndef VCL_VECTORIZE_SSE4_1
+#			define VCL_VECTORIZE_SSE4_1
+#		endif
+#	endif
+#	ifdef VCL_VECTORIZE_SSE4_1
+#		ifndef VCL_VECTORIZE_SSSE3
+#			define VCL_VECTORIZE_SSSE3
+#		endif
+#	endif
+#	ifdef VCL_VECTORIZE_SSSE3
+#		ifndef VCL_VECTORIZE_SSE3
+#			define VCL_VECTORIZE_SSE3
+#		endif
+#	endif
+#	ifdef VCL_VECTORIZE_SSE3
+#		ifndef VCL_VECTORIZE_SSE2
+#			define VCL_VECTORIZE_SSE2
+#		endif
+#	endif
+#	ifdef VCL_VECTORIZE_SSE2
+#		ifndef VCL_VECTORIZE_SSE
+#			define VCL_VECTORIZE_SSE
+#		endif
 #	endif
 
 #	if defined VCL_VECTORIZE_AVX
@@ -129,24 +158,18 @@
 #			include <immintrin.h>
 #		endif
 		}
-#	endif // defined(VCL_VECTORIZE_AVX)
-
-#	if defined(VCL_VECTORIZE_SSE)
+#elif defined(VCL_VECTORIZE_SSE)
 		extern "C"
 		{
 #		ifdef VCL_VECTORIZE_SSE4_2
 #			include <nmmintrin.h>
-#		endif
-#		ifdef VCL_VECTORIZE_SSE4_1
+#		elif defined VCL_VECTORIZE_SSE4_1
 #			include <smmintrin.h>
-#		endif
-#		ifdef VCL_VECTORIZE_SSSE3
+#		elif defined VCL_VECTORIZE_SSSE3
 #			include <tmmintrin.h>
-#		endif
-#		ifdef VCL_VECTORIZE_SSE3
+#		elif defined VCL_VECTORIZE_SSE3
 #			include <pmmintrin.h>
-#		endif
-#		ifdef VCL_VECTORIZE_SSE2
+#		elif defined VCL_VECTORIZE_SSE2
 #			include <xmmintrin.h>
 #			include <mmintrin.h>
 #		endif

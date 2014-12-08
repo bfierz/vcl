@@ -82,6 +82,12 @@ namespace Vcl
 			return mF4[idx / 4].m128i_i32[idx % 4];
 		}
 
+		__m128i get(int i) const
+		{
+			Require(0 <= i && i < 2, "Access is in range.");
+
+			return mF4[i];
+		}
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const
 		{

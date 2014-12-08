@@ -92,6 +92,7 @@ namespace Vcl
 
 			return mF8[i];
 		}
+
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator+ (const VectorScalar<int, 16>& rhs) const
 		{

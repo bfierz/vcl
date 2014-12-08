@@ -53,12 +53,14 @@ namespace Vcl
 		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), _mm_set1_epi32(0xffffffff));
 	}
 
-	//VCL_STRONG_INLINE __m128i _mm_mullo_epi32(__m128i a, __m128i b)
-	//{
-	//	__m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
-	//	__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
-	//	return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0))); /* shuffle results to [63..0] and pack */
-	//}
+#ifndef VCL_VECTORIZE_SSE4_1
+	VCL_STRONG_INLINE __m128i _mm_mullo_epi32(__m128i a, __m128i b)
+	{
+		__m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
+		__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
+		return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0))); /* shuffle results to [63..0] and pack */
+	}
+#endif
 
 	__m128 _mm_sin_ps(__m128 v);	
 	__m128 _mm_cos_ps(__m128 v);
