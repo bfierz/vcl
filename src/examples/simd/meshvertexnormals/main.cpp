@@ -76,16 +76,21 @@ void accumulateNormals
 		Eigen::Vector3f p1p2 = p2 - p1; float p1p2_l = p1p2.norm();
 		Eigen::Vector3f p2p0 = p0 - p2; float p2p0_l = p2p0.norm();
 
+		// Normalize the edges
+		p0p1 = p0p1_l > 1e-6f ? p0p1.normalized() : Eigen::Vector3f::Zero();
+		p1p2 = p1p2_l > 1e-6f ? p1p2.normalized() : Eigen::Vector3f::Zero();
+		p2p0 = p2p0_l > 1e-6f ? p2p0.normalized() : Eigen::Vector3f::Zero();
+
 		// Compute the angles
 		Eigen::Vector3f angles;
 
 		// Use the dot product between edges: cos t = a.dot(b) / (a.length() * b.length())
-		/*angle at v0 */ angles.x() = std::acos((p2 - p0).dot(p1 - p0) / (p2p0_l * p0p1_l));
-		/*angle at v1 */ angles.y() = std::acos((p0 - p1).dot(p2 - p1) / (p0p1_l * p1p2_l));
-		/*angle at v2 */ angles.z() = std::acos((p1 - p2).dot(p0 - p2) / (p1p2_l * p2p0_l));
+		/*angle at v0 */ angles.x() = std::acos((-p2p0).dot(p0p1));
+		/*angle at v1 */ angles.y() = std::acos((-p0p1).dot(p1p2));
+		/*angle at v2 */ angles.z() = std::acos((-p1p2).dot(p2p0));
 
 		// Compute the normalized face normal
-		Eigen::Vector3f n = (p1 - p0).cross(p2 - p0).normalized();
+		Eigen::Vector3f n = p0p1.cross(-p2p0);
 
 		normals[f_itr->x()] += angles.x() * n;
 		normals[f_itr->y()] += angles.y() * n;
@@ -137,6 +142,7 @@ void simdAccumulateNormals
 	using Vcl::acos;
 	using Vcl::gather;
 	using Vcl::load;
+	using Vcl::select;
 
 	using wint_t = Vcl::VectorScalar<int, Width>;
 	using wfloat_t = Vcl::VectorScalar<float, Width>;
@@ -162,16 +168,21 @@ void simdAccumulateNormals
 		vector3_t p1p2 = p2 - p1; wfloat_t p1p2_l = p1p2.norm();
 		vector3_t p2p0 = p0 - p2; wfloat_t p2p0_l = p2p0.norm();
 
+		// Normalize the edges
+		p0p1 = select<float, Width, 3, 1>(p0p1_l > wfloat_t(1e-6f), p0p1.normalized(), vector3_t::Zero());
+		p1p2 = select<float, Width, 3, 1>(p1p2_l > wfloat_t(1e-6f), p1p2.normalized(), vector3_t::Zero());
+		p2p0 = select<float, Width, 3, 1>(p2p0_l > wfloat_t(1e-6f), p2p0.normalized(), vector3_t::Zero());
+
 		// Compute the angles
 		vector3_t angles;
 
 		// Use the dot product between edges: cos t = a.dot(b) / (a.length() * b.length())
-		/*angle at v0 */ angles.x() = acos((p2 - p0).dot(p1 - p0) / (p2p0_l * p0p1_l));
-		/*angle at v1 */ angles.y() = acos((p0 - p1).dot(p2 - p1) / (p0p1_l * p1p2_l));
-		/*angle at v2 */ angles.z() = acos((p1 - p2).dot(p0 - p2) / (p1p2_l * p2p0_l));
+		/*angle at v0 */ angles.x() = acos((-p2p0).dot(p0p1));
+		/*angle at v1 */ angles.y() = acos((-p0p1).dot(p1p2));
+		/*angle at v2 */ angles.z() = acos((-p1p2).dot(p2p0));
 
 		// Compute the normalized face normal
-		vector3_t n = (p1 - p0).cross(p2 - p0).normalized();
+		vector3_t n = p0p1.cross(-p2p0);
 		vector3_t n0 = angles.x() * n;
 		vector3_t n1 = angles.y() * n;
 		vector3_t n2 = angles.z() * n;

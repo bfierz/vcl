@@ -108,11 +108,6 @@ namespace Vcl
 	private:
 		Scalar mData[Width];
 	};
-
-	VCL_STRONG_INLINE float select(bool mask, float a, float b)
-	{
-		return mask ? a : b;
-	}
 }
 
 #if defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
@@ -217,6 +212,26 @@ namespace Vcl
 	VCL_STRONG_INLINE SCALAR select(bool mask, const SCALAR& a, const SCALAR& b)
 	{
 		return mask ? a : b;
+	}
+
+	template<typename Scalar, int Width, int Rows, int Cols>
+	VCL_STRONG_INLINE Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> select
+	(
+		const VectorScalar<bool, Width>& mask,
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& a,
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& b
+	)
+	{
+		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> selected;
+		for (int c = 0; c < Cols; c++)
+		{
+			for (int r = 0; r < Rows; r++)
+			{
+				selected(r, c) = select(mask, a(r, c), b(r, c));
+			}
+		}
+
+		return selected;
 	}
 
 	template<typename SCALAR>
