@@ -30,6 +30,7 @@
 
 // C++ Standard Library
 #include <array>
+#include <initializer_list>
 
 // VCL
 #include <vcl/core/contract.h>
@@ -50,6 +51,15 @@ namespace Vcl
 		{
 			for (size_t i = 0; i < Width; i++)
 				mData[i] = s[i];
+		}
+		explicit VectorScalar(std::initializer_list<Scalar> list)
+		{
+			int i = 0;
+			for (Scalar s : list)
+			{
+				mData[i] = s;
+				i++;
+			}
 		}
 
 	public:

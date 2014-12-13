@@ -48,6 +48,15 @@ namespace Vcl
 			mF8[0] = _mm256_set1_ps(s);
 			mF8[1] = _mm256_set1_ps(s);
 		}
+		explicit VCL_STRONG_INLINE VectorScalar
+		(
+			float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
+			float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15
+		)
+		{
+			mF8[0] = _mm256_set_ps(s07, s06, s05, s04, s03, s02, s01, s00);
+			mF8[1] = _mm256_set_ps(s15, s14, s13, s12, s11, s10, s09, s08);
+		}
 		explicit VCL_STRONG_INLINE VectorScalar(__m256 F4_0, __m256 F4_1)
 		{
 			mF8[0] = F4_0;

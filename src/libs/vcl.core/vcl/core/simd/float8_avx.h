@@ -49,7 +49,7 @@ namespace Vcl
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
 		{
-			mF8 = _mm256_set_ps(s0, s1, s2, s3, s4, s5, s6, s7);
+			mF8 = _mm256_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(__m256 F8) : mF8(F8) {}
 

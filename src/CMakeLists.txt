@@ -14,5 +14,10 @@ SUBDIRS(libs)
 # Examples
 SUBDIRS(examples)
 
+
 # Unit tests
-#SUBDIRS(tests)
+OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)
+
+IF (VCL_BUILD_TESTS)
+	SUBDIRS(tests)
+ENDIF (VCL_BUILD_TESTS)

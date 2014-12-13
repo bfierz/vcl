@@ -49,6 +49,17 @@ namespace Vcl
 			mF4[2] = _mm_set1_epi32(s);
 			mF4[3] = _mm_set1_epi32(s);
 		}
+		explicit VCL_STRONG_INLINE VectorScalar
+		(
+			int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
+			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
+		)
+		{
+			mF4[0] = _mm_set_epi32(s03, s02, s01, s00);
+			mF4[1] = _mm_set_epi32(s07, s06, s05, s04);
+			mF4[2] = _mm_set_epi32(s11, s10, s09, s08);
+			mF4[3] = _mm_set_epi32(s15, s14, s13, s12);
+		}
 		VCL_STRONG_INLINE explicit VectorScalar(__m128i I4_0, __m128i I4_1, __m128i I4_2, __m128i I4_3)
 		{
 			mF4[0] = I4_0;

@@ -45,11 +45,11 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(float s)
 		{
-			mF4 = _mm_set_ps1(s);
+			mF4 = _mm_set1_ps(s);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(float s0, float s1, float s2, float s3)
 		{
-			mF4 = _mm_set_ps(s0, s1, s2, s3);
+			mF4 = _mm_set_ps(s3, s2, s1, s0);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4) : mF4(F4) {}
 

@@ -88,6 +88,6 @@ namespace Vcl
 		int mask  = _mm256_movemask_ps(b.mF8[1]) << 8;
 		    mask |= _mm256_movemask_ps(b.mF8[0]);
 			
-		return static_cast<unsigned int>(mask) == 0xff;
+		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 }

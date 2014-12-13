@@ -53,8 +53,8 @@ namespace Vcl
 			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
 		)
 		{
-			mF8[0] = _mm256_set_epi32(s00, s01, s02, s03, s04, s05, s06, s07);
-			mF8[1] = _mm256_set_epi32(s08, s09, s10, s11, s12, s13, s14, s15);
+			mF8[0] = _mm256_set_epi32(s07, s06, s05, s04, s03, s02, s01, s00);
+			mF8[1] = _mm256_set_epi32(s15, s14, s13, s12, s11, s10, s09, s08);
 		}
 		VCL_STRONG_INLINE explicit VectorScalar(__m256i I4_0, __m256i I4_1)
 		{

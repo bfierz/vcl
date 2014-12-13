@@ -43,9 +43,12 @@ namespace Vcl
 		{
 			mF8 = _mm256_set1_epi32(s);
 		}
-		explicit VCL_STRONG_INLINE VectorScalar(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
+		explicit VCL_STRONG_INLINE VectorScalar
+		(
+			int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07
+		)
 		{
-			mF8 = _mm256_set_epi32(s0, s1, s2, s3, s4, s5, s6, s7);
+			mF8 = _mm256_set_epi32(s07, s06, s05, s04, s03, s02, s01, s00);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I4) : mF8(I4) {}
 
