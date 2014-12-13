@@ -73,9 +73,16 @@ namespace Vcl { namespace Core
 			// Note: This is done in order to support optimaly sized vector operations
 			mAllocated = mSize;
 
+			// Add enough memory to compensate the stride size
+			if (stride != DynamicStride && stride > 1)
+			{
+				if (mAllocated % stride > 0)
+					mAllocated += stride - mAllocated % stride;
+			}
+
 			const size_t alignment = 32;
-			if (mSize % alignment > 0)
-				mAllocated += alignment - mSize % alignment;
+			if (mAllocated % alignment > 0)
+				mAllocated += alignment - mAllocated % alignment;
 
 			// Allocate initial memory
 			mData = (SCALAR*) _mm_malloc(mAllocated*mRows*mCols*sizeof(SCALAR), alignment);
