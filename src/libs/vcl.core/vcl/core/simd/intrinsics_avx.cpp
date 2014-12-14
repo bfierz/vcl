@@ -146,4 +146,4 @@ namespace Vcl
 		return _mm256_exp_ps(_mm256_mul_ps(_mm256_log_ps(x), y));
 	}
 }
-#endif /* VCL_VECTORIZE_AVX */
+#endif // VCL_VECTORIZE_AVX

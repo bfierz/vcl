@@ -146,13 +146,14 @@ namespace Vcl
 		return static_cast<__m128>(t3);
 	}
 	
-	// The following implementations are taken from:
-	// http://dss.stephanierct.com/DevBlog/?p=8
 	__m128 _mmVCL_floor_ps(__m128 x)
 	{
 #ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_floor_ps(x);
 #else
+		// The following implementations are taken from:
+		// http://dss.stephanierct.com/DevBlog/?p=8
+
 		__m128i v0 = _mm_setzero_si128();
 		__m128i v1 = _mm_cmpeq_epi32(v0,v0);
 		__m128i ji = _mm_srli_epi32( v1, 25);
