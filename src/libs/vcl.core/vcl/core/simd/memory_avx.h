@@ -55,6 +55,40 @@ namespace Vcl
 			_mm256_i32gather_ps(base, vindex.get(1), 4)
 		);
 	}
+#else
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, VectorScalar<int, 8>& vindex)
+	{
+		VectorScalar<float, 8> res
+		{
+			*(base + vindex[0]), *(base + vindex[1]), 
+			*(base + vindex[2]), *(base + vindex[3]),
+
+			*(base + vindex[4]), *(base + vindex[5]),
+			*(base + vindex[6]), *(base + vindex[7])
+		};
+		
+		return res;
+	}
+
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, VectorScalar<int, 16>& vindex)
+	{
+		VectorScalar<float, 16> res
+		{
+			*(base + vindex[ 0]), *(base + vindex[ 1]),
+			*(base + vindex[ 2]), *(base + vindex[ 3]),
+
+			*(base + vindex[ 4]), *(base + vindex[ 5]),
+			*(base + vindex[ 6]), *(base + vindex[ 7]),
+			
+			*(base + vindex[ 8]), *(base + vindex[ 9]),
+			*(base + vindex[10]), *(base + vindex[11]),
+
+			*(base + vindex[12]), *(base + vindex[13]),
+			*(base + vindex[14]), *(base + vindex[15])
+		};
+
+		return res;
+	}
 #endif
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx

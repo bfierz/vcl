@@ -57,21 +57,14 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 4>& operator= (const VectorScalar<float, 4>& rhs) { mF4 = rhs.mF4; return *this; }
 
 	public:
-		float& operator[] (int idx)
+		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 4, "Access is in range.");
 
-			return mF4.m128_f32[idx];
+			return _mmVCL_extract_ps(mF4, idx);
 		}
 
-		float operator[] (int idx) const
-		{
-			Require(0 <= idx && idx < 4, "Access is in range.");
-
-			return mF4.m128_f32[idx];
-		}
-
-		explicit operator __m128() const
+		VCL_STRONG_INLINE explicit operator __m128() const
 		{
 			return mF4;
 		}
@@ -86,9 +79,7 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator+ (const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(_mm_add_ps(mF4, rhs.mF4)); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator- (const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(_mm_sub_ps(mF4, rhs.mF4)); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator* (const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(_mm_mul_ps(mF4, rhs.mF4)); }
-
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator/ (const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(_mm_div_ps(mF4, rhs.mF4)); }
-		//VectorScalar<float, 4> operator/ (const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(_mm_mul_ps(mF4, _mm_rcp_ps(rhs.mF4))); }
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 4>& operator += (const VectorScalar<float, 4>& rhs)

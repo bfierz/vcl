@@ -29,22 +29,49 @@
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/intrinsics_sse.h>
 
 namespace Vcl
 {
-#if defined VCL_VECTORIZE_SSE4_1 && !defined VCL_VECTORIZE_AVX2
-	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, VectorScalar<int, 4>& vindex)
+#if !defined VCL_VECTORIZE_AVX2
+	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex)
 	{
-		__m128 first  = _mm_set_ss(base[vindex[0]]);
-		__m128 second = _mm_insert_ps(first, _mm_set_ss(base[vindex[1]]), 0x10);
-		__m128 third  = _mm_insert_ps(second, _mm_set_ss(base[vindex[2]]), 0x20);
-		__m128 fourth = _mm_insert_ps(third, _mm_set_ss(base[vindex[3]]), 0x30);
+		__m128 first = _mm_set_ss(base[_mm_extract_epi32(vindex, 0)]);
+		__m128 second = _mm_insert_ps(first, _mm_set_ss(base[_mm_extract_epi32(vindex, 1)]), 0x10);
+		__m128 third = _mm_insert_ps(second, _mm_set_ss(base[_mm_extract_epi32(vindex, 2)]), 0x20);
+		__m128 fourth = _mm_insert_ps(third, _mm_set_ss(base[_mm_extract_epi32(vindex, 3)]), 0x30);
 
-		return VectorScalar<float, 4>(fourth);
+		return fourth;
 	}
-#endif // VCL_VECTORIZE_SSE4_1
 
-#if defined VCL_VECTORIZE_SSE || defined VCL_VECTORIZE_AVX
+	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex)
+	{
+		return VectorScalar<float, 4>(gather(base, (__m128i) vindex));
+	}
+#endif // !defined VCL_VECTORIZE_AVX2
+
+#if !defined VCL_VECTORIZE_AVX
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex)
+	{
+		return VectorScalar<float, 8>
+		(
+			gather(base, vindex.get(0)),
+			gather(base, vindex.get(1))
+		);
+	}
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
+	{
+		return VectorScalar<float, 16>
+		(
+			gather(base, vindex.get(0)),
+			gather(base, vindex.get(1)),
+			gather(base, vindex.get(2)),
+			gather(base, vindex.get(3))
+		);
+	}
+#endif // !defined VCL_VECTORIZE_AVX
+
+#if defined VCL_VECTORIZE_SSE
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
@@ -141,7 +168,7 @@ namespace Vcl
 			_mm_castsi128_ps((__m128i) value(2))
 		);
 	}
-#endif // defined VCL_VECTORIZE_SSE || defined VCL_VECTORIZE_AVX
+#endif // defined VCL_VECTORIZE_SSE
 
 #if defined VCL_VECTORIZE_SSE && !defined VCL_VECTORIZE_AVX
 	VCL_STRONG_INLINE void load

@@ -67,7 +67,7 @@ TEST(GatherTest, Scalar)
 	int4 idx4{ 3, 26, 1, 15 };
 	float4 ref4{ mem[ 3], mem[26], mem[ 1], mem[15] };
 
-	EXPECT_TRUE(all(ref4 == Vcl::gather<float, 4>(mem, idx4))) << "4-way code failed.";
+	EXPECT_TRUE(all(ref4 == Vcl::gather(mem, idx4))) << "4-way code failed.";
 
 	int8 idx8{ 3, 26, 1, 15, 12, 29, 0, 19 };
 	float8 ref8
@@ -76,7 +76,7 @@ TEST(GatherTest, Scalar)
 		mem[12], mem[29], mem[ 0], mem[19]
 	};
 
-	EXPECT_TRUE(all(ref8 == Vcl::gather<float, 8>(mem, idx8))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8 == Vcl::gather(mem, idx8))) << "8-way code failed.";
 
 	int16 idx16{ 3, 26, 1, 15, 12, 29, 0, 19, 4, 8, 2, 21, 25, 28, 11, 7 };
 	float16 ref16
@@ -87,7 +87,7 @@ TEST(GatherTest, Scalar)
 		mem[25], mem[28], mem[11], mem[ 7]
 	};
 
-	EXPECT_TRUE(all(ref16 == Vcl::gather<float, 16>(mem, idx16))) << "16-way code failed.";
+	EXPECT_TRUE(all(ref16 == Vcl::gather(mem, idx16))) << "16-way code failed.";
 }
 
 // Tests the matrix gather function.

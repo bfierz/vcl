@@ -72,18 +72,11 @@ namespace Vcl
 		}
 
 	public:
-		int& operator[] (int idx)
-		{
-			Require(0 <= idx && idx < 16, "Access is in range.");
-
-			return mF8[idx / 8].m256i_i32[idx % 8];
-		}
-
 		int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 16, "Access is in range.");
 
-			return mF8[idx / 8].m256i_i32[idx % 8];
+			return _mmVCL_extract_epi32(mF8[idx / 8], idx % 8);
 		}
 
 		__m256i get(int i) const

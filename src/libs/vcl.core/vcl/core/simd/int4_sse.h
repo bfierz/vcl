@@ -53,18 +53,11 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<int, 4>& operator= (const VectorScalar<int, 4>& rhs) { mF4 = rhs.mF4; return *this; }
 
 	public:
-		int& operator[] (int idx)
-		{
-			Require(0 <= idx && idx < 4, "Access is in range.");
-
-			return mF4.m128i_i32[idx];
-		}
-
 		int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 4, "Access is in range.");
 
-			return mF4.m128i_i32[idx];
+			return _mmVCL_extract_epi32(mF4, idx);
 		}
 
 		explicit operator __m128i() const
@@ -75,7 +68,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 4> operator+ (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_add_epi32(mF4, rhs.mF4)); }
 		VCL_STRONG_INLINE VectorScalar<int, 4> operator- (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_sub_epi32(mF4, rhs.mF4)); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator* (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_mullo_epi32(mF4, rhs.mF4)); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator* (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mmVCL_mullo_epi32(mF4, rhs.mF4)); }
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 4> abs() const { return VectorScalar<int, 4>(_mm_abs_epi32(mF4)); }

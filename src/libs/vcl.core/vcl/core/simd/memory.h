@@ -62,17 +62,17 @@ namespace Vcl
 		base[0] = loaded;
 	}
 
-	template<typename Scalar, int Width>
-	VectorScalar<Scalar, Width> gather(Scalar const * base, VectorScalar<int, Width>& vindex)
-	{
-		VectorScalar<Scalar, Width> res;
-		for (int i = 0; i < Width; i++)
-		{
-			res[i] = *(base + vindex[i] * 1);
-		}
-
-		return res;
-	}
+	//template<typename Scalar, int Width>
+	//VectorScalar<Scalar, Width> gather(Scalar const * base, VectorScalar<int, Width>& vindex)
+	//{
+	//	VectorScalar<Scalar, Width> res;
+	//	for (int i = 0; i < Width; i++)
+	//	{
+	//		res[i] = *(base + vindex[i] * 1);
+	//	}
+	//
+	//	return res;
+	//}
 
 	template<typename Scalar>
 	Scalar gather(Scalar const * base, int vindex)

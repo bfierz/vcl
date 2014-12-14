@@ -73,21 +73,14 @@ namespace Vcl
 		}
 
 	public:
-		float& operator[] (int idx)
+		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 16, "Access is in range.");
 
-			return mF8[idx / 8].m256_f32[idx % 8];
+			return _mmVCL_extract_ps(mF8[idx / 8], idx % 8);
 		}
 
-		float operator[] (int idx) const
-		{
-			Require(0 <= idx && idx < 16, "Access is in range.");
-
-			return mF8[idx / 8].m256_f32[idx % 8];
-		}
-
-		__m256 get(int i) const
+		VCL_STRONG_INLINE __m256 get(int i) const
 		{
 			Require(0 <= i && i < 2, "Access is in range.");
 

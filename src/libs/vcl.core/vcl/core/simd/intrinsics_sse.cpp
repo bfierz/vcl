@@ -24,7 +24,7 @@
  */
 #include <vcl/core/simd/intrinsics_sse.h>
 
-#if defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
+#if defined(VCL_VECTORIZE_SSE)
 VCL_BEGIN_EXTERNAL_HEADERS
 #define USE_SSE2
 #include <vcl/core/simd/sse_mathfun.h>
@@ -148,10 +148,11 @@ namespace Vcl
 	
 	// The following implementations are taken from:
 	// http://dss.stephanierct.com/DevBlog/?p=8
-	
-#ifndef _mm_floor_ps
-	__m128 _mm_floor_ps(__m128 x)
+	__m128 _mmVCL_floor_ps(__m128 x)
 	{
+#ifdef VCL_VECTORIZE_SSE4_1
+		return _mm_floor_ps(x);
+#else
 		__m128i v0 = _mm_setzero_si128();
 		__m128i v1 = _mm_cmpeq_epi32(v0,v0);
 		__m128i ji = _mm_srli_epi32( v1, 25);
@@ -161,7 +162,7 @@ namespace Vcl
 		__m128 igx = _mm_cmpgt_ps(fi, x);
 		j = _mm_and_ps(igx, j);
 		return _mm_sub_ps(fi, j);
-	}
 #endif
+	}
 }
-#endif /* defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX) */
+#endif // defined(VCL_VECTORIZE_SSE)

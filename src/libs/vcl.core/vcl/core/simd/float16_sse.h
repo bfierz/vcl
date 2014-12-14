@@ -50,6 +50,17 @@ namespace Vcl
 			mF4[2] = _mm_set1_ps(s);
 			mF4[3] = _mm_set1_ps(s);
 		}
+		explicit VCL_STRONG_INLINE VectorScalar
+		(
+			float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
+			float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15
+		)
+		{
+			mF4[0] = _mm_set_ps(s03, s02, s01, s00);
+			mF4[1] = _mm_set_ps(s07, s06, s05, s04);
+			mF4[2] = _mm_set_ps(s11, s10, s09, s08);
+			mF4[3] = _mm_set_ps(s15, s14, s13, s12);
+		}
 		explicit VCL_STRONG_INLINE VectorScalar(const __m128& F4_0, const __m128& F4_1, const __m128& F4_2, const __m128& F4_3)
 		{
 			mF4[0] = F4_0;
@@ -59,7 +70,7 @@ namespace Vcl
 		}
 
 	public:
-		VectorScalar<float, 16>& operator= (const VectorScalar<float, 16>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 16>& operator= (const VectorScalar<float, 16>& rhs)
 		{
 			mF4[0] = rhs.mF4[0];
 			mF4[1] = rhs.mF4[1];
@@ -70,21 +81,14 @@ namespace Vcl
 		}
 
 	public:
-		float& operator[] (int idx)
+		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 16, "Access is in range.");
 
-			return mF4[idx / 4].m128_f32[idx % 4];
+			return _mmVCL_extract_ps(mF4[idx / 4], idx % 4);
 		}
 
-		float operator[] (int idx) const
-		{
-			Require(0 <= idx && idx < 16, "Access is in range.");
-
-			return mF4[idx / 4].m128_f32[idx % 4];
-		}
-
-		__m128 get(int i) const
+		VCL_STRONG_INLINE __m128 get(int i) const
 		{
 			Require(0 <= i && i < 4, "Access is in range.");
 

@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <cstdint>
+
 #ifdef VCL_VECTORIZE_AVX
 namespace Vcl
 {
@@ -75,5 +78,94 @@ namespace Vcl
 	VCL_STRONG_INLINE __m256 _mm256_cmple_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LE_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpgt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GT_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpge_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GE_OQ); }
+
+
+	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)
+	{
+#if 1
+		typedef union
+		{
+			__m256 x;
+			float a[8];
+		} F32;
+
+		return F32{ v }.a[i];
+#else
+		float dest;
+
+		__m128 half;
+		switch (i / 4)
+		{
+		case 0:
+			half = _mm256_extractf128_ps(v, 0);
+			break;
+		case 1:
+			half = _mm256_extractf128_ps(v, 1);
+			break;
+		}
+
+		switch (i % 4)
+		{
+		case 0:
+			*((int*) &(dest)) = _mm_extract_ps(half, 0);
+			break;
+		case 1:
+			*((int*) &(dest)) = _mm_extract_ps(half, 1);
+			break;
+		case 2:
+			*((int*) &(dest)) = _mm_extract_ps(half, 2);
+			break;
+		case 3:
+			*((int*) &(dest)) = _mm_extract_ps(half, 3);
+			break;
+		}
+
+		return dest;
+#endif
+	}
+
+	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m256i v, int i)
+	{
+#if 1
+		typedef union
+		{
+			__m256i x;
+			int32_t a[8];
+		} U32;
+
+		return U32{ v }.a[i];
+#else
+		int dest;
+
+		__m128i half;
+		switch (i / 4)
+		{
+		case 0:
+			half = _mm256_extractf128_si256(v, 0);
+			break;
+		case 1:
+			half = _mm256_extractf128_si256(v, 1);
+			break;
+		}
+
+		switch (i % 4)
+		{
+		case 0:
+			dest = _mm_extract_epi32(half, 0);
+			break;
+		case 1:
+			dest = _mm_extract_epi32(half, 1);
+			break;
+		case 2:
+			dest = _mm_extract_epi32(half, 2);
+			break;
+		case 3:
+			dest = _mm_extract_epi32(half, 3);
+			break;
+		}
+
+		return dest;
+#endif
+	}
 }
 #endif /* VCL_VECTORIZE_AVX */

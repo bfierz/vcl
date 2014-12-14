@@ -69,21 +69,14 @@ namespace Vcl
 		}
 
 	public:
-		float& operator[] (int idx)
+		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 8, "Access is in range.");
 
-			return mF4[idx / 4].m128_f32[idx % 4];
+			return _mmVCL_extract_ps(mF4[idx / 4], idx % 4);
 		}
 
-		float operator[] (int idx) const
-		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
-
-			return mF4[idx / 4].m128_f32[idx % 4];
-		}
-
-		__m128 get(int i) const
+		VCL_STRONG_INLINE __m128 get(int i) const
 		{
 			Require(0 <= i && i < 2, "Access is in range.");
 

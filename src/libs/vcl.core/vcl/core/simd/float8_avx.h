@@ -57,21 +57,14 @@ namespace Vcl
 		VCL_STRONG_INLINE const VectorScalar<float, 8>& operator= (const VectorScalar<float, 8>& rhs) { mF8 = rhs.mF8; return *this; }
 
 	public:
-		float& operator[] (int idx)
+		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 8, "Access is in range.");
 
-			return mF8.m256_f32[idx];
+			return _mmVCL_extract_ps(mF8, idx);
 		}
 
-		float operator[] (int idx) const
-		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
-
-			return mF8.m256_f32[idx];
-		}
-
-		explicit operator __m256() const
+		VCL_STRONG_INLINE explicit operator __m256() const
 		{
 			return mF8;
 		}

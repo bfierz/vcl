@@ -68,18 +68,11 @@ namespace Vcl
 		}
 
 	public:
-		int& operator[] (int idx)
-		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
-
-			return mF4[idx / 4].m128i_i32[idx % 4];
-		}
-
 		int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 8, "Access is in range.");
 
-			return mF4[idx / 4].m128i_i32[idx % 4];
+			return _mmVCL_extract_epi32(mF4[idx / 4], idx % 4);
 		}
 
 		__m128i get(int i) const
@@ -109,8 +102,8 @@ namespace Vcl
 		{
 			return VectorScalar<int, 8>
 			(
-				_mm_mullo_epi32(mF4[0], rhs.mF4[0]),
-				_mm_mullo_epi32(mF4[1], rhs.mF4[1])
+				_mmVCL_mullo_epi32(mF4[0], rhs.mF4[0]),
+				_mmVCL_mullo_epi32(mF4[1], rhs.mF4[1])
 			);
 		}
 
