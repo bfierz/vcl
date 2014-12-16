@@ -46,13 +46,11 @@ namespace Vcl
 			mF8[0] = F8_0;
 			mF8[1] = F8_1;
 		}
-#ifdef VCL_VECTORIZE_AVX2
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8_0, __m256i I8_1)
 		{
 			mF8[0] = _mm256_castsi256_ps(I8_0);
 			mF8[1] = _mm256_castsi256_ps(I8_1);
 		}
-#endif // VCL_VECTORIZE_AVX2
 
 		
 	public:

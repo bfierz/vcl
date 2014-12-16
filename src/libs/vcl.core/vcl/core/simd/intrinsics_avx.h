@@ -31,6 +31,9 @@
 #include <cstdint>
 
 #ifdef VCL_VECTORIZE_AVX
+
+#include <vcl/core/simd/intrinsics_sse.h>
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
@@ -79,6 +82,262 @@ namespace Vcl
 	VCL_STRONG_INLINE __m256 _mm256_cmpgt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GT_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpge_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GE_OQ); }
 
+	VCL_STRONG_INLINE __m256i _mmVCL_add_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_add_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_add_epi32(x0, y0);
+		__m128i z1 = _mm_add_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_sub_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_sub_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_sub_epi32(x0, y0);
+		__m128i z1 = _mm_sub_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_mullo_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_mullo_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_mullo_epi32(x0, y0);
+		__m128i z1 = _mm_mullo_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+
+	VCL_STRONG_INLINE __m256i _mmVCL_max_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_add_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_max_epi32(x0, y0);
+		__m128i z1 = _mm_max_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+
+	VCL_STRONG_INLINE __m256i _mmVCL_abs_epi32(__m256i x)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_abs_epi32(x);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm_abs_epi32(x0);
+		__m128i y1 = _mm_abs_epi32(x1);
+
+		return _mm256_set_m128i(y1, y0);
+#endif
+	}
+
+	VCL_STRONG_INLINE __m256i _mmVCL_cmpeq_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmpeq_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmpeq_epi32(x0, y0);
+		__m128i z1 = _mm_cmpeq_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_cmpneq_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmpneq_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmpneq_epi32(x0, y0);
+		__m128i z1 = _mm_cmpneq_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_cmplt_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmplt_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmplt_epi32(x0, y0);
+		__m128i z1 = _mm_cmplt_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_cmple_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmple_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmple_epi32(x0, y0);
+		__m128i z1 = _mm_cmple_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_cmpgt_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmpgt_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmpgt_epi32(x0, y0);
+		__m128i z1 = _mm_cmpgt_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_cmpge_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_cmpge_epi32(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_cmpge_epi32(x0, y0);
+		__m128i z1 = _mm_cmpge_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+
+	VCL_STRONG_INLINE __m256i _mmVCL_and_si256(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_and_si256(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_and_si128(x0, y0);
+		__m128i z1 = _mm_and_si128(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_andnot_si256(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_andnot_si256(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_andnot_si128(x0, y0);
+		__m128i z1 = _mm_andnot_si128(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_or_si256(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_or_si256(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_or_si128(x0, y0);
+		__m128i z1 = _mm_or_si128(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+	VCL_STRONG_INLINE __m256i _mmVCL_xor_si256(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_xor_si256(x, y);
+#else
+		__m128i x0 = _mm256_extractf128_si256(x, 0);
+		__m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		__m128i y0 = _mm256_extractf128_si256(y, 0);
+		__m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		__m128i z0 = _mm_xor_si128(x0, y0);
+		__m128i z1 = _mm_xor_si128(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)
 	{
@@ -168,4 +427,4 @@ namespace Vcl
 #endif
 	}
 }
-#endif /* VCL_VECTORIZE_AVX */
+#endif // VCL_VECTORIZE_AVX

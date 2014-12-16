@@ -80,14 +80,14 @@ namespace Vcl
 		}
 
 	public:
-		int operator[] (int idx) const
+		VCL_STRONG_INLINE int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 16, "Access is in range.");
 
 			return _mmVCL_extract_epi32(mF4[idx / 4], idx % 4);
 		}
 
-		__m128i get(int i) const
+		VCL_STRONG_INLINE __m128i get(int i) const
 		{
 			Require(0 <= i && i < 4, "Access is in range.");
 

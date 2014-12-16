@@ -53,14 +53,14 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<int, 4>& operator= (const VectorScalar<int, 4>& rhs) { mF4 = rhs.mF4; return *this; }
 
 	public:
-		int operator[] (int idx) const
+		VCL_STRONG_INLINE int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 4, "Access is in range.");
 
 			return _mmVCL_extract_epi32(mF4, idx);
 		}
 
-		explicit operator __m128i() const
+		VCL_STRONG_INLINE explicit operator __m128i() const
 		{
 			return mF4;
 		}
