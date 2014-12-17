@@ -1,7 +1,16 @@
 PROJECT(vcl_core)
 
+# Write the configuration file
+CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_DIR}/vcl/config/config.h" )
+
+# Summarize configuration
+MESSAGE(STATUS "Writing configuration file")
+
+
 # VCL / CONFIG
 SET(VCL_CONFIG_INC
+	${PROJECT_BINARY_DIR}/vcl/config/config.h
+	
 	vcl/config/compiler.h
 	vcl/config/eigen.h
 	vcl/config/global.h
@@ -81,3 +90,6 @@ SET(SOURCE
 ADD_LIBRARY(vcl_core STATIC ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_core PROPERTIES FOLDER libs)
 TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Now make sure that we find the config.h file
+TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${PROJECT_BINARY_DIR})

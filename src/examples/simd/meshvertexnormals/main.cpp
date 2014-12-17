@@ -244,10 +244,12 @@ void computeNormals
 	const std::vector<Eigen::Vector3f>& points,
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
-	std::vector<Eigen::Vector3f>& tangents,
-	std::vector<Eigen::Vector3f>& bitangents
+	std::vector<Eigen::Vector4f>& out_tangents
 )
 {
+	std::vector<Eigen::Vector3f> tangents(out_tangents.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> bitangents(out_tangents.size(), Eigen::Vector3f::Zero());
+
 	Vcl::Util::PreciseTimer timer;
 	timer.start();
 
@@ -266,6 +268,30 @@ void computeNormals
 	{
 		normals[i].normalize();
 	}
+
+#ifdef _OPENMP
+#	pragma omp parallel for
+#endif // _OPENMP
+	for (int i = 0; i < (int) faces.size(); i++)
+	{
+		const auto& f = faces[i];
+		const auto& tf = tex_faces[i];
+
+		for (int j = 0; j < 3; j++)
+		{
+			const auto& n = normals[f[j]];
+			const auto& t = tangents[tf[j]];
+
+			// Gram-Schmidt orthogonalize
+			Eigen::Vector3f tan = (t - n * n.dot(t)).normalized();
+
+			// Calculate handedness
+			float hand = (n.cross(t).dot(bitangents[tf[j]]) < 0.0f) ? -1.0f : 1.0f;
+
+			out_tangents[tf[j]] = { tan.x(), tan.y(), tan.z(), hand };
+		}
+	}
+
 	timer.stop();
 	std::cout << "Compute mesh vertex normals (Reference): " << timer.interval() / faces.size() * 1e9 << "[ns]" << std::endl;
 }
@@ -278,17 +304,21 @@ void computeNormalsSIMD
 	const std::vector<Eigen::Vector3f>& points,
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
-	std::vector<Eigen::Vector3f>& tangents,
-	std::vector<Eigen::Vector3f>& bitangents
+	std::vector<Eigen::Vector4f>& out_tangents
 )
 {
+	using Vcl::gather;
 	using Vcl::load;
 	using Vcl::store;
 
 	using wint_t = Vcl::VectorScalar<int, Width>;
 	using wfloat_t = Vcl::VectorScalar<float, Width>;
 
-	using vector3_t = Eigen::Matrix<wfloat_t, 3, 1>;
+	using vector3i_t = Eigen::Matrix<wint_t, 3, 1>;
+	using vector3f_t = Eigen::Matrix<wfloat_t, 3, 1>;
+
+	std::vector<Eigen::Vector3f> tangents(out_tangents.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector3f> bitangents(out_tangents.size(), Eigen::Vector3f::Zero());
 
 	Vcl::Util::PreciseTimer timer;
 	timer.start();
@@ -307,7 +337,7 @@ void computeNormalsSIMD
 #endif // _OPENMP
 	for (int i = 0; i < static_cast<int>(points.size() / Width); i++)
 	{
-		vector3_t n;
+		vector3f_t n;
 		load(n, normals.data() + i*Width);
 
 		// Compute
@@ -324,7 +354,56 @@ void computeNormalsSIMD
 	)
 	{
 		normals[i].normalize();
+	}		
+
+#ifdef _OPENMP
+#	pragma omp parallel for
+#endif // _OPENMP
+	for (int i = 0; i < static_cast<int>(faces.size() / Width); i++)
+	{
+		vector3i_t f, tf;
+		load(f, faces.data() + i*Width);
+		load(tf, tex_faces.data() + i*Width);
+
+		for (int j = 0; j < 3; j++)
+		{
+			vector3f_t n = gather<float, Width, 3, 1>(normals.data(), f(j));
+			vector3f_t t = gather<float, Width, 3, 1>(tangents.data(), tf(j));
+			vector3f_t b = gather<float, Width, 3, 1>(bitangents.data(), tf(j));
+
+			// Gram-Schmidt orthogonalize
+			vector3f_t tan = (t - n * n.dot(t)).normalized();
+
+			// Calculate handedness
+			wfloat_t hand = select(n.cross(t).dot(b) < 0.0f, wfloat_t{ -1.0f }, wfloat_t{ 1.0f });
+
+			for (int k = 0; k < Width; k++)
+			{
+				out_tangents[tf(j)[k]] = { tan.x()[k], tan.y()[k], tan.z()[k], hand[k] };
+			}
+		}
 	}
+
+	for (int i = static_cast<int>(faces.size() / Width) * Width; i < (int) faces.size(); i++)
+	{
+		const auto& f = faces[i];
+		const auto& tf = tex_faces[i];
+
+		for (int j = 0; j < 3; j++)
+		{
+			const auto& n = normals[f[j]];
+			const auto& t = tangents[tf[j]];
+
+			// Gram-Schmidt orthogonalize
+			Eigen::Vector3f tan = (t - n * n.dot(t)).normalized();
+
+			// Calculate handedness
+			float hand = (n.cross(t).dot(bitangents[tf[j]]) < 0.0f) ? -1.0f : 1.0f;
+
+			out_tangents[tf[j]] = { tan.x(), tan.y(), tan.z(), hand };
+		}
+	}
+
 	timer.stop();
 	std::cout << "Compute mesh vertex normals (SIMD width " << Width << "): " << timer.interval() / faces.size() * 1e9 << "[ns]" << std::endl;
 
@@ -367,23 +446,18 @@ int main(int argc, char* argv[])
 	std::vector<Eigen::Vector3f> normals_008(points.size(), Eigen::Vector3f::Zero());
 	std::vector<Eigen::Vector3f> normals_016(points.size(), Eigen::Vector3f::Zero());
 
-	std::vector<Eigen::Vector3f> tangents_ref(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> tangents_004(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> tangents_008(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> tangents_016(texcoords.size(), Eigen::Vector3f::Zero());
-
-	std::vector<Eigen::Vector3f> bitangents_ref(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> bitangents_004(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> bitangents_008(texcoords.size(), Eigen::Vector3f::Zero());
-	std::vector<Eigen::Vector3f> bitangents_016(texcoords.size(), Eigen::Vector3f::Zero());
+	std::vector<Eigen::Vector4f> tangents_ref(texcoords.size(), Eigen::Vector4f::Zero());
+	std::vector<Eigen::Vector4f> tangents_004(texcoords.size(), Eigen::Vector4f::Zero());
+	std::vector<Eigen::Vector4f> tangents_008(texcoords.size(), Eigen::Vector4f::Zero());
+	std::vector<Eigen::Vector4f> tangents_016(texcoords.size(), Eigen::Vector4f::Zero());
 
 	// Test Performance: Use scalar version
-	computeNormals(faces, tex_faces, points, texcoords, normals_ref, tangents_ref, bitangents_ref);
+	computeNormals(faces, tex_faces, points, texcoords, normals_ref, tangents_ref);
 
 	// Test Performance: Use paralle versions
-	computeNormalsSIMD< 4>(faces, tex_faces, points, texcoords, normals_004, tangents_004, bitangents_004);
-	computeNormalsSIMD< 8>(faces, tex_faces, points, texcoords, normals_008, tangents_008, bitangents_008);
-	computeNormalsSIMD<16>(faces, tex_faces, points, texcoords, normals_016, tangents_016, bitangents_016);
+	computeNormalsSIMD< 4>(faces, tex_faces, points, texcoords, normals_004, tangents_004);
+	computeNormalsSIMD< 8>(faces, tex_faces, points, texcoords, normals_008, tangents_008);
+	computeNormalsSIMD<16>(faces, tex_faces, points, texcoords, normals_016, tangents_016);
 	
 	float L1_004 = 0;
 	float L1_008 = 0;
@@ -404,9 +478,9 @@ int main(int argc, char* argv[])
 	L1_016 = 0;
 	for (size_t i = 0; i < tangents_ref.size(); i++)
 	{
-		L1_004 += (tangents_ref[i] - tangents_004[i]).norm();
-		L1_008 += (tangents_ref[i] - tangents_008[i]).norm();
-		L1_016 += (tangents_ref[i] - tangents_016[i]).norm();
+		L1_004 += (tangents_ref[i].segment<3>(0) - tangents_004[i].segment<3>(0)).norm();
+		L1_008 += (tangents_ref[i].segment<3>(0) - tangents_008[i].segment<3>(0)).norm();
+		L1_016 += (tangents_ref[i].segment<3>(0) - tangents_016[i].segment<3>(0)).norm();
 	}
 	std::cout << "Average error (tangents): " << std::endl;
 	std::cout << "* SIMD  4: " << L1_004 / tangents_ref.size() << std::endl;
