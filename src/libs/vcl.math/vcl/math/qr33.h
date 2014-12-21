@@ -22,35 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/util/precisetimer.h>
+#pragma once
 
-#include <vcl/core/contract.h>
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Util
+namespace Vcl { namespace Mathematics
 {
-	void PreciseTimer::start()
-	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStartTime);
-#endif // VCL_ABI_WINAPI
-	}
-
-	void PreciseTimer::stop()
-	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStopTime);
-#endif // VCL_ABI_WINAPI
-	}
-
-	double PreciseTimer::interval(unsigned int nr_iterations) const
-	{
-		Require(nr_iterations > 0, "Number of iterations is at least 1.");
-
-#ifdef VCL_ABI_WINAPI
-		LARGE_INTEGER freq;
-		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
-		
-		return ((double)(mStopTime.QuadPart - mStartTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
-#endif // VCL_ABI_WINAPI
-	}
+	void jacobiQRDecomposition(Matrix3f& R, Matrix3f& Q);
+	void jacobiQRDecomposition(Matrix3d& R, Matrix3d& Q);
 }}

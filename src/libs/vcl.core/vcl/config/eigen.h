@@ -144,4 +144,11 @@ namespace Vcl
 	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector4f;
 
 	typedef Eigen::Quaternion<float, Eigen::Unaligned> UnalignedQuaternionf;
+
+	typedef Eigen::Matrix<double, 2, 1> Vector2d;
+	typedef Eigen::Matrix<double, 3, 1> Vector3d;
+	typedef Eigen::Matrix<double, 4, 1> Vector4d;
+	typedef Eigen::Matrix<double, 2, 2> Matrix2d;
+	typedef Eigen::Matrix<double, 3, 3> Matrix3d;
+	typedef Eigen::Matrix<double, 4, 4> Matrix4d;
 }

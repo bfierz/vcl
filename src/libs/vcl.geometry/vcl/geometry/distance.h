@@ -31,9 +31,10 @@
 // C++ standard library
 #include <array>
 
-// VCL 
-#include <vcl/math/math.h>
+// VCL
+#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>
+#include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {
@@ -47,27 +48,25 @@ namespace Vcl { namespace Geometry
 		using namespace Vcl::Mathematics;
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion0(Real s, Real t, Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion0(Real s, Real t, Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real inv_det = rcp(det);
 			s *= inv_det;
 			t *= inv_det;
-			dist(0) = s*(a*s + b*t + ((Real)2.0)*d) +
+			dist[0] = s*(a*s + b*t + ((Real)2.0)*d) +
 				      t*(b*s + c*t + ((Real)2.0)*e) + f;
-			dist(1) = s;
-			dist(2) = t;
+			dist[1] = s;
+			dist[2] = t;
 
 			return dist;
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion1(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion1(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real numer = c + e - b - d;
 			Real denom = a - b*2 + c;
@@ -85,7 +84,7 @@ namespace Vcl { namespace Geometry
 			Real d_c = s_c*(a*s_c + b*t_c + ((Real)2.0)*d) +
 					   t_c*(b*s_c + c*t_c + ((Real)2.0)*e) + f;
 
-			dist(0) = select
+			dist[0] = select
 			(
 				numer <= (Real)0.0,
 				d_a,
@@ -96,7 +95,7 @@ namespace Vcl { namespace Geometry
 					d_c
 				)
 			);
-			dist(1) = select
+			dist[1] = select
 			(
 				numer <= (Real)0.0,
 				s_a,
@@ -107,7 +106,7 @@ namespace Vcl { namespace Geometry
 					s_c
 				)
 			);
-			dist(2) = select
+			dist[2] = select
 			(
 				numer <= (Real)0.0,
 				t_a,
@@ -123,11 +122,9 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion2(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion2(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real tmp0 = b + d;
 			Real tmp1 = c + e;
@@ -153,17 +150,17 @@ namespace Vcl { namespace Geometry
 			Real d_d = f;
 			Real d_e = e*t_e + f;
 
-			dist(0) = select(tmp1 > tmp0,
+			dist[0] = select(tmp1 > tmp0,
 				select(numer >= denom, d_a, d_b),
 				select(tmp1 <= (Real)0.0, d_c,
 					select(e >= (Real)0.0, d_d, d_e)));
 
-			dist(1) = select(tmp1 > tmp0,
+			dist[1] = select(tmp1 > tmp0,
 				select(numer >= denom, s_a, s_b),
 				select(tmp1 <= (Real)0.0, s_c,
 					select(e >= (Real)0.0, s_d, s_e)));
 
-			dist(2) = select(tmp1 > tmp0,
+			dist[2] = select(tmp1 > tmp0,
 				select(numer >= denom, t_a, t_b),
 				select(tmp1 <= (Real)0.0, t_c,
 					select(e >= (Real)0.0, t_d, t_e)));
@@ -171,14 +168,9 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion3(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion3(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-			VCL_UNREFERENCED_PARAMETER(a);
-			VCL_UNREFERENCED_PARAMETER(b);
-			VCL_UNREFERENCED_PARAMETER(d);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real t_a = 0;
 			Real t_b = 1;
@@ -188,7 +180,7 @@ namespace Vcl { namespace Geometry
 			Real sq_d_b = c + ((Real)2.0)*e + f;
 			Real sq_d_c = e*t_c + f;
 
-			dist(0) = select
+			dist[0] = select
 			(
 				e >= (Real)0.0,
 				sq_d_a,
@@ -199,8 +191,8 @@ namespace Vcl { namespace Geometry
 					sq_d_c
 				)
 			);
-			dist(1) = 0;
-			dist(2) = select
+			dist[1] = 0;
+			dist[2] = select
 			(
 				e >= (Real)0.0,
 				t_a,
@@ -216,12 +208,9 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion4(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion4(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-			VCL_UNREFERENCED_PARAMETER(b);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real s_a = 1;
 			Real s_b = -d * rcp(a);
@@ -241,17 +230,17 @@ namespace Vcl { namespace Geometry
 			Real d_d = c + ((Real)2.0)*e + f;
 			Real d_e = e*t_e + f;
 
-			dist(0) = select(d < (Real)0.0, 
+			dist[0] = select(d < (Real)0.0, 
 				select(-d >= a, d_a, d_b),
 				select(e >= (Real)0.0, d_c,
 					select(-e >= c, d_d, d_e)));
 					
-			dist(1) = select(d < (Real)0.0, 
+			dist[1] = select(d < (Real)0.0, 
 				select(-d >= a, s_a, s_b),
 				select(e >= (Real)0.0, s_c,
 					select(-e >= c, s_d, s_e)));
 					
-			dist(2) = select(d < (Real)0.0, 
+			dist[2] = select(d < (Real)0.0, 
 				select(-d >= a, t_a, t_b),
 				select(e >= (Real)0.0, t_c,
 					select(-e >= c, t_d, t_e)));
@@ -260,14 +249,9 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion5(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion5(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-			VCL_UNREFERENCED_PARAMETER(b);
-			VCL_UNREFERENCED_PARAMETER(c);
-			VCL_UNREFERENCED_PARAMETER(e);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real s_a = 0;
 			Real s_b = 1;
@@ -277,22 +261,20 @@ namespace Vcl { namespace Geometry
 			Real d_b = a + d*2 + f;
 			Real d_c = d*s_c + f;
 
-			dist(0) = select(d >= 0,
+			dist[0] = select(d >= 0,
 				d_a,
 				select(-d >= a, d_b, d_c));
-			dist(1) = select(d >= 0, 
+			dist[1] = select(d >= 0, 
 				s_a,
 				select(-d >= a, s_b, s_c));
-			dist(2) = 0;
+			dist[2] = 0;
 			return dist;
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE Eigen::Matrix<Real, 3, 1> computeDistanceRegion6(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion6(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
-			VCL_UNREFERENCED_PARAMETER(det);
-
-			Eigen::Matrix<Real, 3, 1> dist;
+			std::array<Real, 3> dist;
 
 			Real tmp0 = b + e;
 			Real tmp1 = a + d;
@@ -318,17 +300,17 @@ namespace Vcl { namespace Geometry
 			Real d_d = f;
 			Real d_e = d*s_e + f;
 
-			dist(0) = select(tmp1 > tmp0,
+			dist[0] = select(tmp1 > tmp0,
 				select(numer >= denom, d_a, d_b),
 				select(tmp1 <= (Real)0.0, d_c,
 					select(d >= (Real)0.0, d_d, d_e)));
 			
-			dist(1) = select(tmp1 > tmp0,
+			dist[1] = select(tmp1 > tmp0,
 				select(numer >= denom, s_a, s_b),
 				select(tmp1 <= (Real)0.0, s_c,
 					select(d >= (Real)0.0, s_d, s_e)));
 
-			dist(2) = select(tmp1 > tmp0,
+			dist[2] = select(tmp1 > tmp0,
 				select(numer >= denom, t_a, t_b),
 				select(tmp1 <= (Real)0.0, t_c,
 					select(d >= (Real)0.0, t_d, t_e)));
@@ -344,6 +326,7 @@ namespace Vcl { namespace Geometry
 		const Eigen::Matrix<Real, 3, 1>& v1,
 		const Eigen::Matrix<Real, 3, 1>& v2,
 		const Eigen::Matrix<Real, 3, 1>& p,
+		std::array<Real, 3>* barycentric = nullptr,
 		int* r = nullptr
 	)
 	{
@@ -364,30 +347,20 @@ namespace Vcl { namespace Geometry
 		Real t = b*d-a*e;
 
 		// Compute the results for all the regions
-		//Eigen::Matrix<Real, 3, 1> dist[7];
-		Real dist[7];
-		dist[0] = detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f)[0];
-		dist[1] = detail::computeDistanceRegion1(det, a, b, c, d, e, f)[0];
-		dist[2] = detail::computeDistanceRegion2(det, a, b, c, d, e, f)[0];
-		dist[3] = detail::computeDistanceRegion3(det, a, b, c, d, e, f)[0];
-		dist[4] = detail::computeDistanceRegion4(det, a, b, c, d, e, f)[0];
-		dist[5] = detail::computeDistanceRegion5(det, a, b, c, d, e, f)[0];
-		dist[6] = detail::computeDistanceRegion6(det, a, b, c, d, e, f)[0];
-
-		Real sq_dist = select
+		std::array<Real, 3> sq_dist = select
 		(
 			s + t <= det, 
 			select
 			(
 				s < (Real)0.0,
-				select(t < (Real)0.0, dist[4], dist[3]), 
-				select(t < (Real)0.0, dist[5], dist[0])
+				select(t < (Real)0.0, detail::computeDistanceRegion4(det, a, b, c, d, e, f), detail::computeDistanceRegion3(det, a, b, c, d, e, f)),
+				select(t < (Real)0.0, detail::computeDistanceRegion5(det, a, b, c, d, e, f), detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f))
 			),
 			select
 			(
 				s < (Real)0.0,
-				dist[2],
-				select(t < (Real)0.0, dist[6], dist[1])
+				detail::computeDistanceRegion2(det, a, b, c, d, e, f),
+				select(t < (Real)0.0, detail::computeDistanceRegion6(det, a, b, c, d, e, f), detail::computeDistanceRegion1(det, a, b, c, d, e, f))
 			)
 		);
 
@@ -409,8 +382,14 @@ namespace Vcl { namespace Geometry
 		//);
 
 		// Account for numerical round-off error
-		//dist[region](0) = std::max((Real) 0, dist[region](0));
-		sq_dist = max((Real) 0, sq_dist);
+		sq_dist[0] = max((Real) 0, sq_dist[0]);
+
+		if (barycentric)
+		{
+			(*barycentric)[0] = (Real)1.0 - s - t;
+			(*barycentric)[1] = sq_dist[1];
+			(*barycentric)[2] = sq_dist[2];
+		}
 
 		//if (r != nullptr)
 		//	*r = region;
@@ -418,10 +397,7 @@ namespace Vcl { namespace Geometry
 			*r = -1;
 
 		/*m_kClosestPoint0 = P;
-		m_kClosestPoint1 = B + s*E0+ t*E1;
-		m_afTriangleBary[1] = s;
-		m_afTriangleBary[2] = t;
-		m_afTriangleBary[0] = (Real)1.0 - s - t;*/
-		return sqrt(sq_dist);
+		m_kClosestPoint1 = B + s*E0+ t*E1;*/
+		return sqrt(sq_dist[0]);
 	}
 }}

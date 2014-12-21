@@ -75,10 +75,15 @@
 #		define alignof(x) __alignof(x)
 #	endif /* _MSC_VER <= 1800 */
 
-// Hide the noexcept-keyword
+// Enable the noexcept-keyword
 #	if (_MSC_VER <= 1800)
 #		define noexcept _NOEXCEPT
 #	endif /* _MSC_VER <= 1800 */
+
+// Enable the thread_local-keyword
+#	if (_MSC_VER <= 1900)
+#		define thread_local __declspec(thread)
+#	endif /* _MSC_VER <= 1900 */
 
 #elif defined (VCL_COMPILER_GNUC) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)

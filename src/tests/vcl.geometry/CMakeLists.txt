@@ -1,9 +1,7 @@
-PROJECT(vcl_core_test)
+PROJECT(vcl_geometry_test)
 
 SET(VCL_TEST_SRC
-	gather.cpp
-	interleavedarray.cpp
-	scatter.cpp
+	distance.cpp
 )
 SET(VCL_TEST_INC
 )
@@ -15,14 +13,14 @@ SET(SOURCE
 SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${INCVCL_TEST_INC})
 
 # Generate library
-ADD_EXECUTABLE(vcl_core_test
+ADD_EXECUTABLE(vcl_geometry_test
 	${SOURCE}
 )
 
-SET_TARGET_PROPERTIES(vcl_core_test PROPERTIES FOLDER tests)
+SET_TARGET_PROPERTIES(vcl_geometry_test PROPERTIES FOLDER tests)
 
-TARGET_LINK_LIBRARIES(vcl_core_test
-	vcl_core
+TARGET_LINK_LIBRARIES(vcl_geometry_test
+	vcl_geometry
 	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest.lib
 	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest_main.lib
 	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest.lib

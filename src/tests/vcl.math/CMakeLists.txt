@@ -1,9 +1,7 @@
-PROJECT(vcl_core_test)
+PROJECT(vcl_math_test)
 
 SET(VCL_TEST_SRC
-	gather.cpp
-	interleavedarray.cpp
-	scatter.cpp
+	qr33.cpp
 )
 SET(VCL_TEST_INC
 )
@@ -15,14 +13,14 @@ SET(SOURCE
 SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${INCVCL_TEST_INC})
 
 # Generate library
-ADD_EXECUTABLE(vcl_core_test
+ADD_EXECUTABLE(vcl_math_test
 	${SOURCE}
 )
 
-SET_TARGET_PROPERTIES(vcl_core_test PROPERTIES FOLDER tests)
+SET_TARGET_PROPERTIES(vcl_math_test PROPERTIES FOLDER tests)
 
-TARGET_LINK_LIBRARIES(vcl_core_test
-	vcl_core
+TARGET_LINK_LIBRARIES(vcl_math_test
+	vcl_math
 	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest.lib
 	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest_main.lib
 	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest.lib

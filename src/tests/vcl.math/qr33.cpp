@@ -22,35 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/util/precisetimer.h>
 
-#include <vcl/core/contract.h>
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Util
+// Include the relevant parts from the library
+#include <vcl/math/math.h>
+#include <vcl/math/qr33.h>
+
+// Google test
+#include <gtest/gtest.h>
+
+// Tests the scalar gather function.
+TEST(QR33, Simple)
 {
-	void PreciseTimer::start()
-	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStartTime);
-#endif // VCL_ABI_WINAPI
-	}
+	using Vcl::Matrix3f;
+	using Vcl::Mathematics::equal;
+	using Vcl::Mathematics::jacobiQRDecomposition;
 
-	void PreciseTimer::stop()
-	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStopTime);
-#endif // VCL_ABI_WINAPI
-	}
+	// Sample values from: http://en.wikipedia.org/wiki/QR_decomposition
+	Matrix3f A;
+	A << 12, -51, 4, 6, 167, -68, -4, 24, -41;
 
-	double PreciseTimer::interval(unsigned int nr_iterations) const
-	{
-		Require(nr_iterations > 0, "Number of iterations is at least 1.");
+	Matrix3f Ref;
+	Ref << 14, 21, -14, 0, 175, -70, 0, 0, 35;
 
-#ifdef VCL_ABI_WINAPI
-		LARGE_INTEGER freq;
-		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
-		
-		return ((double)(mStopTime.QuadPart - mStartTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
-#endif // VCL_ABI_WINAPI
-	}
-}}
+	// Compute decomposition
+	Matrix3f R = A;
+	Matrix3f Q;
+	jacobiQRDecomposition(R, Q);
+
+	EXPECT_TRUE(equal(Ref, R, 1e-4f)) << "Simple Example";
+}

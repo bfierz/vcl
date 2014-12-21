@@ -22,110 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
-
-// C++ standard library
-#include <iostream>
-
-// OpenMP
-#ifdef _OPENMP
-#include <omp.h>
-#endif // _OPENMP
-
-// VCL
-#include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/InterleavedArray.h>
-#include <vcl/geometry/distance.h>
-#include <vcl/util/precisetimer.h>
-
-
-template<typename Real>
-Real distanceEberly
-(
-const Eigen::Matrix<Real, 3, 1>& v0,
-const Eigen::Matrix<Real, 3, 1>& v1,
-const Eigen::Matrix<Real, 3, 1>& v2,
-const Eigen::Matrix<Real, 3, 1>& p,
-std::array<Real, 3>* barycentric,
-int* r
-);
-
-int main(int argc, char* argv[])
-{
-	using Vcl::Geometry::distance;
-
-	//typedef Vcl::float16 real_t;
-	typedef Vcl::float8 real_t;
-	//typedef Vcl::float4 real_t;
-	//typedef float real_t;
-
-	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
-
-	// Reference triangle
-	Eigen::Vector3f ref_a{ 1, 0, 0 };
-	Eigen::Vector3f ref_b{ 0, 1, 0 };
-	Eigen::Vector3f ref_c{ 0, 0, 1 };
-
-	vector3_t a{ 1, 0, 0 };
-	vector3_t b{ 0, 1, 0 };
-	vector3_t c{ 0, 0, 1 };
-
-	size_t nr_problems = 1024*1024;
-
-	std::vector<Eigen::Vector3f> ref_points(nr_problems);
-	Vcl::Core::InterleavedArray<float, 3, 1, -1> points(nr_problems);
-
-	// Strides
-	size_t width = sizeof(real_t) / sizeof(float);
-
-	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
-	{
-		ref_points[i].setRandom();
-		points.at<float>(i) = ref_points[i];
-	}
-
-	// Shared objects
-	Vcl::Util::PreciseTimer timer;
-
-	// Test Performance: Eberly's reference method
-	timer.start();
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif // _OPENMP
-	for (int i = 0; i < nr_problems; i++)
-	{
-		Eigen::Vector3f p = ref_points[i];
-		std::array<float, 3> st;
-		int r1 = -1;
-
-		float d1 = distanceEberly(ref_a, ref_b, ref_c, p, &st, &r1);
-	}
-	timer.stop();
-	std::cout << "Point-triangle Distance (Reference): " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
-
-	// Test Performance: Optimized test by Eberly
-	timer.start();
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif // _OPENMP
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
-	{
-		vector3_t p = points.at<real_t>(i);
-
-		std::array<real_t, 3> st;
-		int r1 = -1;
-
-		real_t d1 = distance(a, b, c, p, &st, &r1);
-	}
-	timer.stop();
-	std::cout << "Point-triangle Distance (Optimized): " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
-
-	return 0;
-}
 
 template<typename Real>
 Real distanceEberly
@@ -134,8 +35,8 @@ Real distanceEberly
 	const Eigen::Matrix<Real, 3, 1>& v1,
 	const Eigen::Matrix<Real, 3, 1>& v2,
 	const Eigen::Matrix<Real, 3, 1>& p,
-	std::array<Real, 3>* barycentric,
-	int* r
+	std::array<Real, 3>* barycentric = nullptr,
+	int* r = nullptr
 )
 {
 	Eigen::Matrix<Real, 3, 1> P = p;
@@ -388,7 +289,7 @@ Real distanceEberly
 		(*barycentric)[2] = t;
 	}
 
-	if (r != nullptr)
+	if (r)
 		*r = region;
 
 	/*m_kClosestPoint0 = P;

@@ -240,6 +240,22 @@ namespace Vcl
 
 		return selected;
 	}
+	
+	template<typename Scalar, int Width, int N>
+	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select
+	(
+		const VectorScalar<bool, Width>& mask,
+		const std::array<VectorScalar<Scalar, Width>, N>& a,
+		const std::array<VectorScalar<Scalar, Width>, N>& b
+	)
+	{
+		std::array<VectorScalar<Scalar, Width>, N> selected;
+
+		for (int i = 0; i < N; i++)
+			selected[i] = select(mask, a[i], b[i]);
+
+		return selected;
+	}
 
 	template<typename SCALAR>
 	VCL_STRONG_INLINE void cswap(bool mask, SCALAR& a, SCALAR& b)

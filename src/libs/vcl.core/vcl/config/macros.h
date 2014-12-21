@@ -24,7 +24,7 @@
  */ 
 #pragma once
 
-#include <vcl/config/config.h>
+#include <vcl/config/compiler.h>
 
 // Note: Some of the macros in this file are based on the description in
 // http://molecularmusings.wordpress.com/2011/07/12/a-plethora-of-macros/

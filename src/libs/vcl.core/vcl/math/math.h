@@ -70,7 +70,7 @@ namespace Vcl { namespace Mathematics
 		return (a > b) ? a : b;
 	}
 
-	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> fast_mul(const Eigen::Matrix<double, 12, 12>& A, const Eigen::Matrix<double, 12, 1>& x)
+	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, const Eigen::Matrix<double, 12, 1>& x)
 	{
 		static_assert((Eigen::Matrix<double, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
 
@@ -84,7 +84,7 @@ namespace Vcl { namespace Mathematics
 		return acc;
 	}
 
-	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> fast_mul(const Eigen::Matrix<double, 12, 12>& A, Eigen::Matrix<double, 12, 1>&& x)
+	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, Eigen::Matrix<double, 12, 1>&& x)
 	{
 		static_assert((Eigen::Matrix<double, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
 
@@ -168,7 +168,7 @@ namespace Vcl { namespace Mathematics
 		return out;
 	}
 
-	inline Eigen::Matrix<float, 12, 1> fast_mul(const Eigen::Matrix<float, 12, 12>& A, const Eigen::Matrix<float, 12, 1>& x)
+	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, const Eigen::Matrix<float, 12, 1>& x)
 	{
 		static_assert((Eigen::Matrix<float, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
 
@@ -182,7 +182,7 @@ namespace Vcl { namespace Mathematics
 		return acc;
 	}
 
-	inline Eigen::Matrix<float, 12, 1> fast_mul(const Eigen::Matrix<float, 12, 12>& A, Eigen::Matrix<float, 12, 1>&& x)
+	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, Eigen::Matrix<float, 12, 1>&& x)
 	{
 		static_assert((Eigen::Matrix<float, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
 
@@ -194,5 +194,33 @@ namespace Vcl { namespace Mathematics
 		}
 
 		return acc;
+	}
+
+
+	//Based on: http://realtimecollisiondetection.net/pubs/GDC08_Ericson_Physics_Tutorial_Numerical_Robustness.ppt
+	VCL_STRONG_INLINE bool equal(double x, double y, double tol = 0.0)
+	{
+		return abs(x - y) <= tol * fmax(1.0, fmax(abs(x), abs(y)));
+	}
+
+	VCL_STRONG_INLINE bool equal(float x, float y, float tol = 0.0f)
+	{
+		return abs(x - y) <= tol * fmax(1.0f, fmax(abs(x), abs(y)));
+	}
+
+	template<typename Scalar, int Rows, int Cols>
+	VCL_STRONG_INLINE bool equal
+	(
+		const Eigen::Matrix<Scalar, Rows, Cols>& x,
+		const Eigen::Matrix<Scalar, Rows, Cols>& y,
+		Scalar tol = 0
+	)
+	{
+		bool eq = true;
+		for (int c = 0; c < Cols; c++)
+			for (int r = 0; r < Rows; r++)
+				eq = eq || equal(x(r, c), y(r, c), tol);
+
+		return eq;
 	}
 }}

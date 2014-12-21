@@ -9,4 +9,7 @@ INCLUDE_DIRECTORIES(${VCL_GTEST_INCLUDE_DIR})
 SUBDIRS(vcl.core)
 
 # Test for the library containing geometric algorithms
-#SUBDIRS(vcl.geometry)
+SUBDIRS(vcl.geometry)
+
+# Test for the library containing math routines
+SUBDIRS(vcl.math)

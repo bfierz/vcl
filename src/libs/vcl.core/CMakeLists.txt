@@ -19,6 +19,7 @@ SET(VCL_CONFIG_INC
 
 # VCL / CORE
 SET(VCL_CORE_SRC
+	vcl/core/contract.cpp
 )
 SET(VCL_CORE_INC
 	vcl/core/contract.h

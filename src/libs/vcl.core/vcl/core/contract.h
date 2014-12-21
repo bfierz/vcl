@@ -27,35 +27,57 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard library
-#include <cassert>
+// C runtime library
+#include <stdio.h>
 
 #if defined (DEBUG) || defined (_DEBUG)
-#	define debug_printf(x) printf(x);
 #	ifndef VCL_NO_CONTRACTS
 #		define VCL_CONTRACT
 #	endif
 #else
-#	define debug_printf(x)
 #	ifdef VCL_CHECK_CONTRACTS
 #		define VCL_CONTRACT        
 #	endif
 #endif
 
-
 #ifdef VCL_CONTRACT
+#	ifdef __GNUC__
+#		define VCL_CONTRACT_SPRINTF snprintf
+#	else
+#		define VCL_CONTRACT_SPRINTF sprintf_s
+#	endif
 
-	#ifdef __GNUC__
-		#define VCL_CONTRACT_SPRINTF snprintf
-	#else
-		#define VCL_CONTRACT_SPRINTF sprintf_s
-	#endif
+namespace Vcl { namespace Assert
+{
+	char* format();
+	char* format(char* format, ...);
 
-	// Definitions of contracts
-	#define Check(expr, description,...) assert((expr))
-	#define Require(expr, description,...) assert((expr))
-	#define Ensure(expr, description,...) assert((expr))
-	#define DebugError(description,...) assert((expr))
+	bool handler(const char* title, const char* message, bool* b);
+}}
+	/*!
+	 *	\brief Defintion of a assert
+	 *
+	 *	This macro defines when the assert handler called and if the debugger should be invoked
+	 */
+#	define vcl_assert(type, expr, description, ...)                        \
+	 {                                                                     \
+		static bool ignoreAlways = false;                                  \
+		if (!ignoreAlways && !(expr))                                      \
+		{                                                                  \
+			char msgbuf[1024];                                             \
+			VCL_CONTRACT_SPRINTF(msgbuf,"%s in %s:%d:\n '%s' \n %s \n %s \n", type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr), description, Vcl::Assert::format(__VA_ARGS__)); \
+			if(Vcl::Assert::handler(description, msgbuf, &ignoreAlways))   \
+			{                                                              \
+				VCL_DEBUG_BREAK;                                           \
+			}                                                              \
+		}                                                                  \
+	}
+
+	// Define wrappers around the contract method
+	#define Check(expr, description,...)   vcl_assert("Check",   (expr), description, __VA_ARGS__)
+	#define Require(expr, description,...) vcl_assert("Require", (expr), description, __VA_ARGS__)
+	#define Ensure(expr, description,...)  vcl_assert("Ensure",  (expr), description, __VA_ARGS__)
+	#define DebugError(description,...)    vcl_assert("Error",   (VCL_EVAL_FALSE), description, __VA_ARGS__)
 	#define AssertBlock if(VCL_EVAL_TRUE)
 #else
 	#define Check(expr, description,...)

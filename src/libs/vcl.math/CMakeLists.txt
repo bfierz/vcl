@@ -1,0 +1,25 @@
+PROJECT(vcl_math)
+
+# VCL / MATH
+SET(VCL_MATH_INC
+	vcl/math/qr33.h
+	vcl/math/qr33_impl.h
+)
+SET(VCL_MATH_SRC
+	vcl/math/qr33.cpp
+)
+
+SOURCE_GROUP("" FILES ${VCL_MATH_SRC} ${VCL_MATH_INC})
+
+SET(SOURCE
+	${VCL_MATH_SRC} ${VCL_MATH_INC}
+)
+
+# Generate library
+ADD_LIBRARY(vcl_math STATIC ${SOURCE})
+SET_TARGET_PROPERTIES(vcl_math PROPERTIES FOLDER libs)
+TARGET_INCLUDE_DIRECTORIES(vcl_math PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+TARGET_LINK_LIBRARIES(vcl_math
+	vcl_core
+)
