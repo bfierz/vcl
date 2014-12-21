@@ -125,6 +125,10 @@ namespace Eigen
 	typedef Eigen::ParametrizedLine<double, 3> ParametrizedLine3d;
 	typedef Eigen::Hyperplane<double, 3> Hyperplane3d;
 	typedef Eigen::Quaternion<double> Quaterniond;
+
+	typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
+	typedef Eigen::Matrix<unsigned int, 3, 1> Vector3ui;
+	typedef Eigen::Matrix<unsigned int, 4, 1> Vector4ui;
 }
 
 // Typedefs for VCL

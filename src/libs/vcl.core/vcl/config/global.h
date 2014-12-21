@@ -29,6 +29,9 @@
 #include <vcl/config/compiler.h>
 #include <vcl/config/macros.h>
 
+// Include some core functionality
+#include <cstdint>
+
 #ifdef VCL_DEBUG
 #	define DebugBlock if(true)
 #else
