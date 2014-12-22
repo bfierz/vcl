@@ -59,7 +59,7 @@
 // Inlining
 #	define VCL_STRONG_INLINE __forceinline
 
-#	define VCL_DEBUG_BREAK __debugbreak
+#	define VCL_DEBUG_BREAK __debugbreak()
 
 #	define VCL_ALIGN(alignment) __declspec(align(alignment))
 

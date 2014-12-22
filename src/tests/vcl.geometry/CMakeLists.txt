@@ -4,13 +4,14 @@ SET(VCL_TEST_SRC
 	distance.cpp
 )
 SET(VCL_TEST_INC
+	distance_ref.h
 )
 
 SET(SOURCE
 	${VCL_TEST_SRC} ${VCL_TEST_INC}
 )
 
-SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${INCVCL_TEST_INC})
+SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${VCL_TEST_INC})
 
 # Generate library
 ADD_EXECUTABLE(vcl_geometry_test

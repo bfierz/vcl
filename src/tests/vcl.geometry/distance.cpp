@@ -48,9 +48,9 @@ TEST(PointTriangleDistance, Simple)
 	using Vcl::Mathematics::equal;
 
 	//typedef Vcl::float16 real_t;
-	//typedef Vcl::float8 real_t;
+	typedef Vcl::float8 real_t;
 	//typedef Vcl::float4 real_t;
-	typedef float real_t;
+	//typedef float real_t;
 
 	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
 
@@ -109,8 +109,8 @@ TEST(PointTriangleDistance, Simple)
 	}
 	for (int i = 0; i < nr_problems; i++)
 	{
-		EXPECT_TRUE(equal(d0[i], reinterpret_cast<float*>(d1.data())[i], 1e-3f)) << "Distance differ: " << i;
-		EXPECT_TRUE(equal(s0[i], reinterpret_cast<float*>(s1.data())[i], 1e-3f)) << "S differ: " << i;
-		EXPECT_TRUE(equal(t0[i], reinterpret_cast<float*>(t1.data())[i], 1e-3f)) << "T differ: " << i;
+		EXPECT_TRUE(equal(d0[i], reinterpret_cast<float*>(d1.data())[i], 1e-4f)) << "Distance differ: " << i;
+		EXPECT_TRUE(equal(s0[i], reinterpret_cast<float*>(s1.data())[i], 1e-4f)) << "S differ: " << i;
+		EXPECT_TRUE(equal(t0[i], reinterpret_cast<float*>(t1.data())[i], 1e-4f)) << "T differ: " << i;
 	}
 }

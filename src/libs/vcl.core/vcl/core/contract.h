@@ -60,7 +60,7 @@ namespace Vcl { namespace Assert
 	 *	This macro defines when the assert handler called and if the debugger should be invoked
 	 */
 #	define vcl_assert(type, expr, description, ...)                        \
-	 {                                                                     \
+	{                                                                      \
 		static bool ignoreAlways = false;                                  \
 		if (!ignoreAlways && !(expr))                                      \
 		{                                                                  \

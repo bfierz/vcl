@@ -67,7 +67,7 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE double max(double a, double b)
 	{
-		return (a > b) ? a : b;
+		return fmax(a, b);
 	}
 
 	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, const Eigen::Matrix<double, 12, 1>& x)
@@ -166,6 +166,11 @@ namespace Vcl { namespace Mathematics
 		__m128 c = _mm_set_ss(f);
 		_mm_store_ss(&out, _mm_rcp_ss(c));
 		return out;
+	}
+
+	VCL_STRONG_INLINE float max(float a, float b)
+	{
+		return fmax(a, b);
 	}
 
 	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, const Eigen::Matrix<float, 12, 1>& x)

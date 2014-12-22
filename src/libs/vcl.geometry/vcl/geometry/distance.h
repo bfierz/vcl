@@ -36,6 +36,8 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
+#define USE
+
 namespace Vcl { namespace Geometry
 {
 	/*!
@@ -45,14 +47,18 @@ namespace Vcl { namespace Geometry
 	 */
 	namespace detail
 	{
-		using namespace Vcl::Mathematics;
+		template<typename Real>
+		VCL_STRONG_INLINE Real inv(Real x)
+		{
+			return Real(1) / x;
+		}
 
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion0(Real s, Real t, Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
 			std::array<Real, 3> dist;
 
-			Real inv_det = rcp(det);
+			Real inv_det = inv(det);
 			s *= inv_det;
 			t *= inv_det;
 			dist[0] = s*(a*s + b*t + ((Real)2.0)*d) +
@@ -66,6 +72,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion1(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			std::array<Real, 3> dist;
 
 			Real numer = c + e - b - d;
@@ -73,7 +81,7 @@ namespace Vcl { namespace Geometry
 
 			Real s_a = 0;
 			Real s_b = 1;
-			Real s_c = numer * rcp(denom);
+			Real s_c = numer * inv(denom);
 
 			Real t_a = 1;
 			Real t_b = 0;
@@ -124,6 +132,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion2(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			std::array<Real, 3> dist;
 
 			Real tmp0 = b + d;
@@ -132,7 +142,7 @@ namespace Vcl { namespace Geometry
 			Real denom = a - b*2 + c;
 
 			Real s_a = 1;
-			Real s_b = numer * rcp(denom);
+			Real s_b = numer * inv(denom);
 			Real s_c = 0;
 			Real s_d = 0;
 			Real s_e = 0;
@@ -141,7 +151,7 @@ namespace Vcl { namespace Geometry
 			Real t_b = (Real)1.0 - s_b;
 			Real t_c = 1;
 			Real t_d = 0;
-			Real t_e = -e * rcp(c);
+			Real t_e = -e * inv(c);
 
 			Real d_a = a + ((Real)2.0)*d + f;
 			Real d_b = s_b*(a*s_b + b*t_b + d*2) +
@@ -170,11 +180,17 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion3(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(a);
+			VCL_UNREFERENCED_PARAMETER(b);
+			VCL_UNREFERENCED_PARAMETER(d);
+
+
 			std::array<Real, 3> dist;
 
 			Real t_a = 0;
 			Real t_b = 1;
-			Real t_c = -e * rcp(c);
+			Real t_c = -e * inv(c);
 
 			Real sq_d_a = f;
 			Real sq_d_b = c + ((Real)2.0)*e + f;
@@ -210,10 +226,14 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion4(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(b);
+
+
 			std::array<Real, 3> dist;
 
 			Real s_a = 1;
-			Real s_b = -d * rcp(a);
+			Real s_b = -d * inv(a);
 			Real s_c = 0;
 			Real s_d = 0;
 			Real s_e = 0;
@@ -222,7 +242,7 @@ namespace Vcl { namespace Geometry
 			Real t_b = 0;
 			Real t_c = 0;
 			Real t_d = 1;
-			Real t_e = -e * rcp(c);
+			Real t_e = -e * inv(c);
 					   
 			Real d_a = a + ((Real)2.0)*d + f;
 			Real d_b = d*s_b + f;
@@ -251,11 +271,17 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion5(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+			VCL_UNREFERENCED_PARAMETER(b);
+			VCL_UNREFERENCED_PARAMETER(c);
+			VCL_UNREFERENCED_PARAMETER(e);
+
+
 			std::array<Real, 3> dist;
 
 			Real s_a = 0;
 			Real s_b = 1;
-			Real s_c = -d * rcp(a);
+			Real s_c = -d * inv(a);
 
 			Real d_a = f;
 			Real d_b = a + d*2 + f;
@@ -274,6 +300,8 @@ namespace Vcl { namespace Geometry
 		template<typename Real>
 		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion6(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
 		{
+			VCL_UNREFERENCED_PARAMETER(det);
+
 			std::array<Real, 3> dist;
 
 			Real tmp0 = b + e;
@@ -282,7 +310,7 @@ namespace Vcl { namespace Geometry
 			Real denom = a - ((Real)2.0)*b + c;
 
 			Real t_a = 1;
-			Real t_b = numer * rcp(denom);
+			Real t_b = numer * inv(denom);
 			Real t_c = 0;
 			Real t_d = 0;
 			Real t_e = 0;
@@ -291,7 +319,7 @@ namespace Vcl { namespace Geometry
 			Real s_b = (Real)1.0 - t_b;
 			Real s_c = 1;
 			Real s_d = 0;
-			Real s_e = -d * rcp(a);
+			Real s_e = -d * inv(a);
 					   
 			Real d_a = c + ((Real)2.0)*e + f;
 			Real d_b = s_b*(a*s_b + b*t_b + ((Real)2.0)*d) +

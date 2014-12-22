@@ -43,7 +43,7 @@
 #	define NOMINMAX
 #endif // NOMINMAX
 
-#define VCL_UNREFERENCED_PARAMETER(param) (param)
+#define VCL_UNREFERENCED_PARAMETER(param) ((void) param)
 
 #define VCL_SAFE_DELETE(ptr) if (ptr != NULL) { delete(ptr); ptr = NULL; }
 #define VCL_SAFE_DELETE_ARRAY(ptr) if (ptr != NULL) { delete[](ptr); ptr = NULL; }
