@@ -160,13 +160,13 @@ namespace Vcl { namespace Assert
 		return false;
 	}
 	
-	char* format()
+	const char* format()
 	{
 		return "";
 	}
 
 	thread_local char buffer[1024];
-	char* format(char* format, ...)
+	const char* format(char* format, ...)
 	{
 		va_list args;
 		va_start(args, format);

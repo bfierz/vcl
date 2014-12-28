@@ -49,8 +49,8 @@
 
 namespace Vcl { namespace Assert
 {
-	char* format();
-	char* format(char* format, ...);
+	const char* format();
+	const char* format(char* format, ...);
 
 	bool handler(const char* title, const char* message, bool* b);
 }}
