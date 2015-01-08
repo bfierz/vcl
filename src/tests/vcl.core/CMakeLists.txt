@@ -1,6 +1,7 @@
 PROJECT(vcl_core_test)
 
 SET(VCL_TEST_SRC
+	allocator.cpp
 	gather.cpp
 	interleavedarray.cpp
 	scatter.cpp
