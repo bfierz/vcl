@@ -14,6 +14,8 @@ SUBDIRS(libs)
 # Examples
 SUBDIRS(examples)
 
+# Tools
+SUBDIRS(tools)
 
 # Unit tests
 OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)

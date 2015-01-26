@@ -1,11 +1,10 @@
 PROJECT(vcl_core)
 
 # Write the configuration file
-CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_DIR}/vcl/config/config.h" )
+CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_DIR}/vcl/config/config.h")
 
 # Summarize configuration
 MESSAGE(STATUS "Writing configuration file")
-
 
 # VCL / CONFIG
 SET(VCL_CONFIG_INC
