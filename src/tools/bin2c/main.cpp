@@ -37,13 +37,34 @@
 // Boost
 #include <boost/program_options.hpp>
 
+// Copy entire file to container
+// Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
+template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+std::basic_string<Char, Traits, Allocator> read_stream_into_string
+(
+	std::basic_istream<Char, Traits>& in,
+	Allocator alloc = {}
+)
+{
+	std::basic_ostringstream<Char, Traits, Allocator> ss
+	(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
+	);
+
+	if (!(ss << in.rdbuf()))
+		throw std::ios_base::failure{ "error" };
+
+	return ss.str();
+}
+
+
 namespace po = boost::program_options;
 
 int main(int argc, char* argv [])
 {
 	// Declare the supported options.
 	po::options_description desc
-		("Usage: cuc [options]\n\nOptions");
+		("Usage: bin2c [options]\n\nOptions");
 	desc.add_options()
 		("help", "Print this help information on this tool.")
 		("version", "Print version information on this tool.")
@@ -108,13 +129,11 @@ int main(int argc, char* argv [])
 		export_symbol = vm["symbol"].as<std::string>();
 	}
 
-	std::ifstream ifile{ "main.cpp" };
+	std::ifstream ifile{ vm["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in };
 	if (ifile.is_open())
 	{
 		// Copy the file to a temporary buffer
-		std::istream_iterator<char> bos{ ifile };
-		std::istream_iterator<char> eos{};
-		std::vector<char> tmp_buffer(bos, eos);
+		std::string tmp_buffer = read_stream_into_string(ifile);
 
 		// Pad to the requested output width
 		for (int i = 0; i < width - 1; i++)
@@ -123,7 +142,7 @@ int main(int argc, char* argv [])
 		}
 
 		// Write the temporary buffer to the output
-		std::ofstream ofile{ "test.txt" };
+		std::ofstream ofile{ vm["output-file"].as<std::string>() };
 		if (ofile.is_open())
 		{
 			// Write header

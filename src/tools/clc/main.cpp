@@ -27,6 +27,7 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
+#include <iostream>
 #include <filesystem>
 #include <sstream>
 #include <vector>
@@ -45,6 +46,14 @@ namespace po = boost::program_options;
 
 namespace Vcl { namespace Tools { namespace Clc
 {
+	enum class Compiler
+	{
+		Msvc,
+		Clang,
+		Gcc,
+		Intel
+	};
+
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");
@@ -140,7 +149,7 @@ int main(int argc, char* argv [])
 
 	// Declare the supported options.
 	po::options_description desc
-	("Usage: cuc [options]\n\nOptions");
+	("Usage: clc [options]\n\nOptions");
 	desc.add_options()
 		("help", "Print this help information on this tool.")
 		("version", "Print version information on this tool.")
@@ -173,6 +182,7 @@ int main(int argc, char* argv [])
 #ifdef VCL_COMPILER_MSVC
 	std::string compiler = "cl";
 	char param_tok = '/';
+	Compiler format = Compiler::Msvc;
 #endif
 
 	if (vm.count("compiler") > 0)
@@ -181,16 +191,19 @@ int main(int argc, char* argv [])
 		{
 			compiler = "cl";
 			param_tok = '/';
+			format = Compiler::Msvc;
 		}
 		else if (vm["compiler"].as<std::string>() == "clang")
 		{
 			compiler = "clang";
 			param_tok = '-';
+			format = Compiler::Clang;
 		}
 		else if (vm["compiler"].as<std::string>() == "gcc")
 		{
 			compiler = "gcc";
 			param_tok = '-';
+			format = Compiler::Gcc;
 		}
 		else
 		{
@@ -200,18 +213,22 @@ int main(int argc, char* argv [])
 		}
 	}
 
-	std::vector<std::string> profiles;
-	if (vm.count("profile"))
-	{
-		profiles = vm["profile"].as<std::vector<std::string>>();
-	}
+	// Generate intermediate file name
+	std::string preprocess_file = fs::basename(fs::path{ vm["input-file"].as<std::string>() }) + ".i";
 
 	// Preprocess the source file
 	std::stringstream cmd;
 
-	// Add preprocessing command
-	cmd << param_tok << "E ";
+	if (format == Compiler::Msvc)
+	{
+		// Add preprocessing command
+		cmd << "/P ";
 
+		// Add the output file
+		cmd << "/Fi: " << preprocess_file << " ";
+	}
+
+	// Add include directories
 	if (vm.count("include"))
 	{
 		for (auto& inc : vm["include"].as<std::vector<std::string>>())
@@ -220,9 +237,21 @@ int main(int argc, char* argv [])
 		}
 	}
 
+	// Add the input file
 	cmd << R"(")" << vm["input-file"].as<std::string>() << R"(")";
 
+	// Invoke the preprocessor
 	exec(compiler.c_str(), cmd.str().c_str());
+
+	// Load the intermediate file and generate the binary file
+	cmd.str("");
+	cmd.clear();
+	cmd << "--group 4 ";
+	cmd << "-o " << vm["output-file"].as<std::string>() << " ";
+	cmd << preprocess_file;
+
+	// Invoke the binary file translator
+	exec("bin2c", cmd.str().c_str());
 
 	return 0;
 }
