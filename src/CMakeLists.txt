@@ -11,6 +11,9 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 # The libraries
 SUBDIRS(libs)
 
+# Benchmarks
+SUBDIRS(benchmarks)
+
 # Examples
 SUBDIRS(examples)
 
