@@ -154,6 +154,7 @@ int main(int argc, char* argv [])
 		("help", "Print this help information on this tool.")
 		("version", "Print version information on this tool.")
 		("compiler", po::value<std::string>(), "Compiler providing the preprocessor. Allowed options are clang, gcc, msvc, intel")
+		("symbol", po::value<std::string>(), "Name of the symbol used for the compiled module")
 		("include,I", po::value<std::vector<std::string>>(), "Additional include directory")
 		("output-file,o", po::value<std::string>(), "Specify the output file.")
 		("input-file", po::value<std::string>(), "Specify the input file.")
@@ -221,6 +222,9 @@ int main(int argc, char* argv [])
 
 	if (format == Compiler::Msvc)
 	{
+		// Remove the logo
+		cmd << "/nologo ";
+
 		// Add preprocessing command
 		cmd << "/P ";
 
@@ -247,6 +251,12 @@ int main(int argc, char* argv [])
 	cmd.str("");
 	cmd.clear();
 	cmd << "--group 4 ";
+
+	if (vm.count("symbol"))
+	{
+		cmd << "--symbol " << vm["symbol"].as<std::string>() << " ";
+	}
+
 	cmd << "-o " << vm["output-file"].as<std::string>() << " ";
 	cmd << preprocess_file;
 
