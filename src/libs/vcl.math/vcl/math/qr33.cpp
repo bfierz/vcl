@@ -29,7 +29,7 @@
 
 namespace Vcl { namespace Mathematics
 {
-	void JacobiQR(Matrix3f& R, Matrix3f& Q)
+	void JacobiQR(Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>& Q)
 	{
 		// Initialize Q
 		Q.setIdentity();
@@ -39,6 +39,28 @@ namespace Vcl { namespace Mathematics
 		JacobiRotateQR<float, 1, 0>(R, Q);
 		JacobiRotateQR<float, 2, 0>(R, Q);
 		JacobiRotateQR<float, 2, 1>(R, Q);
+	}
+	void JacobiQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence (1,0), (2,0), (2,1)
+		// of rotations
+		JacobiRotateQR<float4, 1, 0>(R, Q);
+		JacobiRotateQR<float4, 2, 0>(R, Q);
+		JacobiRotateQR<float4, 2, 1>(R, Q);
+	}
+	void JacobiQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence (1,0), (2,0), (2,1)
+		// of rotations
+		JacobiRotateQR<float8, 1, 0>(R, Q);
+		JacobiRotateQR<float8, 2, 0>(R, Q);
+		JacobiRotateQR<float8, 2, 1>(R, Q);
 	}
 
 	void JacobiQR(Matrix3d& R, Matrix3d& Q)

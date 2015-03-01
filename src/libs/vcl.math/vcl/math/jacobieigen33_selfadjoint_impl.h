@@ -52,6 +52,24 @@ namespace Vcl { namespace Mathematics
 	};
 
 	template<>
+	struct JacobiTraits<float4>
+	{
+		VCL_STRONG_INLINE static int maxIterations() { return 20; }
+
+		// 2^-22 (Machine eps: 2^-23)
+		VCL_STRONG_INLINE static float epsilon() { return 0.0000002384185791015625f; }
+	};
+
+	template<>
+	struct JacobiTraits<float8>
+	{
+		VCL_STRONG_INLINE static int maxIterations() { return 20; }
+
+		// 2^-22 (Machine eps: 2^-23)
+		VCL_STRONG_INLINE static float epsilon() { return 0.0000002384185791015625f; }
+	};
+
+	template<>
 	struct JacobiTraits<double>
 	{
 		VCL_STRONG_INLINE static int maxIterations() { return 20; }
@@ -167,7 +185,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
-		Check(all(abs(Apq) < 1e-6), "Off diagonal element is 0.", "Error: %f", Apq);
+		Check(all(abs(Apq) < REAL(1e-6)), "Off diagonal element is 0.", "Error: %f", Apq);
 
 		M(p,q) = Apq;
 		M(q,p) = Apq;

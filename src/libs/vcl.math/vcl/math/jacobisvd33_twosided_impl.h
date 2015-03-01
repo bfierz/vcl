@@ -51,6 +51,24 @@ namespace Vcl { namespace Mathematics
 	};
 
 	template<>
+	struct TwoSidedJacobiTraits<float4>
+	{
+		VCL_STRONG_INLINE static int maxIterations() { return 20; }
+
+		// 2^-22 (Machine eps: 2^-23)
+		VCL_STRONG_INLINE static float epsilon() { return 0.0000002384185791015625f; }
+	};
+
+	template<>
+	struct TwoSidedJacobiTraits<float8>
+	{
+		VCL_STRONG_INLINE static int maxIterations() { return 20; }
+
+		// 2^-22 (Machine eps: 2^-23)
+		VCL_STRONG_INLINE static float epsilon() { return 0.0000002384185791015625f; }
+	};
+
+	template<>
 	struct TwoSidedJacobiTraits<double>
 	{
 		VCL_STRONG_INLINE static int maxIterations() { return 20; }

@@ -28,8 +28,14 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// VCL
+#include <vcl/core/simd/vectorscalar.h>
+
 namespace Vcl { namespace Mathematics
 {
-	void JacobiQR(Matrix3f& R, Matrix3f& Q);
+	void JacobiQR(Eigen::Matrix<float,  3, 3>& R, Eigen::Matrix<float,  3, 3>& Q);
+	void JacobiQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q);
+	void JacobiQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q);
+
 	void JacobiQR(Matrix3d& R, Matrix3d& Q);
 }}

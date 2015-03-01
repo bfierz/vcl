@@ -29,9 +29,17 @@
 
 namespace Vcl { namespace Mathematics
 {
-	int QRJacobiSVD(Eigen::Matrix3f& A, Eigen::Matrix3f& U, Eigen::Matrix3f& V)
+	int QRJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V)
 	{
 		return QRJacobiSVD<float>(A, U, V);
+	}
+	int QRJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V)
+	{
+		return QRJacobiSVD<float4>(A, U, V);
+	}
+	int QRJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V)
+	{
+		return QRJacobiSVD<float8>(A, U, V);
 	}
 
 	int QRJacobiSVD(Eigen::Matrix3d& A, Eigen::Matrix3d& U, Eigen::Matrix3d& V)

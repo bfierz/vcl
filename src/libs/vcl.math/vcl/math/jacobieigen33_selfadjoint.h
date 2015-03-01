@@ -33,6 +33,9 @@
 
 namespace Vcl { namespace Mathematics
 {
-	int SelfAdjointJacobiEigen(Eigen::Matrix3f& A, Eigen::Matrix3f& U);
+	int SelfAdjointJacobiEigen(Eigen::Matrix<float,  3, 3>& A, Eigen::Matrix<float,  3, 3>& U);
+	int SelfAdjointJacobiEigen(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U);
+	int SelfAdjointJacobiEigen(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U);
+
 	int SelfAdjointJacobiEigen(Eigen::Matrix3d& A, Eigen::Matrix3d& U);
 }}
