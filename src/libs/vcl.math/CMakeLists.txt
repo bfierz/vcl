@@ -10,7 +10,11 @@ SET(VCL_MATH_MCADAMS_INC
 )
 # VCL / MATH
 SET(VCL_MATH_INC
+	vcl/math/jacobieigen33_selfadjoint_impl.h
+	vcl/math/jacobieigen33_selfadjoint.h
 	vcl/math/jacobisvd33_mcadams.h
+	vcl/math/jacobisvd33_qr_impl.h
+	vcl/math/jacobisvd33_qr.h
 	vcl/math/jacobisvd33_twosided.h
 	vcl/math/jacobisvd33_twosided_impl.h
 	vcl/math/qr33.h
@@ -18,9 +22,11 @@ SET(VCL_MATH_INC
 
 )
 SET(VCL_MATH_SRC
+	vcl/math/jacobieigen33_selfadjoint.cpp
 	vcl/math/jacobisvd33_mcadams.cpp
 	vcl/math/jacobisvd33_mcadams_sse.cpp
 	vcl/math/jacobisvd33_mcadams_avx.cpp
+	vcl/math/jacobisvd33_qr.cpp
 	vcl/math/jacobisvd33_twosided.cpp
 	vcl/math/qr33.cpp
 )

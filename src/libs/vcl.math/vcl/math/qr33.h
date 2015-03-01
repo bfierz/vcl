@@ -30,6 +30,6 @@
 
 namespace Vcl { namespace Mathematics
 {
-	void jacobiQRDecomposition(Matrix3f& R, Matrix3f& Q);
-	void jacobiQRDecomposition(Matrix3d& R, Matrix3d& Q);
+	void JacobiQR(Matrix3f& R, Matrix3f& Q);
+	void JacobiQR(Matrix3d& R, Matrix3d& Q);
 }}

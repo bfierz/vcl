@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/math/qr33.h>
+#include <vcl/math/jacobieigen33_selfadjoint.h>
 
-// VCL
-#include <vcl/math/qr33_impl.h>
+// VCL library
+#include <vcl/math/jacobieigen33_selfadjoint_impl.h>
 
 namespace Vcl { namespace Mathematics
 {
-	void JacobiQR(Matrix3f& R, Matrix3f& Q)
+	int SelfAdjointJacobiEigen(Eigen::Matrix3f& M, Eigen::Matrix3f& U)
 	{
-		// Initialize Q
-		Q.setIdentity();
-
-		// Clear values below the diagonal with a fixed sequence (1,0), (2,0), (2,1)
-		// of rotations
-		JacobiRotateQR<float, 1, 0>(R, Q);
-		JacobiRotateQR<float, 2, 0>(R, Q);
-		JacobiRotateQR<float, 2, 1>(R, Q);
+		return SelfAdjointJacobiEigenMaxElement(M, U);
 	}
 
-	void JacobiQR(Matrix3d& R, Matrix3d& Q)
+	int SelfAdjointJacobiEigen(Eigen::Matrix3d& M, Eigen::Matrix3d& U)
 	{
-		// Initialize Q
-		Q.setIdentity();
-
-		// Clear values below the diagonal with a fixed sequence (1,0), (2,0), (2,1)
-		// of rotations
-		JacobiRotateQR<double, 1, 0>(R, Q);
-		JacobiRotateQR<double, 2, 0>(R, Q);
-		JacobiRotateQR<double, 2, 1>(R, Q);
+		return SelfAdjointJacobiEigenMaxElement(M, U);
 	}
 }}

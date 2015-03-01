@@ -36,7 +36,7 @@
 namespace Vcl { namespace Mathematics
 {
 	template<typename Scalar>
-	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> jacobiRotationAngle(const Scalar& a11, const Scalar& a21)
+	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> JacobiRotationAngle(const Scalar& a11, const Scalar& a21)
 	{
 		// Normalisation factor
 		Scalar rho = Scalar(1) / Scalar(sqrt(a11*a11 + a21*a21));
@@ -54,7 +54,7 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename Scalar>
-	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> approxJacobiRotationQuaternion(const Scalar& a11, const Scalar& a21)
+	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> ApproxJacobiRotationQuaternion(const Scalar& a11, const Scalar& a21)
 	{
 		Scalar rho = Scalar(sqrt(a11*a11 + a21*a21));
 		Scalar s_h = select(rho > Scalar(1e-6), a21, 0);
@@ -69,7 +69,7 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename Scalar, int p, int q>
-	VCL_STRONG_INLINE void jacobiRotateQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
+	VCL_STRONG_INLINE void JacobiRotateQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
 	{
 		static_assert(0 <= p && p < 3, "p in [0,3)");
 		static_assert(0 <= q && q < 3, "q in [0,3)");
@@ -77,7 +77,7 @@ namespace Vcl { namespace Mathematics
 
 		// Rotates A through phi in pq-plane to set R(p, q) = 0.
 		// Rotation stored in Q whose columns are eigenvectors of R
-		auto cs = jacobiRotationAngle(R(q, q), R(p, q));
+		auto cs = JacobiRotationAngle(R(q, q), R(p, q));
 		Scalar c = cs(0);
 		Scalar s = cs(1);
 
@@ -110,15 +110,15 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename Scalar>
-	void jacobiQRDecomposition(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
+	void JacobiQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
 	{
 		// Initialize Q
 		Q.setIdentity();
 
 		// Clear values below the diagonal with a fixed sequence (1,0), (2,0), (2,1)
 		// of rotations
-		jacobiRotateQR<Scalar, 1, 0>(R, Q);
-		jacobiRotateQR<Scalar, 2, 0>(R, Q);
-		jacobiRotateQR<Scalar, 2, 1>(R, Q);
+		JacobiRotateQR<Scalar, 1, 0>(R, Q);
+		JacobiRotateQR<Scalar, 2, 0>(R, Q);
+		JacobiRotateQR<Scalar, 2, 1>(R, Q);
 	}
 }}

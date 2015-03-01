@@ -39,7 +39,7 @@ TEST(QR33, Simple)
 {
 	using Vcl::Matrix3f;
 	using Vcl::Mathematics::equal;
-	using Vcl::Mathematics::jacobiQRDecomposition;
+	using Vcl::Mathematics::JacobiQR;
 
 	// Sample values from: http://en.wikipedia.org/wiki/QR_decomposition
 	Matrix3f A;
@@ -51,7 +51,7 @@ TEST(QR33, Simple)
 	// Compute decomposition
 	Matrix3f R = A;
 	Matrix3f Q;
-	jacobiQRDecomposition(R, Q);
+	JacobiQR(R, Q);
 
 	EXPECT_TRUE(equal(Ref, R, 1e-4f)) << "Simple Example";
 }
