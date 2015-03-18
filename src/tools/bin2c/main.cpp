@@ -114,12 +114,16 @@ int main(int argc, char* argv [])
 	{
 	case 1:
 		width_symbol = "uint8_t";
+		break;
 	case 2:
 		width_symbol = "uint16_t";
+		break;
 	case 4:
 		width_symbol = "uint32_t";
+		break;
 	case 8:
 		width_symbol = "uint64_t";
+		break;
 	}
 
 	// Export symbol name
@@ -134,6 +138,7 @@ int main(int argc, char* argv [])
 	{
 		// Copy the file to a temporary buffer
 		std::string tmp_buffer = read_stream_into_string(ifile);
+		ifile.close();
 
 		// Pad to the requested output width
 		for (int i = 0; i < width - 1; i++)
@@ -147,14 +152,14 @@ int main(int argc, char* argv [])
 		{
 			// Write header
 			ofile << R"(#include <cstdint>)" << "\n";
-			ofile << width_symbol << " " << export_symbol << " = \n{\n";
+			ofile << width_symbol << " " << export_symbol << "[] = \n{\n";
 
 			// Write data
 			ofile << "\t";
 			for (int e = 0; e + width <= (int) tmp_buffer.size(); e += width)
 			{
 				ofile << "0x";
-				for (int i = 0; i < width; i++)
+				for (int i = width - 1; i >= 0; i--)
 				{
 					ofile << std::setfill('0') << std::hex << std::setw(2) << (unsigned int) tmp_buffer[e + i];
 				}
