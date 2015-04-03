@@ -6,3 +6,6 @@ SUBDIRS(vcl.math)
 
 # Library containing geometric algorithms
 SUBDIRS(vcl.geometry)
+
+# Library containing graphics classes
+SUBDIRS(vcl.graphics)
