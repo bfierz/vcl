@@ -89,6 +89,17 @@ namespace Vcl
 		);
 	}
 
+	VCL_STRONG_INLINE void load(float8& value, const float* base)
+	{
+		value = float8{ _mm256_loadu_ps(base) };
+	}
+
+	VCL_STRONG_INLINE void load(float16& value, const float* base)
+	{
+		value = float16{ _mm256_loadu_ps(base), _mm256_loadu_ps(base + 8) };
+	}
+
+
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
 	(

@@ -4,6 +4,7 @@ SET(VCL_TEST_SRC
 	allocator.cpp
 	gather.cpp
 	interleavedarray.cpp
+	load.cpp
 	scatter.cpp
 )
 SET(VCL_TEST_INC

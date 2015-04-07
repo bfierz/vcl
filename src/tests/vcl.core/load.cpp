@@ -34,8 +34,8 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar scatter function.
-TEST(ScatterTest, Scalar)
+// Tests the scalar gather function.
+TEST(LoadTest, Scalar)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -61,55 +61,42 @@ TEST(ScatterTest, Scalar)
 		10.1965f, 11.632f, 11.3976f,
 		10.0714f, 11.5502f, 11.5733f
 	};
-	float out[sizeof(mem) / sizeof(float)];
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter(mem[3], out, 3);
-	EXPECT_EQ(mem[ 3], out[ 3]) << "Scalar code failed.";
+	float f;
+	Vcl::load(f, mem + 3);
+	EXPECT_EQ(mem[ 3], f) << "Scalar code failed.";
 
-	int4 idx4{ 3, 26, 1, 15 };
-	float4 ref4{ mem[ 3], mem[26], mem[ 1], mem[15] };
+	float4 ref4{ mem[ 5], mem[ 6], mem[ 7], mem[ 8] };
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 4>(ref4, out, idx4);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
-	{
-		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "4-way code failed.";
-	}
+	float4 f4;
+	Vcl::load(f4, mem + 5);
+	EXPECT_TRUE(all(ref4 == f4)) << "4-way code failed.";
 
-	int8 idx8{ 3, 26, 1, 15, 12, 29, 0, 19 };
 	float8 ref8
 	{
-		mem[ 3], mem[26], mem[ 1], mem[15],
-		mem[12], mem[29], mem[ 0], mem[19]
+		mem[ 9], mem[10], mem[11], mem[12],
+		mem[13], mem[14], mem[15], mem[16]
 	};
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 8>(ref8, out, idx8);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
-	{
-		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "8-way code failed.";
-	}
+	float8 f8;
+	Vcl::load(f8, mem + 9);
+	EXPECT_TRUE(all(ref8 == f8)) << "8-way code failed.";
 
-	int16 idx16{ 3, 26, 1, 15, 12, 29, 0, 19, 4, 8, 2, 21, 25, 28, 11, 7 };
 	float16 ref16
 	{
-		mem[ 3], mem[26], mem[ 1], mem[15],
-		mem[12], mem[29], mem[ 0], mem[19],
-		mem[ 4], mem[ 8], mem[ 2], mem[21],
-		mem[25], mem[28], mem[11], mem[ 7]
+		mem[ 7], mem[ 8], mem[ 9], mem[10],
+		mem[11], mem[12], mem[13], mem[14],
+		mem[15], mem[16], mem[17], mem[18],
+		mem[19], mem[20], mem[21], mem[22]
 	};
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 16>(ref16, out, idx16);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
-	{
-		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "16-way code failed.";
-	}
+	float16 f16;
+	Vcl::load(f16, mem + 7);
+	EXPECT_TRUE(all(ref16 == f16)) << "16-way code failed.";
 }
 
-// Tests the matrix scatter function.
-TEST(ScatterTest, Matrix)
+// Tests the matrix gather function.
+TEST(LoadTest, Matrix)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -156,87 +143,78 @@ TEST(ScatterTest, Matrix)
 		Eigen::Vector3f(18.2603f, 12.7318f, 18.630499f)
 	};
 
-	Eigen::Vector3f out[sizeof(mem) / sizeof(Eigen::Vector3f)];
+	Eigen::Vector3f f;
+	Vcl::load(f, mem + 3);
+	EXPECT_EQ(mem[ 3], f) << "Scalar code failed.";
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 3, 1>(mem[3], out, 3);
-	EXPECT_EQ(mem[3], out[3]) << "Scalar code failed.";
-
-	int4 idx4{ 3, 26, 1, 15 };
 	Eigen::Matrix<float4, 3, 1> ref4
 	{
-		float4(mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0)),
-		float4(mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1)),
-		float4(mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2))
+		float4(mem[ 5](0), mem[ 6](0), mem[ 7](0), mem[ 8](0)),
+		float4(mem[ 5](1), mem[ 6](1), mem[ 7](1), mem[ 8](1)),
+		float4(mem[ 5](2), mem[ 6](2), mem[ 7](2), mem[ 8](2))
 	};
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 4>(ref4, out, idx4);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
-	{
-		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "4-way code failed.";
-	}
+	Eigen::Matrix<float4, 3, 1> f4;
+	Vcl::load(f4, mem + 5);
+	EXPECT_TRUE(all(ref4(0) == f4(0))) << "4-way code failed.";
+	EXPECT_TRUE(all(ref4(1) == f4(1))) << "4-way code failed.";
+	EXPECT_TRUE(all(ref4(2) == f4(2))) << "4-way code failed.";
 
-	int8 idx8{ 3, 26, 1, 15, 12, 29, 0, 19 };
 	Eigen::Matrix<float8, 3, 1> ref8
 	{
 		float8
 		(
-			mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0),
-			mem[12](0), mem[29](0), mem[ 0](0), mem[19](0)
+			mem[ 9](0), mem[10](0), mem[11](0), mem[12](0),
+			mem[13](0), mem[14](0), mem[15](0), mem[16](0)
 		),
 		float8
 		(
-			mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1),
-			mem[12](1), mem[29](1), mem[ 0](1), mem[19](1)
+			mem[ 9](1), mem[10](1), mem[11](1), mem[12](1),
+			mem[13](1), mem[14](1), mem[15](1), mem[16](1)
 		),
 		float8
 		(
-			mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2),
-			mem[12](2), mem[29](2), mem[ 0](2), mem[19](2)
+			mem[ 9](2), mem[10](2), mem[11](2), mem[12](2),
+			mem[13](2), mem[14](2), mem[15](2), mem[16](2)
 		)
 	};
 
+	Eigen::Matrix<float8, 3, 1> f8;
+	Vcl::load(f8, mem + 9);
+	EXPECT_TRUE(all(ref8(0) == f8(0))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8(1) == f8(1))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8(2) == f8(2))) << "8-way code failed.";
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 8>(ref8, out, idx8);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
-	{
-		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "8-way code failed.";
-	}
-
-	int16 idx16{ 3, 26, 1, 15, 12, 29, 0, 19, 4, 8, 2, 21, 25, 28, 11, 7 };
 	Eigen::Matrix<float16, 3, 1> ref16
 	{
 		float16
 		(
-			mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0),
-			mem[12](0), mem[29](0), mem[ 0](0), mem[19](0),
-			mem[ 4](0), mem[ 8](0), mem[ 2](0), mem[21](0),
-			mem[25](0), mem[28](0), mem[11](0), mem[ 7](0)
+			mem[ 7](0), mem[ 8](0), mem[ 9](0), mem[10](0),
+			mem[11](0), mem[12](0), mem[13](0), mem[14](0),
+			mem[15](0), mem[16](0), mem[17](0), mem[18](0),
+			mem[19](0), mem[20](0), mem[21](0), mem[22](0)
 		),
 		
 		float16
 		(
-			mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1),
-			mem[12](1), mem[29](1), mem[ 0](1), mem[19](1),
-			mem[ 4](1), mem[ 8](1), mem[ 2](1), mem[21](1),
-			mem[25](1), mem[28](1), mem[11](1), mem[ 7](1)
+			mem[ 7](1), mem[ 8](1), mem[ 9](1), mem[10](1),
+			mem[11](1), mem[12](1), mem[13](1), mem[14](1),
+			mem[15](1), mem[16](1), mem[17](1), mem[18](1),
+			mem[19](1), mem[20](1), mem[21](1), mem[22](1)
 		),
 		
 		float16
 		(
-			mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2),
-			mem[12](2), mem[29](2), mem[ 0](2), mem[19](2),
-			mem[ 4](2), mem[ 8](2), mem[ 2](2), mem[21](2),
-			mem[25](2), mem[28](2), mem[11](2), mem[ 7](2)
+			mem[ 7](2), mem[ 8](2), mem[ 9](2), mem[10](2),
+			mem[11](2), mem[12](2), mem[13](2), mem[14](2),
+			mem[15](2), mem[16](2), mem[17](2), mem[18](2),
+			mem[19](2), mem[20](2), mem[21](2), mem[22](2)
 		)
 	};
 
-	memset(out, 0, sizeof(out));
-	Vcl::scatter<float, 16>(ref16, out, idx16);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
-	{
-		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "16-way code failed.";
-	}
+	Eigen::Matrix<float16, 3, 1> f16;
+	Vcl::load(f16, mem + 7);
+	EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
+	EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
+	EXPECT_TRUE(all(ref16(2) == f16(2))) << "16-way code failed.";
 }
