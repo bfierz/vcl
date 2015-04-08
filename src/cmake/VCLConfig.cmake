@@ -58,6 +58,9 @@ SET(VCL_VECTORIZE_SSE4_2 CACHE BOOL "Enable SSE 4.2 instruction set")
 SET(VCL_VECTORIZE_AVX CACHE BOOL "Enable AVX instruction set")
 SET(VCL_VECTORIZE_AVX2 CACHE BOOL "Enable AVX 2 instruction set")
 
+# Set whether contracts should be used
+SET(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
+
 # Configure MSVC compiler
 IF(VCL_COMPILER_MSVC)
 	# Configure release configuration

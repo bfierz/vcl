@@ -30,7 +30,7 @@
 // C runtime library
 #include <stdio.h>
 
-#if defined (DEBUG) || defined (_DEBUG)
+#if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
 #	ifndef VCL_NO_CONTRACTS
 #		define VCL_CONTRACT
 #	endif
