@@ -125,12 +125,9 @@ namespace Vcl
 		__m128 x0, y0, z0;
 		load(x0, y0, z0, base);
 
-		loaded =
-		{
-			float4(x0),
-			float4(y0),
-			float4(z0)
-		};
+		loaded(0) = float4(x0);
+		loaded(1) = float4(y0);
+		loaded(2) = float4(z0);
 	}
 
 	VCL_STRONG_INLINE void load
@@ -142,12 +139,9 @@ namespace Vcl
 		__m128 x0, y0, z0;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
 
-		loaded =
-		{
-			int4{ _mm_castps_si128(x0) },
-			int4{ _mm_castps_si128(y0) },
-			int4{ _mm_castps_si128(z0) }
-		};
+		loaded(0) = int4{ _mm_castps_si128(x0) };
+		loaded(1) = int4{ _mm_castps_si128(y0) };
+		loaded(2) = int4{ _mm_castps_si128(z0) };
 	}
 	
 	VCL_STRONG_INLINE void store
