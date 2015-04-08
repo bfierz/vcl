@@ -96,7 +96,7 @@ TEST(LoadTest, Scalar)
 }
 
 // Tests the matrix gather function.
-TEST(LoadTest, Matrix)
+TEST(LoadTest, Vector3)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -217,4 +217,127 @@ TEST(LoadTest, Matrix)
 	EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
 	EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
 	EXPECT_TRUE(all(ref16(2) == f16(2))) << "16-way code failed.";
+}
+
+TEST(LoadTest, Vector4)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+
+	using Vcl::int4;
+	using Vcl::int8;
+	using Vcl::int16;
+
+	using Vcl::all;
+
+	// Setup the memory
+	Eigen::Vector4f mem [] =
+	{
+		Eigen::Vector4f( 0,  1,  3,  4),
+		Eigen::Vector4f( 5,  6,  7,  8),
+		Eigen::Vector4f( 9, 10, 11, 12),
+		Eigen::Vector4f(13, 14, 15, 16),
+		Eigen::Vector4f(17, 18, 19, 20),
+		Eigen::Vector4f(21, 22, 23, 24),
+		Eigen::Vector4f(25, 26, 27, 28),
+		Eigen::Vector4f(29, 30, 31, 32),
+		Eigen::Vector4f(33, 34, 35, 36),
+		Eigen::Vector4f(37, 38, 39, 40),
+		Eigen::Vector4f(41, 42, 43, 44),
+		Eigen::Vector4f(45, 46, 47, 48),
+		Eigen::Vector4f(49, 50, 51, 52),
+		Eigen::Vector4f(53, 54, 55, 56),
+		Eigen::Vector4f(57, 58, 59, 60),
+		Eigen::Vector4f(61, 62, 63, 64),
+		Eigen::Vector4f(65, 66, 67, 68),
+		Eigen::Vector4f(69, 70, 71, 72),
+		Eigen::Vector4f(73, 74, 75, 76),
+		Eigen::Vector4f(77, 78, 79, 80),
+		Eigen::Vector4f(81, 82, 83, 84),
+		Eigen::Vector4f(85, 86, 87, 88),
+		Eigen::Vector4f(89, 90, 91, 92),
+		Eigen::Vector4f(93, 94, 95, 96)
+	};
+
+	//Eigen::Vector3f f;
+	//Vcl::load(f, mem + 3);
+	//EXPECT_EQ(mem[ 3], f) << "Scalar code failed.";
+	//
+	//Eigen::Matrix<float4, 3, 1> ref4
+	//{
+	//	float4(mem[ 5](0), mem[ 6](0), mem[ 7](0), mem[ 8](0)),
+	//	float4(mem[ 5](1), mem[ 6](1), mem[ 7](1), mem[ 8](1)),
+	//	float4(mem[ 5](2), mem[ 6](2), mem[ 7](2), mem[ 8](2))
+	//};
+	//
+	//Eigen::Matrix<float4, 3, 1> f4;
+	//Vcl::load(f4, mem + 5);
+	//EXPECT_TRUE(all(ref4(0) == f4(0))) << "4-way code failed.";
+	//EXPECT_TRUE(all(ref4(1) == f4(1))) << "4-way code failed.";
+	//EXPECT_TRUE(all(ref4(2) == f4(2))) << "4-way code failed.";
+
+	Eigen::Matrix<float8, 4, 1> ref8
+	{
+		float8
+		(
+			mem[ 9](0), mem[10](0), mem[11](0), mem[12](0),
+			mem[13](0), mem[14](0), mem[15](0), mem[16](0)
+		),
+		float8
+		(
+			mem[ 9](1), mem[10](1), mem[11](1), mem[12](1),
+			mem[13](1), mem[14](1), mem[15](1), mem[16](1)
+		),
+		float8
+		(
+			mem[ 9](2), mem[10](2), mem[11](2), mem[12](2),
+			mem[13](2), mem[14](2), mem[15](2), mem[16](2)
+		),
+		float8
+		(
+			mem[ 9](3), mem[10](3), mem[11](3), mem[12](3),
+			mem[13](3), mem[14](3), mem[15](3), mem[16](3)
+		)
+	};
+
+	Eigen::Matrix<float8, 4, 1> f8;
+	Vcl::load(f8, mem + 9);
+	EXPECT_TRUE(all(ref8(0) == f8(0))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8(1) == f8(1))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8(2) == f8(2))) << "8-way code failed.";
+	EXPECT_TRUE(all(ref8(3) == f8(3))) << "8-way code failed.";
+
+	//Eigen::Matrix<float16, 3, 1> ref16
+	//{
+	//	float16
+	//	(
+	//		mem[ 7](0), mem[ 8](0), mem[ 9](0), mem[10](0),
+	//		mem[11](0), mem[12](0), mem[13](0), mem[14](0),
+	//		mem[15](0), mem[16](0), mem[17](0), mem[18](0),
+	//		mem[19](0), mem[20](0), mem[21](0), mem[22](0)
+	//	),
+	//	
+	//	float16
+	//	(
+	//		mem[ 7](1), mem[ 8](1), mem[ 9](1), mem[10](1),
+	//		mem[11](1), mem[12](1), mem[13](1), mem[14](1),
+	//		mem[15](1), mem[16](1), mem[17](1), mem[18](1),
+	//		mem[19](1), mem[20](1), mem[21](1), mem[22](1)
+	//	),
+	//	
+	//	float16
+	//	(
+	//		mem[ 7](2), mem[ 8](2), mem[ 9](2), mem[10](2),
+	//		mem[11](2), mem[12](2), mem[13](2), mem[14](2),
+	//		mem[15](2), mem[16](2), mem[17](2), mem[18](2),
+	//		mem[19](2), mem[20](2), mem[21](2), mem[22](2)
+	//	)
+	//};
+	//
+	//Eigen::Matrix<float16, 3, 1> f16;
+	//Vcl::load(f16, mem + 7);
+	//EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
+	//EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
+	//EXPECT_TRUE(all(ref16(2) == f16(2))) << "16-way code failed.";
 }

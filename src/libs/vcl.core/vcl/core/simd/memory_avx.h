@@ -99,7 +99,7 @@ namespace Vcl
 		value = float16{ _mm256_loadu_ps(base), _mm256_loadu_ps(base + 8) };
 	}
 
-
+	// The load/store implementation for vectors are directly from or based on:
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
 	(
@@ -124,6 +124,41 @@ namespace Vcl
 		y = _mm256_shuffle_ps(yz, xy, _MM_SHUFFLE(3, 1, 2, 0));
 		z = _mm256_shuffle_ps(yz, m25, _MM_SHUFFLE(3, 0, 3, 1));
 
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		__m256& x, __m256& y, __m256& z, __m256& w,
+		const Eigen::Vector4f* base
+	)
+	{
+		const __m128 *m = (__m128*) base->data();
+		__m256 m04;
+		__m256 m15;
+		__m256 m26;
+		__m256 m37;
+
+		// Load the lower halves
+		m04 = _mm256_castps128_ps256(m[0]);
+		m15 = _mm256_castps128_ps256(m[1]);
+		m26 = _mm256_castps128_ps256(m[2]);
+		m37 = _mm256_castps128_ps256(m[3]);
+
+		// Load upper halves
+		m04 = _mm256_insertf128_ps(m04, m[4], 1);
+		m15 = _mm256_insertf128_ps(m15, m[5], 1);
+		m26 = _mm256_insertf128_ps(m26, m[6], 1);
+		m37 = _mm256_insertf128_ps(m37, m[7], 1);
+
+		__m256 xy0 = _mm256_shuffle_ps(m04, m15, _MM_SHUFFLE(1, 0, 1, 0));
+		__m256 xy1 = _mm256_shuffle_ps(m26, m37, _MM_SHUFFLE(1, 0, 1, 0));
+		__m256 zw0 = _mm256_shuffle_ps(m04, m15, _MM_SHUFFLE(3, 2, 3, 2));
+		__m256 zw1 = _mm256_shuffle_ps(m26, m37, _MM_SHUFFLE(3, 2, 3, 2));
+
+		x = _mm256_shuffle_ps(xy0, xy1, _MM_SHUFFLE(2, 0, 2, 0));
+		y = _mm256_shuffle_ps(xy0, xy1, _MM_SHUFFLE(3, 1, 3, 1));
+		z = _mm256_shuffle_ps(zw0, zw1, _MM_SHUFFLE(2, 0, 2, 0));
+		w = _mm256_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
 	}
 
 	VCL_STRONG_INLINE void store
@@ -169,10 +204,10 @@ namespace Vcl
 	}
 
 	VCL_STRONG_INLINE void load
-		(
+	(
 		Eigen::Matrix<int8, 3, 1>& loaded,
 		const Eigen::Vector3i* base
-		)
+	)
 	{
 		__m256 x0, y0, z0;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
@@ -182,6 +217,42 @@ namespace Vcl
 			int8{ _mm256_castps_si256(x0) },
 			int8{ _mm256_castps_si256(y0) },
 			int8{ _mm256_castps_si256(z0) }
+		};
+	}
+	
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float8, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m256 x0, y0, z0, w0;
+		load(x0, y0, z0, w0, base);
+
+		loaded =
+		{
+			float8(x0),
+			float8(y0),
+			float8(z0),
+			float8(w0)
+		};
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<int8, 4, 1>& loaded,
+		const Eigen::Vector4i* base
+	)
+	{
+		__m256 x0, y0, z0, w0;
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
+
+		loaded =
+		{
+			int8{ _mm256_castps_si256(x0) },
+			int8{ _mm256_castps_si256(y0) },
+			int8{ _mm256_castps_si256(z0) },
+			int8{ _mm256_castps_si256(w0) }
 		};
 	}
 	
