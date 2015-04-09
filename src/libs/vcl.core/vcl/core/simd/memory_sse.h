@@ -95,6 +95,29 @@ namespace Vcl
 		y = _mm_shuffle_ps(y0z0y1z1, x2y2x3y3, _MM_SHUFFLE(3, 1, 2, 0)); // y0y1y2y3
 		z = _mm_shuffle_ps(y0z0y1z1, z2x3y3z3, _MM_SHUFFLE(3, 0, 3, 1)); // z0z1z2z3
 	}
+	
+	VCL_STRONG_INLINE void load
+	(
+		__m128& x, __m128& y, __m128& z, __m128& w,
+		const Eigen::Vector4f* base
+	)
+	{
+		const float* p = base->data();
+		__m128 m0 = _mm_load_ps(p + 0);
+		__m128 m1 = _mm_load_ps(p + 4);
+		__m128 m2 = _mm_load_ps(p + 8);
+		__m128 m3 = _mm_load_ps(p + 12);
+
+		__m128 xy0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(1, 0, 1, 0));
+		__m128 xy1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(1, 0, 1, 0));
+		__m128 zw0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(3, 2, 3, 2));
+		__m128 zw1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(3, 2, 3, 2));
+
+		x = _mm_shuffle_ps(xy0, xy1, _MM_SHUFFLE(2, 0, 2, 0));
+		y = _mm_shuffle_ps(xy0, xy1, _MM_SHUFFLE(3, 1, 3, 1));
+		z = _mm_shuffle_ps(zw0, zw1, _MM_SHUFFLE(2, 0, 2, 0));
+		w = _mm_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
+	}
 
 	VCL_STRONG_INLINE void store
 	(
@@ -144,6 +167,35 @@ namespace Vcl
 		loaded(2) = int4{ _mm_castps_si128(z0) };
 	}
 	
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float4, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m128 x0, y0, z0, w0;
+		load(x0, y0, z0, w0, base);
+
+		loaded(0) = float4(x0);
+		loaded(1) = float4(y0);
+		loaded(2) = float4(z0);
+		loaded(3) = float4(w0);
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<int4, 4, 1>& loaded,
+		const Eigen::Vector4i* base
+	)
+	{
+		__m128 x0, y0, z0, w0;
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
+
+		loaded(0) = int4{ _mm_castps_si128(x0) };
+		loaded(1) = int4{ _mm_castps_si128(y0) };
+		loaded(2) = int4{ _mm_castps_si128(z0) };
+		loaded(3) = int4{ _mm_castps_si128(w0) };
+	}
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
@@ -261,6 +313,48 @@ namespace Vcl
 		};
 	}
 	
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float16, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
+		load(x0, y0, z0, w0, base);
+		load(x1, y1, z1, w1, base + 4);
+		load(x2, y2, z2, w2, base + 8);
+		load(x3, y3, z3, w3, base + 12);
+
+		loaded =
+		{
+			float16(x0, x1, x2, x3),
+			float16(y0, y1, y2, y3),
+			float16(z0, z1, z2, z3),
+			float16(w0, w1, w2, w3)
+		};
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<int16, 4, 1>& loaded,
+		const Eigen::Vector4i* base
+	)
+	{
+		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector3f*>(base));
+		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector3f*>(base) + 4);
+		load(x2, y2, z2, w2, reinterpret_cast<const Eigen::Vector3f*>(base) + 8);
+		load(x3, y3, z3, w3, reinterpret_cast<const Eigen::Vector3f*>(base) + 12);
+
+		loaded =
+		{
+			int16{ _mm_castps_si128(x0), _mm_castps_si128(x1), _mm_castps_si128(x2), _mm_castps_si128(x3) },
+			int16{ _mm_castps_si128(y0), _mm_castps_si128(y1), _mm_castps_si128(y2), _mm_castps_si128(y3) },
+			int16{ _mm_castps_si128(z0), _mm_castps_si128(z1), _mm_castps_si128(z2), _mm_castps_si128(z3) },
+			int16{ _mm_castps_si128(w0), _mm_castps_si128(w1), _mm_castps_si128(w2), _mm_castps_si128(w3) }
+		};
+	}
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,

@@ -316,6 +316,44 @@ namespace Vcl
 		};
 	}
 	
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float16, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m256 x0, x1, y0, w0, y1, z0, z1, w1;
+		load(x0, y0, z0, w0, base);
+		load(x1, y1, z1, w1, base + 8);
+
+		loaded =
+		{
+			float16(x0, x1),
+			float16(y0, y1),
+			float16(z0, z1),
+			float16(w0, w1)
+		};
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<int16, 4, 1>& loaded,
+		const Eigen::Vector4i* base
+	)
+	{
+		__m256 x0, x1, y0, w0, y1, z0, z1, w1;
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
+		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector4f*>(base) + 8);
+
+		loaded =
+		{
+			int16{ _mm256_castps_si256(x0), _mm256_castps_si256(x1) },
+			int16{ _mm256_castps_si256(y0), _mm256_castps_si256(y1) },
+			int16{ _mm256_castps_si256(z0), _mm256_castps_si256(z1) },
+			int16{ _mm256_castps_si256(w0), _mm256_castps_si256(w1) }
+		};
+	}
+	
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
