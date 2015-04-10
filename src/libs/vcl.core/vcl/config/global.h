@@ -32,8 +32,10 @@
 // Include some core functionality
 #include <cstdint>
 
-#ifdef VCL_DEBUG
-#	define DebugBlock if(true)
-#else
-#	define DebugBlock if(false)
-#endif // VCL_DEBUG
+#ifndef DebugBlock
+#	ifdef VCL_DEBUG
+#		define DebugBlock if(true)
+#	else
+#		define DebugBlock if(false)
+#	endif
+#endif

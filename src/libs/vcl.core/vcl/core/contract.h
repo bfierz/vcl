@@ -74,15 +74,35 @@ namespace Vcl { namespace Assert
 	}
 
 	// Define wrappers around the contract method
-	#define Check(expr, description,...)   vcl_assert("Check",   (expr), description, __VA_ARGS__)
-	#define Require(expr, description,...) vcl_assert("Require", (expr), description, __VA_ARGS__)
-	#define Ensure(expr, description,...)  vcl_assert("Ensure",  (expr), description, __VA_ARGS__)
-	#define DebugError(description,...)    vcl_assert("Error",   (VCL_EVAL_FALSE), description, __VA_ARGS__)
-	#define AssertBlock if(VCL_EVAL_TRUE)
+#	ifndef Check
+#		define Check(expr, description,...)   vcl_assert("Check",   (expr), description, __VA_ARGS__)
+#	endif
+#	ifndef Require
+#		define Require(expr, description,...) vcl_assert("Require", (expr), description, __VA_ARGS__)
+#	endif
+#	ifndef Ensure
+#		define Ensure(expr, description,...)  vcl_assert("Ensure",  (expr), description, __VA_ARGS__)
+#	endif
+#	ifndef DebugError
+#		define DebugError(description,...)    vcl_assert("Error",   (VCL_EVAL_FALSE), description, __VA_ARGS__)
+#	endif
+#	ifndef AssertBlock
+#		define AssertBlock if(VCL_EVAL_TRUE)
+#	endif
 #else
-	#define Check(expr, description,...)
-	#define Require(expr, description,...)
-	#define Ensure(expr, description,...)
-	#define DebugError(description,...) 
-	#define AssertBlock if(VCL_EVAL_FALSE)   
+#	ifndef Check
+#		define Check(expr, description,...)
+#	endif
+#	ifndef Require
+#		define Require(expr, description,...)
+#	endif
+#	ifndef Ensure
+#		define Ensure(expr, description,...)
+#	endif
+#	ifndef DebugError
+#		define DebugError(description,...)
+#	endif
+#	ifndef AssertBlock
+#		define AssertBlock if(VCL_EVAL_FALSE)
+#	endif
 #endif
