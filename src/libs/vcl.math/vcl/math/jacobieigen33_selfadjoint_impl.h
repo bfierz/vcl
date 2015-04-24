@@ -79,7 +79,7 @@ namespace Vcl { namespace Mathematics
 	};
 	
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> JacobiRotationAngle(Real a11, Real a12, Real a22)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> JacobiRotationAngle(const Real& a11, const Real& a12, const Real& a22)
 	{
 		Real u1 = a11 - a22;
 		Real u2 = Real(2) * a12;
@@ -115,7 +115,7 @@ namespace Vcl { namespace Mathematics
 	 * Based on McAdams - Computing the Singular Value Decomposition of 3x3 matrices with minimal branching and elementary floating point operations
 	 */
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationAngle(Real a11, Real a12, Real a22)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationAngle(const Real& a11, const Real& a12, const Real& a22)
 	{
 		auto b = a12*a12 < ((a11-a22)*(a11-a22));
 		Real omega = Real(1) / Real(sqrt(a12*a12 + (a11-a22)*(a11-a22)));

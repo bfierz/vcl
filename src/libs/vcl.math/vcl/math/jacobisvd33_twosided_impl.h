@@ -80,7 +80,7 @@ namespace Vcl { namespace Mathematics
 	// Forsythe and Henrici
 	// Not favourable. May yield negative singular values.
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 4, 1> TwoSidedJacobiRotationAngleFH(Real a11, Real a12, Real a21, Real a22, Real& d1, Real& d2)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 4, 1> TwoSidedJacobiRotationAngleFH(const Real& a11, const Real& a12, const Real& a21, const Real& a22, Real& d1, Real& d2)
 	{
 		Real X1, X2;
 		Real S1, S2;
@@ -137,7 +137,7 @@ namespace Vcl { namespace Mathematics
 
 	// Brent, Luk, van Loan
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 4, 1> TwoSidedJacobiRotationAngleBLL(Real a11, Real a12, Real a21, Real a22, Real& d1, Real& d2)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 4, 1> TwoSidedJacobiRotationAngleBLL(const Real& a11_in, const Real& a12_in, const Real& a21_in, const Real& a22, Real& d1, Real& d2)
 	{
 		// Rotation angles
 		Real c, s;
@@ -147,6 +147,11 @@ namespace Vcl { namespace Mathematics
 		Real rho, tau;
 		Real u1, u2;
 		
+		// Input values
+		Real a11 = a11_in;
+		Real a12 = a12_in;
+		Real a21 = a21_in;
+
 		//bool flag = (abs(a21) < 1e-6 && abs(a22) < 1e-6);
 		//if (flag)
 		//{
