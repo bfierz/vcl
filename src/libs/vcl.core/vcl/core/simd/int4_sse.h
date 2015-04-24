@@ -1,27 +1,27 @@
 /*
-* This file is part of the Visual Computing Library (VCL) release under the
-* MIT license.
-*
-* Copyright (c) 2014 Basil Fierz
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
+ * This file is part of the Visual Computing Library (VCL) release under the
+ * MIT license.
+ *
+ * Copyright (c) 2014 Basil Fierz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #pragma once
 
 // VCL configuration
@@ -41,60 +41,65 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar() {}
 		VCL_STRONG_INLINE VectorScalar(int s)
 		{
-			mF4 = _mm_set1_epi32(s);
+			set(s);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(int s0, int s1, int s2, int s3)
 		{
-			mF4 = _mm_set_epi32(s3, s2, s1, s0);
+			set(s0, s1, s2, s3);
 		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m128i F4) : mF4(F4) {}
+		explicit VCL_STRONG_INLINE VectorScalar(__m128i F4)
+		{
+			set(F4);
+		}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4>& operator= (const VectorScalar<int, 4>& rhs) { mF4 = rhs.mF4; return *this; }
+		VCL_STRONG_INLINE VectorScalar<int, 4>& operator= (const VectorScalar<int, 4>& rhs) { set(rhs.get(0)); return *this; }
 
 	public:
 		VCL_STRONG_INLINE int operator[] (int idx) const
 		{
 			Require(0 <= idx && idx < 4, "Access is in range.");
 
-			return _mmVCL_extract_epi32(mF4, idx);
+			return _mmVCL_extract_epi32(get(0), idx);
 		}
 
-		VCL_STRONG_INLINE explicit operator __m128i() const
+		VCL_STRONG_INLINE __m128i get(int i = 0) const
 		{
-			return mF4;
+			Require(0 == i, "Access is in range.");
+
+			return _data[i];
 		}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator+ (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_add_epi32(mF4, rhs.mF4)); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator- (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_sub_epi32(mF4, rhs.mF4)); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator* (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mmVCL_mullo_epi32(mF4, rhs.mF4)); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator+ (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_add_epi32(get(0), rhs.get(0))); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator- (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_sub_epi32(get(0), rhs.get(0))); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator* (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mmVCL_mullo_epi32(get(0), rhs.get(0))); }
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4> abs() const { return VectorScalar<int, 4>(_mm_abs_epi32(mF4)); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> max(const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_max_epi32(mF4, rhs.mF4)); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> abs() const { return VectorScalar<int, 4>(_mm_abs_epi32(get(0))); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> max(const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_max_epi32(get(0), rhs.get(0))); }
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator== (const VectorScalar<int, 4>& rhs) const
 		{
-			return VectorScalar<bool, 4>(_mm_cmpeq_epi32(mF4, rhs.mF4));
+			return VectorScalar<bool, 4>(_mm_cmpeq_epi32(get(0), rhs.get(0)));
 		}
 
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator< (const VectorScalar<int, 4>& rhs) const
 		{
-			return VectorScalar<bool, 4>(_mm_cmplt_epi32(mF4, rhs.mF4));
+			return VectorScalar<bool, 4>(_mm_cmplt_epi32(get(0), rhs.get(0)));
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator<= (const VectorScalar<int, 4>& rhs) const
 		{
-			return VectorScalar<bool, 4>(_mm_cmple_epi32(mF4, rhs.mF4));
+			return VectorScalar<bool, 4>(_mm_cmple_epi32(get(0), rhs.get(0)));
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator> (const VectorScalar<int, 4>& rhs) const
 		{
-			return VectorScalar<bool, 4>(_mm_cmpgt_epi32(mF4, rhs.mF4));
+			return VectorScalar<bool, 4>(_mm_cmpgt_epi32(get(0), rhs.get(0)));
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator>= (const VectorScalar<int, 4>& rhs) const
 		{
-			return VectorScalar<bool, 4>(_mm_cmpge_epi32(mF4, rhs.mF4));
+			return VectorScalar<bool, 4>(_mm_cmpge_epi32(get(0), rhs.get(0)));
 		}
 
 	public:
@@ -103,13 +108,27 @@ namespace Vcl
 		friend VectorScalar<int, 4> signum(const VectorScalar<int, 4>& a);
 
 	private:
-		__m128i mF4;
+		void set(int s0)
+		{
+			_data[0] = _mm_set1_epi32(s0);
+		}
+		void set(int s0, int s1, int s2, int s3)
+		{
+			_data[0] = _mm_set_epi32(s3, s2, s1, s0);
+		}
+		void set(__m128i vec)
+		{
+			_data[0] = vec;
+		}
+
+	private:
+		std::array<__m128i, 1> _data;
 	};
 
 	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b)
 	{
 		// (((b ^ a) & mask)^b)
-		return VectorScalar<int, 4>(_mm_xor_si128(b.mF4, _mm_and_si128(_mm_castps_si128(mask.mF4), _mm_xor_si128(b.mF4, a.mF4))));
+		return VectorScalar<int, 4>(_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.mF4), _mm_xor_si128(b.get(0), a.get(0)))));
 	}
 
 	VCL_STRONG_INLINE VectorScalar<int, 4> signum(const VectorScalar<int, 4>& a)
@@ -120,15 +139,18 @@ namespace Vcl
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4, _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
-				), _mm_cmpneq_epi32(a.mF4, _mm_setzero_si128())
+					_mm_and_si128(a.get(0), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
 			)
 		);
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)
 	{
-		s << "'" << rhs.mF4.m128i_i32[0] << "," << rhs.mF4.m128i_i32[1] << "," << rhs.mF4.m128i_i32[2] << "," << rhs.mF4.m128i_i32[3] << "'";
+		int VCL_ALIGN(16) vars[4];
+		_mm_store_si128((__m128i*) (vars + 0), rhs.get(0));
+
+		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3] << "'";
 
 		return s;
 	}

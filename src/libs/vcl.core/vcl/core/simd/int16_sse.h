@@ -60,7 +60,7 @@ namespace Vcl
 			mF4[2] = _mm_set_epi32(s11, s10, s09, s08);
 			mF4[3] = _mm_set_epi32(s15, s14, s13, s12);
 		}
-		VCL_STRONG_INLINE explicit VectorScalar(__m128i I4_0, __m128i I4_1, __m128i I4_2, __m128i I4_3)
+		VCL_STRONG_INLINE explicit VectorScalar(__m128i I4_0, __m128i I4_1, __m128i I4_2, const __m128i& I4_3)
 		{
 			mF4[0] = I4_0;
 			mF4[1] = I4_1;

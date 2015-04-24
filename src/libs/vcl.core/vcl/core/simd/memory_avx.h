@@ -41,7 +41,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, VectorScalar<int, 4>& vindex)
 	{
-		__m128i idx = static_cast<__m128i>(vindex);
+		__m128i idx = vindex.get(0);
 		__m128 val = gather(base, idx);
 		return VectorScalar<float, 4>(val);
 	}

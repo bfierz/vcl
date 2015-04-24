@@ -46,7 +46,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex)
 	{
-		return VectorScalar<float, 4>(gather(base, (__m128i) vindex));
+		return VectorScalar<float, 4>(gather(base, vindex.get(0)));
 	}
 #endif // !defined VCL_VECTORIZE_AVX2
 
@@ -202,7 +202,13 @@ namespace Vcl
 		const Eigen::Matrix<float4, 3, 1>& value
 	)
 	{
-		store(base, (__m128) value(0), (__m128) value(1), (__m128) value(2));
+		store
+		(
+			base,
+			value(0).get(0),
+			value(1).get(0),
+			value(2).get(0)
+		);
 	}
 	
 	VCL_STRONG_INLINE void store
@@ -214,9 +220,9 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base),
-			_mm_castsi128_ps((__m128i) value(0)),
-			_mm_castsi128_ps((__m128i) value(1)),
-			_mm_castsi128_ps((__m128i) value(2))
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0))
 		);
 	}
 #endif // defined VCL_VECTORIZE_SSE
@@ -341,10 +347,10 @@ namespace Vcl
 	)
 	{
 		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
-		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector3f*>(base));
-		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector3f*>(base) + 4);
-		load(x2, y2, z2, w2, reinterpret_cast<const Eigen::Vector3f*>(base) + 8);
-		load(x3, y3, z3, w3, reinterpret_cast<const Eigen::Vector3f*>(base) + 12);
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
+		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector4f*>(base) + 4);
+		load(x2, y2, z2, w2, reinterpret_cast<const Eigen::Vector4f*>(base) + 8);
+		load(x3, y3, z3, w3, reinterpret_cast<const Eigen::Vector4f*>(base) + 12);
 
 		loaded =
 		{
@@ -361,8 +367,8 @@ namespace Vcl
 		const Eigen::Matrix<float8, 3, 1>& value
 	)
 	{
-		store(base + 0, (__m128) value(0).get(0), (__m128) value(1).get(0), (__m128) value(2).get(0));
-		store(base + 4, (__m128) value(0).get(1), (__m128) value(1).get(1), (__m128) value(2).get(1));
+		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1), value(2).get(1));
 	}
 	
 	VCL_STRONG_INLINE void store
@@ -374,17 +380,17 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 0,
-			_mm_castsi128_ps((__m128i) value(0).get(0)),
-			_mm_castsi128_ps((__m128i) value(1).get(0)),
-			_mm_castsi128_ps((__m128i) value(2).get(0))
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 4,
-			_mm_castsi128_ps((__m128i) value(0).get(1)),
-			_mm_castsi128_ps((__m128i) value(1).get(1)),
-			_mm_castsi128_ps((__m128i) value(2).get(1))
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)),
+			_mm_castsi128_ps(value(2).get(1))
 		);
 	}
 	
@@ -394,10 +400,10 @@ namespace Vcl
 		const Eigen::Matrix<float16, 3, 1>& value
 	)
 	{
-		store(base +  0, (__m128) value(0).get(0), (__m128) value(1).get(0), (__m128) value(2).get(0));
-		store(base +  4, (__m128) value(0).get(1), (__m128) value(1).get(1), (__m128) value(2).get(1));
-		store(base +  8, (__m128) value(0).get(2), (__m128) value(1).get(2), (__m128) value(2).get(2));
-		store(base + 12, (__m128) value(0).get(3), (__m128) value(1).get(3), (__m128) value(2).get(3));
+		store(base +  0, value(0).get(0),value(1).get(0), value(2).get(0));
+		store(base +  4, value(0).get(1),value(1).get(1), value(2).get(1));
+		store(base +  8, value(0).get(2),value(1).get(2), value(2).get(2));
+		store(base + 12, value(0).get(3),value(1).get(3), value(2).get(3));
 	}
 	
 	VCL_STRONG_INLINE void store
@@ -409,32 +415,32 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  0,
-			_mm_castsi128_ps((__m128i) value(0).get(0)),
-			_mm_castsi128_ps((__m128i) value(1).get(0)),
-			_mm_castsi128_ps((__m128i) value(2).get(0))
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  4,
-			_mm_castsi128_ps((__m128i) value(0).get(1)),
-			_mm_castsi128_ps((__m128i) value(1).get(1)),
-			_mm_castsi128_ps((__m128i) value(2).get(1))
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)),
+			_mm_castsi128_ps(value(2).get(1))
 		);
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  8,
-			_mm_castsi128_ps((__m128i) value(0).get(2)),
-			_mm_castsi128_ps((__m128i) value(1).get(2)),
-			_mm_castsi128_ps((__m128i) value(2).get(2))
+			_mm_castsi128_ps(value(0).get(2)),
+			_mm_castsi128_ps(value(1).get(2)),
+			_mm_castsi128_ps(value(2).get(2))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 12,
-			_mm_castsi128_ps((__m128i) value(0).get(3)),
-			_mm_castsi128_ps((__m128i) value(1).get(3)),
-			_mm_castsi128_ps((__m128i) value(2).get(3))
+			_mm_castsi128_ps(value(0).get(3)),
+			_mm_castsi128_ps(value(1).get(3)),
+			_mm_castsi128_ps(value(2).get(3))
 		);
 	}
 #endif // defined VCL_VECTORIZE_SSE && !defined VCL_VECTORIZE_AVX

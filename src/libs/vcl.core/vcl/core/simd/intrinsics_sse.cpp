@@ -86,7 +86,7 @@ namespace Vcl
 		ret = ret + 1.5707288f;
 		ret = ret * (1.0f - x).sqrt();
 		ret = ret - 2.0f * negate * ret;
-		return static_cast<__m128>(negate * 3.14159265358979f + ret);
+		return (negate * 3.14159265358979f + ret).get();
 	}
 
 	// Handbook of Mathematical Functions
@@ -109,7 +109,7 @@ namespace Vcl
 		ret *= x;
 		ret += 1.5707288f;
 		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
-		return static_cast<__m128>(ret - 2.0f * negate * ret);
+		return (ret - 2.0f * negate * ret).get();
 	}
 
 
@@ -143,7 +143,7 @@ namespace Vcl
 		t3 = select(x < 0, 3.141592654f - t3, t3);
 		t3 = select(y < 0, -t3, t3);
 
-		return static_cast<__m128>(t3);
+		return t3.get();
 	}
 	
 	__m128 _mmVCL_floor_ps(__m128 x)
