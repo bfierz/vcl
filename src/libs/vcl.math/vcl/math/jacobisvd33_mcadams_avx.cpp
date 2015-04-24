@@ -24,6 +24,8 @@
  */
 #include <vcl/math/jacobisvd33_mcadams.h>
 
+#ifdef VCL_VECTORIZE_AVX
+
 // VCL
 #include <vcl/core/contract.h>
 
@@ -94,3 +96,4 @@ namespace Vcl { namespace Mathematics
 #	pragma runtime_checks( "u", restore )
 #endif
 }}
+#endif // defined(VCL_VECTORIZE_AVX)

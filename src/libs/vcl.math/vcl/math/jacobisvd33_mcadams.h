@@ -41,5 +41,8 @@ namespace Vcl { namespace Mathematics
 	 */
 	int McAdamsJacobiSVD(Eigen::Matrix<float , 3, 3>& A, Eigen::Matrix<float , 3, 3>& U, Eigen::Matrix<float , 3, 3>& V);
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V);
+
+#ifdef VCL_VECTORIZE_AVX
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V);
+#endif // defined(VCL_VECTORIZE_AVX)
 }}

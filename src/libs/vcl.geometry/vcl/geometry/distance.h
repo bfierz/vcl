@@ -48,19 +48,19 @@ namespace Vcl { namespace Geometry
 	namespace detail
 	{
 		template<typename Real>
-		VCL_STRONG_INLINE Real inv(Real x)
+		VCL_STRONG_INLINE Real inv(const Real& x)
 		{
 			return Real(1) / x;
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion0(Real s, Real t, Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion0(const Real& s_in, const Real& t_in, const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			std::array<Real, 3> dist;
 
 			Real inv_det = inv(det);
-			s *= inv_det;
-			t *= inv_det;
+			Real s = s_in * inv_det;
+			Real t = t_in * inv_det;
 			dist[0] = s*(a*s + b*t + ((Real)2.0)*d) +
 				      t*(b*s + c*t + ((Real)2.0)*e) + f;
 			dist[1] = s;
@@ -70,7 +70,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion1(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion1(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 
@@ -130,7 +130,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion2(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion2(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 
@@ -178,7 +178,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion3(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion3(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 			VCL_UNREFERENCED_PARAMETER(a);
@@ -224,7 +224,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion4(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion4(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 			VCL_UNREFERENCED_PARAMETER(b);
@@ -269,7 +269,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion5(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion5(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 			VCL_UNREFERENCED_PARAMETER(b);
@@ -298,7 +298,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename Real>
-		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion6(Real det, Real a, Real b, Real c, Real d, Real e, Real f)
+		VCL_STRONG_INLINE std::array<Real, 3> computeDistanceRegion6(const Real& det, const Real& a, const Real& b, const Real& c, const Real& d, const Real& e, const Real& f)
 		{
 			VCL_UNREFERENCED_PARAMETER(det);
 
@@ -360,6 +360,7 @@ namespace Vcl { namespace Geometry
 	{
 		using namespace Vcl::Mathematics;
 
+		//__debugbreak();
 		Eigen::Matrix<Real, 3, 1> P = p;
 		Eigen::Matrix<Real, 3, 1> B = v0;
 		Eigen::Matrix<Real, 3, 1> E0 = v1 - v0;
@@ -373,6 +374,7 @@ namespace Vcl { namespace Geometry
 		Real det = abs(a*c-b*b);
 		Real s = b*e-c*d;
 		Real t = b*d-a*e;
+		//__debugbreak();
 
 		// Compute the results for all the regions
 		std::array<Real, 3> sq_dist = select
