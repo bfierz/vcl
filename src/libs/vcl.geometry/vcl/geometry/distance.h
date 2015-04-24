@@ -360,7 +360,6 @@ namespace Vcl { namespace Geometry
 	{
 		using namespace Vcl::Mathematics;
 
-		//__debugbreak();
 		Eigen::Matrix<Real, 3, 1> P = p;
 		Eigen::Matrix<Real, 3, 1> B = v0;
 		Eigen::Matrix<Real, 3, 1> E0 = v1 - v0;
@@ -374,7 +373,6 @@ namespace Vcl { namespace Geometry
 		Real det = abs(a*c-b*b);
 		Real s = b*e-c*d;
 		Real t = b*d-a*e;
-		//__debugbreak();
 
 		// Compute the results for all the regions
 		std::array<Real, 3> sq_dist = select
