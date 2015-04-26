@@ -43,6 +43,9 @@
 
 namespace Vcl { namespace Mathematics
 {
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", off )  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V)
 	{
 		using ::sqrt;
@@ -87,4 +90,7 @@ namespace Vcl { namespace Mathematics
 
 		return 15;
 	}
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", restore )
+#endif
 }}

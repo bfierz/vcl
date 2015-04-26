@@ -32,8 +32,6 @@ VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/simd/bool4_sse.h>
-#include <vcl/core/simd/float4_sse.h>
 
 namespace Vcl
 {

@@ -88,9 +88,28 @@ namespace Vcl { namespace Core
 			mData = (SCALAR*) _mm_malloc(mAllocated*mRows*mCols*sizeof(SCALAR), alignment);
 		}
 
+		InterleavedArray(InterleavedArray&& rhs)
+		: mData(nullptr)
+		, mSize(0)
+		, mAllocated(0)
+		, mRows(1)
+		, mCols(1)
+		, mStride(1)
+		{
+			std::swap(mData, rhs.mData);
+			std::swap(mSize, rhs.mSize);
+			std::swap(mAllocated, rhs.mAllocated);
+			std::swap(mRows, rhs.mRows);
+			std::swap(mCols, rhs.mCols);
+			std::swap(mStride, rhs.mStride);
+		}
+
 		~InterleavedArray()
 		{
-			_mm_free(mData);
+			if (mData)
+			{
+				_mm_free(mData);
+			}
 		}
 		
 	public:
@@ -199,7 +218,7 @@ namespace Vcl { namespace Core
 			>
 		> at(int idx) const
 		{
-			return const_cast<InterleavedArray*>(this)->at(idx);
+			return const_cast<InterleavedArray*>(this)->at<SCALAR_OUT>(idx);
 		}
 		
 	private:
