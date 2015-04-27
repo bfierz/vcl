@@ -86,6 +86,8 @@ void checkSolution
 	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
 )
 {
+	using Vcl::Mathematics::equal;
+
 	for (int i = 0; i < static_cast<int>(nr_problems); i++)
 	{
 		Vcl::Matrix3f refU = refUa.at<Scalar>(i);
@@ -96,13 +98,61 @@ void checkSolution
 		Vcl::Matrix3f resV = resVa.at<Scalar>(i);
 		Vcl::Vector3f resS = resSa.at<Scalar>(i);
 
-		bool eqU = refU.array().abs().isApprox(resU.array().abs(), tol);
-		bool eqV = refV.array().abs().isApprox(resV.array().abs(), tol);
-		bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
+		if (refS(0) > 0 && refS(1) > 0 && refS(2) < 0)
+			refV.col(2) *= -1;
+		if (resS(0) > 0 && resS(1) > 0 && resS(2) < 0)
+			resV.col(2) *= -1;
 
-		EXPECT_TRUE(eqU) << "U(" << i << ")";
-		EXPECT_TRUE(eqV) << "V(" << i << ")";
+		Vcl::Matrix3f refR = refU * refV.transpose();
+		Vcl::Matrix3f resR = resU * resV.transpose();
+
+		Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
+		Scalar sqLenRefUc1 = refU.col(1).squaredNorm();
+		Scalar sqLenRefUc2 = refU.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Reference U(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Reference U(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Reference U(" << i << "): Column 2 is not normalized.";
+
+		Scalar sqLenResUc0 = resU.col(0).squaredNorm();
+		Scalar sqLenResUc1 = resU.col(1).squaredNorm();
+		Scalar sqLenResUc2 = resU.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Result U(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Result U(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Result U(" << i << "): Column 2 is not normalized.";
+
+		Scalar sqLenRefVc0 = refV.col(0).squaredNorm();
+		Scalar sqLenRefVc1 = refV.col(1).squaredNorm();
+		Scalar sqLenRefVc2 = refV.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenRefVc0, Scalar(1), tol)) << "Reference V(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefVc1, Scalar(1), tol)) << "Reference V(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefVc2, Scalar(1), tol)) << "Reference V(" << i << "): Column 2 is not normalized.";
+
+		Scalar sqLenResVc0 = resV.col(0).squaredNorm();
+		Scalar sqLenResVc1 = resV.col(1).squaredNorm();
+		Scalar sqLenResVc2 = resV.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenResVc0, Scalar(1), tol)) << "Result V(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResVc1, Scalar(1), tol)) << "Result V(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResVc2, Scalar(1), tol)) << "Result V(" << i << "): Column 2 is not normalized.";
+
+		Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
+		Scalar sqLenRefRc1 = refR.col(1).squaredNorm();
+		Scalar sqLenRefRc2 = refR.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenRefRc0, Scalar(1), tol)) << "Reference R(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefRc1, Scalar(1), tol)) << "Reference R(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenRefRc2, Scalar(1), tol)) << "Reference R(" << i << "): Column 2 is not normalized.";
+
+		Scalar sqLenResRc0 = resR.col(0).squaredNorm();
+		Scalar sqLenResRc1 = resR.col(1).squaredNorm();
+		Scalar sqLenResRc2 = resR.col(2).squaredNorm();
+		EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized.";
+		EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized.";
+
+		bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
+		bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
+
 		EXPECT_TRUE(eqS) << "S(" << i << ")";
+		EXPECT_TRUE(eqR) << "R(" << i << ")";
 	}
 }
 
@@ -115,7 +165,7 @@ void runMcAdamsTest()
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	// Checking tolerance
-	scalar_t tol = scalar_t(1e-5);
+	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -159,7 +209,7 @@ void runTwoSidedTest()
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	// Checking tolerance
-	scalar_t tol = scalar_t(1e-5);
+	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -203,7 +253,7 @@ void runQRTest()
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	// Checking tolerance
-	scalar_t tol = scalar_t(1e-5);
+	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
