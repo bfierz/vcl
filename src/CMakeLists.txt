@@ -12,17 +12,22 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SUBDIRS(libs)
 
 # Benchmarks
-SUBDIRS(benchmarks)
+OPTION(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
+IF (VCL_BUILD_BENCHMARKS)
+	SUBDIRS(benchmarks)
+ENDIF (VCL_BUILD_BENCHMARKS)
 
 # Examples
 SUBDIRS(examples)
 
 # Tools
-SUBDIRS(tools)
+OPTION(VCL_BUILD_TOOLS "Build the tools" ON)
+IF (VCL_BUILD_TOOLS)
+	SUBDIRS(tools)
+ENDIF (VCL_BUILD_TOOLS)
 
 # Unit tests
 OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)
-
 IF (VCL_BUILD_TESTS)
 	SUBDIRS(tests)
 ENDIF (VCL_BUILD_TESTS)
