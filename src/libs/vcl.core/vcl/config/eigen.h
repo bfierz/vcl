@@ -29,6 +29,7 @@
 
 // Configure vectorisation
 #if defined VCL_VECTORIZE_AVX
+#	define EIGEN_VECTORIZE_AVX
 #	define EIGEN_VECTORIZE_SSE4_2
 #	define EIGEN_VECTORIZE_SSE4_1
 #	define EIGEN_VECTORIZE_SSSE3
