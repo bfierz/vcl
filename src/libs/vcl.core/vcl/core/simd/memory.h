@@ -161,7 +161,7 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	void scatter(VectorScalar<Scalar, Width> value, Scalar* base, VectorScalar<int, Width>& vindex)
+	void scatter(const VectorScalar<Scalar, Width>& value, Scalar* base, VectorScalar<int, Width>& vindex)
 	{
 		for (int i = 0; i < Width; i++)
 		{
@@ -172,7 +172,7 @@ namespace Vcl
 	template<typename Scalar, int Width, int Rows, int Cols>
 	void scatter
 	(
-		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> value, 
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& value, 
 		Eigen::Matrix<Scalar, Rows, Cols>* base,
 		const VectorScalar<int, Width>& vindex
 	)

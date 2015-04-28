@@ -262,7 +262,7 @@ TEST(LoadTest, Vector4)
 
 	Eigen::Vector4f f;
 	Vcl::load(f, mem + 3);
-	EXPECT_EQ(mem[ 3], f) << "Scalar code failed.";
+	EXPECT_TRUE(mem[ 3] == f) << "Scalar code failed.";
 	
 	Eigen::Matrix<float4, 4, 1> ref4
 	{

@@ -296,10 +296,13 @@ TEST(SVD33, McAdamsSVDFloat4)
 {
 	runMcAdamsTest<Vcl::float4>();
 }
+
+#ifdef VCL_VECTORIZE_AVX
 TEST(SVD33, McAdamsSVDFloat8)
 {
 	runMcAdamsTest<Vcl::float8>();
 }
+#endif // defined VCL_VECTORIZE_AVX
 
 TEST(SVD33, TwoSidedSVDFloat)
 {

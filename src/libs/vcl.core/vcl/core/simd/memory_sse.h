@@ -181,7 +181,6 @@ namespace Vcl
 		loaded(2) = float4(z0);
 		loaded(3) = float4(w0);
 	}
-
 	VCL_STRONG_INLINE void load
 	(
 		Eigen::Matrix<int4, 4, 1>& loaded,
@@ -196,6 +195,38 @@ namespace Vcl
 		loaded(2) = int4{ _mm_castps_si128(z0) };
 		loaded(3) = int4{ _mm_castps_si128(w0) };
 	}
+	
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float8, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m128 x0, x1, y0, y1, z0, z1, w0, w1;
+		load(x0, y0, z0, w0, base);
+		load(x1, y1, z1, w1, base + 4);
+
+		loaded(0) = float8(x0, x1);
+		loaded(1) = float8(y0, y1);
+		loaded(2) = float8(z0, z1);
+		loaded(3) = float8(w0, w1);
+	}
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<int8, 4, 1>& loaded,
+		const Eigen::Vector4i* base
+	)
+	{
+		__m128 x0, x1, y0, y1, z0, z1, w0, w1;
+		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
+		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector4f*>(base)+4);
+
+		loaded(0) = int8{ _mm_castps_si128(x0), _mm_castps_si128(x1) };
+		loaded(1) = int8{ _mm_castps_si128(y0), _mm_castps_si128(y1) };
+		loaded(2) = int8{ _mm_castps_si128(z0), _mm_castps_si128(z1) };
+		loaded(3) = int8{ _mm_castps_si128(w0), _mm_castps_si128(w1) };
+	}
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
