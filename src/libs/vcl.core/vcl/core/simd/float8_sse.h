@@ -80,20 +80,20 @@ namespace Vcl
 		}
 
 	public:
-		VectorScalar<float, 8> operator- () const
+		VCL_STRONG_INLINE VectorScalar<float, 8> operator- () const
 		{
 			return (*this) * VectorScalar<float, 8>(-1);
 		}
 
 	public:
-		VectorScalar<float, 8> operator+ (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_add_ps(get(0), rhs.get(0)), _mm_add_ps(get(1), rhs.get(1))); }
-		VectorScalar<float, 8> operator- (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_sub_ps(get(0), rhs.get(0)), _mm_sub_ps(get(1), rhs.get(1))); }
-		VectorScalar<float, 8> operator* (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_mul_ps(get(0), rhs.get(0)), _mm_mul_ps(get(1), rhs.get(1))); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> operator+ (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_add_ps(get(0), rhs.get(0)), _mm_add_ps(get(1), rhs.get(1))); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> operator- (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_sub_ps(get(0), rhs.get(0)), _mm_sub_ps(get(1), rhs.get(1))); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> operator* (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_mul_ps(get(0), rhs.get(0)), _mm_mul_ps(get(1), rhs.get(1))); }
 
-		VectorScalar<float, 8> operator/ (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_div_ps(get(0), rhs.get(0)), _mm_div_ps(get(1), rhs.get(1))); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> operator/ (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm_div_ps(get(0), rhs.get(0)), _mm_div_ps(get(1), rhs.get(1))); }
 		
 	public:
-		VectorScalar<float, 8>& operator += (const VectorScalar<float, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 8>& operator += (const VectorScalar<float, 8>& rhs)
 		{
 			set
 			(
@@ -102,7 +102,7 @@ namespace Vcl
 			);
 			return *this;
 		}
-		VectorScalar<float, 8>& operator -= (const VectorScalar<float, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 8>& operator -= (const VectorScalar<float, 8>& rhs)
 		{
 			set
 			(
@@ -111,7 +111,7 @@ namespace Vcl
 			);
 			return *this;
 		}
-		VectorScalar<float, 8>& operator *= (const VectorScalar<float, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 8>& operator *= (const VectorScalar<float, 8>& rhs)
 		{			
 			set
 			(
@@ -120,7 +120,7 @@ namespace Vcl
 			);
 			return *this;
 		}
-		VectorScalar<float, 8>& operator /= (const VectorScalar<float, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<float, 8>& operator /= (const VectorScalar<float, 8>& rhs)
 		{			
 			set
 			(
@@ -131,7 +131,7 @@ namespace Vcl
 		}
 		
 	public:
-		VectorScalar<bool, 8> operator== (const VectorScalar<float, 8>& rhs) const
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator== (const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
 			(
@@ -140,7 +140,7 @@ namespace Vcl
 			);
 		}
 
-		VectorScalar<bool, 8> operator< (const VectorScalar<float, 8>& rhs) const
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator< (const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
 			(
@@ -148,7 +148,7 @@ namespace Vcl
 				_mm_cmplt_ps(get(1), rhs.get(1))
 			);
 		}
-		VectorScalar<bool, 8> operator<= (const VectorScalar<float, 8>& rhs) const
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator<= (const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
 			(
@@ -156,7 +156,7 @@ namespace Vcl
 				_mm_cmple_ps(get(1), rhs.get(1))
 			);
 		}
-		VectorScalar<bool, 8> operator> (const VectorScalar<float, 8>& rhs) const
+		VCL_STRONG_INLINE 	VectorScalar<bool, 8> operator> (const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
 			(
@@ -164,7 +164,7 @@ namespace Vcl
 				_mm_cmpgt_ps(get(1), rhs.get(1))
 			);
 		}
-		VectorScalar<bool, 8> operator>= (const VectorScalar<float, 8>& rhs) const
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator>= (const VectorScalar<float, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
 			(
@@ -208,23 +208,23 @@ namespace Vcl
 		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);
 
 	private:
-		void set(float s0)
+		VCL_STRONG_INLINE void set(float s0)
 		{
 			_data[0] = _mm_set1_ps(s0);
 			_data[1] = _mm_set1_ps(s0);
 		}
-		void set(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
+		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
 		{
 			_data[0] = _mm_set_ps(s3, s2, s1, s0);
 			_data[1] = _mm_set_ps(s7, s6, s5, s4);
 		}
-		void set(__m128 v0, __m128 v1)
+		VCL_STRONG_INLINE void set(__m128 v0, __m128 v1)
 		{
 			_data[0] = v0;
 			_data[1] = v1;
 		}
 	private:
-		std::array<__m128, 2> _data;
+		__m128 _data[2];
 	};
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)

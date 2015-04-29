@@ -170,23 +170,23 @@ namespace Vcl
 		friend VectorScalar<int, 8> signum(const VectorScalar<int, 8>& a);
 
 	private:
-		void set(int s0)
+		VCL_STRONG_INLINE void set(int s0)
 		{
 			_data[0] = _mm_set1_epi32(s0);
 			_data[1] = _mm_set1_epi32(s0);
 		}
-		void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
+		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
 		{
 			_data[0] = _mm_set_epi32(s3, s2, s1, s0);
 			_data[1] = _mm_set_epi32(s7, s6, s5, s4);
 		}
-		void set(__m128i v0, __m128i v1)
+		VCL_STRONG_INLINE void set(__m128i v0, __m128i v1)
 		{
 			_data[0] = v0;
 			_data[1] = v1;
 		}
 	private:
-		std::array<__m128i, 2> _data;
+		__m128i _data[2];
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)

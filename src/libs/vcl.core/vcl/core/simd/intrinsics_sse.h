@@ -35,7 +35,11 @@ namespace Vcl
 {
 	VCL_STRONG_INLINE __m128 _mm_abs_ps(__m128 v)
 	{
-		return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(v), 1), 1));
+		// Compute abs using logical operations
+		return _mm_andnot_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), v);
+		
+		// Compute abs using shift operations
+		//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(v), 1), 1));
 	}
 
 	VCL_STRONG_INLINE __m128 _mm_sgn_ps(__m128 v)

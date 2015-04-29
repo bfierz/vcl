@@ -43,6 +43,10 @@ namespace Vcl
 	{
 	public:
 		VCL_STRONG_INLINE VectorScalar() = default;
+		VCL_STRONG_INLINE VectorScalar(const VectorScalar<float, 4>& rhs)
+		{
+			set(rhs.get(0));
+		}
 		VCL_STRONG_INLINE VectorScalar(float s)
 		{
 			set(s);
@@ -138,21 +142,21 @@ namespace Vcl
 		friend VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b);
 		
 	private:
-		void set(float s0)
+		VCL_STRONG_INLINE void set(float s0)
 		{
 			_data[0] = _mm_set1_ps(s0);
 		}
-		void set(float s0, float s1, float s2, float s3)
+		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3)
 		{
 			_data[0] = _mm_set_ps(s3, s2, s1, s0);
 		}
-		void set(__m128 vec)
+		VCL_STRONG_INLINE void set(__m128 vec)
 		{
 			_data[0] = vec;
 		}
 
 	private:
-		std::array<__m128, 1> _data;
+		__m128 _data[1];
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)
