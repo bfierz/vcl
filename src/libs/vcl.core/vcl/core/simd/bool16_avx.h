@@ -70,7 +70,7 @@ namespace Vcl
 		friend bool all(const VectorScalar<bool, 16>& b);
 
 	private:
-		std::array<__m256, 2> mF8;
+		__m256 mF8[2];
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)

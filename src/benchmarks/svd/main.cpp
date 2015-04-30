@@ -228,11 +228,13 @@ int main(int, char**)
 	perfTwoSidedSVD<float>(nr_problems, F, resU, resV, resS);
 	perfTwoSidedSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);
 	perfTwoSidedSVD<Vcl::float8>(nr_problems, F, resU, resV, resS);
+	perfTwoSidedSVD<Vcl::float16>(nr_problems, F, resU, resV, resS);
 	
 	// Test Performance: Jacobi SVD with symmetric EV computation and QR decomposition
 	perfJacobiSVDQR<float>(nr_problems, F, resU, resV, resS);
 	perfJacobiSVDQR<Vcl::float4>(nr_problems, F, resU, resV, resS);
 	perfJacobiSVDQR<Vcl::float8>(nr_problems, F, resU, resV, resS);
+	perfJacobiSVDQR<Vcl::float16>(nr_problems, F, resU, resV, resS);
 	
 	// Test Performance: McAdams SVD solver
 	perfMcAdamsSVD<float>(nr_problems, F, resU, resV, resS);

@@ -179,7 +179,7 @@ namespace Vcl
 		friend VectorScalar<int, 16> signum(const VectorScalar<int, 16>& a);
 
 	private:
-		std::array<__m256i, 2> mF8;
+		__m256i mF8[2];
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b)

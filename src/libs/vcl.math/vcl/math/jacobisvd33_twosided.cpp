@@ -41,6 +41,10 @@ namespace Vcl { namespace Mathematics
 	{
 		return TwoSidedJacobiSVD<float8>(A, U, V, warm_start);
 	}
+	int TwoSidedJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V, bool warm_start /* = false */)
+	{
+		return TwoSidedJacobiSVD<float16>(A, U, V, warm_start);
+	}
 
 	int TwoSidedJacobiSVD(Eigen::Matrix3d& A, Eigen::Matrix3d& U, Eigen::Matrix3d& V, bool warm_start /* = false */)
 	{

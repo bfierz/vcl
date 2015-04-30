@@ -70,6 +70,15 @@ namespace Vcl { namespace Mathematics
 	};
 
 	template<>
+	struct JacobiTraits<float16>
+	{
+		VCL_STRONG_INLINE static int maxIterations() { return 20; }
+
+		// 2^-22 (Machine eps: 2^-23)
+		VCL_STRONG_INLINE static float epsilon() { return 0.0000002384185791015625f; }
+	};
+
+	template<>
 	struct JacobiTraits<double>
 	{
 		VCL_STRONG_INLINE static int maxIterations() { return 20; }

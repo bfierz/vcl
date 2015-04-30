@@ -203,7 +203,7 @@ namespace Vcl
 		friend VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b);
 
 	private:
-		std::array<__m256, 2> mF8;
+		__m256 mF8[2];
 	};
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
