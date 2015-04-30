@@ -86,9 +86,9 @@ namespace Vcl
 	)
 	{
 		const float* p = base->data();
-		__m128 x0y0z0x1 = _mm_load_ps(p + 0);
-		__m128 y1z1x2y2 = _mm_load_ps(p + 4);
-		__m128 z2x3y3z3 = _mm_load_ps(p + 8);
+		__m128 x0y0z0x1 = _mm_loadu_ps(p + 0);
+		__m128 y1z1x2y2 = _mm_loadu_ps(p + 4);
+		__m128 z2x3y3z3 = _mm_loadu_ps(p + 8);
 		__m128 x2y2x3y3 = _mm_shuffle_ps(y1z1x2y2, z2x3y3z3, _MM_SHUFFLE(2, 1, 3, 2));
 		__m128 y0z0y1z1 = _mm_shuffle_ps(x0y0z0x1, y1z1x2y2, _MM_SHUFFLE(1, 0, 2, 1));
 		x = _mm_shuffle_ps(x0y0z0x1, x2y2x3y3, _MM_SHUFFLE(2, 0, 3, 0)); // x0x1x2x3
@@ -103,10 +103,10 @@ namespace Vcl
 	)
 	{
 		const float* p = base->data();
-		__m128 m0 = _mm_load_ps(p + 0);
-		__m128 m1 = _mm_load_ps(p + 4);
-		__m128 m2 = _mm_load_ps(p + 8);
-		__m128 m3 = _mm_load_ps(p + 12);
+		__m128 m0 = _mm_loadu_ps(p + 0);
+		__m128 m1 = _mm_loadu_ps(p + 4);
+		__m128 m2 = _mm_loadu_ps(p + 8);
+		__m128 m3 = _mm_loadu_ps(p + 12);
 
 		__m128 xy0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(1, 0, 1, 0));
 		__m128 xy1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(1, 0, 1, 0));
@@ -134,9 +134,9 @@ namespace Vcl
 		__m128 rz2x3y3z3 = _mm_shuffle_ps(z0z2x1x3, y1y3z1z3, _MM_SHUFFLE(3, 1, 3, 1));
 
 		float* p = base->data();
-		_mm_store_ps(p + 0, rx0y0z0x1);
-		_mm_store_ps(p + 4, ry1z1x2y2);
-		_mm_store_ps(p + 8, rz2x3y3z3);
+		_mm_storeu_ps(p + 0, rx0y0z0x1);
+		_mm_storeu_ps(p + 4, ry1z1x2y2);
+		_mm_storeu_ps(p + 8, rz2x3y3z3);
 	}
 
 	VCL_STRONG_INLINE void load

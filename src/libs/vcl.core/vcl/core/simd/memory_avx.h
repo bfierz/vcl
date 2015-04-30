@@ -107,16 +107,16 @@ namespace Vcl
 		const Eigen::Vector3f* base
 	)
 	{
-		const __m128 *m = (__m128*) base->data();
+		const float* p = base->data();
 		__m256 m03;
 		__m256 m14;
 		__m256 m25;
-		m03 = _mm256_castps128_ps256(m[0]); // load lower halves
-		m14 = _mm256_castps128_ps256(m[1]);
-		m25 = _mm256_castps128_ps256(m[2]);
-		m03 = _mm256_insertf128_ps(m03, m[3], 1);  // load upper halves
-		m14 = _mm256_insertf128_ps(m14, m[4], 1);
-		m25 = _mm256_insertf128_ps(m25, m[5], 1);
+		m03 = _mm256_castps128_ps256(_mm_loadu_ps(p + 0)); // load lower halves
+		m14 = _mm256_castps128_ps256(_mm_loadu_ps(p + 4));
+		m25 = _mm256_castps128_ps256(_mm_loadu_ps(p + 8));
+		m03 = _mm256_insertf128_ps(m03, _mm_loadu_ps(p + 12), 1);  // load upper halves
+		m14 = _mm256_insertf128_ps(m14, _mm_loadu_ps(p + 16), 1);
+		m25 = _mm256_insertf128_ps(m25, _mm_loadu_ps(p + 20), 1);
 
 		__m256 xy = _mm256_shuffle_ps(m14, m25, _MM_SHUFFLE(2, 1, 3, 2)); // upper x's and y's 
 		__m256 yz = _mm256_shuffle_ps(m03, m14, _MM_SHUFFLE(1, 0, 2, 1)); // lower y's and z's
@@ -132,23 +132,23 @@ namespace Vcl
 		const Eigen::Vector4f* base
 	)
 	{
-		const __m128 *m = (__m128*) base->data();
+		const float* p = base->data();
 		__m256 m04;
 		__m256 m15;
 		__m256 m26;
 		__m256 m37;
 
 		// Load the lower halves
-		m04 = _mm256_castps128_ps256(m[0]);
-		m15 = _mm256_castps128_ps256(m[1]);
-		m26 = _mm256_castps128_ps256(m[2]);
-		m37 = _mm256_castps128_ps256(m[3]);
+		m04 = _mm256_castps128_ps256(_mm_loadu_ps(p +  0));
+		m15 = _mm256_castps128_ps256(_mm_loadu_ps(p +  4));
+		m26 = _mm256_castps128_ps256(_mm_loadu_ps(p +  8));
+		m37 = _mm256_castps128_ps256(_mm_loadu_ps(p + 12));
 
 		// Load upper halves
-		m04 = _mm256_insertf128_ps(m04, m[4], 1);
-		m15 = _mm256_insertf128_ps(m15, m[5], 1);
-		m26 = _mm256_insertf128_ps(m26, m[6], 1);
-		m37 = _mm256_insertf128_ps(m37, m[7], 1);
+		m04 = _mm256_insertf128_ps(m04, _mm_loadu_ps(p + 16), 1);
+		m15 = _mm256_insertf128_ps(m15, _mm_loadu_ps(p + 20), 1);
+		m26 = _mm256_insertf128_ps(m26, _mm_loadu_ps(p + 24), 1);
+		m37 = _mm256_insertf128_ps(m37, _mm_loadu_ps(p + 28), 1);
 
 		__m256 xy0 = _mm256_shuffle_ps(m04, m15, _MM_SHUFFLE(1, 0, 1, 0));
 		__m256 xy1 = _mm256_shuffle_ps(m26, m37, _MM_SHUFFLE(1, 0, 1, 0));
@@ -175,14 +175,13 @@ namespace Vcl
 		__m256 r14 = _mm256_shuffle_ps(ryz, rxy, _MM_SHUFFLE(3, 1, 2, 0));
 		__m256 r25 = _mm256_shuffle_ps(rzx, ryz, _MM_SHUFFLE(3, 1, 3, 1));
 
-		__m128 *m = (__m128*) base;
-
-		m[0] = _mm256_castps256_ps128( r03 );
-		m[1] = _mm256_castps256_ps128( r14 );
-		m[2] = _mm256_castps256_ps128( r25 );
-		m[3] = _mm256_extractf128_ps( r03 ,1);
-		m[4] = _mm256_extractf128_ps( r14 ,1);
-		m[5] = _mm256_extractf128_ps( r25 ,1);
+		float* p = base->data();
+		_mm_storeu_ps(p +  0, _mm256_castps256_ps128(r03));
+		_mm_storeu_ps(p +  4, _mm256_castps256_ps128(r14));
+		_mm_storeu_ps(p +  8, _mm256_castps256_ps128(r25));
+		_mm_storeu_ps(p + 12, _mm256_extractf128_ps(r03, 1));
+		_mm_storeu_ps(p + 16, _mm256_extractf128_ps(r14, 1));
+		_mm_storeu_ps(p + 20, _mm256_extractf128_ps(r25, 1));
 	}
 
 	
