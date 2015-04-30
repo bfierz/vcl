@@ -237,5 +237,8 @@ int main(int, char**)
 	// Test Performance: McAdams SVD solver
 	perfMcAdamsSVD<float>(nr_problems, F, resU, resV, resS);
 	perfMcAdamsSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);
+
+#ifdef VCL_VECTORIZE_AVX
 	perfMcAdamsSVD<Vcl::float8>(nr_problems, F, resU, resV, resS);
+#endif // defined VCL_VECTORIZE_AVX
 }
