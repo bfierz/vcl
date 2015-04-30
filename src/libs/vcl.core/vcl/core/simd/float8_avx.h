@@ -43,6 +43,10 @@ namespace Vcl
 	{
 	public:
 		VCL_STRONG_INLINE VectorScalar() = default;
+		VCL_STRONG_INLINE VectorScalar(const VectorScalar<float, 8>& rhs)
+		{
+			mF8 = rhs.mF8;
+		}
 		VCL_STRONG_INLINE VectorScalar(float s)
 		{
 			mF8 = _mm256_set1_ps(s);
