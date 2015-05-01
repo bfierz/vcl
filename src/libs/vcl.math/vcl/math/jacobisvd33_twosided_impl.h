@@ -278,7 +278,6 @@ namespace Vcl { namespace Mathematics
 		Real s2 = cs(3);
 
 		// Normalise result
-		__debugbreak();
 		if (normalised)
 		{
 			//if (abs(d2) > abs(d1))
@@ -350,7 +349,6 @@ namespace Vcl { namespace Mathematics
 		A(k,p) = Akp;
 		A(k,q) = Akq;
 
-		__debugbreak();
 		for (int k = 0; k < 3; k++)
 		{
 			// Store rotation in U
