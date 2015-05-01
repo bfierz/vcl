@@ -26,6 +26,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/math/math.h>
 
 // McAdams SVD library
 #define USE_SCALAR_IMPLEMENTATION
@@ -33,6 +34,7 @@
 // #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
+#define HAS_RSQRT
 
 #define COMPUTE_V_AS_MATRIX
 // #define COMPUTE_V_AS_QUATERNION
@@ -46,6 +48,7 @@ namespace Vcl { namespace Mathematics
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V)
 	{
 		using ::sqrt;
+		using Vcl::Mathematics::rsqrt;
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
 

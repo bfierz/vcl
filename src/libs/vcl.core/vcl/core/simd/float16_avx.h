@@ -169,14 +169,15 @@ namespace Vcl
 		}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 16> abs()  const { return VectorScalar<float, 16>(_mm256_abs_ps (mF8[0]), _mm256_abs_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sin()  const { return VectorScalar<float, 16>(_mm256_sin_ps (mF8[0]), _mm256_sin_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> cos()  const { return VectorScalar<float, 16>(_mm256_cos_ps (mF8[0]), _mm256_cos_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> exp()  const { return VectorScalar<float, 16>(_mm256_exp_ps (mF8[0]), _mm256_exp_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> log()  const { return VectorScalar<float, 16>(_mm256_log_ps (mF8[0]), _mm256_log_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sgn()  const { return VectorScalar<float, 16>(_mm256_sgn_ps (mF8[0]), _mm256_sgn_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sqrt() const { return VectorScalar<float, 16>(_mm256_sqrt_ps(mF8[0]), _mm256_sqrt_ps(mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()  const { return VectorScalar<float, 16>(_mm256_rcp_ps (mF8[0]), _mm256_rcp_ps (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> abs()   const { return VectorScalar<float, 16>(_mm256_abs_ps  (mF8[0]), _mm256_abs_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> sin()   const { return VectorScalar<float, 16>(_mm256_sin_ps  (mF8[0]), _mm256_sin_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> cos()   const { return VectorScalar<float, 16>(_mm256_cos_ps  (mF8[0]), _mm256_cos_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> exp()   const { return VectorScalar<float, 16>(_mm256_exp_ps  (mF8[0]), _mm256_exp_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> log()   const { return VectorScalar<float, 16>(_mm256_log_ps  (mF8[0]), _mm256_log_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> sgn()   const { return VectorScalar<float, 16>(_mm256_sgn_ps  (mF8[0]), _mm256_sgn_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> sqrt()  const { return VectorScalar<float, 16>(_mm256_sqrt_ps (mF8[0]), _mm256_sqrt_ps (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()   const { return VectorScalar<float, 16>(_mm256_rcp_ps  (mF8[0]), _mm256_rcp_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> rsqrt() const { return VectorScalar<float, 16>(_mm256_rsqrt_ps(mF8[0]), _mm256_rsqrt_ps(mF8[1])); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 16> acos() const { return VectorScalar<float, 16>(_mm256_acos_ps(mF8[0]), _mm256_acos_ps(mF8[1])); }
 

@@ -270,14 +270,15 @@ namespace Vcl { namespace Mathematics
 		Real d1, d2;
 		Real kappa(1);
 		
-		//auto cs = std::move(TwoSidedJacobiRotationAngleFH(A(p, p), A(p, q), A(q, p), A(q, q), d1, d2));
-		auto cs = std::move(TwoSidedJacobiRotationAngleBLL(A(p, p), A(p, q), A(q, p), A(q, q), d1, d2));
+		//auto cs = TwoSidedJacobiRotationAngleFH(A(p, p), A(p, q), A(q, p), A(q, q), d1, d2);
+		auto cs = TwoSidedJacobiRotationAngleBLL(A(p, p), A(p, q), A(q, p), A(q, q), d1, d2);
 		Real c1 = cs(0);
 		Real s1 = cs(1);
 		Real c2 = cs(2);
 		Real s2 = cs(3);
 
 		// Normalise result
+		__debugbreak();
 		if (normalised)
 		{
 			//if (abs(d2) > abs(d1))
@@ -349,6 +350,7 @@ namespace Vcl { namespace Mathematics
 		A(k,p) = Akp;
 		A(k,q) = Akq;
 
+		__debugbreak();
 		for (int k = 0; k < 3; k++)
 		{
 			// Store rotation in U

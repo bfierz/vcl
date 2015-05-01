@@ -134,14 +134,15 @@ namespace Vcl
 		}
 		
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 8> abs()  const { return VectorScalar<float, 8>(_mm256_abs_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> sin()  const { return VectorScalar<float, 8>(_mm256_sin_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> cos()  const { return VectorScalar<float, 8>(_mm256_cos_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> exp()  const { return VectorScalar<float, 8>(_mm256_exp_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> log()  const { return VectorScalar<float, 8>(_mm256_log_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> sgn()  const { return VectorScalar<float, 8>(_mm256_sgn_ps (mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> sqrt() const { return VectorScalar<float, 8>(_mm256_sqrt_ps(mF8)); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> rcp()  const { return VectorScalar<float, 8>(_mm256_rcp_ps (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> abs()   const { return VectorScalar<float, 8>(_mm256_abs_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> sin()   const { return VectorScalar<float, 8>(_mm256_sin_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> cos()   const { return VectorScalar<float, 8>(_mm256_cos_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> exp()   const { return VectorScalar<float, 8>(_mm256_exp_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> log()   const { return VectorScalar<float, 8>(_mm256_log_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> sgn()   const { return VectorScalar<float, 8>(_mm256_sgn_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> sqrt()  const { return VectorScalar<float, 8>(_mm256_sqrt_ps (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> rcp()   const { return VectorScalar<float, 8>(_mm256_rcp_ps  (mF8)); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> rsqrt() const { return VectorScalar<float, 8>(_mm256_rsqrt_ps(mF8)); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 8> acos() const { return VectorScalar<float, 8>(_mm256_acos_ps(mF8)); }
 
