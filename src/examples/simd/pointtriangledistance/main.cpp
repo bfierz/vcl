@@ -57,12 +57,12 @@ int main(int argc, char* argv[])
 {
 	using Vcl::Geometry::distance;
 
-	//typedef Vcl::float16 real_t;
-	typedef Vcl::float8 real_t;
-	//typedef Vcl::float4 real_t;
-	//typedef float real_t;
+	//using real_t = Vcl::float16;
+	using real_t = Vcl::float8;
+	//using real_t = Vcl::float4;
+	//using real_t = float;
 
-	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
+	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	// Reference triangle
 	Eigen::Vector3f ref_a{ 1, 0, 0 };
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (int i = 0; i < nr_problems; i++)
+	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		Eigen::Vector3f p = ref_points[i];
 		std::array<float, 3> st;

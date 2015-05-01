@@ -87,7 +87,7 @@ TEST(PointTriangleDistance, Simple)
 		points.at<float>(i) = ref_points[i];
 	}
 
-	for (int i = 0; i < nr_problems; i++)
+	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		Eigen::Vector3f p = ref_points[i];
 		std::array<float, 3> st;
@@ -107,7 +107,7 @@ TEST(PointTriangleDistance, Simple)
 		s1[i] = st[1];
 		t1[i] = st[2];
 	}
-	for (int i = 0; i < nr_problems; i++)
+	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		EXPECT_TRUE(equal(d0[i], reinterpret_cast<float*>(d1.data())[i], 1e-4f)) << "Distance differ: " << i;
 		EXPECT_TRUE(equal(s0[i], reinterpret_cast<float*>(s1.data())[i], 1e-4f)) << "S differ: " << i;
