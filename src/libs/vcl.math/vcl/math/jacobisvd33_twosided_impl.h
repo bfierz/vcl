@@ -424,4 +424,60 @@ namespace Vcl { namespace Mathematics
 
 		return iter;
 	}
+	template<typename Real>
+	int TwoSidedJacobiSVDMaxElement(Eigen::Matrix<Real, 3, 3>& A, Eigen::Matrix<Real, 3, 3>& U, Eigen::Matrix<Real, 3, 3>& V, bool warm_start)
+	{
+		// A = U S V^T
+		// Prepare A in case we use a warm start.
+		// Else, initialise U, V to I
+		if (warm_start)
+		{
+			A = U.transpose() * A * V;
+		}
+		else
+		{
+			U.setIdentity();
+			V.setIdentity();
+		}
+
+		// Iterate as long convergence is not reached
+		int iter = 0;
+		while (iter < TwoSidedJacobiTraits<Real>::maxIterations())
+		{
+			// Find off diagonal element with maximum modulus
+			Real a = abs(A(0, 1));
+			Real b = abs(A(0, 2));
+			Real c = abs(A(1, 2));
+
+			int k;
+			Real e;
+			k = select(any(b > a), 1, 0);
+			e = select(any(b > a), b, a);
+			
+			k = select(any(c > e), 2, k);
+			e = select(any(c > e), c, e);
+
+			// All small enough -> done
+			if (all(e < TwoSidedJacobiTraits<Real>::epsilon()))
+				break;
+
+			// Rotate matrix with respect to that element
+			switch (k)
+			{
+			case 0:
+				TwoSidedJacobiRotate<Real, true, 0, 1>(A, U, V);
+				break;
+			case 1:
+				TwoSidedJacobiRotate<Real, true, 0, 2>(A, U, V);
+				break;
+			case 2:
+				TwoSidedJacobiRotate<Real, true, 1, 2>(A, U, V);
+				break;
+			}
+
+			iter++;
+		}
+
+		return iter;
+	}
 }}
