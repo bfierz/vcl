@@ -36,6 +36,8 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
+//#define VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
+
 namespace Vcl { namespace Mathematics
 {
 	template<typename T>
@@ -187,7 +189,11 @@ namespace Vcl { namespace Mathematics
 		//	c = s*rho;
 		//}
 		rho = u1 / u2;
+#ifdef VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
+		s = rsqrt(Real(1) + rho*rho);
+#else
 		s = Real(1) / sqrt(Real(1) + rho*rho);
+#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		s = select(rho < 0, -s, s);
 		c = s*rho;
 		
@@ -228,7 +234,11 @@ namespace Vcl { namespace Mathematics
 		// Exact arithmetic operations - cotangent
 		rho = u1 / u2;
 		tau = sgn(rho) * (abs(rho) + sqrt(Real(1) + rho*rho)); // tau -> cotangens
+#ifdef VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
+		s2 = rsqrt(Real(1) + tau*tau);
+#else
 		s2 = Real(1) / sqrt(Real(1) + tau*tau);
+#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		c2 = s2*tau;
 
 		
