@@ -162,12 +162,18 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)
 	{
+#ifdef VCL_VECTORIZE_SSE4_1
+		// SSE way
+		return VectorScalar<float, 4>(_mm_blendv_ps(b.get(0), a.get(0), mask.mF4));
+#else
 		// Straight forward method
-		// (b & mask) | (a & ~mask)
+		// (b & ~mask) | (a & mask)
+		return VectorScalar<float, 4>(_mm_or_ps(_mm_andnot_ps(mask.mF4, b.get(0)), _mm_and_ps(mask.mF4, a.get(0))));
 
-		// Optimized method
+		// xor-method
 		// (((b ^ a) & mask)^b)
-		return VectorScalar<float, 4>(_mm_xor_ps(b.get(0), _mm_and_ps(mask.mF4, _mm_xor_ps(b.get(0), a.get(0)))));
+		//return VectorScalar<float, 4>(_mm_xor_ps(b.get(0), _mm_and_ps(mask.mF4, _mm_xor_ps(b.get(0), a.get(0)))));
+#endif
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)

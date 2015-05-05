@@ -36,6 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
+//#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
 
 namespace Vcl { namespace Mathematics
 {
@@ -108,8 +109,13 @@ namespace Vcl { namespace Mathematics
 
 		// Exact arithmetic operations - cotangent
 		Real rho = u1 / u2;
-		Real ct = sgn(rho) * (abs(rho) + sqrt(rho * rho + Real(1))); // ct -> cotangens
+		Real ct = abs(rho) + sqrt(rho * rho + Real(1)); // ct -> cotangens
+		ct = select(rho < 0, -ct, ct);
+#ifdef VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
+		Real s = rsqrt(Real(1) + ct*ct);
+#else
 		Real s = Real(1) / sqrt(Real(1) + ct*ct);
+#endif // defined(VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT)
 		Real c = s*ct;
 
 		// Clamp the angle if it is to large

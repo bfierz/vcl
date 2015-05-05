@@ -224,8 +224,8 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<float, 16>
 		(
-			_mm256_xor_ps(b.mF8[0], _mm256_and_ps(mask.mF8[0], _mm256_xor_ps(b.mF8[0], a.mF8[0]))),
-			_mm256_xor_ps(b.mF8[1], _mm256_and_ps(mask.mF8[1], _mm256_xor_ps(b.mF8[1], a.mF8[1])))
+			_mm256_blendv_ps(b.mF8[0], a.mF8[0], mask.mF8[0]),
+			_mm256_blendv_ps(b.mF8[1], a.mF8[1], mask.mF8[1])
 		);
 	}
 }

@@ -191,11 +191,13 @@ namespace Vcl { namespace Mathematics
 		rho = u1 / u2;
 #ifdef VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
 		s = rsqrt(Real(1) + rho*rho);
-#else
-		s = Real(1) / sqrt(Real(1) + rho*rho);
-#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		s = select(rho < 0, -s, s);
 		c = s*rho;
+#else
+		s = Real(1) / sqrt(Real(1) + rho*rho);
+		s = select(rho < 0, -s, s);
+		c = s*rho;
+#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		
 		auto b1 = ((abs(u1) < Real(1e-6)) && (abs(u2) < Real(1e-6))) || (abs(u2) < Real(1e-6)*abs(u1));
 		c = select(b1, Real(1), c);
@@ -218,6 +220,7 @@ namespace Vcl { namespace Mathematics
 		//	s2 = c2 * tau;
 		//}
 
+		////////////////////////////////////////////////////////////////////////
 		// Exact arithmetic operations - tangent
 		//rho = u1 / u2;
 		//tau = Real(1) / (abs(rho) + sqrt(Real(1) + rho*rho)); // tau -> tangens
@@ -225,21 +228,26 @@ namespace Vcl { namespace Mathematics
 		//c2 = Real(1) / sqrt(Real(1) + tau*tau);
 		//s2 = c2*tau;
 		
+		////////////////////////////////////////////////////////////////////////
 		// Optimise by reformulating the cosine or sine:
 		// -> http://en.wikipedia.org/wiki/List_of_trigonometric_identities
 		// -> csc^2 = 1 + cot^2
 		// -> sin   = 1 / csc = 1 / sqrt(1 + cot^2)
 		// -> cos   = cot*sin
 		
-		// Exact arithmetic operations - cotangent
-		rho = u1 / u2;
-		tau = sgn(rho) * (abs(rho) + sqrt(Real(1) + rho*rho)); // tau -> cotangens
 #ifdef VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
+		rho = u1 / u2;
+		tau = sqrt(Real(1) + rho*rho); // tau -> cotangens
+		tau = rho + select(rho < 0, -tau, tau);
 		s2 = rsqrt(Real(1) + tau*tau);
-#else
-		s2 = Real(1) / sqrt(Real(1) + tau*tau);
-#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		c2 = s2*tau;
+#else
+		rho = u1 / u2;
+		tau = abs(rho) + sqrt(Real(1) + rho*rho); // tau -> cotangens
+		tau = select(rho < 0, -tau, tau);
+		s2 = Real(1) / sqrt(Real(1) + tau*tau);
+		c2 = s2*tau;
+#endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 
 		
 		auto b2 = ((abs(u1) < Real(1e-6)) && (abs(u2) < Real(1e-6))) || (abs(u2) < Real(1e-6)*abs(u1));

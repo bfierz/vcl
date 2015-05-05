@@ -242,11 +242,20 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
 	{
+#ifdef VCL_VECTORIZE_SSE4_1
+		// SSE way
+		return VectorScalar<float, 8>
+		(
+			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4),
+			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4)
+		);
+#else
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<float, 8>
 		(
 			_mm_xor_ps(b.get(0), _mm_and_ps(mask.mF4[0], _mm_xor_ps(b.get(0), a.get(0)))),
 			_mm_xor_ps(b.get(1), _mm_and_ps(mask.mF4[1], _mm_xor_ps(b.get(1), a.get(1))))
 		);
+#endif
 	}
 }

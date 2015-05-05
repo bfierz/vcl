@@ -160,8 +160,16 @@ namespace Vcl
 	
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
 	{
+		// Straight forward method
+		// (b & ~mask) | (a & mask)
+		//return VectorScalar<float, 8>(_mm256_or_ps(_mm256_andnot_ps(mask.mF8, b.mF8), _mm256_and_ps(mask.mF8, a.mF8)));
+
+		// xor-method
 		// (((b ^ a) & mask)^b)
-		return VectorScalar<float, 8>(_mm256_xor_ps(b.mF8, _mm256_and_ps(mask.mF8, _mm256_xor_ps(b.mF8, a.mF8))));
+		//return VectorScalar<float, 8>(_mm256_xor_ps(b.mF8, _mm256_and_ps(mask.mF8, _mm256_xor_ps(b.mF8, a.mF8))));
+
+		// AVX way
+		return VectorScalar<float, 8>(_mm256_blendv_ps(b.mF8, a.mF8, mask.mF8));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)

@@ -25,6 +25,7 @@
 #include <vcl/math/jacobieigen33_selfadjoint.h>
 
 // VCL library
+#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
 #include <vcl/math/jacobieigen33_selfadjoint_impl.h>
 
 namespace Vcl { namespace Mathematics

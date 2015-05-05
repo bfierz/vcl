@@ -25,6 +25,7 @@
 #include <vcl/math/jacobisvd33_qr.h>
 
 // VCL
+#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
 #include <vcl/math/jacobisvd33_qr_impl.h>
 
 namespace Vcl { namespace Mathematics
