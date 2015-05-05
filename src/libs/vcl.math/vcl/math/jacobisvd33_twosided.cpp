@@ -25,6 +25,7 @@
 #include <vcl/math/jacobisvd33_twosided.h>
 
 // VCL
+#define VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
 #include <vcl/math/jacobisvd33_twosided_impl.h>
 
 namespace Vcl { namespace Mathematics

@@ -75,6 +75,16 @@ namespace Vcl
 	__m256 _mm256_atan2_ps(__m256 y, __m256 x);
 	__m256 _mm256_pow_ps(__m256 x, __m256 y);
 
+	VCL_STRONG_INLINE __m256 _mmVCL_rsqrt_ps(__m256 v)
+	{
+		const __m256 nr = _mm256_rsqrt_ps(v);
+		const __m256 muls = _mm256_mul_ps(_mm256_mul_ps(nr, nr), v);
+		const __m256 beta = _mm256_mul_ps(_mm256_set1_ps(0.5f), nr);
+		const __m256 gamma = _mm256_sub_ps(_mm256_set1_ps(3.0f), muls);
+
+		return _mm256_mul_ps(beta, gamma);
+	}
+
 	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpneq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_NEQ_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmplt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LT_OQ); }

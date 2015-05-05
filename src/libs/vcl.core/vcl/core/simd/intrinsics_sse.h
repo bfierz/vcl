@@ -84,6 +84,16 @@ namespace Vcl
 #endif
 	}
 
+	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v)
+	{
+		const __m128 nr = _mm_rsqrt_ps(v);
+		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
+		const __m128 beta = _mm_mul_ps(_mm_set1_ps(0.5f), nr);
+		const __m128 gamma = _mm_sub_ps(_mm_set1_ps(3.0f), muls);
+
+		return _mm_mul_ps(beta, gamma);
+	}
+
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m128 v, int i)
 	{
 #if 1

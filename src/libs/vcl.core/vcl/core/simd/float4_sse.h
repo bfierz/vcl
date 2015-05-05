@@ -122,15 +122,15 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator>= (const VectorScalar<float, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_cmpge_ps (get(0), rhs.get(0))); }
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 4> abs()   const { return VectorScalar<float, 4>(_mm_abs_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> sin()   const { return VectorScalar<float, 4>(_mm_sin_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> cos()   const { return VectorScalar<float, 4>(_mm_cos_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> exp()   const { return VectorScalar<float, 4>(_mm_exp_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> log()   const { return VectorScalar<float, 4>(_mm_log_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> sgn()   const { return VectorScalar<float, 4>(_mm_sgn_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> sqrt()  const { return VectorScalar<float, 4>(_mm_sqrt_ps (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> rcp()   const { return VectorScalar<float, 4>(_mm_rcp_ps  (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> rsqrt() const { return VectorScalar<float, 4>(_mm_rsqrt_ps(get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> abs()   const { return VectorScalar<float, 4>(_mm_abs_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> sin()   const { return VectorScalar<float, 4>(_mm_sin_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> cos()   const { return VectorScalar<float, 4>(_mm_cos_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> exp()   const { return VectorScalar<float, 4>(_mm_exp_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> log()   const { return VectorScalar<float, 4>(_mm_log_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> sgn()   const { return VectorScalar<float, 4>(_mm_sgn_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> sqrt()  const { return VectorScalar<float, 4>(_mm_sqrt_ps    (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> rcp()   const { return VectorScalar<float, 4>(_mm_rcp_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> rsqrt() const { return VectorScalar<float, 4>(_mmVCL_rsqrt_ps(get(0))); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 4> acos() const { return VectorScalar<float, 4>(_mm_acos_ps(get(0))); }
 
