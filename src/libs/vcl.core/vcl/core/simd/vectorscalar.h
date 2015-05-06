@@ -291,7 +291,7 @@ namespace Vcl
 	}
 	
 	template<typename Scalar, int Width>
-	inline void cswap(const VectorScalar<bool, Width>& mask, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& a, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& b)
+	VCL_STRONG_INLINE void cswap(const VectorScalar<bool, Width>& mask, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& a, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& b)
 	{
 		cswap(mask, a(0), b(0));
 		cswap(mask, a(1), b(1));
@@ -299,7 +299,7 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	inline void cnswap(const VectorScalar<bool, Width>& mask, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& a, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& b)
+	VCL_STRONG_INLINE void cnswap(const VectorScalar<bool, Width>& mask, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& a, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& b)
 	{
 		cnswap(mask, a(0), b(0));
 		cnswap(mask, a(1), b(1));

@@ -142,8 +142,8 @@ namespace Vcl { namespace Mathematics
 	   const __m128 v = _mm_set_ss(in);
 	   const __m128 nr = _mm_rsqrt_ss(v);
 	   const __m128 muls = _mm_mul_ss(_mm_mul_ss(nr, nr), v);
-	   const __m128 beta = _mm_mul_ss(_mm_set1_ps(0.5f), nr);
-	   const __m128 gamma = _mm_sub_ss(_mm_set1_ps(3.0f), muls);
+	   const __m128 beta = _mm_mul_ss(_mm_set_ss(0.5f), nr);
+	   const __m128 gamma = _mm_sub_ss(_mm_set_ss(3.0f), muls);
 
 	   _mm_store_ss(&out, _mm_mul_ss(beta, gamma));
 	   return out;

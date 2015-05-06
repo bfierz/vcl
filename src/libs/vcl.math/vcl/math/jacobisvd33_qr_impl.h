@@ -62,7 +62,7 @@ namespace Vcl { namespace Mathematics
 		Eigen::Matrix<REAL, 3, 1> v0 = V.col(0);
 		Eigen::Matrix<REAL, 3, 1> v1 = V.col(1);
 		Eigen::Matrix<REAL, 3, 1> v2 = V.col(2);
-		
+
 		// Column magnitudes
 		REAL r0 = A.col(0).squaredNorm();
 		REAL r1 = A.col(1).squaredNorm();
@@ -91,7 +91,6 @@ namespace Vcl { namespace Mathematics
 		V.col(2) = v2;
 
 		// Use the QR decomposition to compute U and the singular values
-		U.setIdentity();
 		JacobiQR<REAL>(A, U);
 
 		// Fix smallest SV
