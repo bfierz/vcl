@@ -28,10 +28,27 @@
 
 namespace Vcl { namespace Util
 {
+
+#ifdef VCL_ABI_POSIX
+	timespec diff(timespec start, timespec end)
+	{
+		timespec temp;
+		if ((end.tv_nsec-start.tv_nsec)<0) {
+			temp.tv_sec = end.tv_sec-start.tv_sec-1;
+			temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+		} else {
+			temp.tv_sec = end.tv_sec-start.tv_sec;
+			temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+		}
+		return temp;
+	}
+#endif
 	void PreciseTimer::start()
 	{
 #ifdef VCL_ABI_WINAPI
 		QueryPerformanceCounter(&mStartTime);
+#elif defined VCL_ABI_POSIX
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &mStartTime);
 #endif // VCL_ABI_WINAPI
 	}
 
@@ -39,6 +56,8 @@ namespace Vcl { namespace Util
 	{
 #ifdef VCL_ABI_WINAPI
 		QueryPerformanceCounter(&mStopTime);
+#elif defined VCL_ABI_POSIX
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &mStopTime);
 #endif // VCL_ABI_WINAPI
 	}
 
@@ -51,6 +70,9 @@ namespace Vcl { namespace Util
 		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
 		
 		return ((double)(mStopTime.QuadPart - mStartTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
+#elif defined VCL_ABI_POSIX
+		timespec thisdiff = diff(mStartTime, mStopTime);
+		return (double(size_t(1e9)*thisdiff.tv_sec) + double(thisdiff.tv_nsec)) / (double)nr_iterations;
 #endif // VCL_ABI_WINAPI
 	}
 }}

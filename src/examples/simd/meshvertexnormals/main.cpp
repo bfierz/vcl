@@ -43,7 +43,7 @@
 #include "pitbull.h"
 
 // Tangent space computation is based on 
-// Lengyel, Eric. “Computing Tangent Space Basis Vectors for an Arbitrary Mesh”.
+// Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
 // Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 
 
@@ -426,15 +426,15 @@ int main(int argc, char* argv[])
 	{
 		int i00 = pitbull_core_faces[9 * i + 0] - 1;
 		int i01 = pitbull_core_faces[9 * i + 1] - 1;
-		int i02 = pitbull_core_faces[9 * i + 2] - 1;
+		//int i02 = pitbull_core_faces[9 * i + 2] - 1;
 
 		int i10 = pitbull_core_faces[9 * i + 3] - 1;
 		int i11 = pitbull_core_faces[9 * i + 4] - 1;
-		int i12 = pitbull_core_faces[9 * i + 5] - 1;
+		//int i12 = pitbull_core_faces[9 * i + 5] - 1;
 
 		int i20 = pitbull_core_faces[9 * i + 6] - 1;
 		int i21 = pitbull_core_faces[9 * i + 7] - 1;
-		int i22 = pitbull_core_faces[9 * i + 8] - 1;
+		//int i22 = pitbull_core_faces[9 * i + 8] - 1;
 
 		faces.emplace_back(i00, i10, i20);
 		tex_faces.emplace_back(i01, i11, i21);

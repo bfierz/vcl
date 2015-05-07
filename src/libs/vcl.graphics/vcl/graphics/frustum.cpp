@@ -353,7 +353,7 @@ namespace Vcl { namespace Graphics
 			
 		Require(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
 
-		return factory.createLookAt(_position.cast<float>(), _direction.cast<float>(), _up.cast<float>(), Handedness::RightHanded).cast<Scalar>();
+		return factory.createLookAt(_position.template cast<float>(), _direction.template cast<float>(), _up.template cast<float>(), Handedness::RightHanded).template cast<Scalar>();
 	}
 
 	template<typename Scalar>
