@@ -37,6 +37,7 @@
 #include <vcl/math/math.h>
 
 //#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
+//#define VCL_MATH_SELFADJOINTJACOBI_USE_RCP
 
 namespace Vcl { namespace Mathematics
 {
@@ -108,7 +109,11 @@ namespace Vcl { namespace Mathematics
 		// -> cos   = cot*sin
 
 		// Exact arithmetic operations - cotangent
+#ifdef VCL_MATH_SELFADJOINTJACOBI_USE_RCP
+		Real rho = u1 * rcp(u2);
+#else
 		Real rho = u1 / u2;
+#endif // defined(VCL_MATH_SELFADJOINTJACOBI_USE_RCP)
 		Real ct = abs(rho) + sqrt(rho * rho + Real(1)); // ct -> cotangens
 		ct = select(rho < 0, -ct, ct);
 #ifdef VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT

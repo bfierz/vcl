@@ -33,13 +33,19 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
+//#define VCL_MATH_JACOBIQR_USE_RSQRT
+
 namespace Vcl { namespace Mathematics
 {
 	template<typename Scalar>
 	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> JacobiRotationAngle(const Scalar& a11, const Scalar& a21)
 	{
 		// Normalisation factor
+#ifdef VCL_MATH_JACOBIQR_USE_RSQRT
+		Scalar rho = rsqrt(a11*a11 + a21*a21);
+#else
 		Scalar rho = Scalar(1) / Scalar(sqrt(a11*a11 + a21*a21));
+#endif // defined(VCL_MATH_JACOBIQR_USE_RSQRT)
 
 		// Rotation angles
 		Scalar c = a11 * rho;
