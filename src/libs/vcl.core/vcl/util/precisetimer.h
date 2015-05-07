@@ -33,6 +33,10 @@
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_ABI_WINAPI
 #	include <windows.h>
+#elif VCL_ABI_POSIX
+#	include <inttypes.h>
+#	include <time.h>
+#include
 #endif // VCL_ABI_WINAPI
 VCL_END_EXTERNAL_HEADERS
 
@@ -46,9 +50,13 @@ namespace Vcl { namespace Util
 
 		double interval(unsigned int nr_iterations = 1) const;
 
-#ifdef VCL_ABI_WINAPI
 	private:
+#ifdef VCL_ABI_WINAPI
 		LARGE_INTEGER mStartTime, mStopTime;
+#elif VCL_ABI_POSIX
+		timespec mStartTime, mStopTime;
+#else
+
 #endif /* VCL_ABI_WINAPI */
 	};
 }}
