@@ -181,7 +181,7 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 8> log()   const { return VectorScalar<float, 8>(_mm_log_ps     (get(0)), _mm_log_ps     (get(1))); }
 		VCL_STRONG_INLINE VectorScalar<float, 8> sgn()   const { return VectorScalar<float, 8>(_mm_sgn_ps     (get(0)), _mm_sgn_ps     (get(1))); }
 		VCL_STRONG_INLINE VectorScalar<float, 8> sqrt()  const { return VectorScalar<float, 8>(_mm_sqrt_ps    (get(0)), _mm_sqrt_ps    (get(1))); }
-		VCL_STRONG_INLINE VectorScalar<float, 8> rcp()   const { return VectorScalar<float, 8>(_mm_rcp_ps     (get(0)), _mm_rcp_ps     (get(1))); }
+		VCL_STRONG_INLINE VectorScalar<float, 8> rcp()   const { return VectorScalar<float, 8>(_mmVCL_rcp_ps  (get(0)), _mmVCL_rcp_ps  (get(1))); }
 		VCL_STRONG_INLINE VectorScalar<float, 8> rsqrt() const { return VectorScalar<float, 8>(_mmVCL_rsqrt_ps(get(0)), _mmVCL_rsqrt_ps(get(1))); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 8> acos() const { return VectorScalar<float, 8>(_mm_acos_ps(get(0)), _mm_acos_ps(get(1))); }

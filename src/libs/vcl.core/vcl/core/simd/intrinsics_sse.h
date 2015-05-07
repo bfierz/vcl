@@ -86,12 +86,26 @@ namespace Vcl
 
 	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v)
 	{
-		const __m128 nr = _mm_rsqrt_ps(v);
-		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
-		const __m128 beta = _mm_mul_ps(_mm_set1_ps(0.5f), nr);
-		const __m128 gamma = _mm_sub_ps(_mm_set1_ps(3.0f), muls);
+		__m128 nr = _mm_rsqrt_ps(v);
+		__m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
+		__m128 beta = _mm_mul_ps(_mm_set1_ps(0.5f), nr);
+		__m128 gamma = _mm_sub_ps(_mm_set1_ps(3.0f), muls);
 
 		return _mm_mul_ps(beta, gamma);
+	}
+
+	VCL_STRONG_INLINE __m128 _mmVCL_rcp_ps(__m128 v)
+	{
+		__m128 nr = _mm_rcp_ps(v);
+		__m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
+		__m128 dbl = _mm_add_ps(nr, nr);
+
+		// Filter out zero input to ensure 
+		__m128 mask = _mm_cmpeq_ps(v, _mm_setzero_ps());
+		__m128 filtered = _mm_andnot_ps(mask, muls);
+		__m128 result = _mm_sub_ps(dbl, filtered);
+
+		return result;
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m128 v, int i)

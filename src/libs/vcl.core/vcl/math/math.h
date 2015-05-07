@@ -153,8 +153,18 @@ namespace Vcl { namespace Mathematics
 	{
 		float out;
 
-		__m128 c = _mm_set_ss(f);
-		_mm_store_ss(&out, _mm_rcp_ss(c));
+		__m128 v = _mm_set_ss(f);
+
+		__m128 nr = _mm_rcp_ss(v);
+		__m128 muls = _mm_mul_ss(_mm_mul_ss(nr, nr), v);
+		__m128 dbl = _mm_add_ss(nr, nr);
+
+		// Filter out zero input to ensure 
+		__m128 mask = _mm_cmpeq_ss(v, _mm_setzero_ps());
+		__m128 filtered = _mm_andnot_ps(mask, muls);
+		__m128 result = _mm_sub_ss(dbl, filtered);
+
+		_mm_store_ss(&out, result);
 		return out;
 	}
 

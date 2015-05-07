@@ -75,6 +75,13 @@ namespace Vcl
 	__m256 _mm256_atan2_ps(__m256 y, __m256 x);
 	__m256 _mm256_pow_ps(__m256 x, __m256 y);
 
+	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmpneq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_NEQ_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmplt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LT_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmple_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LE_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmpgt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GT_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmpge_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GE_OQ); }
+
 	VCL_STRONG_INLINE __m256 _mmVCL_rsqrt_ps(__m256 v)
 	{
 		const __m256 nr = _mm256_rsqrt_ps(v);
@@ -85,12 +92,19 @@ namespace Vcl
 		return _mm256_mul_ps(beta, gamma);
 	}
 
-	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }
-	VCL_STRONG_INLINE __m256 _mm256_cmpneq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_NEQ_OQ); }
-	VCL_STRONG_INLINE __m256 _mm256_cmplt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LT_OQ); }
-	VCL_STRONG_INLINE __m256 _mm256_cmple_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LE_OQ); }
-	VCL_STRONG_INLINE __m256 _mm256_cmpgt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GT_OQ); }
-	VCL_STRONG_INLINE __m256 _mm256_cmpge_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GE_OQ); }
+	VCL_STRONG_INLINE __m256 _mmVCL_rcp_ps(__m256 v)
+	{
+		__m256 nr = _mm256_rcp_ps(v);
+		__m256 muls = _mm256_mul_ps(_mm256_mul_ps(nr, nr), v);
+		__m256 dbl = _mm256_add_ps(nr, nr);
+
+		// Filter out zero input to ensure 
+		__m256 mask = _mm256_cmpeq_ps(v, _mm256_setzero_ps());
+		__m256 filtered = _mm256_andnot_ps(mask, muls);
+		__m256 result = _mm256_sub_ps(dbl, filtered);
+
+		return result;
+	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_add_epi32(__m256i x, __m256i y)
 	{

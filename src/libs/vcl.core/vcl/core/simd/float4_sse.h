@@ -129,7 +129,7 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 4> log()   const { return VectorScalar<float, 4>(_mm_log_ps     (get(0))); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> sgn()   const { return VectorScalar<float, 4>(_mm_sgn_ps     (get(0))); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> sqrt()  const { return VectorScalar<float, 4>(_mm_sqrt_ps    (get(0))); }
-		VCL_STRONG_INLINE VectorScalar<float, 4> rcp()   const { return VectorScalar<float, 4>(_mm_rcp_ps     (get(0))); }
+		VCL_STRONG_INLINE VectorScalar<float, 4> rcp()   const { return VectorScalar<float, 4>(_mmVCL_rcp_ps  (get(0))); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> rsqrt() const { return VectorScalar<float, 4>(_mmVCL_rsqrt_ps(get(0))); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 4> acos() const { return VectorScalar<float, 4>(_mm_acos_ps(get(0))); }

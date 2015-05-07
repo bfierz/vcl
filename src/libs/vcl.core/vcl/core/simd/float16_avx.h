@@ -176,7 +176,7 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 16> log()   const { return VectorScalar<float, 16>(_mm256_log_ps  (mF8[0]), _mm256_log_ps  (mF8[1])); }
 		VCL_STRONG_INLINE VectorScalar<float, 16> sgn()   const { return VectorScalar<float, 16>(_mm256_sgn_ps  (mF8[0]), _mm256_sgn_ps  (mF8[1])); }
 		VCL_STRONG_INLINE VectorScalar<float, 16> sqrt()  const { return VectorScalar<float, 16>(_mm256_sqrt_ps (mF8[0]), _mm256_sqrt_ps (mF8[1])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()   const { return VectorScalar<float, 16>(_mm256_rcp_ps  (mF8[0]), _mm256_rcp_ps  (mF8[1])); }
+		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()   const { return VectorScalar<float, 16>(_mmVCL_rcp_ps  (mF8[0]), _mmVCL_rcp_ps  (mF8[1])); }
 		VCL_STRONG_INLINE VectorScalar<float, 16> rsqrt() const { return VectorScalar<float, 16>(_mmVCL_rsqrt_ps(mF8[0]), _mmVCL_rsqrt_ps(mF8[1])); }
 
 		VCL_STRONG_INLINE VectorScalar<float, 16> acos() const { return VectorScalar<float, 16>(_mm256_acos_ps(mF8[0]), _mm256_acos_ps(mF8[1])); }
