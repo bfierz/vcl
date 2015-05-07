@@ -129,7 +129,6 @@ struct Job
 
 int main(int argc, char* argv[])
 {
-	int MaxThreads = 10;
 	MaxIterations = 10000;
 
 	Job jobs [] =
@@ -137,7 +136,9 @@ int main(int argc, char* argv[])
 		JOB(stdMutex),
 		JOB(boostMutex),
 		JOB(qMutex),
+#ifdef VCL_ABI_WINAPI
 		JOB(winMutex),
+#endif
 	};
 
 	// Win32
