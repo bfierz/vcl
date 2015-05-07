@@ -180,6 +180,7 @@
 #		elif defined VCL_VECTORIZE_SSE3
 #			include <pmmintrin.h>
 #		elif defined VCL_VECTORIZE_SSE2
+#			include <emmintrin.h>
 #			include <xmmintrin.h>
 #			include <mmintrin.h>
 #		endif
