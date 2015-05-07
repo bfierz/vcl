@@ -151,21 +151,18 @@ void checkSolution
 		bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
 		bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
 
-		EXPECT_TRUE(eqS) << "S(" << i << ")";
-		EXPECT_TRUE(eqR) << "R(" << i << ")";
+		EXPECT_TRUE(eqS) << "S(" << i << ") - Ref: " << refS << ", Actual: " << resS;
+		EXPECT_TRUE(eqR) << "R(" << i << ") - Ref: " << refR << ", Actual: " << resR;
 	}
 }
 
 template<typename WideScalar>
-void runMcAdamsTest()
+void runMcAdamsTest(float tol)
 {
 	using scalar_t  = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
-
-	// Checking tolerance
-	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -201,15 +198,12 @@ void runMcAdamsTest()
 }
 
 template<typename WideScalar>
-void runTwoSidedTest()
+void runTwoSidedTest(float tol)
 {
 	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
-
-	// Checking tolerance
-	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -245,15 +239,12 @@ void runTwoSidedTest()
 }
 
 template<typename WideScalar>
-void runQRTest()
+void runQRTest(float tol)
 {
 	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
-
-	// Checking tolerance
-	scalar_t tol = scalar_t(1e-3);
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -290,42 +281,42 @@ void runQRTest()
 
 TEST(SVD33, McAdamsSVDFloat)
 {
-	runMcAdamsTest<float>();
+	runMcAdamsTest<float>(1e-4f);
 }
 TEST(SVD33, McAdamsSVDFloat4)
 {
-	runMcAdamsTest<Vcl::float4>();
+	runMcAdamsTest<Vcl::float4>(1e-4f);
 }
 
 #ifdef VCL_VECTORIZE_AVX
 TEST(SVD33, McAdamsSVDFloat8)
 {
-	runMcAdamsTest<Vcl::float8>();
+	runMcAdamsTest<Vcl::float8>(1e-4f);
 }
 #endif // defined VCL_VECTORIZE_AVX
 
 TEST(SVD33, TwoSidedSVDFloat)
 {
-	runTwoSidedTest<float>();
+	runTwoSidedTest<float>(1e-4f);
 }
 TEST(SVD33, TwoSidedSVDFloat4)
 {
-	runTwoSidedTest<Vcl::float4>();
+	runTwoSidedTest<Vcl::float4>(1e-5f);
 }
 TEST(SVD33, TwoSidedSVDFloat8)
 {
-	runTwoSidedTest<Vcl::float8>();
+	runTwoSidedTest<Vcl::float8>(1e-5f);
 }
 
 TEST(SVD33, QRSVDFloat)
 {
-	runQRTest<float>();
+	runQRTest<float>(1e-5f);
 }
 TEST(SVD33, QRSVDFloat4)
 {
-	runQRTest<Vcl::float4>();
+	runQRTest<Vcl::float4>(1e-5f);
 }
 TEST(SVD33, QRSVDFloat8)
 {
-	runQRTest<Vcl::float8>();
+	runQRTest<Vcl::float8>(1e-5f);
 }
