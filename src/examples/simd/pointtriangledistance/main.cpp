@@ -37,7 +37,7 @@
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/InterleavedArray.h>
+#include <vcl/core/interleavedarray.h>
 #include <vcl/geometry/distance.h>
 #include <vcl/util/precisetimer.h>
 
