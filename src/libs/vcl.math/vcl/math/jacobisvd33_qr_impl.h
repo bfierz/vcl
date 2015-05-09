@@ -93,12 +93,6 @@ namespace Vcl { namespace Mathematics
 		// Use the QR decomposition to compute U and the singular values
 		JacobiQR<REAL>(A, U);
 
-		// Fix smallest SV
-		auto flag = A(2,2) < REAL(0);
-		REAL sign = select(flag, REAL(-1), REAL(1));
-		A(2,2)   *= sign;
-		U.col(2) *= sign;
-
 		return iter_eig33 + 3;
 	}
 }}

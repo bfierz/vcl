@@ -84,6 +84,7 @@ namespace Vcl
 #endif
 	}
 
+	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
 	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v)
 	{
 		__m128 nr = _mm_rsqrt_ps(v);
@@ -94,6 +95,7 @@ namespace Vcl
 		return _mm_mul_ps(beta, gamma);
 	}
 
+	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
 	VCL_STRONG_INLINE __m128 _mmVCL_rcp_ps(__m128 v)
 	{
 		__m128 nr = _mm_rcp_ps(v);

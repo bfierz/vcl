@@ -2,6 +2,7 @@ PROJECT(vcl_math_test)
 
 SET(VCL_TEST_SRC
 	qr33.cpp
+	poldecomp33.cpp
 	svd33.cpp
 )
 SET(VCL_TEST_INC

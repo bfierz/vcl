@@ -17,6 +17,8 @@ SET(VCL_MATH_INC
 	vcl/math/jacobisvd33_qr.h
 	vcl/math/jacobisvd33_twosided.h
 	vcl/math/jacobisvd33_twosided_impl.h
+	vcl/math/polardecomposition.h
+	vcl/math/polardecomposition_impl.h
 	vcl/math/qr33.h
 	vcl/math/qr33_impl.h
 
@@ -28,6 +30,7 @@ SET(VCL_MATH_SRC
 	vcl/math/jacobisvd33_mcadams_avx.cpp
 	vcl/math/jacobisvd33_qr.cpp
 	vcl/math/jacobisvd33_twosided.cpp
+	vcl/math/polardecomposition.cpp
 	vcl/math/qr33.cpp
 )
 
