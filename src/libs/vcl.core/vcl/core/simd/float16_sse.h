@@ -299,10 +299,10 @@ namespace Vcl
 		// SSE way
 		return VectorScalar<float, 16>
 		(
-			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4),
-			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4)
-			_mm_blendv_ps(b.get(2), a.get(2), mask.mF4),
-			_mm_blendv_ps(b.get(3), a.get(3), mask.mF4)
+			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4[0]),
+			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4[1]),
+			_mm_blendv_ps(b.get(2), a.get(2), mask.mF4[2]),
+			_mm_blendv_ps(b.get(3), a.get(3), mask.mF4[3])
 		);
 #else
 		// (((b ^ a) & mask)^b)

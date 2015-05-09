@@ -246,8 +246,8 @@ namespace Vcl
 		// SSE way
 		return VectorScalar<float, 8>
 		(
-			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4),
-			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4)
+			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4[0]),
+			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4[1])
 		);
 #else
 		// (((b ^ a) & mask)^b)

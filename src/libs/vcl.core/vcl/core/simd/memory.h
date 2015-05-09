@@ -128,7 +128,7 @@ namespace Vcl
 				VectorScalar<Scalar, Width> tmp;
 				for (int i = 0; i < Width; i++)
 				{
-					tmp[i] = base.at<Scalar>(vindex[i] * 1)(r, c);
+					tmp[i] = base.template at<Scalar>(vindex[i] * 1)(r, c);
 				}
 
 				res(r, c) = tmp;
@@ -143,7 +143,7 @@ namespace Vcl
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
-		return base.at<Scalar>(vindex * 1);
+		return base.template at<Scalar>(vindex * 1);
 	}
 
 
@@ -198,6 +198,6 @@ namespace Vcl
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
-		base.at<Scalar>(vindex * 1) = value;
+		base.template at<Scalar>(vindex * 1) = value;
 	}
 }

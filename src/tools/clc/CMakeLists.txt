@@ -4,7 +4,7 @@ PROJECT(clc)
 MESSAGE(STATUS "Configuring 'clc'")
 
 # Boost dependency
-FIND_PACKAGE(Boost 1.57 COMPONENTS program_options REQUIRED)
+FIND_PACKAGE(Boost 1.55 COMPONENTS program_options REQUIRED)
 MESSAGE(STATUS "* Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARY_DIRS}")
 MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARIES}")

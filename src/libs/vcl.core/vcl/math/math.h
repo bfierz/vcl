@@ -35,19 +35,20 @@ namespace Vcl { namespace Mathematics
 		return a*a;
 	}
 
-	VCL_STRONG_INLINE double fast_sqrt(double in)
-	{
-	   return ::sqrt(in);
-	}
-
 	VCL_STRONG_INLINE double rsqrt(double in)
 	{
-	   return 1.0f / ::sqrt(in);
+	   return 1.0 / ::sqrt(in);
+	}
+
+
+	VCL_STRONG_INLINE double rcp(double in)
+	{
+		return 1.0 / in;
 	}
 
 	VCL_STRONG_INLINE double sgn(double x)
 	{
-		return (double) ((0.0f < x) - (x < 0.0f));
+		return (double) ((0.0 < x) - (x < 0.0));
 	}
 
 	VCL_STRONG_INLINE double abs(double a)
@@ -124,15 +125,6 @@ namespace Vcl { namespace Mathematics
 	VCL_STRONG_INLINE float sqrt(float a)
 	{
 		return ::sqrt(a);
-	}
-
-	VCL_STRONG_INLINE float fast_sqrt(float in)
-	{
-	   float out;
-
-	   __m128 v = _mm_set_ss(in);
-	   _mm_store_ss(&out, _mm_mul_ss(v, _mm_rsqrt_ss(v)));
-	   return out;
 	}
 
 	VCL_STRONG_INLINE float rsqrt(float in)

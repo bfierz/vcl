@@ -70,6 +70,7 @@ namespace Vcl { namespace Graphics
 		else
 		{
 			DebugError("Not implemented.");
+			return Eigen::Matrix4f::Zero();
 		}
 	}
 }}

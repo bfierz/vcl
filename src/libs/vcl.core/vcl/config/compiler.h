@@ -33,7 +33,7 @@
 #	error "VCL was not configured for CLANG"
 #elif defined _MSC_VER && !defined VCL_COMPILER_MSVC
 #	error "VCL was not configured for MSVC"
-#elif defined __GNUC__ && !defined VCL_COMPILER_GNUC
+#elif defined __GNUC__ && !defined VCL_COMPILER_GNU
 #	error "VCL was not configured for the GNU C++ compiler"
 #elif defined __INTEL_COMPILER && !defined VCL_COMPILER_ICL
 #	error "VCL was not configured for the Intel C++ compiler"
@@ -85,7 +85,7 @@
 #		define thread_local __declspec(thread)
 #	endif /* _MSC_VER <= 1900 */
 
-#elif defined (VCL_COMPILER_GNUC) || defined (VCL_COMPILER_CLANG)
+#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)
 #		define VCL_ABI_WINAPI
 #		if defined (_WIN64)
@@ -93,6 +93,8 @@
 #		else
 #			define VCL_ABI_WIN32
 #		endif /* _WIN64 */
+#	elif __unix == 1
+#		define VCL_ABI_POSIX
 #	endif /* _WIN32 */
 #	if (defined(__i686__))
 #		define VCL_ARCH_X86
@@ -178,6 +180,7 @@
 #		elif defined VCL_VECTORIZE_SSE3
 #			include <pmmintrin.h>
 #		elif defined VCL_VECTORIZE_SSE2
+#			include <emmintrin.h>
 #			include <xmmintrin.h>
 #			include <mmintrin.h>
 #		endif
