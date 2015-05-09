@@ -27,6 +27,9 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// C++ standard library
+#include <random>
+
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
 #include <vcl/math/math.h>
@@ -38,121 +41,134 @@
 #include <gtest/gtest.h>
 
 // Common functions
-template<typename Scalar>
-Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
+namespace
 {
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-
-	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
+	template<typename Scalar>
+	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 	{
-		F.at<Scalar>(i).setRandom();
+		// Random number generator
+		std::mt19937_64 rng;
+		std::uniform_real_distribution<float> d;
+
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
+	
+		// Initialize data
+		for (int i = 0; i < (int) nr_problems; i++)
+		{
+			Eigen::Matrix<Scalar, 3, 3> rnd;
+			rnd << d(rng), d(rng), d(rng),
+				   d(rng), d(rng), d(rng),
+				   d(rng), d(rng), d(rng);
+			F.at<Scalar>(i) = rnd;
+		}
+
+		return std::move(F);
 	}
 
-	return std::move(F);
-}
-
-template<typename Scalar>
-void computeReferenceSolution
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& V,
-	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-)
-{
-	// Compute reference using Eigen
-	for (int i = 0; i < static_cast<int>(nr_problems); i++)
+	template<typename Scalar>
+	void computeReferenceSolution
+	(
+		size_t nr_problems,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& V,
+		Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
+	)
 	{
-		Vcl::Matrix3f A = F.at<Scalar>(i);
-		Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-		U.at<Scalar>(i) = eigen_svd.matrixU();
-		V.at<Scalar>(i) = eigen_svd.matrixV();
-		S.at<Scalar>(i) = eigen_svd.singularValues();
+		// Compute reference using Eigen
+		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		{
+			Vcl::Matrix3f A = F.at<Scalar>(i);
+			Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+			U.at<Scalar>(i) = eigen_svd.matrixU();
+			V.at<Scalar>(i) = eigen_svd.matrixV();
+			S.at<Scalar>(i) = eigen_svd.singularValues();
+		}
 	}
-}
 
-template<typename Scalar>
-void checkSolution
-(
-	size_t nr_problems,
-	Scalar tol,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refVa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resVa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-)
-{
-	using Vcl::Mathematics::equal;
-
-	for (int i = 0; i < static_cast<int>(nr_problems); i++)
+	template<typename Scalar>
+	void checkSolution
+	(
+		size_t nr_problems,
+		Scalar tol,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refVa,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resVa,
+		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
+	)
 	{
-		Vcl::Matrix3f refU = refUa.at<Scalar>(i);
-		Vcl::Matrix3f refV = refVa.at<Scalar>(i);
-		Vcl::Vector3f refS = refSa.at<Scalar>(i);
+		using Vcl::Mathematics::equal;
 
-		Vcl::Matrix3f resU = resUa.at<Scalar>(i);
-		Vcl::Matrix3f resV = resVa.at<Scalar>(i);
-		Vcl::Vector3f resS = resSa.at<Scalar>(i);
+		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
 
-		if (refS(0) > 0 && refS(1) > 0 && refS(2) < 0)
-			refV.col(2) *= -1;
-		if (resS(0) > 0 && resS(1) > 0 && resS(2) < 0)
-			resV.col(2) *= -1;
+		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		{
+			Vcl::Matrix3f refU = refUa.at<Scalar>(i);
+			Vcl::Matrix3f refV = refVa.at<Scalar>(i);
+			Vcl::Vector3f refS = refSa.at<Scalar>(i);
 
-		Vcl::Matrix3f refR = refU * refV.transpose();
-		Vcl::Matrix3f resR = resU * resV.transpose();
+			Vcl::Matrix3f resU = resUa.at<Scalar>(i);
+			Vcl::Matrix3f resV = resVa.at<Scalar>(i);
+			Vcl::Vector3f resS = resSa.at<Scalar>(i);
 
-		Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
-		Scalar sqLenRefUc1 = refU.col(1).squaredNorm();
-		Scalar sqLenRefUc2 = refU.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Reference U(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Reference U(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Reference U(" << i << "): Column 2 is not normalized.";
+			if (refS(0) > 0 && refS(1) > 0 && refS(2) < 0)
+				refV.col(2) *= -1;
+			if (resS(0) > 0 && resS(1) > 0 && resS(2) < 0)
+				resV.col(2) *= -1;
 
-		Scalar sqLenResUc0 = resU.col(0).squaredNorm();
-		Scalar sqLenResUc1 = resU.col(1).squaredNorm();
-		Scalar sqLenResUc2 = resU.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Result U(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Result U(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Result U(" << i << "): Column 2 is not normalized.";
+			Vcl::Matrix3f refR = refU * refV.transpose();
+			Vcl::Matrix3f resR = resU * resV.transpose();
 
-		Scalar sqLenRefVc0 = refV.col(0).squaredNorm();
-		Scalar sqLenRefVc1 = refV.col(1).squaredNorm();
-		Scalar sqLenRefVc2 = refV.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenRefVc0, Scalar(1), tol)) << "Reference V(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefVc1, Scalar(1), tol)) << "Reference V(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefVc2, Scalar(1), tol)) << "Reference V(" << i << "): Column 2 is not normalized.";
+			Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
+			Scalar sqLenRefUc1 = refU.col(1).squaredNorm();
+			Scalar sqLenRefUc2 = refU.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Reference U(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Reference U(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Reference U(" << i << "): Column 2 is not normalized.";
 
-		Scalar sqLenResVc0 = resV.col(0).squaredNorm();
-		Scalar sqLenResVc1 = resV.col(1).squaredNorm();
-		Scalar sqLenResVc2 = resV.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenResVc0, Scalar(1), tol)) << "Result V(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResVc1, Scalar(1), tol)) << "Result V(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResVc2, Scalar(1), tol)) << "Result V(" << i << "): Column 2 is not normalized.";
+			Scalar sqLenResUc0 = resU.col(0).squaredNorm();
+			Scalar sqLenResUc1 = resU.col(1).squaredNorm();
+			Scalar sqLenResUc2 = resU.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Result U(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Result U(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Result U(" << i << "): Column 2 is not normalized.";
 
-		Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
-		Scalar sqLenRefRc1 = refR.col(1).squaredNorm();
-		Scalar sqLenRefRc2 = refR.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenRefRc0, Scalar(1), tol)) << "Reference R(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefRc1, Scalar(1), tol)) << "Reference R(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenRefRc2, Scalar(1), tol)) << "Reference R(" << i << "): Column 2 is not normalized.";
+			Scalar sqLenRefVc0 = refV.col(0).squaredNorm();
+			Scalar sqLenRefVc1 = refV.col(1).squaredNorm();
+			Scalar sqLenRefVc2 = refV.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenRefVc0, Scalar(1), tol)) << "Reference V(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefVc1, Scalar(1), tol)) << "Reference V(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefVc2, Scalar(1), tol)) << "Reference V(" << i << "): Column 2 is not normalized.";
 
-		Scalar sqLenResRc0 = resR.col(0).squaredNorm();
-		Scalar sqLenResRc1 = resR.col(1).squaredNorm();
-		Scalar sqLenResRc2 = resR.col(2).squaredNorm();
-		EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized.";
-		EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized.";
+			Scalar sqLenResVc0 = resV.col(0).squaredNorm();
+			Scalar sqLenResVc1 = resV.col(1).squaredNorm();
+			Scalar sqLenResVc2 = resV.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenResVc0, Scalar(1), tol)) << "Result V(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResVc1, Scalar(1), tol)) << "Result V(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResVc2, Scalar(1), tol)) << "Result V(" << i << "): Column 2 is not normalized.";
 
-		bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
-		bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
+			Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
+			Scalar sqLenRefRc1 = refR.col(1).squaredNorm();
+			Scalar sqLenRefRc2 = refR.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenRefRc0, Scalar(1), tol)) << "Reference R(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefRc1, Scalar(1), tol)) << "Reference R(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefRc2, Scalar(1), tol)) << "Reference R(" << i << "): Column 2 is not normalized.";
 
-		EXPECT_TRUE(eqS) << "S(" << i << ") - Ref: " << refS << ", Actual: " << resS;
-		EXPECT_TRUE(eqR) << "R(" << i << ") - Ref: " << refR << ", Actual: " << resR;
+			Scalar sqLenResRc0 = resR.col(0).squaredNorm();
+			Scalar sqLenResRc1 = resR.col(1).squaredNorm();
+			Scalar sqLenResRc2 = resR.col(2).squaredNorm();
+			EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized.";
+
+			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
+			bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
+
+			EXPECT_TRUE(eqS) << "S(" << i << ") -\nRef: " << refS.format(fmt) << ",\nRes: " << resS.format(fmt);
+			EXPECT_TRUE(eqR) << "R(" << i << ") -\nRef: " << refR.format(fmt) << ",\nRes: " << resR.format(fmt);
+		}
 	}
 }
 
@@ -281,17 +297,17 @@ void runQRTest(float tol)
 
 TEST(SVD33, McAdamsSVDFloat)
 {
-	runMcAdamsTest<float>(1e-4f);
+	runMcAdamsTest<float>(1e-3f);
 }
 TEST(SVD33, McAdamsSVDFloat4)
 {
-	runMcAdamsTest<Vcl::float4>(1e-4f);
+	runMcAdamsTest<Vcl::float4>(1e-3f);
 }
 
 #ifdef VCL_VECTORIZE_AVX
 TEST(SVD33, McAdamsSVDFloat8)
 {
-	runMcAdamsTest<Vcl::float8>(1e-4f);
+	runMcAdamsTest<Vcl::float8>(1e-3f);
 }
 #endif // defined VCL_VECTORIZE_AVX
 

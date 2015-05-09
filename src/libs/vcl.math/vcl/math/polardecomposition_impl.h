@@ -48,22 +48,22 @@ namespace Vcl { namespace Mathematics
 	 *	The method is based on an SVD of the input matrix. Contrary to the code in Eigen,
 	 *	we handle reflections differently.
 	 */
-	template<typename REAL>
-	void PolarDecomposition(Eigen::Matrix<REAL, 3, 3>& A, Eigen::Matrix<REAL, 3, 3>& R, Eigen::Matrix<REAL, 3, 3>* S)
+	template<typename Scalar>
+	void PolarDecomposition(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>* S)
 	{
-		Eigen::Matrix<REAL, 3, 3> SV = A;
-		Eigen::Matrix<REAL, 3, 3> U, V;
-		QRJacobiSVD<REAL>(SV, U, V);
+		Eigen::Matrix<Scalar, 3, 3> SV = A;
+		Eigen::Matrix<Scalar, 3, 3> U, V;
+		QRJacobiSVD<Scalar>(SV, U, V);
 
 		// Adapted the polar decomposition from Eigen
-		REAL x = (U * V.transpose()).determinant();
-		Check(Vcl::Mathematics::equal(abs(x), 1, (REAL) 1e-5), "Determinant is -1 or 1.");
+		Scalar x = (U * V.transpose()).determinant();
+		Check(all(equal(abs(x), Scalar(1), Scalar(1e-5))), "Determinant is -1 or 1.", "Determinant: {}", x);
 
 		// Assumes ordered singular values
-		Check(abs(SV(2, 2)) <= abs(SV(1, 1)) && abs(SV(1, 1)) <= abs(SV(0, 0)), "Singular values are ordered");
+		Check(all(abs(SV(2, 2)) <= abs(SV(1, 1)) && abs(SV(1, 1)) <= abs(SV(0, 0))), "Singular values are ordered", "Singular values: {}, {}, {}", SV(0, 0), SV(1, 1), SV(2, 2));
 
 		// Fix smallest SV
-		REAL sign = select(x < REAL(0), REAL(-1), REAL(1));
+		Scalar sign = select(x < Scalar(0), Scalar(-1), Scalar(1));
 		V.col(2) *= sign;
 
 		R = U * V.transpose();

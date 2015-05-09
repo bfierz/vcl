@@ -159,22 +159,13 @@ namespace Vcl { namespace Assert
 		*b = false;
 		return false;
 	}
-	
-	const char* format()
+}}
+
+namespace fmt
+{
+	std::string format()
 	{
 		return "";
 	}
-
-	thread_local char buffer[1024];
-	const char* format(char* format, ...)
-	{
-		va_list args;
-		va_start(args, format);
-	  
-		vsnprintf_s(buffer, 1024, format, args);
-
-		va_end (args);
-		return buffer;
-	}
-}}
+}
 #endif

@@ -305,7 +305,18 @@ namespace Vcl
 		cnswap(mask, a(1), b(1));
 		cnswap(mask, a(2), b(2));
 	}
-	
+
+	template<typename Scalar, int Width>
+	VCL_STRONG_INLINE VectorScalar<bool, Width> equal
+	(
+		const VectorScalar<Scalar, Width>& x,
+		const VectorScalar<Scalar, Width>& y,
+		const VectorScalar<Scalar, Width>& tol = 0
+	)
+	{
+		return abs(x - y) <= tol * max(VectorScalar<Scalar, Width>(1), max(abs(x), abs(y)));
+	}
+
 	typedef VectorScalar<float,  4> float4;
 	typedef VectorScalar<float,  8> float8;
 	typedef VectorScalar<float, 16> float16;

@@ -30,6 +30,9 @@
 // C runtime library
 #include <stdio.h>
 
+// VCL
+#include <vcl/core/3rdparty/format.h>
+
 #if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
 #	ifndef VCL_NO_CONTRACTS
 #		define VCL_CONTRACT
@@ -47,11 +50,13 @@
 #		define VCL_CONTRACT_SPRINTF sprintf_s
 #	endif
 
+namespace fmt
+{
+	std::string format();
+}
+
 namespace Vcl { namespace Assert
 {
-	const char* format();
-	const char* format(char* format, ...);
-
 	bool handler(const char* title, const char* message, bool* b);
 }}
 	/*!
@@ -59,18 +64,19 @@ namespace Vcl { namespace Assert
 	 *
 	 *	This macro defines when the assert handler called and if the debugger should be invoked
 	 */
-#	define vcl_assert(type, expr, description, ...)                        \
-	{                                                                      \
-		static bool ignoreAlways = false;                                  \
-		if (!ignoreAlways && !(expr))                                      \
-		{                                                                  \
-			char msgbuf[1024];                                             \
-			VCL_CONTRACT_SPRINTF(msgbuf,"%s in %s:%d:\n '%s' \n %s \n %s \n", type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr), description, Vcl::Assert::format(__VA_ARGS__)); \
-			if(Vcl::Assert::handler(description, msgbuf, &ignoreAlways))   \
-			{                                                              \
-				VCL_DEBUG_BREAK;                                           \
-			}                                                              \
-		}                                                                  \
+#	define vcl_assert(type, expr, description, ...)                               \
+	{                                                                             \
+		static bool ignoreAlways = false;                                         \
+		if (!ignoreAlways && !(expr))                                             \
+		{                                                                         \
+			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n %s \n",      \
+							type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr),     \
+							description, fmt::format(__VA_ARGS__));               \
+			if (Vcl::Assert::handler(description, msgbuf.data(), &ignoreAlways))  \
+			{                                                                     \
+				VCL_DEBUG_BREAK;                                                  \
+			}                                                                     \
+		}                                                                         \
 	}
 
 	// Define wrappers around the contract method

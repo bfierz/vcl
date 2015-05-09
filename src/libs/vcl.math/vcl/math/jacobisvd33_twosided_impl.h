@@ -344,16 +344,12 @@ namespace Vcl { namespace Mathematics
 		Real Apq = A(p,p)*c1*s2 - A(q,p)*s1*s2 + A(p,q)*c1*c2 - A(q,q)*s1*c2;
 		Real Aqp = A(p,p)*kappa*s1*c2 + A(q,p)*kappa*c1*c2 - A(p,q)*kappa*s1*s2 - A(q,q)*kappa*c1*s2;
 
-		Check(all(abs(Apq) < 1e-6), "Off diagonal element is 0.", "Error: %f", Apq);
-		Check(all(abs(Aqp) < 1e-6), "Off diagonal element is 0.", "Error: %f", Aqp);
-
-		A(p,q) = Apq;
-		A(q,p) = Aqp;
-#else
-		A(p,q) = 0;
-		A(q,p) = 0;
+		Check(all(abs(Apq) < 1e-6), "Off diagonal element is 0.", "Error: {}", Apq);
+		Check(all(abs(Aqp) < 1e-6), "Off diagonal element is 0.", "Error: {}", Aqp);
 #endif /* VCL_DEBUG */
 
+		A(p,q) = 0;
+		A(q,p) = 0;
 		A(p,p) = d1;
 		A(q,q) = d2;
 		
