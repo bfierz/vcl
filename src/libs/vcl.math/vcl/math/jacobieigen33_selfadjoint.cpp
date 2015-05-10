@@ -42,6 +42,10 @@ namespace Vcl { namespace Mathematics
 	{
 		return SelfAdjointJacobiEigenMaxElement(A, U);
 	}
+	int SelfAdjointJacobiEigen(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U)
+	{
+		return SelfAdjointJacobiEigenMaxElement(A, U);
+	}
 
 	int SelfAdjointJacobiEigen(Eigen::Matrix3d& A, Eigen::Matrix3d& U)
 	{

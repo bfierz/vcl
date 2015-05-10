@@ -187,3 +187,7 @@ TEST(PolarDecomposition33, PolDecompFloat8)
 {
 	runPolDecompTest<Vcl::float8>(1e-5f);
 }
+TEST(PolarDecomposition33, PolDecompFloat16)
+{
+	runPolDecompTest<Vcl::float16>(1e-5f);
+}

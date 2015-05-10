@@ -1,8 +1,14 @@
 # Performance benchmarks for mutexes
 SUBDIRS(mutex)
 
+# Performance benchmarks for 3x3 Eigen deompositions
+SUBDIRS(eigen33performance)
+
+# Correctness benchmarks for 3x3 Eigen deompositions
+SUBDIRS(eigen33correctness)
+
 # Performance benchmarks for 3x3 SVDs
-SUBDIRS(svd)
+SUBDIRS(svd33performance)
 
 # Correctness benchmarks for 3x3 SVDs
 SUBDIRS(svd33correctness)

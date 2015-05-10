@@ -22,21 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/math/jacobieigen33_selfadjoint.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// VCL
-#include <vcl/core/simd/vectorscalar.h>
+// VCL library
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
+#include <vcl/math/jacobieigen33_selfadjoint_quat_impl.h>
 
 namespace Vcl { namespace Mathematics
 {
-	int SelfAdjointJacobiEigen(Eigen::Matrix<float,   3, 3>& A, Eigen::Matrix<float,   3, 3>& U);
-	int SelfAdjointJacobiEigen(Eigen::Matrix<float4,  3, 3>& A, Eigen::Matrix<float4,  3, 3>& U);
-	int SelfAdjointJacobiEigen(Eigen::Matrix<float8,  3, 3>& A, Eigen::Matrix<float8,  3, 3>& U);
-	int SelfAdjointJacobiEigen(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U);
+	int SelfAdjointJacobiEigenQuat(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U)
+	{
+		return SelfAdjointJacobiEigenQuatSweeps(A, U);
+	}
+	int SelfAdjointJacobiEigenQuat(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U)
+	{
+		return SelfAdjointJacobiEigenQuatSweeps(A, U);
+	}
+	int SelfAdjointJacobiEigenQuat(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U)
+	{
+		return SelfAdjointJacobiEigenQuatSweeps(A, U);
+	}
+	int SelfAdjointJacobiEigenQuat(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U)
+	{
+		return SelfAdjointJacobiEigenQuatSweeps(A, U);
+	}
 
-	int SelfAdjointJacobiEigen(Eigen::Matrix3d& A, Eigen::Matrix3d& U);
+	int SelfAdjointJacobiEigenQuat(Eigen::Matrix3d& A, Eigen::Matrix3d& U)
+	{
+		return SelfAdjointJacobiEigenQuatSweeps(A, U);
+	}
 }}

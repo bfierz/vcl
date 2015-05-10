@@ -3,9 +3,6 @@ PROJECT(svd33correctness)
 # Status message
 MESSAGE(STATUS "Configuring 'svd33correctness'")
 
-# Find the QtCore library
-FIND_PACKAGE(Qt5Core REQUIRED)
-
 SET(SRC
 	main.cpp
 )
