@@ -38,6 +38,7 @@
 
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RCP
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
 
 namespace Vcl { namespace Mathematics
 {
@@ -78,53 +79,8 @@ namespace Vcl { namespace Mathematics
 		return Eigen::Matrix<Real, 2, 1>(c_h, s_h);
 	}
 
-	//template<typename Scalar, int p, int q>
-	//void QuaternionJacobiRotateIncremental(Eigen::Matrix<Scalar, 3, 3>& m, Eigen::Matrix<Scalar, 3, 3>& R)
-	//{
-	//	using namespace Eigen;
-	//
-	//	// Rotates A through phi in pq-plane to set A(p, q) = 0.
-	//	// Rotation stored in R whose columns are eigenvectors of A
-	//
-	//	// Use approximate rotations
-	//	auto cs = ApproximateGivensRotationQuaternion(m(p, p), m(p, q), m(q, q));
-	//	Scalar c = cs(0);
-	//	Scalar s = cs(1);
-	//
-	//	if (p == 0 && q == 1)
-	//	{
-	//		Eigen::Quaternion<Scalar> qq(c, 0, 0, s);
-	//		qq.normalize();
-	//
-	//		m = qq.toRotationMatrix().transpose() * m * qq.toRotationMatrix();
-	//		R *= qq.toRotationMatrix();
-	//
-	//		return;
-	//	}
-	//	if (p == 0 && q == 2)
-	//	{
-	//		Eigen::Quaternion<Scalar> qq(c, 0, -s, 0);
-	//		qq.normalize();
-	//
-	//		m = qq.toRotationMatrix().transpose() * m * qq.toRotationMatrix();
-	//		R *= qq.toRotationMatrix();
-	//
-	//		return;
-	//	}
-	//	if (p == 1 && q == 2)
-	//	{
-	//		Eigen::Quaternion<Scalar> qq(c, s, 0, 0);
-	//		qq.normalize();
-	//
-	//		m = qq.toRotationMatrix().transpose() * m * qq.toRotationMatrix();
-	//		R *= qq.toRotationMatrix();
-	//
-	//		return;
-	//	}
-	//}
-	
 	template<typename Scalar, int p, int q>
-	void QuaternionJacobiRotateIncremental(Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
+	VCL_STRONG_INLINE void QuaternionJacobiRotateIncremental(Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
 		// Rotates A through phi in pq-plane to set M(p, q) = 0.
 		auto cs = ApproxJacobiRotationQuaternion(M(p, p), M(p, q), M(q, q));
@@ -194,10 +150,48 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename Scalar, int p, int q>
-	void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
+	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
 		Require(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 		
+#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
+		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
+		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
+
+		if (p == 0 && q == 1)
+		{
+			// Rotates A through phi in pq-plane to set D(p, q) = 0.
+			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 1), D(1, 1));
+			Scalar c = cs(0);
+			Scalar s = cs(1);
+
+			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, 0, s).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+
+			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
+		}
+		else if (p == 0 && q == 2)
+		{
+			// Rotates A through phi in pq-plane to set D(p, q) = 0.
+			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 2), D(2, 2));
+			Scalar c = cs(0);
+			Scalar s = cs(1);
+
+			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, -s, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+
+			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
+		}
+		else if (p == 1 && q == 2)
+		{
+			// Rotates A through phi in pq-plane to set D(p, q) = 0.
+			auto cs = ApproxJacobiRotationQuaternion(D(1, 1), D(1, 2), D(2, 2));
+			Scalar c = cs(0);
+			Scalar s = cs(1);
+
+			Check(all(equal(Eigen::Quaternion<Scalar>(c, s, 0, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+
+			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
+		}
+#else
 		Scalar x = Q.x();
 		Scalar y = Q.y();
 		Scalar z = Q.z();
@@ -251,17 +245,18 @@ namespace Vcl { namespace Mathematics
 
 			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
 		}
+#endif
 	}
 	
 	template<typename Scalar>
-	void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, int p, int q, Eigen::Quaternion<Scalar>& Q)
+	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, int p, int q, Eigen::Quaternion<Scalar>& Q)
 	{
 		Require(equal(Q.norm(), 1, 1e-6), "Quaternion is normalized.");
-		
-		// Gerneric code
-		//Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
-		//Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
-		
+
+#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
+		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
+		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
+#else
 		Eigen::Matrix<Scalar, 3, 3> D;
 		Scalar x = Q.x();
 		Scalar y = Q.y();
@@ -276,7 +271,7 @@ namespace Vcl { namespace Mathematics
 		D(0, 1) = ((w * w + x * x - y * y - z * z) * M(0, 0) + (2 * x * y + 2 * w * z) * M(1, 0) + (2 * x * z - 2 * w * y) * M(2, 0)) * (2 * x * y - 2 * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (2 * x * y + 2 * w * z) * M(1, 1) + (2 * x * z - 2 * w * y) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (2 * x * y + 2 * w * z) * M(1, 2) + (2 * x * z - 2 * w * y) * M(2, 2)) * (2 * y * z + 2 * w * x);
 		D(0, 2) = ((w * w + x * x - y * y - z * z) * M(0, 0) + (2 * x * y + 2 * w * z) * M(1, 0) + (2 * x * z - 2 * w * y) * M(2, 0)) * (2 * x * z + 2 * w * y) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (2 * x * y + 2 * w * z) * M(1, 1) + (2 * x * z - 2 * w * y) * M(2, 1)) * (2 * y * z - 2 * w * x) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (2 * x * y + 2 * w * z) * M(1, 2) + (2 * x * z - 2 * w * y) * M(2, 2)) * (w * w - x * x - y * y + z * z);
 		D(1, 2) = ((2 * x * y - 2 * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (2 * y * z + 2 * w * x) * M(2, 0)) * (2 * x * z + 2 * w * y) + ((2 * x * y - 2 * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (2 * y * z + 2 * w * x) * M(2, 1)) * (2 * y * z - 2 * w * x) + ((2 * x * y - 2 * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (2 * y * z + 2 * w * x) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-
+#endif
 		// Rotates A through phi in pq-plane to set D(p, q) = 0.
 		auto cs = ApproxJacobiRotationQuaternion(D(p, p), D(p, q), D(q, q));
 		Scalar c = cs(0);

@@ -147,7 +147,7 @@ namespace Vcl { namespace Mathematics
 	}
 	
 	template<typename Real, int p, int q>
-	void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q)
+	VCL_STRONG_INLINE void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q)
 	{
 		static_assert(0 <= p && p < 3, "p in [0,3)");
 		static_assert(0 <= q && q < 3, "q in [0,3)");
@@ -166,7 +166,7 @@ namespace Vcl { namespace Mathematics
 	}
 	
 	template<typename Real>
-	void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q, int p, int q)
+	VCL_STRONG_INLINE void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q, int p, int q)
 	{
 		Require(0 <= p && p < 3, "p in [0,3)");
 		Require(0 <= q && q < 3, "q in [0,3)");
