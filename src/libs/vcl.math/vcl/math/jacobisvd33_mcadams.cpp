@@ -31,6 +31,8 @@
 // McAdams SVD library
 #define USE_SCALAR_IMPLEMENTATION
 
+#define JACOBI_CONJUGATION_SWEEPS 5
+
 #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
@@ -45,6 +47,9 @@
 
 namespace Vcl { namespace Mathematics
 {
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", off )  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V)
 	{
 		using ::sqrt;
@@ -88,6 +93,9 @@ namespace Vcl { namespace Mathematics
 		ENABLE_SCALAR_IMPLEMENTATION(A(1, 1) = Sa22.f;)
 		ENABLE_SCALAR_IMPLEMENTATION(A(2, 2) = Sa33.f;)
 
-		return 15;
+		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
 	}
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", restore )
+#endif
 }}

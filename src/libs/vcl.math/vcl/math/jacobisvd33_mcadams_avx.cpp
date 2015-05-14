@@ -32,6 +32,8 @@
 // McAdams SVD library
 #define USE_AVX_IMPLEMENTATION
 
+#define JACOBI_CONJUGATION_SWEEPS 5
+
 #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
@@ -90,7 +92,7 @@ namespace Vcl { namespace Mathematics
 		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps((float*) &A(1, 1), Va22);)
 		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps((float*) &A(2, 2), Va33);)
 
-		return 15;
+		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
 	}
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks( "u", restore )

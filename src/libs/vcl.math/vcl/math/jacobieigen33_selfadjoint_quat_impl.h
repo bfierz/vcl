@@ -136,10 +136,10 @@ namespace Vcl { namespace Mathematics
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R;
 			R(0, 0) = c*c - s*s;
-			R(1, 0) = 2*s*c;
+			R(1, 0) = Scalar(2)*s*c;
 			R(2, 0) = 0;
 
-			R(0, 1) = -2*s*c;
+			R(0, 1) = Scalar(-2)*s*c;
 			R(1, 1) = c*c - s*s;
 			R(2, 1) = 0;
 
@@ -157,13 +157,13 @@ namespace Vcl { namespace Mathematics
 			Eigen::Matrix<Scalar, 3, 3> R;
 			R(0, 0) = c*c - s*s;
 			R(1, 0) = 0;
-			R(2, 0) = -2*s*c;
+			R(2, 0) = Scalar(-2)*s*c;
 
 			R(0, 1) = 0;
 			R(1, 1) = c*c + s*s;
 			R(2, 1) = 0;
 
-			R(0, 2) = 2*s*c;
+			R(0, 2) = Scalar(2)*s*c;
 			R(1, 2) = 0;
 			R(2, 2) = c*c - s*s;
 			
@@ -181,10 +181,10 @@ namespace Vcl { namespace Mathematics
 
 			R(0, 1) = 0;
 			R(1, 1) = c*c - s*s;
-			R(2, 1) = 2*s*c;
+			R(2, 1) = Scalar(2)*s*c;
 
 			R(0, 2) = 0;
-			R(1, 2) = -2*s*c;
+			R(1, 2) = Scalar(-2)*s*c;
 			R(2, 2) = c*c - s*s;
 			
 			// Transform the matrices
@@ -298,12 +298,12 @@ namespace Vcl { namespace Mathematics
 	 *		SIGGRAPH - 2011 - McAdams, Zhu, Selle, Empey, Tamstorf, Teran, Sifakis - Efficient elasticity for character skinning with contact and collisions
 	 */
 	template<typename Scalar>
-	int SelfAdjointJacobiEigenQuatSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 3)
+	int SelfAdjointJacobiEigenQuatSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 5)
 	{
 		using namespace Eigen;
 		
 		// Initialize Q
-		Q.setIdentity();
+		Q = Eigen::Quaternion<Scalar>::Identity();
 
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal

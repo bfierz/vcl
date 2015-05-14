@@ -21,6 +21,10 @@
 // #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 
+#ifndef JACOBI_CONJUGATION_SWEEPS
+#define JACOBI_CONJUGATION_SWEEPS 4
+#endif
+
 { // Begin block : Scope of qV (if not maintained)
 
 #ifndef COMPUTE_V_AS_QUATERNION
@@ -88,7 +92,7 @@
     // Solve symmetric eigenproblem using Jacobi iteration
     //###########################################################
 
-    for(int sweep=1;sweep<=4;sweep++){
+    for(int sweep=1;sweep<=JACOBI_CONJUGATION_SWEEPS;sweep++){
 
         // First Jacobi conjugation
 

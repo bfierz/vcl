@@ -243,21 +243,21 @@ void checkSolution
 		if (!eqS)
 		{
 			wrong_computations++;
-			scalar_t err = abs((refS.array().abs() - cS.array().abs()).sum() / scalar_t(3));
+			scalar_t err = abs(refS.array().abs() - cS.array().abs()).maxCoeff();
 			accum_error += err;
 			fout << ", E: " << err;
 		}
 		if (!eqU)
 		{
 			wrong_u_computations++;
-			scalar_t err = abs((refU.array().abs() - cU.array().abs()).sum() / scalar_t(9));
+			scalar_t err = abs(refU.array().abs() - cU.array().abs()).maxCoeff();
 			accum_u_error += err;
 			fout << ", U: " << err;
 		}
 		if (!eqV)
 		{
 			wrong_v_computations++;
-			scalar_t err = abs((refV.array().abs() - cV.array().abs()).sum() / scalar_t(9));
+			scalar_t err = abs(refV.array().abs() - cV.array().abs()).maxCoeff();
 			accum_v_error += err;
 			fout << ", V: " << err;
 		}
