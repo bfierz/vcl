@@ -117,3 +117,4 @@
 
 // Logic functions
 #define implies(a,b) (!(a) || (b))
+#define var_unused(x) ((void)x)

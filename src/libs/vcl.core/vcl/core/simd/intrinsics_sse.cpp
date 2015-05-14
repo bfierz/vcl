@@ -65,7 +65,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m128 _mm_acos_ps(__m128 v)
 	{
-		using bool4  = VectorScalar<bool, 4>;
 		using float4 = VectorScalar<float, 4>;
 
 		float4 x{ v };
@@ -91,7 +90,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m128 _mm_asin_ps(__m128 v)
 	{
-		using bool4 = VectorScalar<bool, 4>;
 		using float4 = VectorScalar<float, 4>;
 
 		float4 x{ v };
@@ -113,7 +111,6 @@ namespace Vcl
 
 	__m128 _mm256_atan2_ps(__m128 in_y, __m128 in_x)
 	{
-		using bool4 = VectorScalar<bool, 4>;
 		using float4 = VectorScalar<float, 4>;
 
 		float4 t0, t1, t3, t4;
