@@ -56,7 +56,7 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 		rnd << d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng);
-		F.at<Scalar>(i) = rnd.transpose() * rnd;
+		F.template at<Scalar>(i) = rnd.transpose() * rnd;
 	}
 
 	return std::move(F);
@@ -129,7 +129,6 @@ void perfJacobiEigen
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -170,7 +169,6 @@ void perfJacobiEigenQuat
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	

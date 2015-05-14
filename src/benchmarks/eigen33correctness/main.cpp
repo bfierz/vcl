@@ -57,7 +57,7 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 		rnd << d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng);
-		F.at<Scalar>(i) = rnd.transpose() * rnd;
+		F.template at<Scalar>(i) = rnd.transpose() * rnd;
 	}
 
 	return std::move(F);
@@ -75,13 +75,13 @@ void computeReferenceSolution
 	// Compute reference using Eigen
 	for (int i = 0; i < static_cast<int>(nr_problems); i++)
 	{
-		Vcl::Matrix3f A = ATA.at<Scalar>(i);
+		Vcl::Matrix3f A = ATA.template at<Scalar>(i);
 
 		Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver;
 		solver.compute(A, Eigen::ComputeEigenvectors);
 
-		U.at<Scalar>(i) = solver.eigenvectors();
-		S.at<Scalar>(i) = solver.eigenvalues();
+		U.template at<Scalar>(i) = solver.eigenvectors();
+		S.template at<Scalar>(i) = solver.eigenvalues();
 	}
 }
 
@@ -96,7 +96,6 @@ void jacobiEig
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -130,7 +129,6 @@ void jacobiEigQuat
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -205,10 +203,10 @@ void checkSolution
 	
 	for (int j = 0; j < (int) nr_problems; j++)
 	{
-		Vcl::Matrix3f refU = refUa.at<scalar_t>(j);
-		Vcl::Vector3f refS = refSa.at<scalar_t>(j);
-		Vcl::Matrix3f cU = resUa.at<scalar_t>(j);
-		Vcl::Vector3f cS = resSa.at<scalar_t>(j);
+		Vcl::Matrix3f refU = refUa.template at<scalar_t>(j);
+		Vcl::Vector3f refS = refSa.template at<scalar_t>(j);
+		Vcl::Matrix3f cU = resUa.template at<scalar_t>(j);
+		Vcl::Vector3f cS = resSa.template at<scalar_t>(j);
 
 		SortEigenvalues(cS, cU);
 

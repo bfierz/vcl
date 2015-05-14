@@ -27,7 +27,11 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
+#ifdef VCL_ABI_WINAPI
 #include <filesystem>
+#elif defined(VCL_ABI_POSIX)
+#include <boost/filesystem.hpp>
+#endif
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -137,7 +141,13 @@ namespace Vcl { namespace Tools { namespace Cuc
 int main(int argc, char* argv [])
 {
 	using namespace Vcl::Tools::Cuc;
+
+#ifdef VCL_ABI_WINAPI
 	namespace fs = std::tr2::sys;
+#elif defined(VCL_ABI_POSIX)
+	namespace fs = boost::filesystem;
+#endif
+
 
 	// Declare the supported options.
 	po::options_description desc

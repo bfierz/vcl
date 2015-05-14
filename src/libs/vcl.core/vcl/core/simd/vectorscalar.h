@@ -242,7 +242,7 @@ namespace Vcl
 		return selected;
 	}
 	
-	template<typename Scalar, int Width, int N>
+	template<typename Scalar, int Width, size_t N>
 	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select
 	(
 		const VectorScalar<bool, Width>& mask,
@@ -252,7 +252,7 @@ namespace Vcl
 	{
 		std::array<VectorScalar<Scalar, Width>, N> selected;
 
-		for (int i = 0; i < N; i++)
+		for (size_t i = 0; i < N; i++)
 			selected[i] = select(mask, a[i], b[i]);
 
 		return selected;
