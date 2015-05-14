@@ -88,7 +88,7 @@ void computeReferenceSolution
 template<typename WideScalar>
 void jacobiEig
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -101,7 +101,7 @@ void jacobiEig
 	size_t width = sizeof(real_t) / sizeof(float);
 	
 	int avg_nr_iter = 0;
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -122,7 +122,7 @@ void jacobiEig
 template<typename WideScalar>
 void jacobiEigQuat
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -135,7 +135,7 @@ void jacobiEigQuat
 	size_t width = sizeof(real_t) / sizeof(float);
 	
 	int avg_nr_iter = 0;
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -193,8 +193,8 @@ void checkSolution
 {
 	using scalar_t = Scalar;
 	
-	int wrong_computations, wrong_v_computations, wrong_u_computations;
-	scalar_t accum_error, accum_v_error, accum_u_error;
+	int wrong_computations, wrong_u_computations;
+	scalar_t accum_error, accum_u_error;
 	std::ofstream fout;
 	
 	wrong_computations = 0;

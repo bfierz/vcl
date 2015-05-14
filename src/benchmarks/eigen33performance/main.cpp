@@ -50,12 +50,12 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
 
 	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		Eigen::Matrix<Scalar, 3, 3> rnd;
 		rnd << d(rng), d(rng), d(rng),
-			d(rng), d(rng), d(rng),
-			d(rng), d(rng), d(rng);
+			   d(rng), d(rng), d(rng),
+			   d(rng), d(rng), d(rng);
 		F.at<Scalar>(i) = rnd.transpose() * rnd;
 	}
 
@@ -64,7 +64,7 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 
 void perfEigenEigen
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -75,7 +75,7 @@ void perfEigenEigen
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		// Map data
 		Vcl::Matrix3f A = F.at<float>(i);
@@ -92,7 +92,7 @@ void perfEigenEigen
 
 void perfEigenEigenDirect
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -103,7 +103,7 @@ void perfEigenEigenDirect
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		// Map data
 		Vcl::Matrix3f A = F.at<float>(i);
@@ -121,7 +121,7 @@ void perfEigenEigenDirect
 template<typename WideScalar>
 void perfJacobiEigen
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -139,7 +139,7 @@ void perfJacobiEigen
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -162,7 +162,7 @@ void perfJacobiEigen
 template<typename WideScalar>
 void perfJacobiEigenQuat
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
@@ -180,7 +180,7 @@ void perfJacobiEigenQuat
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);

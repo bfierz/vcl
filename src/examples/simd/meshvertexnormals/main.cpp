@@ -60,6 +60,8 @@ void accumulateNormals
 	std::vector<Eigen::Vector3f>& bitangents
 )
 {
+	VCL_UNREFERENCED_PARAMETER(tf_end);
+
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP

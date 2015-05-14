@@ -36,6 +36,15 @@ namespace Vcl { namespace Core
 	const int DynamicStride = -1;
 
 	/*!
+	 *	Compute the width of the vector given its internal type
+	 */
+	template<typename T1, typename T2>
+	struct VectorWidth
+	{
+		static const int value = sizeof(T1) / sizeof(T2);
+	};
+
+	/*!
 	 *	Storage class storing the given matrix objects in row-major order.
 	 */
 	template<typename SCALAR, int ROWS = 0, int COLS = 0, int STRIDE = 0>
@@ -136,10 +145,10 @@ namespace Vcl { namespace Core
 			Eigen::Unaligned,
 			Eigen::Stride
 			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR))))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR)))))
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
 			>
-		> at(int idx)
+		> at(size_t idx)
 		{
 			static_assert
 			(
@@ -154,8 +163,8 @@ namespace Vcl { namespace Core
 
 			typedef Eigen::Stride
 			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR))))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR)))))
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
 			> StrideType;
 			
 			Require
@@ -213,10 +222,10 @@ namespace Vcl { namespace Core
 			Eigen::Unaligned,
 			Eigen::Stride
 			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR))))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / (sizeof(SCALAR_OUT) / sizeof(SCALAR)))))
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
 			>
-		> at(int idx) const
+		> at(size_t idx) const
 		{
 			return const_cast<InterleavedArray*>(this)->at<SCALAR_OUT>(idx);
 		}

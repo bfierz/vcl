@@ -39,7 +39,7 @@
 
 void perfEigenSVD
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -51,7 +51,7 @@ void perfEigenSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		// Map data
 		auto U = resU.at<float>(i);
@@ -74,7 +74,7 @@ void perfEigenSVD
 template<typename WideScalar>
 void perfTwoSidedSVD
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -93,7 +93,7 @@ void perfTwoSidedSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -119,7 +119,7 @@ void perfTwoSidedSVD
 template<typename WideScalar>
 void perfJacobiSVDQR
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -138,7 +138,7 @@ void perfJacobiSVDQR
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -164,7 +164,7 @@ void perfJacobiSVDQR
 template<typename WideScalar>
 void perfMcAdamsSVD
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -183,7 +183,7 @@ void perfMcAdamsSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);

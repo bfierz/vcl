@@ -49,7 +49,7 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
 
 	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		Eigen::Matrix<Scalar, 3, 3> rnd;
 		rnd << d(rng), d(rng), d(rng),
@@ -72,7 +72,7 @@ void computeReferenceSolution
 )
 {
 	// Compute reference using Eigen
-	for (int i = 0; i < static_cast<int>(nr_problems); i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		Vcl::Matrix3f A = F.at<Scalar>(i);
 		Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
@@ -85,7 +85,7 @@ void computeReferenceSolution
 template<typename WideScalar>
 void twoSidedSVD
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -99,7 +99,7 @@ void twoSidedSVD
 	size_t width = sizeof(real_t) / sizeof(float);
 	
 	int avg_nr_iter = 0;
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -123,7 +123,7 @@ void twoSidedSVD
 template<typename WideScalar>
 void jacobiSVDQR
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -137,7 +137,7 @@ void jacobiSVDQR
 	size_t width = sizeof(real_t) / sizeof(float);
 	
 	int avg_nr_iter = 0;
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -161,7 +161,7 @@ void jacobiSVDQR
 template<typename WideScalar>
 void mcAdamsSVD
 (
-	int nr_problems,
+	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -175,7 +175,7 @@ void mcAdamsSVD
 	size_t width = sizeof(real_t) / sizeof(float);
 	
 	int avg_nr_iter = 0;
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
