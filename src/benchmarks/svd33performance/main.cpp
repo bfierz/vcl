@@ -83,7 +83,6 @@ void perfTwoSidedSVD
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -128,7 +127,6 @@ void perfJacobiSVDQR
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -173,7 +171,6 @@ void perfMcAdamsSVD
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
