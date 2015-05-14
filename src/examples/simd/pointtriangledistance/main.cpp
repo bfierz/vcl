@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 		int r1 = -1;
 
 		float d1 = distanceEberly(ref_a, ref_b, ref_c, p, &st, &r1);
-		var_unused(d1);
+		VCL_UNREFERENCED_PARAMETER(d1);
 	}
 	timer.stop();
 	std::cout << "Point-triangle Distance (Reference): " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 		int r1 = -1;
 
 		real_t d1 = distance(a, b, c, p, &st, &r1);
-		var_unused(d1);
+		VCL_UNREFERENCED_PARAMETER(d1);
 	}
 	timer.stop();
 	std::cout << "Point-triangle Distance (Optimized): " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
