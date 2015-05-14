@@ -174,7 +174,7 @@ namespace Vcl { namespace Core
 			);
 
 			// Stride between to entries of the same matrix
-			size_t stride = (mStride == DynamicStride) ? mAllocated : mStride;
+			size_t stride = (mStride == size_t(DynamicStride)) ? mAllocated : mStride;
 
 			// Size of a single entry
 			size_t scalar_width = sizeof(SCALAR_OUT) / sizeof(SCALAR);
@@ -206,7 +206,7 @@ namespace Vcl { namespace Core
 				inner_stride = stride / scalar_width;
 			}
 
-			if (Stride == DynamicStride || mStride == DynamicStride)
+			if (Stride == DynamicStride || mStride == size_t(DynamicStride))
 				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>
 				(
 					base, StrideType(outer_stride, inner_stride)

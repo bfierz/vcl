@@ -55,7 +55,7 @@ Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 		rnd << d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng),
 			   d(rng), d(rng), d(rng);
-		F.at<Scalar>(i) = rnd;
+		F.template at<Scalar>(i) = rnd;
 	}
 
 	return std::move(F);
@@ -74,11 +74,11 @@ void computeReferenceSolution
 	// Compute reference using Eigen
 	for (size_t i = 0; i < nr_problems; i++)
 	{
-		Vcl::Matrix3f A = F.at<Scalar>(i);
+		Vcl::Matrix3f A = F.template at<Scalar>(i);
 		Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-		U.at<Scalar>(i) = eigen_svd.matrixU();
-		V.at<Scalar>(i) = eigen_svd.matrixV();
-		S.at<Scalar>(i) = eigen_svd.singularValues();
+		U.template at<Scalar>(i) = eigen_svd.matrixU();
+		V.template at<Scalar>(i) = eigen_svd.matrixV();
+		S.template at<Scalar>(i) = eigen_svd.singularValues();
 	}
 }
 
@@ -94,7 +94,6 @@ void twoSidedSVD
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -132,7 +131,6 @@ void jacobiSVDQR
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -170,7 +168,6 @@ void mcAdamsSVD
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
 	
@@ -227,12 +224,12 @@ void checkSolution
 	
 	for (int j = 0; j < (int) nr_problems; j++)
 	{
-		Vcl::Matrix3f refU = refUa.at<scalar_t>(j);
-		Vcl::Matrix3f refV = refVa.at<scalar_t>(j);
-		Vcl::Vector3f refS = refSa.at<scalar_t>(j);
-		Vcl::Matrix3f cU = resUa.at<scalar_t>(j);
-		Vcl::Matrix3f cV = resVa.at<scalar_t>(j);
-		Vcl::Vector3f cS = resSa.at<scalar_t>(j);
+		Vcl::Matrix3f refU = refUa.template at<scalar_t>(j);
+		Vcl::Matrix3f refV = refVa.template at<scalar_t>(j);
+		Vcl::Vector3f refS = refSa.template at<scalar_t>(j);
+		Vcl::Matrix3f cU = resUa.template at<scalar_t>(j);
+		Vcl::Matrix3f cV = resVa.template at<scalar_t>(j);
+		Vcl::Vector3f cS = resSa.template at<scalar_t>(j);
 		bool eqU = refU.array().abs().isApprox(cU.array().abs(), tol);
 		bool eqV = refV.array().abs().isApprox(cV.array().abs(), tol);
 		bool eqS = refS.array().abs().isApprox(cS.array().abs(), tol);
