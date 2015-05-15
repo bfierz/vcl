@@ -127,6 +127,8 @@ namespace
 	{
 		using Vcl::Mathematics::equal;
 
+		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
+
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
 			Vcl::Matrix3f refU = refUa.at<Scalar>(i);
@@ -153,8 +155,8 @@ namespace
 			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
 			bool eqU = refU.array().abs().isApprox(resU.array().abs(), tol);
 
-			EXPECT_TRUE(eqS) << "S(" << i << ") - Ref: " << refS << ", Actual: " << resS;
-			EXPECT_TRUE(eqU) << "U(" << i << ") - Ref: " << refU << ", Actual: " << resU;
+			EXPECT_TRUE(eqS) << "S(" << i << ") -\nRef: " << refS.format(fmt) << ",\nRes: " << resS.format(fmt);
+			EXPECT_TRUE(eqU) << "U(" << i << ") -\nRef: " << refU.format(fmt) << ",\nRes: " << resU.format(fmt);
 		}
 	}
 }

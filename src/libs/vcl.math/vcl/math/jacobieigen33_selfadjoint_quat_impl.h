@@ -89,63 +89,39 @@ namespace Vcl { namespace Mathematics
 
 		if (p == 0 && q == 1)
 		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, 0, 0, s };
+
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R;
-			R(0, 0) = c*c - s*s;
-			R(1, 0) = Scalar(2)*s*c;
-			R(2, 0) = 0;
-
-			R(0, 1) = Scalar(-2)*s*c;
-			R(1, 1) = c*c - s*s;
-			R(2, 1) = 0;
-
-			R(0, 2) = 0;
-			R(1, 2) = 0;
-			R(2, 2) = c*c + s*s;
+			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
 			
 			// Transform the matrices
 			M = R.transpose() * M * R;
-			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
+			Q *= q;
 		}
 		else if (p == 0 && q == 2)
 		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, 0, -s, 0 };
+
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R;
-			R(0, 0) = c*c - s*s;
-			R(1, 0) = 0;
-			R(2, 0) = Scalar(-2)*s*c;
+			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
 
-			R(0, 1) = 0;
-			R(1, 1) = c*c + s*s;
-			R(2, 1) = 0;
-
-			R(0, 2) = Scalar(2)*s*c;
-			R(1, 2) = 0;
-			R(2, 2) = c*c - s*s;
-			
 			// Transform the matrices
 			M = R.transpose() * M * R;
-			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
+			Q *= q;
 		}
 		else if (p == 1 && q == 2)
 		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, s, 0, 0 };
+
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R;
-			R(0, 0) = c*c + s*s;
-			R(1, 0) = 0;
-			R(2, 0) = 0;
+			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
 
-			R(0, 1) = 0;
-			R(1, 1) = c*c - s*s;
-			R(2, 1) = Scalar(2)*s*c;
-
-			R(0, 2) = 0;
-			R(1, 2) = Scalar(-2)*s*c;
-			R(2, 2) = c*c - s*s;
-			
 			// Transform the matrices
 			M = R.transpose() * M * R;
-			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
+			Q *= q;
 		}
 	}
 
@@ -293,10 +269,37 @@ namespace Vcl { namespace Mathematics
 	 *		SIGGRAPH - 2011 - McAdams, Zhu, Selle, Empey, Tamstorf, Teran, Sifakis - Efficient elasticity for character skinning with contact and collisions
 	 */
 	template<typename Scalar>
-	int SelfAdjointJacobiEigenQuatSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 5)
+	int SelfAdjointJacobiEigenQuatIncrementalSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 5)
 	{
 		using namespace Eigen;
 		
+		// Initialize Q
+		Q = Eigen::Quaternion<Scalar>::Identity();
+
+		// Only for symmetric matrices!
+		// A = R A' R^T, where A' is diagonal and R orthonormal
+		// Use a fixed sequence of operations instead of looking at the largest element
+		int iter = 0;
+		for (int i = 0; i < nr_sweeps; i++)
+		{
+			QuaternionJacobiRotateIncremental<Scalar, 0, 1>(A, Q);
+			QuaternionJacobiRotateIncremental<Scalar, 0, 2>(A, Q);
+			QuaternionJacobiRotateIncremental<Scalar, 1, 2>(A, Q);
+
+			iter += 3;
+		}
+
+		// Normalize the rotation quaternion
+		Q.normalize();
+
+		return iter;
+	}
+
+	template<typename Scalar>
+	int SelfAdjointJacobiEigenQuatSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 5)
+	{
+		using namespace Eigen;
+
 		// Initialize Q
 		Q = Eigen::Quaternion<Scalar>::Identity();
 
@@ -319,6 +322,17 @@ namespace Vcl { namespace Mathematics
 		return iter;
 	}
 	
+	template<typename Scalar>
+	int SelfAdjointJacobiEigenQuatIncrementalSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Matrix<Scalar, 3, 3>& R)
+	{
+		Eigen::Quaternion<Scalar> Q;
+		int iter = SelfAdjointJacobiEigenQuatIncrementalSweeps(A, Q);
+
+		R = Q.toRotationMatrix();
+
+		return iter;
+	}
+
 	template<typename Scalar>
 	int SelfAdjointJacobiEigenQuatSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Matrix<Scalar, 3, 3>& R)
 	{

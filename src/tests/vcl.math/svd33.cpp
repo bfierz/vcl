@@ -297,23 +297,23 @@ void runQRTest(float tol)
 
 TEST(SVD33, McAdamsSVDFloat)
 {
-	runMcAdamsTest<float>(1e-3f);
+	runMcAdamsTest<float>(1e-5f);
 }
 TEST(SVD33, McAdamsSVDFloat4)
 {
-	runMcAdamsTest<Vcl::float4>(1e-3f);
+	runMcAdamsTest<Vcl::float4>(1e-5f);
 }
 
 #ifdef VCL_VECTORIZE_AVX
 TEST(SVD33, McAdamsSVDFloat8)
 {
-	runMcAdamsTest<Vcl::float8>(1e-3f);
+	runMcAdamsTest<Vcl::float8>(1e-5f);
 }
 #endif // defined VCL_VECTORIZE_AVX
 
 TEST(SVD33, TwoSidedSVDFloat)
 {
-	runTwoSidedTest<float>(1e-4f);
+	runTwoSidedTest<float>(1e-5f);
 }
 TEST(SVD33, TwoSidedSVDFloat4)
 {
