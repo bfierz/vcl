@@ -38,7 +38,6 @@
 
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RCP
-#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
 
 namespace Vcl { namespace Mathematics
 {
@@ -92,11 +91,63 @@ namespace Vcl { namespace Mathematics
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> q{ c, 0, 0, s };
 
+#if 0
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
+
+			// Transform the matrices
+			M = R.transpose() * M * R;
+#endif
+
+#if 0
+			// Build the rotation matrix
+			Eigen::Matrix<Scalar, 3, 3> R;
+			R(0, 0) = Scalar(1) - Scalar(2)*s*s;
+			R(1, 0) = Scalar(2)*s*c;
+			R(2, 0) = 0;
+
+			R(0, 1) = Scalar(-2)*s*c;
+			R(1, 1) = Scalar(1) - Scalar(2)*s*s;
+			R(2, 1) = 0;
+
+			R(0, 2) = 0;
+			R(1, 2) = 0;
+			R(2, 2) = Scalar(1);
 			
 			// Transform the matrices
 			M = R.transpose() * M * R;
+#endif
+
+#if 1
+			// Transform the input matrix
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
+			Scalar b = Scalar(2)*s*c;
+			Scalar M00 = a*a * M(0, 0) + a*b * (M(0, 1) + M(1, 0)) + b*b * M(1, 1);
+			Scalar M10 = a*a * M(1, 0) + a*b * (M(1, 1) - M(0, 0)) - b*b * M(0, 1);
+			Scalar M20 = a * M(2, 0) + b * M(2, 1);
+
+			//Scalar M01 = a*a * M(0, 1) + a*b * ( M(1, 1) - M(0, 0)) - b*b * M(1, 0);
+			Scalar M11 = a*a * M(1, 1) + a*b * (-M(0, 1) - M(1, 0)) + b*b * M(0, 0);
+			Scalar M21 = a * M(2, 1) - b * M(2, 0);
+
+			//Scalar M02 = a * M(0, 2) + b * M(1, 2);
+			//Scalar M12 = a * M(1, 2) - b * M(0, 2);
+			Scalar M22 = M(2, 2);
+
+			M(0, 0) = M00;
+			M(1, 0) = M10;
+			M(2, 0) = M20;
+
+			M(0, 1) = M(1, 0); //M01;
+			M(1, 1) = M11;
+			M(2, 1) = M21;
+
+			M(0, 2) = M(2, 0); //M02;
+			M(1, 2) = M(2, 1); //M12;
+			M(2, 2) = M22;
+#endif
+
+			// Update the rotation quaternion
 			Q *= q;
 		}
 		else if (p == 0 && q == 2)
@@ -104,23 +155,123 @@ namespace Vcl { namespace Mathematics
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> q{ c, 0, -s, 0 };
 
+#if 0
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
+#endif
+
+#if 0
+			// Build the rotation matrix
+			Eigen::Matrix<Scalar, 3, 3> R;
+			R(0, 0) = Scalar(1) - Scalar(2)*s*s;
+			R(1, 0) = 0;
+			R(2, 0) = Scalar(2)*s*c;
+			
+			R(0, 1) = 0;
+			R(1, 1) = Scalar(1);
+			R(2, 1) = 0;
+			
+			R(0, 2) = Scalar(-2)*s*c;
+			R(1, 2) = 0;
+			R(2, 2) = Scalar(1) - Scalar(2)*s*s;
+
+			// Transform the matrices
+			M = R.transpose() * M * R;
+#endif
+
+#if 1
+			// Transform the input matrix
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
+			Scalar b = Scalar(2)*s*c;
+			Scalar M00 = a*a * M(0, 0) + a*b * (M(0, 2) + M(2, 0)) + b*b * M(2, 2);
+			Scalar M10 = a * M(1, 0) + b * M(1, 2);
+			Scalar M20 = a*a * M(2, 0) + a*b * (M(2, 2) - M(0, 0)) - b*b * M(0, 2);
+
+			//Scalar M01 = a * M(0, 1) + b * M(2, 1);
+			Scalar M11 = M(1, 1);
+			Scalar M21 = a * M(2, 1) - b * M(0, 1);
+
+			//Scalar M02 = a*a * M(0, 2) + a*b * ( M(2, 2) - M(0, 0)) - b*b * M(2, 0);
+			//Scalar M12 = a * M(1, 2) - b * M(1, 0);
+			Scalar M22 = a*a * M(2, 2) + a*b * (-M(0, 2) - M(2, 0)) + b*b * M(0, 0);
+
+			M(0, 0) = M00;
+			M(1, 0) = M10;
+			M(2, 0) = M20;
+
+			M(0, 1) = M(1, 0); //M01;
+			M(1, 1) = M11;
+			M(2, 1) = M21;
+
+			M(0, 2) = M(2, 0); //M02;
+			M(1, 2) = M(2, 1); //M12;
+			M(2, 2) = M22;
+#endif
 			Q *= q;
 		}
 		else if (p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> q{ c, s, 0, 0 };
-
+#if 0
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
+#endif
+
+#if 0
+			// Build the rotation matrix
+			Eigen::Matrix<Scalar, 3, 3> R;
+			R(0, 0) = Scalar(1);
+			R(1, 0) = 0;
+			R(2, 0) = 0;
+			
+			R(0, 1) = 0;
+			R(1, 1) = Scalar(1) - Scalar(2)*s*s;
+			R(2, 1) = Scalar(2)*s*c;
+			
+			R(0, 2) = 0;
+			R(1, 2) = Scalar(-2)*s*c;
+			R(2, 2) = Scalar(1) - Scalar(2)*s*s;
+
+			// Transform the matrices
+			M = R.transpose() * M * R;
+#endif
+
+#if 1
+			// Transform the input matrix
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
+			Scalar b = Scalar(2)*s*c;
+
+			Scalar M00 = M(0, 0);
+			Scalar M10 = a * M(1, 0) + b * M(2, 0);
+			Scalar M20 = a * M(2, 0) - b * M(1, 0);
+		
+			//Scalar M01 = a * M(0, 1) + b * M(0, 2);
+			Scalar M11 = a*a * M(1, 1) + a*b * (M(1, 2) + M(2, 1)) + b*b * M(2, 2);
+			Scalar M21 = a*a * M(2, 1) + a*b * (M(2, 2) - M(1, 1)) - b*b * M(1, 2);
+
+			//Scalar M02 = a * M(0, 2) - b * M(0, 1);
+			//Scalar M12 = a*a * M(1, 2) + a*b * ( M(2, 2) - M(1, 1)) - b*b * M(2, 1);
+			Scalar M22 = a*a * M(2, 2) + a*b * (-M(1, 2) - M(2, 1)) + b*b * M(1, 1);
+
+			M(0, 0) = M00;
+			M(1, 0) = M10;
+			M(2, 0) = M20;
+
+			M(0, 1) = M(1, 0); //M01;
+			M(1, 1) = M11;
+			M(2, 1) = M21;
+
+			M(0, 2) = M(2, 0); //M02;
+			M(1, 2) = M(2, 1); //M12;
+			M(2, 2) = M22;
+#endif
 			Q *= q;
 		}
 	}
@@ -130,7 +281,6 @@ namespace Vcl { namespace Mathematics
 	{
 		Require(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 		
-#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
 
@@ -167,61 +317,6 @@ namespace Vcl { namespace Mathematics
 
 			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
 		}
-#else
-		Scalar x = Q.x();
-		Scalar y = Q.y();
-		Scalar z = Q.z();
-		Scalar w = Q.w();
-		
-		if (p == 0 && q == 1)
-		{
-			// Maple generated code
-			Scalar D00 = ((w * w + x * x - y * y - z * z) * M(0, 0) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 0) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 0)) * (w * w + x * x - y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 1) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 1)) * (Scalar(2) * x * y + Scalar(2) * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 2) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 2)) * (Scalar(2) * x * z - Scalar(2) * w * y);
-			Scalar D11 = ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 0)) * (Scalar(2) * x * y - Scalar(2) * w * z) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 2)) * (Scalar(2) * y * z + Scalar(2) * w * x);
-			Scalar D01 = ((w * w + x * x - y * y - z * z) * M(0, 0) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 0) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 0)) * (Scalar(2) * x * y - Scalar(2) * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 1) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 2) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 2)) * (Scalar(2) * y * z + Scalar(2) * w * x);
-			
-			// Rotates A through phi in pq-plane to set D(p, q) = 0.
-			auto cs = ApproxJacobiRotationQuaternion(D00, D01, D11);
-			Scalar c = cs(0);
-			Scalar s = cs(1);
-
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, 0, s).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
-
-			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
-		}
-		else if (p == 0 && q == 2)
-		{
-			// Maple generated code
-			Scalar D00 = ((w * w + x * x - y * y - z * z) * M(0, 0) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 0) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 0)) * (w * w + x * x - y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 1) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 1)) * (Scalar(2) * x * y + Scalar(2) * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 2) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 2)) * (Scalar(2) * x * z - Scalar(2) * w * y);
-			Scalar D22 = ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 0) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 0) + (w * w - x * x - y * y + z * z) * M(2, 0)) * (Scalar(2) * x * z + Scalar(2) * w * y) + ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 1) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 1) + (w * w - x * x - y * y + z * z) * M(2, 1)) * (Scalar(2) * y * z - Scalar(2) * w * x) + ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 2) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 2) + (w * w - x * x - y * y + z * z) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-			Scalar D02 = ((w * w + x * x - y * y - z * z) * M(0, 0) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 0) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 0)) * (Scalar(2) * x * z + Scalar(2) * w * y) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 1) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 1)) * (Scalar(2) * y * z - Scalar(2) * w * x) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (Scalar(2) * x * y + Scalar(2) * w * z) * M(1, 2) + (Scalar(2) * x * z - Scalar(2) * w * y) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-			
-			// Rotates A through phi in pq-plane to set D(p, q) = 0.
-			auto cs = ApproxJacobiRotationQuaternion(D00, D02, D22);
-			Scalar c = cs(0);
-			Scalar s = cs(1);
-			
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, -s, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
-
-			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
-		}
-		else if (p == 1 && q == 2)
-		{
-			// Maple generated code
-			Scalar D11 = ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 0)) * (Scalar(2) * x * y - Scalar(2) * w * z) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 2)) * (Scalar(2) * y * z + Scalar(2) * w * x);
-			Scalar D22 = ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 0) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 0) + (w * w - x * x - y * y + z * z) * M(2, 0)) * (Scalar(2) * x * z + Scalar(2) * w * y) + ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 1) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 1) + (w * w - x * x - y * y + z * z) * M(2, 1)) * (Scalar(2) * y * z - Scalar(2) * w * x) + ((Scalar(2) * x * z + Scalar(2) * w * y) * M(0, 2) + (Scalar(2) * y * z - Scalar(2) * w * x) * M(1, 2) + (w * w - x * x - y * y + z * z) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-			Scalar D12 = ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 0)) * (Scalar(2) * x * z + Scalar(2) * w * y) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 1)) * (Scalar(2) * y * z - Scalar(2) * w * x) + ((Scalar(2) * x * y - Scalar(2) * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (Scalar(2) * y * z + Scalar(2) * w * x) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-
-			// Rotates A through phi in pq-plane to set D(p, q) = 0.
-			auto cs = ApproxJacobiRotationQuaternion(D11, D12, D22);
-			Scalar c = cs(0);
-			Scalar s = cs(1);
-			
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, s, 0, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
-
-			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
-		}
-#endif
 	}
 	
 	template<typename Scalar>
@@ -229,25 +324,9 @@ namespace Vcl { namespace Mathematics
 	{
 		Require(equal(Q.norm(), 1, 1e-6), "Quaternion is normalized.");
 
-#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_MAPLECODE
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
-#else
-		Eigen::Matrix<Scalar, 3, 3> D;
-		Scalar x = Q.x();
-		Scalar y = Q.y();
-		Scalar z = Q.z();
-		Scalar w = Q.w();
-		
-		// Maple generated code
-		D(0, 0) = ((w * w + x * x - y * y - z * z) * M(0, 0) + (2 * x * y + 2 * w * z) * M(1, 0) + (2 * x * z - 2 * w * y) * M(2, 0)) * (w * w + x * x - y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (2 * x * y + 2 * w * z) * M(1, 1) + (2 * x * z - 2 * w * y) * M(2, 1)) * (2 * x * y + 2 * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (2 * x * y + 2 * w * z) * M(1, 2) + (2 * x * z - 2 * w * y) * M(2, 2)) * (2 * x * z - 2 * w * y);
-		D(1, 1) = ((2 * x * y - 2 * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (2 * y * z + 2 * w * x) * M(2, 0)) * (2 * x * y - 2 * w * z) + ((2 * x * y - 2 * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (2 * y * z + 2 * w * x) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((2 * x * y - 2 * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (2 * y * z + 2 * w * x) * M(2, 2)) * (2 * y * z + 2 * w * x);
-		D(2, 2) = ((2 * x * z + 2 * w * y) * M(0, 0) + (2 * y * z - 2 * w * x) * M(1, 0) + (w * w - x * x - y * y + z * z) * M(2, 0)) * (2 * x * z + 2 * w * y) + ((2 * x * z + 2 * w * y) * M(0, 1) + (2 * y * z - 2 * w * x) * M(1, 1) + (w * w - x * x - y * y + z * z) * M(2, 1)) * (2 * y * z - 2 * w * x) + ((2 * x * z + 2 * w * y) * M(0, 2) + (2 * y * z - 2 * w * x) * M(1, 2) + (w * w - x * x - y * y + z * z) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-		
-		D(0, 1) = ((w * w + x * x - y * y - z * z) * M(0, 0) + (2 * x * y + 2 * w * z) * M(1, 0) + (2 * x * z - 2 * w * y) * M(2, 0)) * (2 * x * y - 2 * w * z) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (2 * x * y + 2 * w * z) * M(1, 1) + (2 * x * z - 2 * w * y) * M(2, 1)) * (w * w - x * x + y * y - z * z) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (2 * x * y + 2 * w * z) * M(1, 2) + (2 * x * z - 2 * w * y) * M(2, 2)) * (2 * y * z + 2 * w * x);
-		D(0, 2) = ((w * w + x * x - y * y - z * z) * M(0, 0) + (2 * x * y + 2 * w * z) * M(1, 0) + (2 * x * z - 2 * w * y) * M(2, 0)) * (2 * x * z + 2 * w * y) + ((w * w + x * x - y * y - z * z) * M(0, 1) + (2 * x * y + 2 * w * z) * M(1, 1) + (2 * x * z - 2 * w * y) * M(2, 1)) * (2 * y * z - 2 * w * x) + ((w * w + x * x - y * y - z * z) * M(0, 2) + (2 * x * y + 2 * w * z) * M(1, 2) + (2 * x * z - 2 * w * y) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-		D(1, 2) = ((2 * x * y - 2 * w * z) * M(0, 0) + (w * w - x * x + y * y - z * z) * M(1, 0) + (2 * y * z + 2 * w * x) * M(2, 0)) * (2 * x * z + 2 * w * y) + ((2 * x * y - 2 * w * z) * M(0, 1) + (w * w - x * x + y * y - z * z) * M(1, 1) + (2 * y * z + 2 * w * x) * M(2, 1)) * (2 * y * z - 2 * w * x) + ((2 * x * y - 2 * w * z) * M(0, 2) + (w * w - x * x + y * y - z * z) * M(1, 2) + (2 * y * z + 2 * w * x) * M(2, 2)) * (w * w - x * x - y * y + z * z);
-#endif
+
 		// Rotates A through phi in pq-plane to set D(p, q) = 0.
 		auto cs = ApproxJacobiRotationQuaternion(D(p, p), D(p, q), D(q, q));
 		Scalar c = cs(0);
@@ -273,26 +352,30 @@ namespace Vcl { namespace Mathematics
 	{
 		using namespace Eigen;
 		
-		// Initialize Q
-		Q = Eigen::Quaternion<Scalar>::Identity();
+		// Initialize the temporary working set.
+		// This informs the optimizer that we are not interested in any
+		// intermediate result and only the final result needs to be stored.
+		// For this algorithm the compiled code looks much better.
+		Eigen::Quaternion<Scalar> U = Eigen::Quaternion<Scalar>::Identity();
+		Eigen::Matrix<Scalar, 3, 3> M = A;
 
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal
 		// Use a fixed sequence of operations instead of looking at the largest element
-		int iter = 0;
 		for (int i = 0; i < nr_sweeps; i++)
 		{
-			QuaternionJacobiRotateIncremental<Scalar, 0, 1>(A, Q);
-			QuaternionJacobiRotateIncremental<Scalar, 0, 2>(A, Q);
-			QuaternionJacobiRotateIncremental<Scalar, 1, 2>(A, Q);
-
-			iter += 3;
+			QuaternionJacobiRotateIncremental<Scalar, 0, 1>(M, U);
+			QuaternionJacobiRotateIncremental<Scalar, 0, 2>(M, U);
+			QuaternionJacobiRotateIncremental<Scalar, 1, 2>(M, U);
 		}
 
-		// Normalize the rotation quaternion
-		Q.normalize();
+		// Normalize and return the rotation quaternion
+		Q = U.normalized();
 
-		return iter;
+		// Return the Eigenvalues
+		A = M;
+
+		return nr_sweeps * 3;
 	}
 
 	template<typename Scalar>
@@ -306,20 +389,17 @@ namespace Vcl { namespace Mathematics
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal
 		// Use a fixed sequence of operations instead of looking at the largest element
-		int iter = 0;
 		for (int i = 0; i < nr_sweeps; i++)
 		{
 			QuaternionJacobiRotate<Scalar, 0, 1>(A, Q);
 			QuaternionJacobiRotate<Scalar, 0, 2>(A, Q);
 			QuaternionJacobiRotate<Scalar, 1, 2>(A, Q);
-
-			iter += 3;
 		}
 
 		// Normalize the rotation quaternion
 		Q.normalize();
 
-		return iter;
+		return nr_sweeps * 3;
 	}
 	
 	template<typename Scalar>
