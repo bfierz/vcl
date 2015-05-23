@@ -6,6 +6,7 @@ SET(VCL_TEST_SRC
 	interleavedarray.cpp
 	load.cpp
 	scatter.cpp
+	smart_ptr.cpp
 )
 SET(VCL_TEST_INC
 )

@@ -44,6 +44,7 @@ SET(VCL_CORE_MEMORY_INL
 )
 SET(VCL_CORE_MEMORY_INC
 	vcl/core/memory/allocator.h
+	vcl/core/memory/smart_ptr.h
 )
 
 # VCL / CORE / SIMD
