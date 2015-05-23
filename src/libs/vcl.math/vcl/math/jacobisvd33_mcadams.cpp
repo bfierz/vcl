@@ -31,8 +31,6 @@
 // McAdams SVD library
 #define USE_SCALAR_IMPLEMENTATION
 
-#define JACOBI_CONJUGATION_SWEEPS 5
-
 #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
@@ -50,10 +48,13 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks( "u", off )  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
 #endif
-	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V)
+	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps)
 	{
 		using ::sqrt;
 		using ::rsqrt;
+
+#define JACOBI_CONJUGATION_SWEEPS (int) sweeps
+
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
 

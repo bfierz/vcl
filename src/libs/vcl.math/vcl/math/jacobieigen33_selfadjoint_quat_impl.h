@@ -277,6 +277,79 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename Scalar, int p, int q>
+	VCL_STRONG_INLINE void QuaternionJacobiRotateIncremental(Eigen::Matrix<Scalar, 6, 1>& M, Eigen::Quaternion<Scalar>& Q)
+	{
+		// Rotates A through phi in pq-plane to set M(p, q) = 0.
+		auto cs = ApproxJacobiRotationQuaternion(M(p), M(2 + p + q), M(q));
+		Scalar c = cs(0);
+		Scalar s = cs(1);
+
+		Scalar a = c*c - s*s;
+		Scalar b = Scalar(2)*s*c;
+		if (p == 0 && q == 1)
+		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, 0, 0, s };
+
+			// Transform the input matrix
+			Scalar M00 = a*a * M(0) + a*b * (M(3) + M(3)) + b*b * M(1);
+			Scalar M10 = a*a * M(3) + a*b * (M(1) - M(0)) - b*b * M(3);
+			Scalar M20 = a * M(4) + b * M(5);
+			Scalar M11 = a*a * M(1) + a*b * (-M(3) - M(3)) + b*b * M(0);
+			Scalar M21 = a * M(5) - b * M(4);
+
+			M(0) = M00;
+			M(1) = M11;
+			M(3) = M10;
+			M(4) = M20;
+			M(5) = M21;
+
+			// Update the rotation quaternion
+			Q *= q;
+		}
+		else if (p == 0 && q == 2)
+		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, 0, -s, 0 };
+
+			// Transform the input matrix
+			Scalar M00 = a*a * M(0) + a*b * (M(4) + M(4)) + b*b * M(2);
+			Scalar M10 = a * M(3) + b * M(5);
+			Scalar M20 = a*a * M(4) + a*b * (M(2) - M(0)) - b*b * M(4);
+			Scalar M21 = a * M(5) - b * M(0, 1);
+			Scalar M22 = a*a * M(2) + a*b * (-M(4) - M(4)) + b*b * M(0);
+
+			M(0) = M00;
+			M(2) = M22;
+			M(3) = M10;
+			M(4) = M20;
+			M(5) = M21;
+
+			Q *= q;
+		}
+		else if (p == 1 && q == 2)
+		{
+			// Define the rotation quaternion
+			Eigen::Quaternion<Scalar> q{ c, s, 0, 0 };
+
+			// Transform the input matrix
+			Scalar M10 = a * M(3) + b * M(4);
+			Scalar M20 = a * M(4) - b * M(3);
+			Scalar M11 = a*a * M(1) + a*b * (M(5) + M(5)) + b*b * M(2);
+			Scalar M21 = a*a * M(5) + a*b * (M(2) - M(1)) - b*b * M(5);
+			Scalar M22 = a*a * M(2) + a*b * (-M(5) - M(5)) + b*b * M(1);
+
+			M(1) = M11;
+			M(2) = M22;
+			M(3) = M10;
+			M(4) = M20;
+			M(5) = M21;
+
+			Q *= q;
+		}
+	}
+
+	template<typename Scalar, int p, int q>
 	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
 		Require(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
@@ -357,7 +430,17 @@ namespace Vcl { namespace Mathematics
 		// intermediate result and only the final result needs to be stored.
 		// For this algorithm the compiled code looks much better.
 		Eigen::Quaternion<Scalar> U = Eigen::Quaternion<Scalar>::Identity();
+#if 0
 		Eigen::Matrix<Scalar, 3, 3> M = A;
+#else
+		Eigen::Matrix<Scalar, 6, 1> M;
+		M(0) = A(0, 0);
+		M(1) = A(1, 1);
+		M(2) = A(2, 2);
+		M(3) = A(1, 0);
+		M(5) = A(2, 1);
+		M(4) = A(2, 0);
+#endif
 
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal
@@ -373,7 +456,14 @@ namespace Vcl { namespace Mathematics
 		Q = U.normalized();
 
 		// Return the Eigenvalues
+#if 0
 		A = M;
+#else
+		//A = Eigen::DiagonalMatrix<Scalar, 3>{ M(0), M(1), M(2) };
+		A(0, 0) = M(0);
+		A(1, 1) = M(1);
+		A(2, 2) = M(2);
+#endif
 
 		return nr_sweeps * 3;
 	}

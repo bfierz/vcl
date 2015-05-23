@@ -163,6 +163,7 @@ template<typename WideScalar>
 void perfMcAdamsSVD
 (
 	size_t nr_problems,
+	unsigned int iters,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -192,7 +193,7 @@ void perfMcAdamsSVD
 		matrix3_t matU = matrix3_t::Identity();
 		matrix3_t matV = matrix3_t::Identity();
 
-		avg_nr_iter += Vcl::Mathematics::McAdamsJacobiSVD(SV, matU, matV);
+		avg_nr_iter += Vcl::Mathematics::McAdamsJacobiSVD(SV, matU, matV, iters);
 
 		// Store results
 		U = matU;
@@ -200,7 +201,7 @@ void perfMcAdamsSVD
 		S = SV.diagonal();
 	}
 	timer.stop();
-	std::cout << "Jacobi SVD (McAdams): " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
+	std::cout << "Jacobi SVD (McAdams) - " << iters << " Iterations: " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
 }
 	
 int main(int, char**)
@@ -234,10 +235,17 @@ int main(int, char**)
 	perfJacobiSVDQR<Vcl::float16>(nr_problems, F, resU, resV, resS);
 	
 	// Test Performance: McAdams SVD solver
-	perfMcAdamsSVD<float>(nr_problems, F, resU, resV, resS);
-	perfMcAdamsSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);
+	perfMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
+	perfMcAdamsSVD<Vcl::float4>(nr_problems, 4, F, resU, resV, resS);
 
 #ifdef VCL_VECTORIZE_AVX
-	perfMcAdamsSVD<Vcl::float8>(nr_problems, F, resU, resV, resS);
+	perfMcAdamsSVD<Vcl::float8>(nr_problems, 4, F, resU, resV, resS);
+#endif // defined VCL_VECTORIZE_AVX
+
+	perfMcAdamsSVD<float>(nr_problems, 5, F, resU, resV, resS);
+	perfMcAdamsSVD<Vcl::float4>(nr_problems, 5, F, resU, resV, resS);
+
+#ifdef VCL_VECTORIZE_AVX
+	perfMcAdamsSVD<Vcl::float8>(nr_problems, 5, F, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
 }
