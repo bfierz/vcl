@@ -8,6 +8,17 @@ SET(VCL_MATH_MCADAMS_INC
 	vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp
 	vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp
 )
+
+# VCL / MATH / SOLVER
+SET(VCL_MATH_SOLVER_INC
+	vcl/math/solver/conjugategradients.h
+	vcl/math/solver/jacobi.h
+)
+SET(VCL_MATH_SOLVER_SRC
+	vcl/math/solver/conjugategradients.cpp
+	vcl/math/solver/jacobi.cpp
+)
+
 # VCL / MATH
 SET(VCL_MATH_INC
 	vcl/math/jacobieigen33_selfadjoint_impl.h
@@ -38,10 +49,12 @@ SET(VCL_MATH_SRC
 )
 
 SOURCE_GROUP("McAdams" FILES ${VCL_MATH_MCADAMS_INC})
+SOURCE_GROUP("solver" FILES ${VCL_MATH_SOLVER_SRC} ${VCL_MATH_SOLVER_INC})
 SOURCE_GROUP("" FILES ${VCL_MATH_SRC} ${VCL_MATH_INC})
 
 SET(SOURCE
 	${VCL_MATH_MCADAMS_INC}
+	${VCL_MATH_SOLVER_SRC} ${VCL_MATH_SOLVER_INC}
 	${VCL_MATH_SRC} ${VCL_MATH_INC}
 )
 
