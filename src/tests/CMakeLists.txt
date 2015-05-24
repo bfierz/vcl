@@ -13,3 +13,7 @@ SUBDIRS(vcl.geometry)
 
 # Test for the library containing math routines
 SUBDIRS(vcl.math)
+
+IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	SUBDIRS(vcl.compute.opencl)
+ENDIF()

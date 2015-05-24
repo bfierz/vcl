@@ -1,5 +1,16 @@
 PROJECT(vcl_graphics)
 
+# VCL / GRAPHICS / SHADOWS
+SET(VCL_GRAPHICS_SHADOWS_INC
+	vcl/graphics/shadows/algorithms.h
+	vcl/graphics/shadows/shadowmap.h
+	vcl/graphics/shadows/shadowvolume.h
+)
+SET(VCL_GRAPHICS_SHADOWS_SRC
+	vcl/graphics/shadows/shadowmap.cpp
+	vcl/graphics/shadows/shadowvolume.cpp
+)
+
 # VCL / GRAPHICS
 SET(VCL_GRAPHICS_INC
 	vcl/graphics/camera.h
@@ -12,9 +23,11 @@ SET(VCL_GRAPHICS_SRC
 	vcl/graphics/matrixfactory.cpp
 )
 
+SOURCE_GROUP("shadows" FILES ${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC})
 SOURCE_GROUP("" FILES ${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC})
 
 SET(SOURCE
+	${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC}
 	${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC}
 )
 
