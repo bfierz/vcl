@@ -11,9 +11,11 @@ MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARIES}")
 
 # Source code
 SET(VCL_CLC_INC
+	nvidia.h
 )
 SET(VCL_CLC_SRC
 	main.cpp
+	nvidia.cpp
 )
 
 SOURCE_GROUP("" FILES ${VCL_CLC_SRC} ${VCL_CLC_INC})
