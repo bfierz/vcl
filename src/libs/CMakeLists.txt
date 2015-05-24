@@ -9,3 +9,6 @@ SUBDIRS(vcl.geometry)
 
 # Library containing graphics classes
 SUBDIRS(vcl.graphics)
+
+# Library implementing a simple entity component system
+SUBDIRS(vcl.components)
