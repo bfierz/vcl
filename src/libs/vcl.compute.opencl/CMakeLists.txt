@@ -41,4 +41,5 @@ TARGET_INCLUDE_DIRECTORIES(vcl_compute_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 TARGET_LINK_LIBRARIES(vcl_compute_opencl
 	vcl_core
 	vcl_compute
+	${OPENCL_LIBRARIES}
 )

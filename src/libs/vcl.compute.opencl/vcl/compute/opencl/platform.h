@@ -40,6 +40,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 {
 	struct PlatformDesc
 	{
+		cl_platform_id Id;
 		std::string Name;
 		std::string Profile;
 		std::string Version;

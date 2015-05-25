@@ -25,7 +25,7 @@
 #include <vcl/compute/opencl/platform.h>
 
 // C++ standard library
-#include <cstring>
+#include <array>
 #include <iostream>
 
 // VCL
@@ -54,77 +54,70 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	Platform::Platform()
 	{
-		cl_platform_id* platforms = nullptr;
-		char buffer[256] = {0};
-		unsigned int buffer_size = 256 * sizeof(char);
-		cl_uint nr_platforms = 0;
+		std::array<char, 256> buffer;
+		buffer.assign(0);
 
 		// Get the number of available platforms
+		cl_uint nr_platforms = 0;
 		VCL_CL_SAFE_CALL(clGetPlatformIDs(0, nullptr, &nr_platforms));
 
 		// Allocate space for platform IDs
-		platforms = new cl_platform_id[nr_platforms];
-		if (platforms == nullptr)
-		{
-			DebugError("TODO.");
-		}
+		_platforms.reserve(nr_platforms);
+		std::vector<cl_platform_id> platforms(nr_platforms, 0);
 
 		// Get the available platforms
-		VCL_CL_SAFE_CALL(clGetPlatformIDs(nr_platforms, platforms, nullptr));
+		VCL_CL_SAFE_CALL(clGetPlatformIDs(nr_platforms, platforms.data(), nullptr));
 
 		for (cl_uint ui = 0; ui < nr_platforms; ui++)
 		{
-			cl_int err;
-			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_NAME, buffer_size, buffer, NULL);
-			if (err == CL_SUCCESS)
-			{
-				std::cout << ui << ": OpenCL name: " << buffer << std::endl;
-			}
-			
-			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_PROFILE, buffer_size, buffer, NULL);
-			if (err == CL_SUCCESS)
-			{
-				std::cout << ui << ": OpenCL profile: " << buffer << std::endl;
-			}
-			
-			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_VERSION, buffer_size, buffer, NULL);
-			if (err == CL_SUCCESS)
-			{
-				std::cout << ui << ": OpenCL version: " << buffer << std::endl;
-			}
+			PlatformDesc desc;
+			desc.Id = platforms[ui];
 
-			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_VENDOR, buffer_size, buffer, NULL);
-			if (err == CL_SUCCESS)
-			{
-				std::cout << ui << ": OpenCL vendor: " << buffer << std::endl;
-			}
+			bool success = true;
+			cl_int err;
+			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_NAME, buffer.size(), buffer.data(), NULL);
+			success = success && (err == CL_SUCCESS);
+			desc.Name = buffer.data();
+			
+			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_PROFILE, buffer.size(), buffer.data(), NULL);
+			success = success && (err == CL_SUCCESS);
+			desc.Profile = buffer.data();
+			
+			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_VERSION, buffer.size(), buffer.data(), NULL);
+			success = success && (err == CL_SUCCESS);
+			desc.Version = buffer.data();
+
+			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_VENDOR, buffer.size(), buffer.data(), NULL);
+			success = success && (err == CL_SUCCESS);
+			desc.Vendor = buffer.data();
 
 			size_t extension_buffer_size = 0;
 			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_EXTENSIONS, 0, NULL, &extension_buffer_size);
+			success = success && (err == CL_SUCCESS);
 			if (err == CL_SUCCESS)
 			{
 				std::vector<char> extension_buffer(extension_buffer_size, 0);
 				err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_EXTENSIONS, extension_buffer_size, extension_buffer.data(), NULL);
+				success = success && (err == CL_SUCCESS);
 				if (err == CL_SUCCESS)
 				{
-					std::cout << ui << ": OpenCL extensions:" << std::endl;
-
 					std::string str_buffer = extension_buffer.data();
 					std::string::size_type head = 0;
 					std::string::size_type tail = str_buffer.find(' ');
 
 					while (tail != str_buffer.npos)
 					{
-						std::cout << "\t" << str_buffer.substr(head, tail) << std::endl;
+						desc.Extensions.emplace_back(str_buffer.substr(head, tail - head));
 
 						head = tail + 1;
 						tail = str_buffer.find(' ', head);
 					}
 				}
 			}
-			else
+
+			if (success)
 			{
-				std::cout << "OpenCL error: " << err << std::endl;
+				_platforms.emplace_back(desc);
 			}
 		}
 		
@@ -145,9 +138,6 @@ namespace Vcl { namespace Compute { namespace OpenCL
 				}
 			}
 		}
-
-		VCL_SAFE_DELETE(platforms);
-
 	}
 
 	Platform::~Platform()
