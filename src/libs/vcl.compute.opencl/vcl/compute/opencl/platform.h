@@ -60,6 +60,9 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		~Platform();
 
 	public:
+		const std::vector<PlatformDesc>& availablePlatforms() const;
+
+	public:
 		int nrDevices() const;
 		const Device& device(int idx) const;
 

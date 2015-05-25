@@ -1,1 +1,2 @@
 SUBDIRS(simd)
+SUBDIRS(opencl)

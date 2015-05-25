@@ -145,6 +145,11 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		_devices.clear();
 	}
 
+	const std::vector<PlatformDesc>& Platform::availablePlatforms() const
+	{
+		return _platforms;
+	}
+
 	int Platform::nrDevices() const
 	{
 		return static_cast<int>(_devices.size());
