@@ -13,3 +13,6 @@ SUBDIRS(vcl.geometry)
 
 # Test for the library containing math routines
 SUBDIRS(vcl.math)
+
+# Tests for the components library
+SUBDIRS(vcl.components)

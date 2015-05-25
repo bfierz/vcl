@@ -2,6 +2,7 @@ PROJECT(vcl_components)
 
 # VCL  / COMPONENTS
 SET(VCL_COMPONENTS_INC
+	./vcl/components/entity.h
 	./vcl/components/entitymanager.h
 	./vcl/components/system.h
 	./vcl/components/systemmanager.h
