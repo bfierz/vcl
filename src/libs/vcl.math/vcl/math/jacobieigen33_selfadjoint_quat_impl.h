@@ -42,7 +42,7 @@
 namespace Vcl { namespace Mathematics
 {
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(Real a11, Real a12, Real a22)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(const Real& a11, const Real& a12, const Real& a22)
 	{
 		//const Real pi = Real(3.1415926535897932384626433832795);
 
