@@ -2,12 +2,14 @@ PROJECT(vcl_components)
 
 # VCL  / COMPONENTS
 SET(VCL_COMPONENTS_INC
+	./vcl/components/componentstore.h
 	./vcl/components/entity.h
 	./vcl/components/entitymanager.h
 	./vcl/components/system.h
 	./vcl/components/systemmanager.h
 )
 SET(VCL_COMPONENTS_SRC
+	./vcl/components/componentstore.cpp
 	./vcl/components/entitymanager.cpp
 	./vcl/components/system.cpp
 	./vcl/components/systemmanager.cpp

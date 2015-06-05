@@ -34,89 +34,11 @@
 #include <vector>
 
 // VCL
+#include <vcl/components/componentstore.h>
 #include <vcl/components/entity.h>
 
 namespace Vcl { namespace Components
 {
-	/*!
-	 *	\class ComponentStoreBase
-	 *	\brief Base class for component storage
-	 */
-	class ComponentStoreBase
-	{
-
-	};
-
-	/*!
-	 *	\class ComponentStore
-	 *	\brief Manage the live time of a single component type
-	 *
-	 *	This class is the heart of the component system. It efficiently stores
-	 *	and finds components of an entity. In contrast to many other implementations
-	 *	this class allows to store several components of the same type for an entity.
-	 */
-	template<typename T>
-	class ComponentStore : public ComponentStoreBase
-	{
-	public:
-		using ComponentType = T;
-
-	public:
-		T* operator[](EntityId id)
-		{
-			if (id.id() >= _components.size())
-			{
-				_components.resize(id.id() + 1);
-				_valid.resize(id.id() + 1);
-			}
-
-			return &_components[id.id()];
-		}
-
-		void setValid(EntityId id, bool b)
-		{
-			_valid[id.id()] = b;
-		}
-
-		bool isValid(EntityId id)
-		{
-			return _valid[id.id()];
-		}
-
-	public:
-		std::vector<ComponentType> _components;
-		std::vector<bool> _valid;
-	};
-	
-	/*!
-	 *	\class ComponentPtr
-	 *	\brief Pointer to a single component entry
-	 */
-	template<typename T>
-	class ComponentPtr
-	{
-	public:
-		using ComponentType = T;
-
-	public:
-		ComponentPtr(ComponentStore<ComponentType>& store, EntityId idx)
-		: _store(store)
-		, _idx(idx)
-		{}
-
-	public:
-		ComponentType* operator->() const
-		{
-			return _store[_idx];
-		}
-
-	private:
-		ComponentStore<ComponentType>& _store;
-
-		EntityId _idx;
-	};
-
-
 	/*!
 	 *	\class EntityManager
 	 *	\brief Create and manage the live time of all entities
@@ -149,11 +71,10 @@ namespace Vcl { namespace Components
 				_components[hash] = std::make_unique<ComponentStore<C>>();
 			}
 
-			auto& c = *static_cast<ComponentStore<C>*>(_components[hash].get());
-			new(c[e._id]) C(std::forward<Args>(args) ...);
-			c.setValid(e._id, true);
+			auto c = static_cast<ComponentStore<C>*>(_components[hash].get());
+			c->create(e._id, std::forward<Args>(args)...);
 
-			return{ c, e._id };
+			return{ *c, e._id };
 		}
 
 		template<typename C>
@@ -164,7 +85,7 @@ namespace Vcl { namespace Components
 			size_t hash = typeid(C).hash_code();
 			auto& c = *static_cast<ComponentStore<C>*>(_components[hash].get());
 			
-			return c.isValid(e._id);
+			return c.has(e._id);
 		}
 
 	public:
@@ -189,6 +110,8 @@ namespace Vcl { namespace Components
 
 	private: // Component store
 		std::unordered_map<size_t, std::unique_ptr<ComponentStoreBase>> _components;
+
+		std::unordered_multimap<size_t, std::unique_ptr<ComponentStoreBase>> _multiComponents;
 
 	};
 }}

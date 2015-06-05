@@ -36,6 +36,7 @@ struct NameComponent
 {
 	NameComponent() = default;
 	NameComponent(const std::string& name) : Name(name) {}
+	NameComponent(const char* name) : Name(name) {}
 
 	std::string Name;
 };
@@ -86,4 +87,28 @@ TEST(EntityManagerTest, CreateDestroyUniqueComponents)
 	EXPECT_EQ("E0", c0->Name);
 	EXPECT_EQ("E2", c2->Name);
 	EXPECT_EQ("E3", c3->Name);
+}
+
+TEST(EntityManagerTest, CreateDestroyMultiComponents)
+{
+	using namespace Vcl::Components;
+
+	EntityManager em;
+	auto e0 = em.create();
+	auto e1 = em.create();
+	auto e2 = em.create();
+	auto e3 = em.create();
+
+	auto c0 = em.create<NameComponent>(e0, "E0");
+	auto c2_1 = em.create<NameComponent>(e2, "E2_1");
+	auto c2_2 = em.create<NameComponent>(e2, "E2_2");
+
+	EXPECT_TRUE(em.has<NameComponent>(e0));
+	EXPECT_FALSE(em.has<NameComponent>(e1));
+	EXPECT_TRUE(em.has<NameComponent>(e2));
+	EXPECT_FALSE(em.has<NameComponent>(e3));
+
+	EXPECT_EQ("E0", c0->Name);
+	EXPECT_EQ("E2_1", c2_1->Name);
+	EXPECT_EQ("E2_2", c2_2->Name);
 }
