@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,32 +23,14 @@
  * SOFTWARE.
  */
 
-// VCL configuration
-#include <vcl/config/global.h>
-
-// C++ Standard Library
-
-// Include the relevant parts from the library
-#include <vcl/compute/opencl/context.h>
-#include <vcl/compute/opencl/device.h>
-#include <vcl/compute/opencl/platform.h>
-
-// Google test
-#include <gtest/gtest.h>
-
-// Tests the scalar gather function.
-TEST(OpenCL, QueryDevices)
+__kernel void vectoradd
+(
+	__global const float* vecA,
+	__global const float* vecB,
+	__global       float* vecC
+)
 {
-	using namespace Vcl::Compute::OpenCL;
+	int idx = get_global_id(0);
 
-	Platform::initialise();
-
-	for (int d = 0; d < Platform::instance()->nrDevices(); d++)
-	{
-		auto& dev = Platform::instance()->device(d);
-
-		EXPECT_NE((cl_device_id) 0, (cl_device_id) dev) << "Device could not be created";
-	}
-
-	Platform::dispose();
+	vecC[idx] = vecA[idx] + vecB[idx];
 }

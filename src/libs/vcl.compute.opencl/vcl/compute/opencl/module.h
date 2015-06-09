@@ -22,68 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/opencl/context.h>
+#pragma once
+
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/opencl.h>
 
 // C++ standard library
+#include <string>
+#include <unordered_map>
 
 // VCL
-#include <vcl/core/contract.h>
+#include <vcl/compute/opencl/context.h>
+#include <vcl/core/memory/smart_ptr.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	Context::Context(const Device& dev)
-	: Compute::Context()
-	, _dev(dev)
+	class Module
 	{
-		// Device ID
-		cl_device_id dev_id = dev;
+	public:
+		//! Constructor
+		Module(cl_program mod);
 
-		// Get the platform associated with the device
-		cl_platform_id platform;
-		VCL_CL_SAFE_CALL(clGetDeviceInfo(dev_id, CL_DEVICE_PLATFORM, sizeof(cl_platform_id), &platform, nullptr));
+		Module(Module&&);
+		Module& operator =(Module&&);
 
-		// Create context without graphics bindings
-		{
-			cl_context_properties props [] =
-			{
-				CL_CONTEXT_PLATFORM, (cl_context_properties) platform, // OpenCL platform
-				0
-			};
+		Module(const Module&) = delete;
+		Module& operator =(const Module&) = delete;
 
-			cl_int err;
-			_context = clCreateContext(props, 1, &dev_id, nullptr, nullptr, &err);
-			VCL_CL_SAFE_CALL(err);
-		}
+		//! Destructor
+		virtual ~Module();
 
-		// Create the main command stream
-		if (_context)
-		{
-		}
-	}
+	public:
+		static Core::owner_ptr<Module> loadFromSource(Core::ref_ptr<Context> ctx, const char* source);
 
-	Context::~Context()
-	{
-		if (_context)
-		{
-			VCL_CL_SAFE_CALL(clReleaseContext(_context));
-			_context = nullptr;
-		}
-	}
+	public:
+		operator cl_program () const;
 
-	Context::ref_ptr<Module> Context::createModule(const std::string& path)
-	{
-		return{};
-	}
-	Context::ref_ptr<Module> Context::createModuleFromSource(const char* source)
-	{
-		return{};
-	}
-	Context::ref_ptr<Buffer> Context::createBuffer(BufferAccess access, size_t size)
-	{
-		return{};
-	}
-	Context::ref_ptr<CommandQueue> Context::createCommandQueue()
-	{
-		return{};
-	}
+	public:
+		//! Access a kernel object through its name
+		//Core::ref_ptr<Kernel> kernel(const std::string& name);
+
+	private:
+		//! OpenCL handle to a program module
+		cl_program _module;
+
+		//! Kernels belonging to this module
+		//std::unordered_map<std::string, Core::owner_ptr<Kernel>> _kernels;
+	};
 }}}

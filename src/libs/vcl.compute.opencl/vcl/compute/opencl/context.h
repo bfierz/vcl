@@ -32,21 +32,39 @@
 // VCL
 #include <vcl/compute/context.h>
 
+#include <vcl/compute/opencl/device.h>
+
 namespace Vcl { namespace Compute { namespace OpenCL
 {
 	class Context : public Compute::Context
 	{
 	public:
 		//! Constructor
-		Context() = default;
+		Context(const Device&);
 
 		//! Destructor
-		virtual ~Context() = default;
+		virtual ~Context();
+
+		//! Convert to OpenCL device ID
+		inline operator cl_context() const
+		{
+			return _context;
+		}
 
 	public: // Resource allocation
 		virtual ref_ptr<Module> createModule(const std::string& path) override;
 		virtual ref_ptr<Module> createModuleFromSource(const char* source) override;
 		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) override;
 		virtual ref_ptr<CommandQueue> createCommandQueue() override;
+
+	public:
+		const Device& device() const { return _dev; }
+
+	private:
+		//! OpenCL context ID
+		cl_context _context;
+
+		//! Device belonging to this context
+		const Device& _dev;
 	};
 }}}

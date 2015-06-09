@@ -28,11 +28,6 @@
 
 // Prototypes of the NV compiler
 // Description of prototypes is taken from: https://github.com/ljbade/clcc
-//int NvCliCompileProgram
-//(
-//	const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
-//	const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
-//);
 //void NvCliCompileLogFree(const char* compileLog);
 //void NvCliCompiledProgramFree(const char* compiledProgram);
 
@@ -48,4 +43,10 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 {
 	bool loadCompiler();
 	void releaseCompiler();
+
+	int compileProgram
+	(
+		const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
+		const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
+	);
 }}}}

@@ -100,6 +100,11 @@ namespace Vcl { namespace Core
 			return _ptr;
 		}
 
+		T& operator*()
+		{
+			return *_ptr;
+		}
+
 		T* operator->() const
 		{
 			return _ptr;
@@ -152,6 +157,11 @@ namespace Vcl { namespace Core
 			return _ptr && _cnt;
 		}
 
+		T& operator*()
+		{
+			return *_ptr;
+		}
+
 		T* operator->() const
 		{
 			return _ptr;
@@ -163,4 +173,10 @@ namespace Vcl { namespace Core
 		T* _ptr{ nullptr };
 		std::shared_ptr<ref_cnt> _cnt;
 	};
+
+	template<typename T, typename... Args>
+	owner_ptr<T> make_owner(Args&&... args)
+	{
+		return owner_ptr<T>(new T(std::forward<Args>(args)...));
+	}
 }}

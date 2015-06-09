@@ -42,7 +42,7 @@ VCL_END_EXTERNAL_HEADERS
  */
 #ifndef VCL_CL_SAFE_CALL
 #	ifdef VCL_DEBUG
-#		define VCL_CL_SAFE_CALL(call) do { cl_int error = call; if (error != CL_SUCCESS) { std::cout << "CL Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error << std::endl; __debugbreak(); }} while (0)
+#		define VCL_CL_SAFE_CALL(call) do { cl_int error0507 = call; if (error0507 != CL_SUCCESS) { std::cout << "CL Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error0507 << std::endl; __debugbreak(); }} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_CL_SAFE_CALL(call) call
 #	endif /* VCL_DEBUG */

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,15 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
+// C++ standard library
+#include <iostream>
 
-// Include the relevant parts from the library
+// VCL
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/opencl/device.h>
 #include <vcl/compute/opencl/platform.h>
 
-// Google test
-#include <gtest/gtest.h>
-
-// Tests the scalar gather function.
-TEST(OpenCL, QueryDevices)
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Compute::OpenCL;
 
@@ -46,9 +43,12 @@ TEST(OpenCL, QueryDevices)
 	for (int d = 0; d < Platform::instance()->nrDevices(); d++)
 	{
 		auto& dev = Platform::instance()->device(d);
+		auto ctx = Context{ dev };
 
-		EXPECT_NE((cl_device_id) 0, (cl_device_id) dev) << "Device could not be created";
+		ctx.createModuleFromSource()
 	}
 
 	Platform::dispose();
+
+	return 0;
 }

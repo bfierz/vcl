@@ -22,68 +22,67 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/opencl/context.h>
+#include <vcl/compute/opencl/module.h>
 
 // C++ standard library
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 // VCL
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	Context::Context(const Device& dev)
-	: Compute::Context()
-	, _dev(dev)
+	Core::owner_ptr<Module> Module::loadFromSource(Core::ref_ptr<Context> ctx, const char* source)
 	{
-		// Device ID
-		cl_device_id dev_id = dev;
+		using namespace std;
 
-		// Get the platform associated with the device
-		cl_platform_id platform;
-		VCL_CL_SAFE_CALL(clGetDeviceInfo(dev_id, CL_DEVICE_PLATFORM, sizeof(cl_platform_id), &platform, nullptr));
+		std::array<const char*, 1> sources = { source };
+		std::array<size_t, 1> sizes = { strlen(source) + 1 };
 
-		// Create context without graphics bindings
-		{
-			cl_context_properties props [] =
-			{
-				CL_CONTEXT_PLATFORM, (cl_context_properties) platform, // OpenCL platform
-				0
-			};
+		// Load the module
+		cl_int prg_err;
+		cl_program prg = clCreateProgramWithSource(*ctx, 1, sources.data(), sizes.data(), &prg_err);
 
-			cl_int err;
-			_context = clCreateContext(props, 1, &dev_id, nullptr, nullptr, &err);
-			VCL_CL_SAFE_CALL(err);
-		}
+		std::array<cl_device_id, 1> devices;
+		devices[0] = ctx->device();
+		VCL_CL_SAFE_CALL(clBuildProgram(prg, 1, devices.data(), "-cl-mad-enable", nullptr, nullptr));
 
-		// Create the main command stream
-		if (_context)
-		{
-		}
+		return Core::make_owner<Module>(prg);
 	}
 
-	Context::~Context()
+	Module::Module(cl_program mod)
+	: _module(mod)
 	{
-		if (_context)
-		{
-			VCL_CL_SAFE_CALL(clReleaseContext(_context));
-			_context = nullptr;
-		}
 	}
 
-	Context::ref_ptr<Module> Context::createModule(const std::string& path)
+	Module::~Module()
 	{
-		return{};
+		VCL_CL_SAFE_CALL(clReleaseProgram(_module));
 	}
-	Context::ref_ptr<Module> Context::createModuleFromSource(const char* source)
+
+	//Core::ref_ptr<Kernel> Module::kernel(const std::string& name)
+	//{
+	//	if (_kernels.find(name) != _kernels.end())
+	//		return _kernels[name].get();
+	//
+	//	cl_int err;
+	//	cl_kernel func = clCreateKernel(_module, name.c_str(), &err);
+	//	if (err == CL_SUCCESS)
+	//	{
+	//		_kernels[name] = Core::make_owner<Kernel>(name, func);
+	//		return _kernels[name];
+	//	}
+	//	else
+	//	{
+	//		return nullptr;
+	//	}
+	//}
+
+	Module::operator cl_program () const
 	{
-		return{};
-	}
-	Context::ref_ptr<Buffer> Context::createBuffer(BufferAccess access, size_t size)
-	{
-		return{};
-	}
-	Context::ref_ptr<CommandQueue> Context::createCommandQueue()
-	{
-		return{};
+		return _module;
 	}
 }}}

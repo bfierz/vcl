@@ -51,6 +51,9 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		//! \returns the name of this device
 		const std::string& name() const { return _name; }
 
+		//! \returns the number of compute units
+		uint32_t nrComputeUnits() const { return _nrComputeUnits; }
+
 	private:
 		//! OpenCL device ID
 		cl_device_id _device;
@@ -63,5 +66,8 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 		//! Minor version of the OpenCL API
 		int _capMinor;
+
+		//! Number of compute units
+		uint32_t _nrComputeUnits;
 	};
 }}}

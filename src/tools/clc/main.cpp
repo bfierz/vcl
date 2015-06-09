@@ -42,6 +42,9 @@
 VCL_ERROR("No compatible process API found.")
 #endif
 
+// CLC
+#include "nvidia.h"
+
 namespace po = boost::program_options;
 
 namespace Vcl { namespace Tools { namespace Clc
@@ -179,6 +182,11 @@ int main(int argc, char* argv [])
 		std::cout << desc << std::endl;
 		return -1;
 	}
+
+	// Try and load the nvidia compiler
+	auto nvCompilerLoaded = Nvidia::loadCompiler();
+	//Nvidia::compileProgram();
+	Nvidia::releaseCompiler();
 
 #ifdef VCL_COMPILER_MSVC
 	std::string compiler = "cl";

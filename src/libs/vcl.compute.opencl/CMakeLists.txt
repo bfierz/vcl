@@ -11,7 +11,7 @@ SET(VCL_COMPUTE_OPENCL_INC
 #	vcl/compute/opencl/commandqueue.h
 	vcl/compute/opencl/context.h
 	vcl/compute/opencl/device.h
-#	vcl/compute/opencl/module.h
+	vcl/compute/opencl/module.h
 #	vcl/compute/opencl/kernel.h
 	vcl/compute/opencl/platform.h
 )
@@ -20,7 +20,7 @@ SET(VCL_COMPUTE_OPENCL_SRC
 #	vcl/compute/opencl/commandqueue.cpp
 	vcl/compute/opencl/context.cpp
 	vcl/compute/opencl/device.cpp
-#	vcl/compute/opencl/module.cpp
+	vcl/compute/opencl/module.cpp
 #	vcl/compute/opencl/kernel.cpp
 	vcl/compute/opencl/platform.cpp
 )

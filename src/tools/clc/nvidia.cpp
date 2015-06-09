@@ -125,4 +125,13 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 	
 #elif defined(VCL_ABI_POSIX)
 #endif
+
+	int compileProgram
+	(
+		const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
+		const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
+	)
+	{
+		return nvCompileProgram(sourceStrings, sourceStringsCount, sourceStringsLengths, compilerOptions, compileLogRet, compiledProgramRet);
+	}
 }}}}
