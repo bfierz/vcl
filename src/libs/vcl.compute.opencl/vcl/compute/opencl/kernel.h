@@ -22,16 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
+
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/opencl.h>
+
+// C++ standard library
+#include <string>
+
+// VCL
 #include <vcl/compute/kernel.h>
 
-// VCL 
-#include <vcl/core/contract.h>
-
-namespace Vcl { namespace Compute
-{
-	Kernel::Kernel(const std::string& name)
-	: _name(name)
+namespace Vcl { namespace Compute { namespace OpenCL
+{	
+	class Kernel : public Compute::Kernel
 	{
-		Require(!name.empty(), "Name of function is valid.");
-	}
-}}
+	public:
+		Kernel(const std::string& name, cl_kernel func);
+		virtual ~Kernel() = default;
+		
+	public:
+		void run(/*Compute::Stream& stream, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim*/);
+
+	private:
+		cl_kernel _func;
+	};
+}}}

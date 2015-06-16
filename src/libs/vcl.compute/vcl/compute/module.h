@@ -33,12 +33,15 @@
 #include <unordered_map>
 
 // VCL
+#include <vcl/compute/kernel.h>
+#include <vcl/core/memory/smart_ptr.h>
 
 namespace Vcl { namespace Compute
 {
 	class Module
 	{
 	public:
+		Module() = default;
 		Module(Module&&);
 		Module(const Module&) = delete;
 
@@ -47,7 +50,7 @@ namespace Vcl { namespace Compute
 
 		virtual ~Module() = default;
 
-	private:
-		//! Kernels belonging to this module
+		//! Access a kernel object through its name
+		virtual Core::ref_ptr<Kernel> kernel(const std::string& name) = 0;
 	};
 }}

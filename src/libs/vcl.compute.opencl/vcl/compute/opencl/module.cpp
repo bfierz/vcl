@@ -35,7 +35,7 @@
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	Core::owner_ptr<Module> Module::loadFromSource(Core::ref_ptr<Context> ctx, const char* source)
+	Core::owner_ptr<Module> Module::loadFromSource(Context* ctx, const char* source)
 	{
 		using namespace std;
 
@@ -54,7 +54,8 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	}
 
 	Module::Module(cl_program mod)
-	: _module(mod)
+	: Compute::Module()
+	, _module(mod)
 	{
 	}
 
@@ -63,23 +64,24 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		VCL_CL_SAFE_CALL(clReleaseProgram(_module));
 	}
 
-	//Core::ref_ptr<Kernel> Module::kernel(const std::string& name)
-	//{
-	//	if (_kernels.find(name) != _kernels.end())
-	//		return _kernels[name].get();
-	//
-	//	cl_int err;
-	//	cl_kernel func = clCreateKernel(_module, name.c_str(), &err);
-	//	if (err == CL_SUCCESS)
-	//	{
-	//		_kernels[name] = Core::make_owner<Kernel>(name, func);
-	//		return _kernels[name];
-	//	}
-	//	else
-	//	{
-	//		return nullptr;
-	//	}
-	//}
+	Core::ref_ptr<Compute::Kernel> Module::kernel(const std::string& name)
+	{
+		auto ker = _kernels.find(name);
+		if (ker != _kernels.end())
+			return ker->second;
+	
+		cl_int err;
+		cl_kernel func = clCreateKernel(_module, name.c_str(), &err);
+		if (err == CL_SUCCESS)
+		{
+			_kernels[name] = Core::make_owner<Kernel>(name, func);
+			return _kernels[name];
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
 
 	Module::operator cl_program () const
 	{

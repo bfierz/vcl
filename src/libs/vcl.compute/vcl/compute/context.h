@@ -70,7 +70,7 @@ namespace Vcl { namespace Compute
 		void release(ref_ptr<Buffer> h);
 		void release(ref_ptr<CommandQueue> h);
 
-	private: // Resources
+	protected: // Resources
 		//! All allocated buffers on this device
 		std::vector<owner_ptr<Buffer>> _buffers;
 

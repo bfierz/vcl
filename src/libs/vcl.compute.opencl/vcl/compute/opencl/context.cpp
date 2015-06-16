@@ -27,6 +27,8 @@
 // C++ standard library
 
 // VCL
+#include <vcl/compute/opencl/module.h>
+#include <vcl/core/memory/smart_ptr.h>
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
@@ -58,6 +60,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		// Create the main command stream
 		if (_context)
 		{
+			//createCommandQueue();
 		}
 	}
 
@@ -70,20 +73,22 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		}
 	}
 
-	Context::ref_ptr<Module> Context::createModule(const std::string& path)
+	Context::ref_ptr<Compute::Module> Context::createModule(const std::string& path)
 	{
 		return{};
 	}
-	Context::ref_ptr<Module> Context::createModuleFromSource(const char* source)
+	Context::ref_ptr<Compute::Module> Context::createModuleFromSource(const char* source)
+	{
+		_modules.emplace_back(Module::loadFromSource(this, source));
+		return _modules.back();
+	}
+	Context::ref_ptr<Compute::Buffer> Context::createBuffer(BufferAccess access, size_t size)
 	{
 		return{};
 	}
-	Context::ref_ptr<Buffer> Context::createBuffer(BufferAccess access, size_t size)
+	Context::ref_ptr<Compute::CommandQueue> Context::createCommandQueue()
 	{
-		return{};
-	}
-	Context::ref_ptr<CommandQueue> Context::createCommandQueue()
-	{
-		return{};
+		//_queues.emplace_back(Core::make_owner<OpencCL::CommandQueue>());
+		return _queues.back();
 	}
 }}}

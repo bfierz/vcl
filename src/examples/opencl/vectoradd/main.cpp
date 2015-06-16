@@ -32,7 +32,10 @@
 // VCL
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/opencl/device.h>
+#include <vcl/compute/opencl/kernel.h>
 #include <vcl/compute/opencl/platform.h>
+
+extern uint32_t vectoradd[];
 
 int main(int argc, char* argv[])
 {
@@ -45,7 +48,13 @@ int main(int argc, char* argv[])
 		auto& dev = Platform::instance()->device(d);
 		auto ctx = Context{ dev };
 
-		ctx.createModuleFromSource()
+		auto mem0 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
+		auto mem1 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
+		auto mem2 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
+
+		auto mod = ctx.createModuleFromSource((const char*) vectoradd);
+		auto kernel = Vcl::Core::dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
+		kernel->run();
 	}
 
 	Platform::dispose();

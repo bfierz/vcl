@@ -31,60 +31,82 @@
 #include <atomic>
 #include <cstdint>
 #include <memory>
+#include <type_traits>
 
 // VCL
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Core
 {
-	class ref_cnt
+	namespace Detail
 	{
-	public:
-		ref_cnt()
-		{
-			_references = false;
-		}
+		struct DynamicTag {};
 
-		void setValid()
+		class ref_cnt
 		{
-			_references = true;
-		}
-		void setInvalid()
-		{
-			_references = false;
-		}
+		public:
+			ref_cnt()
+			{
+				_references = false;
+			}
 
-		bool valid() const
-		{
-			return _references;
-		}
+			void setValid()
+			{
+				_references = true;
+			}
+			void setInvalid()
+			{
+				_references = false;
+			}
 
-	private:
-		std::atomic_bool _references;
-	};
+			bool valid() const
+			{
+				return _references;
+			}
+
+		private:
+			std::atomic_bool _references;
+		};
+	}
 
 	template<typename T>
 	class owner_ptr
 	{
-		template<typename T> friend class ref_ptr;
+		template<typename U> friend class owner_ptr;
+		template<typename U> friend class ref_ptr;
 	public:
 		owner_ptr() = default;
-		owner_ptr(T* ptr)
+
+		template
+		<
+			typename U,
+			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+		>
+		owner_ptr(U* ptr)
 		: _ptr(ptr)
 		{
-			_cnt = std::make_shared<ref_cnt>();
+			_cnt = std::make_shared<Detail::ref_cnt>();
 			_cnt->setValid();
 		}
 		owner_ptr(const owner_ptr&) = delete;
-		owner_ptr(owner_ptr&& rhs)
+		
+		template
+		<
+			typename U,
+			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+		>
+		owner_ptr(owner_ptr<U>&& rhs)
 		{
-			std::swap(_ptr, rhs._ptr);
+			_ptr = rhs._ptr;
+			rhs._ptr = nullptr;
+
 			std::swap(_cnt, rhs._cnt);
 		}
 
 		~owner_ptr()
 		{
-			_cnt->setInvalid();
+			if (_cnt)
+				_cnt->setInvalid();
 			_ptr = nullptr;
 		}
 
@@ -120,19 +142,49 @@ namespace Vcl { namespace Core
 
 	private:
 		T* _ptr{ nullptr };
-		std::shared_ptr<ref_cnt> _cnt;
+		std::shared_ptr<Detail::ref_cnt> _cnt;
 	};
 
 	template<typename T>
 	class ref_ptr
 	{
+		template<typename U> friend class ref_ptr;
+
 	public:
 		ref_ptr() = default;
+		ref_ptr(nullptr_t) {}
 
-		ref_ptr(const owner_ptr<T>& ptr)
+		template
+		<
+			typename U,
+			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+		>
+		ref_ptr(const owner_ptr<U>& ptr)
 		: _ptr(ptr.get())
 		, _cnt(ptr._cnt)
 		{
+		}
+
+		template
+		<
+			typename U,
+			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+		>
+		ref_ptr(const ref_ptr<U>& ptr)
+		: _ptr(ptr.get())
+		, _cnt(ptr._cnt)
+		{
+		}
+			
+		template<typename U>
+		ref_ptr(const ref_ptr<U>& ptr, const Detail::DynamicTag&)
+		{
+			auto casted = dynamic_cast<T*>(ptr.get());
+			if (casted)
+			{
+				_ptr = casted;
+				_cnt = ptr._cnt;
+			}
 		}
 
 		~ref_ptr()
@@ -171,12 +223,18 @@ namespace Vcl { namespace Core
 
 	private:
 		T* _ptr{ nullptr };
-		std::shared_ptr<ref_cnt> _cnt;
+		std::shared_ptr<Detail::ref_cnt> _cnt;
 	};
 
 	template<typename T, typename... Args>
 	owner_ptr<T> make_owner(Args&&... args)
 	{
 		return owner_ptr<T>(new T(std::forward<Args>(args)...));
+	}
+
+	template<typename T, typename U>
+	ref_ptr<T> dynamic_pointer_cast(const ref_ptr<U>& ptr)
+	{
+		return{ ptr, Detail::DynamicTag{} };
 	}
 }}

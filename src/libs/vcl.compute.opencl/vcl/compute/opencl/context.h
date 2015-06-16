@@ -52,10 +52,10 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		}
 
 	public: // Resource allocation
-		virtual ref_ptr<Module> createModule(const std::string& path) override;
-		virtual ref_ptr<Module> createModuleFromSource(const char* source) override;
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) override;
-		virtual ref_ptr<CommandQueue> createCommandQueue() override;
+		virtual ref_ptr<Compute::Module> createModule(const std::string& path) override;
+		virtual ref_ptr<Compute::Module> createModuleFromSource(const char* source) override;
+		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
+		virtual ref_ptr<Compute::CommandQueue> createCommandQueue() override;
 
 	public:
 		const Device& device() const { return _dev; }

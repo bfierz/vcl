@@ -31,26 +31,14 @@
 #include <string>
 
 namespace Vcl { namespace Compute
-{	class Kernel
+{	
+	class Kernel
 	{
 	public:
 		Kernel(const std::string& name);
+		virtual ~Kernel() = default;
 		
-	public: /* Attributes */
-		int nrMaxThreadsPerBlock() const;
-		int sharedMemorySize() const;
-		int constantMemorySize() const;
-		int localMemorySize() const;
-		int nrRegisters() const;
-
 	private:
 		std::string _name;
-
-	private:
-		int _nrMaxThreadsPerBlock;
-		int _staticSharedMemorySize;
-		int _constantMemorySize;
-		int _localMemorySize;
-		int _nrRegisters;
 	};
 }}

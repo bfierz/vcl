@@ -34,11 +34,12 @@
 
 // VCL
 #include <vcl/compute/opencl/context.h>
-#include <vcl/core/memory/smart_ptr.h>
+#include <vcl/compute/opencl/kernel.h>
+#include <vcl/compute/module.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	class Module
+	class Module : public Compute::Module
 	{
 	public:
 		//! Constructor
@@ -54,20 +55,20 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		virtual ~Module();
 
 	public:
-		static Core::owner_ptr<Module> loadFromSource(Core::ref_ptr<Context> ctx, const char* source);
+		static Core::owner_ptr<Module> loadFromSource(Context* ctx, const char* source);
 
 	public:
 		operator cl_program () const;
 
 	public:
 		//! Access a kernel object through its name
-		//Core::ref_ptr<Kernel> kernel(const std::string& name);
+		virtual Core::ref_ptr<Compute::Kernel> kernel(const std::string& name) override;
 
 	private:
 		//! OpenCL handle to a program module
 		cl_program _module;
 
 		//! Kernels belonging to this module
-		//std::unordered_map<std::string, Core::owner_ptr<Kernel>> _kernels;
+		std::unordered_map<std::string, Core::owner_ptr<Kernel>> _kernels;
 	};
 }}}
