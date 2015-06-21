@@ -57,8 +57,6 @@ namespace Vcl { namespace Compute
 		ref_ptr<CommandQueue> defaultQueue() const;
 
 	public: // Resource allocation
-		//! Create a new module by loading the code from the file system
-		virtual ref_ptr<Module> createModule(const std::string& path) = 0;
 
 		virtual ref_ptr<Module> createModuleFromSource(const char* source) = 0;
 

@@ -39,6 +39,8 @@ namespace Vcl { namespace Compute
 {
 	class CommandQueue
 	{
+	protected:
+		CommandQueue() = default;
 	public:
 		CommandQueue(CommandQueue&&);
 		CommandQueue(const CommandQueue&) = delete;

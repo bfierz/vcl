@@ -30,6 +30,7 @@
 #include <iostream>
 
 // VCL
+#include <vcl/compute/opencl/buffer.h>
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/opencl/device.h>
 #include <vcl/compute/opencl/kernel.h>
@@ -48,13 +49,15 @@ int main(int argc, char* argv[])
 		auto& dev = Platform::instance()->device(d);
 		auto ctx = Context{ dev };
 
-		auto mem0 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
-		auto mem1 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
-		auto mem2 = ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024);
+		auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx.defaultQueue());
+
+		auto mem0 = Vcl::Core::dynamic_pointer_cast<Buffer>(ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024*sizeof(float)));
+		auto mem1 = Vcl::Core::dynamic_pointer_cast<Buffer>(ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024*sizeof(float)));
+		auto mem2 = Vcl::Core::dynamic_pointer_cast<Buffer>(ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024*sizeof(float)));
 
 		auto mod = ctx.createModuleFromSource((const char*) vectoradd);
 		auto kernel = Vcl::Core::dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
-		kernel->run();
+		kernel->run(*queue, 1, { 1024, 0, 0 }, { 128, 0, 0 }, (cl_mem) *mem0, (cl_mem) *mem1, (cl_mem) *mem2);
 	}
 
 	Platform::dispose();

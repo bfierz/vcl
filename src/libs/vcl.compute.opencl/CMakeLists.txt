@@ -7,8 +7,8 @@ SET(VCL_CONFIG_INC
 
 # VCL / COMPUTE / OPENCL
 SET(VCL_COMPUTE_OPENCL_INC
-#	vcl/compute/opencl/buffer.h
-#	vcl/compute/opencl/commandqueue.h
+	vcl/compute/opencl/buffer.h
+	vcl/compute/opencl/commandqueue.h
 	vcl/compute/opencl/context.h
 	vcl/compute/opencl/device.h
 	vcl/compute/opencl/module.h
@@ -16,8 +16,8 @@ SET(VCL_COMPUTE_OPENCL_INC
 	vcl/compute/opencl/platform.h
 )
 SET(VCL_COMPUTE_OPENCL_SRC
-#	vcl/compute/opencl/buffer.cpp
-#	vcl/compute/opencl/commandqueue.cpp
+	vcl/compute/opencl/buffer.cpp
+	vcl/compute/opencl/commandqueue.cpp
 	vcl/compute/opencl/context.cpp
 	vcl/compute/opencl/device.cpp
 	vcl/compute/opencl/module.cpp

@@ -29,73 +29,41 @@
 #include <vcl/config/opencl.h>
 
 // C++ standard library
-#include <array>
 #include <string>
 
 // VCL
-#include <vcl/compute/opencl/commandqueue.h>
-#include <vcl/compute/kernel.h>
+#include <vcl/compute/opencl/context.h>
+#include <vcl/compute/commandqueue.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
-{
-	struct LocalMemory
-	{
-		LocalMemory(size_t size) : Size(size) {}
-
-		size_t Size;
-	};
-
-	template<typename T>
-	struct KernelArg
-	{
-		static size_t size(const T&) { return sizeof(T); }
-		static const void* ptr(const T& arg) { return &arg; }
-	};
-
-	template<>
-	struct KernelArg<LocalMemory>
-	{
-		static size_t size(const LocalMemory& arg) { return arg.Size; }
-		static const void* ptr(const LocalMemory&) { return nullptr; }
-	};
-
-	class Kernel : public Compute::Kernel
+{	
+	class CommandQueue : public Compute::CommandQueue
 	{
 	public:
-		Kernel(const std::string& name, cl_kernel func);
-		virtual ~Kernel() = default;
-		
+		CommandQueue(Context* owner);
+		virtual ~CommandQueue();
+
 	public:
-		template<typename... Args>
-		void run
-		(
-			CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim,
-			const Args&... args
-		)
+		//! Convert to OpenCL command queue ID
+		inline operator cl_command_queue() const
 		{
-			pushArgs<0>(args...);
-
-			run(queue, dim, globalDim, localDim);
+			return _queue;
 		}
 
-		void run(CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim);
+	public:
+		virtual void sync() override;
+
+	public:
+		virtual void read(void* dst, Vcl::Compute::BufferView& src, size_t offset, size_t size, bool blocking = false) override;
+		virtual void write(Vcl::Compute::BufferView& dst, void* src, size_t offset, size_t size, bool blocking = false) override;
+
+		virtual void fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size) override;
 
 	private:
-		template<int I, typename Arg, typename... Args>
-		void pushArgs(const Arg& arg, const Args&... args)
-		{
-			VCL_CL_SAFE_CALL(clSetKernelArg(_func, I, KernelArg<Arg>::size(arg), KernelArg<Arg>::ptr(arg)));
+		//! Link to the owning CL context
+		Context* _ownerCtx{ nullptr };
 
-			pushArgs<I + 1>(args...);
-		}
-
-		template<int I, typename Arg>
-		void pushArgs(const Arg& arg)
-		{
-			VCL_CL_SAFE_CALL(clSetKernelArg(_func, I, KernelArg<Arg>::size(arg), KernelArg<Arg>::ptr(arg)));
-		}
-
-	private:
-		cl_kernel _func;
+		//! Native command queue handle
+		cl_command_queue _queue{ nullptr };
 	};
 }}}

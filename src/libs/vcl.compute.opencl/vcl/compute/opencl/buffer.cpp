@@ -22,48 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/compute/opencl/buffer.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-
-// C++ standard library
-
-// VCL
-#include <vcl/compute/context.h>
-
-#include <vcl/compute/opencl/device.h>
+// VCL 
+#include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	class Context : public Compute::Context
+	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, int size)
+	: Compute::Buffer(hostAccess, size)
+	, _ownerCtx(ctx)
 	{
-	public:
-		//! Constructor
-		Context(const Device&);
+		allocate();
+	}
 
-		//! Destructor
-		virtual ~Context();
-
-		//! Convert to OpenCL device ID
-		inline operator cl_context() const
-		{
-			return _context;
-		}
-
-	public: // Resource allocation
-		virtual ref_ptr<Compute::Module> createModuleFromSource(const char* source) override;
-		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
-		virtual ref_ptr<Compute::CommandQueue> createCommandQueue() override;
-
-	public:
-		const Device& device() const { return _dev; }
-
-	private:
-		//! OpenCL context ID
-		cl_context _context;
-
-		//! Device belonging to this context
-		const Device& _dev;
-	};
+	void Buffer::allocate()
+	{
+		// Allocate the required device memory
+		cl_int err;
+		_devicePtr = clCreateBuffer(*_ownerCtx, 0, size(), nullptr, &err);
+		VCL_CL_SAFE_CALL(err);
+	}
 }}}

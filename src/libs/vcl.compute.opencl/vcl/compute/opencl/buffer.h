@@ -29,73 +29,38 @@
 #include <vcl/config/opencl.h>
 
 // C++ standard library
-#include <array>
 #include <string>
 
 // VCL
-#include <vcl/compute/opencl/commandqueue.h>
-#include <vcl/compute/kernel.h>
+#include <vcl/compute/opencl/context.h>
+#include <vcl/compute/buffer.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
-{
-	struct LocalMemory
-	{
-		LocalMemory(size_t size) : Size(size) {}
-
-		size_t Size;
-	};
-
-	template<typename T>
-	struct KernelArg
-	{
-		static size_t size(const T&) { return sizeof(T); }
-		static const void* ptr(const T& arg) { return &arg; }
-	};
-
-	template<>
-	struct KernelArg<LocalMemory>
-	{
-		static size_t size(const LocalMemory& arg) { return arg.Size; }
-		static const void* ptr(const LocalMemory&) { return nullptr; }
-	};
-
-	class Kernel : public Compute::Kernel
+{	
+	class Buffer : public Compute::Buffer
 	{
 	public:
-		Kernel(const std::string& name, cl_kernel func);
-		virtual ~Kernel() = default;
+		Buffer(Context* owner, BufferAccess hostAccess, int size);
+		virtual ~Buffer() = default;
 		
 	public:
-		template<typename... Args>
-		void run
-		(
-			CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim,
-			const Args&... args
-		)
+		//! Convert to OpenCL buffer ID
+		inline operator cl_mem() const
 		{
-			pushArgs<0>(args...);
-
-			run(queue, dim, globalDim, localDim);
-		}
-
-		void run(CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim);
-
-	private:
-		template<int I, typename Arg, typename... Args>
-		void pushArgs(const Arg& arg, const Args&... args)
-		{
-			VCL_CL_SAFE_CALL(clSetKernelArg(_func, I, KernelArg<Arg>::size(arg), KernelArg<Arg>::ptr(arg)));
-
-			pushArgs<I + 1>(args...);
-		}
-
-		template<int I, typename Arg>
-		void pushArgs(const Arg& arg)
-		{
-			VCL_CL_SAFE_CALL(clSetKernelArg(_func, I, KernelArg<Arg>::size(arg), KernelArg<Arg>::ptr(arg)));
+			return _devicePtr;
 		}
 
 	private:
-		cl_kernel _func;
+		void allocate();
+
+	private:
+		//! Link to the owning CL context
+		Context* _ownerCtx{ nullptr };
+
+		//! CL memory object
+		cl_mem _devicePtr{ nullptr };
+
+		//! Pointer to a host shadow copy
+		void* _hostPtr{ nullptr };
 	};
 }}}

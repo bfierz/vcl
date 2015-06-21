@@ -22,48 +22,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/compute/opencl/commandqueue.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-
-// C++ standard library
-
-// VCL
-#include <vcl/compute/context.h>
-
-#include <vcl/compute/opencl/device.h>
+// VCL 
+#include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	class Context : public Compute::Context
+	CommandQueue::CommandQueue(Context* owner)
+	: Compute::CommandQueue()
+	, _ownerCtx(owner)
 	{
-	public:
-		//! Constructor
-		Context(const Device&);
+		cl_command_queue_properties properties = CL_QUEUE_PROFILING_ENABLE;
 
-		//! Destructor
-		virtual ~Context();
+		cl_int err;
+		_queue = clCreateCommandQueue(*_ownerCtx, _ownerCtx->device(), properties, &err);
+	}
 
-		//! Convert to OpenCL device ID
-		inline operator cl_context() const
-		{
-			return _context;
-		}
+	CommandQueue::~CommandQueue()
+	{
+		VCL_CL_SAFE_CALL(clReleaseCommandQueue(_queue));
+	}
 
-	public: // Resource allocation
-		virtual ref_ptr<Compute::Module> createModuleFromSource(const char* source) override;
-		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
-		virtual ref_ptr<Compute::CommandQueue> createCommandQueue() override;
+	void CommandQueue::sync()
+	{
 
-	public:
-		const Device& device() const { return _dev; }
+	}
 
-	private:
-		//! OpenCL context ID
-		cl_context _context;
+	void CommandQueue::read(void* dst, Vcl::Compute::BufferView& src, size_t offset, size_t size, bool blocking)
+	{
 
-		//! Device belonging to this context
-		const Device& _dev;
-	};
+	}
+
+	void CommandQueue::write(Vcl::Compute::BufferView& dst, void* src, size_t offset, size_t size, bool blocking)
+	{
+
+	}
+
+	void CommandQueue::fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size)
+	{
+
+	}
 }}}

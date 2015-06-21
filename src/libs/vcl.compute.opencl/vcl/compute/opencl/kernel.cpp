@@ -35,8 +35,19 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	{
 	}
 
-	void Kernel::run(/*Compute::Stream& stream, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim*/)
+	void Kernel::run(CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim)
 	{
+		std::array<size_t, 3> offset = { 0, 0, 0 };
 
+		VCL_CL_SAFE_CALL(clEnqueueNDRangeKernel
+		(
+			(cl_command_queue) queue,
+			_func,
+			dim,
+			offset.data(),
+			globalDim.data(),
+			localDim.data(),
+			0, nullptr, nullptr
+		));
 	}
 }}}
