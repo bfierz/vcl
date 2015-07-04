@@ -150,6 +150,9 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 8> min(const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm256_min_ps(mF8, rhs.mF8)); }
 		VCL_STRONG_INLINE VectorScalar<float, 8> max(const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm256_max_ps(mF8, rhs.mF8)); }
 
+		VCL_STRONG_INLINE float min() const { return _mmVCL_hmin_ps(mF8); }
+		VCL_STRONG_INLINE float max() const { return _mmVCL_hmax_ps(mF8); }
+
 	public:
 		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs);
 		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);

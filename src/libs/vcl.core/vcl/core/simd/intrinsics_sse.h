@@ -110,6 +110,26 @@ namespace Vcl
 		return result;
 	}
 
+	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m128 v)
+	{
+		__m128 data = v;             /* [0, 1, 2, 3] */
+		__m128 low = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
+		__m128 low_accum = _mm_min_ps(low, data); /* [0|2, 1|3, 2|2, 3|3] */
+		__m128 elem1 = _mm_shuffle_ps(low_accum, low_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
+		__m128 accum = _mm_min_ss(low_accum, elem1);
+		return _mm_cvtss_f32(accum);
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m128 v)
+	{
+		__m128 data = v;             /* [0, 1, 2, 3] */
+		__m128 high = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
+		__m128 high_accum = _mm_max_ps(high, data); /* [0|2, 1|3, 2|2, 3|3] */
+		__m128 elem1 = _mm_shuffle_ps(high_accum, high_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
+		__m128 accum = _mm_max_ss(high_accum, elem1);
+		return _mm_cvtss_f32(accum);
+	}
+
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m128 v, int i)
 	{
 #if 1

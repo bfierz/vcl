@@ -204,6 +204,15 @@ namespace Vcl
 			);
 		}
 
+		VCL_STRONG_INLINE float min() const
+		{
+			return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(_mmVCL_hmin_ps(get(0))), _mm_set_ss(_mmVCL_hmin_ps(get(1)))));
+		}
+		VCL_STRONG_INLINE float max() const
+		{
+			return _mm_cvtss_f32(_mm_max_ss(_mm_set_ss(_mmVCL_hmax_ps(get(0))), _mm_set_ss(_mmVCL_hmax_ps(get(1)))));
+		}
+
 	public:
 		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs);
 		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);
