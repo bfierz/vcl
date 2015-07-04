@@ -38,6 +38,12 @@
 
 namespace Vcl { namespace Components
 {
+	template<typename T>
+	struct ComponentTraits
+	{
+		static const bool IsUnique{ true };
+	};
+
 	/*!
 	 *	\class ComponentStoreBase
 	 *	\brief Base class for component storage
@@ -66,6 +72,12 @@ namespace Vcl { namespace Components
 			return _components.find(id.id()) != _components.end();
 		}
 
+		auto operator()(EntityId id) -> ComponentType*
+		{
+			return &_components.find(id.id())->second;
+		}
+
+	public:
 		template<typename... Args>
 		auto create(EntityId id, Args... args) -> ComponentType*
 		{
@@ -77,13 +89,41 @@ namespace Vcl { namespace Components
 			return &newElemIter.first->second;
 		}
 
-		auto operator[](EntityId id) -> ComponentType*
+	public:
+		std::unordered_map<size_t, ComponentType> _components;
+	};
+
+	template<typename T>
+	class MultiComponentStoreBase : public ComponentStoreBase
+	{
+	public:
+		using ComponentType = T;
+		using Store = std::unordered_multimap<size_t, ComponentType>;
+
+	public:
+		bool has(EntityId id) const
 		{
-			return &_components.find(id.id())->second;
+			return _components.find(id.id()) != _components.end();
+		}
+
+		auto operator()(EntityId id) -> std::pair<typename Store::iterator, typename Store::iterator>
+		{
+			return _components.equal_range(id.id());
 		}
 
 	public:
-		std::unordered_map<size_t, ComponentType> _components;
+		template<typename... Args>
+		auto create(EntityId id, Args... args) -> ComponentType*
+		{
+			auto newElemIter = _components.emplace(id.id(), std::forward<Args>(args)...);
+
+			Ensure(newElemIter.second, "Element was inserted.");
+			return &newElemIter.first->second;
+		}
+
+	private:
+		//! Storage of the allocated components
+		Store _components;
 	};
 
 	/*!
@@ -94,22 +134,32 @@ namespace Vcl { namespace Components
 	 *	and finds components of an entity. In contrast to many other implementations
 	 *	this class allows to store several components of the same type for an entity.
 	 */
-	template<typename T>
-	class MultiComponentStore : public ComponentStoreBase
+	template<typename T, typename Func>
+	class MultiComponentStore : public MultiComponentStoreBase<T>
 	{
 	public:
-		using ComponentType = T;
-		using Store = std::unordered_multimap<size_t, ComponentType>;
-
-	public:
-		auto operator[](EntityId id) -> std::pair<typename Store::iterator, typename Store::iterator>
+		MultiComponentStore(Func&& f)
+		: _func(std::forward<Func&&>(f))
 		{
-			return _components.equal_range(id.id());
+
 		}
 
 	public:
-		//! Storage of the allocated components
-		Store _components;
+		template<typename IdType>
+		auto operator()(EntityId id, const IdType&& comp_id) -> ComponentType*
+		{
+			auto components = _components.equal_range(id.id());
+			auto comp_iter = std::find_if(components.first, components.second, std::bind(_func, comp_id));
+
+			if (comp_iter != components.end())
+				return comp_iter->second;
+			else
+				return nullptr;
+		}
+
+	private:
+		//! Functor to identify a single component for an entity
+		Func _func;
 	};
 	
 	/*!
@@ -123,7 +173,7 @@ namespace Vcl { namespace Components
 		using ComponentType = T;
 
 	public:
-		ComponentPtr(ComponentStore<ComponentType>& store, EntityId idx)
+		ComponentPtr(ComponentStore<T>& store, EntityId idx)
 		: _store(store)
 		, _idx(idx)
 		{}
@@ -131,12 +181,43 @@ namespace Vcl { namespace Components
 	public:
 		ComponentType* operator->() const
 		{
-			return _store[_idx];
+			return _store(_idx);
 		}
 
 	private:
-		ComponentStore<ComponentType>& _store;
+		ComponentStore<T>& _store;
 
+		//! Entity 
+		EntityId _idx;
+	};
+	
+	
+	/*!
+	 *	\class MultiComponentPtr
+	 *	\brief Pointer to a multi component entry
+	 */
+	template<typename T>
+	class MultiComponentPtr
+	{
+	public:
+		using ComponentType = T;
+
+	public:
+		MultiComponentPtr(MultiComponentStoreBase<T>& store, EntityId idx)
+		: _store(store)
+		, _idx(idx)
+		{}
+
+	public:
+		ComponentType* operator->() const
+		{
+			return _store(_idx).second;
+		}
+
+	private:
+		MultiComponentStoreBase<T>& _store;
+
+		//! Entity 
 		EntityId _idx;
 	};
 }}

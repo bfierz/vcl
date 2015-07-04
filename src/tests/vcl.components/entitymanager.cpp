@@ -75,6 +75,8 @@ TEST(EntityManagerTest, CreateDestroyUniqueComponents)
 	auto e2 = em.create();
 	auto e3 = em.create();
 
+	em.registerComponent<NameComponent>();
+
 	auto c0 = em.create<NameComponent>(e0, "E0");
 	auto c2 = em.create<NameComponent>(e2, "E2");
 	auto c3 = em.create<NameComponent>(e3, "E3");
@@ -98,6 +100,11 @@ TEST(EntityManagerTest, CreateDestroyMultiComponents)
 	auto e1 = em.create();
 	auto e2 = em.create();
 	auto e3 = em.create();
+
+	em.registerComponent<NameComponent>([](const NameComponent& c, const std::string& s)
+	{
+		return c.Name == s;
+	});
 
 	auto c0 = em.create<NameComponent>(e0, "E0");
 	auto c2_1 = em.create<NameComponent>(e2, "E2_1");

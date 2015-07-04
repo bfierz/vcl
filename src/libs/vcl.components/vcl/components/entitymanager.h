@@ -60,10 +60,10 @@ namespace Vcl { namespace Components
 		void destroy(Entity e);
 
 	public:
-		template<typename C, typename... Args>
-		ComponentPtr<C> create(Entity e, Args&&... args)
+		template<typename C>
+		void registerComponent()
 		{
-			Require(e._manager == this, "Entity belongs the this system.");
+			Require(_components.find(typeid(C).hash_code()) == _components.end(), "Component type not registered.");
 
 			size_t hash = typeid(C).hash_code();
 			if (_components.find(hash) == _components.end())
@@ -71,7 +71,46 @@ namespace Vcl { namespace Components
 				_components[hash] = std::make_unique<ComponentStore<C>>();
 			}
 
+			Ensure(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+		}
+
+		template<typename C, typename Func>
+		void registerComponent(Func&& func)
+		{
+			Require(_components.find(typeid(C).hash_code()) == _components.end(), "Component type not registered.");
+
+			size_t hash = typeid(C).hash_code();
+			if (_components.find(hash) == _components.end())
+			{
+				_components[hash] = std::make_unique<MultiComponentStore<C, Func>>(std::forward<Func&&>(func));
+			}
+
+			Ensure(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+		}
+
+		template<typename C, typename... Args>
+		typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentPtr<C>>::type
+			create(Entity e, Args&&... args)
+		{
+			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			Require(e._manager == this, "Entity belongs the this system.");
+
+			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<ComponentStore<C>*>(_components[hash].get());
+			c->create(e._id, std::forward<Args>(args)...);
+
+			return{ *c, e._id };
+		}
+
+		template<typename C, typename... Args>
+		typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentPtr<C>>::type
+			create(Entity e, Args&&... args)
+		{
+			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			Require(e._manager == this, "Entity belongs the this system.");
+
+			size_t hash = typeid(C).hash_code();
+			auto c = static_cast<MultiComponentStoreBase<C>*>(_components[hash].get());
 			c->create(e._id, std::forward<Args>(args)...);
 
 			return{ *c, e._id };
@@ -83,19 +122,28 @@ namespace Vcl { namespace Components
 			Require(e._manager == this, "Entity belongs the this system.");
 
 			size_t hash = typeid(C).hash_code();
-			auto& c = *static_cast<ComponentStore<C>*>(_components[hash].get());
-			
-			return c.has(e._id);
+			if (ComponentTraits<C>::IsUnique)
+			{
+				auto& c = *static_cast<ComponentStore<C>*>(_components[hash].get());
+
+				return c.has(e._id);
+			}
+			else
+			{
+				auto& c = *static_cast<MultiComponentStoreBase<C>*>(_components[hash].get());
+
+				return c.has(e._id);
+			}
 		}
 
 	public:
-		//! @returns the number of active entities
+		//! \returns the number of active entities
 		size_t size() const
 		{
 			return _generations.size() - _freeIndices.size();
 		}
 
-		//! @returns the current capacity of the manager
+		//! \returns the current capacity of the manager
 		size_t capacity() const
 		{
 			return _generations.size();
