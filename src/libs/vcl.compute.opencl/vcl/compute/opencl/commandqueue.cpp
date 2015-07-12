@@ -25,6 +25,7 @@
 #include <vcl/compute/opencl/commandqueue.h>
 
 // VCL 
+#include <vcl/compute/opencl/buffer.h>
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute { namespace OpenCL
@@ -46,21 +47,33 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	void CommandQueue::sync()
 	{
-
+		VCL_CL_SAFE_CALL(clFinish(_queue));
 	}
 
-	void CommandQueue::read(void* dst, Vcl::Compute::BufferView& src, size_t offset, size_t size, bool blocking)
+	void CommandQueue::read(void* dst, Vcl::Compute::BufferView& src, bool blocking)
 	{
+		auto& buffer = src.owner();
+		auto& clBuffer = static_cast<const Buffer&>(buffer);
 
+		VCL_CL_SAFE_CALL(clEnqueueReadBuffer(_queue, (cl_mem) clBuffer, blocking, src.offset(), src.size(), dst, 0, nullptr, nullptr));
 	}
 
-	void CommandQueue::write(Vcl::Compute::BufferView& dst, void* src, size_t offset, size_t size, bool blocking)
+	void CommandQueue::write(Vcl::Compute::BufferView& dst, void* src, bool blocking)
 	{
+		auto& buffer = dst.owner();
+		auto& clBuffer = static_cast<const Buffer&>(buffer);
 
+		VCL_CL_SAFE_CALL(clEnqueueWriteBuffer(_queue, (cl_mem) clBuffer, blocking, dst.offset(), dst.size(), src, 0, nullptr, nullptr));
 	}
 
 	void CommandQueue::fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size)
 	{
+		Require(dynamic_cast<const Buffer*>(&dst.owner()), "Buffer is OpenCL buffer.");
+		Require(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
 
+		auto& buffer = dst.owner();
+		auto& clBuffer = static_cast<const Buffer&>(buffer);
+
+		VCL_CL_SAFE_CALL(clEnqueueFillBuffer(_queue, (cl_mem) clBuffer, pattern, pattern_size, dst.offset(), dst.size(), 0, nullptr, nullptr));
 	}
 }}}

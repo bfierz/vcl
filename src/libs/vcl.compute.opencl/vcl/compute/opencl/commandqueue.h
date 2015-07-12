@@ -54,8 +54,8 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		virtual void sync() override;
 
 	public:
-		virtual void read(void* dst, Vcl::Compute::BufferView& src, size_t offset, size_t size, bool blocking = false) override;
-		virtual void write(Vcl::Compute::BufferView& dst, void* src, size_t offset, size_t size, bool blocking = false) override;
+		virtual void read(void* dst, Vcl::Compute::BufferView& src, bool blocking = false) override;
+		virtual void write(Vcl::Compute::BufferView& dst, void* src, bool blocking = false) override;
 
 		virtual void fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size) override;
 

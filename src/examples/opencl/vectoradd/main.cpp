@@ -35,6 +35,7 @@
 #include <vcl/compute/opencl/device.h>
 #include <vcl/compute/opencl/kernel.h>
 #include <vcl/compute/opencl/platform.h>
+#include <vcl/math/math.h>
 
 extern uint32_t vectoradd[];
 
@@ -55,9 +56,24 @@ int main(int argc, char* argv[])
 		auto mem1 = Vcl::Core::dynamic_pointer_cast<Buffer>(ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024*sizeof(float)));
 		auto mem2 = Vcl::Core::dynamic_pointer_cast<Buffer>(ctx.createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 1024*sizeof(float)));
 
+		float one = 1;
+		float two = 2;
+		queue->fill(*mem0, &one, sizeof(float));
+		queue->fill(*mem1, &two, sizeof(float));
+
 		auto mod = ctx.createModuleFromSource((const char*) vectoradd);
 		auto kernel = Vcl::Core::dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
 		kernel->run(*queue, 1, { 1024, 0, 0 }, { 128, 0, 0 }, (cl_mem) *mem0, (cl_mem) *mem1, (cl_mem) *mem2);
+
+		std::vector<float> result(1024);
+		queue->read(result.data(), *mem2);
+		queue->sync();
+
+		for (auto f : result)
+		{
+			std::cout << (Vcl::Mathematics::equal(f, 3, 1e-5f) ? '.' : 'F');
+		}
+		std::cout << std::endl;
 	}
 
 	Platform::dispose();

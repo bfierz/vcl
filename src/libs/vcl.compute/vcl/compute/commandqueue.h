@@ -54,8 +54,8 @@ namespace Vcl { namespace Compute
 		virtual void sync() = 0;
 
 	public:
-		virtual void read(void* dst, Vcl::Compute::BufferView& src, size_t offset, size_t size, bool blocking = false) = 0;
-		virtual void write(Vcl::Compute::BufferView& dst, void* src, size_t offset, size_t size, bool blocking = false) = 0;
+		virtual void read(void* dst, Vcl::Compute::BufferView& src, bool blocking = false) = 0;
+		virtual void write(Vcl::Compute::BufferView& dst, void* src, bool blocking = false) = 0;
 
 		virtual void fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size) = 0;
 	};
