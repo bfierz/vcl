@@ -305,4 +305,7 @@ int main(int, char**)
 #ifdef VCL_VECTORIZE_AVX
 	mcAdamsSVD<Vcl::float8>(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
+
+#ifdef VCL_OPENCL_SUPPORT
+#endi // defined VCL_OPENCL_SUPPORT
 }

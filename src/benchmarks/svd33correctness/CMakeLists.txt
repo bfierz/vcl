@@ -16,3 +16,9 @@ TARGET_LINK_LIBRARIES(svd33correctness
 	vcl_core
 	vcl_math
 )
+
+IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	TARGET_LINK_LIBRARIES(svd33correctness
+		vcl_compute_opencl
+	)
+ENDIF()
