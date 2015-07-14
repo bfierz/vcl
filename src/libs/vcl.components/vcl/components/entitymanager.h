@@ -89,7 +89,7 @@ namespace Vcl { namespace Components
 		}
 
 		template<typename C, typename... Args>
-		typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentPtr<C>>::type
+		typename std::enable_if<ComponentTraits<C>::IsUnique, C*>::type
 			create(Entity e, Args&&... args)
 		{
 			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
@@ -97,13 +97,12 @@ namespace Vcl { namespace Components
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<ComponentStore<C>*>(_components[hash].get());
-			c->create(e._id, std::forward<Args>(args)...);
 
-			return{ *c, e._id };
+			return c->create(e._id, std::forward<Args>(args)...);
 		}
 
 		template<typename C, typename... Args>
-		typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentPtr<C>>::type
+		typename std::enable_if<!ComponentTraits<C>::IsUnique, C*>::type
 			create(Entity e, Args&&... args)
 		{
 			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
@@ -111,9 +110,8 @@ namespace Vcl { namespace Components
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<MultiComponentStoreBase<C>*>(_components[hash].get());
-			c->create(e._id, std::forward<Args>(args)...);
-
-			return{ *c, e._id };
+			
+			return c->create(e._id, std::forward<Args>(args)...);
 		}
 
 		template<typename C>

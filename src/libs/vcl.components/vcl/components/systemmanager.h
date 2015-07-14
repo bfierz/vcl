@@ -74,7 +74,7 @@ namespace Vcl { namespace Components
 		}
 
 		/*!
-		 *	Accessthe a registered System of an explicit instance.
+		 *	Access the a registered System of an explicit instance.
 		 *
 		 *	\returns the pointer to a system of the requested type.
 		 */

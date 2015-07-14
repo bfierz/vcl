@@ -41,6 +41,25 @@ struct NameComponent
 	std::string Name;
 };
 
+struct SecondaryNameComponent
+{
+	SecondaryNameComponent() = default;
+	SecondaryNameComponent(const std::string& name) : Name(name) {}
+	SecondaryNameComponent(const char* name) : Name(name) {}
+
+	std::string Name;
+};
+
+
+namespace Vcl { namespace Components
+{
+	template<>
+	struct ComponentTraits<SecondaryNameComponent>
+	{
+		static const bool IsUnique{ false };
+	};
+}}
+
 TEST(EntityManagerTest, CreateDestroyEntites)
 {
 	using namespace Vcl::Components;
@@ -101,19 +120,19 @@ TEST(EntityManagerTest, CreateDestroyMultiComponents)
 	auto e2 = em.create();
 	auto e3 = em.create();
 
-	em.registerComponent<NameComponent>([](const NameComponent& c, const std::string& s)
+	em.registerComponent<SecondaryNameComponent>([](const SecondaryNameComponent& c, const std::string& s)
 	{
 		return c.Name == s;
 	});
 
-	auto c0 = em.create<NameComponent>(e0, "E0");
-	auto c2_1 = em.create<NameComponent>(e2, "E2_1");
-	auto c2_2 = em.create<NameComponent>(e2, "E2_2");
+	auto c0 = em.create<SecondaryNameComponent>(e0, "E0");
+	auto c2_1 = em.create<SecondaryNameComponent>(e2, "E2_1");
+	auto c2_2 = em.create<SecondaryNameComponent>(e2, "E2_2");
 
-	EXPECT_TRUE(em.has<NameComponent>(e0));
-	EXPECT_FALSE(em.has<NameComponent>(e1));
-	EXPECT_TRUE(em.has<NameComponent>(e2));
-	EXPECT_FALSE(em.has<NameComponent>(e3));
+	EXPECT_TRUE(em.has<SecondaryNameComponent>(e0));
+	EXPECT_FALSE(em.has<SecondaryNameComponent>(e1));
+	EXPECT_TRUE(em.has<SecondaryNameComponent>(e2));
+	EXPECT_FALSE(em.has<SecondaryNameComponent>(e3));
 
 	EXPECT_EQ("E0", c0->Name);
 	EXPECT_EQ("E2_1", c2_1->Name);

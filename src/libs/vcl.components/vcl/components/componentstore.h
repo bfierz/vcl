@@ -117,8 +117,8 @@ namespace Vcl { namespace Components
 		{
 			auto newElemIter = _components.emplace(id.id(), std::forward<Args>(args)...);
 
-			Ensure(newElemIter.second, "Element was inserted.");
-			return &newElemIter.first->second;
+			Ensure(newElemIter != _components.end(), "Element was inserted.");
+			return &newElemIter->second;
 		}
 
 	private:
@@ -160,64 +160,5 @@ namespace Vcl { namespace Components
 	private:
 		//! Functor to identify a single component for an entity
 		Func _func;
-	};
-	
-	/*!
-	 *	\class ComponentPtr
-	 *	\brief Pointer to a single component entry
-	 */
-	template<typename T>
-	class ComponentPtr
-	{
-	public:
-		using ComponentType = T;
-
-	public:
-		ComponentPtr(ComponentStore<T>& store, EntityId idx)
-		: _store(store)
-		, _idx(idx)
-		{}
-
-	public:
-		ComponentType* operator->() const
-		{
-			return _store(_idx);
-		}
-
-	private:
-		ComponentStore<T>& _store;
-
-		//! Entity 
-		EntityId _idx;
-	};
-	
-	
-	/*!
-	 *	\class MultiComponentPtr
-	 *	\brief Pointer to a multi component entry
-	 */
-	template<typename T>
-	class MultiComponentPtr
-	{
-	public:
-		using ComponentType = T;
-
-	public:
-		MultiComponentPtr(MultiComponentStoreBase<T>& store, EntityId idx)
-		: _store(store)
-		, _idx(idx)
-		{}
-
-	public:
-		ComponentType* operator->() const
-		{
-			return _store(_idx).second;
-		}
-
-	private:
-		MultiComponentStoreBase<T>& _store;
-
-		//! Entity 
-		EntityId _idx;
 	};
 }}
