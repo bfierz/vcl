@@ -52,7 +52,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		}
 
 	public: // Resource allocation
-		virtual ref_ptr<Compute::Module> createModuleFromSource(const char* source) override;
+		virtual ref_ptr<Compute::Module> createModuleFromSource(const int8_t* source, size_t size) override;
 		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
 		virtual ref_ptr<Compute::CommandQueue> createCommandQueue() override;
 

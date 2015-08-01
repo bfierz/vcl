@@ -58,7 +58,7 @@ namespace Vcl { namespace Compute
 
 	public: // Resource allocation
 
-		virtual ref_ptr<Module> createModuleFromSource(const char* source) = 0;
+		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
 
 		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
 

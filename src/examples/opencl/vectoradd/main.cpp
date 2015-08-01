@@ -38,6 +38,7 @@
 #include <vcl/math/math.h>
 
 extern uint32_t vectoradd[];
+extern size_t vectoraddSize;
 
 int main(int argc, char* argv[])
 {
@@ -61,7 +62,7 @@ int main(int argc, char* argv[])
 		queue->fill(*mem0, &one, sizeof(float));
 		queue->fill(*mem1, &two, sizeof(float));
 
-		auto mod = ctx.createModuleFromSource((const char*) vectoradd);
+		auto mod = ctx.createModuleFromSource((const int8_t*) vectoradd, vectoraddSize * sizeof(uint32_t));
 		auto kernel = Vcl::Core::dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
 		kernel->run(*queue, 1, { 1024, 0, 0 }, { 128, 0, 0 }, (cl_mem) *mem0, (cl_mem) *mem1, (cl_mem) *mem2);
 

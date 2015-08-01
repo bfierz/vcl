@@ -35,12 +35,12 @@
 
 namespace Vcl { namespace Compute { namespace OpenCL
 {
-	Core::owner_ptr<Module> Module::loadFromSource(Context* ctx, const char* source)
+	Core::owner_ptr<Module> Module::loadFromSource(Context* ctx, const int8_t* source, size_t size)
 	{
 		using namespace std;
 
-		std::array<const char*, 1> sources = { source };
-		std::array<size_t, 1> sizes = { strlen(source) + 1 };
+		std::array<const char*, 1> sources = { (const char*) source };
+		std::array<size_t, 1> sizes = { size };
 
 		// Load the module
 		cl_int prg_err;
@@ -48,7 +48,25 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 		std::array<cl_device_id, 1> devices;
 		devices[0] = ctx->device();
-		VCL_CL_SAFE_CALL(clBuildProgram(prg, 1, devices.data(), "-cl-mad-enable", nullptr, nullptr));
+		cl_int compile_err = clBuildProgram(prg, 1, devices.data(), "-cl-mad-enable", nullptr, nullptr);
+
+		// Check for build errors
+		if (compile_err != CL_SUCCESS)
+		{
+			cl_build_status status;
+
+			// Check build error and build status first
+			VCL_CL_SAFE_CALL(clGetProgramBuildInfo(prg, devices[0], CL_PROGRAM_BUILD_STATUS, sizeof(cl_build_status), &status, nullptr));
+
+			// Check build log
+			size_t logSize;
+			VCL_CL_SAFE_CALL(clGetProgramBuildInfo(prg, devices[0], CL_PROGRAM_BUILD_LOG, 0, nullptr, &logSize));
+
+			std::vector<char> programLog(logSize + 1);
+			VCL_CL_SAFE_CALL(clGetProgramBuildInfo(prg, devices[0], CL_PROGRAM_BUILD_LOG, logSize + 1, programLog.data(), nullptr));
+
+			std::cout << "Build failed; error = " << compile_err << ", status = " << status << ", programLog: " << programLog.data() << std::endl;
+		}
 
 		return Core::make_owner<Module>(prg);
 	}

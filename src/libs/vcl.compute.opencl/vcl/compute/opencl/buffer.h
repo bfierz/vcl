@@ -41,8 +41,11 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	{
 	public:
 		Buffer(Context* owner, BufferAccess hostAccess, int size);
-		virtual ~Buffer() = default;
+		virtual ~Buffer();
 		
+	public:
+		void resize(size_t new_size);
+
 	public:
 		//! Convert to OpenCL buffer ID
 		inline operator cl_mem() const
@@ -52,6 +55,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	private:
 		void allocate();
+		void free();
 
 	private:
 		//! Link to the owning CL context

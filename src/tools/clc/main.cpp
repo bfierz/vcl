@@ -184,9 +184,9 @@ int main(int argc, char* argv [])
 	}
 
 	// Try and load the nvidia compiler
-	auto nvCompilerLoaded = Nvidia::loadCompiler();
+	//auto nvCompilerLoaded = Nvidia::loadCompiler();
 	//Nvidia::compileProgram();
-	Nvidia::releaseCompiler();
+	//Nvidia::releaseCompiler();
 
 #ifdef VCL_COMPILER_MSVC
 	std::string compiler = "cl";

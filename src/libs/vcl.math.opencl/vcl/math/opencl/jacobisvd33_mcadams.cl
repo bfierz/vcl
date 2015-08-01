@@ -46,6 +46,8 @@ __kernel void JacobiSVD33McAdams
 	__global float* __restrict__ S
 )
 {
+#define JACOBI_CONJUGATION_SWEEPS (int) 5
+
 	int idx = (int) get_global_id(0);
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>

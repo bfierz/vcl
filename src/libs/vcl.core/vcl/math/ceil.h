@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,45 +22,70 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/opencl/buffer.h>
+#pragma once
 
-// VCL 
-#include <vcl/core/contract.h>
-
-namespace Vcl { namespace Compute { namespace OpenCL
+namespace Vcl { namespace Mathematics
 {
-	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, int size)
-	: Compute::Buffer(hostAccess, size)
-	, _ownerCtx(ctx)
+	template<int N>
+	inline unsigned int ceil(unsigned int val)
 	{
-		allocate();
+		unsigned int div = (val + (N-1)) / N;
+		return div * N;
 	}
 
-	Buffer::~Buffer()
+	template<>
+	inline unsigned int ceil<8>(unsigned int val)
 	{
-		free();
+		unsigned int res = (val +   7) & 0xfffffff8;
+		return res;
 	}
 
-	void Buffer::allocate()
+	template<>
+	inline unsigned int ceil<16>(unsigned int val)
 	{
-		// Allocate the required device memory
-		cl_int err;
-		_devicePtr = clCreateBuffer(*_ownerCtx, 0, size(), nullptr, &err);
-		VCL_CL_SAFE_CALL(err);
+		unsigned int res = (val +  15) & 0xfffffff0;
+		return res;
 	}
 
-	void Buffer::free()
+	template<>
+	inline unsigned int ceil<32>(unsigned int val)
 	{
-		VCL_CL_SAFE_CALL(clReleaseMemObject(_devicePtr));
+		unsigned int res = (val +  31) & 0xffffffe0;
+		return res;
 	}
 
-	void Buffer::resize(size_t new_size)
+	template<>
+	inline unsigned int ceil<64>(unsigned int val)
 	{
-		if (_devicePtr)
-			free();
-
-		_sizeInBytes = new_size;
-
-		allocate();
+		unsigned int res = (val +  63) & 0xffffffc0;
+		return res;
 	}
-}}}
+
+	template<>
+	inline unsigned int ceil<128>(unsigned int val)
+	{
+		unsigned int res = (val + 127) & 0xffffff80;
+		return res;
+	}
+	
+	template<>
+	inline unsigned int ceil<256>(unsigned int val)
+	{
+		unsigned int res = (val + 255) & 0xffffff00;
+		return res;
+	}
+	
+	template<>
+	inline unsigned int ceil<512>(unsigned int val)
+	{
+		unsigned int res = (val + 511) & 0xfffffe00;
+		return res;
+	}
+
+	template<>
+	inline unsigned int ceil<1024>(unsigned int val)
+	{
+		unsigned int res = (val + 1023) & 0xfffffC00;
+		return res;
+	}
+}}

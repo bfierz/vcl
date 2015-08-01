@@ -91,6 +91,7 @@ SET(VCL_CORE_SIMD_INC
 
 # VCL / MATH
 SET(VCL_MATH_INC
+	vcl/math/ceil.h
 	vcl/math/math.h
 )
 

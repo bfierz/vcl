@@ -175,6 +175,7 @@ int main(int argc, char* argv [])
 
 			// Write footer
 			ofile << "\n};\n";
+			ofile << "\nsize_t " << export_symbol << "Size = sizeof(" << export_symbol << ") / sizeof(" << width_symbol << ");\n";
 		}
 	}
 

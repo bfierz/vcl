@@ -55,7 +55,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		virtual ~Module();
 
 	public:
-		static Core::owner_ptr<Module> loadFromSource(Context* ctx, const char* source);
+		static Core::owner_ptr<Module> loadFromSource(Context* ctx, const int8_t* source, size_t size);
 
 	public:
 		operator cl_program () const;

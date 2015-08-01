@@ -75,9 +75,9 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		}
 	}
 
-	Context::ref_ptr<Compute::Module> Context::createModuleFromSource(const char* source)
+	Context::ref_ptr<Compute::Module> Context::createModuleFromSource(const int8_t* source, size_t size)
 	{
-		_modules.emplace_back(Module::loadFromSource(this, source));
+		_modules.emplace_back(Module::loadFromSource(this, source, size));
 		return _modules.back();
 	}
 	Context::ref_ptr<Compute::Buffer> Context::createBuffer(BufferAccess access, size_t size)
