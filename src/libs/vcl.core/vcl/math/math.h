@@ -63,7 +63,24 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE double max(double a, double b)
 	{
-		return fmax(a, b);
+#ifdef VCL_VECTORIZE_SSE
+		double z;
+		_mm_store_sd(&z, _mm_max_sd(_mm_set_sd(a), _mm_set_sd(b)));
+		return z;
+#else
+		return std::max(a, b);
+#endif
+	}
+
+	VCL_STRONG_INLINE double min(double a, double b)
+	{
+#ifdef VCL_VECTORIZE_SSE
+		double z;
+		_mm_store_sd(&z, _mm_min_sd(_mm_set_sd(a), _mm_set_sd(b)));
+		return z;
+#else
+		return std::min(a, b);
+#endif
 	}
 
 	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, const Eigen::Matrix<double, 12, 1>& x)
@@ -162,7 +179,24 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE float max(float a, float b)
 	{
-		return fmax(a, b);
+#ifdef VCL_VECTORIZE_SSE
+		float z;
+		_mm_store_ss(&z, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
+		return z;
+#else
+		return std::max(a, b);
+#endif
+	}
+
+	VCL_STRONG_INLINE float min(float a, float b)
+	{
+#ifdef VCL_VECTORIZE_SSE
+		float z;
+		_mm_store_ss(&z, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
+		return z;
+#else
+		return std::min(a, b);
+#endif
 	}
 
 	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, const Eigen::Matrix<float, 12, 1>& x)

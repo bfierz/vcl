@@ -363,6 +363,26 @@ namespace Vcl
 #endif
 	}
 
+	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m256 v)
+	{
+		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		__m256 redux = _mm256_min_ps(v, hilo);
+		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
+		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
+
+		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m256 v)
+	{
+		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		__m256 redux = _mm256_max_ps(v, hilo);
+		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
+		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
+		
+		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
+	}
+
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)
 	{
 #if 1

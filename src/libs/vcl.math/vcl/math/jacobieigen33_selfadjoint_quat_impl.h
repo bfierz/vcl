@@ -42,7 +42,7 @@
 namespace Vcl { namespace Mathematics
 {
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(Real a11, Real a12, Real a22)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(const Real& a11, const Real& a12, const Real& a22)
 	{
 		//const Real pi = Real(3.1415926535897932384626433832795);
 
@@ -316,7 +316,7 @@ namespace Vcl { namespace Mathematics
 			Scalar M00 = a*a * M(0) + a*b * (M(4) + M(4)) + b*b * M(2);
 			Scalar M10 = a * M(3) + b * M(5);
 			Scalar M20 = a*a * M(4) + a*b * (M(2) - M(0)) - b*b * M(4);
-			Scalar M21 = a * M(5) - b * M(0, 1);
+			Scalar M21 = a * M(5) - b * M(3);
 			Scalar M22 = a*a * M(2) + a*b * (-M(4) - M(4)) + b*b * M(0);
 
 			M(0) = M00;
