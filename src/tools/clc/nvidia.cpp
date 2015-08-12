@@ -134,4 +134,14 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 	{
 		return nvCompileProgram(sourceStrings, sourceStringsCount, sourceStringsLengths, compilerOptions, compileLogRet, compiledProgramRet);
 	}
+
+	void freeLog(const char* compileLog)
+	{
+		nvCompileLogFree(compileLog);
+	}
+
+	void freeProgramBinary(const char* compiledProgram)
+	{
+		nvCompiledProgramFree(compiledProgram);
+	}
 }}}}

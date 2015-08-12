@@ -46,6 +46,7 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 	)
 	{
 		Require(_svdKernel, "SVD kernel is loaded.");
+		Require(inA.size() % 16 == 0, "Size of input is multiple of 16.");
 
 		size_t numEntries = inA.size();
 
@@ -77,7 +78,7 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 			grid,
 			block,
 			(int) numEntries,
-			(int) ceil<16>(numEntries),
+			(int) _size,
 			(cl_mem) *A,
 			(cl_mem) *U,
 			(cl_mem) *V,

@@ -47,6 +47,26 @@ VCL_ERROR("No compatible process API found.")
 
 namespace po = boost::program_options;
 
+// Copy entire file to container
+// Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
+template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+std::basic_string<Char, Traits, Allocator> read_stream_into_string
+(
+	std::basic_istream<Char, Traits>& in,
+	Allocator alloc = {}
+)
+{
+	std::basic_ostringstream<Char, Traits, Allocator> ss
+	(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
+	);
+
+	if (!(ss << in.rdbuf()))
+		throw std::ios_base::failure{ "error" };
+
+	return ss.str();
+}
+
 namespace Vcl { namespace Tools { namespace Clc
 {
 	enum class Compiler
@@ -183,11 +203,6 @@ int main(int argc, char* argv [])
 		return -1;
 	}
 
-	// Try and load the nvidia compiler
-	//auto nvCompilerLoaded = Nvidia::loadCompiler();
-	//Nvidia::compileProgram();
-	//Nvidia::releaseCompiler();
-
 #ifdef VCL_COMPILER_MSVC
 	std::string compiler = "cl";
 	char param_tok = '/';
@@ -254,6 +269,40 @@ int main(int argc, char* argv [])
 
 	// Invoke the preprocessor
 	exec(compiler.c_str(), cmd.str().c_str());
+
+	// Try and load the nvidia compiler and compile the preprocessed source file
+	auto nvCompilerLoaded = Nvidia::loadCompiler();
+	if (nvCompilerLoaded)
+	{
+		std::ifstream ifile{ preprocess_file, std::ios_base::binary | std::ios_base::in };
+		if (ifile.is_open())
+		{
+			// Copy the file to a temporary buffer
+			std::string source = read_stream_into_string(ifile);
+			ifile.close();
+
+			const char* sources [] = { source.data() };
+			size_t sizes [] = { source.size() };
+
+			const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_20";
+
+			char* log = nullptr;
+			char* binary = nullptr;
+			int result = Nvidia::compileProgram(sources, 1, sizes, options, &log, &binary);
+			if (result)
+			{
+				std::cout << log << std::endl;
+				Nvidia::freeLog(log);
+			}
+			else
+			{
+				// Append the compiled source to the output
+				Nvidia::freeProgramBinary(binary);
+			}
+		}
+
+		Nvidia::releaseCompiler();
+	}
 
 	// Load the intermediate file and generate the binary file
 	cmd.str("");
