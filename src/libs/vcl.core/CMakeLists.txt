@@ -44,6 +44,7 @@ SET(VCL_CORE_CONTAINER_INL
 )
 SET(VCL_CORE_CONTAINER_INC
 	vcl/core/container/bitvector.h
+	vcl/core/container/bucketadapter.h
 )
 
 # VCL / CORE / MEMORY
