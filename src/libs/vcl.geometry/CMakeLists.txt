@@ -3,9 +3,11 @@ PROJECT(vcl_geometry)
 # VCL / GEOMETRY
 SET(VCL_GEOMETRY_INC
 	vcl/geometry/distance.h
+	vcl/geometry/intersect.h
 )
 SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distance.cpp
+	vcl/geometry/intersect.cpp
 )
 
 SOURCE_GROUP("" FILES ${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC})

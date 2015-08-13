@@ -36,8 +36,6 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
-#define USE
-
 namespace Vcl { namespace Geometry
 {
 	/*!
