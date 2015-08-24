@@ -16,6 +16,7 @@ SUBDIRS(vcl.compute)
 # Library containing concrete compute classes for OpenCL
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	SUBDIRS(vcl.compute.opencl)
+	SUBDIRS(vcl.core.opencl)
 	SUBDIRS(vcl.math.opencl)
 ENDIF()
 
