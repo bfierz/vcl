@@ -202,6 +202,7 @@ void mcAdamsSVD
 	}
 }
 
+#ifdef VCL_OPENCL_SUPPORT
 void openCLMcAdamsSVD
 (
 	size_t nr_problems,
@@ -223,6 +224,7 @@ void openCLMcAdamsSVD
 	solver(F, resU, resV, resS);
 	queue->sync();
 }
+#endif // defined VCL_OPENCL_SUPPORT
 
 template<typename Scalar>
 void checkSolution
