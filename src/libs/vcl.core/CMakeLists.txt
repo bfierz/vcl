@@ -101,7 +101,10 @@ SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
 )
 SET(VCL_UTIL_INC
+	vcl/util/hashedstring.h
 	vcl/util/precisetimer.h
+	vcl/util/mortoncodes.h
+	vcl/util/reservememory.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})

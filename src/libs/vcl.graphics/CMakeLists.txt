@@ -16,11 +16,13 @@ SET(VCL_GRAPHICS_INC
 	vcl/graphics/camera.h
 	vcl/graphics/frustum.h
 	vcl/graphics/matrixfactory.h
+	vcl/graphics/surfaceformat.h
 )
 SET(VCL_GRAPHICS_SRC
 	vcl/graphics/camera.cpp
 	vcl/graphics/frustum.cpp
 	vcl/graphics/matrixfactory.cpp
+	vcl/graphics/surfaceformat.cpp
 )
 
 SOURCE_GROUP("shadows" FILES ${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC})
