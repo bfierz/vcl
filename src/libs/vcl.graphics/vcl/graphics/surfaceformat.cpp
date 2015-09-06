@@ -24,7 +24,7 @@
  */
 #include <vcl/graphics/surfaceformat.h>
 
-// VCL library
+// VCL
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics
