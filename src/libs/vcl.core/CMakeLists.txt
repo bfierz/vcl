@@ -46,6 +46,7 @@ SET(VCL_CORE_CONTAINER_INL
 )
 SET(VCL_CORE_CONTAINER_INC
 	vcl/core/container/bitvector.h
+	vcl/core/container/bucketadapter.h
 )
 
 # VCL / CORE / MEMORY
@@ -93,6 +94,7 @@ SET(VCL_CORE_SIMD_INC
 
 # VCL / MATH
 SET(VCL_MATH_INC
+	vcl/math/ceil.h
 	vcl/math/math.h
 )
 
@@ -101,7 +103,10 @@ SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
 )
 SET(VCL_UTIL_INC
+	vcl/util/hashedstring.h
 	vcl/util/precisetimer.h
+	vcl/util/mortoncodes.h
+	vcl/util/reservememory.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})
