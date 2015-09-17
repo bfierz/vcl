@@ -23,8 +23,10 @@ SET(VCL_CORE_SRC
 )
 SET(VCL_CORE_INC
 	vcl/core/contract.h
+	vcl/core/flags.h
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
+	vcl/core/preprocessor.h
 )
 
 # VCL / CORE / 3RDPARTY
