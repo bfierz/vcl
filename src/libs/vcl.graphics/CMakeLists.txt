@@ -37,6 +37,14 @@ SET(VCL_GRAPHICS_RUNTIME_RESOURCE_SRC
 	vcl/graphics/runtime/resource/shader.cpp
 )
 
+# VCL / GRAPHICS / RUNTIME / STATE
+SET(VCL_GRAPHICS_RUNTIME_STATE_INC
+	vcl/graphics/runtime/state/inputlayout.h
+)
+SET(VCL_GRAPHICS_RUNTIME_STATE_SRC
+	vcl/graphics/runtime/state/inputlayout.cpp
+)
+
 # VCL / GRAPHICS / SHADOWS
 SET(VCL_GRAPHICS_SHADOWS_INC
 	vcl/graphics/shadows/algorithms.h
