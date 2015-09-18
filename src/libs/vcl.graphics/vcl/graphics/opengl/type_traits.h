@@ -27,12 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
+#include <vcl/config/opengl.h>
 
 #ifdef VCL_OPENGL_SUPPORT
-
-VCL_BEGIN_EXTERNAL_HEADERS
-#include <GL/glew.h>
-VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/graphics/surfaceformat.h>
