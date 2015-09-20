@@ -24,17 +24,17 @@
  */
 #pragma once
 
-// VCL library configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_OPENCL_SUPPORT
 #	include <CL/opencl.h>
-#endif /* VCL_OPENCL_SUPPORT */
+#endif // VCL_OPENCL_SUPPORT
 	
 #ifdef VCL_DEBUG
 #	include <iostream>
-#endif /* VCL_DEBUG */
+#endif // VCL_DEBUG
 VCL_END_EXTERNAL_HEADERS
 
 /*
@@ -45,5 +45,5 @@ VCL_END_EXTERNAL_HEADERS
 #		define VCL_CL_SAFE_CALL(call) do { cl_int error0507 = call; if (error0507 != CL_SUCCESS) { std::cout << "CL Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error0507 << std::endl; __debugbreak(); }} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_CL_SAFE_CALL(call) call
-#	endif /* VCL_DEBUG */
-#endif /* VCL_CL_SAFE_CALL */
+#	endif // VCL_DEBUG
+#endif // VCL_CL_SAFE_CALL
