@@ -28,58 +28,52 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <memory>
-#include <string>
-#include <vector>
 
 // VCL
-#include <vcl/compute/commandqueue.h>
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/memory/smart_ptr.h>
+#include <vcl/compute/context.h>
 
-namespace Vcl { namespace Compute
+#include <vcl/compute/cuda/device.h>
+
+namespace Vcl { namespace Compute { namespace Cuda
 {
-	class Context
+	enum class ApiBinding
+	{
+		None,
+		OpenGL,
+		Direct3D11
+	};
+
+	class Context : public Compute::Context
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
-
-	public:
 		//! Constructor
-		Context() = default;
-
-		//! Context is not copyable
-		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+		Context(const Device&, ApiBinding binding = ApiBinding::None);
 
 		//! Destructor
-		virtual ~Context() = default;
+		virtual ~Context();
 
-		//! Access the default command queue
-		ref_ptr<CommandQueue> defaultQueue() const;
+		//! Convert to OpenCL device ID
+		inline operator CUcontext() const
+		{
+			return _context;
+		}
 
 	public: // Resource allocation
+		virtual ref_ptr<Compute::Module> createModuleFromSource(const int8_t* source, size_t size) override;
+		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
+		virtual ref_ptr<Compute::CommandQueue> createCommandQueue() override;
 
-		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
+	public:
+		const Device& device() const { return _dev; }
 
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
+	public:
+		bool isCurrent() const;
 
-		virtual ref_ptr<CommandQueue> createCommandQueue() = 0;
+	private:
+		//! OpenCL context ID
+		CUcontext _context;
 
-		void release(ref_ptr<Module> h);
-		void release(ref_ptr<Buffer> h);
-		void release(ref_ptr<CommandQueue> h);
-
-	protected: // Resources
-		//! All allocated buffers on this device
-		std::vector<owner_ptr<Buffer>> _buffers;
-
-		//! All allocated modules on this device
-		std::vector<owner_ptr<Module>> _modules;
-
-		//! All allocated streams on this device
-		std::vector<owner_ptr<CommandQueue>> _queues;
+		//! Device belonging to this context
+		const Device& _dev;
 	};
-}}
+}}}

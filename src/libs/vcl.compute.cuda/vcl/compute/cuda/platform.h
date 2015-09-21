@@ -26,6 +26,7 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/cuda.h>
 
 // C++ standard library
 #include <memory>
@@ -33,53 +34,32 @@
 #include <vector>
 
 // VCL
-#include <vcl/compute/commandqueue.h>
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/memory/smart_ptr.h>
+#include <vcl/compute/cuda/device.h>
 
-namespace Vcl { namespace Compute
+namespace Vcl { namespace Compute { namespace Cuda
 {
-	class Context
+	class Platform
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
+		static void initialise();
+		static Platform* instance();
+		static void dispose();
+
+	private:
+		Platform();
+		~Platform();
 
 	public:
-		//! Constructor
-		Context() = default;
+		int nrDevices() const;
+		const Device& device(int idx) const;
 
-		//! Context is not copyable
-		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+	public:
+		int version() const;
 
-		//! Destructor
-		virtual ~Context() = default;
+	private:
+		std::vector<Device> _devices;
 
-		//! Access the default command queue
-		ref_ptr<CommandQueue> defaultQueue() const;
-
-	public: // Resource allocation
-
-		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
-
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
-
-		virtual ref_ptr<CommandQueue> createCommandQueue() = 0;
-
-		void release(ref_ptr<Module> h);
-		void release(ref_ptr<Buffer> h);
-		void release(ref_ptr<CommandQueue> h);
-
-	protected: // Resources
-		//! All allocated buffers on this device
-		std::vector<owner_ptr<Buffer>> _buffers;
-
-		//! All allocated modules on this device
-		std::vector<owner_ptr<Module>> _modules;
-
-		//! All allocated streams on this device
-		std::vector<owner_ptr<CommandQueue>> _queues;
+	private:
+		static Platform* _implementation;
 	};
-}}
+}}}

@@ -26,60 +26,49 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/cuda.h>
 
 // C++ standard library
-#include <memory>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 // VCL
-#include <vcl/compute/commandqueue.h>
-#include <vcl/compute/buffer.h>
+#include <vcl/compute/cuda/context.h>
+#include <vcl/compute/cuda/kernel.h>
 #include <vcl/compute/module.h>
-#include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
+namespace Vcl { namespace Compute { namespace Cuda
 {
-	class Context
+	class Module : public Compute::Module
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
-
-	public:
 		//! Constructor
-		Context() = default;
+		Module(CUmodule mod);
 
-		//! Context is not copyable
-		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+		Module(Module&&);
+		Module& operator =(Module&&);
+
+		Module(const Module&) = delete;
+		Module& operator =(const Module&) = delete;
 
 		//! Destructor
-		virtual ~Context() = default;
+		virtual ~Module();
 
-		//! Access the default command queue
-		ref_ptr<CommandQueue> defaultQueue() const;
+	public:
+		static Core::owner_ptr<Module> loadFromBinary(Context* ctx, const int8_t* data, size_t size);
 
-	public: // Resource allocation
+	public:
+		inline operator CUmodule() const { return _module; }
 
-		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
+	public:
+		//! Access a kernel object through its name
+		virtual Core::ref_ptr<Compute::Kernel> kernel(const std::string& name) override;
 
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
+	private:
+		//! CUDA handle to a program module
+		CUmodule _module;
 
-		virtual ref_ptr<CommandQueue> createCommandQueue() = 0;
-
-		void release(ref_ptr<Module> h);
-		void release(ref_ptr<Buffer> h);
-		void release(ref_ptr<CommandQueue> h);
-
-	protected: // Resources
-		//! All allocated buffers on this device
-		std::vector<owner_ptr<Buffer>> _buffers;
-
-		//! All allocated modules on this device
-		std::vector<owner_ptr<Module>> _modules;
-
-		//! All allocated streams on this device
-		std::vector<owner_ptr<CommandQueue>> _queues;
+		//! Kernels belonging to this module
+		std::unordered_map<std::string, Core::owner_ptr<Kernel>> _kernels;
 	};
-}}
+}}}

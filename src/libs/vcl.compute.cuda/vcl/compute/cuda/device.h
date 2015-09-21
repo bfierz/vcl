@@ -26,60 +26,68 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/cuda.h>
 
 // C++ standard library
-#include <memory>
 #include <string>
-#include <vector>
 
-// VCL
-#include <vcl/compute/commandqueue.h>
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/memory/smart_ptr.h>
-
-namespace Vcl { namespace Compute
+namespace Vcl { namespace Compute { namespace Cuda
 {
-	class Context
+	enum class DeviceCapability
+	{
+		Sm10,
+		Sm20,
+		Sm30,
+		Sm35,
+		Sm50
+	};
+
+	enum class Feature
+	{
+		DynamicParallelism
+	};
+
+	class Device
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
-
-	public:
 		//! Constructor
-		Context() = default;
-
-		//! Context is not copyable
-		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+		Device(CUdevice dev);
 
 		//! Destructor
-		virtual ~Context() = default;
+		virtual ~Device() = default;
 
-		//! Access the default command queue
-		ref_ptr<CommandQueue> defaultQueue() const;
+		//! Convert to OpenCL device ID
+		inline operator CUdevice() const
+		{
+			return _device;
+		}
 
-	public: // Resource allocation
+		//! \returns the name of this device
+		const std::string& name() const { return _name; }
 
-		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
+		//! \returns the capability level
+		DeviceCapability capability() const { return _capability; }
 
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
+		//! \returns the number of compute units
+		uint32_t nrComputeUnits() const { return _nrComputeUnits; }
 
-		virtual ref_ptr<CommandQueue> createCommandQueue() = 0;
+		//! \returns true when the queried feature is supported
+		bool supports(Feature feature) const;
 
-		void release(ref_ptr<Module> h);
-		void release(ref_ptr<Buffer> h);
-		void release(ref_ptr<CommandQueue> h);
+	private:
+		//! CUDA device ID
+		CUdevice _device{ 0 };
 
-	protected: // Resources
-		//! All allocated buffers on this device
-		std::vector<owner_ptr<Buffer>> _buffers;
+		//! Name of this device
+		std::string _name;
 
-		//! All allocated modules on this device
-		std::vector<owner_ptr<Module>> _modules;
+		//! Device capability
+		DeviceCapability _capability{ DeviceCapability::Sm10 };
 
-		//! All allocated streams on this device
-		std::vector<owner_ptr<CommandQueue>> _queues;
+		//! Number of compute units
+		uint32_t _nrComputeUnits{ 0 };
+
+		//! Number of asynchronous engines
+		uint32_t _nrAsyncEngines{ 0 };
 	};
-}}
+}}}

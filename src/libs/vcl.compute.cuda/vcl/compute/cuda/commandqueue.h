@@ -26,60 +26,44 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/cuda.h>
 
 // C++ standard library
-#include <memory>
 #include <string>
-#include <vector>
 
 // VCL
+#include <vcl/compute/cuda/context.h>
 #include <vcl/compute/commandqueue.h>
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
-	class Context
+namespace Vcl { namespace Compute { namespace Cuda
+{	
+	class CommandQueue : public Compute::CommandQueue
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
+		CommandQueue(Context* owner);
+		virtual ~CommandQueue();
 
 	public:
-		//! Constructor
-		Context() = default;
+		//! Convert to OpenCL command queue ID
+		inline operator CUstream() const
+		{
+			return _queue;
+		}
 
-		//! Context is not copyable
-		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+	public:
+		virtual void sync() override;
 
-		//! Destructor
-		virtual ~Context() = default;
+	public:
+		virtual void read(void* dst, Vcl::Compute::BufferView& src, bool blocking = false) override;
+		virtual void write(Vcl::Compute::BufferView& dst, void* src, bool blocking = false) override;
 
-		//! Access the default command queue
-		ref_ptr<CommandQueue> defaultQueue() const;
+		virtual void fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size) override;
 
-	public: // Resource allocation
+	private:
+		//! Link to the owning CL context
+		Context* _ownerCtx{ nullptr };
 
-		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
-
-		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;
-
-		virtual ref_ptr<CommandQueue> createCommandQueue() = 0;
-
-		void release(ref_ptr<Module> h);
-		void release(ref_ptr<Buffer> h);
-		void release(ref_ptr<CommandQueue> h);
-
-	protected: // Resources
-		//! All allocated buffers on this device
-		std::vector<owner_ptr<Buffer>> _buffers;
-
-		//! All allocated modules on this device
-		std::vector<owner_ptr<Module>> _modules;
-
-		//! All allocated streams on this device
-		std::vector<owner_ptr<CommandQueue>> _queues;
+		//! Native command queue handle
+		CUstream _queue{ nullptr };
 	};
-}}
+}}}
