@@ -59,12 +59,12 @@ namespace Vcl { namespace Tools { namespace Cuc
 			| FORMAT_MESSAGE_MAX_WIDTH_MASK;
 
 		FormatMessage(flags,
-			NULL,
+			nullptr,
 			errorCode,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			errorMessage,
 			sizeof(errorMessage) / sizeof(TCHAR),
-			NULL);
+			nullptr);
 
 #ifdef _UNICODE
 		std::wcerr << L"Error : " << errorDesc << std::endl;
@@ -77,17 +77,68 @@ namespace Vcl { namespace Tools { namespace Cuc
 #endif
 	}
 
+	void createIoPipe(HANDLE& hRead, HANDLE& hWrite)
+	{
+		SECURITY_ATTRIBUTES saAttr;
+
+		// Set the bInheritHandle flag so pipe handles are inherited. 
+		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+		saAttr.bInheritHandle = TRUE;
+		saAttr.lpSecurityDescriptor = nullptr;
+
+		// Create a pipe for the child process's IO 
+		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
+			return;
+
+		// Ensure the read handle to the pipe for IO is not inherited.
+		if (!SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0))
+			return;
+	}
+
+	void readFromPipe(HANDLE hProcess, HANDLE hRead)
+	{
+		DWORD dwAvail, dwRead, dwWritten;
+		CHAR chBuf[1024];
+		BOOL bSuccess = FALSE;
+		HANDLE hParentStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		for (;;)
+		{
+			DWORD exit_code;
+			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			if (exit_code != STILL_ACTIVE)
+				break;
+
+			PeekNamedPipe(hRead, chBuf, 1024, &dwRead, &dwAvail, nullptr);
+			if (dwAvail == 0)
+				continue;
+
+			bSuccess = ReadFile(hRead, chBuf, 1024, &dwRead, nullptr);
+			if (!bSuccess || dwRead == 0)
+				break;
+
+			bSuccess = WriteFile(hParentStdOut, chBuf, dwRead, &dwWritten, nullptr);
+			if (!bSuccess)
+				break;
+		}
+	}
+
 	int exec(const char* prg, const char* params = nullptr)
 	{
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
 
+		// Create the IO pipe
+		HANDLE hWrite, hRead;
+		createIoPipe(hRead, hWrite);
+
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
 		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-		si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
+		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.dwFlags |= STARTF_USESTDHANDLES;
 		
 		// Construct the command line
 		const char* separator = " ";
@@ -109,7 +160,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 			cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
 			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
 			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			FALSE,      //_In_         BOOL bInheritHandles,
+			TRUE,       //_In_         BOOL bInheritHandles,
 			0,          //_In_         DWORD dwCreationFlags,
 			nullptr,    //_In_opt_     LPVOID lpEnvironment,
 			nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
@@ -123,14 +174,19 @@ namespace Vcl { namespace Tools { namespace Cuc
 			return -1;
 		}
 
-		// Wait until the process completed
-		WaitForInputIdle(pi.hProcess, INFINITE);
+		// Read all the output
+		readFromPipe(pi.hProcess, hRead);
+
+		// Successfully created the process.  Wait for it to finish.
+		WaitForSingleObject(pi.hProcess, INFINITE);
 
 		DWORD exit_code;
 		GetExitCodeProcess(pi.hProcess, &exit_code);
 
 		CloseHandle(pi.hThread);
 		CloseHandle(pi.hProcess);
+		CloseHandle(hRead);
+		CloseHandle(hWrite);
 
 		std::flush(std::cout);
 
@@ -158,6 +214,7 @@ int main(int argc, char* argv [])
 		("m64", "Specify that this should be compiled in 64bit.")
 		("profile", po::value<std::vector<std::string>>(), "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)")
 		("include,I", po::value<std::vector<std::string>>(), "Additional include directory")
+		("symbol", po::value<std::string>(), "Name of the symbol used for the compiled module")
 		("output-file,o", po::value<std::string>(), "Specify the output file.")
 		("input-file", po::value<std::string>(), "Specify the input file.")
 		;
@@ -176,7 +233,7 @@ int main(int argc, char* argv [])
 		return 1;
 	}
 
-	if (vm.count("input-file") == 0 || vm.count("output-file") == 0)
+	if (vm.count("symbol") == 0 || vm.count("input-file") == 0 || vm.count("output-file") == 0)
 	{
 		std::cout << desc << std::endl;
 		return -1;
@@ -247,7 +304,7 @@ int main(int argc, char* argv [])
 	fatbin_cmdbuilder << R"(--create=")" << tmp_file_base << R"(.fatbin" )";
 
 	// We want to create an embedded file
-	fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
+	//fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
 
 	// Set the bitness
 	if (vm.count("m64"))
@@ -261,12 +318,12 @@ int main(int argc, char* argv [])
 
 	// We are compiling cuda
 	fatbin_cmdbuilder << R"(--cuda )";
-	 
+
 	// Add a hash
 	fatbin_cmdbuilder << R"(--key="xxxxxxxxxx" )";
 	
 	// Add the orignal filename as identifier
-	fatbin_cmdbuilder << R"(--ident=")" << vm["input-file"].as<std::string>() << R"(" )";
+	fatbin_cmdbuilder << R"(--ident=")" << vm["symbol"].as<std::string>() << R"(" )";
 
 	// Add all the created files
 	for (auto& profile_file : compiled_files)
@@ -275,6 +332,23 @@ int main(int argc, char* argv [])
 	}
 
 	exec("fatbinary.exe", fatbin_cmdbuilder.str().c_str());
+
+	// Create a source file with the binary 
+	std::stringstream bin2c_cmdbuilder;
+	bin2c_cmdbuilder.str("");
+	bin2c_cmdbuilder.clear();
+	bin2c_cmdbuilder << "--group 4 ";
+
+	if (vm.count("symbol"))
+	{
+		bin2c_cmdbuilder << "--symbol " << vm["symbol"].as<std::string>() << " ";
+	}
+
+	bin2c_cmdbuilder << "-o " << vm["output-file"].as<std::string>() << " ";
+	bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
+
+	// Invoke the binary file translator
+	exec("bin2c", bin2c_cmdbuilder.str().c_str());
 
 	return 0;
 }

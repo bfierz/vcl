@@ -36,205 +36,244 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
+namespace Vcl
 {
-	namespace Detail
+	namespace Core
 	{
-		struct DynamicTag {};
-
-		class ref_cnt
+		namespace Detail
 		{
+			struct StaticTag {};
+			struct DynamicTag {};
+			struct ConstTag {};
+
+			class ref_cnt
+			{
+			public:
+				ref_cnt()
+				{
+					_references = false;
+				}
+
+				void setValid()
+				{
+					_references = true;
+				}
+				void setInvalid()
+				{
+					_references = false;
+				}
+
+				bool valid() const
+				{
+					return _references;
+				}
+
+			private:
+				std::atomic_bool _references;
+			};
+		}
+
+		template<typename T>
+		class owner_ptr
+		{
+			template<typename U> friend class owner_ptr;
+			template<typename U> friend class ref_ptr;
 		public:
-			ref_cnt()
+			owner_ptr() = default;
+
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			owner_ptr(U* ptr)
+			: _ptr(ptr)
 			{
-				_references = false;
+				_cnt = std::make_shared<Detail::ref_cnt>();
+				_cnt->setValid();
+			}
+			owner_ptr(const owner_ptr&) = delete;
+		
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			owner_ptr(owner_ptr<U>&& rhs)
+			{
+				_ptr = rhs._ptr;
+				rhs._ptr = nullptr;
+
+				std::swap(_cnt, rhs._cnt);
 			}
 
-			void setValid()
+			~owner_ptr()
 			{
-				_references = true;
-			}
-			void setInvalid()
-			{
-				_references = false;
+				if (_cnt)
+					_cnt->setInvalid();
+				_ptr = nullptr;
 			}
 
-			bool valid() const
+			void reset(T* ptr = nullptr)
 			{
-				return _references;
+				_cnt = std::make_shared<ref_cnt>();
+				_cnt->setValid();
+				_ptr = ptr;
+			}
+
+			operator bool() const
+			{
+				return _ptr;
+			}
+
+			T& operator*()
+			{
+				return *_ptr;
+			}
+
+			T* operator->() const
+			{
+				return _ptr;
+			}
+
+			T* get() const { return _ptr; }
+
+		public: // Access
+			long use_count() const
+			{
+				return _cnt.use_count() - 1;
 			}
 
 		private:
-			std::atomic_bool _references;
+			T* _ptr{ nullptr };
+			std::shared_ptr<Detail::ref_cnt> _cnt;
 		};
-	}
 
-	template<typename T>
-	class owner_ptr
-	{
-		template<typename U> friend class owner_ptr;
-		template<typename U> friend class ref_ptr;
-	public:
-		owner_ptr() = default;
-
-		template
-		<
-			typename U,
-			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-		>
-		owner_ptr(U* ptr)
-		: _ptr(ptr)
+		template<typename T>
+		class ref_ptr
 		{
-			_cnt = std::make_shared<Detail::ref_cnt>();
-			_cnt->setValid();
-		}
-		owner_ptr(const owner_ptr&) = delete;
-		
-		template
-		<
-			typename U,
-			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-		>
-		owner_ptr(owner_ptr<U>&& rhs)
-		{
-			_ptr = rhs._ptr;
-			rhs._ptr = nullptr;
+			template<typename U> friend class ref_ptr;
 
-			std::swap(_cnt, rhs._cnt);
-		}
+		public:
+			ref_ptr() = default;
+			ref_ptr(nullptr_t) {}
 
-		~owner_ptr()
-		{
-			if (_cnt)
-				_cnt->setInvalid();
-			_ptr = nullptr;
-		}
-
-		void reset(T* ptr = nullptr)
-		{
-			_cnt = std::make_shared<ref_cnt>();
-			_cnt->setValid();
-			_ptr = ptr;
-		}
-
-		operator bool() const
-		{
-			return _ptr;
-		}
-
-		T& operator*()
-		{
-			return *_ptr;
-		}
-
-		T* operator->() const
-		{
-			return _ptr;
-		}
-
-		T* get() const { return _ptr; }
-
-	public: // Access
-		long use_count() const
-		{
-			return _cnt.use_count() - 1;
-		}
-
-	private:
-		T* _ptr{ nullptr };
-		std::shared_ptr<Detail::ref_cnt> _cnt;
-	};
-
-	template<typename T>
-	class ref_ptr
-	{
-		template<typename U> friend class ref_ptr;
-
-	public:
-		ref_ptr() = default;
-		ref_ptr(nullptr_t) {}
-
-		template
-		<
-			typename U,
-			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-		>
-		ref_ptr(const owner_ptr<U>& ptr)
-		: _ptr(ptr.get())
-		, _cnt(ptr._cnt)
-		{
-		}
-
-		template
-		<
-			typename U,
-			class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-		>
-		ref_ptr(const ref_ptr<U>& ptr)
-		: _ptr(ptr.get())
-		, _cnt(ptr._cnt)
-		{
-		}
-			
-		template<typename U>
-		ref_ptr(const ref_ptr<U>& ptr, const Detail::DynamicTag&)
-		{
-			auto casted = dynamic_cast<T*>(ptr.get());
-			if (casted)
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			ref_ptr(const owner_ptr<U>& ptr)
+			: _ptr(ptr.get())
+			, _cnt(ptr._cnt)
 			{
-				_ptr = casted;
-				_cnt = ptr._cnt;
 			}
-		}
 
-		~ref_ptr()
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			ref_ptr(const ref_ptr<U>& ptr)
+			: _ptr(ptr.get())
+			, _cnt(ptr._cnt)
+			{
+			}
+			
+			template<typename U>
+			ref_ptr(const ref_ptr<U>& ptr, const Detail::StaticTag&)
+			{
+				auto casted = static_cast<T*>(ptr.get());
+				if (casted)
+				{
+					_ptr = casted;
+					_cnt = ptr._cnt;
+				}
+			}
+			
+			template<typename U>
+			ref_ptr(const ref_ptr<U>& ptr, const Detail::DynamicTag&)
+			{
+				auto casted = dynamic_cast<T*>(ptr.get());
+				if (casted)
+				{
+					_ptr = casted;
+					_cnt = ptr._cnt;
+				}
+			}
+
+			template<typename U>
+			ref_ptr(const ref_ptr<U>& ptr, const Detail::ConstTag&)
+			{
+				auto casted = const_cast<T*>(ptr.get());
+				if (casted)
+				{
+					_ptr = casted;
+					_cnt = ptr._cnt;
+				}
+			}
+			~ref_ptr()
+			{
+				_ptr = nullptr;
+			}
+
+			void reset()
+			{
+				_cnt.reset();
+				_ptr = nullptr;
+			}
+
+			void reset(const owner_ptr<T>& ptr)
+			{
+				_cnt = ptr._cnt;
+				_ptr = ptr.get();
+			}
+
+			operator bool() const
+			{
+				return _ptr && _cnt;
+			}
+
+			T& operator*() const
+			{
+				return *_ptr;
+			}
+
+			T* operator->() const
+			{
+				return _ptr;
+			}
+
+			T* get() const { return _ptr; }
+
+		private:
+			T* _ptr{ nullptr };
+			std::shared_ptr<Detail::ref_cnt> _cnt;
+		};
+
+		template<typename T, typename... Args>
+		owner_ptr<T> make_owner(Args&&... args)
 		{
-			_ptr = nullptr;
+			return owner_ptr<T>(new T(std::forward<Args>(args)...));
 		}
 
-		void reset()
+		template<typename T, typename U>
+		ref_ptr<T> static_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			_cnt.reset();
-			_ptr = nullptr;
+			return{ ptr, Detail::StaticTag{} };
 		}
 
-		void reset(const owner_ptr<T>& ptr)
+		template<typename T, typename U>
+		ref_ptr<T> dynamic_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			_cnt = ptr._cnt;
-			_ptr = ptr.get();
+			return{ ptr, Detail::DynamicTag{} };
 		}
 
-		operator bool() const
+		template<typename T, typename U>
+		ref_ptr<T> const_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			return _ptr && _cnt;
+			return{ ptr, Detail::ConstTag{} };
 		}
-
-		T& operator*()
-		{
-			return *_ptr;
-		}
-
-		T* operator->() const
-		{
-			return _ptr;
-		}
-
-		T* get() const { return _ptr; }
-
-	private:
-		T* _ptr{ nullptr };
-		std::shared_ptr<Detail::ref_cnt> _cnt;
-	};
-
-	template<typename T, typename... Args>
-	owner_ptr<T> make_owner(Args&&... args)
-	{
-		return owner_ptr<T>(new T(std::forward<Args>(args)...));
 	}
-
-	template<typename T, typename U>
-	ref_ptr<T> dynamic_pointer_cast(const ref_ptr<U>& ptr)
-	{
-		return{ ptr, Detail::DynamicTag{} };
-	}
-}}
+	using namespace Core;
+}

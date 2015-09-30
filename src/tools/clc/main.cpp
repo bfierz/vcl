@@ -150,8 +150,8 @@ namespace Vcl { namespace Tools { namespace Clc
 			return -1;
 		}
 
-		// Wait until the process completed
-		WaitForInputIdle(pi.hProcess, INFINITE);
+		// Successfully created the process.  Wait for it to finish.
+		WaitForSingleObject(pi.hProcess, INFINITE);
 
 		DWORD exit_code;
 		GetExitCodeProcess(pi.hProcess, &exit_code);

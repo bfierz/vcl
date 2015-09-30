@@ -103,6 +103,7 @@ SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
 )
 SET(VCL_UTIL_INC
+	vcl/util/donotoptimizeaway.h
 	vcl/util/hashedstring.h
 	vcl/util/precisetimer.h
 	vcl/util/mortoncodes.h

@@ -161,7 +161,8 @@ int main(int argc, char* argv [])
 				ofile << "0x";
 				for (int i = width - 1; i >= 0; i--)
 				{
-					ofile << std::setfill('0') << std::hex << std::setw(2) << (unsigned int) tmp_buffer[e + i];
+					unsigned int content = (unsigned int) (unsigned char) tmp_buffer[e + i];
+					ofile << std::setfill('0') << std::hex << std::setw(2) << content;
 				}
 
 				if (e + 2*width <= (int) tmp_buffer.size())

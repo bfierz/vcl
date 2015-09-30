@@ -39,6 +39,7 @@ VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl { namespace Util
 {
+	// Original Source: https://randomascii.wordpress.com/2012/02/14/64-bit-made-easy/
 	void ReserveBottomMemory()
 	{
 #ifdef _WIN64
