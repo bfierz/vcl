@@ -16,11 +16,21 @@ SET(VCL_CORE_OPENCL_CL
 	vcl/core/opencl/scan.cl
 )
 
-SET(RADIXSORT_COMPILEDKERNELS
-	radixsort.cl.cpp
+# Access the include directories in order to compile the OpenCL code
+GET_PROPERTY(CURR_INC_DIRS TARGET vcl_core PROPERTY INCLUDE_DIRECTORIES)
+LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
+VCLCOMPILECL(
+	${PROJECT_SOURCE_DIR}/vcl/core/opencl/radixsort.cl
+	"RadixSortCL"
+	"${CURR_INC_DIRS}"
+	RADIXSORT_COMPILEDKERNELS
 )
-SET(SCAN_COMPILEDKERNELS
-	scan.cl.cpp
+VCLCOMPILECL(
+	${PROJECT_SOURCE_DIR}/vcl/core/opencl/scan.cl
+	"ScanCL"
+	"${CURR_INC_DIRS}"
+	SCAN_COMPILEDKERNELS
 )
 
 SOURCE_GROUP("clc" FILES ${RADIXSORT_COMPILEDKERNELS} ${SCAN_COMPILEDKERNELS})
@@ -39,20 +49,3 @@ TARGET_INCLUDE_DIRECTORIES(vcl_core_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add dependencies
 TARGET_LINK_LIBRARIES(vcl_core_opencl vcl_core vcl_compute_opencl)
-
-# Access the include directories in order to compile the OpenCL code
-GET_PROPERTY(CURR_INC_DIRS TARGET vcl_core PROPERTY INCLUDE_DIRECTORIES)
-LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
-
-VCLCOMPILECL(
-	${PROJECT_SOURCE_DIR}/vcl/core/opencl/radixsort.cl
-	"RadixSortCL"
-	"${CURR_INC_DIRS}"
-	${RADIXSORT_COMPILEDKERNELS}
-)
-VCLCOMPILECL(
-	${PROJECT_SOURCE_DIR}/vcl/core/opencl/scan.cl
-	"ScanCL"
-	"${CURR_INC_DIRS}"
-	${SCAN_COMPILEDKERNELS}
-)

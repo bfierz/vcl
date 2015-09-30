@@ -13,8 +13,15 @@ SET(VCL_MATH_OPENCL_CL
 	vcl/math/opencl/jacobisvd33_mcadams.cl
 )
 
-SET(COMPILEDKERNELS
-	jacobisvd33_mcadams.cl.cpp
+# Access the include directories in order to compile the OpenCL code
+GET_PROPERTY(CURR_INC_DIRS TARGET vcl_math PROPERTY INCLUDE_DIRECTORIES)
+LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
+VCLCOMPILECL(
+	${PROJECT_SOURCE_DIR}/vcl/math/opencl/jacobisvd33_mcadams.cl
+	"JacobiSVD33McAdamsCL"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS
 )
 
 SOURCE_GROUP("clc" FILES ${COMPILEDKERNELS})
@@ -32,14 +39,3 @@ TARGET_INCLUDE_DIRECTORIES(vcl_math_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add dependencies
 TARGET_LINK_LIBRARIES(vcl_math_opencl vcl_core vcl_math vcl_compute_opencl)
-
-# Access the include directories in order to compile the OpenCL code
-GET_PROPERTY(CURR_INC_DIRS TARGET vcl_math PROPERTY INCLUDE_DIRECTORIES)
-LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
-
-VCLCOMPILECL(
-	${PROJECT_SOURCE_DIR}/vcl/math/opencl/jacobisvd33_mcadams.cl
-	"JacobiSVD33McAdams"
-	"${CURR_INC_DIRS}"
-	${COMPILEDKERNELS}
-)

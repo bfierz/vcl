@@ -68,7 +68,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		if (_devicePtr)
 			free();
 
-		_sizeInBytes = new_size;
+		setSize(new_size);
 
 		allocate();
 	}

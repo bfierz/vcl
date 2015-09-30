@@ -33,7 +33,8 @@
 #include <unordered_map>
 
 // VCL
-namespace Vcl { namespace Compute { class BufferView; }}
+#include <vcl/compute/buffer.h>
+#include <vcl/core/memory/smart_ptr.h>
 
 namespace Vcl { namespace Compute
 {
@@ -41,6 +42,7 @@ namespace Vcl { namespace Compute
 	{
 	protected:
 		CommandQueue() = default;
+
 	public:
 		CommandQueue(CommandQueue&&);
 		CommandQueue(const CommandQueue&) = delete;
@@ -54,9 +56,18 @@ namespace Vcl { namespace Compute
 		virtual void sync() = 0;
 
 	public:
-		virtual void read(void* dst, Vcl::Compute::BufferView& src, bool blocking = false) = 0;
-		virtual void write(Vcl::Compute::BufferView& dst, void* src, bool blocking = false) = 0;
+		void setZero(BufferView dst);
+		virtual void copy(BufferView dst, ConstBufferView src) = 0;
 
-		virtual void fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size) = 0;
+		virtual void read(void* dst, ConstBufferView src, bool blocking = false) = 0;
+		virtual void write(BufferView dst, void* src, bool blocking = false) = 0;
+		virtual void fill(BufferView dst, const void* pattern, size_t pattern_size) = 0;
+
+		void setZero(ref_ptr<Vcl::Compute::Buffer> dst);
+		void copy(ref_ptr<Vcl::Compute::Buffer> dst, ref_ptr<const Vcl::Compute::Buffer> src);
+
+		void read(void* dst, ref_ptr<const Vcl::Compute::Buffer> src, bool blocking = false);
+		void write(ref_ptr<Vcl::Compute::Buffer> dst, void* src, bool blocking = false);
+		void fill(ref_ptr<Vcl::Compute::Buffer> dst, const void* pattern, size_t pattern_size);
 	};
 }}

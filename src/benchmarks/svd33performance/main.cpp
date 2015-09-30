@@ -37,6 +37,22 @@
 #include <vcl/math/jacobisvd33_twosided.h>
 #include <vcl/util/precisetimer.h>
 
+#ifdef VCL_CUDA_SUPPORT
+#	include <vcl/compute/cuda/commandqueue.h>
+#	include <vcl/compute/cuda/context.h>
+#	include <vcl/compute/cuda/device.h>
+#	include <vcl/compute/cuda/platform.h>
+#	include <vcl/math/cuda/jacobisvd33_mcadams.h>
+#endif // defined VCL_CUDA_SUPPORT
+
+#ifdef VCL_OPENCL_SUPPORT
+#	include <vcl/compute/opencl/commandqueue.h>
+#	include <vcl/compute/opencl/context.h>
+#	include <vcl/compute/opencl/device.h>
+#	include <vcl/compute/opencl/platform.h>
+#	include <vcl/math/opencl/jacobisvd33_mcadams.h>
+#endif // defined VCL_OPENCL_SUPPORT
+
 void perfEigenSVD
 (
 	size_t nr_problems,
@@ -203,7 +219,85 @@ void perfMcAdamsSVD
 	timer.stop();
 	std::cout << "Jacobi SVD (McAdams) - " << iters << " Iterations: " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
 }
-	
+
+#ifdef VCL_CUDA_SUPPORT
+template<typename WideScalar>
+void perfCudaMcAdamsSVD
+(
+	size_t nr_problems,
+	unsigned int iters,
+	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
+)
+{
+	using namespace Vcl::Compute::Cuda;
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	Platform::initialise();
+	auto& dev = Platform::instance()->device(0);
+	auto ctx = Vcl::Core::make_owner<Context>(dev);
+
+	Vcl::Mathematics::Cuda::JacobiSVD33 solver(ctx);
+
+	auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx->defaultQueue());
+
+	Vcl::Util::PreciseTimer timer;
+	timer.start();
+
+	// Solve the SVDs
+	solver(*queue, F, resU, resV, resS);
+
+	queue->sync();
+	timer.stop();
+	std::cout << "Jacobi SVD (McAdams) - CUDA - " << iters << " Iterations: " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
+}
+#endif // defined VCL_CUDA_SUPPORT
+
+#ifdef VCL_OPENCL_SUPPORT
+template<typename WideScalar>
+void perfOpenCLMcAdamsSVD
+(
+	size_t nr_problems,
+	unsigned int iters,
+	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
+)
+{
+	using namespace Vcl::Compute::OpenCL;
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	Platform::initialise();
+	auto& dev = Platform::instance()->device(0);
+	auto ctx = Vcl::Core::make_owner<Context>(dev);
+
+	Vcl::Mathematics::OpenCL::JacobiSVD33 solver(ctx);
+
+	auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx->defaultQueue());
+
+	Vcl::Util::PreciseTimer timer;
+	timer.start();
+
+	// Solve the SVDs
+	solver(*queue, F, resU, resV, resS);
+
+	queue->sync();
+	timer.stop();
+	std::cout << "Jacobi SVD (McAdams) - OpenCL - " << iters << " Iterations: " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;
+}
+#endif // defined VCL_OPENCL_SUPPORT
+
 int main(int, char**)
 {
 	size_t nr_problems = 1024*1024;
@@ -218,7 +312,7 @@ int main(int, char**)
 	{
 		F.at<float>(i).setRandom();
 	}
-	
+
 	// Test Performance: Eigen Jacobi SVD
 	perfEigenSVD(nr_problems, F, resU, resV, resS);
 	
@@ -248,4 +342,12 @@ int main(int, char**)
 #ifdef VCL_VECTORIZE_AVX
 	perfMcAdamsSVD<Vcl::float8>(nr_problems, 5, F, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
+	
+#ifdef VCL_CUDA_SUPPORT
+	perfCudaMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
+#endif // defined VCL_CUDA_SUPPORT
+	
+#ifdef VCL_OPENCL_SUPPORT
+	perfOpenCLMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
+#endif // defined VCL_OPENCL_SUPPORT
 }

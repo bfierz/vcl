@@ -161,11 +161,4 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 		return _devices[idx];
 	}
-
-	int Platform::version() const
-	{
-		int version;
-		//VCL_CU_SAFE_CALL(cuDriverGetVersion(&version));
-		return version;
-	}
 }}}

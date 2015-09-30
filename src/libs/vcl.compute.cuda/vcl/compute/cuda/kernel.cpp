@@ -64,18 +64,18 @@ namespace Vcl { namespace Compute { namespace Cuda
 		VCL_CU_SAFE_CALL(cuFuncSetCacheConfig(_func, cache));
 	}
 
-	void Kernel::run(CommandQueue& queue, std::array<unsigned int, 3> globalDim, std::array<unsigned int, 3> localDim, unsigned int dynamicSharedMemory)
+	void Kernel::run(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory)
 	{
-		runImpl(queue, globalDim, localDim, dynamicSharedMemory, nullptr);
+		runImpl(queue, gridDim, blockDim, dynamicSharedMemory, nullptr);
 	}
 
-	void Kernel::runImpl(CommandQueue& queue, std::array<unsigned int, 3> globalDim, std::array<unsigned int, 3> localDim, unsigned int dynamicSharedMemory, void** params)
+	void Kernel::runImpl(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, void** params)
 	{
 		VCL_CU_SAFE_CALL(cuLaunchKernel
 		(
 			_func,
-			globalDim[0], globalDim[1], globalDim[2],
-			localDim[0], localDim[1], localDim[2],
+			gridDim.x, gridDim.y, gridDim.z,
+			blockDim.x, blockDim.y, blockDim.z,
 			dynamicSharedMemory,
 			(CUstream) queue,
 			params, nullptr

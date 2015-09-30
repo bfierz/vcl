@@ -32,6 +32,9 @@
 #include <array>
 #include <string>
 
+// CUDA
+#include <vector_types.h>
+
 // VCL
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/kernel.h>
@@ -88,19 +91,19 @@ namespace Vcl { namespace Compute { namespace Cuda
 		template<typename... Args>
 		void run
 		(
-			CommandQueue& queue, std::array<unsigned int, 3> globalDim, std::array<unsigned int, 3> localDim, unsigned int dynamicSharedMemory,
+			CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory,
 			const Args&... args
 		)
 		{
 			void* params [] = { ((void*) &args)... };
 			
-			run(queue, globalDim, localDim, dynamicSharedMemory, params);
+			runImpl(queue, gridDim, blockDim, dynamicSharedMemory, params);
 		}
 
-		void run(CommandQueue& queue, std::array<unsigned int, 3> globalDim, std::array<unsigned int, 3> localDim, unsigned int dynamicSharedMemory);
+		void run(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory);
 		
 	private:
-		void runImpl(CommandQueue& queue, std::array<unsigned int, 3> globalDim, std::array<unsigned int, 3> localDim, unsigned int dynamicSharedMemory, void** params);
+		void runImpl(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, void** params);
 
 	private: // Kernel data
 

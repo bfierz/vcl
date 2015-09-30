@@ -31,6 +31,7 @@
 
 // VCL
 #include <vcl/compute/opencl/buffer.h>
+#include <vcl/compute/opencl/commandqueue.h>
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/opencl/device.h>
 #include <vcl/compute/opencl/kernel.h>
@@ -59,15 +60,15 @@ int main(int argc, char* argv[])
 
 		float one = 1;
 		float two = 2;
-		queue->fill(*mem0, &one, sizeof(float));
-		queue->fill(*mem1, &two, sizeof(float));
+		queue->fill(mem0, &one, sizeof(float));
+		queue->fill(mem1, &two, sizeof(float));
 
 		auto mod = ctx.createModuleFromSource((const int8_t*) vectoradd, vectoraddSize * sizeof(uint32_t));
 		auto kernel = Vcl::Core::dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
 		kernel->run(*queue, 1, { 1024, 0, 0 }, { 128, 0, 0 }, (cl_mem) *mem0, (cl_mem) *mem1, (cl_mem) *mem2);
 
 		std::vector<float> result(1024);
-		queue->read(result.data(), *mem2);
+		queue->read(result.data(), mem2);
 		queue->sync();
 
 		for (auto f : result)

@@ -59,21 +59,37 @@ namespace Vcl { namespace Compute
 			_onCompletion();
 	}
 
-	BufferView::BufferView(int size, BufferAccess hostAccess, BufferAccess deviceAccess)
-	: _sizeInBytes(size)
-	, _hostAccess(hostAccess)
-	, _deviceAccess(deviceAccess)
+	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf)
+	: ConstBufferView(buf, 0, buf->size())
 	{
 
 	}
 
-	Buffer::Buffer(BufferAccess hostAccess, int size)
-	: BufferView(size, hostAccess, BufferAccess::ReadWrite)
+	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf, size_t offset, size_t size)
+	: _owner(const_pointer_cast<Buffer>(buf))
+	, _offsetInBytes(offset)
+	, _sizeInBytes(size)
 	{
+
+	}
+	
+	BufferView::BufferView(ref_ptr<Buffer> buf)
+	: ConstBufferView(buf)
+	{
+
 	}
 
-	const Buffer& Buffer::owner() const
+	BufferView::BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size)
+	: ConstBufferView(buf, offset, size)
 	{
-		return *this;
+
+	}
+
+	Buffer::Buffer(BufferAccess hostAccess, size_t size)
+	: _hostAccess(hostAccess)
+	, _sizeInBytes(size)
+
+	{
+
 	}
 }}

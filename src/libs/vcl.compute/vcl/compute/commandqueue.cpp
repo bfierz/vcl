@@ -38,4 +38,33 @@ namespace Vcl { namespace Compute
 	{
 		return *this;
 	}
+
+	void CommandQueue::setZero(BufferView dst)
+	{
+		unsigned int pattern = 0;
+		fill(dst, &pattern, sizeof(pattern));
+	}
+
+	void CommandQueue::setZero(ref_ptr<Buffer> dst)
+	{
+		setZero(BufferView{ dst });
+	}
+
+	void CommandQueue::copy(ref_ptr<Buffer> dst, ref_ptr<const Buffer> src)
+	{
+		copy(BufferView{ dst }, ConstBufferView{ src });
+	}
+
+	void CommandQueue::read(void* dst, ref_ptr<const Buffer> src, bool blocking)
+	{
+		read(dst, ConstBufferView{ src }, blocking);
+	}
+	void CommandQueue::write(ref_ptr<Buffer> dst, void* src, bool blocking)
+	{
+		write(BufferView{ dst }, src, blocking);
+	}
+	void CommandQueue::fill(ref_ptr<Buffer> dst, const void* pattern, size_t pattern_size)
+	{
+		fill(BufferView{ dst }, pattern, pattern_size);
+	}
 }}

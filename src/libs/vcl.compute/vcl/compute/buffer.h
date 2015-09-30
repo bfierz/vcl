@@ -31,6 +31,7 @@
 #include <future>
 
 // VCL
+#include <vcl/core/memory/smart_ptr.h>
 
 namespace Vcl { namespace Compute
 {
@@ -71,45 +72,52 @@ namespace Vcl { namespace Compute
 	};
 
 	/*!
-	 *	\brief View on a part of a buffer
+	 *	\brief Constant view on a part of a buffer
 	 */
-	class BufferView
+	class ConstBufferView
 	{
 	public:
-		BufferView() = default;
-		BufferView(int size, BufferAccess hostAccess, BufferAccess deviceAccess);
-		virtual ~BufferView() = default;
+		ConstBufferView(ref_ptr<const Buffer> buf);
+		ConstBufferView(ref_ptr<const Buffer> buf, size_t offset, size_t size);
 
 	public:
-		BufferAccess hostAccess() const { return _hostAccess; }
-		BufferAccess deviceAccess() const { return _deviceAccess; }
-		int offset() const { return _offsetInBytes; }
-		int size() const { return _sizeInBytes; }
+		size_t offset() const { return _offsetInBytes; }
+		size_t size() const { return _sizeInBytes; }
 
 	public:
-		virtual const Buffer& owner() const = 0;
+		const Buffer& owner() const { return *_owner; }
 
 	protected:
-		//! Host access to the buffers memory
-		BufferAccess _hostAccess = BufferAccess::ReadWrite;
-
-		//! Device access to the buffers memory
-		BufferAccess _deviceAccess = BufferAccess::ReadWrite;
+		//! Buffer to which the view belongs
+		ref_ptr<Buffer> _owner;
 
 		//! Offset in bytes
-		int _offsetInBytes = 0;
+		size_t _offsetInBytes{ 0 };
 
 		//! Size in bytes
-		int _sizeInBytes = 0;
+		size_t _sizeInBytes{ 0 };
+	};
+	
+	/*!
+	 *	\brief View on a part of a buffer
+	 */
+	class BufferView : public ConstBufferView
+	{
+	public:
+		BufferView(const ref_ptr<Buffer> buf);
+		BufferView(const ref_ptr<Buffer> buf, size_t offset, size_t size);
+
+	public:
+		Buffer& owner() { return *_owner; }
 	};
 	
 	/*!
 	 *	\brief Abstraction for compute API linear memory buffers
 	 */
-	class Buffer : public BufferView
+	class Buffer
 	{
 	public:
-		Buffer(BufferAccess hostAccess, int size);
+		Buffer(BufferAccess hostAccess, size_t size);
 		Buffer(const Buffer&) = delete;
 		Buffer(Buffer&&);
 		virtual ~Buffer() = default;
@@ -118,7 +126,19 @@ namespace Vcl { namespace Compute
 		Buffer& operator =(const Buffer&) = delete;
 		Buffer& operator =(Buffer&&);
 
+	public:
+		BufferAccess hostAccess() const { return _hostAccess; }
+		size_t size() const { return _sizeInBytes; }
+
 	protected:
-		virtual const Buffer& owner() const override;
+		void setSize(size_t size) { _sizeInBytes = size; }
+
+	private:
+		//! Host access to the buffers memory
+		BufferAccess _hostAccess = BufferAccess::ReadWrite;
+
+		//! Size in bytes
+		size_t _sizeInBytes = 0;
+
 	};
 }}

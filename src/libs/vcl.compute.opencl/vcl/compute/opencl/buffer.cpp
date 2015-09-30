@@ -59,7 +59,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		if (_devicePtr)
 			free();
 
-		_sizeInBytes = new_size;
+		setSize(new_size);
 
 		allocate();
 	}

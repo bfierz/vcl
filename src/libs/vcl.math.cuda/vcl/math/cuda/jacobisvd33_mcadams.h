@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,49 +26,59 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 #include <vcl/config/cuda.h>
 
-// C++ standard library
-#include <string>
-#include <unordered_map>
-
 // VCL
-#include <vcl/compute/cuda/context.h>
-#include <vcl/compute/cuda/kernel.h>
+#include <vcl/compute/buffer.h>
+#include <vcl/compute/context.h>
+#include <vcl/compute/kernel.h>
 #include <vcl/compute/module.h>
+#include <vcl/core/interleavedarray.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
+namespace Vcl { namespace Mathematics { namespace Cuda
 {
-	class Module : public Compute::Module
+	class JacobiSVD33
 	{
 	public:
-		//! Constructor
-		Module(CUmodule mod);
-
-		Module(Module&&);
-		Module& operator =(Module&&);
-
-		Module(const Module&) = delete;
-		Module& operator =(const Module&) = delete;
-
-		//! Destructor
-		virtual ~Module();
+		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
 
 	public:
-		static Core::owner_ptr<Module> loadFromBinary(Context* ctx, const int8_t* data, size_t size);
-
-	public:
-		inline operator CUmodule() const { return _module; }
-
-	public:
-		//! Access a kernel object through its name
-		virtual ref_ptr<Compute::Kernel> kernel(const std::string& name) override;
+		void operator()
+		(
+			Vcl::Compute::CommandQueue& queue,
+			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
+			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
+			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
+			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
+		);
 
 	private:
-		//! CUDA handle to a program module
-		CUmodule _module;
+		// Device context
+		Core::ref_ptr<Compute::Context> _ownerCtx;
 
-		//! Kernels belonging to this module
-		std::unordered_map<std::string, owner_ptr<Kernel>> _kernels;
+	private:
+		// Module
+		Core::ref_ptr<Compute::Module> _svdModule;
+
+		// Kernel performing the SVD computation
+		Core::ref_ptr<Compute::Kernel> _svdKernel;
+
+	private: // Buffers
+
+		//! Number of stored entries
+		size_t _size = 0;
+
+		//! Input buffer 
+		Core::ref_ptr<Compute::Buffer> _A;
+
+		//! Output buffer 
+		Core::ref_ptr<Compute::Buffer> _U;
+
+		//! Output buffer 
+		Core::ref_ptr<Compute::Buffer> _V;
+
+		//! Singular value buffer 
+		Core::ref_ptr<Compute::Buffer> _S;
 	};
 }}}

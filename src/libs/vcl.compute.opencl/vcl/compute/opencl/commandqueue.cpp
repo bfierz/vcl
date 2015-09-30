@@ -50,29 +50,40 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		VCL_CL_SAFE_CALL(clFinish(_queue));
 	}
 
-	void CommandQueue::read(void* dst, Vcl::Compute::BufferView& src, bool blocking)
+	void CommandQueue::copy(BufferView dst, ConstBufferView src)
 	{
-		auto& buffer = src.owner();
-		auto& clBuffer = static_cast<const Buffer&>(buffer);
+		Require(dynamic_cast<const Buffer*>(&src.owner()), "src is OpenCL buffer.");
+		Require(dynamic_cast<const Buffer*>(&dst.owner()), "dst is OpenCL buffer.");
+		Require(src.offset() % 4 == 0, "src offset is aligned.");
+		Require(dst.offset() % 4 == 0, "dst ffset is aligned.");
+		Require(dst.size() >= src.size(), "Sizes of views match");
+
+		auto& dstBuffer = static_cast<Buffer&>(dst.owner());
+		auto& srcBuffer = static_cast<const Buffer&>(src.owner());
+
+		VCL_CL_SAFE_CALL(clEnqueueCopyBuffer(_queue, (cl_mem) dstBuffer, (cl_mem) srcBuffer, src.offset(), src.offset(), src.size(), 0, nullptr, nullptr));
+	}
+
+	void CommandQueue::read(void* dst, ConstBufferView src, bool blocking)
+	{
+		auto& clBuffer = static_cast<const Buffer&>(src.owner());
 
 		VCL_CL_SAFE_CALL(clEnqueueReadBuffer(_queue, (cl_mem) clBuffer, blocking, src.offset(), src.size(), dst, 0, nullptr, nullptr));
 	}
 
-	void CommandQueue::write(Vcl::Compute::BufferView& dst, void* src, bool blocking)
+	void CommandQueue::write(BufferView dst, void* src, bool blocking)
 	{
-		auto& buffer = dst.owner();
-		auto& clBuffer = static_cast<const Buffer&>(buffer);
+		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 
 		VCL_CL_SAFE_CALL(clEnqueueWriteBuffer(_queue, (cl_mem) clBuffer, blocking, dst.offset(), dst.size(), src, 0, nullptr, nullptr));
 	}
 
-	void CommandQueue::fill(Vcl::Compute::BufferView& dst, const void* pattern, size_t pattern_size)
+	void CommandQueue::fill(BufferView dst, const void* pattern, size_t pattern_size)
 	{
 		Require(dynamic_cast<const Buffer*>(&dst.owner()), "Buffer is OpenCL buffer.");
 		Require(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
 
-		auto& buffer = dst.owner();
-		auto& clBuffer = static_cast<const Buffer&>(buffer);
+		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 
 		VCL_CL_SAFE_CALL(clEnqueueFillBuffer(_queue, (cl_mem) clBuffer, pattern, pattern_size, dst.offset(), dst.size(), 0, nullptr, nullptr));
 	}

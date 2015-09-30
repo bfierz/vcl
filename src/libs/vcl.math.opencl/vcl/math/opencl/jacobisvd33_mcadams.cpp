@@ -2,6 +2,7 @@
 
 // C++ standard library
 #include <array>
+#include <iostream>
 
 // VCL
 #include <vcl/compute/opencl/buffer.h>
@@ -10,8 +11,8 @@
 #include <vcl/math/ceil.h>
 
 // Kernels
-extern uint32_t JacobiSVD33McAdams[];
-extern size_t JacobiSVD33McAdamsSize;
+extern uint32_t JacobiSVD33McAdamsCL[];
+extern size_t JacobiSVD33McAdamsCLSize;
 
 namespace Vcl { namespace Mathematics { namespace OpenCL
 {
@@ -24,9 +25,9 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 		_U = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
 		_V = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
 		_S = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 3 * sizeof(float));
-
+		
 		// Load the module
-		_svdModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(JacobiSVD33McAdams), JacobiSVD33McAdamsSize * sizeof(uint32_t));
+		_svdModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(JacobiSVD33McAdamsCL), JacobiSVD33McAdamsCLSize * sizeof(uint32_t));
 
 		if (_svdModule)
 		{
@@ -39,21 +40,23 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 
 	void JacobiSVD33::operator()
 	(
+		Vcl::Compute::CommandQueue& queue,
 		const Vcl::Core::InterleavedArray<float, 3, 3, -1>& inA,
-		const Vcl::Core::InterleavedArray<float, 3, 3, -1>& outU,
-		const Vcl::Core::InterleavedArray<float, 3, 3, -1>& outV,
-		const Vcl::Core::InterleavedArray<float, 3, 1, -1>& outS
+		Vcl::Core::InterleavedArray<float, 3, 3, -1>& outU,
+		Vcl::Core::InterleavedArray<float, 3, 3, -1>& outV,
+		Vcl::Core::InterleavedArray<float, 3, 1, -1>& outS
 	)
 	{
+		Require(dynamic_cast<Compute::OpenCL::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
 		Require(_svdKernel, "SVD kernel is loaded.");
 		Require(inA.size() % 16 == 0, "Size of input is multiple of 16.");
 
 		size_t numEntries = inA.size();
 
-		auto& A = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_A);
-		auto& U = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_U);
-		auto& V = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_V);
-		auto& S = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_S);
+		auto A = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_A);
+		auto U = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_U);
+		auto V = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_V);
+		auto S = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_S);
 
 		if (_size < numEntries)
 		{
@@ -65,15 +68,14 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 			S->resize(_size * 3 * sizeof(float));
 		}
 
-		auto& queue = *static_cast<Compute::OpenCL::CommandQueue*>(_ownerCtx->defaultQueue().get());
-		queue.write(*A, inA.data());
+		queue.write(A, inA.data());
 
 		// Perform the SVD computation
 		std::array<size_t, 3> grid = { ceil<128>(numEntries), 0, 0 };
 		std::array<size_t, 3> block = { 128, 0, 0 };
 		static_cast<Compute::OpenCL::Kernel*>(_svdKernel.get())->run
 		(
-			queue,
+			static_cast<Compute::OpenCL::CommandQueue&>(queue),
 			1,
 			grid,
 			block,
@@ -85,8 +87,8 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 			(cl_mem) *S
 		);
 
-		queue.read(outU.data(), *U);
-		queue.read(outV.data(), *V);
-		queue.read(outS.data(), *S);
+		queue.read(outU.data(), U);
+		queue.read(outV.data(), V);
+		queue.read(outS.data(), S);
 	}
 }}}

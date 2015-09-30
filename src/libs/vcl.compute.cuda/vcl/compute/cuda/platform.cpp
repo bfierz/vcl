@@ -57,11 +57,6 @@ namespace Vcl { namespace Compute { namespace Cuda
 		// Initialize CUDA
 		VCL_CU_SAFE_CALL(cuInit(0));
 
-		// Read the CUDA driver version
-		int driver_version;
-		VCL_CU_SAFE_CALL(cuDriverGetVersion(&driver_version));
-		std::cout << "CUDA driver version: " << driver_version << std::endl;
-
 		// Get the number of CUDA devices
 		int nr_devices;
 		VCL_CU_SAFE_CALL(cuDeviceGetCount(&nr_devices));

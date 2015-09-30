@@ -45,17 +45,20 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 
 	public:
 		void operator()
-		(
+			(
+			Vcl::Compute::CommandQueue& queue,
 			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
-			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			const Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
+			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
+			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
+			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
 		);
 
-	private: // Device context
+	private:
+		// Device context
 		Core::ref_ptr<Compute::Context> _ownerCtx;
 
-	private: // Module, Kernels
+	private:
+		// Module
 		Core::ref_ptr<Compute::Module> _svdModule;
 
 		// Kernel performing the SVD computation

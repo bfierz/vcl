@@ -17,6 +17,13 @@ TARGET_LINK_LIBRARIES(svd33correctness
 	vcl_math
 )
 
+IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	TARGET_LINK_LIBRARIES(svd33correctness
+		vcl_compute_cuda
+		vcl_math_cuda
+	)
+ENDIF()
+
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	TARGET_LINK_LIBRARIES(svd33correctness
 		vcl_compute_opencl
