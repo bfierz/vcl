@@ -36,6 +36,7 @@ SET(SOURCE
 # Generate library
 ADD_LIBRARY(vcl_compute_opencl STATIC ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_compute_opencl PROPERTIES FOLDER libs)
+SET_TARGET_PROPERTIES(vcl_compute_opencl PROPERTIES DEBUG_POSTFIX _d)
 TARGET_INCLUDE_DIRECTORIES(vcl_compute_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENCL_INCLUDE_DIRS})
 
 TARGET_LINK_LIBRARIES(vcl_compute_opencl
@@ -43,3 +44,8 @@ TARGET_LINK_LIBRARIES(vcl_compute_opencl
 	vcl_compute
 	${OPENCL_LIBRARIES}
 )
+
+# Setup installation
+INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
+INSTALL(FILES ${VCL_COMPUTE_OPENCL_INC} DESTINATION include/vcl/compute/opencl)
+INSTALL(TARGETS vcl_compute_opencl ARCHIVE DESTINATION lib)
