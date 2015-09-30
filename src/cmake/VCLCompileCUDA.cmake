@@ -23,18 +23,22 @@
 # SOFTWARE.
 #
 
-# Path to the vcl cl compiler
-SET(VCL_CLC_DIR CACHE PATH "Directory of clc")
+# Path to the vcl cu compiler
+SET(VCL_CUC_DIR CACHE PATH "Directory of cuc")
 
-FUNCTION(VclCompileCL file_to_compile symbol include_paths compiled_files)
+FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 
 	FOREACH(dir ${include_paths})
 		LIST(APPEND include_dir_param -I "\"${dir}\"")
 	ENDFOREACH()
 
-	# Remove the directories from the path and append ".cpp"
-	GET_FILENAME_COMPONENT(output_file ${file_to_compile} NAME)
-	SET(output_file "${output_file}.cpp")
+	# Remove the directories from the path and append ".fatbin.cpp"
+	GET_FILENAME_COMPONENT(output_file ${file_to_compile} NAME_WE)
+	IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		SET(output_file "${output_file}_m64.fatbin.cpp")
+	ELSE()
+		SET(output_file "${output_file}_m32.fatbin.cpp")
+	ENDIF()
 	
 	# Append the name to the output
 	SET(${compiled_files} ${output_file} PARENT_SCOPE)
@@ -42,9 +46,9 @@ FUNCTION(VclCompileCL file_to_compile symbol include_paths compiled_files)
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
 
-		COMMAND "${VCL_CLC_DIR}/clc.exe" --symbol ${symbol} ${include_dir_param} -o ${output_file} ${file_to_compile}
+		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --profile compute_50 --m64 ${include_dir_param} -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)
 
-ENDFUNCTION(VclCompileCL)
+ENDFUNCTION(VclCompileCU)

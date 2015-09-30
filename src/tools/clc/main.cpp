@@ -76,7 +76,7 @@ namespace Vcl { namespace Tools { namespace Clc
 		Gcc,
 		Intel
 	};
-
+	
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");
@@ -86,12 +86,12 @@ namespace Vcl { namespace Tools { namespace Clc
 			| FORMAT_MESSAGE_MAX_WIDTH_MASK;
 
 		FormatMessage(flags,
-			NULL,
+			nullptr,
 			errorCode,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			errorMessage,
 			sizeof(errorMessage) / sizeof(TCHAR),
-			NULL);
+			nullptr);
 
 #ifdef _UNICODE
 		std::wcerr << L"Error : " << errorDesc << std::endl;
@@ -104,17 +104,68 @@ namespace Vcl { namespace Tools { namespace Clc
 #endif
 	}
 
+	void createIoPipe(HANDLE& hRead, HANDLE& hWrite)
+	{
+		SECURITY_ATTRIBUTES saAttr;
+
+		// Set the bInheritHandle flag so pipe handles are inherited. 
+		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+		saAttr.bInheritHandle = TRUE;
+		saAttr.lpSecurityDescriptor = nullptr;
+
+		// Create a pipe for the child process's IO 
+		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
+			return;
+
+		// Ensure the read handle to the pipe for IO is not inherited.
+		if (!SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0))
+			return;
+	}
+
+	void readFromPipe(HANDLE hProcess, HANDLE hRead)
+	{
+		DWORD dwAvail, dwRead, dwWritten;
+		CHAR chBuf[1024];
+		BOOL bSuccess = FALSE;
+		HANDLE hParentStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+		for (;;)
+		{
+			DWORD exit_code;
+			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			if (exit_code != STILL_ACTIVE)
+				break;
+
+			PeekNamedPipe(hRead, chBuf, 1024, &dwRead, &dwAvail, nullptr);
+			if (dwAvail == 0)
+				continue;
+
+			bSuccess = ReadFile(hRead, chBuf, 1024, &dwRead, nullptr);
+			if (!bSuccess || dwRead == 0)
+				break;
+
+			bSuccess = WriteFile(hParentStdOut, chBuf, dwRead, &dwWritten, nullptr);
+			if (!bSuccess)
+				break;
+		}
+	}
+
 	int exec(const char* prg, const char* params = nullptr)
 	{
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
 
+		// Create the IO pipe
+		HANDLE hWrite, hRead;
+		createIoPipe(hRead, hWrite);
+
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
 		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
-		si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
+		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.dwFlags |= STARTF_USESTDHANDLES;
 		
 		// Construct the command line
 		const char* separator = " ";
@@ -136,7 +187,7 @@ namespace Vcl { namespace Tools { namespace Clc
 			cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
 			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
 			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			FALSE,      //_In_         BOOL bInheritHandles,
+			TRUE,       //_In_         BOOL bInheritHandles,
 			0,          //_In_         DWORD dwCreationFlags,
 			nullptr,    //_In_opt_     LPVOID lpEnvironment,
 			nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
@@ -150,6 +201,9 @@ namespace Vcl { namespace Tools { namespace Clc
 			return -1;
 		}
 
+		// Read all the output
+		readFromPipe(pi.hProcess, hRead);
+
 		// Successfully created the process.  Wait for it to finish.
 		WaitForSingleObject(pi.hProcess, INFINITE);
 
@@ -158,6 +212,8 @@ namespace Vcl { namespace Tools { namespace Clc
 
 		CloseHandle(pi.hThread);
 		CloseHandle(pi.hProcess);
+		CloseHandle(hRead);
+		CloseHandle(hWrite);
 
 		std::flush(std::cout);
 
