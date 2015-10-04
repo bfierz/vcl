@@ -23,4 +23,6 @@ ENDIF()
 # Library containing concrete compute classes for CUDA
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.compute.cuda)
+	SUBDIRS(vcl.core.cuda)
+	SUBDIRS(vcl.math.cuda)
 ENDIF()
