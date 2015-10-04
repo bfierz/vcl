@@ -86,6 +86,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Called after the last iteration. Returns d_r
 		virtual void finish(double* residual = nullptr) override;
 
+	protected:
+		Core::ref_ptr<Compute::Context> context() { return _ownerCtx; }
+
 	private:
 		void init();
 		void destroy();
