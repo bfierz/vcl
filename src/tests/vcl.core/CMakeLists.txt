@@ -32,6 +32,7 @@ vcl_check_target(nlohmann_json)
 set(SOURCE_FILES
 	allocator.cpp
 	bitvector.cpp
+	bvh.cpp
 	convert.cpp
 	eigen_simd.cpp
 	flags.cpp
@@ -39,9 +40,13 @@ set(SOURCE_FILES
 	gather.cpp
 	interleave.cpp
 	interleavedarray.cpp
+	intrinsics.cpp
 	load.cpp
 	math.cpp
 	minmax.cpp
+	mortoncode.cpp
+	octree.cpp
+	points.h
 	rtti.cpp
 	scatter.cpp
 	scopeguard.cpp

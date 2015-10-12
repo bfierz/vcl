@@ -57,13 +57,15 @@ set(SOURCE
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
 	vcl/core/preprocessor.h
+	vcl/core/radixsort.h
 	vcl/core/span.h
 	vcl/core/string_view.h
 
 	vcl/core/container/array.h
 	vcl/core/container/bitvector.h
 	vcl/core/container/bucketadapter.h
-
+	vcl/core/container/bvh.h
+	vcl/core/container/octree.h
 	vcl/core/memory/allocator.h
 	vcl/core/memory/smart_ptr.h
 	

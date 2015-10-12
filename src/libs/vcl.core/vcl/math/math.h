@@ -218,4 +218,19 @@ namespace Vcl { namespace Mathematics {
 	{
 		return pi<T>() / static_cast<T>(180);
 	}
+
+	inline uint16_t clz16(uint16_t n)
+	{
+		return n != 0 ? __lzcnt16(n) : sizeof(n) * 8;
+	}
+
+	inline uint32_t clz32(uint32_t n)
+	{
+		return n != 0 ? __lzcnt(n) : sizeof(n) * 8;
+	}
+
+	inline uint64_t clz64(uint64_t n)
+	{
+		return n != 0 ? __lzcnt64(n) : sizeof(n) * 8;
+	}
 }}
