@@ -52,7 +52,9 @@ TEST(ScopeGuardTest, ScopeGuardFail)
 	try
 	{
 		VCL_SCOPE_FAIL{ guard_triggered = true; };
-		throw;
+		{
+			throw std::exception{};
+		}
 	}
 	catch (...)
 	{

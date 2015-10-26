@@ -46,7 +46,8 @@
 namespace Vcl { namespace Mathematics
 {
 #ifdef VCL_COMPILER_MSVC
-#	pragma runtime_checks( "u", off )  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#	pragma runtime_checks("u", off)  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#	pragma warning(disable: 4700)
 #endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps)
 	{
@@ -95,7 +96,8 @@ namespace Vcl { namespace Mathematics
 		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
 	}
 #ifdef VCL_COMPILER_MSVC
-#	pragma runtime_checks( "u", restore )
+#	pragma warning(default: 4700)
+#	pragma runtime_checks("u", restore)
 #endif
 }}
 #endif // defined(VCL_VECTORIZE_AVX)
