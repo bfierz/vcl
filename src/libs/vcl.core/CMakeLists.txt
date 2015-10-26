@@ -108,6 +108,7 @@ SET(VCL_UTIL_INC
 	vcl/util/precisetimer.h
 	vcl/util/mortoncodes.h
 	vcl/util/reservememory.h
+	vcl/util/scopeguard.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})
