@@ -26,39 +26,6 @@
 
 namespace Vcl { namespace Compute
 {
-	BufferSyncPoint::BufferSyncPoint(std::future<bool>&& future)
-	: _hasCompleted(std::move(future))
-	{
-	}
-
-	BufferSyncPoint::BufferSyncPoint(std::future<bool>&& future, std::function<void()>&& callback)
-	: _hasCompleted(std::move(future))
-	, _onCompletion(callback)
-	{
-	}
-
-	BufferSyncPoint::BufferSyncPoint(BufferSyncPoint&& rhs)
-	{
-		_hasCompleted = std::move(rhs._hasCompleted);
-		_onCompletion = std::move(rhs._onCompletion);
-	}
-
-	BufferSyncPoint::~BufferSyncPoint()
-	{
-	}
-
-	bool BufferSyncPoint::isReady() const
-	{
-		return _hasCompleted.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
-	}
-
-	void BufferSyncPoint::sync() const
-	{
-		_hasCompleted.wait();
-		if (_onCompletion)
-			_onCompletion();
-	}
-
 	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf)
 	: ConstBufferView(buf, 0, buf->size())
 	{

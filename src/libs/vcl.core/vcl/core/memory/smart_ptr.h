@@ -116,7 +116,7 @@ namespace Vcl
 
 			void reset(T* ptr = nullptr)
 			{
-				_cnt = std::make_shared<ref_cnt>();
+				_cnt = std::make_shared<Detail::ref_cnt>();
 				_cnt->setValid();
 				_ptr = ptr;
 			}
