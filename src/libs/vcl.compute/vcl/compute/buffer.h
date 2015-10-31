@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <functional>
 #include <future>
 
 // VCL
@@ -50,25 +51,6 @@ namespace Vcl { namespace Compute
 
 		//! Resource has read and write access from host
 		ReadWrite = 0x3
-	};
-
-	class BufferSyncPoint
-	{
-	public:
-		BufferSyncPoint() = delete;
-		BufferSyncPoint(const BufferSyncPoint& rhs) = delete;
-
-		BufferSyncPoint(std::future<bool>&& future);
-		BufferSyncPoint(std::future<bool>&& future, std::function<void()>&& callback);
-		BufferSyncPoint(BufferSyncPoint&& rhs);
-		~BufferSyncPoint();
-
-		bool isReady() const;
-		void sync() const;
-
-	private:
-		std::future<bool> _hasCompleted;
-		std::function<void()> _onCompletion;
 	};
 
 	/*!

@@ -34,6 +34,19 @@
 
 #include <vcl/core/simd/intrinsics_sse.h>
 
+// Macros for GCC compatibility
+#ifndef _mm256_set_m128
+#	define _mm256_set_m128(/* __m128 */ hi, /* __m128 */ lo) _mm256_insertf128_ps(_mm256_castps128_ps256(lo), (hi), 0x1)
+#endif // _mm256_set_m128
+
+#ifndef _mm256_set_m128d
+#	define _mm256_set_m128d(/* __m128d */ hi, /* __m128d */ lo) _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), (hi), 0x1)
+#endif // _mm256_set_m128d
+
+#ifndef _mm256_set_m128i
+#	define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
+#endif // _mm256_set_m128i
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)

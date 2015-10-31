@@ -150,8 +150,8 @@ namespace Vcl { namespace Graphics
 	: mFactory(std::move(factory))
 	, mPosition(0, 0, 0)
 	, mDirection(1, 0, 0)
-	, mRight(0, 0, 1)
 	, mUp(0, 1, 0)
+	, mRight(0, 0, 1)
 	, mWidth(-1)
 	, mHeight(-1)
 	, mNearPlane(-1)
@@ -170,8 +170,8 @@ namespace Vcl { namespace Graphics
 	: mFactory(std::move(factory))
 	, mPosition(position)
 	, mDirection(direction)
-	, mRight(right)
 	, mUp(up)
+	, mRight(right)
 	, mWidth(-1)
 	, mHeight(-1)
 	, mNearPlane(-1)
@@ -362,7 +362,7 @@ namespace Vcl { namespace Graphics
 			mSplits.back() = f;
 			
 			// Compute orthographic volumes for each split
-			for (int i = 0; i < mSplits.size()-1; i++)
+			for (size_t i = 0; i < mSplits.size()-1; i++)
 			{
 				// Compute the perspective split frustum
 				PerspectiveViewFrustum<float> psf

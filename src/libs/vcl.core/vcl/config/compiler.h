@@ -78,6 +78,9 @@
 // Enable the noexcept-keyword
 #	if (_MSC_VER <= 1800)
 #		define noexcept _NOEXCEPT
+#		define VCL_NOEXCEPT_PARAM(param)
+#	else
+#		define VCL_NOEXCEPT_PARAM(param) except(param)
 #	endif /* _MSC_VER <= 1800 */
 
 // Enable the thread_local-keyword

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute
+// VCL configuration
+#include <vcl/config/global.h>
+
+// Include the relevant parts from the library
+#include <vcl/util/scopeguard.h>
+
+// C++ standard library
+
+// Google test
+#include <gtest/gtest.h>
+
+TEST(ScopeGuardTest, ScopeGuardExit)
 {
-	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf)
-	: ConstBufferView(buf, 0, buf->size())
+	bool guard_triggered = false;
+
+	{
+		VCL_SCOPE_EXIT{ guard_triggered = true; };
+	}
+
+	EXPECT_TRUE(guard_triggered) << "Exit guard triggered.";
+}
+
+TEST(ScopeGuardTest, ScopeGuardFail)
+{
+	bool guard_triggered = false;
+
+	try
+	{
+		VCL_SCOPE_FAIL{ guard_triggered = true; };
+		{
+			throw std::exception{};
+		}
+	}
+	catch (...)
 	{
 
 	}
 
-	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf, size_t offset, size_t size)
-	: _owner(const_pointer_cast<Buffer>(buf))
-	, _offsetInBytes(offset)
-	, _sizeInBytes(size)
-	{
+	EXPECT_TRUE(guard_triggered) << "Failure guard triggered.";
+}
 
-	}
-	
-	BufferView::BufferView(ref_ptr<Buffer> buf)
-	: ConstBufferView(buf)
-	{
-
-	}
-
-	BufferView::BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size)
-	: ConstBufferView(buf, offset, size)
-	{
-
-	}
-
-	Buffer::Buffer(BufferAccess hostAccess, size_t size)
-	: _hostAccess(hostAccess)
-	, _sizeInBytes(size)
+TEST(ScopeGuardTest, ScopeGuardSuccess)
+{
+	bool guard_triggered = false;
 
 	{
-
+		VCL_SCOPE_SUCCESS{ guard_triggered = true; };
 	}
-}}
+
+	EXPECT_TRUE(guard_triggered) << "Success guard triggered.";
+}

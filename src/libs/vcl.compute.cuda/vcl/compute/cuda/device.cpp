@@ -38,7 +38,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 	{
 		// Read the device name
 		std::vector<char> buffer(1024, 0);
-		VCL_CU_SAFE_CALL(cuDeviceGetName(buffer.data(), buffer.size(), _device));
+		VCL_CU_SAFE_CALL(cuDeviceGetName(buffer.data(), (int) buffer.size(), _device));
 		_name = buffer.data();
 
 		// Read the compute capability
