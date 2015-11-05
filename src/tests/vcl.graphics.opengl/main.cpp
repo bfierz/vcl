@@ -27,15 +27,116 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 
+#include <iostream>
+
 #include <windows.h>
 
 // Force the use of the NVIDIA GPU in an Optimius system
 extern "C"
 {
-	_declspec(dllexport) uint32_t NvOptimusEnablement = 0x00000001;
+	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
 
 int TestReturnValue;
+
+namespace
+{
+	void CALLBACK OpenGLDebugMessageCallback
+	(
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* user_param
+	)
+	{
+		// Suppress some useless warnings
+		switch (id)
+		{
+		case 131218: // NVIDIA: "shader will be recompiled due to GL state mismatches"
+			return;
+		default:
+			break;
+		}
+
+		std::cout << "Source: ";
+		switch (source)
+		{
+		case GL_DEBUG_SOURCE_API:
+			std::cout << "API";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			std::cout << "Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			std::cout << "Window System";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			std::cout << "Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			std::cout << "Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER:
+			std::cout << "Other";
+			break;
+		}
+
+		std::cout << ", Type: ";
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR:
+			std::cout << "Error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			std::cout << "Deprecated Behavior";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			std::cout << "Undefined Behavior";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			std::cout << "Performance";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			std::cout << "Portability";
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			std::cout << "Other";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			std::cout << "Marker";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			std::cout << "Push Group";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			std::cout << "Pop Group";
+			break;
+		}
+
+		std::cout << ", Severity: ";
+		switch (severity)
+		{
+		case GL_DEBUG_SEVERITY_HIGH:
+			std::cout << "High";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			std::cout << "Medium";
+			break;
+		case GL_DEBUG_SEVERITY_LOW:
+			std::cout << "Low";
+			break;
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			std::cout << "Notification";
+			break;
+		}
+
+		std::cout << ", ID: " << id;
+		std::cout << ", Message: " << message << std::endl;
+	}
+}
 
 // Based on OpenGL example:
 // https://www.opengl.org/wiki/Creating_an_OpenGL_Context_%28WGL%29
@@ -67,7 +168,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		HDC ourWindowHandleToDeviceContext = GetDC(hWnd);
 
-		int  letWindowsChooseThisPixelFormat;
+		int letWindowsChooseThisPixelFormat;
 		letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd);
 		SetPixelFormat(ourWindowHandleToDeviceContext, letWindowsChooseThisPixelFormat, &pfd);
 
@@ -77,6 +178,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// Initialize glew
 		glewExperimental = GL_TRUE;
 		glewInit();
+
+		// Enable the synchronous debug output
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+		// Disable debug severity: notification
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+		// Register debug callback
+		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 
 		//MessageBoxA(0, (char*) glGetString(GL_VERSION), "OPENGL VERSION", 0);
 		//MessageBoxA(0, (char*) glewGetString(GLEW_VERSION), "GLEW VERSION", 0);

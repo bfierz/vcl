@@ -34,12 +34,82 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar gather function.
-TEST(OpenGL, QueryUniforms)
+// Tests the shader compilation
+
+const char* QuadVS =
+R"(
+#version 400 core
+
+in vec2 Position;
+in vec3 Colour;
+
+out PerVertexData
 {
-	using namespace Vcl::Graphics::Runtime::OpenGL;
+	vec3 Colour;
+} Out;
 
-	auto v0 = glGetString(GL_VERSION);
-	auto v1 = glewGetString(GLEW_VERSION);
+void main()
+{
+	gl_Position = vec4(Position, 0, 1);
+	Out.Colour = Colour;
+}
+)";
 
+const char* QuadFS =
+R"(
+#version 400 core
+
+in PerVertexData
+{
+	vec3 Colour;
+} In;
+
+uniform float alpha = 0.7f;
+
+out vec4 Colour;
+
+void main()
+{	
+	Colour = vec4(In.Colour, alpha);
+}
+)";
+
+
+TEST(OpenGL, CompileVertexShader)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Compile the shader
+	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
+
+	// Verify the result
+	GLint compiled = 0;
+	glGetShaderiv(vs.id(), GL_COMPILE_STATUS, &compiled);
+
+	EXPECT_TRUE(compiled != 0) << "Shader not compiled.";
+}
+
+TEST(OpenGL, BuildSimpleShaderProgram)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Compile the shader stages
+	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
+	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadFS);
+
+	// Create the program descriptor
+	OpenGL::ShaderProgramDescription desc;
+	desc.VertexShader = &vs;
+	desc.FragmentShader = &fs;
+
+	// Create the shader program
+	OpenGL::ShaderProgram prog{ desc };
+
+	// Verify the result
+	GLint linked = 0, valid = 0;
+	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
+	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
+
+	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
+	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
 }

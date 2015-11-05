@@ -368,6 +368,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Create a program for the shader
 		_glId = glCreateProgram();
 
+		// Attach shaders to the program
 		if (desc.ComputeShader)
 			glAttachShader(_glId, desc.ComputeShader->id());
 		else
@@ -390,6 +391,27 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Link the program
 		glLinkProgram(id());
+
+		// Detach shaders for deferred deletion
+		if (desc.ComputeShader)
+			glDetachShader(_glId, desc.ComputeShader->id());
+		else
+		{
+			if (desc.VertexShader)
+				glDetachShader(_glId, desc.VertexShader->id());
+
+			if (desc.TessControlShader)
+				glDetachShader(_glId, desc.TessControlShader->id());
+
+			if (desc.TessEvalShader)
+				glDetachShader(_glId, desc.TessEvalShader->id());
+
+			if (desc.GeometryShader)
+				glDetachShader(_glId, desc.GeometryShader->id());
+
+			if (desc.FragmentShader)
+				glDetachShader(_glId, desc.FragmentShader->id());
+		}
 
 		// Collect the uniforms of this program
 		_resources = std::make_unique<ProgramResources>(id());

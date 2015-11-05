@@ -46,7 +46,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			printInfoLog();
 		}
 
-		Ensure(_glId > 0, "Shader is created");
+		Ensure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
 	Shader::~Shader()
