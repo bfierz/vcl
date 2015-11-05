@@ -22,31 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/graphics/runtime/state/sampler.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class Shader : public Runtime::Shader, public Resource
+	SamplerDescription::SamplerDescription()
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
-
-	public:
-		static GLenum toGLenum(ShaderType type);
-
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+		Filter = Filter::MinMagMipLinear;
+		AddressU = TextureAddressMode::Clamp;
+		AddressV = TextureAddressMode::Clamp;
+		AddressW = TextureAddressMode::Clamp;
+		MinLOD = -std::numeric_limits<float>::max();
+		MaxLOD = std::numeric_limits<float>::max();
+		MipLODBias = 0.0f;
+		MaxAnisotropy = 16;
+		ComparisonFunc = ComparisonFunction::Never;
+		BorderColor[0] = 0;
+		BorderColor[1] = 0;
+		BorderColor[2] = 0;
+		BorderColor[3] = 0;
+	}
+}}}

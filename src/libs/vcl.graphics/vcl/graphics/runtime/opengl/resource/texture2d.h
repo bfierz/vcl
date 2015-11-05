@@ -31,22 +31,24 @@
 #ifdef VCL_OPENGL_SUPPORT
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/runtime/opengl/resource/texture.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	class Texture2D : public Texture
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
-
-	public:
-		static GLenum toGLenum(ShaderType type);
+		Texture2D(int w, int h, SurfaceFormat fmt, const TextureResource* init_data = nullptr);
+		virtual ~Texture2D();
 
 	private:
-		void printInfoLog() const;
+		void initialise(const TextureResource* init_data = nullptr);
+
+	public:
+		virtual void fill(SurfaceFormat fmt, const void* data) override;
+		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
+
+		virtual void read(SurfaceFormat& fmt, void* data) const override;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

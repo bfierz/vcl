@@ -27,13 +27,13 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard libary
+// C++ standard library
 #include <vector>
 
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Helios
+namespace Vcl { namespace Graphics { namespace Runtime
 {
 	template<typename VertexDataType>
 	struct InputLayoutTypeTrait

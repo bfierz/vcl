@@ -29,6 +29,10 @@
 // C++ standard libary
 #include <cmath>
 
+#ifndef M_PI
+#	define M_PI 3.1415926535897932384626433832795
+#endif
+
 namespace Vcl { namespace Graphics
 {
 	Camera::Camera(std::shared_ptr<MatrixFactory> factory)

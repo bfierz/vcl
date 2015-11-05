@@ -22,31 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// C++ Standard Library
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+// Include the relevant parts from the library
+#include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+// Google test
+#include <gtest/gtest.h>
+
+// Tests the scalar gather function.
+TEST(OpenGL, QueryUniforms)
 {
-	class Shader : public Runtime::Shader, public Resource
-	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
+	using namespace Vcl::Graphics::Runtime::OpenGL;
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+	auto v0 = glGetString(GL_VERSION);
+	auto v1 = glewGetString(GLEW_VERSION);
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}

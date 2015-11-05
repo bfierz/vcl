@@ -22,9 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-// Header
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
+
+// C++ standard library
+#include <vector>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -36,22 +37,22 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	: Runtime::Shader(type, tag)
 	{
 		// Create the shader object
-		_shaderObject = glCreateShader(toGLenum(type));
-		glShaderSource(_shaderObject, 1, &source, nullptr);
-		glCompileShader(_shaderObject);
+		_glId = glCreateShader(toGLenum(type));
+		glShaderSource(_glId, 1, &source, nullptr);
+		glCompileShader(_glId);
 
 		AssertBlock
 		{
 			printInfoLog();
 		}
 
-		Ensure(_shaderObject > 0, "Shader is created");
+		Ensure(_glId > 0, "Shader is created");
 	}
 
 	Shader::~Shader()
 	{
-		if (_shaderObject)
-			glDeleteShader(_shaderObject);
+		if (_glId)
+			glDeleteShader(_glId);
 	}
 
 	GLenum Shader::toGLenum(ShaderType type)
@@ -74,16 +75,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		int info_log_length = 0;
 		int chars_written = 0;
-		char* info_log;
 
-		glGetShaderiv(_shaderObject, GL_INFO_LOG_LENGTH, &info_log_length);
+		glGetShaderiv(_glId, GL_INFO_LOG_LENGTH, &info_log_length);
 
 		if (info_log_length > 1)
 		{
-			info_log = new char[info_log_length];
-			glGetShaderInfoLog(_shaderObject, info_log_length, &chars_written, info_log);
-			printf("%s\n", info_log);
-			delete[] info_log;
+			std::vector<char> info_log(info_log_length);
+			glGetShaderInfoLog(_glId, info_log_length, &chars_written, info_log.data());
+			printf("%s\n", info_log.data());
 		}
 	}
 }}}}

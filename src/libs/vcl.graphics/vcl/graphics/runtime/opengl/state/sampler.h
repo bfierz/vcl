@@ -28,25 +28,24 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
+// VCL libraries
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/runtime/state/sampler.h>
+
+#ifdef VCL_OPENGL_SUPPORT
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	class Sampler : public Runtime::Sampler, public Resource
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
-
-	public:
-		static GLenum toGLenum(ShaderType type);
+		Sampler(const SamplerDescription& desc);
+		virtual ~Sampler();
 
 	private:
-		void printInfoLog() const;
+		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
+		GLenum convert(TextureAddressMode mode) const;
+		GLenum convert(ComparisonFunction func) const;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

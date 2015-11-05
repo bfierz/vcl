@@ -32,21 +32,33 @@
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/runtime/resource/texture.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	struct ImageFormat
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
+		GLenum Format;
+		GLenum Type;
+	};
+
+	class Texture : public Runtime::Texture, public Resource
+	{
+	protected:
+		Texture() = default;
 
 	public:
-		static GLenum toGLenum(ShaderType type);
+		virtual ~Texture() = default;
 
-	private:
-		void printInfoLog() const;
+	public:
+		static GLenum toSurfaceFormat(SurfaceFormat type);
+		static ImageFormat toImageFormat(SurfaceFormat fmt);		
+
+	public:
+		virtual void fill(SurfaceFormat fmt, const void* data) = 0;
+		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) = 0;
+
+		virtual void read(SurfaceFormat& fmt, void* data) const = 0;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

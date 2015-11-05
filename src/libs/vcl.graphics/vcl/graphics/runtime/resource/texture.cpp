@@ -22,31 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/graphics/runtime/resource/texture.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+// VCL library
+#include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class Shader : public Runtime::Shader, public Resource
+	void TextureView::initializeView
+	(
+		TextureType t, SurfaceFormat f,
+		int firstLvl, int nrLvls,
+		int firstLayer, int nrLayers,
+		int width, int height, int depth
+	)
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
-
-	public:
-		static GLenum toGLenum(ShaderType type);
-
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+		_type = t;
+		_format = f;
+		_level = firstLvl;
+		_nrLevels = nrLvls;
+		_layer = firstLayer;
+		_nrLayers = nrLayers;
+		_width = width;
+		_height = height;
+		_depth = depth;
+	}
+}}}

@@ -28,25 +28,32 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// C++ standard library
+#include <utility>
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#ifdef VCL_OPENGL_SUPPORT
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	class Resource
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		virtual ~Shader();
+	protected:
+		Resource() = default;
 
 	public:
-		static GLenum toGLenum(ShaderType type);
+		Resource(const Resource&) = delete;
+		Resource(Resource&& rhs) { std::swap(_glId, rhs._glId); }
+		virtual ~Resource() = default;
 
-	private:
-		void printInfoLog() const;
+	public:
+		GLuint id() const { return _glId; }
+
+	protected:
+		void setId(GLuint id) { _glId = id; }
+
+	protected:
+		//! OpenGL resource Id
+		GLuint _glId{ 0 };
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT
