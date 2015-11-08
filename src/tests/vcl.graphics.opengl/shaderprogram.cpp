@@ -42,6 +42,7 @@ R"(
 
 in vec2 Position;
 in vec3 Colour;
+in mat4 Scale;
 
 out PerVertexData
 {
@@ -50,7 +51,7 @@ out PerVertexData
 
 void main()
 {
-	gl_Position = vec4(Position, 0, 1);
+	gl_Position = Scale*vec4(Position, 0, 1);
 	Out.Colour = Colour;
 }
 )";
@@ -92,13 +93,23 @@ TEST(OpenGL, CompileVertexShader)
 TEST(OpenGL, BuildSimpleShaderProgram)
 {
 	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
 
 	// Compile the shader stages
 	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
 	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadFS);
 
+	// Create the input definition
+	InputLayoutDescription in = 
+	{
+		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 12, VertexDataClassification::VertexDataPerInstance, 0 },
+		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+	};
+
 	// Create the program descriptor
 	OpenGL::ShaderProgramDescription desc;
+	desc.InputLayout = in;
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
 

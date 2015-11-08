@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <algorithm>
 #include <vector>
 
 // VCL
@@ -52,7 +53,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 		std::string Name;
 		SurfaceFormat Format;
-		unsigned int StreamIndex;
+		unsigned int NumberLocations;
 		unsigned int Offset;
 		VertexDataClassification StreamType;
 		unsigned int StepRate;
@@ -67,10 +68,19 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		InputLayoutDescription(std::initializer_list<InputLayoutElement> init)
 		: _elements(init)
 		{
+			_locations.reserve(_elements.size());
+
+			int loc = 0;
+			for (const auto& elem : _elements)
+			{
+				_locations.emplace_back(loc);
+				loc += std::max(1, (int) elem.NumberLocations);
+			}
 		}
 		InputLayoutDescription(InputLayoutDescription&& rhs) 
 		{
 			std::swap(_elements, rhs._elements);
+			std::swap(_locations, rhs._locations);
 		}
 
 	public:
@@ -86,7 +96,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		const InputLayoutElement& operator[] (size_t idx) const { return _elements[idx]; }
 
+		int location(size_t idx) const { return _locations[idx]; }
+
 	private:
 		std::vector<InputLayoutElement> _elements;
+		std::vector<int> _locations;
 	};
 }}}

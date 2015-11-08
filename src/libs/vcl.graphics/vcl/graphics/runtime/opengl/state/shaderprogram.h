@@ -35,6 +35,7 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
+#include <vcl/graphics/runtime/state/inputlayout.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -42,6 +43,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	struct ShaderProgramDescription
 	{
+		//! Input layout
+		InputLayoutDescription InputLayout;
+
 		//! Vertex shader
 		Runtime::OpenGL::Shader* VertexShader{ nullptr };
 
@@ -165,14 +169,77 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		int ArraySize;
 	};
 
+	class ProgramAttributes
+	{
+	public:
+		ProgramAttributes(GLuint program);
+
+	public:
+		const std::vector<AttributeData>& elems() const { return _attributes; }
+
+	public:
+		std::vector<AttributeData>::iterator begin() { return _attributes.begin(); }
+		std::vector<AttributeData>::const_iterator begin() const { return _attributes.cbegin(); }
+		std::vector<AttributeData>::const_iterator cbegin() const { return _attributes.cbegin(); }
+
+		std::vector<AttributeData>::iterator end() { return _attributes.end(); }
+		std::vector<AttributeData>::const_iterator end() const { return _attributes.cend(); }
+		std::vector<AttributeData>::const_iterator cend() const { return _attributes.cend(); }
+
+	private:
+		std::vector<AttributeData> _attributes;
+	};
+
+	class ProgramOutput
+	{
+	public:
+		ProgramOutput(GLuint program);
+
+	public:
+		const std::vector<ProgramOutputData>& elems() const { return _outputs; }
+
+	public:
+		std::vector<ProgramOutputData>::iterator begin() { return _outputs.begin(); }
+		std::vector<ProgramOutputData>::const_iterator begin() const { return _outputs.cbegin(); }
+		std::vector<ProgramOutputData>::const_iterator cbegin() const { return _outputs.cbegin(); }
+
+		std::vector<ProgramOutputData>::iterator end() { return _outputs.end(); }
+		std::vector<ProgramOutputData>::const_iterator end() const { return _outputs.cend(); }
+		std::vector<ProgramOutputData>::const_iterator cend() const { return _outputs.cend(); }
+
+	private:
+		std::vector<ProgramOutputData> _outputs;
+	};
+
+	class ProgramUniforms
+	{
+	public:
+		ProgramUniforms(GLuint program);
+
+	public:
+		const std::vector<UniformData>& elems() const { return _uniforms; }
+
+	public:
+		std::vector<UniformData>::iterator begin() { return _uniforms.begin(); }
+		std::vector<UniformData>::const_iterator begin() const { return _uniforms.cbegin(); }
+		std::vector<UniformData>::const_iterator cbegin() const { return _uniforms.cbegin(); }
+
+		std::vector<UniformData>::iterator end() { return _uniforms.end(); }
+		std::vector<UniformData>::const_iterator end() const { return _uniforms.cend(); }
+		std::vector<UniformData>::const_iterator cend() const { return _uniforms.cend(); }
+
+	private:
+		std::vector<UniformData> _uniforms;
+	};
+
 	class ProgramResources
 	{
 	public:
 		ProgramResources(GLuint program);
 
 	public:
-		const std::vector<AttributeData>& attributes() const { return _attributes; }
-		const std::vector<UniformData>& uniforms() const { return _uniforms; }
+		const std::vector<AttributeData>& attributes() const { return _attributes.elems(); }
+		const std::vector<UniformData>& uniforms() const { return _uniforms.elems(); }
 		
 	public:
 		static GLenum toGLenum(ProgramResourceType t);
@@ -180,9 +247,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		static const char* name(GLenum type);
 
 	private:
-		std::vector<AttributeData> _attributes;
-		std::vector<ProgramOutputData> _outputs;
-		std::vector<UniformData> _uniforms;
+		ProgramAttributes _attributes;
+		ProgramOutput _outputs;
+		ProgramUniforms _uniforms;
 	};
 
 	class ShaderProgram : public Resource
@@ -224,6 +291,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	//	void setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value);
 
 	private:
+		void linkAttributes(const InputLayoutDescription& layout);
+
+	private:
+		//! Print the information of the current program state
 		void printInfoLog() const;
 
 	private:
