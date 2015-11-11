@@ -36,8 +36,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	enum class Usage
 	{
 		/*! 
-		 * The resource is readable and writeable by the .
-		 * This buffer is not mappabl
+		 * The resource is readable and writeable by the client.
+		 * This buffer is not mappable.
 		 */
 		Default = 0,
 		
@@ -48,13 +48,17 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		Immutable = 1,
 
 		/*!
-		 * The resource can be mapped to CPU memory to be frequently written to
+		 * The resource can be mapped to CPU memory to be frequently written to.
 		 */
 		Dynamic = 2,
+
+		/*!
+		 * Use this buffer to copy data from the GPU to the CPU and between GPU resources.
+		 */
 		Staging = 3
 	};
 	
-	VCL_DECLARE_FLAGS(CPUAccess, 
+	VCL_DECLARE_FLAGS(CPUAccess,
 		
 		/*! 
 		 * The resource is to be mappable so that the CPU can change its contents.
@@ -65,14 +69,6 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		 * The resource is to be mappable so that the CPU can read its contents.
 		 */
 		Read
-	);
-
-	VCL_DECLARE_FLAGS(MapOptions,
-
-		/*!
-		 * Map the resource and invalidate the mapped range.
-		 */
-		InvalidateRange
 	);
 
 	struct BufferDescription
@@ -94,31 +90,30 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class Buffer
 	{
 	protected:
-		Buffer(const BufferDescription& desc);
+		Buffer(size_t size, Usage usage, Flags<CPUAccess> cpuAccess);
 
 	public:
 		virtual ~Buffer() = default;
 
 	public:
-
 		//! \returns the assigned usage of the buffer
 		Usage usage() const { return _usage; }
 
 		//! \returns the valid CPU access
 		Flags<CPUAccess> cpuAccess() const { return _cpuAccess; }
 
+	public:
 		//! \returns the size in bytes
-		int sizeInBytes() const { return _sizeInBytes; }
+		size_t sizeInBytes() const { return _sizeInBytes; }
 
 	private:
+		//! Size in bytes
+		size_t _sizeInBytes{ 0 };
+
 		//! Buffer usage
 		Usage _usage;
 
-		//! Allows CPU access pattern
+		//! Valid CPU access pattern
 		Flags<CPUAccess> _cpuAccess;
-
-	protected:
-		//! Size in bytes
-		int _sizeInBytes{ 0 };
 	};
 }}}

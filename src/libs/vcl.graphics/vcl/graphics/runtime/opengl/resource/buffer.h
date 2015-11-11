@@ -39,22 +39,76 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	VCL_DECLARE_FLAGS(MapOptions,
+	
+		/*!
+		 * Map the resource unsynchronized into host memory. Mapped even when in use (no stall).
+		 */
+		Unsynchronized,
+		
+		/*!
+		 * Map the resource persistently into host memory
+		 */
+		Persistent,
+
+		/*!
+		 * Coherent state will be reached explicitly after flushing or unmapping
+		 */
+		ExplicitFlush,
+		
+		/*!
+		 * Operations are made visible to the device automatically
+		 */
+		CoherentWrite,
+	
+		/*!
+		 * Map the resource and invalidate the entire buffer.
+		 */
+		InvalidateBuffer,
+
+		/*!
+		 * Map the resource and invalidate the mapped range.
+		 */
+		InvalidateRange
+	);
+
 	class Buffer : public Runtime::Buffer, public Resource
 	{
 	public:
-		Buffer(const BufferDescription& desc, const BufferInitData* init_data = nullptr);
+		Buffer(const BufferDescription& desc, bool allowPersistentMapping = false, bool allowCoherentMapping = false, const BufferInitData* init_data = nullptr);
 		virtual ~Buffer();
 
 	public:
-		void* map(size_t offset, size_t length, MapOptions access = {});
+		void* map(size_t offset, size_t length, Flags<CPUAccess> access = CPUAccess::Write, Flags<MapOptions> options = {});
 		void unmap();
 
-	private:
-		//! Flag indicating whether the buffer is mapped
-		bool _mapped = false;
+		/*!
+		 * \param offset Offset to the beginning of the currently mapped range
+		 */
+		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
 
-		//! Host mapped pointer
-		void* _mappedPtr = nullptr;
+	public:
+		void copyTo(Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max());
+
+	private:
+		//! Buffer can be mapped persistently
+		bool _allowPersistentMapping{ false };
+
+		//! Buffer can be mapped coherently
+		bool _allowCoherentMapping{ false };
+
+	private:
+		//! Flags indicating with which host access the buffer was mapped
+		Flags<CPUAccess> _mappedAccess;
+
+		//! Flags indicating with which host access the buffer was mapped
+		Flags<MapOptions> _mappedOptions;
+
+		//! Offset of the mapped memory region
+		size_t _mappedOffset;
+
+		//! Size of the mapped memory region
+		size_t _mappedSize;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

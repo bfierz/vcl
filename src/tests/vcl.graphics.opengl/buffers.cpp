@@ -74,10 +74,10 @@ TEST(OpenGL, CheckBufferInit)
 		1024
 	};
 
-	OpenGL::Buffer buf(desc, &data);
+	OpenGL::Buffer buf(desc, true, true, &data);
 
 	bool equal = true;
-	auto ptr = (float*) buf.map(0, 1024);
+	auto ptr = (float*) buf.map(0, 1024, CPUAccess::Read);
 	for (int i = 0; i < 256; i++)
 	{
 		equal = equal && (ptr[i] == numbers[i]);
@@ -86,5 +86,56 @@ TEST(OpenGL, CheckBufferInit)
 
 	// Verify the result
 	EXPECT_TRUE(buf.id() != 0) << "Buffer not created.";
+	EXPECT_TRUE(equal) << "Initialisation data is correct.";
+}
+
+TEST(OpenGL, CheckExplicitBufferReadWrite)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Define the buffer
+	float numbers[256];
+	for (int i = 0; i < 256; i++)
+		numbers[i] = (float) i;
+
+	float zeros[256];
+	for (int i = 0; i < 256; i++)
+		zeros[i] = 0;
+
+	BufferDescription desc =
+	{
+		1024,
+		Usage::Staging,
+		CPUAccess::Read | CPUAccess::Write
+	};
+
+	BufferInitData data =
+	{
+		zeros,
+		1024
+	};
+
+	OpenGL::Buffer buf0(desc, false, false, &data);
+
+	EXPECT_TRUE(buf0.id() != 0) << "Buffer not created.";
+
+	auto writePtr = (float*) buf0.map(0, 1024, CPUAccess::Write);
+	for (int i = 0; i < 95; i++)
+	{
+		writePtr[i] = numbers[i];
+	}
+	buf0.unmap();
+
+	auto readPtr = (float*) buf0.map(0, 1024, CPUAccess::Read);
+	bool equal = true;
+	for (int i = 0; i < 95; i++)
+	{
+		equal = equal && (readPtr[i] == numbers[i]);
+	}
+	for (int i = 95; i < 256; i++)
+	{
+		equal = equal && (readPtr[i] == 0);
+	}
+	buf0.unmap();
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
 }

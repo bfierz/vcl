@@ -26,9 +26,10 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	Buffer::Buffer(const BufferDescription& desc)
-	: _usage(desc.Usage)
-	, _cpuAccess(desc.CPUAccess)
+	Buffer::Buffer(size_t size, Usage usage, Flags<CPUAccess> cpuAccess)
+	: _sizeInBytes(size)
+	, _usage(usage)
+	, _cpuAccess(cpuAccess)
 	{
 	}
 }}}
