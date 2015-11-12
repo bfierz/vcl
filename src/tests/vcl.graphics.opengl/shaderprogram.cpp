@@ -75,6 +75,26 @@ void main()
 }
 )";
 
+const char* SimpleCS =
+R"(
+#version 430 core
+
+// Kernel input
+layout(rgba8) uniform image2D input0;
+
+// Kernel output
+layout(rgba8) uniform image2D output0;
+
+// Size of the local tile
+layout (local_size_x = 16, local_size_y = 16) in;
+
+void main()
+{
+	ivec2 outPos = ivec2(gl_GlobalInvocationID.xy);
+
+	imageStore(output0, outPos, vec4(float(gl_LocalInvocationID.x + gl_LocalInvocationID.y) / 256.0f, 0, 0, 1));
+}
+)";
 
 TEST(OpenGL, CompileVertexShader)
 {
@@ -90,7 +110,21 @@ TEST(OpenGL, CompileVertexShader)
 	EXPECT_TRUE(compiled != 0) << "Shader not compiled.";
 }
 
-TEST(OpenGL, BuildSimpleShaderProgram)
+TEST(OpenGL, CompileComputeShader)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Compile the shader
+	OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+
+	// Verify the result
+	GLint compiled = 0;
+	glGetShaderiv(cs.id(), GL_COMPILE_STATUS, &compiled);
+
+	EXPECT_TRUE(compiled != 0) << "Shader not compiled.";
+}
+
+TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 {
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
@@ -112,6 +146,30 @@ TEST(OpenGL, BuildSimpleShaderProgram)
 	desc.InputLayout = std::move(in);
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
+
+	// Create the shader program
+	OpenGL::ShaderProgram prog{ desc };
+
+	// Verify the result
+	GLint linked = 0, valid = 0;
+	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
+	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
+
+	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
+	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+}
+
+TEST(OpenGL, BuildSimpleComputeShaderProgram)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	// Compile the shader
+	OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+
+	// Create the program descriptor
+	OpenGL::ShaderProgramDescription desc;
+	desc.ComputeShader = &cs;
 
 	// Create the shader program
 	OpenGL::ShaderProgram prog{ desc };

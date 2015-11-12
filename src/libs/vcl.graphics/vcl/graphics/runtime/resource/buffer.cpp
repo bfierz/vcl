@@ -22,53 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/graphics/runtime/resource/buffer.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-// C++ standard library
-#include <stdexcept>
-#include <utility>
-
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class gl_error : public std::runtime_error
+	Buffer::Buffer(size_t size, Usage usage, Flags<CPUAccess> cpuAccess)
+	: _sizeInBytes(size)
+	, _usage(usage)
+	, _cpuAccess(cpuAccess)
 	{
-	public:
-		explicit gl_error(const std::string& what_arg) : runtime_error(what_arg) {}
-		explicit gl_error(const char* what_arg) : runtime_error(what_arg) {}
-	};
-
-	class gl_memory_error : public gl_error
-	{
-	public:
-		explicit gl_memory_error(const std::string& what_arg) : gl_error(what_arg) {}
-		explicit gl_memory_error(const char* what_arg) : gl_error(what_arg) {}
-	};
-
-	class Resource
-	{
-	protected:
-		Resource() = default;
-
-	public:
-		Resource(const Resource&) = delete;
-		Resource(Resource&& rhs) { std::swap(_glId, rhs._glId); }
-		virtual ~Resource() = default;
-
-	public:
-		GLuint id() const { return _glId; }
-
-	protected:
-		void setId(GLuint id) { _glId = id; }
-
-	protected:
-		//! OpenGL resource Id
-		GLuint _glId{ 0 };
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	}
+}}}

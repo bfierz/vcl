@@ -91,7 +91,7 @@ namespace Vcl
 		{
 		}
 
-		inline explicit Flags(Enum flag)
+		inline Flags(Enum flag)
 		: _flags(flag)
 		{
 		}
@@ -165,7 +165,7 @@ namespace Vcl
 		union
 		{
 			uint32_t _flags;
-			Bits mBits;
+			Bits _bits;
 		};
 	};
 }

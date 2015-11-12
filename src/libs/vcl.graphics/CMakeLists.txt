@@ -15,6 +15,7 @@ SET(VCL_GRAPHICS_OPENGL_SRC
 
 # VCL / GRAPHICS / RUNTIME / OPENGL / RESOURCE
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC
+	vcl/graphics/runtime/opengl/resource/buffer.h
 	vcl/graphics/runtime/opengl/resource/resource.h
 	vcl/graphics/runtime/opengl/resource/shader.h
 	vcl/graphics/runtime/opengl/resource/texture.h
@@ -22,6 +23,7 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC
 	vcl/graphics/runtime/opengl/resource/texture2darray.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
+	vcl/graphics/runtime/opengl/resource/buffer.cpp
 	vcl/graphics/runtime/opengl/resource/shader.cpp
 	vcl/graphics/runtime/opengl/resource/texture.cpp
 	vcl/graphics/runtime/opengl/resource/texture2d.cpp
@@ -40,10 +42,12 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
 
 # VCL / GRAPHICS / RUNTIME / RESOURCE
 SET(VCL_GRAPHICS_RUNTIME_RESOURCE_INC
+	vcl/graphics/runtime/resource/buffer.h
 	vcl/graphics/runtime/resource/shader.h
 	vcl/graphics/runtime/resource/texture.h
 )
 SET(VCL_GRAPHICS_RUNTIME_RESOURCE_SRC
+	vcl/graphics/runtime/resource/buffer.cpp
 	vcl/graphics/runtime/resource/shader.cpp
 	vcl/graphics/runtime/resource/texture.cpp
 )
