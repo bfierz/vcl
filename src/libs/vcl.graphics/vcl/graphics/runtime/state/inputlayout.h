@@ -83,6 +83,14 @@ namespace Vcl { namespace Graphics { namespace Runtime
 			std::swap(_locations, rhs._locations);
 		}
 
+		InputLayoutDescription& operator=(InputLayoutDescription&& rhs)
+		{
+			std::swap(_elements, rhs._elements);
+			std::swap(_locations, rhs._locations);
+
+			return *this;
+		}
+
 	public:
 		std::vector<InputLayoutElement>::iterator begin() { return _elements.begin(); }
 		std::vector<InputLayoutElement>::const_iterator begin() const { return _elements.cbegin(); }

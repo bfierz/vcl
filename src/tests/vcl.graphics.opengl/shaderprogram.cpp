@@ -109,7 +109,7 @@ TEST(OpenGL, BuildSimpleShaderProgram)
 
 	// Create the program descriptor
 	OpenGL::ShaderProgramDescription desc;
-	desc.InputLayout = in;
+	desc.InputLayout = std::move(in);
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
 
