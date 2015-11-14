@@ -59,11 +59,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 	}
 
-	void Texture2DArray::fill(int layer, int mip_level, Vcl::Graphics::SurfaceFormat fmt, const void* data)
+	void Texture2DArray::fill(int layer, int mip_level, SurfaceFormat fmt, const void* data)
 	{
 	}
 
-	void Texture2DArray::read(Vcl::Graphics::SurfaceFormat& fmt, void* data) const
+	void Texture2DArray::read(size_t size, void* data) const
 	{
 	}
 

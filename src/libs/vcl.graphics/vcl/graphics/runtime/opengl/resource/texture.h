@@ -58,7 +58,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual void fill(SurfaceFormat fmt, const void* data) = 0;
 		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) = 0;
 
-		virtual void read(SurfaceFormat& fmt, void* data) const = 0;
+		virtual void read(size_t size, void* data) const = 0;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

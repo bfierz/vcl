@@ -69,13 +69,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glTextureSubImage2D(_glId, mip_level, 0, 0, width(), height(), gl_fmt.Format, gl_fmt.Type, data);
 	}
 
-	void Texture2D::read(SurfaceFormat& fmt, void* data) const
+	void Texture2D::read(size_t size, void* data) const
 	{
-		fmt = this->format();
+		SurfaceFormat fmt = this->format();
 		ImageFormat gl_fmt = toImageFormat(fmt);
 
-		DebugError("Call is buggy");
-		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, 0, data);
+		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, size, data);
 	}
 
 	void Texture2D::initialise(const TextureResource* init_data /* = nullptr */)

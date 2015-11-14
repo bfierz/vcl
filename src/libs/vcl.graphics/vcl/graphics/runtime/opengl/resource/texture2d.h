@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual void fill(SurfaceFormat fmt, const void* data) override;
 		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
 
-		virtual void read(SurfaceFormat& fmt, void* data) const override;
+		virtual void read(size_t size, void* data) const override;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

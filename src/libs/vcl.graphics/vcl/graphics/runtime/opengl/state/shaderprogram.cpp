@@ -521,6 +521,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			),
 			"Compute shader is not combined with graphics shaders."
 		);
+		Require(implies(desc.ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
 		Require(implies(!desc.ComputeShader, desc.VertexShader && desc.FragmentShader), "VertexShader and Fragment shader are set.");
 
 		// Create a program for the shader
