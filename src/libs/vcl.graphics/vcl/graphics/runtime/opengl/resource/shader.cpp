@@ -36,6 +36,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Shader::Shader(ShaderType type, int tag, const char* source)
 	: Runtime::Shader(type, tag)
 	{
+		Require(implies(type == ShaderType::ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
+
 		// Create the shader object
 		_glId = glCreateShader(toGLenum(type));
 		glShaderSource(_glId, 1, &source, nullptr);

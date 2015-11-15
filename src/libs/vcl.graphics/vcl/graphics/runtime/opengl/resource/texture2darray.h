@@ -47,10 +47,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) override;
 		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
-		void fill(int layer, int mip_level, Vcl::Graphics::SurfaceFormat fmt, const void* data);
+		void fill(int layer, int mip_level, SurfaceFormat fmt, const void* data);
 		
 	public:
-		virtual void read(Vcl::Graphics::SurfaceFormat& fmt, void* data) const override;
+		virtual void read(size_t size, void* data) const override;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

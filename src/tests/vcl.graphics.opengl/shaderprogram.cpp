@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -29,6 +29,7 @@
 // C++ Standard Library
 
 // Include the relevant parts from the library
+#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
 // Google test
@@ -78,9 +79,6 @@ void main()
 const char* SimpleCS =
 R"(
 #version 430 core
-
-// Kernel input
-layout(rgba8) uniform image2D input0;
 
 // Kernel output
 layout(rgba8) uniform image2D output0;
@@ -181,4 +179,52 @@ TEST(OpenGL, BuildSimpleComputeShaderProgram)
 
 	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
 	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+}
+
+TEST(OpenGL, RunSimpleComputeShaderProgram)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	// Compile the shader
+	OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+
+	// Create the program descriptor
+	OpenGL::ShaderProgramDescription desc;
+	desc.ComputeShader = &cs;
+
+	// Create the shader program
+	OpenGL::ShaderProgram prog{ desc };
+
+	// Create an output image
+	OpenGL::Texture2D output{ 256, 256, SurfaceFormat::R8G8B8A8_UNORM };
+
+	// Bind the program to the pipeline
+	prog.bind();
+
+	// Bind the output parameter
+	glBindImageTexture(0, output.id(), 0, false, 0, GL_WRITE_ONLY, GL_RGBA8);
+
+	// Execute the compute shader
+	glDispatchCompute(16, 16, 1);
+
+	// Read the generated image
+	std::vector<std::array<unsigned char, 4>> pattern(256 * 256, { 254, 254, 254, 254 });
+	output.read(pattern.size() * 4, pattern.data());
+
+	// Verify output
+	for (int x = 0; x < 16; x++)
+	{
+		for (int y = 0; y < 16; y++)
+		{
+			int lx = x % 16;
+			int ly = y % 16;
+
+			auto item = pattern[y * 256 + x];
+			EXPECT_EQ(item[0], lx + ly) << "Computed pattern is wrong";
+			EXPECT_EQ(item[1], 0) << "Computed pattern is wrong";
+			EXPECT_EQ(item[2], 0) << "Computed pattern is wrong";
+			EXPECT_EQ(item[3], 255) << "Computed pattern is wrong";
+		}
+	}
 }
