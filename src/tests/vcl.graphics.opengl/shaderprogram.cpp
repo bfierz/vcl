@@ -84,7 +84,7 @@ R"(
 layout(rgba8) uniform image2D output0;
 
 // Size of the local tile
-layout (local_size_x = 16, local_size_y = 16) in;
+layout(local_size_x = 16, local_size_y = 16) in;
 
 void main()
 {
@@ -197,7 +197,13 @@ TEST(OpenGL, RunSimpleComputeShaderProgram)
 	OpenGL::ShaderProgram prog{ desc };
 
 	// Create an output image
-	OpenGL::Texture2D output{ 256, 256, SurfaceFormat::R8G8B8A8_UNORM };
+	Texture2DDescription desc2d;
+	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.ArraySize = 1;
+	desc2d.Width = 256;
+	desc2d.Height = 256;
+	desc2d.MipLevels = 1;
+	OpenGL::Texture2D output{ desc2d };
 
 	// Bind the program to the pipeline
 	prog.bind();

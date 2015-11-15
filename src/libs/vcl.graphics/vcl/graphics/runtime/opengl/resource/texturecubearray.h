@@ -35,19 +35,20 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Texture2D : public Texture
+	class TextureCubeArray : public Texture
 	{
 	public:
-		Texture2D(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
-		virtual ~Texture2D();
+		TextureCubeArray(const TextureCubeDescription& desc, const TextureResource* init_data = nullptr);
+		virtual ~TextureCubeArray();
 
 	private:
 		void initialise(const TextureResource* init_data = nullptr);
-
+		
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) override;
 		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
-
+		
+	public:
 		virtual void read(size_t size, void* data) const override;
 	};
 }}}}

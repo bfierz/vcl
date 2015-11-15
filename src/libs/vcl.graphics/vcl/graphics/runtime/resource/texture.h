@@ -162,9 +162,11 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		int height() const { return _height; }
 		int depth() const { return _depth; }
 
+		int firstLayer() const { return _layer; }
 		int layers() const { return _nrLayers; }
 
 		int firstMipMapLevel() const { return _level; }
+		int mipMapLevels() const { return _nrLevels; }
 
 	protected:
 		void initializeView
