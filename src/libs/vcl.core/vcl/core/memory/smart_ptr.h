@@ -274,19 +274,6 @@ namespace Vcl
 		{
 			return{ ptr, Detail::ConstTag{} };
 		}
-
-		T* get() const { return _ptr; }
-
-		private:
-			T* _ptr{ nullptr };
-			std::shared_ptr<ref_cnt> _cnt;
-		};
-
-		template<typename T, typename... Args>
-		owner_ptr<T> make_owner(Args&&... args)
-		{
-			return owner_ptr<T>(new T(std::forward<Args>(args)...));
-		}
 	}
 	using namespace Core;
 }
