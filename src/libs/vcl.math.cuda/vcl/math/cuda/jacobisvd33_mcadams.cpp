@@ -94,7 +94,7 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		queue.write(A, inA.data());
 
 		// Perform the SVD computation
-		dim3 grid{ ceil<128>(numEntries) };
+		dim3 grid{ static_cast<unsigned int>(ceil<128>(numEntries)) };
 		dim3 block{ 128};
 		static_cast<Compute::Cuda::Kernel*>(_svdKernel.get())->run
 		(

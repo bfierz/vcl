@@ -31,31 +31,22 @@
 #ifdef VCL_OPENGL_SUPPORT
 
 // VCL
+#include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader
+	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
 		Shader(ShaderType type, int tag, const char* source);
 		virtual ~Shader();
 
 	public:
-		GLuint glId() const
-		{
-			return _shaderObject;
-		}
-
-	public:
 		static GLenum toGLenum(ShaderType type);
 
 	private:
 		void printInfoLog() const;
-		
-	private:
-		//! OpenGL shader program
-		GLuint _shaderObject{ 0 };
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

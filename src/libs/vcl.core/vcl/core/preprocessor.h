@@ -133,3 +133,10 @@
 #else
 #	define VCL_BREAKPOINT								VCL_UNUSED(true)
 #endif
+
+// Define an anonymous variable
+#ifdef __COUNTER__
+#	define VCL_ANONYMOUS_VARIABLE(str) VCL_PP_JOIN(str, __COUNTER__)
+#else
+#	define VCL_ANONYMOUS_VARIABLE(str) VCL_PP_JOIN(str, __LINE__)
+#endif

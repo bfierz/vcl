@@ -33,6 +33,10 @@
 #include <vcl/graphics/camera.h>
 #include <vcl/math/math.h>
 
+#ifndef M_PI
+#	define M_PI 3.1415926535897932384626433832795
+#endif
+
 namespace Vcl { namespace Graphics
 {
 	template<typename Scalar>
