@@ -25,7 +25,7 @@
 #include <vcl/physics/fluid/openmp/omppoisson3dsolver.h>
 
 // VCL
-#include <vcl/mathematics/solver/eigenconjugategradientscontext.h>
+#include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/math/solver/conjugategradients.h>
 
 #include <vcl/physics/fluid/centergrid.h>

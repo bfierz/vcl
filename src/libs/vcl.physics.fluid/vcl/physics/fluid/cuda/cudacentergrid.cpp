@@ -357,13 +357,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	{
 		using namespace Vcl::Mathematics;
 
-		int size = resolution().x() * resolution().y() * resolution().z();
+		unsigned int size = resolution().x() * resolution().y() * resolution().z();
 
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		unsigned int block_size = 256;
 		unsigned int elemPerThread = 1;
 		unsigned int elemPerBlock = elemPerThread * block_size;
-		unsigned int grid_size = ceil<1 * 256>(size) / (elemPerBlock);
+		unsigned int grid_size = ceil<1 * 256>(size) / elemPerBlock;
 
 		_accumulate->run
 		(
