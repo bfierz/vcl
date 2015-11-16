@@ -36,7 +36,7 @@
 #include <omp.h>
 
 // VCL
-#include <vcl/mathematics/solver/eigenconjugategradientscontext.h>
+#include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/physics/fluid/poisson3dsolver.h>
 
 namespace Vcl { namespace Mathematics { namespace Solver { class ConjugateGradients; }}}

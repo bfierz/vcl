@@ -34,6 +34,11 @@
 #include <vcl/physics/fluid/cuda/cudapoisson3dsolver.h>
 #include <vcl/physics/fluid/openmp/omppoisson3dsolver.h>
 
+#ifdef VCL_CUDA_SUPPORT
+extern uint32_t EulerfluidSimulationCudaModule [];
+extern size_t EulerfluidSimulationCudaModuleSize;
+
+
 namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 {
 	EulerFluidSimulation::EulerFluidSimulation(ref_ptr<Vcl::Compute::Cuda::Context> ctx)
@@ -46,15 +51,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		_advection = std::make_unique<MacCormackAdvection>(ctx);
 
 		// Load the module
-		_fluidModule = ctx->createModule(std::string("../data/compute/cudaeulerfluidsimulation"));
+		_fluidModule = ctx->createModuleFromSource((int8_t*) EulerfluidSimulationCudaModule, EulerfluidSimulationCudaModuleSize*sizeof(uint32_t));
 
 		if (_fluidModule)
 		{
-			auto& mod = ctx->module(_fluidModule);
-
 			// Load the fluid simulation related kernels
-			_compVorticity = mod.kernel("ComputeVorticity");
-			_addVorticity  = mod.kernel("AddVorticity");
+			_compVorticity = Core::static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("ComputeVorticity"));
+			_addVorticity = Core::static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("AddVorticity"));
 		}
 	}
 	EulerFluidSimulation::~EulerFluidSimulation()
@@ -260,3 +263,4 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		std::cout << time << std::endl;
 	}
 }}}}
+#endif /* VCL_CUDA_SUPPORT */

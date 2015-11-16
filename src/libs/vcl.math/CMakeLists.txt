@@ -12,6 +12,7 @@ SET(VCL_MATH_MCADAMS_INC
 # VCL / MATH / SOLVER
 SET(VCL_MATH_SOLVER_INC
 	vcl/math/solver/conjugategradients.h
+	vcl/math/solver/eigenconjugategradientscontext.h
 	vcl/math/solver/jacobi.h
 )
 SET(VCL_MATH_SOLVER_SRC
