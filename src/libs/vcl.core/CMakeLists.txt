@@ -23,8 +23,10 @@ SET(VCL_CORE_SRC
 )
 SET(VCL_CORE_INC
 	vcl/core/contract.h
+	vcl/core/flags.h
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
+	vcl/core/preprocessor.h
 )
 
 # VCL / CORE / 3RDPARTY
@@ -44,6 +46,7 @@ SET(VCL_CORE_CONTAINER_INL
 )
 SET(VCL_CORE_CONTAINER_INC
 	vcl/core/container/bitvector.h
+	vcl/core/container/bucketadapter.h
 )
 
 # VCL / CORE / MEMORY
@@ -91,6 +94,7 @@ SET(VCL_CORE_SIMD_INC
 
 # VCL / MATH
 SET(VCL_MATH_INC
+	vcl/math/ceil.h
 	vcl/math/math.h
 )
 
@@ -99,7 +103,12 @@ SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
 )
 SET(VCL_UTIL_INC
+	vcl/util/donotoptimizeaway.h
+	vcl/util/hashedstring.h
 	vcl/util/precisetimer.h
+	vcl/util/mortoncodes.h
+	vcl/util/reservememory.h
+	vcl/util/scopeguard.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})
@@ -125,7 +134,19 @@ SET(SOURCE
 # Generate library
 ADD_LIBRARY(vcl_core STATIC ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_core PROPERTIES FOLDER libs)
+SET_TARGET_PROPERTIES(vcl_core PROPERTIES DEBUG_POSTFIX _d)
 TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Now make sure that we find the config.h file
 TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${PROJECT_BINARY_DIR})
+
+# Setup installation
+INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
+INSTALL(FILES ${VCL_CORE_3RDPARTY_INL} ${VCL_CORE_3RDPARTY_INC} DESTINATION include/vcl/core/3rdparty)
+INSTALL(FILES ${VCL_CORE_CONTAINER_INL} ${VCL_CORE_CONTAINER_INC} DESTINATION include/vcl/core/container)
+INSTALL(FILES ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC} DESTINATION include/vcl/core/memory)
+INSTALL(FILES ${VCL_CORE_SIMD_INL} ${VCL_CORE_SIMD_INC} DESTINATION include/vcl/core/simd)
+INSTALL(FILES ${VCL_CORE_INC} DESTINATION include/vcl/core)
+INSTALL(FILES ${VCL_MATH_INC} DESTINATION include/vcl/math)
+INSTALL(FILES ${VCL_UTIL_INC} DESTINATION include/vcl/util)
+INSTALL(TARGETS vcl_core ARCHIVE DESTINATION lib)

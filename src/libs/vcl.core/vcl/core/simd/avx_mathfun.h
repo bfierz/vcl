@@ -65,12 +65,12 @@ _PI32AVX_CONST(4, 4);
 _PS256_CONST(1  , 1.0f);
 _PS256_CONST(0p5, 0.5f);
 /* the smallest non denormalized float number */
-_PS256_CONST_TYPE(min_norm_pos, int, 0x00800000);
-_PS256_CONST_TYPE(mant_mask, int, 0x7f800000);
-_PS256_CONST_TYPE(inv_mant_mask, int, ~0x7f800000);
+_PS256_CONST_TYPE(min_norm_pos, int, (int) 0x00800000);
+_PS256_CONST_TYPE(mant_mask, int, (int) 0x7f800000);
+_PS256_CONST_TYPE(inv_mant_mask, int, (int) ~0x7f800000);
 
-_PS256_CONST_TYPE(sign_mask, int, 0x80000000);
-_PS256_CONST_TYPE(inv_sign_mask, int, ~0x80000000);
+_PS256_CONST_TYPE(sign_mask, int, (int) 0x80000000);
+_PS256_CONST_TYPE(inv_sign_mask, int, (int) ~0x80000000);
 
 _PI32_CONST256(0, 0);
 _PI32_CONST256(1, 1);
@@ -126,7 +126,7 @@ static inline v8si _mm256_##fn(v8si x, int a) \
 }
 
 //#warning "Using SSE2 to perform AVX2 bitshift ops"
-#if (_MSC_VER <= 1700)
+#if defined _MSC_VER && (_MSC_VER <= 1700)
 AVX2_BITOP_USING_SSE2(slli_epi32)
 AVX2_BITOP_USING_SSE2(srli_epi32)
 #endif
@@ -149,7 +149,7 @@ static inline v8si _mm256_##fn(v8si x, v8si y) \
 //#warning "Using SSE2 to perform AVX2 integer ops"
 AVX2_INTOP_USING_SSE2(and_si128)
 AVX2_INTOP_USING_SSE2(andnot_si128)
-#if (_MSC_VER <= 1700)
+#if defined _MSC_VER && (_MSC_VER <= 1700)
 AVX2_INTOP_USING_SSE2(cmpeq_epi32)
 AVX2_INTOP_USING_SSE2(sub_epi32)
 AVX2_INTOP_USING_SSE2(add_epi32)
@@ -158,10 +158,12 @@ AVX2_INTOP_USING_SSE2(add_epi32)
 #endif /* __AVX2__ */
 
 
-/* natural logarithm computed for 8 simultaneous float 
-   return NaN for x <= 0
-*/
-v8sf log256_ps(v8sf x) {
+/*
+ *	natural logarithm computed for 8 simultaneous float 
+ *  return NaN for x <= 0
+ */
+v8sf log256_ps(v8sf x)
+{
   v8si imm0;
   v8sf one = *(v8sf*)_ps256_1;
 

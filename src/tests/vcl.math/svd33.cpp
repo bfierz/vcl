@@ -55,11 +55,22 @@ namespace
 		// Initialize data
 		for (int i = 0; i < (int) nr_problems; i++)
 		{
-			Eigen::Matrix<Scalar, 3, 3> rnd;
-			rnd << d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng);
-			F.at<Scalar>(i) = rnd;
+			if (i < 8)
+			{
+				F.at<Scalar>(i) = Eigen::Matrix<Scalar, 3, 3>::Identity();
+			}
+			else if (i < 16)
+			{
+				F.at<Scalar>(i) = 0.35f * Eigen::Matrix<Scalar, 3, 3>::Identity();
+			}
+			else
+			{
+				Eigen::Matrix<Scalar, 3, 3> rnd;
+				rnd << d(rng), d(rng), d(rng),
+					   d(rng), d(rng), d(rng),
+					   d(rng), d(rng), d(rng);
+				F.at<Scalar>(i) = rnd;
+			}
 		}
 
 		return std::move(F);

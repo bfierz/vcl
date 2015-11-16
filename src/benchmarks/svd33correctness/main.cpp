@@ -39,6 +39,22 @@
 #include <vcl/math/jacobisvd33_twosided.h>
 #include <vcl/util/precisetimer.h>
 
+#ifdef VCL_CUDA_SUPPORT
+#	include <vcl/compute/cuda/commandqueue.h>
+#	include <vcl/compute/cuda/context.h>
+#	include <vcl/compute/cuda/device.h>
+#	include <vcl/compute/cuda/platform.h>
+#	include <vcl/math/cuda/jacobisvd33_mcadams.h>
+#endif // defined VCL_CUDA_SUPPORT
+
+#ifdef VCL_OPENCL_SUPPORT
+#	include <vcl/compute/opencl/commandqueue.h>
+#	include <vcl/compute/opencl/context.h>
+#	include <vcl/compute/opencl/device.h>
+#	include <vcl/compute/opencl/platform.h>
+#	include <vcl/math/opencl/jacobisvd33_mcadams.h>
+#endif // defined VCL_OPENCL_SUPPORT
+
 template<typename Scalar>
 Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 {
@@ -193,6 +209,54 @@ void mcAdamsSVD
 	}
 }
 
+#ifdef VCL_CUDA_SUPPORT
+void cudaMcAdamsSVD
+(
+	size_t nr_problems,
+	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
+)
+{
+	using namespace Vcl::Compute::Cuda;
+
+	Platform::initialise();
+	auto& dev = Platform::instance()->device(0);
+	auto ctx = Vcl::Core::make_owner<Context>(dev);
+
+	auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx->defaultQueue());
+
+	Vcl::Mathematics::Cuda::JacobiSVD33 solver(ctx);
+	solver(*queue, F, resU, resV, resS);
+	queue->sync();
+}
+#endif // defined VCL_CUDA_SUPPORT
+
+#ifdef VCL_OPENCL_SUPPORT
+void openCLMcAdamsSVD
+(
+	size_t nr_problems,
+	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
+)
+{
+	using namespace Vcl::Compute::OpenCL;
+
+	Platform::initialise();
+	auto& dev = Platform::instance()->device(0);
+	auto ctx = Vcl::Core::make_owner<Context>(dev);
+
+	auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx->defaultQueue());
+
+	Vcl::Mathematics::OpenCL::JacobiSVD33 solver(ctx);
+	solver(*queue, F, resU, resV, resS);
+	queue->sync();
+}
+#endif // defined VCL_OPENCL_SUPPORT
+
 template<typename Scalar>
 void checkSolution
 (
@@ -285,7 +349,7 @@ int main(int, char**)
 
 	auto F = createProblems<scalar_t>(nr_problems);
 	computeReferenceSolution(nr_problems, F, refU, refV, refS);
-
+	
 	// Test correctness: Two-sided Jacobi SVD (Brent)
 	twoSidedSVD<float>(nr_problems, F, resU, resV, resS);        checkSolution("TwoSidedJacobiSVD - float",   "two_sided_jacobi_svd_float_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	twoSidedSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);  checkSolution("TwoSidedJacobiSVD - float4",  "two_sided_jacobi_svd_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
@@ -305,4 +369,12 @@ int main(int, char**)
 #ifdef VCL_VECTORIZE_AVX
 	mcAdamsSVD<Vcl::float8>(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
+	
+#ifdef VCL_CUDA_SUPPORT
+	cudaMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - CUDA", "cuda_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+#endif // defined VCL_CUDA_SUPPORT
+	
+#ifdef VCL_OPENCL_SUPPORT
+	openCLMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - OpenCL", "opencl_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+#endif // defined VCL_OPENCL_SUPPORT
 }

@@ -125,14 +125,14 @@ namespace Vcl { namespace Core
 		{
 			Require(idx < _bits.size(), "Index is valid");
 
-			return reference(_bits.data() + idx, &_generation);
+			return{ _bits.data() + idx, &_generation };
 		}
 
 		const reference operator[] (size_type idx) const
 		{
 			Require(idx < _bits.size(), "Index is valid");
 
-			return reference(const_cast<uint16_t*>(_bits.data()) + idx, &_generation);
+			return{ const_cast<uint16_t*>(_bits.data()) + idx, &_generation };
 		}
 
 	public: // Modifiers

@@ -34,6 +34,19 @@
 
 #include <vcl/core/simd/intrinsics_sse.h>
 
+// Macros for GCC compatibility
+#ifndef _mm256_set_m128
+#	define _mm256_set_m128(/* __m128 */ hi, /* __m128 */ lo) _mm256_insertf128_ps(_mm256_castps128_ps256(lo), (hi), 0x1)
+#endif // _mm256_set_m128
+
+#ifndef _mm256_set_m128d
+#	define _mm256_set_m128d(/* __m128d */ hi, /* __m128d */ lo) _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), (hi), 0x1)
+#endif // _mm256_set_m128d
+
+#ifndef _mm256_set_m128i
+#	define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
+#endif // _mm256_set_m128i
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
@@ -361,6 +374,26 @@ namespace Vcl
 
 		return _mm256_set_m128i(z1, z0);
 #endif
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m256 v)
+	{
+		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		__m256 redux = _mm256_min_ps(v, hilo);
+		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
+		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
+
+		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m256 v)
+	{
+		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		__m256 redux = _mm256_max_ps(v, hilo);
+		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
+		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
+		
+		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)

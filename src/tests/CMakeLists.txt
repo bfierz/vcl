@@ -16,3 +16,13 @@ SUBDIRS(vcl.math)
 
 # Tests for the components library
 SUBDIRS(vcl.components)
+
+# OpenGL related tests
+IF(GLEW_FOUND AND VCL_OPENGL_SUPPORT)
+	SUBDIRS(vcl.graphics.opengl)
+ENDIF()
+
+# OpenCL related tests
+IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	SUBDIRS(vcl.compute.opencl)
+ENDIF()

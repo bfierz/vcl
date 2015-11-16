@@ -42,7 +42,7 @@
 namespace Vcl { namespace Mathematics
 {
 	template<typename Real>
-	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(Real a11, Real a12, Real a22)
+	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(const Real& a11, const Real& a12, const Real& a22)
 	{
 		//const Real pi = Real(3.1415926535897932384626433832795);
 
@@ -89,11 +89,11 @@ namespace Vcl { namespace Mathematics
 		if (p == 0 && q == 1)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, 0, 0, s };
+			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
 
 #if 0
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
+			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
@@ -148,16 +148,16 @@ namespace Vcl { namespace Mathematics
 #endif
 
 			// Update the rotation quaternion
-			Q *= q;
+			Q *= quat;
 		}
 		else if (p == 0 && q == 2)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, 0, -s, 0 };
+			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
 
 #if 0
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
+			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
@@ -210,15 +210,15 @@ namespace Vcl { namespace Mathematics
 			M(1, 2) = M(2, 1); //M12;
 			M(2, 2) = M22;
 #endif
-			Q *= q;
+			Q *= quat;
 		}
 		else if (p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, s, 0, 0 };
+			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
 #if 0
 			// Build the rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> R = q.toRotationMatrix();
+			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
@@ -272,7 +272,7 @@ namespace Vcl { namespace Mathematics
 			M(1, 2) = M(2, 1); //M12;
 			M(2, 2) = M22;
 #endif
-			Q *= q;
+			Q *= quat;
 		}
 	}
 
@@ -289,7 +289,7 @@ namespace Vcl { namespace Mathematics
 		if (p == 0 && q == 1)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, 0, 0, s };
+			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
 
 			// Transform the input matrix
 			Scalar M00 = a*a * M(0) + a*b * (M(3) + M(3)) + b*b * M(1);
@@ -305,18 +305,18 @@ namespace Vcl { namespace Mathematics
 			M(5) = M21;
 
 			// Update the rotation quaternion
-			Q *= q;
+			Q *= quat;
 		}
 		else if (p == 0 && q == 2)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, 0, -s, 0 };
+			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
 
 			// Transform the input matrix
 			Scalar M00 = a*a * M(0) + a*b * (M(4) + M(4)) + b*b * M(2);
 			Scalar M10 = a * M(3) + b * M(5);
 			Scalar M20 = a*a * M(4) + a*b * (M(2) - M(0)) - b*b * M(4);
-			Scalar M21 = a * M(5) - b * M(0, 1);
+			Scalar M21 = a * M(5) - b * M(3);
 			Scalar M22 = a*a * M(2) + a*b * (-M(4) - M(4)) + b*b * M(0);
 
 			M(0) = M00;
@@ -325,12 +325,12 @@ namespace Vcl { namespace Mathematics
 			M(4) = M20;
 			M(5) = M21;
 
-			Q *= q;
+			Q *= quat;
 		}
 		else if (p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
-			Eigen::Quaternion<Scalar> q{ c, s, 0, 0 };
+			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
 
 			// Transform the input matrix
 			Scalar M10 = a * M(3) + b * M(4);
@@ -345,7 +345,7 @@ namespace Vcl { namespace Mathematics
 			M(4) = M20;
 			M(5) = M21;
 
-			Q *= q;
+			Q *= quat;
 		}
 	}
 
