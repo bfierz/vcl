@@ -88,12 +88,14 @@ SET(VCL_GRAPHICS_INC
 	vcl/graphics/frustum.h
 	vcl/graphics/matrixfactory.h
 	vcl/graphics/surfaceformat.h
+	vcl/graphics/trackball.h
 )
 SET(VCL_GRAPHICS_SRC
 	vcl/graphics/camera.cpp
 	vcl/graphics/frustum.cpp
 	vcl/graphics/matrixfactory.cpp
 	vcl/graphics/surfaceformat.cpp
+	vcl/graphics/trackball.cpp
 )
 
 SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})
