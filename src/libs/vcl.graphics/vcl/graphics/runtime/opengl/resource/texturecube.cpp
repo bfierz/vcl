@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/runtime/opengl/resource/texture2darray.h>
+#include <vcl/graphics/runtime/opengl/resource/texturecube.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -31,59 +31,55 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	Texture2DArray::Texture2DArray
+	TextureCube::TextureCube
 	(
-		const Texture2DDescription& desc,
+		const TextureCubeDescription& desc,
 		const TextureResource* init_data /* = nullptr */
 	)
 	: Texture()
 	{
 		initializeView
 		(
-			TextureType::Texture2DArray, desc.Format,
+			TextureType::TextureCube, desc.Format,
 			0, desc.MipLevels,
-			0, desc.ArraySize,
+			0, 1,
 			desc.Width, desc.Height, 1
 		);
 		initialise(init_data);
 	}
 
-	Texture2DArray::~Texture2DArray()
+	TextureCube::~TextureCube()
 	{
 		// Delete the texture
 		glDeleteTextures(1, &_glId);
 	}
 
-	void Texture2DArray::fill(SurfaceFormat fmt, const void* data)
+	void TextureCube::fill(SurfaceFormat fmt, const void* data)
 	{
 		ImageFormat gl_fmt = toImageFormat(fmt);
 		
-		glTextureSubImage3D(_glId, 0, 0, 0, 0, width(), height(), layers(), gl_fmt.Format, gl_fmt.Type, data);
+		glTextureSubImage3D(_glId, 0, 0, 0, 0, width(), height(), 6, gl_fmt.Format, gl_fmt.Type, data);
 	}
 
-	void Texture2DArray::fill(SurfaceFormat fmt, int mip_level, const void* data)
+	void TextureCube::fill(SurfaceFormat fmt, int mip_level, const void* data)
 	{
 	}
 
-	void Texture2DArray::fill(int layer, int mip_level, SurfaceFormat fmt, const void* data)
+	void TextureCube::read(size_t size, void* data) const
 	{
 	}
 
-	void Texture2DArray::read(size_t size, void* data) const
-	{
-	}
-
-	void Texture2DArray::initialise(const TextureResource* init_data /* = nullptr */)
+	void TextureCube::initialise(const TextureResource* init_data /* = nullptr */)
 	{
 		GLenum colour_fmt = toSurfaceFormat(format());
 		ImageFormat img_fmt = toImageFormat(format());
 
-		glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &_glId);
-		glTextureStorage3D(_glId, 1, colour_fmt, width(), height(), layers());
+		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_glId);
+		glTextureStorage3D(_glId, 1, colour_fmt, width(), height(), 6);
 		
 		if (init_data)
 		{
-			glTextureSubImage3D(_glId, 0, 0, 0, 0, init_data->Width, init_data->Height, init_data->Layers, img_fmt.Format, img_fmt.Type, init_data->Data);
+			glTextureSubImage3D(_glId, 0, 0, 0, 0, init_data->Width, init_data->Height, 6, img_fmt.Format, img_fmt.Type, init_data->Data);
 		}
 		
 		// Configure texture

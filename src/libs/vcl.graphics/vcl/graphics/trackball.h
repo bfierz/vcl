@@ -26,29 +26,40 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/eigen.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/texture.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics
 {
-	class Texture2D : public Texture
+	class Trackball
 	{
 	public:
-		Texture2D(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
-		virtual ~Texture2D();
-
-	private:
-		void initialise(const TextureResource* init_data = nullptr);
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) override;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
+		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
 
-		virtual void read(size_t size, void* data) const override;
+	public:
+		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void endRotate();
+		
+		void reset();
+
+	private:
+		Eigen::Vector3f project(float ratio_x, float ratio_y);
+		Eigen::Quaternionf fromPosition(Eigen::Vector3f v) const;
+
+	private:
+		//! Radius of the trackball
+		float _radius{ 1.0f };
+
+		//! Last rotation
+		Eigen::Vector3f _lastPosition{ Eigen::Vector3f::Zero() };
+
+		//! Current rotation
+		Eigen::Quaternionf _lastQuat{ Eigen::Vector3f::Identity() };
+
+		//! Are we tracking the rotation
+		bool _rotate{ false };
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}}

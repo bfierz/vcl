@@ -43,23 +43,35 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC
 	vcl/graphics/runtime/opengl/resource/resource.h
 	vcl/graphics/runtime/opengl/resource/shader.h
 	vcl/graphics/runtime/opengl/resource/texture.h
+	vcl/graphics/runtime/opengl/resource/texture1d.h
+	vcl/graphics/runtime/opengl/resource/texture1darray.h
 	vcl/graphics/runtime/opengl/resource/texture2d.h
 	vcl/graphics/runtime/opengl/resource/texture2darray.h
+	vcl/graphics/runtime/opengl/resource/texture3d.h
+	vcl/graphics/runtime/opengl/resource/texturecube.h
+	vcl/graphics/runtime/opengl/resource/texturecubearray.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
 	vcl/graphics/runtime/opengl/resource/buffer.cpp
 	vcl/graphics/runtime/opengl/resource/shader.cpp
 	vcl/graphics/runtime/opengl/resource/texture.cpp
+	vcl/graphics/runtime/opengl/resource/texture1d.cpp
+	vcl/graphics/runtime/opengl/resource/texture1darray.cpp
 	vcl/graphics/runtime/opengl/resource/texture2d.cpp
 	vcl/graphics/runtime/opengl/resource/texture2darray.cpp
+	vcl/graphics/runtime/opengl/resource/texture3d.cpp
+	vcl/graphics/runtime/opengl/resource/texturecube.cpp
+	vcl/graphics/runtime/opengl/resource/texturecubearray.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / OPENGL / STATE
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
+	vcl/graphics/runtime/opengl/state/framebuffer.h
 	vcl/graphics/runtime/opengl/state/sampler.h
 	vcl/graphics/runtime/opengl/state/shaderprogram.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
+	vcl/graphics/runtime/opengl/state/framebuffer.cpp
 	vcl/graphics/runtime/opengl/state/sampler.cpp
 	vcl/graphics/runtime/opengl/state/shaderprogram.cpp
 )
@@ -102,12 +114,14 @@ SET(VCL_GRAPHICS_INC
 	vcl/graphics/frustum.h
 	vcl/graphics/matrixfactory.h
 	vcl/graphics/surfaceformat.h
+	vcl/graphics/trackball.h
 )
 SET(VCL_GRAPHICS_SRC
 	vcl/graphics/camera.cpp
 	vcl/graphics/frustum.cpp
 	vcl/graphics/matrixfactory.cpp
 	vcl/graphics/surfaceformat.cpp
+	vcl/graphics/trackball.cpp
 )
 
 SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})

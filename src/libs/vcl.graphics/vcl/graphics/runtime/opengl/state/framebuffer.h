@@ -26,29 +26,56 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 #include <vcl/config/opengl.h>
+
+// C++ standard library
+#include <array>
+
+// VCL
+#include <vcl/graphics/runtime/opengl/resource/resource.h>
+#include <vcl/graphics/runtime/resource/texture.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/texture.h>
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Texture2D : public Texture
+	class Framebuffer : public Resource
 	{
 	public:
-		Texture2D(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
-		virtual ~Texture2D();
+		Framebuffer
+		(
+			const Runtime::Texture** colourTargets, size_t nrColourTargets,
+			const Runtime::Texture* depthTarget
+		);
+		Framebuffer(const Framebuffer&) = delete;
+		virtual ~Framebuffer();
+
+		Framebuffer& operator= (const Framebuffer&) = delete;
+		
+	public:
+		void bind();
+		void clear(int idx, const Eigen::Vector4f& colour);
+		void clear(int idx, const Eigen::Vector4i& colour);
+		void clear(int idx, const Eigen::Vector4ui& colour);
+		void clear(float depth, int stencil);
+		void clear(float depth);
+		void clear(int stencil);
 
 	private:
-		void initialise(const TextureResource* init_data = nullptr);
+		bool checkGLFramebufferStatus(GLuint fbo);
+		GLenum toDepthStencilAttachment(SurfaceFormat fmt);
 
-	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) override;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
+	private:
+		// Implementation defined maximum number of render targets
+		static const unsigned int maxNrRenderTargets = 8;
 
-		virtual void read(size_t size, void* data) const override;
+		//! Colour render target
+		std::array<const Runtime::Texture*, 8> _colourTargets;
+
+		//! Depth target
+		const Runtime::Texture* _depthTarget{ nullptr };
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT
+
