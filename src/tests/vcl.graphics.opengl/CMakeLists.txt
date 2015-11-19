@@ -2,6 +2,7 @@ PROJECT(vcl_graphics_opengl_test)
 
 SET(VCL_TEST_SRC
 	buffers.cpp
+	imageprocessor.cpp
 	shaderprogram.cpp
 	textures.cpp
 	main.cpp
