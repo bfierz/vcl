@@ -42,10 +42,12 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
 
 # VCL / GRAPHICS / RUNTIME / OPENGL / STATE
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
+	vcl/graphics/runtime/opengl/state/framebuffer.h
 	vcl/graphics/runtime/opengl/state/sampler.h
 	vcl/graphics/runtime/opengl/state/shaderprogram.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
+	vcl/graphics/runtime/opengl/state/framebuffer.cpp
 	vcl/graphics/runtime/opengl/state/sampler.cpp
 	vcl/graphics/runtime/opengl/state/shaderprogram.cpp
 )
