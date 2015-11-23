@@ -77,16 +77,16 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	void Task::updateResources(ImageProcessor* processor)
 	{
-		for (int i = 0; i < nrOutputSlots(); i++)
+		for (unsigned int i = 0; i < nrOutputSlots(); i++)
 		{
-			unsigned int x = outputSlot(i)->x();
-			unsigned int y = outputSlot(i)->y();
+			//unsigned int x = outputSlot(i)->x();
+			//unsigned int y = outputSlot(i)->y();
 			unsigned int w = outputSlot(i)->width();
 			unsigned int h = outputSlot(i)->height();
 
 			bool needs_new_image = true;
 
-			if (outputSlot(i)->connections().size() > 0)
+			/*if (outputSlot(i)->connections().size() > 0)
 			{
 				w = w > 0 ? outputSlot(i)->width()  : inputSlot(0)->width();
 				h = h > 0 ? outputSlot(i)->height() : inputSlot(0)->height();
@@ -94,18 +94,24 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 				if (outputSlot(i)->resource() && w <= outputSlot(i)->resource()->width() && h <= outputSlot(i)->resource()->height())
 					needs_new_image = false;
 			}
+			else */if (nrInputSlots() > 0 && inputSlot(0)->resource())
+			{
+				w = inputSlot(0)->width();
+				h = inputSlot(0)->height();
+
+				if (outputSlot(i)->resource() && w <= (unsigned int) outputSlot(i)->resource()->width() && h <= (unsigned int) outputSlot(i)->resource()->height())
+					needs_new_image = false;
+			}
 
 			// Update the existing resource
 			if (needs_new_image)
 			{
-				auto resource = processor->requestImage(w, h, SurfaceFormat::R8G8B8A8_UNORM);
+				auto fmt = _desc.Outputs[i].Format;
+				if (fmt == SurfaceFormat::Unknown)
+					fmt = SurfaceFormat::R8G8B8A8_UNORM;
+				auto resource = processor->requestImage(w, h, fmt);
 				outputSlot(i)->setResource(resource, w, h);
 			}
 		}
-	}
-
-	void Task::setTaskParameters(ImageProcessor* processor)
-	{
-		VCL_UNREFERENCED_PARAMETER(processor);
 	}
 }}}

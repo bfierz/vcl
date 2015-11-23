@@ -22,20 +22,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/imageprocessing/srgb.h>
+#pragma once
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
+// VCL configuration
+#include <vcl/config/global.h>
+
+// VCL
+#include <vcl/graphics/imageprocessing/opengl/imageprocessor.h>
+#include <vcl/graphics/imageprocessing/tonemap.h>
+#include <vcl/graphics/runtime/resource/shader.h>
+
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
-	SRGB::SRGB()
+	class Tonemap : public ImageProcessing::Tonemap
 	{
-		TaskDescription desc;
-		desc.Inputs.resize(1);
-		desc.Inputs[0].Name = "Scene";
+	public:
+		enum FilterType
+		{
+			Reinhard
+		};
 
-		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
+	public:
+		Tonemap(ImageProcessor* processor);
+		virtual ~Tonemap() = default;
 
-		initialize(desc);
-	}
-}}}
+	public:
+		virtual void process(ImageProcessing::ImageProcessor* processor) override;
+
+	private:
+		size_t _reinhardKernelId;
+	};
+}}}}

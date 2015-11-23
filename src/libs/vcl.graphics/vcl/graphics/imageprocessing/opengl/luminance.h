@@ -22,20 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/imageprocessing/srgb.h>
+#pragma once
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
+// VCL configuration
+#include <vcl/config/global.h>
+
+// VCL
+#include <vcl/graphics/imageprocessing/opengl/imageprocessor.h>
+#include <vcl/graphics/imageprocessing/luminance.h>
+#include <vcl/graphics/runtime/resource/shader.h>
+
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
-	SRGB::SRGB()
+	class Luminance : public ImageProcessing::Luminance
 	{
-		TaskDescription desc;
-		desc.Inputs.resize(1);
-		desc.Inputs[0].Name = "Scene";
+	public:
+		Luminance(ImageProcessor* processor);
+		virtual ~Luminance() = default;
+		
+	public:
+		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 
-		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
+	private:
+		//! Kernel computing the luminance of each fragment
+		size_t _prepareKernelId;
 
-		initialize(desc);
-	}
-}}}
+		//! Kernel used to down-scale the image
+		size_t _downscaleKernelId;
+	};
+}}}}

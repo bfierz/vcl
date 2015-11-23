@@ -44,7 +44,12 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 	public:
 		virtual ImagePtr requestImage(int w, int h, SurfaceFormat fmt) override;
-		virtual void enqueKernel(size_t kernel, const OutputSlot** outputs, size_t nr_outputs, const InputSlot** inputs, size_t nr_inputs) override;
+		virtual void enqueKernel
+		(
+			size_t kernel,
+			const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
+			const Runtime::Texture** inputs, Eigen::Vector4i* inRanges, size_t nr_inputs
+		) override;
 
 	private:
 		//! Kernel cache

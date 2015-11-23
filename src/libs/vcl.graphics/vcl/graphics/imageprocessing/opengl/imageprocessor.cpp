@@ -62,15 +62,67 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		}
 		else
 		{
-			auto new_cache_entry = std::make_shared<Runtime::OpenGL::Texture2D>(w, h, fmt);
+			Runtime::Texture2DDescription desc2d;
+			desc2d.Format = fmt;
+			desc2d.ArraySize = 1;
+			desc2d.Width = w;
+			desc2d.Height = h;
+			desc2d.MipLevels = 1;
+			auto new_cache_entry = std::make_shared<Runtime::OpenGL::Texture2D>(desc2d);
 			cache.push_back(new_cache_entry);
 
 			return new_cache_entry;
 		}
 	}
 
-	void ImageProcessor::enqueKernel(size_t kernel, const OutputSlot** outputs, size_t nr_outputs, const InputSlot** inputs, size_t nr_inputs)
+	void ImageProcessor::enqueKernel
+	(
+		size_t kernel,
+		const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
+		const Runtime::Texture** inputs, Eigen::Vector4i* inRanges, size_t nr_inputs
+	)
 	{
+		Require(nr_inputs <= 8, "Supports 8 input slots");
 
+		// Early out
+		if (nr_outputs == 0)
+			return;
+
+		// Fetch the program
+		auto ker = _kernel.find(kernel);
+		if (ker == _kernel.end())
+			return;
+
+		auto prog = ker->second.get();
+
+		// Bind the program to the pipeline
+		prog->bind();
+
+		// Bind the input
+		char input_name[] = "input0";
+		char input_range_name[] = "inputRange0";
+		for (int i = 0; i < nr_inputs; i++)
+		{
+			input_name[5] = '0' + i;
+			input_range_name[10] = '0' + i;
+
+			auto in_handle = prog->uniform(input_name);
+			prog->setImage(in_handle, inputs[i], true, false);
+
+			auto in_range_handle = prog->uniform(input_range_name);
+			prog->setUniform(in_range_handle, Eigen::Vector4i{ inRanges[i].x(), inRanges[i].y(), inRanges[i].z(), inRanges[i].w() });
+		}
+
+		// Bind the output parameter
+		auto out_handle = prog->uniform("output0");
+		prog->setImage(out_handle, outputs[0], false, true);
+
+		auto out_range_handle = prog->uniform("outputRange0");
+		prog->setUniform(out_range_handle, Eigen::Vector4i{ outRanges[0].x(), outRanges[0].y(), outRanges[0].z(), outRanges[0].w() });
+
+		// Execute the compute shader
+		int w = outRanges[0].z();
+		int h = outRanges[0].w();
+		glDispatchCompute(w, h, 1);
 	}
 }}}}

@@ -22,19 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/imageprocessing/srgb.h>
+#include <vcl/graphics/imageprocessing/luminance.h>
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
-	SRGB::SRGB()
+	Luminance::Luminance()
 	{
 		TaskDescription desc;
 		desc.Inputs.resize(1);
 		desc.Inputs[0].Name = "Scene";
 
 		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
+		desc.Outputs[0].Name = "Luminance";
+		desc.Outputs[0].Format = SurfaceFormat::R16_FLOAT;
 
 		initialize(desc);
 	}

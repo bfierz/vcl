@@ -71,13 +71,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Texture1D::initialise(const TextureResource* init_data /* = nullptr */)
 	{
 		GLenum colour_fmt = toSurfaceFormat(format());
-		ImageFormat img_fmt = toImageFormat(format());
 
 		glCreateTextures(GL_TEXTURE_1D, 1, &_glId);
 		glTextureStorage1D(_glId, 1, colour_fmt, width());
 		
 		if (init_data)
 		{
+			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
 			glTextureSubImage1D(_glId, 0, 0, init_data->Width, img_fmt.Format, img_fmt.Type, init_data->Data);
 		}
 		

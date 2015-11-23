@@ -26,6 +26,7 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
 // C++ standard library
 #include <memory>
@@ -46,7 +47,12 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		void execute(Task* filter);
 
 	public:
-		virtual void enqueKernel(size_t kernel, const OutputSlot** outputs, size_t nr_outputs, const InputSlot** inputs, size_t nr_inputs) = 0;
+		virtual void enqueKernel
+		(
+			size_t kernel,
+			const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
+			const Runtime::Texture** inputs, Eigen::Vector4i* inRanges, size_t nr_inputs
+		) = 0;
 
 	public: // Resource management
 		virtual ImagePtr requestImage(int w, int h, SurfaceFormat fmt) = 0;
