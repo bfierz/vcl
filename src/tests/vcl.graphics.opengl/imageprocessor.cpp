@@ -30,6 +30,7 @@
 #include <vector>
 
 // Include the relevant parts from the library
+#include <vcl/graphics/imageprocessing/opengl/gaussian.h>
 #include <vcl/graphics/imageprocessing/opengl/luminance.h>
 #include <vcl/graphics/imageprocessing/opengl/srgb.h>
 #include <vcl/graphics/imageprocessing/opengl/tonemap.h>
@@ -37,6 +38,12 @@
 
 // Google test
 #include <gtest/gtest.h>
+
+// Support code
+#include "bitmap.h"
+
+// Sample images
+#include "pattern.h"
 
 TEST(OpenGL, ImageProcessingTaskSRGB)
 {
@@ -57,7 +64,7 @@ TEST(OpenGL, ImageProcessingTaskSRGB)
 	init_res.Data = numerical_average_gray.data();
 
 	Runtime::Texture2DDescription desc2d;
-	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
 	desc2d.ArraySize = 1;
 	desc2d.Width = 256;
 	desc2d.Height = 256;
@@ -121,7 +128,7 @@ TEST(OpenGL, ImageProcessingTaskLuminance)
 	init_res.Data = input_pattern.data();
 
 	Runtime::Texture2DDescription desc2d;
-	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
 	desc2d.ArraySize = 1;
 	desc2d.Width = 512;
 	desc2d.Height = 128;
@@ -165,7 +172,7 @@ TEST(OpenGL, ImageProcessingTaskTonemap)
 	std::vector<unsigned char> numerical_average_gray(256 * 256 * 4, 127);
 	std::vector<unsigned char> physiological_average_gray(256 * 256 * 4, 127);
 
-	float lum = 0.5f;
+	float lum = 0.25f;
 
 	Runtime::TextureResource init_res;
 	init_res.Width = 256;
@@ -174,7 +181,7 @@ TEST(OpenGL, ImageProcessingTaskTonemap)
 	init_res.Data = numerical_average_gray.data();
 
 	Runtime::Texture2DDescription desc2d;
-	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
 	desc2d.ArraySize = 1;
 	desc2d.Width = 256;
 	desc2d.Height = 256;
@@ -230,6 +237,79 @@ TEST(OpenGL, ImageProcessingTaskTonemap)
 	}
 
 	EXPECT_TRUE(equal) << "Tonemapping was not successful";
+
+	return;
+}
+
+TEST(OpenGL, ImageProcessingTaskGaussian)
+{
+	using namespace Vcl::Graphics::ImageProcessing::OpenGL;
+	using namespace Vcl::Graphics;
+
+	// Instantiate the image processor
+	ImageProcessor proc;
+
+	// Prepare the input
+	std::vector<std::array<unsigned char, 4>> input_image(81 * 81);
+	std::vector<std::array<unsigned char, 4>> blurred_image(81 * 81);
+
+	input_image.clear();
+	for (int i = 0; i < sizeof(pattern); i += 3)
+	{
+		input_image.push_back({ pattern[i + 0], pattern[i + 1], pattern[i + 2], 0 });
+	}
+
+	Runtime::TextureResource init_res;
+	init_res.Width = 81;
+	init_res.Height = 81;
+	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	init_res.Data = input_image.data();
+
+	Runtime::Texture2DDescription desc2d;
+	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.ArraySize = 1;
+	desc2d.Width = 81;
+	desc2d.Height = 81;
+	desc2d.MipLevels = 1;
+	Runtime::OpenGL::Texture2D input{ desc2d, &init_res };
+
+	// Task to test
+	Gaussian task{ &proc };
+
+	// Configure the input
+	task.inputSlot(0)->setResource(&input);
+
+	// Memory barrier ensuring safe writes
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+
+	// Execute the kernel
+	proc.execute(&task);
+
+	// Memory barrier ensuring safe reads
+	glMemoryBarrier(GL_TEXTURE_UPDATE_BARRIER_BIT);
+
+	// Read the output
+	auto output = task.outputSlot(0)->resource();
+	auto& out_tex = static_cast<const Runtime::OpenGL::Texture2D&>(*output);
+	out_tex.read(4*blurred_image.size(), blurred_image.data());
+
+	Vcl::IO::Bitmap::store("input.bmp", 81, 81, input_image);
+	Vcl::IO::Bitmap::store("blurred.bmp", 81, 81, blurred_image);
+
+	/*bool equal = true;
+	for (int y = 0; y < 256; y++)
+	{
+		for (int x = 0; x < 256; x++)
+		{
+			bool r = physiological_average_gray[4 * (y * 256 + x) + 0] == 187;
+			bool g = physiological_average_gray[4 * (y * 256 + x) + 1] == 187;
+			bool b = physiological_average_gray[4 * (y * 256 + x) + 2] == 187;
+
+			equal = equal && r && g && b;
+		}
+	}
+
+	EXPECT_TRUE(equal) << "SRGB transform was not successful";*/
 
 	return;
 }

@@ -41,7 +41,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// Kernel input
 		// * Input[0] -> Rendered scene
 		// * Input[1] -> Average luminance
-		layout(rgba8) restrict readonly uniform image2D input0;
+		layout(rgba16f) restrict readonly uniform image2D input0;
 		layout(r16f)  restrict readonly uniform image2D input1;
 
 		// Input ranges
@@ -49,7 +49,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		uniform uvec4 inputRange1;
 
 		// Kernel output
-		layout(rgba8) restrict writeonly uniform image2D output0;		
+		restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform uvec4 outputRange0;
@@ -110,7 +110,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			vec3 rgb = ToneMap(colour.rgb, avg_lum, 0, exposure);
 			float a = colour.a;
 
-			imageStore(output0, coords, vec4(rgb, avg_lum));
+			imageStore(output0, coords, vec4(rgb, a));
 		}
 		)";
 

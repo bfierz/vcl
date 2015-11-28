@@ -8,6 +8,8 @@ SET(VCL_TEST_SRC
 	main.cpp
 )
 SET(VCL_TEST_INC
+	bitmap.h
+	pattern.h
 )
 
 SET(SOURCE

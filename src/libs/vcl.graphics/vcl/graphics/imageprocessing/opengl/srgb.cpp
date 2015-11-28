@@ -39,16 +39,16 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba8) restrict readonly uniform image2D input0;
+		layout(rgba16f) restrict readonly uniform image2D input0;
 
 		// Input ranges
-		uniform uvec4 inputRange0;
+		uniform ivec4 inputRange0;
 
 		// Kernel output
-		layout(rgba8) restrict writeonly uniform image2D output0;		
+		restrict writeonly uniform image2D output0;		
 
 		// Output ranges
-		uniform uvec4 outputRange0;
+		uniform ivec4 outputRange0;
 
 		float LinearToSrgb(float val)
 		{
