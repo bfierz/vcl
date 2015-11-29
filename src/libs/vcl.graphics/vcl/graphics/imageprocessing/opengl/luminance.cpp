@@ -93,13 +93,21 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			{
 				for (int x = 0; x <= 1; x++)
 				{
+					// Clamp the coordinates
+					ivec2 inCoords = inBase + inCoords + ivec2(x, y);
+					inCoords = min(inCoords, inBase + inputRange0.zw - ivec2(1, 1));
+
 					// Compute the sum of color values
-					vec4 color = imageLoad(input0, inBase + inCoords + ivec2(x, y));
-					lum[x][y] = log(dot(color, vec4(0.299f, 0.587f, 0.114f, 0.0f) + 0.0001f));
+					vec4 color = imageLoad(input0, inCoords);
+					lum[x][y] = dot(color, vec4(0.299f, 0.587f, 0.114f, 0.0f));
 				}
 			}
 
 			float avg = dot(vec2(1.0f - inFragOffset.x, inFragOffset.x), lum * vec2(1.0f - inFragOffset.y, inFragOffset.y));
+			
+			// Convert to log-average
+			avg = log(avg + 0.0001f);
+
 			imageStore(output0, outBase + outCoords, vec4(avg, avg, avg, avg));
 		}
 		)";
@@ -134,35 +142,46 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			float avg = 0.0f;
 			if (x_only)
 			{
-				avg += imageLoad(input0, 3 * outCoords + ivec2(-1,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 1,  0)).r;
+				ivec2 inCoords = 3 * outCoords + ivec2(1, 0);
+
+				avg += imageLoad(input0, inCoords + ivec2(-1,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 1,  0)).r;
 
 				avg /= 3.0f;
 			}
 			else if (y_only)
 			{
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0, -1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0,  1)).r;
+				ivec2 inCoords = 3 * outCoords + ivec2(0, 1);
+
+				avg += imageLoad(input0, inCoords + ivec2( 0, -1)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0,  1)).r;
 
 				avg /= 3.0f;
 			}
 			else
 			{
-				avg += imageLoad(input0, 3 * outCoords + ivec2(-1, -1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0, -1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 1, -1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2(-1,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 1,  0)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2(-1,  1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 0,  1)).r;
-				avg += imageLoad(input0, 3 * outCoords + ivec2( 1,  1)).r;
+				ivec2 inCoords = 3 * outCoords + ivec2(1, 1);
+
+				avg += imageLoad(input0, inCoords + ivec2(-1, -1)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0, -1)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 1, -1)).r;
+				avg += imageLoad(input0, inCoords + ivec2(-1,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 1,  0)).r;
+				avg += imageLoad(input0, inCoords + ivec2(-1,  1)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 0,  1)).r;
+				avg += imageLoad(input0, inCoords + ivec2( 1,  1)).r;
 
 				avg /= 9.0f;
 			}
 
+			// Convert final output to a log-scale
+			//if (outputRange0.z == 1 && outputRange0.w == 1)
+			//{
+			//	avg = log(avg + 0.0001f);
+			//}
 
 			imageStore(output0, outCoords, vec4(avg, avg, avg, avg));
 		}
@@ -206,10 +225,12 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		Eigen::Vector4i output_range{ 0, 0, pass_width, pass_height };
 		
 		// Convert the color image input to luminance
-		processor->enqueKernel(_prepareKernelId, &next_lum_base_img_ptr, &output_range, 1, &input, &input_range, 1);
+		processor->enqueKernel(_prepareKernelId, pass_width, pass_height, &next_lum_base_img_ptr, &output_range, 1, &input, &input_range, 1);
 
 		// Done with the first image
 		num_passes--;
+		in_w = pass_width;
+		in_h = pass_height;
 		pass_width = std::max(pass_width / 3, 1);
 		pass_height = std::max(pass_height / 3, 1);
 
@@ -221,13 +242,15 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			next_lum_base_img = processor->requestImage(pass_width, pass_height, SurfaceFormat::R16_FLOAT);
 			next_lum_base_img_ptr = next_lum_base_img.get();
 
-			input_range = { 0, 0, output_range.z(), output_range.w() };
+			input_range = { 0, 0, in_w, in_h };
 			output_range = { 0, 0, pass_width, pass_height };
 
 			// Convert the color image input to luminance
-			processor->enqueKernel(_prepareKernelId, &next_lum_base_img_ptr, &output_range, 1, &curr_lum_base_img_ptr, &input_range, 1);
+			processor->enqueKernel(_downscaleKernelId, pass_width, pass_height, &next_lum_base_img_ptr, &output_range, 1, &curr_lum_base_img_ptr, &input_range, 1);
 
 			// Go to the next smaller level
+			in_w = pass_width;
+			in_h = pass_height;
 			pass_width = std::max(pass_width / 3, 1);
 			pass_height = std::max(pass_height / 3, 1);
 		}

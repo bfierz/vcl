@@ -48,13 +48,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		//	{
 		//		_inputSlots.push_back(std::make_unique<ResourceInputSlot>(_desc.Inputs[i].Name)));
 		//	}
-			_inputSlots.push_back(std::make_unique<InputSlot>(_desc.Inputs[i].Name));
+			_inputSlots.push_back(std::make_unique<InputSlot>(_desc.Inputs[i].Name, this));
 		}
 		
 		_outputSlots.reserve(_desc.Outputs.size());
 		for (unsigned int o = 0; o < _desc.Outputs.size(); o++)
 		{
-			_outputSlots.push_back(std::make_unique<OutputSlot>(_desc.Outputs[o].Name));
+			_outputSlots.push_back(std::make_unique<OutputSlot>(_desc.Outputs[o].Name, this));
 		}
 	}
 	

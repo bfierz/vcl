@@ -7,6 +7,7 @@ SET(VCL_CONFIG_INC
 
 # VCL / GRAPHICS / IMAGEPROCESSING / OPENGL
 SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC
+	vcl/graphics/imageprocessing/opengl/GaussianBlur.h
 	vcl/graphics/imageprocessing/opengl/gaussian.h
 	vcl/graphics/imageprocessing/opengl/imageprocessor.h
 	vcl/graphics/imageprocessing/opengl/luminance.h

@@ -27,6 +27,9 @@
 // VCL
 #include <vcl/core/contract.h>
 
+// Local
+#include "GaussianBlur.h"
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	Gaussian::Gaussian(ImageProcessor* processor)
@@ -35,6 +38,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// Sigma: 1
 		// * 0.06136f, 0.24477f, 0.38774f, 0.24477f, 0.06136f
 		// * 0.00598f, 0.060626f, 0.241843f, 0.383103f, 0.241843f, 0.060626f, 0.00598f
+		// * 0.000229f, 0.005977f, 0.060598f, 0.241732f, 0.382928f, 0.241732f, 0.060598f, 0.005977f, 0.000229f
 		// Sigma: 2
 		// * 0.071303f, 0.131514f, 0.189879f, 0.214607f, 0.189879f, 0.131514f, 0.071303f
 		// * 0.028532f, 0.067234f, 0.124009f, 0.179044f, 0.20236f, 0.179044f, 0.124009f, 0.067234f, 0.028532f
@@ -52,19 +56,19 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba8) restrict readonly uniform image2D input0;
+		layout(rgba16f) restrict readonly uniform image2D input0;
 
 		// Input ranges
 		uniform ivec4 inputRange0;
 
 		// Kernel output
-		restrict writeonly uniform image2D output0;		
+		layout(rgba16f) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform ivec4 outputRange0;
 
 		// Kernel weights
-		const float w[9] = { 0.000229f, 0.005977f, 0.060598f, 0.241732f, 0.382928f, 0.241732f, 0.060598f, 0.005977f, 0.000229 };
+		const float w[9] = { 0.000229f, 0.005977f, 0.060598f, 0.241732f, 0.382928f, 0.241732f, 0.060598f, 0.005977f, 0.000229f };
 
 		void main()
 		{
@@ -106,7 +110,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba8) restrict readonly uniform image2D input0;
+		layout(rgba16f) restrict readonly uniform image2D input0;
 
 		// Input ranges
 		uniform ivec4 inputRange0;
@@ -118,7 +122,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		uniform ivec4 outputRange0;
 
 		// Kernel weights
-		const float w[9] = { 0.000229f, 0.005977f, 0.060598f, 0.241732f, 0.382928f, 0.241732f, 0.060598f, 0.005977f, 0.000229 };
+		const float w[9] = { 0.000229f, 0.005977f, 0.060598f, 0.241732f, 0.382928f, 0.241732f, 0.060598f, 0.005977f, 0.000229f };
 
 		void main()
 		{
@@ -172,18 +176,18 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		Eigen::Vector4i input_range{ 0, 0, _inputSlots[0]->resource()->width(), _inputSlots[0]->resource()->height() };
 
 		// Temporary storage
-		auto tmp = processor->requestImage(output_range.z(), output_range.w(), _outputSlots[0]->resource()->format());
+		auto tmp = processor->requestImage(output_range.z(), output_range.w(), _inputSlots[0]->resource()->format());
 
 		// Execute the horizontal blurring kernel
 		const Runtime::Texture* houtput = tmp.get();
 		const Runtime::Texture* hinput = _inputSlots[0]->resource();
 
-		processor->enqueKernel(_horizontalKernelId, &houtput, &output_range, nr_outputs, &hinput, &input_range, nr_inputs);
+		processor->enqueKernel(_horizontalKernelId, output_range.z(), output_range.w(), &houtput, &output_range, nr_outputs, &hinput, &input_range, nr_inputs);
 
 		// Execute the vertical blurring kernel
 		const Runtime::Texture* voutput = _outputSlots[0]->resource();
 		const Runtime::Texture* vinput = tmp.get();
 		
-		processor->enqueKernel(_verticalKernelId, &voutput, &output_range, nr_outputs, &vinput, &input_range, nr_inputs);
+		processor->enqueKernel(_verticalKernelId, output_range.z(), output_range.w(), &voutput, &output_range, nr_outputs, &vinput, &input_range, nr_inputs);
 	}
 }}}}

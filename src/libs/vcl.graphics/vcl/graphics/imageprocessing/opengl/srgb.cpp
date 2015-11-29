@@ -98,6 +98,6 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		const Runtime::Texture* input = _inputSlots[0]->resource();
 		Eigen::Vector4i input_range{ 0, 0, input->width(), input->height() };
 
-		processor->enqueKernel(_kernelId, &output, &output_range, nr_outputs, &input, &input_range, nr_inputs);
+		processor->enqueKernel(_kernelId, output->width(), output->height(), &output, &output_range, nr_outputs, &input, &input_range, nr_inputs);
 	}
 }}}}

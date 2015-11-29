@@ -29,13 +29,14 @@
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
-	Slot::Slot(const std::string& id)
+	Slot::Slot(const std::string& id, Task* task)
 	: _identifier(id)
+	, _owner(task)
 	{
 	}
 
-	InputSlot::InputSlot(const std::string& id)
-	: Slot(id)
+	InputSlot::InputSlot(const std::string& id, Task* task)
+	: Slot(id, task)
 	{
 	}
 
@@ -147,8 +148,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		return _source ? _source->height() : _height;
 	}
 
-	OutputSlot::OutputSlot(const std::string& id)
-	: Slot(id)
+	OutputSlot::OutputSlot(const std::string& id, Task* task)
+	: Slot(id, task)
 	{
 	}
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res)

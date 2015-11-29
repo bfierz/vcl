@@ -42,7 +42,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// * Input[0] -> Rendered scene
 		// * Input[1] -> Average luminance
 		layout(rgba16f) restrict readonly uniform image2D input0;
-		layout(r16f)  restrict readonly uniform image2D input1;
+		layout(r16f)    restrict readonly uniform image2D input1;
 
 		// Input ranges
 		uniform uvec4 inputRange0;
@@ -73,10 +73,11 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			colour = (colour * (6.2f * colour + 0.5f)) / (colour * (6.2f * colour + 1.7f)+ 0.06f);
 		
 			// result has 1/2.2 baked in
-			return pow(colour, vec3(2.2f, 2.2f, 2.2f));
+			// return pow(colour, vec3(2.2f, 2.2f, 2.2f));
+			return colour;
 		}
 		
-		// Determines the color based on exposure settings
+		// Determines the colour based on exposure settings
 		vec3 CalcExposedColor(vec3 colour, float avgLuminance, float threshold, out float exposure)
 		{
 			// Use geometric mean
@@ -138,6 +139,6 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			{ 0, 0, inputs[1]->width(), inputs[1]->height() }
 		};
 
-		processor->enqueKernel(_reinhardKernelId, &output, &output_range, nr_outputs, inputs, input_ranges, nr_inputs);
+		processor->enqueKernel(_reinhardKernelId, output->width(), output->height(), &output, &output_range, nr_outputs, inputs, input_ranges, nr_inputs);
 	}
 }}}}

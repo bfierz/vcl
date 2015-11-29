@@ -33,6 +33,13 @@
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
+	ImageProcessor::ImageProcessor()
+	{
+		Runtime::SamplerDescription desc;
+		desc.Filter = Runtime::Filter::MinMagLinearMipPoint;
+		_linearSampler = std::make_unique<Runtime::OpenGL::Sampler>(desc);
+	}
+
 	size_t ImageProcessor::buildKernel(const char* source)
 	{
 		using Runtime::OpenGL::Shader;
@@ -77,12 +84,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 	void ImageProcessor::enqueKernel
 	(
-		size_t kernel,
-		const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
-		const Runtime::Texture** inputs, Eigen::Vector4i* inRanges, size_t nr_inputs
+		size_t kernel, int w, int h,
+		const Runtime::Texture** outputs,        Eigen::Vector4i* outRanges,       size_t nr_outputs,
+		const Runtime::Texture** raw_inputs,     Eigen::Vector4i* rawInRanges,     size_t nr_raw_inputs,
+		const Runtime::Texture** sampled_inputs, Eigen::Vector4i* sampledInRanges, size_t nr_sampled_inputs
 	)
 	{
-		Require(nr_inputs <= 8, "Supports 8 input slots");
+		Require(nr_raw_inputs + nr_sampled_inputs <= 8, "Supports 8 input slots");
 
 		// Early out
 		if (nr_outputs == 0)
@@ -99,18 +107,32 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		prog->bind();
 
 		// Bind the input
-		char input_name[] = "input0";
-		char input_range_name[] = "inputRange0";
-		for (int i = 0; i < nr_inputs; i++)
+		char raw_input_name[] = "input0";
+		char raw_input_range_name[] = "inputRange0";
+		for (int i = 0; i < nr_raw_inputs; i++)
 		{
-			input_name[5] = '0' + i;
-			input_range_name[10] = '0' + i;
+			raw_input_name[5] = '0' + (char) i;
+			raw_input_range_name[10] = '0' + (char) i;
 
-			auto in_handle = prog->uniform(input_name);
-			prog->setImage(in_handle, inputs[i], true, false);
+			auto in_handle = prog->uniform(raw_input_name);
+			prog->setImage(in_handle, raw_inputs[i], true, false);
 
-			auto in_range_handle = prog->uniform(input_range_name);
-			prog->setUniform(in_range_handle, Eigen::Vector4i{ inRanges[i].x(), inRanges[i].y(), inRanges[i].z(), inRanges[i].w() });
+			auto in_range_handle = prog->uniform(raw_input_range_name);
+			prog->setUniform(in_range_handle, Eigen::Vector4i{ rawInRanges[i].x(), rawInRanges[i].y(), rawInRanges[i].z(), rawInRanges[i].w() });
+		}
+
+		char sampled_input_name [] = "texture0";
+		char sampled_input_range_name [] = "textureRange0";
+		for (int i = 0; i < nr_sampled_inputs; i++)
+		{
+			sampled_input_name[7] = '0' + i;
+			sampled_input_range_name[12] = '0' + i;
+
+			auto in_handle = prog->uniform(sampled_input_name);
+			prog->setTexture(in_handle, sampled_inputs[i], _linearSampler.get());
+
+			auto in_range_handle = prog->uniform(sampled_input_range_name);
+			prog->setUniform(in_range_handle, Eigen::Vector4i{ sampledInRanges[i].x(), sampledInRanges[i].y(), sampledInRanges[i].z(), sampledInRanges[i].w() });
 		}
 
 		// Bind the output parameter
@@ -121,8 +143,6 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		prog->setUniform(out_range_handle, Eigen::Vector4i{ outRanges[0].x(), outRanges[0].y(), outRanges[0].z(), outRanges[0].w() });
 
 		// Execute the compute shader
-		int w = outRanges[0].z();
-		int h = outRanges[0].w();
 		glDispatchCompute(w, h, 1);
 	}
 }}}}

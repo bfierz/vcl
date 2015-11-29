@@ -33,8 +33,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		desc.Inputs[0].Name = "Scene";
 
 		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
+		desc.Outputs[0].Name = "BlurredScene";
+		desc.Outputs[0].Format = SurfaceFormat::R16G16B16A16_FLOAT;
 
 		initialize(desc);
 	}

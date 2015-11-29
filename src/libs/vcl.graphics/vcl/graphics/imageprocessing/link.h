@@ -39,16 +39,18 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
 	class InputSlot;
 	class OutputSlot;
+	class Task;
 
 	class Slot
 	{
 	public:
-		Slot(const std::string& id);
+		Slot(const std::string& id, Task* task);
 		Slot(const Slot&) = delete;
 		virtual ~Slot() = default;
 
 	public:
 		const std::string& identifier() const { return _identifier; }
+		Task* task() const { return _owner; }
 
 		virtual const Runtime::Texture* resource() const = 0;
 
@@ -60,12 +62,15 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	private:
 		std::string _identifier;
+
+		// Task to which this slot belongs
+		Task* _owner;
 	};
 
 	class InputSlot : public Slot
 	{
 	public:
-		InputSlot(const std::string& id);
+		InputSlot(const std::string& id, Task* task);
 		virtual ~InputSlot() = default;
 		
 	public:
@@ -77,7 +82,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	public:
 		virtual const Runtime::Texture* resource() const override;
-		
+		OutputSlot* source() const { return _source; }
+
 	public:
 		virtual unsigned int x() const override;
 		virtual unsigned int y() const override;
@@ -108,7 +114,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		friend class InputSlot;
 
 	public:
-		OutputSlot(const std::string& id);
+		OutputSlot(const std::string& id, Task* task);
 		virtual ~OutputSlot() = default;
 		
 	public:
