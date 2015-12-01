@@ -1,0 +1,60 @@
+/*
+ * This file is part of the Visual Computing Library (VCL) release under the
+ * MIT license.
+ *
+ * Copyright (c) 2015 Basil Fierz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#include <vcl/rtti/metatyperegistry.h>
+
+namespace Vcl { namespace RTTI 
+{
+	TypeRegistry::TypeMap& TypeRegistry::instance()
+	{
+		// Since C++11 this initialization is thread-safe
+		static TypeMap types;
+
+		return types;
+	}
+
+	void TypeRegistry::add(const Type* meta)
+	{
+		TypeMap& metas = instance();
+		metas[meta->hash()] = meta;
+	}
+	
+	void TypeRegistry::remove(const Type* meta)
+	{
+		TypeMap& metas = instance();
+
+		metas.erase(meta->hash());
+	}
+
+	const Type* TypeRegistry::get(const char* name)
+	{
+		const TypeMap& metas = instance();
+
+		// Compute hash
+		size_t hash = Vcl::Util::StringHash(name).hash();
+
+		auto meta = metas.find(hash);
+		return (meta == metas.end()) ? nullptr : meta->second;
+	}
+}}
