@@ -35,7 +35,9 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
+VCL_BEGIN_EXTERNAL_HEADERS
 #include <vcl/core/3rdparty/format.h>
+VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl { namespace Util
 {

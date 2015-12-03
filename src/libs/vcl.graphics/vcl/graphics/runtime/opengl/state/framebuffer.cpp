@@ -115,11 +115,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				
 				if (first == 0 && size == tex.layers())
 				{
-					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel);
+					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
 				}
 				else if (size == 1)
 				{
-					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel, first);
+					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
 				}
 				else
 				{
@@ -138,11 +138,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				if (first == 0 && size >= tex.depth())
 				{
-					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel);
+					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
 				}
 				else if (size == 1)
 				{
-					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel, first);
+					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
 				}
 				else
 				{
