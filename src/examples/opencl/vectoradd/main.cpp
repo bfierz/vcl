@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 	for (int d = 0; d < Platform::instance()->nrDevices(); d++)
 	{
 		auto& dev = Platform::instance()->device(d);
-		auto ctx = Context{ dev };
+		Context ctx{ dev };
 
 		auto queue = Vcl::Core::dynamic_pointer_cast<CommandQueue>(ctx.defaultQueue());
 
