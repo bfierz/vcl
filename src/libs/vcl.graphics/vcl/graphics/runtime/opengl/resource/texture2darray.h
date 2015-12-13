@@ -38,7 +38,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	class Texture2DArray : public Texture
 	{
 	public:
-		Texture2DArray(int w, int h, int layers, SurfaceFormat fmt, const TextureResource* init_data = nullptr);
+		Texture2DArray(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
 		virtual ~Texture2DArray();
 
 	private:

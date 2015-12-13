@@ -295,7 +295,11 @@ int main(int argc, char* argv [])
 	}
 
 	// Generate intermediate file name
+#if (_MSC_VER < 1900)
 	std::string preprocess_file = fs::basename(fs::path{ vm["input-file"].as<std::string>() }) + ".i";
+#else
+	std::string preprocess_file = fs::path{ vm["input-file"].as<std::string>() }.stem().string() + ".i";
+#endif
 
 	// Preprocess the source file
 	std::stringstream cmd;

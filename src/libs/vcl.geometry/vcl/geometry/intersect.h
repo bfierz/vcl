@@ -43,22 +43,46 @@ namespace Vcl { namespace Geometry
 	 *	http://tavianator.com/fast-branchless-raybounding-box-intersections/
 	 *	http://tavianator.com/fast-branchless-raybounding-box-intersections-part-2-nans/
 	 */
-	template<typename Real>
 	bool intersects
 	(
-		const Eigen::AlignedBox<Real, 3>& box,
-		const Eigen::ParametrizedLine<Real, 3>& ray
+		const Eigen::AlignedBox<float, 3>& box,
+		const Eigen::ParametrizedLine<float, 3>& ray
 	)
 	{
 		using namespace Vcl::Mathematics;
 
-		Real tmin = -std::numeric_limits<Real>::infinity();
-		Real tmax = std::numeric_limits<Real>::infinity();
+		float tmin = -std::numeric_limits<float>::infinity();
+		float tmax =  std::numeric_limits<float>::infinity();
 
 		for (int i = 0; i < 3; ++i)
 		{
-			Real t1 = (box.min()[i] - ray.origin()[i]) / ray.direction()[i];
-			Real t2 = (box.max()[i] - ray.origin()[i]) / ray.direction()[i];
+			float t1 = (box.min()[i] - ray.origin()[i]) / ray.direction()[i];
+			float t2 = (box.max()[i] - ray.origin()[i]) / ray.direction()[i];
+
+			tmin = max(tmin, min(min(t1, t2), tmax));
+			tmax = min(tmax, max(max(t1, t2), tmin));
+		}
+
+		tmax *= 1.00000024f;
+
+		return tmin <= tmax;
+	}
+	template<typename Real, int Width>
+	Vcl::VectorScalar<bool, Width> intersects
+	(
+		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
+		const Eigen::ParametrizedLine<Vcl::VectorScalar<Real, Width>, 3>& ray
+	)
+	{
+		using namespace Vcl::Mathematics;
+
+		Vcl::VectorScalar<Real, Width> tmin = -std::numeric_limits<float>::infinity();
+		Vcl::VectorScalar<Real, Width> tmax =  std::numeric_limits<float>::infinity();
+
+		for (int i = 0; i < 3; ++i)
+		{
+			Vcl::VectorScalar<Real, Width> t1 = (box.min()[i] - ray.origin()[i]) / ray.direction()[i];
+			Vcl::VectorScalar<Real, Width> t2 = (box.max()[i] - ray.origin()[i]) / ray.direction()[i];
 
 			tmin = max(tmin, min(min(t1, t2), tmax));
 			tmax = min(tmax, max(max(t1, t2), tmin));

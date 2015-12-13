@@ -2,6 +2,7 @@ PROJECT(vcl_geometry_test)
 
 SET(VCL_TEST_SRC
 	distance.cpp
+	intersect.cpp
 )
 SET(VCL_TEST_INC
 	distance_ref.h

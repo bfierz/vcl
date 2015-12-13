@@ -39,7 +39,7 @@
 
 const char* QuadVS =
 R"(
-#version 400 core
+#version 430 core
 
 in vec2 Position;
 in vec3 Colour;
@@ -50,10 +50,25 @@ out PerVertexData
 	vec3 Colour;
 } Out;
 
+layout(binding = 1) uniform MatrixBlock0
+{
+  mat4 Modelview;
+};
+
+uniform MatrixBlock1
+{
+  mat4 Projection;
+};
+
+layout(std430, binding = 2) buffer Colors
+{
+  vec3 ColorScale;
+};
+
 void main()
 {
-	gl_Position = Scale*vec4(Position, 0, 1);
-	Out.Colour = Colour;
+	gl_Position = Projection*Modelview*Scale*vec4(Position, 0, 1);
+	Out.Colour = ColorScale*Colour;
 }
 )";
 
@@ -84,7 +99,7 @@ R"(
 layout(rgba8) uniform image2D output0;
 
 // Size of the local tile
-layout (local_size_x = 16, local_size_y = 16) in;
+layout(local_size_x = 16, local_size_y = 16) in;
 
 void main()
 {
@@ -197,13 +212,20 @@ TEST(OpenGL, RunSimpleComputeShaderProgram)
 	OpenGL::ShaderProgram prog{ desc };
 
 	// Create an output image
-	OpenGL::Texture2D output{ 256, 256, SurfaceFormat::R8G8B8A8_UNORM };
+	Texture2DDescription desc2d;
+	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.ArraySize = 1;
+	desc2d.Width = 256;
+	desc2d.Height = 256;
+	desc2d.MipLevels = 1;
+	OpenGL::Texture2D output{ desc2d };
 
 	// Bind the program to the pipeline
 	prog.bind();
 
 	// Bind the output parameter
-	glBindImageTexture(0, output.id(), 0, false, 0, GL_WRITE_ONLY, GL_RGBA8);
+	auto h = prog.uniform("output0");
+	prog.setImage(h, &output, false, true);
 
 	// Execute the compute shader
 	glDispatchCompute(16, 16, 1);
