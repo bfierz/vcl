@@ -22,4 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/geometry/distance.h>
+#pragma once
+
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
+
+namespace Vcl { namespace Geometry
+{
+	template<typename Scalar, int Dim>
+	class Ray
+	{
+	private:
+		//! 
+		Eigen::ParametrizedLine<Scalar, Dim> _ray;
+	};
+}}
