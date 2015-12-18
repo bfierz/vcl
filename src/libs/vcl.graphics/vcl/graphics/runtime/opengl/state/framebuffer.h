@@ -26,26 +26,56 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 #include <vcl/config/opengl.h>
+
+// C++ standard library
+#include <array>
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/state/sampler.h>
+#include <vcl/graphics/runtime/resource/texture.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Sampler : public Runtime::Sampler, public Resource
+	class Framebuffer : public Resource
 	{
 	public:
-		Sampler(const SamplerDescription& desc);
-		virtual ~Sampler();
+		Framebuffer
+		(
+			const Runtime::Texture** colourTargets, size_t nrColourTargets,
+			const Runtime::Texture* depthTarget
+		);
+		Framebuffer(const Framebuffer&) = delete;
+		virtual ~Framebuffer();
+
+		Framebuffer& operator= (const Framebuffer&) = delete;
+		
+	public:
+		void bind();
+		void clear(int idx, const Eigen::Vector4f& colour);
+		void clear(int idx, const Eigen::Vector4i& colour);
+		void clear(int idx, const Eigen::Vector4ui& colour);
+		void clear(float depth, int stencil);
+		void clear(float depth);
+		void clear(int stencil);
 
 	private:
-		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
-		GLenum convert(TextureAddressMode mode) const;
-		GLenum convert(ComparisonFunction func) const;
+		bool checkGLFramebufferStatus(GLuint fbo);
+		GLenum toDepthStencilAttachment(SurfaceFormat fmt);
+
+	private:
+		// Implementation defined maximum number of render targets
+		static const unsigned int maxNrRenderTargets = 8;
+
+		//! Colour render target
+		std::array<const Runtime::Texture*, 8> _colourTargets;
+
+		//! Depth target
+		const Runtime::Texture* _depthTarget{ nullptr };
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT
+

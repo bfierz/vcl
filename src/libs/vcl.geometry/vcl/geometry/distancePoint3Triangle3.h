@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2014 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,26 +26,21 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/eigen.h>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/state/sampler.h>
+#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/geometry/triangle.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Geometry
 {
-	class Sampler : public Runtime::Sampler, public Resource
-	{
-	public:
-		Sampler(const SamplerDescription& desc);
-		virtual ~Sampler();
-
-	private:
-		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
-		GLenum convert(TextureAddressMode mode) const;
-		GLenum convert(ComparisonFunction func) const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	/*!
+	 *	Point - Triangle distance computation refactored from Eberly's Geometric tools
+	 *	to support SIMD execution
+	 *	http://www.geometrictools.com/Documentation/DistancePoint3Triangle3.pdf
+	 */
+	float   distance(const Triangle<float,   3>& tri, const Eigen::Matrix<float,   3, 1>& p, std::array<float,   3>* barycentric = nullptr, int* r = nullptr);
+	float4  distance(const Triangle<float4,  3>& tri, const Eigen::Matrix<float4,  3, 1>& p, std::array<float4,  3>* barycentric = nullptr, int* r = nullptr);
+	float8  distance(const Triangle<float8,  3>& tri, const Eigen::Matrix<float8,  3, 1>& p, std::array<float8,  3>* barycentric = nullptr, int* r = nullptr);
+	float16 distance(const Triangle<float16, 3>& tri, const Eigen::Matrix<float16, 3, 1>& p, std::array<float16, 3>* barycentric = nullptr, int* r = nullptr);
+}}

@@ -77,10 +77,23 @@ namespace Vcl { namespace Graphics { namespace Runtime
 				loc += std::max(1, (int) elem.NumberLocations);
 			}
 		}
+		InputLayoutDescription(const InputLayoutDescription& rhs)
+		{
+			_elements  = rhs._elements;
+			_locations = rhs._locations;
+		}
 		InputLayoutDescription(InputLayoutDescription&& rhs) 
 		{
 			std::swap(_elements, rhs._elements);
 			std::swap(_locations, rhs._locations);
+		}
+
+		InputLayoutDescription& operator=(const InputLayoutDescription& rhs)
+		{
+			_elements = rhs._elements;
+			_locations = rhs._locations;
+
+			return *this;
 		}
 
 	public:

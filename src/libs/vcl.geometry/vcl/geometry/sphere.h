@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2014 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,26 +26,35 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/eigen.h>
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/state/sampler.h>
-
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Geometry
 {
-	class Sampler : public Runtime::Sampler, public Resource
+	template<typename Scalar, int Dim>
+	class Sphere
 	{
 	public:
-		Sampler(const SamplerDescription& desc);
-		virtual ~Sampler();
+		using real_t = Scalar;
+		using vector_t = Eigen::Matrix<Scalar, Dim, 1>;
+
+	public:
+		Sphere(vector_t center, real_t radius)
+		: _center(center)
+		, _radius(radius)
+		{}
+
+	public:
+		const vector_t& center() const { return _center; }
+		real_t radius() const { return _radius; }
+
+	public:
+		real_t computeVolume() const
+		{
+			return real_t(4) / real_t(3) * (real_t)M_PI * _radius * _radius * _radius;
+		}
 
 	private:
-		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
-		GLenum convert(TextureAddressMode mode) const;
-		GLenum convert(ComparisonFunction func) const;
+		vector_t _center;
+		real_t _radius;
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}}

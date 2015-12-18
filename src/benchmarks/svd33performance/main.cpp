@@ -53,6 +53,9 @@
 #	include <vcl/math/opencl/jacobisvd33_mcadams.h>
 #endif // defined VCL_OPENCL_SUPPORT
 
+// Google benchmark
+#include "benchmark/benchmark.h"
+
 void perfEigenSVD
 (
 	size_t nr_problems,
@@ -67,7 +70,7 @@ void perfEigenSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems; i++)
+	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		// Map data
 		auto U = resU.at<float>(i);
@@ -108,7 +111,7 @@ void perfTwoSidedSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -152,7 +155,7 @@ void perfJacobiSVDQR
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -197,7 +200,7 @@ void perfMcAdamsSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -298,7 +301,7 @@ void perfOpenCLMcAdamsSVD
 }
 #endif // defined VCL_OPENCL_SUPPORT
 
-int main(int, char**)
+/*int main(int, char**)
 {
 	size_t nr_problems = 1024*1024;
 
@@ -350,4 +353,214 @@ int main(int, char**)
 #ifdef VCL_OPENCL_SUPPORT
 	perfOpenCLMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
 #endif // defined VCL_OPENCL_SUPPORT
+
+	return 0;
+}*/
+
+// Global data store for one time problem setup
+const size_t nr_problems = 8192;
+
+Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
+
+void perfEigenSVD(benchmark::State& state)
+{
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+
+	while (state.KeepRunning())
+	{
+		for (int i = 0; i < state.range_x(); ++i)
+		{
+			// Map data
+			auto U = resU.at<float>(i);
+			auto V = resV.at<float>(i);
+			auto S = resS.at<float>(i);
+
+			// Compute using Eigen
+			Eigen::Matrix3f A = F.at<float>(i);
+			Eigen::JacobiSVD<Eigen::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+			// Store results
+			U = eigen_svd.matrixU();
+			V = eigen_svd.matrixV();
+			S = eigen_svd.singularValues();
+		}
+	}
+
+	benchmark::DoNotOptimize(resU);
+	benchmark::DoNotOptimize(resV);
+	benchmark::DoNotOptimize(resS);
+
+	state.SetItemsProcessed(state.iterations() * state.range_x());
+}
+
+template<typename WideScalar>
+void perfTwoSidedSVD(benchmark::State& state)
+{
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	while (state.KeepRunning())
+	{
+		for (size_t i = 0; i < state.range_x() / width; i++)
+		{
+			// Map data
+			auto U = resU.at<real_t>(i);
+			auto V = resV.at<real_t>(i);
+			auto S = resS.at<real_t>(i);
+
+			// Compute SVD using 2-sided Jacobi iterations (Brent)
+			matrix3_t SV = F.at<real_t>(i);
+			matrix3_t matU = matrix3_t::Identity();
+			matrix3_t matV = matrix3_t::Identity();
+
+			Vcl::Mathematics::TwoSidedJacobiSVD(SV, matU, matV, false);
+
+			// Store results
+			U = matU;
+			V = matV;
+			S = SV.diagonal();
+		}
+	}
+
+	benchmark::DoNotOptimize(resU);
+	benchmark::DoNotOptimize(resV);
+	benchmark::DoNotOptimize(resS);
+
+	state.SetItemsProcessed(state.iterations() * state.range_x());
+}
+
+template<typename WideScalar>
+void perfJacobiSVDQR(benchmark::State& state)
+{
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	while (state.KeepRunning())
+	{
+		for (size_t i = 0; i < state.range_x() / width; i++)
+		{
+			// Map data
+			auto U = resU.at<real_t>(i);
+			auto V = resV.at<real_t>(i);
+			auto S = resS.at<real_t>(i);
+
+			// Compute SVD using Jacobi iterations and QR decomposition
+			matrix3_t SV = F.at<real_t>(i);
+			matrix3_t matU = matrix3_t::Identity();
+			matrix3_t matV = matrix3_t::Identity();
+
+			Vcl::Mathematics::QRJacobiSVD(SV, matU, matV);
+
+			// Store results
+			U = matU;
+			V = matV;
+			S = SV.diagonal();
+		}
+	}
+
+	benchmark::DoNotOptimize(resU);
+	benchmark::DoNotOptimize(resV);
+	benchmark::DoNotOptimize(resS);
+
+	state.SetItemsProcessed(state.iterations() * state.range_x());
+}
+
+template<typename WideScalar, int Iters>
+void perfMcAdamsSVD(benchmark::State& state)
+{
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	while (state.KeepRunning())
+	{
+		for (size_t i = 0; i < state.range_x() / width; i++)
+		{
+			// Map data
+			auto U = resU.at<real_t>(i);
+			auto V = resV.at<real_t>(i);
+			auto S = resS.at<real_t>(i);
+
+			// Compute SVD using Jacobi iterations and QR decomposition
+			matrix3_t SV = F.at<real_t>(i);
+			matrix3_t matU = matrix3_t::Identity();
+			matrix3_t matV = matrix3_t::Identity();
+
+			Vcl::Mathematics::McAdamsJacobiSVD(SV, matU, matV, Iters);
+
+			// Store results
+			U = matU;
+			V = matV;
+			S = SV.diagonal();
+		}
+	}
+
+	benchmark::DoNotOptimize(resU);
+	benchmark::DoNotOptimize(resV);
+	benchmark::DoNotOptimize(resS);
+
+	state.SetItemsProcessed(state.iterations() * state.range_x());
+}
+
+using Vcl::float4;
+using Vcl::float8;
+using Vcl::float16;
+
+// Test Performance: Eigen Jacobi SVD
+BENCHMARK(perfEigenSVD)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+
+// Test Performance: Two-sided Jacobi SVD (Brent)
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float)  ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float4) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float8) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float16)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+
+// Test Performance: Jacobi SVD with symmetric EV computation and QR decomposition
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float)  ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float4) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float8) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float16)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+
+// Test Performance: McAdams SVD solver
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float,  4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#ifdef VCL_VECTORIZE_AVX
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#endif // defined VCL_VECTORIZE_AVX
+
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float,  5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#ifdef VCL_VECTORIZE_AVX
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#endif // defined VCL_VECTORIZE_AVX
+
+int main(int argc, char** argv)
+{
+	// Initialize data
+	for (int i = 0; i < (int) nr_problems; i++)
+	{
+		F.at<float>(i).setRandom();
+	}
+	
+	::benchmark::Initialize(&argc, argv);
+	::benchmark::RunSpecifiedBenchmarks();
 }

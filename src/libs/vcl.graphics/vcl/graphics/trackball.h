@@ -26,26 +26,40 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/eigen.h>
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/state/sampler.h>
-
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics
 {
-	class Sampler : public Runtime::Sampler, public Resource
+	class Trackball
 	{
 	public:
-		Sampler(const SamplerDescription& desc);
-		virtual ~Sampler();
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+	public:
+		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
+
+	public:
+		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void endRotate();
+		
+		void reset();
 
 	private:
-		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
-		GLenum convert(TextureAddressMode mode) const;
-		GLenum convert(ComparisonFunction func) const;
+		Eigen::Vector3f project(float ratio_x, float ratio_y);
+		Eigen::Quaternionf fromPosition(Eigen::Vector3f v) const;
+
+	private:
+		//! Radius of the trackball
+		float _radius{ 1.0f };
+
+		//! Last rotation
+		Eigen::Vector3f _lastPosition{ Eigen::Vector3f::Zero() };
+
+		//! Current rotation
+		Eigen::Quaternionf _lastQuat{ Eigen::Vector3f::Identity() };
+
+		//! Are we tracking the rotation
+		bool _rotate{ false };
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}}

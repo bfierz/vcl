@@ -246,7 +246,11 @@ int main(int argc, char* argv [])
 	}
 
 	// Construct the base name for the intermediate files
+#if (_MSC_VER < 1900)
 	std::string tmp_file_base = fs::basename(fs::path(vm["input-file"].as<std::string>()));
+#else
+	std::string tmp_file_base = fs::path(vm["input-file"].as<std::string>()).stem().string();
+#endif
 
 	// Add the address 
 	if (vm.count("m64"))

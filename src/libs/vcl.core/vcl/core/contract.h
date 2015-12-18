@@ -31,7 +31,9 @@
 #include <stdio.h>
 
 // VCL
+VCL_BEGIN_EXTERNAL_HEADERS
 #include <vcl/core/3rdparty/format.h>
+VCL_END_EXTERNAL_HEADERS
 
 #if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
 #	ifndef VCL_NO_CONTRACTS

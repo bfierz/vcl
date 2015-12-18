@@ -224,8 +224,8 @@ TEST(OpenGL, RunSimpleComputeShaderProgram)
 	prog.bind();
 
 	// Bind the output parameter
-	prog.setImage("output0", &output, false, true);
-	//glBindImageTexture(0, output.id(), 0, false, 0, GL_WRITE_ONLY, GL_RGBA8);
+	auto h = prog.uniform("output0");
+	prog.setImage(h, &output, false, true);
 
 	// Execute the compute shader
 	glDispatchCompute(16, 16, 1);

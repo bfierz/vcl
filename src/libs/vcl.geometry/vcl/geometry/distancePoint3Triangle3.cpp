@@ -22,27 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/geometry/distancePoint3Triangle3.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// C++ standard library
+ // C++ standard library
 #include <array>
 
 // VCL
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {
-	/*!
-	 *	Point - Triangle distance computation refactored from Eberly's Geometric tools
-	 *	to support SIMD execution
-	 *	http://www.geometrictools.com/Documentation/DistancePoint3Triangle3.pdf
-	 */
 	namespace detail
 	{
 		template<typename Real>
@@ -346,22 +336,20 @@ namespace Vcl { namespace Geometry
 	}
 
 	template<typename Real>
-	Real distance
+	Real distanceImpl
 	(
-		const Eigen::Matrix<Real, 3, 1>& v0,
-		const Eigen::Matrix<Real, 3, 1>& v1,
-		const Eigen::Matrix<Real, 3, 1>& v2,
+		const Triangle<Real, 3>& tri,
 		const Eigen::Matrix<Real, 3, 1>& p,
-		std::array<Real, 3>* barycentric = nullptr,
-		int* r = nullptr
+		std::array<Real, 3>* barycentric,
+		int* r
 	)
 	{
 		using namespace Vcl::Mathematics;
 
 		Eigen::Matrix<Real, 3, 1> P = p;
-		Eigen::Matrix<Real, 3, 1> B = v0;
-		Eigen::Matrix<Real, 3, 1> E0 = v1 - v0;
-		Eigen::Matrix<Real, 3, 1> E1 = v2 - v0;
+		Eigen::Matrix<Real, 3, 1> B = tri[0];
+		Eigen::Matrix<Real, 3, 1> E0 = tri[1] - tri[0];
+		Eigen::Matrix<Real, 3, 1> E1 = tri[2] - tri[0];
 		Real a = E0.squaredNorm();
 		Real b = E0.dot(E1);
 		Real c = E1.squaredNorm();
@@ -425,5 +413,22 @@ namespace Vcl { namespace Geometry
 		/*m_kClosestPoint0 = P;
 		m_kClosestPoint1 = B + s*E0+ t*E1;*/
 		return sqrt(sq_dist[0]);
+	}
+
+	float   distance(const Triangle<float, 3>& tri, const Eigen::Matrix<float, 3, 1>& p, std::array<float, 3>* barycentric, int* r)
+	{
+		return distanceImpl(tri, p, barycentric, r);
+	}
+	float4  distance(const Triangle<float4, 3>& tri, const Eigen::Matrix<float4, 3, 1>& p, std::array<float4, 3>* barycentric, int* r)
+	{
+		return distanceImpl(tri, p, barycentric, r);
+	}
+	float8  distance(const Triangle<float8, 3>& tri, const Eigen::Matrix<float8, 3, 1>& p, std::array<float8, 3>* barycentric, int* r)
+	{
+		return distanceImpl(tri, p, barycentric, r);
+	}
+	float16 distance(const Triangle<float16, 3>& tri, const Eigen::Matrix<float16, 3, 1>& p, std::array<float16, 3>* barycentric, int* r)
+	{
+		return distanceImpl(tri, p, barycentric, r);
 	}
 }}
