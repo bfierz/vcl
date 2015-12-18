@@ -38,7 +38,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
-#include <vcl/geometry/distance.h>
+#include <vcl/geometry/distancePoint3Triangle3.h>
 #include <vcl/util/precisetimer.h>
 
 
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 		std::array<real_t, 3> st;
 		int r1 = -1;
 
-		real_t d1 = distance(a, b, c, p, &st, &r1);
+		real_t d1 = distance({ a, b, c }, p, &st, &r1);
 		VCL_UNREFERENCED_PARAMETER(d1);
 	}
 	timer.stop();

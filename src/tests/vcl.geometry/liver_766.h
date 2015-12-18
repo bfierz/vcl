@@ -28,31 +28,8 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Geometry
-{
-	template<typename Scalar, int Dim>
-	class Segment
-	{
-	public:
-		using real_t = Scalar;
-		using vector_t = Eigen::Matrix<Scalar, Dim, 1>;
+extern float liver_766_points[];
+extern int   liver_766_faces [];
 
-	public:
-		Segment(const vector_t& a, const vector_t& b)
-		{
-			_data[0] = a;
-			_data[1] = b;
-		}
-
-	public:
-		const vector_t& operator[] (size_t idx) const
-		{
-			Require(idx < 2, "Id is in [0, 2[");
-
-			return _data[idx];
-		}
-
-	private:
-		vector_t _data[2];
-	};
-}}
+extern int num_liver_766_points;
+extern int num_liver_766_faces;

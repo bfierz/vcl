@@ -3,6 +3,7 @@ PROJECT(vcl_geometry)
 # VCL / GEOMETRY
 SET(VCL_GEOMETRY_INC
 	vcl/geometry/distancePoint3Triangle3.h
+	vcl/geometry/distanceTriangle3Triangle3.h
 	vcl/geometry/intersect.h
 	vcl/geometry/quad.h
 	vcl/geometry/ray.h
@@ -13,6 +14,7 @@ SET(VCL_GEOMETRY_INC
 )
 SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distancePoint3Triangle3.cpp
+	vcl/geometry/distanceTriangle3Triangle3.cpp
 	vcl/geometry/intersect.cpp
 )
 

@@ -28,14 +28,9 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// C++ standard library
-#include <array>
-
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/contract.h>
 #include <vcl/geometry/triangle.h>
-#include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {

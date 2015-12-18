@@ -22,7 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/geometry/distance.h>
+#include <vcl/geometry/distancePoint3Triangle3.h>
+
+ // C++ standard library
+#include <array>
+
+// VCL
+#include <vcl/core/contract.h>
+#include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {
