@@ -362,7 +362,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 
 		// Fetch the grid data
-		const auto& obstacles = grid->obstacleBuffer();
+		const auto obstacles = grid->obstacles();
 
 		auto& vel_x = grid->velocities(0, 0);
 		auto& vel_y = grid->velocities(0, 1);
@@ -407,10 +407,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				0,
 				(CUdeviceptr) divergence,
 				(CUdeviceptr) pressure,
-				(CUdeviceptr) vel_x,
-				(CUdeviceptr) vel_y,
-				(CUdeviceptr) vel_z,
-				(CUdeviceptr) obstacles,
+				(CUdeviceptr) *vel_x,
+				(CUdeviceptr) *vel_y,
+				(CUdeviceptr) *vel_z,
+				(CUdeviceptr) *obstacles,
 				dimension,
 				cellSize
 			);
@@ -426,7 +426,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				(CUdeviceptr) laplacian1,
 				(CUdeviceptr) laplacian2,
 				(CUdeviceptr) laplacian3,
-				(CUdeviceptr) obstacles,
+				(CUdeviceptr) *obstacles,
 				0,
 				false,
 				dimension
@@ -442,11 +442,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) vel_x,
-				(CUdeviceptr) vel_y,
-				(CUdeviceptr) vel_z,
+				(CUdeviceptr) *vel_x,
+				(CUdeviceptr) *vel_y,
+				(CUdeviceptr) *vel_z,
 				(CUdeviceptr) pressure,
-				(CUdeviceptr) obstacles,
+				(CUdeviceptr) *obstacles,
 				dimension,
 				invCellSize
 			);

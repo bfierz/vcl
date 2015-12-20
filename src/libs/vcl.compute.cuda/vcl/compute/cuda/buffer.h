@@ -63,8 +63,5 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		//! CL memory object
 		CUdeviceptr _devicePtr{ 0 };
-
-		//! Pointer to a host shadow copy
-		void* _hostPtr{ nullptr };
 	};
 }}}

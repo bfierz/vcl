@@ -45,7 +45,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	: Fluid::EulerFluidSimulation()
 	, _ownerCtx(ctx)
 	{
-		_poissonSolver = std::make_unique<Cuda::CenterGrid3DPoissonSolver>(ctx);
+		// Fetch the command queue
+		auto queue = static_pointer_cast<Compute::Cuda::CommandQueue>(_ownerCtx->defaultQueue());
+
+		_poissonSolver = std::make_unique<Cuda::CenterGrid3DPoissonSolver>(ctx, queue);
 		//_poissonSolver = std::make_unique<OpenMP::CenterGrid3DPoissonSolver>();
 		//_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
 		_advection = std::make_unique<MacCormackAdvection>(ctx);
@@ -56,8 +59,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		if (_fluidModule)
 		{
 			// Load the fluid simulation related kernels
-			_compVorticity = Core::static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("ComputeVorticity"));
-			_addVorticity = Core::static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("AddVorticity"));
+			_compVorticity = static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("ComputeVorticity"));
+			_addVorticity  = static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("AddVorticity"));
 		}
 	}
 	EulerFluidSimulation::~EulerFluidSimulation()
@@ -68,6 +71,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	void EulerFluidSimulation::update(Fluid::CenterGrid& g, double dt)
 	{
 		using namespace Eigen;
+		using namespace Vcl::Compute;
 
 		Require(dynamic_cast<Cuda::CenterGrid*>(&g), "Grid is a CUDA grid.");
 
@@ -75,25 +79,26 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		if (!grid)
 			return;
 
-		Vcl::Compute::Cuda::CommandQueue& queue;
+		// Fetch the command queue
+		auto queue = static_pointer_cast<Compute::Cuda::CommandQueue>(_ownerCtx->defaultQueue());
 
 		// Buffers to run the simulation on
-		auto& force_x = grid->forces(0);
-		auto& force_y = grid->forces(1);
-		auto& force_z = grid->forces(2);
+		auto force_x = grid->forces(0);
+		auto force_y = grid->forces(1);
+		auto force_z = grid->forces(2);
 
-		auto& vel_curr_x = grid->velocities(0, 0);
-		auto& vel_curr_y = grid->velocities(0, 1);
-		auto& vel_curr_z = grid->velocities(0, 2);
-		auto& vel_prev_x = grid->velocities(1, 0);
-		auto& vel_prev_y = grid->velocities(1, 1);
-		auto& vel_prev_z = grid->velocities(1, 2);
+		auto vel_curr_x = grid->velocities(0, 0);
+		auto vel_curr_y = grid->velocities(0, 1);
+		auto vel_curr_z = grid->velocities(0, 2);
+		auto vel_prev_x = grid->velocities(1, 0);
+		auto vel_prev_y = grid->velocities(1, 1);
+		auto vel_prev_z = grid->velocities(1, 2);
 
-		auto& obstacles = grid->obstacleBuffer();
-		auto& density_curr = grid->densityBuffer(0);
-		auto& density_prev = grid->densityBuffer(1);
-		auto& heat_curr = grid->heatBuffer(0);
-		auto& heat_prev = grid->heatBuffer(1);
+		auto obstacles = grid->obstacles();
+		auto density_curr = grid->densities(0);
+		auto density_prev = grid->densities(1);
+		auto heat_curr = grid->heat(0);
+		auto heat_prev = grid->heat(1);
 
 		// Fetch the indexing data
 		auto& res = grid->resolution();
@@ -104,18 +109,18 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		Check(cells >= 0, "Dimensions are positive.");
 
 		// Clear the force buffers
-		queue.setZero(force_x);
-		queue.setZero(force_y);
-		queue.setZero(force_z);
+		queue->setZero(force_x);
+		queue->setZero(force_y);
+		queue->setZero(force_z);
 
 		// Wipe boundaries
-		grid->setBorderZero(queue, vel_curr_x, res);
-		grid->setBorderZero(queue, vel_curr_y, res);
-		grid->setBorderZero(queue, vel_curr_z, res);
-		grid->setBorderZero(queue, density_curr, res);
+		grid->setBorderZero(*queue, *vel_curr_x, res);
+		grid->setBorderZero(*queue, *vel_curr_y, res);
+		grid->setBorderZero(*queue, *vel_curr_z, res);
+		grid->setBorderZero(*queue, *density_curr, res);
 
 		// Map the CUDA buffers for a prototype implementation
-		auto* obstacle_ptr     = static_cast<unsigned int*>(obstacles.map());
+		/*auto* obstacle_ptr     = static_cast<unsigned int*>(obstacles.map());
 		auto* density_curr_ptr = static_cast<float*>(density_curr.map());
 
 		// Add an inlet
@@ -149,7 +154,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		}
 
 		density_curr.unmap();
-		obstacles.unmap();
+		obstacles.unmap();*/
 
 		CUevent start, stop;
 		VCL_CU_SAFE_CALL(cuEventCreate(&start, CU_EVENT_BLOCKING_SYNC));
@@ -172,14 +177,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 			_compVorticity->run
 			(
-				queue,
+				*queue,
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) vel_curr_x,
-				(CUdeviceptr) vel_curr_y,
-				(CUdeviceptr) vel_curr_z,
-				(CUdeviceptr) obstacles,
+				(CUdeviceptr) *vel_curr_x,
+				(CUdeviceptr) *vel_curr_y,
+				(CUdeviceptr) *vel_curr_z,
+				(CUdeviceptr) *obstacles,
 				(CUdeviceptr) vort_x,
 				(CUdeviceptr) vort_y,
 				(CUdeviceptr) vort_z,
@@ -190,7 +195,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 			_addVorticity->run
 			(
-				queue,
+				*queue,
 				grid_size,
 				block_size,
 				0,
@@ -216,13 +221,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		}
 		else
 		{
-			grid->accumulate(queue, force_z, density_curr, grid->buoyancy());
+			grid->accumulate(*queue, *force_z, *density_curr, grid->buoyancy());
 		}
 
 		// Add forces
-		grid->accumulate(queue, vel_curr_x, force_x, dt);
-		grid->accumulate(queue, vel_curr_y, force_y, dt);
-		grid->accumulate(queue, vel_curr_z, force_z, dt);
+		grid->accumulate(*queue, *vel_curr_x, *force_x, dt);
+		grid->accumulate(*queue, *vel_curr_y, *force_y, dt);
+		grid->accumulate(*queue, *vel_curr_z, *force_z, dt);
 
 		// Project into divergence free field
 		_poissonSolver->solve(g);
@@ -233,25 +238,25 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		}
 
 		// Advect
-		grid->copyBorderX(queue, vel_curr_x, res);
-		grid->copyBorderY(queue, vel_curr_y, res);
-		grid->copyBorderZ(queue, vel_curr_z, res);
+		grid->copyBorderX(*queue, *vel_curr_x, res);
+		grid->copyBorderY(*queue, *vel_curr_y, res);
+		grid->copyBorderZ(*queue, *vel_curr_z, res);
 		
 		// Configure the advection algorithm
 		_advection->setSize(res_x, res_y, res_z);
 
 		const float dt0 = dt / grid->spacing();
-		(*_advection)(dt0, grid, &heat_curr,    &heat_prev);
-		(*_advection)(dt0, grid, &density_curr, &density_prev);
-		(*_advection)(dt0, grid, &vel_curr_x,   &vel_prev_x);
-		(*_advection)(dt0, grid, &vel_curr_y,   &vel_prev_y);
-		(*_advection)(dt0, grid, &vel_curr_z,   &vel_prev_z);
+		(*_advection)(queue, dt0, grid, heat_curr,    heat_prev);
+		(*_advection)(queue, dt0, grid, density_curr, density_prev);
+		(*_advection)(queue, dt0, grid, vel_curr_x,   vel_prev_x);
+		(*_advection)(queue, dt0, grid, vel_curr_y,   vel_prev_y);
+		(*_advection)(queue, dt0, grid, vel_curr_z,   vel_prev_z);
 
-		grid->copyBorderX(queue, vel_prev_x, res);
-		grid->copyBorderY(queue, vel_prev_y, res);
-		grid->copyBorderZ(queue, vel_prev_z, res);
-		grid->setBorderZero(queue, density_prev, res);
-		grid->setBorderZero(queue, heat_prev, res);
+		grid->copyBorderX(*queue, *vel_prev_x, res);
+		grid->copyBorderY(*queue, *vel_prev_y, res);
+		grid->copyBorderZ(*queue, *vel_prev_z, res);
+		grid->setBorderZero(*queue, *density_prev, res);
+		grid->setBorderZero(*queue, *heat_prev, res);
 
 		grid->swap();
 
@@ -263,4 +268,4 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		std::cout << time << std::endl;
 	}
 }}}}
-#endif /* VCL_CUDA_SUPPORT */
+#endif // VCL_CUDA_SUPPORT

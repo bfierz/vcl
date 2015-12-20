@@ -54,7 +54,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	private: // Kernel functions
 
 		//! Module with the cuda energy decomposition code
-		ref_ptr<Vcl::Compute::Cuda::Module> _energyModule;
+		ref_ptr<Vcl::Compute::Module> _energyModule;
 
 		//! Device function computing the energy density of the velocity field
 		ref_ptr<Vcl::Compute::Cuda::Kernel> _computeEnergyDensity;

@@ -187,62 +187,46 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		return handle;
 	}
 
-	Compute::Cuda::Buffer& CenterGrid::forces(int dim)
+	ref_ptr<Compute::Cuda::Buffer> CenterGrid::forces(int dim)
 	{
 		Require(0 <= dim && dim < 3, "Dimension is valid.");
 
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_force[dim]);
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_force[dim]);
 	}
 
-	Compute::Cuda::Buffer& CenterGrid::velocities(int i, int dim)
-	{
-		Require(0 <= i && i < 2, "Index is valid.");
-		Require(0 <= dim && dim < 3, "Dimension is valid.");
-
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_velocity[i][dim]);
-	}
-
-	const Compute::Cuda::Buffer& CenterGrid::velocities(int i, int dim) const
+	ref_ptr<Compute::Cuda::Buffer> CenterGrid::velocities(int i, int dim)
 	{
 		Require(0 <= i && i < 2, "Index is valid.");
 		Require(0 <= dim && dim < 3, "Dimension is valid.");
 
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_velocity[i][dim]);
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_velocity[i][dim]);
 	}
 
-	CenterGrid::ref_ptr<Compute::Buffer> CenterGrid::obstacles() const
+	ref_ptr<const Compute::Cuda::Buffer> CenterGrid::velocities(int i, int dim) const
 	{
-		return _obstacles;
-	}
-	Compute::Cuda::Buffer&  CenterGrid::obstacleBuffer()
-	{
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_obstacles);
+		Require(0 <= i && i < 2, "Index is valid.");
+		Require(0 <= dim && dim < 3, "Dimension is valid.");
+
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_velocity[i][dim]);
 	}
 
-	CenterGrid::ref_ptr<Compute::Buffer> CenterGrid::densities(int i) const
+	CenterGrid::ref_ptr<Compute::Cuda::Buffer> CenterGrid::obstacles() const
+	{
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_obstacles);
+	}
+
+	CenterGrid::ref_ptr<Compute::Cuda::Buffer> CenterGrid::densities(int i) const
 	{
 		Require(0 <= i && i < 2, "Index is valid.");
 
-		return _density[i];
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_density[i]);
 	}
-	Compute::Cuda::Buffer&  CenterGrid::densityBuffer(int i)
+
+	CenterGrid::ref_ptr<Compute::Cuda::Buffer> CenterGrid::heat(int i) const
 	{
 		Require(0 <= i && i < 2, "Index is valid.");
 
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_density[i]);
-	}
-
-	CenterGrid::ref_ptr<Compute::Buffer> CenterGrid::heat(int i) const
-	{
-		Require(0 <= i && i < 2, "Index is valid.");
-
-		return _heat[i];
-	}
-	Compute::Cuda::Buffer&  CenterGrid::heatBuffer(int i)
-	{
-		Require(0 <= i && i < 2, "Index is valid.");
-
-		return *Core::static_pointer_cast<Compute::Cuda::Buffer>(_heat[i]);
+		return Core::static_pointer_cast<Compute::Cuda::Buffer>(_heat[i]);
 	}
 
 	Compute::Cuda::Buffer& CenterGrid::vorticityMag()
