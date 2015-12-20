@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/cuda/buffer.h>
+#pragma once
 
-// VCL 
-#include <vcl/core/contract.h>
+// VCL configuration
+#include <vcl/config/global.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
+// C++ standard library
+#include <cmath>
+#include <vector>
+
+namespace Vcl { namespace Mathematics
 {
-	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, size_t size)
-	: Compute::Buffer(hostAccess, size)
-	, _ownerCtx(ctx)
+	/*!
+	 *	Wavlet stack implementation from "Kim, Thürey - Wavelet Turbulence for Fluid Simulation"
+	 */
+	class WaveletStack3D
 	{
-		allocate();
-	}
+	public:
+		WaveletStack3D(int x_res, int y_res, int z_res);
+		~WaveletStack3D();
 
-	Buffer::~Buffer()
-	{
-		free();
-	}
+		void CreateStack(float* data, int levels);
+		void CreateSingleLayer(float* data);
 
-	void Buffer::allocate()
-	{
-		// Allocate the required device memory
-		VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
-	}
+	public:
+		const std::vector<float*>& Stack() const { return mStack; }
 
-	void Buffer::free()
-	{
-		VCL_CU_SAFE_CALL(cuMemFree(_devicePtr));
-	}
+	private:
+		void DoubleSize(float*& input, int xRes, int yRes, int zRes);
+		void Decompose(
+			const float* input,
+			float*& lowFreq,
+			float*& highFreq,
+			float*& halfSize,
+			int xRes,
+			int yRes,
+			int zRes);
 
-	void Buffer::resize(size_t new_size)
-	{
-		if (_devicePtr)
-			free();
+	private:
+		int mResX, mResY, mResZ;
 
-		setSize(new_size);
+		std::vector<float*> mStack;
+		std::vector<float*> mCoeff;
 
-		allocate();
-	}
-}}}
+		// Temporary buffers
+		float* mBufferInput;
+		float* mBufferLowFreq;
+		float* mBufferHighFreq;
+		float* mBufferHalfSize;
+	};
+}}

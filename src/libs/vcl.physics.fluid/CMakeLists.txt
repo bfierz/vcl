@@ -100,6 +100,12 @@ VCLCOMPILECU(
 	"${CURR_INC_DIRS}"
 	COMPILEDKERNELS_6
 )
+VCLCOMPILECU(
+	${PROJECT_SOURCE_DIR}/vcl/physics/fluid/cuda/cudaenergydecomposition.cu
+	"EulerfluidEnergyDecompositionCudaModule"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS_7
+)
 SET(COMPILEDKERNELS
 	${COMPILEDKERNELS_0}
 	${COMPILEDKERNELS_1}
@@ -108,6 +114,7 @@ SET(COMPILEDKERNELS
 	${COMPILEDKERNELS_4}
 	${COMPILEDKERNELS_5}
 	${COMPILEDKERNELS_6}
+	${COMPILEDKERNELS_7}
 )
 
 # Setup folders for the visual studio project

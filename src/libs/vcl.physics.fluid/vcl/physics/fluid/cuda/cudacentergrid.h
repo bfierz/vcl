@@ -93,18 +93,15 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		void setBorderZ(Vcl::Compute::Cuda::CommandQueue& queue, BorderOp mode, Compute::Cuda::Buffer& buffer, Eigen::Vector3i dim) const;
 
 	public:
-		Compute::Cuda::Buffer& forces(int dim);
-		Compute::Cuda::Buffer& velocities(int i, int dim);
-		const Compute::Cuda::Buffer& velocities(int i, int dim) const;
+		ref_ptr<Compute::Cuda::Buffer> forces(int dim);
+		ref_ptr<Compute::Cuda::Buffer> velocities(int i, int dim);
+		ref_ptr<const Compute::Cuda::Buffer> velocities(int i, int dim) const;
 
-		ref_ptr<Compute::Buffer> obstacles() const;
-		Compute::Cuda::Buffer&  obstacleBuffer();
+		ref_ptr<Compute::Cuda::Buffer> obstacles() const;
 
-		ref_ptr<Compute::Buffer> densities(int i) const;
-		Compute::Cuda::Buffer&  densityBuffer(int i);
+		ref_ptr<Compute::Cuda::Buffer> densities(int i) const;
 
-		ref_ptr<Compute::Buffer> heat(int i) const;
-		Compute::Cuda::Buffer&  heatBuffer(int i);
+		ref_ptr<Compute::Cuda::Buffer> heat(int i) const;
 
 		Compute::Cuda::Buffer& vorticityMag();
 		Compute::Cuda::Buffer& vorticity(int dim);

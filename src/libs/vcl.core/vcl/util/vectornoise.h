@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/cuda/buffer.h>
+#pragma once
 
-// VCL 
-#include <vcl/core/contract.h>
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
+// C++ standard libary
+#include <memory>
+
+// VCL
+#include <vcl/util/waveletnoise.h>
+
+namespace Vcl { namespace Util
 {
-	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, size_t size)
-	: Compute::Buffer(hostAccess, size)
-	, _ownerCtx(ctx)
+	/*!
+	 *	Vector noise based on the SIGGRAPH 2007 paper by Bridson
+	 */
+	template<int N>
+	class VectorNoise
 	{
-		allocate();
-	}
+	public:
+		VectorNoise();
+		~VectorNoise();
 
-	Buffer::~Buffer()
-	{
-		free();
-	}
+	public: // Evaluation
+		Eigen::Vector3f evaluate(const float p[3]) const;
 
-	void Buffer::allocate()
-	{
-		// Allocate the required device memory
-		VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
-	}
+	public: // Access
+		const int size() const { return N; }
+		const void noiseData(const float** n1, const float** n2, const float** n3) const
+		{
+			*n1 = _noise1->getNoiseTileData();
+			*n2 = _noise2->getNoiseTileData();
+			*n3 = _noise3->getNoiseTileData();
+		}
 
-	void Buffer::free()
-	{
-		VCL_CU_SAFE_CALL(cuMemFree(_devicePtr));
-	}
+	private: // Member fields
+		std::unique_ptr<WaveletNoise<N>> _noise1, _noise2, _noise3;
+	};
+}}
 
-	void Buffer::resize(size_t new_size)
-	{
-		if (_devicePtr)
-			free();
-
-		setSize(new_size);
-
-		allocate();
-	}
-}}}
+namespace Vcl { namespace Util
+{
+#ifndef VCL_UTIL_VECTORNOISE_INST
+	extern template class VectorNoise<32>;
+	extern template class VectorNoise<64>;
+	extern template class VectorNoise<128>;
+#endif // VCL_UTIL_VECTORNOISE_INST
+}}

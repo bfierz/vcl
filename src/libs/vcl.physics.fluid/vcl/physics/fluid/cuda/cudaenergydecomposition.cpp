@@ -30,29 +30,31 @@
 #include <vcl/physics/fluid/cuda/cudacentergrid.h>
 
 #ifdef VCL_CUDA_SUPPORT
+extern uint32_t EulerfluidEnergyDecompositionCudaModule[];
+extern size_t EulerfluidEnergyDecompositionCudaModuleSize;
+
 namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 {
 	EnergyDecomposition::EnergyDecomposition(ref_ptr<Vcl::Compute::Cuda::Context> ctx)
 	: _ownerCtx(ctx)
 	{
 		// Load the module
-		_energyModule = ctx->createModule(std::string("../data/compute/cudaenergydecomposition"));
+		_energyModule = ctx->createModuleFromSource((int8_t*)EulerfluidEnergyDecompositionCudaModule, EulerfluidEnergyDecompositionCudaModuleSize*sizeof(uint32_t));
 
 		if (_energyModule)
 		{
-			auto& mod = ctx->module(_energyModule);
+			// Load the fluid simulation related kernels
+			_computeEnergyDensity       = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_engery_compute_energy_density"));
+			_marchObstaclesModifyEnergy = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_march_obstacles_modify_energy"));
+			_obstaclesUpdateObstacles   = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_march_obstacles_update_obstacle"));
 
-			// Load the related kernels
-			_computeEnergyDensity = mod.kernel("cuda_engery_compute_energy_density");
-			_marchObstaclesModifyEnergy = mod.kernel("cuda_energy_march_obstacles_modify_energy");
-			_obstaclesUpdateObstacles = mod.kernel("cuda_energy_march_obstacles_update_obstacle");
-			_decompose = mod.kernel("cuda_energy_decompose");
-			_downsampleX = mod.kernel("cuda_energy_downsample_x");
-			_downsampleY = mod.kernel("cuda_energy_downsample_y");
-			_downsampleZ = mod.kernel("cuda_energy_downsample_z");
-			_upsampleX = mod.kernel("cuda_energy_upsample_x");
-			_upsampleY = mod.kernel("cuda_energy_upsample_y");
-			_upsampleZ = mod.kernel("cuda_energy_upsample_z");
+			_decompose   = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_decompose"));
+			_downsampleX = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_downsample_x"));
+			_downsampleY = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_downsample_y"));
+			_downsampleZ = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_downsample_z"));
+			_upsampleX   = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_upsample_x"));
+			_upsampleY   = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_upsample_y"));
+			_upsampleZ   = static_pointer_cast<Compute::Cuda::Kernel>(_energyModule->kernel("cuda_energy_upsample_z"));
 		}
 	}
 
@@ -70,8 +72,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		if (!grid)
 			return;
 
-		// Stream in which the energy decomposition is performed
-		CUstream stream = 0;
+		// Fetch the command queue
+		auto& queue = *static_pointer_cast<Compute::Cuda::CommandQueue>(_ownerCtx->defaultQueue());
 
 		// Fetch the indexing data
 		auto& res = grid->resolution();
@@ -82,49 +84,60 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		Check(cells >= 0, "Dimensions are positive.");
 
 		// Fetch necessary buffers
-		auto& vel_x = grid->velocities(0, 0);
-		auto& vel_y = grid->velocities(0, 1);
-		auto& vel_z = grid->velocities(0, 2);
-		auto& obstacles = grid->obstacleBuffer();
+		auto vel_x = grid->velocities(0, 0);
+		auto vel_y = grid->velocities(0, 1);
+		auto vel_z = grid->velocities(0, 2);
+		auto obstacles = grid->obstacles();
 
 		if (!grid->hasNamedBuffer("Energy"))
 		{
 			grid->addNamedBuffer("Energy");
 		}
-		auto& energy = grid->buffer(grid->namedBuffer("Energy"));
+		auto energy = static_pointer_cast<Compute::Cuda::Buffer>(grid->namedBuffer("Energy"));
 
-		const dim3 block_size(16, 4, 4);
-		dim3 grid_size(res_x / 16, res_y / 4, res_z / 4);
-
-		_computeEnergyDensity->configure(grid_size, block_size, 0, stream);
-		_computeEnergyDensity->run
-		(
-			vel_x.devicePtr(),
-			vel_y.devicePtr(),
-			vel_z.devicePtr(),
-			(float*) energy.devicePtr(),
-			dim3(res_x, res_y, res_z)
-		);
-	
-		// Pseudo-march the values into the obstacles.
-		// The wavelet upsampler only uses a 3x3 support neighborhood, so
-		// propagating the values in by 4 should be sufficient
-		for (int iter = 0; iter < 4; iter++)
 		{
-			_marchObstaclesModifyEnergy->configure(grid_size, block_size, 0, stream);
-			_marchObstaclesModifyEnergy->run
+			const dim3 block_size(16, 4, 4);
+			dim3 grid_size(res_x / 16, res_y / 4, res_z / 4);
+
+			_computeEnergyDensity->run
 			(
-				(unsigned int*) obstacles.devicePtr(),
-				(float*) energy.devicePtr(),
+				queue,
+				grid_size,
+				block_size,
+				0,
+				(CUdeviceptr) *vel_x,
+				(CUdeviceptr) *vel_y,
+				(CUdeviceptr) *vel_z,
+				(CUdeviceptr) *energy,
 				dim3(res_x, res_y, res_z)
 			);
+	
+			// Pseudo-march the values into the obstacles.
+			// The wavelet upsampler only uses a 3x3 support neighborhood, so
+			// propagating the values in by 4 should be sufficient
+			for (int iter = 0; iter < 4; iter++)
+			{
+				_computeEnergyDensity->run
+				(
+					queue,
+					grid_size,
+					block_size,
+					0,
+					(CUdeviceptr) *obstacles,
+					(CUdeviceptr) *energy,
+					dim3(res_x, res_y, res_z)
+				);
 		
-			_obstaclesUpdateObstacles->configure(grid_size, block_size, 0, stream);
-			_obstaclesUpdateObstacles->run
-			(
-				(unsigned int*) obstacles.devicePtr(),
-				dim3(res_x, res_y, res_z)
-			);
+				_obstaclesUpdateObstacles->run
+				(
+					queue,
+					grid_size,
+					block_size,
+					0,
+					(CUdeviceptr) *obstacles,
+					dim3(res_x, res_y, res_z)
+				);
+			}
 		}
 	
 		//
@@ -132,15 +145,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		//
 		
 		// Get two temporary buffers
-		auto tmpBufferHandle1 = grid->aquireIntermediateBuffer();
-		auto tmpBufferHandle2 = grid->aquireIntermediateBuffer();
-		auto& tmpBuffer1 = grid->buffer(tmpBufferHandle1);
-		auto& tmpBuffer2 = grid->buffer(tmpBufferHandle2);
-		tmpBuffer1.setZero();
-		tmpBuffer2.setZero();
+		auto tmpBuffer1 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
+		auto tmpBuffer2 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
+		queue.setZero(tmpBuffer1);
+		queue.setZero(tmpBuffer2);
 
-		float* tmp1 = (float*) tmpBuffer1.devicePtr();
-		float* tmp2 = (float*) tmpBuffer2.devicePtr();
+		auto tmp1 = (CUdeviceptr) *tmpBuffer1;
+		auto tmp2 = (CUdeviceptr) *tmpBuffer2;
 		
 		// Downsample the volume
 		int max_threads = 128;
@@ -149,24 +160,30 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			dim3 block_size(res_x / 2, max_threads / (res_x / 2), 1);
 			dim3 grid_size(res_y / block_size.y, res_z);
 		
-			_downsampleX->configure(grid_size, block_size, 0, stream);
-			_downsampleX->run(tmp1, (float*) energy.devicePtr(), dim3(res_x, res_y, res_z));
+			_downsampleX->run
+			(
+				queue,
+				grid_size,
+				block_size,
+				0,
+				tmp1,
+				(CUdeviceptr) *energy,
+				dim3(res_x, res_y, res_z)
+			);
 		}
 		{
 			// Downsample Y
 			dim3 block_size(res_x, max_threads / res_x, 1);
 			dim3 grid_size(res_y / (2 * block_size.y), res_z);
 		
-			_downsampleY->configure(grid_size, block_size, 0, stream);
-			_downsampleY->run(tmp2, tmp1, dim3(res_x, res_y, res_z));
+			_downsampleY->run(queue, grid_size, block_size, 0, tmp2, tmp1, dim3(res_x, res_y, res_z));
 		}
 		{
 			// Downsample Z
 			dim3 block_size(res_x, max_threads / res_x, 1);
 			dim3 grid_size(res_y / block_size.y, res_z / 2);
 		
-			_downsampleZ->configure(grid_size, block_size, 0, stream);
-			_downsampleZ->run(tmp1, tmp2, dim3(res_x, res_y, res_z));
+			_downsampleZ->run(queue, grid_size, block_size, 0, tmp1, tmp2, dim3(res_x, res_y, res_z));
 		}
 		
 		{
@@ -174,26 +191,25 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			dim3 grid_size(res_y / block_size.y, res_z);
 		
 			// Upsample the volume
-			_upsampleZ->configure(grid_size, block_size, 0, stream);
-			_upsampleY->configure(grid_size, block_size, 0, stream);
-			_upsampleX->configure(grid_size, block_size, 0, stream);
-		
-			_upsampleZ->run(tmp2, tmp1, dim3(res_x, res_y, res_z));
-			_upsampleY->run(tmp1, tmp2, dim3(res_x, res_y, res_z));
-			_upsampleX->run(tmp2, tmp1, dim3(res_x, res_y, res_z));
+			_upsampleZ->run(queue, grid_size, block_size, 0, tmp2, tmp1, dim3(res_x, res_y, res_z));
+			_upsampleY->run(queue, grid_size, block_size, 0, tmp1, tmp2, dim3(res_x, res_y, res_z));
+			_upsampleX->run(queue, grid_size, block_size, 0, tmp2, tmp1, dim3(res_x, res_y, res_z));
 		
 			// Collect the results
-			_decompose->configure(grid_size, block_size, 0, stream);
 			_decompose->run
 			(
-				(float*) tmp2,
-				(float*) energy.devicePtr(),
+				queue,
+				grid_size,
+				block_size,
+				0,
+				tmp2,
+				(CUdeviceptr) *energy,
 				dim3(res_x, res_y, res_z)
 			);
 		}
 
-		grid->releaseIntermediateBuffer(tmpBufferHandle1);
-		grid->releaseIntermediateBuffer(tmpBufferHandle2);
+		grid->releaseIntermediateBuffer(tmpBuffer1);
+		grid->releaseIntermediateBuffer(tmpBuffer2);
 
 //#define VCL_PHYSICS_FLUID_CUDA_ENERGY_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_ENERGY_VERIFY
@@ -328,7 +344,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		wavelet_stack.CreateSingleLayer(energy);
 
 		float* wavelet_energy = wavelet_stack.Stack()[0];
-		int mem_size = nr_cells*sizeof(float);
+		size_t mem_size = nr_cells*sizeof(float);
 
 		memcpy(solution, wavelet_energy, mem_size);
 	}

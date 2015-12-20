@@ -99,8 +99,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace OpenMP
 						field[index + X*Y] * Az[index - X*Y]
 					);
 					r = (skip[index]) ? 0.0f : r;
-					mResidual[index] = r;
-					mDirection[index] = r;
+					_res[index] = r;
+					_dir[index] = r;
 				}
 			}
 		}
@@ -117,7 +117,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace OpenMP
 		auto& Ay = (*_laplacian)[3];
 		auto& Az = (*_laplacian)[2];
 
-		auto& field = mDirection;
+		auto& field = _dir;
 		auto& skip = *_obstacles;
 
 		size_t index = X*Y + X + 1;
@@ -138,7 +138,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace OpenMP
 						field[index + X*Y] * Az[index - X*Y]
 					);
 					q = (skip[index]) ? 0.0f : q;
-					mQ[index] = q;
+					_q[index] = q;
 				}
 			}
 		}
@@ -175,7 +175,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace OpenMP
 
 	void CenterGrid3DPoissonSolver::solve(Fluid::CenterGrid& g)
 	{
-		Fluid::CenterGrid* grid = &g;
+		auto grid = dynamic_cast<DefaultCenterGrid*>(&g);
 		if (!grid)
 			return;
 

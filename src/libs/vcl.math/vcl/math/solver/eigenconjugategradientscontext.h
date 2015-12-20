@@ -139,7 +139,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				(*residual) = _residualLength;
 		}
 
-	protected: /* Matrix to solve */
+	protected: // Matrix to solve
 		map_t* _x;
 		size_t _size;
 
@@ -148,7 +148,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		real_t _beta;
 		real_t _residualLength;
 
-	protected: /* Temporary buffers */
+	protected: // Temporary buffers
 		vector_t _dir;
 		vector_t _q;
 		vector_t _res;

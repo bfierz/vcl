@@ -128,6 +128,8 @@ SET(VCL_RTTI_INC
 SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
 	vcl/util/stringparser.cpp
+	vcl/util/vectornoise.cpp
+	vcl/util/waveletnoise.cpp
 )
 SET(VCL_UTIL_INC
 	vcl/util/donotoptimizeaway.h
@@ -137,6 +139,8 @@ SET(VCL_UTIL_INC
 	vcl/util/reservememory.h
 	vcl/util/scopeguard.h
 	vcl/util/stringparser.h
+	vcl/util/vectornoise.h
+	vcl/util/waveletnoise.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})

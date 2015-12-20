@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/cuda/buffer.h>
+#define VCL_UTIL_VECTORNOISE_INST
+#include <vcl/util/vectornoise.h>
 
-// VCL 
-#include <vcl/core/contract.h>
-
-namespace Vcl { namespace Compute { namespace Cuda
+namespace Vcl { namespace Util
 {
-	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, size_t size)
-	: Compute::Buffer(hostAccess, size)
-	, _ownerCtx(ctx)
+	template<int N> VectorNoise<N>::VectorNoise()
 	{
-		allocate();
+		_noise1 = std::make_unique<WaveletNoise<N>>();
+		_noise2 = std::make_unique<WaveletNoise<N>>();
+		_noise3 = std::make_unique<WaveletNoise<N>>();
 	}
 
-	Buffer::~Buffer()
+	template<int N> VectorNoise<N>::~VectorNoise()
 	{
-		free();
 	}
 
-	void Buffer::allocate()
+	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const float p[3]) const
 	{
-		// Allocate the required device memory
-		VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
+		const float f1y = _noise1->dy(p);
+		const float f1z = _noise1->dz(p);
+
+		const float f2x = _noise2->dx(p);
+		const float f2z = _noise2->dz(p);
+
+		const float f3x = _noise3->dx(p);
+		const float f3y = _noise3->dy(p);
+
+		Eigen::Vector3f v;
+		v.x() = f3y - f2z;
+		v.y() = f1z - f3x;
+		v.z() = f2x - f1y;
+
+		return v;
 	}
 
-	void Buffer::free()
-	{
-		VCL_CU_SAFE_CALL(cuMemFree(_devicePtr));
-	}
-
-	void Buffer::resize(size_t new_size)
-	{
-		if (_devicePtr)
-			free();
-
-		setSize(new_size);
-
-		allocate();
-	}
-}}}
+	template class VectorNoise<32>;
+	template class VectorNoise<64>;
+	template class VectorNoise<128>;
+}}
