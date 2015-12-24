@@ -58,6 +58,12 @@ namespace Vcl { namespace Compute { namespace Cuda
 			return _context;
 		}
 
+		//! Bind the context to the current thread
+		void bind();
+
+		//! Wait for all the operations on this context to finish
+		void sync();
+
 	public: // Resource allocation
 		virtual ref_ptr<Compute::Module> createModuleFromSource(const int8_t* source, size_t size) override;
 		virtual ref_ptr<Compute::Buffer> createBuffer(BufferAccess access, size_t size) override;
@@ -71,7 +77,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	private:
 		//! OpenCL context ID
-		CUcontext _context;
+		CUcontext _context{ nullptr };
 
 		//! Device belonging to this context
 		const Device& _dev;

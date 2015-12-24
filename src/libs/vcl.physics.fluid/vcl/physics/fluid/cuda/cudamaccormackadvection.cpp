@@ -41,12 +41,12 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	}
 
 	MacCormackAdvection::MacCormackAdvection(ref_ptr<Compute::Cuda::Context> ctx, unsigned int x, unsigned int y, unsigned int z)
-	: MacCormackAdvection(ctx)
+	: Advection(ctx)
 	{
 		using namespace Vcl::Compute::Cuda;
 		using namespace std;
 
-		_advectModule = static_pointer_cast<Module>(ctx->createModuleFromSource((int8_t*) MacCormackAdvectionCudaModule, MacCormackAdvectionCudaModuleSize));
+		_advectModule = static_pointer_cast<Module>(ctx->createModuleFromSource((int8_t*) MacCormackAdvectionCudaModule, MacCormackAdvectionCudaModuleSize * sizeof(uint32_t)));
 
 		if (_advectModule)
 		{
@@ -97,15 +97,15 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			return;
 
 		// Fetch velocity buffers 
-		auto vel_x = (CUdeviceptr) grid->velocities(0, 0);
-		auto vel_y = (CUdeviceptr) grid->velocities(0, 1);
-		auto vel_z = (CUdeviceptr) grid->velocities(0, 2);
+		auto vel_x = grid->velocities(0, 0);
+		auto vel_y = grid->velocities(0, 1);
+		auto vel_z = grid->velocities(0, 2);
 
-		auto phiN  = (CUdeviceptr) src;
-		auto phiN1 = (CUdeviceptr) dst;
+		auto phiN  = src;
+		auto phiN1 = dst;
 
-		auto phiHatN = (CUdeviceptr) dst;
-		auto phiHatN1 = (CUdeviceptr) *_intermediateBuffer;
+		auto phiHatN = dst;
+		auto phiHatN1 = _intermediateBuffer;
 
 		// phiHatN1 = A(phiN)
 		const dim3 block(16, 4, 4);

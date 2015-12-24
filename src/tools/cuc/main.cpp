@@ -214,6 +214,8 @@ int main(int argc, char* argv [])
 		("m64", "Specify that this should be compiled in 64bit.")
 		("profile", po::value<std::vector<std::string>>(), "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)")
 		("include,I", po::value<std::vector<std::string>>(), "Additional include directory")
+		("library-path,L", po::value<std::vector<std::string>>(), "Additional library directory (passed to nvcc)")
+		("library,l", po::value<std::vector<std::string>>(), "Additional library (passed to nvcc)")
 		("symbol", po::value<std::string>(), "Name of the symbol used for the compiled module")
 		("output-file,o", po::value<std::string>(), "Specify the output file.")
 		("input-file", po::value<std::string>(), "Specify the input file.")
@@ -267,38 +269,70 @@ int main(int argc, char* argv [])
 	compiled_files.reserve(profiles.size());
 	for (auto& p : profiles)
 	{
-		std::stringstream cmd;
+		std::stringstream cmd_compile;
+		std::stringstream cmd_link;
 
 		if (vm.count("include"))
 		{
 			for (auto& inc : vm["include"].as<std::vector<std::string>>())
 			{
-				cmd << "-I \"" << inc << "\" ";
+				cmd_compile << "-I \"" << inc << "\" ";
 			}
 		}
 
-		cmd << "-gencode=arch=";
+		cmd_compile << "-gencode=arch=";
+		cmd_link << "-arch ";
 
 		// Generate the output filename for intermediate file
 		std::string tmp_file = tmp_file_base + "_";
+		std::string cc_file  = tmp_file_base + "_compiled_";
 
 		auto sm = p.find("sm");
 		if (sm != p.npos)
 		{
-			cmd << "compute" << p.substr(2, p.npos) << ",code=" << p;
-			cmd << " -cubin ";
+			cmd_compile << "compute" << p.substr(2, p.npos) << ",code=" << p;
+			cmd_compile << " -cubin ";
 			tmp_file += p + ".cubin";
+
+			cmd_link << p << " ";
+			cc_file  += p + ".cubin";
 		}
 		else
 		{
-			cmd << p << ",code=" << p;
-			cmd << " -ptx ";
+			cmd_compile << p << ",code=" << p;
+			cmd_compile << " -ptx ";
 			tmp_file += p + ".ptx";
-		}
-		compiled_files.emplace_back(p, tmp_file);
-		cmd << "-o \"" << tmp_file << "\" \"" << vm["input-file"].as<std::string>() << "\"";
 
-		exec("nvcc.exe", cmd.str().c_str());
+			cmd_link << p << " ";
+			cc_file  += p + ".ptx";
+		}
+
+		// Link against CUDA libraries
+		if (vm.count("library-path"))
+		{
+			for (auto& path : vm["library-path"].as<std::vector<std::string>>())
+			{
+				cmd_link << "-L\"" << path << "\" ";
+			}
+		}
+		if (vm.count("library"))
+		{
+			for (auto& lib : vm["library"].as<std::vector<std::string>>())
+			{
+				cmd_link << "-l\"" << lib<< "\" ";
+			}
+		}
+		cmd_compile << "-dc -rdc=true ";
+
+		compiled_files.emplace_back(p, tmp_file);
+		cmd_compile << "-o \"" << cc_file << "\" \"" << vm["input-file"].as<std::string>() << "\"";
+		cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
+
+		// Compile the code
+		exec("nvcc.exe", cmd_compile.str().c_str());
+
+		// Link the code
+		exec("nvlink.exe", cmd_link.str().c_str());
 	}
 
 	// Create a fat binary from the compiled files 

@@ -22,7 +22,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	, _queue(queue)
 	{
 		// Load the module
-		_cgModule = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverCudaModule, Poisson3dSolverCudaModuleSize));
+		_cgModule = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverCudaModule, Poisson3dSolverCudaModuleSize * sizeof(uint32_t)));
 
 		if (_cgModule)
 		{
@@ -93,15 +93,15 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			grid_size,
 			block_size,
 			0,
-			(CUdeviceptr) laplacian0,
-			(CUdeviceptr) laplacian1,
-			(CUdeviceptr) laplacian2,
-			(CUdeviceptr) laplacian3,
-			(CUdeviceptr) pressure,
-			(CUdeviceptr) divergence,
-			(CUdeviceptr) obstacles,
-			(CUdeviceptr) residual,
-			(CUdeviceptr) direction,
+			laplacian0,
+			laplacian1,
+			laplacian2,
+			laplacian3,
+			pressure,
+			divergence,
+			obstacles,
+			residual,
+			direction,
 			dimension
 		);
 
@@ -182,13 +182,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			grid_size,
 			block_size,
 			0,
-			(CUdeviceptr) laplacian0,
-			(CUdeviceptr) laplacian1,
-			(CUdeviceptr) laplacian2,
-			(CUdeviceptr) laplacian3,
-			(CUdeviceptr) _devDirection,
-			(CUdeviceptr) obstacles,
-			(CUdeviceptr) _devQ,
+			laplacian0,
+			laplacian1,
+			laplacian2,
+			laplacian3,
+			_devDirection,
+			obstacles,
+			_devQ,
 			dimension
 		);
 
@@ -257,7 +257,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		//_supportsFullDeviceSolver = ctx->supports(Vcl::Compute::Cuda::Feature::DynamicParallelism);
 		
 		// Load the module
-		_module = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverCudaModule, Poisson3dSolverCudaModuleSize));
+		_module = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverCudaModule, Poisson3dSolverCudaModuleSize * sizeof(uint32_t)));
 
 		if (_module)
 		{
@@ -343,6 +343,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			_ownerCtx->release(_laplacian[3]);
 			_ownerCtx->release(_pressure);
 			_ownerCtx->release(_divergence);
+
+			_laplacian[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[0]);
+			_laplacian[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[1]);
+			_laplacian[2] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[2]);
+			_laplacian[3] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[3]);
+			_pressure = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_pressure);
+			_divergence = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_divergence);
 		}
 
 		// Fetch the internal solver buffers
@@ -352,26 +359,18 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		auto& laplacian3 = *_laplacian[3];
 		auto& pressure   = *_pressure;
 		auto& divergence = *_divergence;
-
-		_laplacian[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[0]);
-		_laplacian[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[1]);
-		_laplacian[2] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[2]);
-		_laplacian[3] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_laplacian[3]);
-		_pressure     = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_pressure);
-		_divergence   = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_divergence);
-
-
+		
 		// Fetch the grid data
 		const auto obstacles = grid->obstacles();
 
-		auto& vel_x = grid->velocities(0, 0);
-		auto& vel_y = grid->velocities(0, 1);
-		auto& vel_z = grid->velocities(0, 2);
+		auto vel_x = grid->velocities(0, 0);
+		auto vel_y = grid->velocities(0, 1);
+		auto vel_z = grid->velocities(0, 2);
 
 		// Execute the solver to ensure a divergence free velocity field
 		if (_supportsFullDeviceSolver)
 		{
-			_fullDeviceSolver->run(*_queue, dim3(1, 1, 1), dim3(1, 1, 1), 0, (CUdeviceptr) pressure, dim3(x, y, z));
+			_fullDeviceSolver->run(*_queue, dim3(1, 1, 1), dim3(1, 1, 1), 0, pressure, dim3(x, y, z));
 		}
 		else if (_supportsPartialDeviceSolver)
 		{
@@ -405,12 +404,12 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) divergence,
-				(CUdeviceptr) pressure,
-				(CUdeviceptr) *vel_x,
-				(CUdeviceptr) *vel_y,
-				(CUdeviceptr) *vel_z,
-				(CUdeviceptr) *obstacles,
+				divergence,
+				pressure,
+				vel_x,
+				vel_y,
+				vel_z,
+				obstacles,
 				dimension,
 				cellSize
 			);
@@ -422,11 +421,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) laplacian0,
-				(CUdeviceptr) laplacian1,
-				(CUdeviceptr) laplacian2,
-				(CUdeviceptr) laplacian3,
-				(CUdeviceptr) *obstacles,
+				laplacian0,
+				laplacian1,
+				laplacian2,
+				laplacian3,
+				obstacles,
 				0,
 				false,
 				dimension
@@ -442,11 +441,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) *vel_x,
-				(CUdeviceptr) *vel_y,
-				(CUdeviceptr) *vel_z,
-				(CUdeviceptr) pressure,
-				(CUdeviceptr) *obstacles,
+				vel_x,
+				vel_y,
+				vel_z,
+				pressure,
+				obstacles,
 				dimension,
 				invCellSize
 			);

@@ -117,6 +117,16 @@ namespace Vcl { namespace Compute { namespace Cuda
 		return ctx == _context;
 	}
 
+	void Context::bind()
+	{
+		VCL_CU_SAFE_CALL(cuCtxSetCurrent(this->operator CUcontext()));
+	}
+
+	void Context::sync()
+	{
+		VCL_CU_SAFE_CALL(cuCtxSynchronize());
+	}
+
 	Context::ref_ptr<Compute::Module> Context::createModuleFromSource(const int8_t* source, size_t size)
 	{
 		_modules.emplace_back(Module::loadFromBinary(this, source, size));

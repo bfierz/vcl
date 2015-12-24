@@ -93,20 +93,20 @@ __global__ void AddVorticity
 		uint  up    = Obstacle[index + res.x] ? index : index + res.x;
 		uint  down  = Obstacle[index - res.x] ? index : index - res.x;
 		float dy    = (up == index || down == index) ? 2.0f*halfInvCellSize : halfInvCellSize;
-
+		
 		uint  out   = Obstacle[index + res.x*res.y] ? index : index + res.x*res.y;
 		uint  in    = Obstacle[index - res.x*res.y] ? index : index - res.x*res.y;
 		float dz    = (out == index || in == index) ? 2.0f*halfInvCellSize : halfInvCellSize;
-
+		
 		uint  right = Obstacle[index + 1] ? index : index + 1;
 		uint  left  = Obstacle[index - 1] ? index : index - 1;
 		float dx    = (right == index || right == index) ? 2.0f*halfInvCellSize : halfInvCellSize;
-
+		
 		float3 N;
 		N.x = (Vorticity[right] - Vorticity[left]) * dx; 
 		N.y = (Vorticity[up]    - Vorticity[down]) * dy;
 		N.z = (Vorticity[out]   - Vorticity[in])   * dz;
-
+		
 		float magnitude = sqrt(N.x*N.x + N.y*N.y + N.z*N.z);
 		if (magnitude > 0.0f)
 		{

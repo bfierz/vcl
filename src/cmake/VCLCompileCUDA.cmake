@@ -42,11 +42,15 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	
 	# Append the name to the output
 	SET(${compiled_files} ${output_file} PARENT_SCOPE)
+	
+	# Take cudadevrt appart
+	GET_FILENAME_COMPONENT(RT_DIR  ${CUDA_cudadevrt_LIBRARY} DIRECTORY)
+	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)	
 
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
 
-		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --profile compute_50 --m64 ${include_dir_param} -o ${output_file} ${file_to_compile}
+		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --m64 ${include_dir_param} -L"${RT_DIR}" -l"${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)

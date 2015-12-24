@@ -56,7 +56,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	{
 		using namespace Vcl::Compute::Cuda;
 
-		_advectModule = static_pointer_cast<Module>(ctx->createModuleFromSource((int8_t*) SemilagrangeAdvectionCudaModule, SemilagrangeAdvectionCudaModuleSize));
+		_advectModule = static_pointer_cast<Module>(ctx->createModuleFromSource((int8_t*) SemilagrangeAdvectionCudaModule, SemilagrangeAdvectionCudaModuleSize * sizeof(uint32_t)));
 
 		if (_advectModule)
 		{
@@ -184,11 +184,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			block_size,
 			0,
 			dt,
-			(CUdeviceptr) grid->velocities(0, 0),
-			(CUdeviceptr) grid->velocities(0, 1),
-			(CUdeviceptr) grid->velocities(0, 2),
-			(CUdeviceptr) *src,
-			(CUdeviceptr) *dst,
+			grid->velocities(0, 0),
+			grid->velocities(0, 1),
+			grid->velocities(0, 2),
+			src,
+			dst,
 			dim3(x(), y(), z())
 		);
 #endif // VCL_FLUID_ADVECT_TEX3D
