@@ -22,9 +22,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	: JacobiContext()
 	, _context(ctx)
 	, _dim(dim)
+	, _queue(queue)
 	{
 		// Load the module
-		_jacobiModule = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverJacobiCudaModule, Poisson3dSolverJacobiCudaModuleSize));
+		_jacobiModule = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*) Poisson3dSolverJacobiCudaModule, Poisson3dSolverJacobiCudaModuleSize * sizeof(uint32_t)));
 
 		if (_jacobiModule)
 		{
@@ -123,14 +124,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			grid_size,
 			block_size,
 			0,
-			(CUdeviceptr) laplacian0,
-			(CUdeviceptr) laplacian1,
-			(CUdeviceptr) laplacian2,
-			(CUdeviceptr) laplacian3,
-			(CUdeviceptr) pressure,
-			(CUdeviceptr) divergence,
-			(CUdeviceptr) obstacles,
-			(CUdeviceptr) sol,
+			laplacian0,
+			laplacian1,
+			laplacian2,
+			laplacian3,
+			pressure,
+			divergence,
+			obstacles,
+			sol,
 			dimension
 		);
 

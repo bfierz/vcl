@@ -104,10 +104,10 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 			0,
 			(int) numEntries,
 			(int) _size,
-			(CUdeviceptr) *A,
-			(CUdeviceptr) *U,
-			(CUdeviceptr) *V,
-			(CUdeviceptr) *S
+			A,
+			U,
+			V,
+			S
 		);
 
 		queue.read(outU.data(), U);

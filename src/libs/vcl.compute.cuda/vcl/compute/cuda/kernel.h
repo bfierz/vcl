@@ -36,30 +36,56 @@
 #include <vector_types.h>
 
 // VCL
+#include <vcl/compute/cuda/buffer.h>
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
 namespace Vcl { namespace Compute { namespace Cuda
 {
-	struct LocalMemory
-	{
-		LocalMemory(size_t size) : Size(size) {}
-
-		size_t Size;
-	};
-
 	template<typename T>
 	struct KernelArg
 	{
-		static size_t size(const T&) { return sizeof(T); }
-		static const void* ptr(const T& arg) { return &arg; }
+		KernelArg(const T& arg) : Arg(arg) { /*static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "T is simple type.");*/ }
+
+		static size_t size() { return sizeof(T); }
+		 void* ptr() { return &Arg; }
+
+	private:
+		T Arg;
 	};
 
 	template<>
-	struct KernelArg<LocalMemory>
+	struct KernelArg<dim3>
 	{
-		static size_t size(const LocalMemory& arg) { return arg.Size; }
-		static const void* ptr(const LocalMemory&) { return nullptr; }
+		KernelArg(const dim3& arg) : Arg(arg) {}
+
+		static size_t size() { return sizeof(dim3); }
+		void* ptr() { return &Arg; }
+
+	private:
+		dim3 Arg;
+	};
+	template<typename U>
+	struct KernelArg<ref_ptr<U>>
+	{
+		KernelArg(const ref_ptr<U>& arg) : Arg((CUdeviceptr) *arg) { static_assert(std::is_base_of<Compute::Buffer, std::decay<U>::type>::value, "Type is derived from Buffer."); }
+
+		static size_t size() { return sizeof(CUdeviceptr); }
+		void* ptr() { return &Arg; }
+
+	private:
+		CUdeviceptr Arg;
+	};
+	template<>
+	struct KernelArg<Cuda::Buffer>
+	{
+		KernelArg(const Cuda::Buffer& arg) : Arg((CUdeviceptr) arg) {}
+
+		static size_t size() { return sizeof(CUdeviceptr); }
+		void* ptr() { return &Arg; }
+
+	private:
+		CUdeviceptr Arg;
 	};
 
 	class Kernel : public Compute::Kernel
@@ -95,7 +121,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 			const Args&... args
 		)
 		{
-			void* params [] = { ((void*) &args)... };
+			void* params [] = { KernelArg<typename std::decay<Args>::type> {args}.ptr()... };
+			//void* params [] = { ((void*) &args)... };
 			
 			runImpl(queue, gridDim, blockDim, dynamicSharedMemory, params);
 		}

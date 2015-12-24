@@ -298,7 +298,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			block_size,
 			0,
 			(int) mode,
-			(CUdeviceptr) buffer,
+			buffer,
 			dim
 		);
 	}
@@ -315,7 +315,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			block_size,
 			0,
 			(int) mode,
-			(CUdeviceptr) buffer,
+			buffer,
 			dim
 		);
 	}
@@ -332,7 +332,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			block_size,
 			0,
 			(int) mode,
-			(CUdeviceptr) buffer,
+			buffer,
 			dim
 		);
 	}
@@ -355,8 +355,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			grid_size,
 			block_size,
 			0,
-			(CUdeviceptr) dst,
-			(CUdeviceptr) src,
+			dst,
+			src,
 			alpha,
 			size
 		);

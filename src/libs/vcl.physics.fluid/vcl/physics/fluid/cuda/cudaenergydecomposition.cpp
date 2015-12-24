@@ -30,7 +30,7 @@
 #include <vcl/physics/fluid/cuda/cudacentergrid.h>
 
 #ifdef VCL_CUDA_SUPPORT
-extern uint32_t EulerfluidEnergyDecompositionCudaModule[];
+extern uint32_t EulerfluidEnergyDecompositionCudaModule [];
 extern size_t EulerfluidEnergyDecompositionCudaModuleSize;
 
 namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
@@ -105,10 +105,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) *vel_x,
-				(CUdeviceptr) *vel_y,
-				(CUdeviceptr) *vel_z,
-				(CUdeviceptr) *energy,
+				vel_x,
+				vel_y,
+				vel_z,
+				energy,
 				dim3(res_x, res_y, res_z)
 			);
 	
@@ -117,14 +117,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			// propagating the values in by 4 should be sufficient
 			for (int iter = 0; iter < 4; iter++)
 			{
-				_computeEnergyDensity->run
+				_marchObstaclesModifyEnergy->run
 				(
 					queue,
 					grid_size,
 					block_size,
 					0,
-					(CUdeviceptr) *obstacles,
-					(CUdeviceptr) *energy,
+					obstacles,
+					energy,
 					dim3(res_x, res_y, res_z)
 				);
 		
@@ -134,7 +134,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 					grid_size,
 					block_size,
 					0,
-					(CUdeviceptr) *obstacles,
+					obstacles,
 					dim3(res_x, res_y, res_z)
 				);
 			}
@@ -145,13 +145,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		//
 		
 		// Get two temporary buffers
-		auto tmpBuffer1 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
-		auto tmpBuffer2 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
-		queue.setZero(tmpBuffer1);
-		queue.setZero(tmpBuffer2);
-
-		auto tmp1 = (CUdeviceptr) *tmpBuffer1;
-		auto tmp2 = (CUdeviceptr) *tmpBuffer2;
+		auto tmp1 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
+		auto tmp2 = static_pointer_cast<Compute::Cuda::Buffer>(grid->aquireIntermediateBuffer());
+		queue.setZero(tmp1);
+		queue.setZero(tmp2);
 		
 		// Downsample the volume
 		int max_threads = 128;
@@ -167,7 +164,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				block_size,
 				0,
 				tmp1,
-				(CUdeviceptr) *energy,
+				energy,
 				dim3(res_x, res_y, res_z)
 			);
 		}
@@ -203,13 +200,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				block_size,
 				0,
 				tmp2,
-				(CUdeviceptr) *energy,
+				energy,
 				dim3(res_x, res_y, res_z)
 			);
 		}
 
-		grid->releaseIntermediateBuffer(tmpBuffer1);
-		grid->releaseIntermediateBuffer(tmpBuffer2);
+		grid->releaseIntermediateBuffer(tmp1);
+		grid->releaseIntermediateBuffer(tmp2);
 
 //#define VCL_PHYSICS_FLUID_CUDA_ENERGY_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_ENERGY_VERIFY

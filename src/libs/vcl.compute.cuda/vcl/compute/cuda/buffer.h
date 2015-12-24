@@ -53,6 +53,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 			return _devicePtr;
 		}
 
+		CUdeviceptr devicePtr() const { return _devicePtr; }
+
 	private:
 		void allocate();
 		void free();

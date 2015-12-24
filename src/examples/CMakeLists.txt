@@ -1,3 +1,4 @@
+SUBDIRS(fluids)
 SUBDIRS(meshviewer)
 SUBDIRS(simd)
 

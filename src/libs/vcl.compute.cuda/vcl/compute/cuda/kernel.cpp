@@ -80,5 +80,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 			(CUstream) queue,
 			params, nullptr
 		));
+#ifdef VCL_DEBUG
+		queue.sync();
+#endif
 	}
 }}}

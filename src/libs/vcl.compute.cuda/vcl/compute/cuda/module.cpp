@@ -36,7 +36,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		Require(ctx->isCurrent(), "Current context is set.");
 
 		// Load the module
-		CUmodule mod;
+		CUmodule mod = 0;
 		VCL_CU_SAFE_CALL(cuModuleLoadData(&mod, data));
 
 		return Core::make_owner<Module>(mod);

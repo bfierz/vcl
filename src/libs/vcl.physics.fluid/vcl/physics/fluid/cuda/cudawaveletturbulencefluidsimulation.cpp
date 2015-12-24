@@ -37,18 +37,6 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	WaveletTrubulenceFluidSimulation::WaveletTrubulenceFluidSimulation(ref_ptr<Vcl::Compute::Cuda::Context> ctx)
 	: _ownerCtx(ctx)
 	{
-		// Load the module
-		_noiseModule = ctx->createModule(std::string("../data/compute/cudawaveletturbulencefluidsimulation"));
-
-		if (_noiseModule.isValid())
-		{
-			auto& mod = ctx->module(_noiseModule);
-
-			// Load the fluid simulation related kernels
-			//_compVorticity = mod.kernel("ComputeVorticity");
-			//_addVorticity = mod.kernel("AddVorticity");
-		}
-
 		// Initialise the noise data on the CUDA device
 		Vcl::Util::VectorNoise<32> noise;
 		initNoiseBuffer(noise);
@@ -67,12 +55,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Copy the noise to the device buffer
 		for (int i = 0; i < 3; i++)
 		{
-			auto mem = _ownerCtx->map(_noiseChannels[i]);
-			Check(mem, "Buffer is mapped.");
-
-			memcpy(mem, noise_tiles[i], size*size*size*sizeof(float));
-
-			_ownerCtx->unmap(_noiseChannels[i]);
+			_noiseChannels[i] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::Write, size*size*size*sizeof(float)));
+			_ownerCtx->defaultQueue()->write(_noiseChannels[i], (void*) noise_tiles[i]);
 		}
 	}
 }}}}

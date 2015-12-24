@@ -119,9 +119,12 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->setBorderZero(*queue, *vel_curr_z, res);
 		grid->setBorderZero(*queue, *density_curr, res);
 
+		//////////////////////////////////////////////////////////////////////////////
 		// Map the CUDA buffers for a prototype implementation
-		/*auto* obstacle_ptr     = static_cast<unsigned int*>(obstacles.map());
-		auto* density_curr_ptr = static_cast<float*>(density_curr.map());
+		std::vector<uint32_t> obstacle(obstacles->size() / sizeof(unsigned int), 0);
+		std::vector<float> density(density_curr->size() / sizeof(float), 0.0f);
+		queue->read(obstacle.data(), { obstacles }, false);
+		queue->read(density.data(), { density_curr }, true);
 
 		// Add an inlet
 		for (size_t z = 1; z < 8; z++)
@@ -131,8 +134,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				for (size_t x = res_x / 2 - 5; x < res_x / 2 + 5; x++)
 				{
 					size_t index = z*res_x*res_y + y*res_x + x;
-					float d = density_curr_ptr[index];
-					density_curr_ptr[index] = fmax(d + 0.5f, 1.0f);
+					float d = density[index];
+					density[index] = fmax(d + 0.5f, 1.0f);
 				}
 			}
 		}
@@ -145,22 +148,17 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			{
 				for (size_t x = 1; x < res_x - 1; x++, index++)
 				{
-					if (obstacle_ptr[index])
+					if (obstacle[index])
 					{
-						density_curr_ptr[index] = 0.0f;
+						density[index] = 0.0f;
 					}
 				}
 			}
 		}
 
-		density_curr.unmap();
-		obstacles.unmap();*/
-
-		CUevent start, stop;
-		VCL_CU_SAFE_CALL(cuEventCreate(&start, CU_EVENT_BLOCKING_SYNC));
-		VCL_CU_SAFE_CALL(cuEventCreate(&stop, CU_EVENT_BLOCKING_SYNC));
-
-		VCL_CU_SAFE_CALL(cuEventRecord(start, 0));
+		queue->write({ obstacles }, obstacle.data(), false);
+		queue->write({ density_curr }, density.data(), true);
+		//////////////////////////////////////////////////////////////////////////////
 
 		// Add vorticity 
 		if (grid->vorticityCoeff() > 0.0f)
@@ -181,14 +179,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) *vel_curr_x,
-				(CUdeviceptr) *vel_curr_y,
-				(CUdeviceptr) *vel_curr_z,
-				(CUdeviceptr) *obstacles,
-				(CUdeviceptr) vort_x,
-				(CUdeviceptr) vort_y,
-				(CUdeviceptr) vort_z,
-				(CUdeviceptr) vort,
+				vel_curr_x,
+				vel_curr_y,
+				vel_curr_z,
+				obstacles,
+				vort_x,
+				vort_y,
+				vort_z,
+				vort,
 				invSpacing,
 				res
 			);
@@ -199,14 +197,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				grid_size,
 				block_size,
 				0,
-				(CUdeviceptr) vort_x,
-				(CUdeviceptr) vort_y,
-				(CUdeviceptr) vort_z,
-				(CUdeviceptr) vort,
-				(CUdeviceptr) obstacles,
-				(CUdeviceptr) force_x,
-				(CUdeviceptr) force_y,
-				(CUdeviceptr) force_z,
+				vort_x,
+				vort_y,
+				vort_z,
+				vort,
+				obstacles,
+				force_x,
+				force_y,
+				force_z,
 				grid->vorticityCoeff(),
 				grid->spacing(),
 				invSpacing,
@@ -217,7 +215,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Add buoyancy
 		if (grid->heatDiffusion() > 0.0f)
 		{
-			//	addBuoyancy(mHeat);
+		//	addBuoyancy(mHeat);
 		}
 		else
 		{
@@ -259,13 +257,6 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->setBorderZero(*queue, *heat_prev, res);
 
 		grid->swap();
-
-		VCL_CU_SAFE_CALL(cuEventRecord(stop, 0));
-
-		float time;
-		VCL_CU_SAFE_CALL(cuEventSynchronize(stop));
-		VCL_CU_SAFE_CALL(cuEventElapsedTime(&time, start, stop));
-		std::cout << time << std::endl;
 	}
 }}}}
 #endif // VCL_CUDA_SUPPORT
