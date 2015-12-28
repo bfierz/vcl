@@ -41,6 +41,11 @@ namespace Vcl
 	{
 	public:
 		VCL_STRONG_INLINE VectorScalar() = default;
+		VCL_STRONG_INLINE VectorScalar(bool s)
+		{
+			mF4[0] = s ? _mm_castsi128_ps(_mm_set1_epi32(-1)) : _mm_castsi128_ps(_mm_set1_epi32(0));
+			mF4[1] = s ? _mm_castsi128_ps(_mm_set1_epi32(-1)) : _mm_castsi128_ps(_mm_set1_epi32(0));
+		}
 		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4_0, __m128 F4_1)
 		{
 			mF4[0] = F4_0;
@@ -62,11 +67,25 @@ namespace Vcl
 			return VectorScalar<bool, 8>(_mm_or_ps(mF4[0], rhs.mF4[0]), _mm_or_ps(mF4[1], rhs.mF4[1]));
 		}
 
+		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator&= (const VectorScalar<bool, 8>& rhs)
+		{
+			mF4[0] = _mm_and_ps(mF4[0], rhs.mF4[0]);
+			mF4[1] = _mm_and_ps(mF4[1], rhs.mF4[1]);
+			return *this;
+		}
+		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator|= (const VectorScalar<bool, 8>& rhs)
+		{
+			mF4[0] = _mm_or_ps(mF4[0], rhs.mF4[0]);
+			mF4[1] = _mm_or_ps(mF4[1], rhs.mF4[1]);
+			return *this;
+		}
+
 	public:
 		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);
 		friend VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b);
 		friend bool any(const VectorScalar<bool, 8>& b);
 		friend bool all(const VectorScalar<bool, 8>& b);
+		friend bool none(const VectorScalar<bool, 8>& b);
 
 	private:
 		__m128 mF4[2];
@@ -100,5 +119,13 @@ namespace Vcl
 		    mask |= _mm_movemask_ps(b.mF4[0]);
 			
 		return static_cast<unsigned int>(mask) == 0xff;
+	}
+
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b)
+	{
+		int mask  = _mm_movemask_ps(b.mF4[1]) << 4;
+		    mask |= _mm_movemask_ps(b.mF4[0]);
+
+		return static_cast<unsigned int>(mask) == 0x0;
 	}
 }
