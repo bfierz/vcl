@@ -1,6 +1,7 @@
 PROJECT(vcl_graphics_opengl_test)
 
 SET(VCL_TEST_SRC
+	blendstate.cpp
 	buffers.cpp
 	shaderprogram.cpp
 	textures.cpp
