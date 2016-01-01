@@ -22,32 +22,77 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+import QtQuick 2.2
+import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
+import QtQuick.Window 2.1
 
-#ifdef VCL_OPENGL_SUPPORT
+import MeshViewerRendering 1.0
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+ApplicationWindow
 {
-	class Shader : public Runtime::Shader, public Resource
+    width: 400
+    height: 400
+
+	OpenMeshDialog
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		id: openMeshDialog
+		
+		onAccepted:
+		{
+			console.log("Accepted: " + fileUrls)
+			scene.loadMesh(openMeshDialog.fileUrl)
+			renderer.update()
+		}
+		onRejected: { console.log("Rejected") }
+	}
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+	CreateBarDialog
+	{
+		id: createBarDialog
+		
+		onAccepted:
+		{
+			scene.createBar(createBarDialog.xResolution, createBarDialog.yResolution, createBarDialog.zResolution)
+			renderer.update()
+		}
+	}
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	menuBar: MenuBar
+	{
+        Menu
+		{
+            title: "File"
+            MenuItem
+			{
+				text: "Open..."
+				onTriggered: { openMeshDialog.open() }
+			}
+            MenuItem
+			{
+				text: "Exit"
+				onTriggered: { Qt.quit() }
+			}
+        }
+
+        Menu
+		{
+            title: "Create"
+            MenuItem
+			{
+				text: "Bar"
+				onTriggered: { createBarDialog.open() }
+			}
+        }
+    }
+
+	MeshView
+	{
+        id: renderer
+        anchors.fill: parent
+        anchors.margins: 10
+	}
+
+	Component.onCompleted: { renderer.scene = scene }
+}

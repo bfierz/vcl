@@ -28,26 +28,41 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// Qt
+#include <QtCore/QObject>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/camera.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+#include "gpuvolumemesh.h"
+
+/*!
+ *	\note Combination of model and view-model
+ */
+class Scene : public QObject
 {
-	class Shader : public Runtime::Shader, public Resource
-	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+	Q_OBJECT
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+public:
+	Scene(QObject* parent = 0);
+	~Scene();
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+public:
+	void update();
+
+public slots:
+	void createBar(int x, int y, int z);
+	void loadMesh(const QUrl& path);
+
+public:
+	Vcl::Graphics::Camera* camera() const { _camera.get(); }
+	GPUVolumeMesh* volumeMesh() const { return _volumeMesh.get(); }
+
+private: // Update data
+	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
+
+private: // Render data
+	std::unique_ptr<Vcl::Graphics::Camera> _camera;
+
+	std::unique_ptr<GPUVolumeMesh> _volumeMesh;
+};

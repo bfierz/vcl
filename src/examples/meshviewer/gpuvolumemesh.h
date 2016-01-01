@@ -28,26 +28,32 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/geometry/tetramesh.h>
+#include <vcl/graphics/runtime/resource/buffer.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+class GPUVolumeMesh
 {
-	class Shader : public Runtime::Shader, public Resource
-	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+public:
+	GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
+	~GPUVolumeMesh();
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+public:
+	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	Vcl::Graphics::Runtime::Buffer* indices()       const { return _indices.get(); }
+	Vcl::Graphics::Runtime::Buffer* positions()     const { return _positions.get(); }
+	Vcl::Graphics::Runtime::Buffer* volumeColours() const { return _volumeColours.get(); }
+
+private:
+	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
+
+	//! Index structure
+	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _indices;
+
+	//! Position data
+	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _positions;
+
+	//! Volume-colour data
+	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _volumeColours;
+};

@@ -98,5 +98,16 @@ namespace Vcl { namespace Geometry
 	public:
 		//! Clear the content of the mesh
 		void clear();
+
+		//! Add a new property to the volume level
+		template<typename T>
+		Property<T, IndexDescriptionTrait<TetraMesh>::IndexType>* addVolumeProperty
+		(
+			const std::string& name,
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::IndexType>::reference init_value
+		)
+		{
+			return volumeProperties().add<T>(name, init_value);
+		}
 	};
 }}

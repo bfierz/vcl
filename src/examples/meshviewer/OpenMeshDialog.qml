@@ -22,32 +22,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+import QtQuick 2.2
+import QtQuick.Dialogs 1.0
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+FileDialog
 {
-	class Shader : public Runtime::Shader, public Resource
-	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+	id: openMeshDialog
+	title: "Choose a mesh"
+	modality: Qt.WindowModal
+	
+	sidebarVisible: false
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+	selectExisting: true
+	selectMultiple: false
+	selectFolder: false
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	nameFilters: [ "Mesh files (*.tet)", "All files (*.*)" ]
+	selectedNameFilter: "All files (*.*)"
+}

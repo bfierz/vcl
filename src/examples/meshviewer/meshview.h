@@ -28,26 +28,54 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// C++ standard library
+#include <iostream>
+
+// Qt
+#include <QtGui/QOpenGLFramebufferObject>
+#include <QtQuick/QQuickFramebufferObject>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+#include "scene.h"
+
+class FboRenderer : public QQuickFramebufferObject::Renderer
 {
-	class Shader : public Runtime::Shader, public Resource
+public:
+	FboRenderer();
+
+public:
+	void render() override;
+	void synchronize(QQuickFramebufferObject* item) override;
+
+	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
+
+private:
+	Scene* _scene{ nullptr };
+
+private: // Shaders
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTetraMeshShader;
+};
+
+class MeshView : public QQuickFramebufferObject
+{
+	Q_OBJECT
+
+	// Properties
+	Q_PROPERTY(Scene* scene READ scene WRITE setScene)
+
+public:
+	Renderer* createRenderer() const;
+
+public:
+	Scene* scene() const { return _scene; }
+	void setScene(Scene* s)
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		_scene = s;
+		update();
+	}
 
-	public:
-		static GLenum toGLenum(ShaderType type);
-
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+private:
+	Scene* _scene{ nullptr };
+};

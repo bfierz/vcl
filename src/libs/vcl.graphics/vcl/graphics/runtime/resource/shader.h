@@ -45,6 +45,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		Shader(ShaderType type, int tag);
 
 	public:
+		Shader(const Shader& rhs) = default;
 		virtual ~Shader() = default;
 
 	private:

@@ -30,6 +30,7 @@
 // C++ Standard Library
 
 // Include the relevant parts from the library
+#include <vcl/geometry/meshfactory.h>
 #include <vcl/geometry/tetramesh.h>
 
 // Google test
@@ -40,5 +41,7 @@ TEST(TetraMeshTest, SimpleConstruction)
 {
 	using namespace Vcl::Geometry;
 
-	TetraMesh simple_cube;
+	auto simple_cube = MeshFactory<TetraMesh>::createHomogenousCubes(1, 1, 1);
+	EXPECT_EQ(8, simple_cube->nrVertices());
+	EXPECT_EQ(5, simple_cube->nrVolumes());
 }

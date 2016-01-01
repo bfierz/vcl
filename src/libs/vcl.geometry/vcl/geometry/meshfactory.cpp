@@ -24,6 +24,9 @@
  */
 #include <vcl/geometry/meshfactory.h>
 
+// VCL
+#include <vcl/geometry/tetrahedron.h>
+
 namespace Vcl { namespace Geometry
 {
 	std::unique_ptr<TetraMesh> MeshFactory<TetraMesh>::createHomogenousCubes(unsigned int count_x, unsigned int count_y, unsigned int count_z)
@@ -266,7 +269,7 @@ namespace Vcl { namespace Geometry
 			Vector3f p2 = positions[volumes[i][2]];
 			Vector3f p3 = positions[volumes[i][3]];
 
-			if (Vcl::Geometry::Tetrahedron<float>(p0, p1, p2, p3).signedVolume() < 0)
+			if (Vcl::Geometry::Tetrahedron<float, 3>(p0, p1, p2, p3).computeSignedVolume() < 0)
 				std::swap(volumes[i][2], volumes[i][3]);
 		}
 

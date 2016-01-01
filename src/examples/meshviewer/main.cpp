@@ -22,32 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// C++ standard library
+
+// Qt
+#include <QtGui/QGuiApplication>
+#include <QtQml/QQmlApplicationEngine>
+#include <QtQml/QQmlContext>
+#include <QtQuick/QQuickWindow>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+#include "meshview.h"
+#include "scene.h"
+
+// Force the use of the NVIDIA GPU in an Optimius system
+extern "C"
 {
-	class Shader : public Runtime::Shader, public Resource
+	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
+}
+
+int main(int argc, char **argv)
+{
+	QGuiApplication app(argc, argv);
+
+	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "MeshView");
+	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "Scene");
+
+	QQmlApplicationEngine engine;
+
+	Scene scene;
+	engine.rootContext()->setContextProperty("scene", &scene);
+
+	engine.load(QUrl("qrc:///main.qml"));
+
+	QObject *topLevel = engine.rootObjects().value(0);
+	QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
+	if (!window)
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		qWarning("Error: Your root item has to be a Window.");
+		return -1;	
+	}
+	window->show();
 
-	public:
-		static GLenum toGLenum(ShaderType type);
-
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+	return app.exec();
+}

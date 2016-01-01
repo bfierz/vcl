@@ -1,0 +1,13 @@
+<RCC>
+  <qresource>
+    <file>main.qml</file>
+    <file>CreateBarDialog.qml</file>
+    <file>OpenMeshDialog.qml</file>
+  </qresource>
+
+  <qresource>
+    <file>shaders/tetramesh.vert</file>
+    <file>shaders/tetramesh.geom</file>
+    <file>shaders/mesh.frag</file>
+  </qresource>
+</RCC>

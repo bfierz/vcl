@@ -108,8 +108,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel0()
 		: _vertexData("VertexData")
 		{
-			_vertices = _vertexData.add("Vertices");
-			_verticesMetaData = _vertexData.add("VerticesMetaData");
+			_vertices = _vertexData.add<Vertex>("Vertices");
+			_verticesMetaData = _vertexData.add<VertexMetaData>("VerticesMetaData");
 		}
 		virtual ~SimplexLevel0() = default;
 
@@ -124,6 +124,8 @@ namespace Vcl { namespace Geometry
 			  
 		const VertexMetaData& metaData(VertexId id) const { return static_cast<const Derived*>(this)->access(_verticesMetaData, id); }
 		      VertexMetaData& metaData(VertexId id)       { return static_cast<      Derived*>(this)->access(_verticesMetaData, id); }
+			  
+		ConstPropertyPtr<Vertex, VertexId> vertices() const { return _vertices; }
 
 	protected:
 		const PropertyGroup<VertexId>& vertexProperties() const { return _vertexData; }
@@ -177,8 +179,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel1()
 		: _edgeData("EdgeGroup")
 		{
-			_edges = _edgeData.add("Edges");
-			_edgesMetaData = _edgeData.add("EdgesMetaData");
+			_edges = _edgeData.add<Edge>("Edges");
+			_edgesMetaData = _edgeData.add<EdgeMetaData>("EdgesMetaData");
 		}
 		virtual ~SimplexLevel1() = default;
 
@@ -194,6 +196,8 @@ namespace Vcl { namespace Geometry
 		const EdgeMetaData& metaData(EdgeId id) const { return static_cast<const Derived*>(this)->access(_edgesMetaData, id); }
 		      EdgeMetaData& metaData(EdgeId id)       { return static_cast<      Derived*>(this)->access(_edgesMetaData, id); }
 			  
+		ConstPropertyPtr<Edge, EdgeId> edges() const { return _edges; }
+
 	protected:
 		const PropertyGroup<EdgeId>& edgeProperties() const { return _edgeData; }
 		      PropertyGroup<EdgeId>& edgeProperties()       { return _edgeData; }
@@ -230,8 +234,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel2()
 		: _faceData("FaceGroup")
 		{
-			_faces = _faceData.add("Faces");
-			_facesMetaData = _faceData.add("FacesMetaData");
+			_faces = _faceData.add<Face>("Faces");
+			_facesMetaData = _faceData.add<FaceMetaData>("FacesMetaData");
 		}
 		virtual ~SimplexLevel2() = default;
 		
@@ -247,6 +251,8 @@ namespace Vcl { namespace Geometry
 		const FaceMetaData& metaData(FaceId id) const { return static_cast<const Derived*>(this)->access(_facesMetaData, id); }
 		      FaceMetaData& metaData(FaceId id)       { return static_cast<      Derived*>(this)->access(_facesMetaData, id); }
 			  
+		ConstPropertyPtr<Face, FaceId> faces() const { return _faces; }
+
 	protected:
 		const PropertyGroup<FaceId>& faceProperties() const { return _faceData; }
 		      PropertyGroup<FaceId>& faceProperties()       { return _faceData; }
@@ -283,8 +289,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel3()
 		: _volumeData("VolumeGroup")
 		{
-			_volumes = _volumeData.add("Volumes");
-			_volumesMetaData = _volumeData.add("VolumesMetaData");
+			_volumes = _volumeData.add<Volume>("Volumes");
+			_volumesMetaData = _volumeData.add<VolumeMetaData>("VolumesMetaData");
 		}
 		virtual ~SimplexLevel3() = default;
 
@@ -300,6 +306,8 @@ namespace Vcl { namespace Geometry
 		const VolumeMetaData& metaData(VolumeId id) const { return static_cast<const Derived*>(this)->access(_volumesMetaData, id); }
 		      VolumeMetaData& metaData(VolumeId id)       { return static_cast<      Derived*>(this)->access(_volumesMetaData, id); }
 			  
+		ConstPropertyPtr<Volume, VolumeId> volumes() const { return _volumes; }
+
 	protected:
 		const PropertyGroup<VolumeId>& volumeProperties() const { return _volumeData; }
 		      PropertyGroup<VolumeId>& volumeProperties()       { return _volumeData; }

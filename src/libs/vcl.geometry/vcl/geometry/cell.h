@@ -40,10 +40,10 @@ namespace Vcl { namespace Geometry
 	enum class CellType
 	{
 		None = -1,
-		Tetrahedron = 0,
-		Pyramid = 1,
-		Prism = 2,
-		Hexahedron = 3
+		TetrahedralCell = 0,
+		PyramidralCell = 1,
+		PrismaCell = 2,
+		HexahedralCell = 3
 	};
 
 	// Forward declaration
@@ -80,7 +80,7 @@ namespace Vcl { namespace Geometry
 	};
 	
 	template<typename IndexType>
-	class Tetrahedron : public Cell<Tetrahedron<IndexType>, IndexType>
+	class TetrahedralCell : public Cell<TetrahedralCell<IndexType>, IndexType>
 	{
 	public:
 		using vector3_t   = Eigen::Matrix<float, 3, 1>;
@@ -91,8 +91,8 @@ namespace Vcl { namespace Geometry
 		using matrix4x3_t = Eigen::Matrix<float, 4, 3>;
 
 	public:
-		Tetrahedron() = default;
-		Tetrahedron(const std::array<IndexType, Cell<Tetrahedron, IndexType>::NumVertices>& indices) : Cell<Tetrahedron, IndexType>(indices) {}
+		TetrahedralCell() = default;
+		TetrahedralCell(const std::array<IndexType, Cell<TetrahedralCell, IndexType>::NumVertices>& indices) : Cell<TetrahedralCell, IndexType>(indices) {}
 
 	public:
 		struct NaturalCoordinates3
@@ -240,7 +240,7 @@ namespace Vcl { namespace Geometry
 	};
 
 	template<typename IndexType>
-	struct CellTraits<Tetrahedron<IndexType>>
+	struct CellTraits<TetrahedralCell<IndexType>>
 	{
 		static const int NumEdges = 6;
 		static const int NumVertices = 4;
@@ -254,7 +254,7 @@ namespace Vcl { namespace Geometry
 	};
 	
 	template<typename IndexType>
-	class Pyramid : public Cell<Pyramid<IndexType>, IndexType>
+	class PyramidralCell : public Cell<PyramidralCell<IndexType>, IndexType>
 	{
 	public:
 		using vector3_t   = Eigen::Matrix<float, 3, 1>;
@@ -263,8 +263,8 @@ namespace Vcl { namespace Geometry
 		using matrix5x3_t = Eigen::Matrix<float, 5, 3>;
 
 	public:
-		Pyramid() = default;
-		Pyramid(const std::array<IndexType, Cell<Pyramid, IndexType>::NumVertices>& indices) : Cell<Pyramid, IndexType>(indices) {}
+		PyramidralCell() = default;
+		PyramidralCell(const std::array<IndexType, Cell<PyramidralCell, IndexType>::NumVertices>& indices) : Cell<PyramidralCell, IndexType>(indices) {}
 
 	public:
 		struct NaturalCoordinates
@@ -356,7 +356,7 @@ namespace Vcl { namespace Geometry
 	};
 	
 	template<typename IndexType>
-	struct CellTraits<Pyramid<IndexType>>
+	struct CellTraits<PyramidralCell<IndexType>>
 	{
 		static const int NumEdges = 8;
 		static const int NumVertices = 5;
@@ -370,7 +370,7 @@ namespace Vcl { namespace Geometry
 	};
 
 	template<typename IndexType>
-	class Prism : public Cell<Prism<IndexType>, IndexType>
+	class PrismaCell : public Cell<PrismaCell<IndexType>, IndexType>
 	{
 	public:
 		using vector3_t   = Eigen::Matrix<float, 3, 1>;
@@ -386,8 +386,8 @@ namespace Vcl { namespace Geometry
 		};
 
 	public:
-		Prism() = default;
-		Prism(const std::array<IndexType, Cell<Prism, IndexType>::NumVertices>& indices) : Cell<Prism, IndexType>(indices) {}
+		PrismaCell() = default;
+		PrismaCell(const std::array<IndexType, Cell<PrismaCell, IndexType>::NumVertices>& indices) : Cell<PrismaCell, IndexType>(indices) {}
 		
 	public: // Shape functions
 		// Compute the Jacobian matrix for the deformation field at a given integration
@@ -468,7 +468,7 @@ namespace Vcl { namespace Geometry
 	};
 
 	template<typename IndexType>
-	struct CellTraits<Prism<IndexType>>
+	struct CellTraits<PrismaCell<IndexType>>
 	{
 		static const int NumEdges = 9;
 		static const int NumVertices = 6;
@@ -482,7 +482,7 @@ namespace Vcl { namespace Geometry
 	};
 
 	template<typename IndexType>
-	class Hexahedron : public Cell<Hexahedron<IndexType>, IndexType>
+	class HexahedralCell : public Cell<HexahedralCell<IndexType>, IndexType>
 	{
 	public:
 		using vector3_t   = Eigen::Matrix<float, 3, 1>;
@@ -498,8 +498,8 @@ namespace Vcl { namespace Geometry
 		};
 
 	public:
-		Hexahedron() = default;
-		Hexahedron(const std::array<IndexType, Cell<Hexahedron, IndexType>::NumVertices>& indices) : Cell<Hexahedron, IndexType>(indices) {}
+		HexahedralCell() = default;
+		HexahedralCell(const std::array<IndexType, Cell<HexahedralCell, IndexType>::NumVertices>& indices) : Cell<HexahedralCell, IndexType>(indices) {}
 
 	public: // Shape functions
 		static matrix3x8_t computeShapeFunctionGradients(const matrix3x8_t& coords, const vector3_t& gauss_point)
@@ -596,7 +596,7 @@ namespace Vcl { namespace Geometry
 	};
 	
 	template<typename IndexType>
-	struct CellTraits<Hexahedron<IndexType>>
+	struct CellTraits<HexahedralCell<IndexType>>
 	{
 		static const int NumEdges = 12;
 		static const int NumVertices = 8;
@@ -609,19 +609,19 @@ namespace Vcl { namespace Geometry
 		static const int triFaces[1][3]; // NumTriFaces is 0, which would result in a linker error, so setting to a dummy 1
 	};
 	
-	template<typename IndexType> const int CellTraits<Tetrahedron<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
-	template<typename IndexType> const int CellTraits<Tetrahedron<IndexType>>::quadFaces[1][4] = { { -1, -1, -1, -1 } };
-	template<typename IndexType> const int CellTraits<Tetrahedron<IndexType>>::triFaces[NumTriFaces][3] = { { 1, 2, 3 }, { 2, 0, 3 }, { 3, 0, 1 }, { 0, 2, 1 } };
+	template<typename IndexType> const int CellTraits<TetrahedralCell<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
+	template<typename IndexType> const int CellTraits<TetrahedralCell<IndexType>>::quadFaces[1][4] = { { -1, -1, -1, -1 } };
+	template<typename IndexType> const int CellTraits<TetrahedralCell<IndexType>>::triFaces[NumTriFaces][3] = { { 1, 2, 3 }, { 2, 0, 3 }, { 3, 0, 1 }, { 0, 2, 1 } };
 	
-	template<typename IndexType> const int CellTraits<Pyramid<IndexType>>::edges[NumEdges][2] = { { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4, 1 }, { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };
-	template<typename IndexType> const int CellTraits<Pyramid<IndexType>>::quadFaces[NumQuadFaces][4] = { { 1, 2, 3, 4 } };
-	template<typename IndexType> const int CellTraits<Pyramid<IndexType>>::triFaces[NumTriFaces][3] = { { 0, 1, 4 }, { 0, 2, 1 }, { 0, 3, 2 }, { 0, 4, 3 } };
+	template<typename IndexType> const int CellTraits<PyramidralCell<IndexType>>::edges[NumEdges][2] = { { 1, 2 }, { 2, 3 }, { 3, 4 }, { 4, 1 }, { 0, 1 }, { 0, 2 }, { 0, 3 }, { 0, 4 } };
+	template<typename IndexType> const int CellTraits<PyramidralCell<IndexType>>::quadFaces[NumQuadFaces][4] = { { 1, 2, 3, 4 } };
+	template<typename IndexType> const int CellTraits<PyramidralCell<IndexType>>::triFaces[NumTriFaces][3] = { { 0, 1, 4 }, { 0, 2, 1 }, { 0, 3, 2 }, { 0, 4, 3 } };
 	
-	template<typename IndexType> const int CellTraits<Prism<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 3, 4 }, { 4, 5 }, { 5, 3 }, { 0, 3 }, { 1, 4 }, { 2, 5 } };
-	template<typename IndexType> const int CellTraits<Prism<IndexType>>::quadFaces[NumQuadFaces][4] = { { 0, 3, 4, 1 }, { 0, 2, 5, 3 }, { 1, 4, 5, 2 } };
-	template<typename IndexType> const int CellTraits<Prism<IndexType>>::triFaces[NumTriFaces][3] = { { 0, 1, 2 }, { 5, 4, 3 } };
+	template<typename IndexType> const int CellTraits<PrismaCell<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 3, 4 }, { 4, 5 }, { 5, 3 }, { 0, 3 }, { 1, 4 }, { 2, 5 } };
+	template<typename IndexType> const int CellTraits<PrismaCell<IndexType>>::quadFaces[NumQuadFaces][4] = { { 0, 3, 4, 1 }, { 0, 2, 5, 3 }, { 1, 4, 5, 2 } };
+	template<typename IndexType> const int CellTraits<PrismaCell<IndexType>>::triFaces[NumTriFaces][3] = { { 0, 1, 2 }, { 5, 4, 3 } };
 
-	template<typename IndexType> const int CellTraits<Hexahedron<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 6, 7 }, { 4, 7 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
-	template<typename IndexType> const int CellTraits<Hexahedron<IndexType>>::quadFaces[NumQuadFaces][4] = { { 0, 1, 5, 4 }, { 2, 3, 7, 6 }, { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
-	template<typename IndexType> const int CellTraits<Hexahedron<IndexType>>::triFaces[1][3] = { {-1, -1, -1} };
+	template<typename IndexType> const int CellTraits<HexahedralCell<IndexType>>::edges[NumEdges][2] = { { 0, 1 }, { 1, 2 }, { 2, 3 }, { 0, 3 }, { 4, 5 }, { 5, 6 }, { 6, 7 }, { 4, 7 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 } };
+	template<typename IndexType> const int CellTraits<HexahedralCell<IndexType>>::quadFaces[NumQuadFaces][4] = { { 0, 1, 5, 4 }, { 2, 3, 7, 6 }, { 1, 2, 6, 5 }, { 0, 4, 7, 3 }, { 0, 3, 2, 1 }, { 4, 5, 6, 7 } };
+	template<typename IndexType> const int CellTraits<HexahedralCell<IndexType>>::triFaces[1][3] = { {-1, -1, -1} };
 }}

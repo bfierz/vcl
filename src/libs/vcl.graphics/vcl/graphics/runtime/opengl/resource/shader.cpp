@@ -51,6 +51,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Ensure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
+	Shader::Shader(Shader&& rhs)
+	: Resource(std::move(rhs))
+	, Runtime::Shader(rhs)
+	{
+	}
+
 	Shader::~Shader()
 	{
 		if (_glId)

@@ -40,7 +40,7 @@ namespace Vcl { namespace Geometry
 	class PropertyGroup
 	{
 	public:
-		using map_type   = std::unordered_map<std::string, PropertyBase*>;
+		using map_type   = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
 		using index_type = IndexT;
 
 	public:
@@ -107,10 +107,10 @@ namespace Vcl { namespace Geometry
 				auto data = std::make_unique<Property<T, index_type>>(name, std::forward<typename Property<T, index_type>::value_type>(init_value));
 
 				data->resize(_propertySize);
-				_data[name] = std::move(data);
+				_data.emplace(name, std::move(data));
 			}
 
-			return static_cast<Property<T, index_type>*>(_data[name]);
+			return static_cast<Property<T, index_type>*>(_data[name].get());
 		}
 
 		template<typename T>
@@ -121,10 +121,10 @@ namespace Vcl { namespace Geometry
 				auto data = std::make_unique<Property<T, index_type>>(name, init_value);
 
 				data->resize(_propertySize);
-				_data[name] = std::move(data);
+				_data.emplace(name, std::move(data));
 			}
 
-			return static_cast<Property<T, index_type>*>(_data[name]);
+			return static_cast<Property<T, index_type>*>(_data[name].get());
 		}
 
 		void add(std::unique_ptr<PropertyBase> prop)
@@ -136,7 +136,7 @@ namespace Vcl { namespace Geometry
 				prop->resize(_propertySize);
 
 				const auto& name = prop->name();
-				_data[name] = prop.release();
+				_data.emplace(name, std::move(prop));
 			}
 		}
 

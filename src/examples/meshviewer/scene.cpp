@@ -22,32 +22,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include "scene.h"
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-#ifdef VCL_OPENGL_SUPPORT
+// C++ standard library
+#include <iostream>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/geometry/meshfactory.h>
+#include <vcl/geometry/tetramesh.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+Scene::Scene(QObject* parent)
+: QObject(parent)
 {
-	class Shader : public Runtime::Shader, public Resource
+	using namespace Vcl::Graphics;
+
+	_camera = std::make_unique<Camera>(std::make_shared<OpenGL::MatrixFactory>());
+
+}
+Scene::~Scene()
+{
+
+}
+
+void Scene::update()
+{
+	if (_tetraMesh)
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source);
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		// Compute the new camera configuration
+		Eigen::AlignedBox3f bb;
+		auto vertices = _tetraMesh->vertices();
+		for (size_t i = 0, end = vertices->size(); i < end; i++)
+		{
+			bb.extend(vertices[i]);
+		}
+		_camera->encloseInFrustum(bb.center(), { 1, 1, 1 }, bb.diagonal().norm());
 
-	public:
-		static GLenum toGLenum(ShaderType type);
+		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
+	}
+}
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+
+void Scene::createBar(int x, int y, int z)
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating bar mesh of resolution (" << x << ", " << y << ", " << z << ")" << std::endl;
+
+	_tetraMesh = MeshFactory<TetraMesh>::createHomogenousCubes(x, y, z);
+}
+
+void Scene::loadMesh(const QUrl& path)
+{
+
+}
+
