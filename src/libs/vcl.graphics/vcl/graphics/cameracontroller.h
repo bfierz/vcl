@@ -26,40 +26,40 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
+
+// C++ standard library
+#include <array>
+
+// VCL configuration
+#include <vcl/graphics/camera.h>
 
 namespace Vcl { namespace Graphics
 {
-	class Trackball
+	enum class CameraMode
+	{		
+		Camera,
+		Fly,
+		Walk,
+		Helicopter
+	};
+
+	class CameraController
 	{
 	public:
-		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
+		CameraMode mode() const { return _mode; }
+		void setMode(CameraMode mode) { _mode = mode; }
 
-	public:
-		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
-		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
-		void endRotate();
-		
-		void reset();
+		const Camera* camera() const { return _camera; }
+		void setCamera(Camera* camera) { _camera = camera; }
 
-	public:
-		bool isRotating() const { return _rotate; }
+	protected:
+		Camera* camera() { return _camera; }
 
 	private:
-		Eigen::Vector3f project(float ratio_x, float ratio_y);
-		Eigen::Quaternionf fromPosition(Eigen::Vector3f v) const;
+		//! Camera mode
+		CameraMode _mode{ CameraMode::Camera };
 
-	private:
-		//! Radius of the trackball
-		float _radius{ 1.0f };
-
-		//! Last rotation
-		Eigen::Vector3f _lastPosition{ Eigen::Vector3f::Zero() };
-
-		//! Current rotation
-		Eigen::Quaternionf _lastQuat{ Eigen::Quaternionf::Identity() };
-
-		//! Are we tracking the rotation
-		bool _rotate{ false };
+		//! Camera that is controlled
+		Camera* _camera{ nullptr };
 	};
 }}

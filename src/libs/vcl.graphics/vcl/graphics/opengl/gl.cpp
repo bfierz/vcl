@@ -31,6 +31,19 @@
 
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
+	const char* GL::getProfileInfo()
+	{
+		GLint profile;
+		glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profile);
+
+		if (profile == GL_CONTEXT_CORE_PROFILE_BIT)
+			return "Core";
+		else if (profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
+			return "Compatibility";
+		else
+			return "Invalid";
+	}
+
 	GLenum GL::getEnum(GLenum e)
 	{
 		GLint val = getInteger(e);
@@ -60,6 +73,66 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		return val;
 	}
+	
+	AnyRenderType GL::toRenderType(SurfaceFormat fmt)
+	{
+		using namespace Vcl::Graphics::OpenGL;
+
+		switch (fmt)
+		{
+		case SurfaceFormat::R32G32B32A32_FLOAT  : return RenderType<Eigen::Vector4f>();
+		//case SurfaceFormat::R32G32B32A32_UINT   : return RenderType<Eigen::Vector4f>();
+		case SurfaceFormat::R32G32B32A32_SINT   : return RenderType<Eigen::Vector4i>();
+		//case SurfaceFormat::R16G16B16A16_FLOAT  : return RenderType<Eigen::Vector4f>();
+		//case SurfaceFormat::R16G16B16A16_UNORM  : gl_format = GL_RGBA16; break;
+		//case SurfaceFormat::R16G16B16A16_UINT   : return RenderType<Eigen::Vector4f>();
+		//case SurfaceFormat::R16G16B16A16_SNORM  : gl_format = GL_RGBA16_SNORM; break;
+		//case SurfaceFormat::R16G16B16A16_SINT   : return RenderType<Eigen::Vector4f>();
+		case SurfaceFormat::R32G32B32_FLOAT     : return RenderType<Eigen::Vector3f>();
+		//case SurfaceFormat::R32G32B32_UINT      : return RenderType<Eigen::Vector4f>();
+		case SurfaceFormat::R32G32B32_SINT      : return RenderType<Eigen::Vector3i>();
+		case SurfaceFormat::R32G32_FLOAT        : return RenderType<Eigen::Vector2f>();
+		//case SurfaceFormat::R32G32_UINT         : return RenderType<Eigen::Vector4f>();
+		case SurfaceFormat::R32G32_SINT         : return RenderType<Eigen::Vector2i>();
+		//case SurfaceFormat::D32_FLOAT_S8X24_UINT: gl_format = GL_DEPTH32F_STENCIL8; break;
+		//case SurfaceFormat::R10G10B10A2_UNORM   : gl_format = GL_RGB10_A2; break;
+		//case SurfaceFormat::R10G10B10A2_UINT    : gl_format = GL_RGB10_A2UI; break;
+		//case SurfaceFormat::R11G11B10_FLOAT     : gl_format = GL_R11F_G11F_B10F; break;
+		//case SurfaceFormat::R8G8B8A8_UNORM      : gl_format = GL_RGBA8; break;
+		//case SurfaceFormat::R8G8B8A8_UNORM_SRGB : gl_format = GL_SRGB8_ALPHA8; break;
+		//case SurfaceFormat::R8G8B8A8_UINT       : gl_format = GL_RGBA8UI; break;
+		//case SurfaceFormat::R8G8B8A8_SNORM      : gl_format = GL_RGBA8_SNORM; break;
+		//case SurfaceFormat::R8G8B8A8_SINT       : gl_format = GL_RGBA8I; break;
+		//case SurfaceFormat::R16G16_FLOAT        : gl_format = GL_RG16F; break;
+		//case SurfaceFormat::R16G16_UNORM        : gl_format = GL_RG16; break;
+		//case SurfaceFormat::R16G16_UINT         : gl_format = GL_RG16UI; break;
+		//case SurfaceFormat::R16G16_SNORM        : gl_format = GL_RG16_SNORM; break;
+		//case SurfaceFormat::R16G16_SINT         : gl_format = GL_RG16I; break;
+		//case SurfaceFormat::D32_FLOAT           : gl_format = GL_DEPTH_COMPONENT32F; break;
+		//case SurfaceFormat::R32_FLOAT           : gl_format = GL_R32F; break;
+		//case SurfaceFormat::R32_UINT            : gl_format = GL_R32UI; break;
+		//case SurfaceFormat::R32_SINT            : gl_format = GL_R32I; break;
+		//case SurfaceFormat::D24_UNORM_S8_UINT   : gl_format = GL_DEPTH24_STENCIL8; break;
+		//case SurfaceFormat::R8G8_UNORM          : gl_format = GL_RG8; break;
+		//case SurfaceFormat::R8G8_UINT           : gl_format = GL_RG8UI; break;
+		//case SurfaceFormat::R8G8_SNORM          : gl_format = GL_RG8_SNORM; break;
+		//case SurfaceFormat::R8G8_SINT           : gl_format = GL_RG8I; break;
+		//case SurfaceFormat::R16_FLOAT           : gl_format = GL_R16F; break;
+		//case SurfaceFormat::D16_UNORM           : gl_format = GL_DEPTH_COMPONENT16; break;
+		//case SurfaceFormat::R16_UNORM           : gl_format = GL_R16; break;
+		//case SurfaceFormat::R16_UINT            : gl_format = GL_R16UI; break;
+		//case SurfaceFormat::R16_SNORM           : gl_format = GL_R16_SNORM; break;
+		//case SurfaceFormat::R16_SINT            : gl_format = GL_R16I; break;
+		//case SurfaceFormat::R8_UNORM            : gl_format = GL_R8; break;
+		//case SurfaceFormat::R8_UINT             : gl_format = GL_R8UI; break;
+		//case SurfaceFormat::R8_SNORM            : gl_format = GL_R8_SNORM; break;
+		//case SurfaceFormat::R8_SINT             : gl_format = GL_R8I; break;
+		default: DebugError("Unsupported colour format.");
+		};
+
+		return RenderType<void>();
+	}
+		
 
 	bool GL::checkGLError()
 	{

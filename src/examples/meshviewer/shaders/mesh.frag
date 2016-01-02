@@ -13,5 +13,8 @@ out vec4 FragColour;
 
 void main(void)
 {
-	FragColour = In.Colour;
+	vec3 V = normalize(-In.Position.xyz);
+	vec3 N = normalize(In.Normal);
+
+	FragColour = vec4(In.Colour.rgb * dot(N, V), 1);
 }

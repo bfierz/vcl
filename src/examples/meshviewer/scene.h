@@ -33,6 +33,7 @@
 
 // VCL
 #include <vcl/graphics/camera.h>
+#include <vcl/graphics/trackballcameracontroller.h>
 
 #include "gpuvolumemesh.h"
 
@@ -54,15 +55,27 @@ public slots:
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);
 
+public slots:
+	void startRotate(float ratio_x, float ratio_y);
+	void rotate(float ratio_x, float ratio_y);
+	void endRotate();
+
 public:
-	Vcl::Graphics::Camera* camera() const { _camera.get(); }
+	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
+	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
+
 	GPUVolumeMesh* volumeMesh() const { return _volumeMesh.get(); }
 
 private: // Update data
 	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
 
-private: // Render data
 	std::unique_ptr<Vcl::Graphics::Camera> _camera;
+	Vcl::Graphics::TrackballCameraController _cameraController;
+	
+private: // Render data
+
+	Eigen::Matrix4f _viewMatrix = Eigen::Matrix4f::Identity();
+	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 
 	std::unique_ptr<GPUVolumeMesh> _volumeMesh;
 };

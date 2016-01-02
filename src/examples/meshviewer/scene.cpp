@@ -37,7 +37,7 @@ Scene::Scene(QObject* parent)
 	using namespace Vcl::Graphics;
 
 	_camera = std::make_unique<Camera>(std::make_shared<OpenGL::MatrixFactory>());
-
+	_cameraController.setCamera(_camera.get());
 }
 Scene::~Scene()
 {
@@ -48,17 +48,11 @@ void Scene::update()
 {
 	if (_tetraMesh)
 	{
-		// Compute the new camera configuration
-		Eigen::AlignedBox3f bb;
-		auto vertices = _tetraMesh->vertices();
-		for (size_t i = 0, end = vertices->size(); i < end; i++)
-		{
-			bb.extend(vertices[i]);
-		}
-		_camera->encloseInFrustum(bb.center(), { 1, 1, 1 }, bb.diagonal().norm());
-
 		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
 	}
+
+	_viewMatrix = _camera->view();
+	_projMatrix = _camera->projection();
 }
 
 
@@ -69,10 +63,33 @@ void Scene::createBar(int x, int y, int z)
 	std::cout << "Creating bar mesh of resolution (" << x << ", " << y << ", " << z << ")" << std::endl;
 
 	_tetraMesh = MeshFactory<TetraMesh>::createHomogenousCubes(x, y, z);
+
+
+	// Compute the new camera configuration
+	Eigen::AlignedBox3f bb;
+	auto vertices = _tetraMesh->vertices();
+	for (size_t i = 0, end = vertices->size(); i < end; i++)
+	{
+		bb.extend(vertices[i]);
+	}
+	_camera->encloseInFrustum(bb.center(), { 1, 0.5, 0.5 }, bb.diagonal().norm());
 }
 
 void Scene::loadMesh(const QUrl& path)
 {
 
+}
+
+void Scene::startRotate(float ratio_x, float ratio_y)
+{
+	_cameraController.startRotate(ratio_x, ratio_y);
+}
+void Scene::rotate(float ratio_x, float ratio_y)
+{
+	_cameraController.rotate(ratio_x, ratio_y);
+}
+void Scene::endRotate()
+{
+	_cameraController.endRotate();
 }
 

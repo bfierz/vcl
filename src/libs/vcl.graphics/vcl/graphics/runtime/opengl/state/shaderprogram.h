@@ -370,6 +370,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		const std::vector<AttributeData>& attributes() const { return _attributes.elems(); }
 		const std::vector<UniformData>& uniforms() const { return _uniforms.elems(); }
 		const std::vector<UniformBlockData>& uniformBlocks() const { return _uniformBlocks.elems(); }
+		const std::vector<BufferBlockData>& buffers() const { return _buffers.elems(); }
 		
 	public:
 		static GLenum toGLenum(ProgramResourceType t);

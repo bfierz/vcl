@@ -19,21 +19,26 @@ out VertexData
 } Out;
 
 // Shader buffers
+struct Vertex
+{
+	float x, y, z;
+};
+
 layout (std430) buffer VertexPositions
 { 
-  vec3 Position[];
+	Vertex Position[];
 };
 layout (std430) buffer VertexColours
 { 
-  vec4 Colour[];
+	vec4 Colour[];
 };
 
 // Shader constants
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
-uniform mat4 ProjectionMatrx;
+uniform mat4 ProjectionMatrix;
 
-uniform float VolumeScale = 1;
+uniform float VolumeScale = 0.8f;
 uniform bool  UsePerVertexColour = false;
 
 void main(void)
@@ -61,10 +66,10 @@ void main(void)
 	}
 
 	// Volume vertices
-	vec4 x = vec4(Position[idx.x], 1);
-	vec4 y = vec4(Position[idx.y], 1);
-	vec4 z = vec4(Position[idx.z], 1);
-	vec4 w = vec4(Position[idx.w], 1);
+	vec4 x = vec4(Position[idx.x].x, Position[idx.x].y, Position[idx.x].z, 1);
+	vec4 y = vec4(Position[idx.y].x, Position[idx.y].y, Position[idx.y].z, 1);
+	vec4 z = vec4(Position[idx.z].x, Position[idx.z].y, Position[idx.z].z, 1);
+	vec4 w = vec4(Position[idx.w].x, Position[idx.w].y, Position[idx.w].z, 1);
 
 	// Volume Center
 	vec4 c = 0.25 * (x + y + z + w);
@@ -86,27 +91,27 @@ void main(void)
 
 	// Assemble primitives
 	n = normalize(cross(p2.xyz - p1.xyz, p3.xyz - p1.xyz));
-	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrx * p1; EmitVertex();
-	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrx * p2; EmitVertex();
-	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrx * p3; EmitVertex();
+	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrix * p1; EmitVertex();
+	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrix * p2; EmitVertex();
+	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrix * p3; EmitVertex();
 	EndPrimitive();
 
 	n = normalize(cross(p0.xyz - p2.xyz, p3.xyz - p2.xyz));
-	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrx * p2; EmitVertex();
-	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrx * p0; EmitVertex();
-	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrx * p3; EmitVertex();
+	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrix * p2; EmitVertex();
+	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrix * p0; EmitVertex();
+	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrix * p3; EmitVertex();
 	EndPrimitive();
 
 	n = normalize(cross(p0.xyz - p3.xyz, p1.xyz - p3.xyz));
-	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrx * p3; EmitVertex();
-	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrx * p0; EmitVertex();
-	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrx * p1; EmitVertex();
+	Out.Colour = c3; Out.Normal = n; Out.Position = p3; gl_Position = ProjectionMatrix * p3; EmitVertex();
+	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrix * p0; EmitVertex();
+	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrix * p1; EmitVertex();
 	EndPrimitive();
 
 	n = normalize(cross(p2.xyz - p0.xyz, p1.xyz - p0.xyz));
-	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrx * p0; EmitVertex();
-	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrx * p2; EmitVertex();
-	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrx * p1; EmitVertex();
+	Out.Colour = c0; Out.Normal = n; Out.Position = p0; gl_Position = ProjectionMatrix * p0; EmitVertex();
+	Out.Colour = c2; Out.Normal = n; Out.Position = p2; gl_Position = ProjectionMatrix * p2; EmitVertex();
+	Out.Colour = c1; Out.Normal = n; Out.Position = p1; gl_Position = ProjectionMatrix * p1; EmitVertex();
 	EndPrimitive();
 }
 	

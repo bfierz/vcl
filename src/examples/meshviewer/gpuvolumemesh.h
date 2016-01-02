@@ -30,7 +30,7 @@
 
 // VCL
 #include <vcl/geometry/tetramesh.h>
-#include <vcl/graphics/runtime/resource/buffer.h>
+#include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
 class GPUVolumeMesh
 {
@@ -41,19 +41,19 @@ public:
 public:
 	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
 
-	Vcl::Graphics::Runtime::Buffer* indices()       const { return _indices.get(); }
-	Vcl::Graphics::Runtime::Buffer* positions()     const { return _positions.get(); }
-	Vcl::Graphics::Runtime::Buffer* volumeColours() const { return _volumeColours.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
 
 private:
 	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
 
 	//! Index structure
-	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _indices;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;
 
 	//! Position data
-	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _positions;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _positions;
 
 	//! Volume-colour data
-	std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _volumeColours;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
 };

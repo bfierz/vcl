@@ -28,38 +28,38 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// C++ standard library
+#include <array>
+
+// VCL configuration
+#include <vcl/graphics/cameracontroller.h>
+#include <vcl/graphics/trackball.h>
+
 namespace Vcl { namespace Graphics
 {
-	class Trackball
+	class TrackballCameraController : public CameraController
 	{
 	public:
-		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
+		void startRotate(float ratio_x, float ratio_y);
+		void rotate(float ratio_x, float ratio_y);
+		void endRotate();
 
 	public:
-		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
-		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
-		void endRotate();
+		void move(float x, float y, float z);
+
+	public:
+		void changeZoom(float delta);
 		
+	private:
 		void reset();
 
-	public:
-		bool isRotating() const { return _rotate; }
+	private:
+		Trackball _trackball;
 
 	private:
-		Eigen::Vector3f project(float ratio_x, float ratio_y);
-		Eigen::Quaternionf fromPosition(Eigen::Vector3f v) const;
-
-	private:
-		//! Radius of the trackball
-		float _radius{ 1.0f };
-
-		//! Last rotation
-		Eigen::Vector3f _lastPosition{ Eigen::Vector3f::Zero() };
-
-		//! Current rotation
-		Eigen::Quaternionf _lastQuat{ Eigen::Quaternionf::Identity() };
-
-		//! Are we tracking the rotation
-		bool _rotate{ false };
+		// Initial camera parameters
+		UnalignedVector3f _initialPosition;
+		UnalignedVector3f _initialUp;
+		UnalignedVector3f _initialTarget;
 	};
 }}

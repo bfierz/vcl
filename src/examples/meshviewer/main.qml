@@ -92,6 +92,31 @@ ApplicationWindow
         id: renderer
         anchors.fill: parent
         anchors.margins: 10
+
+		MouseArea
+		{
+			anchors.fill: parent
+			onPressed:
+			{
+				if (mouse.button == Qt.LeftButton)
+				{
+					scene.startRotate(mouse.x / width, mouse.y / height)
+				}
+			}
+			onReleased:
+			{
+				if (mouse.button == Qt.LeftButton)
+				{
+					scene.endRotate()
+					renderer.update()
+				}
+			}
+			onPositionChanged:
+			{
+				scene.rotate(mouse.x / width, mouse.y / height)
+				renderer.update()
+			}
+		}
 	}
 
 	Component.onCompleted: { renderer.scene = scene }

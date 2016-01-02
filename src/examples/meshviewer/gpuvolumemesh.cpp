@@ -28,6 +28,7 @@
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
 GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
+: _tetraMesh(std::move(mesh))
 {
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
@@ -35,11 +36,11 @@ GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	// Create the index buffer
 	BufferDescription idxDesc;
 	idxDesc.Usage = Usage::Default;
-	idxDesc.SizeInBytes = mesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
+	idxDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
 
 	BufferInitData idxData;
-	idxData.Data = mesh->volumes()->data();
-	idxData.SizeInBytes = mesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
+	idxData.Data = _tetraMesh->volumes()->data();
+	idxData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
 
 	_indices = std::make_unique<OpenGL::Buffer>(idxDesc, false, false, &idxData);
 
@@ -47,25 +48,25 @@ GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	BufferDescription posDesc;
 	posDesc.CPUAccess = CPUAccess::Write;
 	posDesc.Usage = Usage::Default;
-	posDesc.SizeInBytes = mesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
+	posDesc.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 
 	BufferInitData posData;
-	posData.Data = mesh->vertices()->data();
-	posData.SizeInBytes = mesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
+	posData.Data = _tetraMesh->vertices()->data();
+	posData.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 
 	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
 
 	// Create the volume-colour buffer
-	auto colours = _tetraMesh->addVolumeProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2, 0.8, 0.2, 1 });
+	auto colours = _tetraMesh->addVolumeProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
 
 	BufferDescription colDesc;
 	colDesc.CPUAccess = CPUAccess::Write;
 	colDesc.Usage = Usage::Default;
-	colDesc.SizeInBytes = mesh->nrVolumes() * sizeof(Eigen::Vector4f);
+	colDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
 
 	BufferInitData colData;
 	colData.Data = colours->data();
-	colData.SizeInBytes = mesh->nrVolumes() * sizeof(Eigen::Vector4f);
+	colData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
 
 	_volumeColours = std::make_unique<OpenGL::Buffer>(colDesc, false, false, &colData);
 }

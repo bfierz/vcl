@@ -36,9 +36,12 @@
 #include <QtQuick/QQuickFramebufferObject>
 
 // VCL
+#include <vcl/graphics/runtime/opengl/state/inputlayout.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
 #include "scene.h"
+
+class MeshView;
 
 class FboRenderer : public QQuickFramebufferObject::Renderer
 {
@@ -52,9 +55,10 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
-	Scene* _scene{ nullptr };
+	MeshView* _owner{ nullptr };
 
 private: // Shaders
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTetraLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTetraMeshShader;
 };
 

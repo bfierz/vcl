@@ -24,7 +24,11 @@
  */
 #include "meshview.h"
 
+// Qt
+#include <QtQuick/QQuickWindow>
+
 // VCL
+#include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 
 #include "scene.h"
@@ -142,6 +146,7 @@ namespace
 
 FboRenderer::FboRenderer()
 {
+	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
 	using Vcl::Graphics::Runtime::OpenGL::Shader;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
@@ -152,9 +157,10 @@ FboRenderer::FboRenderer()
 
 	InputLayoutDescription opaqueTetraLayout =
 	{
-		{ "Indices", SurfaceFormat::R32G32B32A32_SINT, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Indices", SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
+	_opaqueTetraLayout = std::make_unique<InputLayout>(opaqueTetraLayout);
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
@@ -176,22 +182,45 @@ void FboRenderer::render()
 	glClearDepth(1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if (_scene)
+	if (_owner)
 	{
+		auto scene = _owner->scene();
+
+		////////////////////////////////////////////////////////////////////////
 		// Prepare the environment
+		////////////////////////////////////////////////////////////////////////
+
 		Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
-		Eigen::Matrix4f V = _scene->camera()->view();
-		Eigen::Matrix4f P = _scene->camera()->projection();
+		Eigen::Matrix4f V = scene->viewMatrix();
+		Eigen::Matrix4f P = scene->projMatrix();
 		
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ModelMatrix"), M);
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ViewMatrix"), V);
-		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ProjectionMatrx"), P);
+		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ProjectionMatrix"), P);
 
+		// Configure the layout
+		_opaqueTetraMeshShader->bind();
+		_opaqueTetraLayout->bind();
+
+		////////////////////////////////////////////////////////////////////////
 		// Render the mesh
-		auto mesh = _scene->volumeMesh();
-		_opaqueTetraMeshShader->setBuffer("VertexPositions", mesh->positions());
+		////////////////////////////////////////////////////////////////////////
 
-		glDrawArrays(GL_POINTS, 0, mesh->nrVolumes());
+		// Set the vertex positions
+		auto mesh = scene->volumeMesh();
+		if (mesh)
+		{
+			_opaqueTetraMeshShader->setBuffer("VertexPositions", mesh->positions());
+
+			// Bind the buffers
+			glBindVertexBuffer(0, mesh->indices()->id(),       0, sizeof(Eigen::Vector4i));
+			glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+			// Render the mesh
+			glDrawArrays(GL_POINTS, 0, mesh->nrVolumes());
+		}
+
+		_owner->window()->resetOpenGLState();
 	}
 
 	update();
@@ -202,12 +231,12 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 	auto* view = dynamic_cast<MeshView*>(item);
 	if (view)
 	{
-		_scene = view->scene();
+		_owner = view;
 	}
 
-	if (_scene)
+	if (_owner && _owner->scene())
 	{
-		_scene->update();
+		_owner->scene()->update();
 	}
 }
 
@@ -222,6 +251,8 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 
 MeshView::Renderer* MeshView::createRenderer() const
 {
+	using Vcl::Graphics::OpenGL::GL;
+
 	// Initialize glew
 	glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
@@ -231,9 +262,12 @@ MeshView::Renderer* MeshView::createRenderer() const
 		std::cout << "Error: GLEW: " << glewGetErrorString(err) << std::endl;
 	}
 
-	std::cout << "Status: Using OpenGL: " << glGetString(GL_VERSION) << std::endl;
-	std::cout << "Status:       Vendor: " << glGetString(GL_VENDOR) << std::endl;
-	std::cout << "Status: Using GLEW: "   << glewGetString(GLEW_VERSION) << std::endl;
+	std::cout << "Status: Using OpenGL:   " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "Status:       Vendor:   " << glGetString(GL_VENDOR) << std::endl;
+	std::cout << "Status:       Renderer: " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "Status:       Profile:  " << GL::getProfileInfo() << std::endl;
+	std::cout << "Status:       Shading:  " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+	std::cout << "Status: Using GLEW:     " << glewGetString(GLEW_VERSION) << std::endl;
 
 	// Enable the synchronous debug output
 	glEnable(GL_DEBUG_OUTPUT);

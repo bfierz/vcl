@@ -85,12 +85,12 @@ namespace Vcl { namespace Geometry
 	public: // Default constructors
 		TetraMesh() = default;
 		TetraMesh(const TetraMesh& rhs) = default;
-		TetraMesh(TetraMesh&& rhs) = default;
+		//TetraMesh(TetraMesh&& rhs) = default;
 		virtual ~TetraMesh() = default;
 
 	public:
 		TetraMesh& operator= (const TetraMesh& rhs) = default;
-		TetraMesh& operator= (TetraMesh&& rhs) = default;
+		//TetraMesh& operator= (TetraMesh&& rhs) = default;
 
 	public: // Construct meshes from data
 		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TetraMesh>::Volume>& volumes);
@@ -101,10 +101,10 @@ namespace Vcl { namespace Geometry
 
 		//! Add a new property to the volume level
 		template<typename T>
-		Property<T, IndexDescriptionTrait<TetraMesh>::IndexType>* addVolumeProperty
+		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty
 		(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::IndexType>::reference init_value
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::reference init_value
 		)
 		{
 			return volumeProperties().add<T>(name, init_value);

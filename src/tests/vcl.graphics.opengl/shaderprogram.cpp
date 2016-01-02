@@ -149,9 +149,9 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	// Create the input definition
 	InputLayoutDescription in = 
 	{
-		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 12, VertexDataClassification::VertexDataPerInstance, 0 },
-		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
+		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 
 	// Create the program descriptor

@@ -46,12 +46,14 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
 	vcl/graphics/runtime/opengl/state/blendstate.h
 	vcl/graphics/runtime/opengl/state/framebuffer.h
+	vcl/graphics/runtime/opengl/state/inputlayout.h
 	vcl/graphics/runtime/opengl/state/sampler.h
 	vcl/graphics/runtime/opengl/state/shaderprogram.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
 	vcl/graphics/runtime/opengl/state/blendstate.cpp
 	vcl/graphics/runtime/opengl/state/framebuffer.cpp
+	vcl/graphics/runtime/opengl/state/inputlayout.cpp
 	vcl/graphics/runtime/opengl/state/sampler.cpp
 	vcl/graphics/runtime/opengl/state/shaderprogram.cpp
 )
@@ -90,10 +92,12 @@ SET(VCL_GRAPHICS_SHADOWS_SRC
 
 # VCL / GRAPHICS
 SET(VCL_GRAPHICS_INC
+	vcl/graphics/cameracontroller.h
 	vcl/graphics/camera.h
 	vcl/graphics/frustum.h
 	vcl/graphics/matrixfactory.h
 	vcl/graphics/surfaceformat.h
+	vcl/graphics/trackballcameracontroller.h
 	vcl/graphics/trackball.h
 )
 SET(VCL_GRAPHICS_SRC
@@ -101,6 +105,7 @@ SET(VCL_GRAPHICS_SRC
 	vcl/graphics/frustum.cpp
 	vcl/graphics/matrixfactory.cpp
 	vcl/graphics/surfaceformat.cpp
+	vcl/graphics/trackballcameracontroller.cpp
 	vcl/graphics/trackball.cpp
 )
 

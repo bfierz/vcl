@@ -58,7 +58,7 @@ namespace Vcl { namespace Geometry
 		{
 			for (const auto& entry : other._data)
 			{
-				_data[it->first] = entry.second->clone();
+				_data[entry.first] = entry.second->clone();
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace Vcl { namespace Geometry
 	 
 				for (const auto& entry : other._data)
 				{
-					_data[it->first] = entry.second->clone();
+					_data[entry.first] = entry.second->clone();
 				}
 			}
 

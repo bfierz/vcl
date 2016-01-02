@@ -859,6 +859,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		glProgramUniform4ui(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
 	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniformMatrix4fv(id(), handle.Location, 1, GL_FALSE, value.data());
+	}
 
 	void ShaderProgram::setTexture(const UniformHandle& handle, const Runtime::Texture* tex, const Runtime::Sampler* sampler)
 	{
@@ -920,8 +926,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
 		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
-		const auto& uniforms = _resources->uniformBlocks();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformBlockData& data)
+		const auto& uniforms = _resources->buffers();
+		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const BufferBlockData& data)
 		{
 			return strcmp(data.Name.c_str(), name) == 0;
 		});
