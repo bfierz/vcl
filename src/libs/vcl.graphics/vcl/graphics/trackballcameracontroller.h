@@ -40,6 +40,10 @@ namespace Vcl { namespace Graphics
 	class TrackballCameraController : public CameraController
 	{
 	public:
+		const Eigen::Matrix4f currObjectTransformation() const { return _objCurrTransformation; }
+
+	public: // Rotation controls
+		void setRotationCenter(const Eigen::Vector3f& center);
 		void startRotate(float ratio_x, float ratio_y);
 		void rotate(float ratio_x, float ratio_y);
 		void endRotate();
@@ -58,8 +62,16 @@ namespace Vcl { namespace Graphics
 
 	private:
 		// Initial camera parameters
-		UnalignedVector3f _initialPosition;
-		UnalignedVector3f _initialUp;
-		UnalignedVector3f _initialTarget;
+		Eigen::Vector3f _initialPosition;
+		Eigen::Vector3f _initialUp;
+		Eigen::Vector3f _initialTarget;
+
+	private: // Paremeters for object camera mode
+		Eigen::Vector3f _objRotationCenter{ Eigen::Vector3f::Zero() };
+
+		Eigen::Vector3f _objAccumTranslation{ Eigen::Vector3f::Zero() };
+		Eigen::Quaternionf _objAccumRotation{ Eigen::Quaternionf::Identity() };
+
+		Eigen::Matrix4f _objCurrTransformation{ Eigen::Matrix4f::Identity() };
 	};
 }}

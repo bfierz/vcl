@@ -61,6 +61,7 @@ public slots:
 	void endRotate();
 
 public:
+	const Eigen::Matrix4f& modelMatrix() const { return _modelMatrix; }
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
 
@@ -74,6 +75,7 @@ private: // Update data
 	
 private: // Render data
 
+	Eigen::Matrix4f _modelMatrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f _viewMatrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 

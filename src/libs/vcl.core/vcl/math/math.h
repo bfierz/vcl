@@ -227,6 +227,11 @@ namespace Vcl { namespace Mathematics
 		return acc;
 	}
 
+	template<typename T>
+	VCL_STRONG_INLINE T clamp(T&& v, T&& l, T&& u)
+	{
+		return min(max(v, l), u);
+	}
 
 	//Based on: http://realtimecollisiondetection.net/pubs/GDC08_Ericson_Physics_Tutorial_Numerical_Robustness.ppt
 	VCL_STRONG_INLINE bool equal(double x, double y, double tol = 0.0)

@@ -38,7 +38,7 @@ uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
 
-uniform float VolumeScale = 0.8f;
+uniform float VolumeScale = 0.95f;
 uniform bool  UsePerVertexColour = false;
 
 void main(void)

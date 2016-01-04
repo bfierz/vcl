@@ -36,8 +36,10 @@
 namespace Vcl { namespace Graphics
 {
 	enum class CameraMode
-	{		
+	{
+		Object,
 		Camera,
+		CameraTarget,
 		Fly,
 		Walk,
 		Helicopter
@@ -57,7 +59,7 @@ namespace Vcl { namespace Graphics
 
 	private:
 		//! Camera mode
-		CameraMode _mode{ CameraMode::Camera };
+		CameraMode _mode{ CameraMode::Object };
 
 		//! Camera that is controlled
 		Camera* _camera{ nullptr };

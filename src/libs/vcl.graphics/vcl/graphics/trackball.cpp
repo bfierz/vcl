@@ -24,17 +24,15 @@
  */
 #include <vcl/graphics/trackball.h>
 
+// VCL
+#include <vcl/math/math.h>
+
 namespace Vcl { namespace Graphics
 {
-	void Trackball::reset()
-	{
-		_rotate = false;
-		_lastQuat = Eigen::Quaternionf::Identity();
-	}
-
-	void Trackball::startRotate(float ratio_x, float ratio_y, bool right_handed)
+	void Trackball::startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
+		_lastQuat = inital_rotation;
 		_lastPosition = project(ratio_x, ratio_y);
 		if (!right_handed)
 			_lastPosition.z() *= -1;
@@ -62,6 +60,8 @@ namespace Vcl { namespace Graphics
 
 	Eigen::Vector3f Trackball::project(float ratio_x, float ratio_y)
 	{
+		using Vcl::Mathematics::clamp;
+
 		float x, y;
 		Eigen::Vector3f projection;
 
@@ -70,13 +70,8 @@ namespace Vcl { namespace Graphics
 		y = 2.0f * ratio_y;
 
 		// Translate 0,0 to center
-		x = x - 1.0f;
-		y = 1.0f - y;
-
-		if (x > 1.0f) x = 1.0f;
-		if (x < -1.0f) x = -1.0f;
-		if (y > 1.0f) y = 1.0f;
-		if (y < -1.0f) y = -1.0f;
+		x = clamp(x - 1.0f, -1.0f, 1.0f);
+		y = clamp(1.0f - y, -1.0f, 1.0f);
 
 		// Computation of position to back-project from Bell's Arc-ball
 		projection.x() = x;
@@ -102,10 +97,17 @@ namespace Vcl { namespace Graphics
 			return Eigen::Quaternionf::Identity();
 		}
 
-		Eigen::Vector3f axis = _lastPosition.cross(v);
-		float phi = atan2f(axis.norm(), _lastPosition.dot(v));
+		return Eigen::Quaternionf{}.setFromTwoVectors(_lastPosition, v);
 
-		Eigen::Vector3f weighted_axis = axis.normalized()*sin(phi/2.0f);
-		return{ cos(phi / 2.0f), weighted_axis.x(), weighted_axis.y(), weighted_axis.z() };
+		//Eigen::Vector3f d = v - _lastPosition;
+		//float t = d.norm() / (2 * _radius);
+		//
+		//if (t > 1.0f) t = 1.0f;
+		//if (t < -1.0f) t = -1.0f;
+		//float phi = 2.0f * asin(t);
+		//
+		//Eigen::Vector3f axis = v.cross(_lastPosition);
+		//Eigen::Vector3f weighted_axis = axis.normalized()*sin(phi/2.0f);
+		//return{ cos(phi / 2.0f), weighted_axis.x(), weighted_axis.y(), weighted_axis.z() };
 	}
 }}

@@ -37,7 +37,18 @@ namespace Vcl { namespace Graphics
 		_initialPosition = camera()->position();
 		_initialUp       = camera()->up();
 		_initialTarget   = camera()->target();
-		_trackball.reset();
+	}
+
+	void TrackballCameraController::setRotationCenter(const Eigen::Vector3f & center)
+	{
+		if (mode() == CameraMode::Object)
+		{
+			// Apply the old center
+			_objAccumTranslation = _objAccumTranslation + _objAccumRotation * -_objAccumTranslation;
+
+			// Set the new center
+			_objRotationCenter = center;
+		}
 	}
 
 	void TrackballCameraController::startRotate(float ratio_x, float ratio_y)
@@ -48,8 +59,18 @@ namespace Vcl { namespace Graphics
 		// Reset the the interal state
 		reset();
 
-		if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)
-			_trackball.startRotate(ratio_x, ratio_y, true);
+		if (mode() == CameraMode::Object)// || mode() == CameraMode::CameraTarget)
+		{
+			_trackball.startRotate(Eigen::Quaternionf::Identity(), ratio_x, ratio_y, true);
+		}
+		else if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)
+		{
+			Eigen::Vector3f init_dir{0, 0, -1};
+			Eigen::Vector3f curr_dir = (_initialPosition - _initialTarget).normalized();
+			Eigen::Quaternionf init_rot = Eigen::Quaternionf::FromTwoVectors(init_dir, curr_dir);
+
+			_trackball.startRotate(Eigen::Quaternionf::Identity(), ratio_x, ratio_y, true);
+		}
 	}
 
 	void TrackballCameraController::rotate(float ratio_x, float ratio_y)
@@ -61,6 +82,28 @@ namespace Vcl { namespace Graphics
 
 		switch (mode())
 		{
+		case CameraMode::Object:
+		{
+			_trackball.rotate(ratio_x, ratio_y, true);
+
+			// Remove the camera center from the transformation
+			Eigen::Quaternionf currRot = _trackball.rotation() * _objAccumRotation;
+			_objCurrTransformation.block<3, 1>(0, 3) = camera()->target() + currRot * -camera()->target();
+			_objCurrTransformation.block<3, 3>(0, 0) = (currRot).toRotationMatrix();
+
+			break;
+		}
+		//case CameraMode::CameraTarget:
+		//{
+		//	_trackball.rotate(ratio_x, ratio_y, true);
+		//
+		//	// Remove the camera center from the transformation
+		//	Eigen::Quaternionf currRot = (_trackball.rotation() * _objAccumRotation).inverse();
+		//	_objCurrTransformation.block<3, 1>(0, 3) = camera()->target() + currRot * -camera()->target();
+		//	_objCurrTransformation.block<3, 3>(0, 0) = (currRot).toRotationMatrix();
+		//
+		//	break;
+		//}
 		case CameraMode::Camera:
 		{
 			float length = (camera()->position() - camera()->target()).norm();
@@ -69,13 +112,13 @@ namespace Vcl { namespace Graphics
 
 			Vector3f point_on_sphere = _initialPosition - _initialTarget;
 			point_on_sphere.normalize();
-			Vector3f up = point_on_sphere + _initialUp;
+			Vector3f up = _initialUp;
 
 			point_on_sphere = _trackball.rotation().conjugate() * point_on_sphere;
 			up = _trackball.rotation().conjugate() * up;
 		
 			camera()->setPosition(camera()->target() + point_on_sphere * length);
-			camera()->setUp((up - point_on_sphere).normalized());
+			camera()->setUp(up.normalized());
 			break;
 		}
 		case CameraMode::Fly:
@@ -104,6 +147,18 @@ namespace Vcl { namespace Graphics
 			return;
 
 		_trackball.endRotate();
+
+		switch (mode())
+		{
+		case CameraMode::Object:
+		{
+			_objAccumRotation = _trackball.rotation() * _objAccumRotation;
+		}
+		//case CameraMode::CameraTarget:
+		//{
+		//	_objAccumRotation = (_trackball.rotation() * _objAccumRotation).inverse();
+		//}
+		}
 	}
 
 	void TrackballCameraController::changeZoom(float delta)

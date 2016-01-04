@@ -38,6 +38,7 @@ Scene::Scene(QObject* parent)
 
 	_camera = std::make_unique<Camera>(std::make_shared<OpenGL::MatrixFactory>());
 	_cameraController.setCamera(_camera.get());
+	//_cameraController.setMode(CameraMode::CameraTarget);
 }
 Scene::~Scene()
 {
@@ -51,6 +52,7 @@ void Scene::update()
 		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
 	}
 
+	_modelMatrix = _cameraController.currObjectTransformation();
 	_viewMatrix = _camera->view();
 	_projMatrix = _camera->projection();
 }
@@ -72,7 +74,7 @@ void Scene::createBar(int x, int y, int z)
 	{
 		bb.extend(vertices[i]);
 	}
-	_camera->encloseInFrustum(bb.center(), { 1, 0.5, 0.5 }, bb.diagonal().norm());
+	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
 }
 
 void Scene::loadMesh(const QUrl& path)

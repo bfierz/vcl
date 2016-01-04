@@ -36,11 +36,9 @@ namespace Vcl { namespace Graphics
 		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
 
 	public:
-		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed = true);
 		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
 		void endRotate();
-		
-		void reset();
 
 	public:
 		bool isRotating() const { return _rotate; }

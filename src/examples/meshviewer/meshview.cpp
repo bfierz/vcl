@@ -190,7 +190,7 @@ void FboRenderer::render()
 		// Prepare the environment
 		////////////////////////////////////////////////////////////////////////
 
-		Eigen::Matrix4f M = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f M = scene->modelMatrix();
 		Eigen::Matrix4f V = scene->viewMatrix();
 		Eigen::Matrix4f P = scene->projMatrix();
 		
