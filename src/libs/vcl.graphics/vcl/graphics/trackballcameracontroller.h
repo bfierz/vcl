@@ -37,6 +37,25 @@
 
 namespace Vcl { namespace Graphics
 {
+	class Transformation
+	{
+	public:
+		Transformation(const Eigen::Quaternionf& R, const Eigen::Vector3f& t) : _rotation(R), _translation(t) {}
+
+		const Eigen::Quaternionf& rotation() const { return _rotation; }
+		const Eigen::Vector3f& translation() const { return _translation; }
+
+	public:
+		Transformation operator* (const Transformation& T) const
+		{
+			return{ _rotation*T._rotation, _rotation*T._translation + _translation };
+		}
+
+	private:
+		Eigen::Quaternionf _rotation{ Eigen::Quaternionf::Identity() };
+		Eigen::Vector3f _translation{ Eigen::Vector3f::Zero() };
+	};
+
 	class TrackballCameraController : public CameraController
 	{
 	public:
@@ -69,8 +88,7 @@ namespace Vcl { namespace Graphics
 	private: // Paremeters for object camera mode
 		Eigen::Vector3f _objRotationCenter{ Eigen::Vector3f::Zero() };
 
-		Eigen::Vector3f _objAccumTranslation{ Eigen::Vector3f::Zero() };
-		Eigen::Quaternionf _objAccumRotation{ Eigen::Quaternionf::Identity() };
+		Transformation _objAccumTransform{ Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero() };
 
 		Eigen::Matrix4f _objCurrTransformation{ Eigen::Matrix4f::Identity() };
 	};

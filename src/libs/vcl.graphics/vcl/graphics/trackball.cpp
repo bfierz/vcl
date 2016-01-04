@@ -97,7 +97,7 @@ namespace Vcl { namespace Graphics
 			return Eigen::Quaternionf::Identity();
 		}
 
-		return Eigen::Quaternionf{}.setFromTwoVectors(_lastPosition, v);
+		return Eigen::Quaternionf::FromTwoVectors(_lastPosition, v);
 
 		//Eigen::Vector3f d = v - _lastPosition;
 		//float t = d.norm() / (2 * _radius);
