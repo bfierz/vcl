@@ -43,10 +43,12 @@ namespace Vcl { namespace Graphics
 		const Eigen::Matrix4f currObjectTransformation() const { return _objCurrTransformation; }
 
 	public: // Rotation controls
-		void setRotationCenter(const Eigen::Vector3f& center);
 		void startRotate(float ratio_x, float ratio_y);
 		void rotate(float ratio_x, float ratio_y);
 		void endRotate();
+
+	public: // Object camera mode
+		void setRotationCenter(const Eigen::Vector3f& center);
 
 	public:
 		void move(float x, float y, float z);
@@ -67,10 +69,14 @@ namespace Vcl { namespace Graphics
 		Eigen::Vector3f _initialTarget;
 
 	private: // Paremeters for object camera mode
+
+		//! Current rotation center
 		Eigen::Vector3f    _objRotationCenter{ Eigen::Vector3f::Zero() };
 
-		Eigen::Transform<float, 3, Eigen::Affine> _objAccumTransform{ Eigen::Transform<float, 3, Eigen::Affine>::Identity() };
-
+		//! Current rotation around the object
 		Eigen::Matrix4f _objCurrTransformation{ Eigen::Matrix4f::Identity() };
+
+		//! Accumulated rotation around the object
+		Eigen::Transform<float, 3, Eigen::Affine> _objAccumTransform{ Eigen::Transform<float, 3, Eigen::Affine>::Identity() };
 	};
 }}

@@ -43,8 +43,41 @@ namespace Vcl { namespace Graphics
 	{
 		if (mode() == CameraMode::Object)
 		{
+			// Build a rotation transformation around the current center
+			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+
+			// Connect to the existing transformation
+			auto T = C * R * mC * _objAccumTransform;
+
+			// Store
+			_objAccumTransform = T;
+
 			// Set the new center
 			_objRotationCenter = center;
+
+			// Reset the trackball
+			_trackball.reset();
+		}
+		else if (mode() == CameraMode::CameraTarget)
+		{
+			// Build a rotation transformation around the current center
+			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
+			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+
+			// Connect to the existing transformation
+			auto T = C * R * mC * _objAccumTransform;
+
+			// Store
+			_objAccumTransform = T;
+
+			// Set the new center
+			_objRotationCenter = center;
+
+			// Reset the trackball
+			_trackball.reset();
 		}
 	}
 
@@ -56,9 +89,9 @@ namespace Vcl { namespace Graphics
 		// Reset the the interal state
 		reset();
 
-		if (mode() == CameraMode::Object)// || mode() == CameraMode::CameraTarget)
+		if (mode() == CameraMode::Object || mode() == CameraMode::CameraTarget)
 		{
-			_trackball.startRotate(Eigen::Quaternionf::Identity(), ratio_x, ratio_y, true);
+			_trackball.startRotate(ratio_x, ratio_y, true);
 		}
 		else if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)
 		{
@@ -96,17 +129,23 @@ namespace Vcl { namespace Graphics
 
 			break;
 		}
-		//case CameraMode::CameraTarget:
-		//{
-		//	_trackball.rotate(ratio_x, ratio_y, true);
-		//
-		//	// Remove the camera center from the transformation
-		//	Eigen::Quaternionf currRot = (_trackball.rotation() * _objAccumRotation).inverse();
-		//	_objCurrTransformation.block<3, 1>(0, 3) = camera()->target() + currRot * -camera()->target();
-		//	_objCurrTransformation.block<3, 3>(0, 0) = (currRot).toRotationMatrix();
-		//
-		//	break;
-		//}
+		case CameraMode::CameraTarget:
+		{
+			_trackball.rotate(ratio_x, ratio_y, true);
+		
+			// Build a rotation transformation around the current center
+			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
+			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+
+			// Connect to the existing transformation
+			auto T = C * R * mC * _objAccumTransform;
+
+			// Store
+			_objCurrTransformation = T.matrix();
+
+			break;
+		}
 		case CameraMode::Camera:
 		{
 			float length = (camera()->position() - camera()->target()).norm();
@@ -150,28 +189,6 @@ namespace Vcl { namespace Graphics
 			return;
 
 		_trackball.endRotate();
-
-		switch (mode())
-		{
-		case CameraMode::Object:
-		{
-			// Build a rotation transformation around the current center
-			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
-			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
-
-			// Connect to the existing transformation
-			auto T = C * R * mC * _objAccumTransform;
-
-			// Store
-			_objAccumTransform = T;
-
-		}
-		//case CameraMode::CameraTarget:
-		//{
-		//	_objAccumRotation = (_trackball.rotation() * _objAccumRotation).inverse();
-		//}
-		}
 	}
 
 	void TrackballCameraController::changeZoom(float delta)

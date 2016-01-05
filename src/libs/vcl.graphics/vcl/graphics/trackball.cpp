@@ -29,6 +29,12 @@
 
 namespace Vcl { namespace Graphics
 {
+	void Trackball::reset()
+	{
+		_rotate = false;
+		_lastQuat = Eigen::Quaternionf::Identity();
+	}
+
 	void Trackball::startRotate(float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
