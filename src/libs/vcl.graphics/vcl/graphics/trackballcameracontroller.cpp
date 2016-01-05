@@ -83,12 +83,16 @@ namespace Vcl { namespace Graphics
 		{
 			_trackball.rotate(ratio_x, ratio_y, true);
 
-			// Remove the camera center from the transformation
-			auto T = RotationAroundCenter{ _trackball.rotation(), _objRotationCenter } * _objAccumTransform;
+			// Build a rotation transformation around the current center
+			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
 
-			//_objCurrTransformation.block<3, 1>(0, 3) = T.center();
-			//_objCurrTransformation.block<3, 3>(0, 0) = T.rotation().toRotationMatrix();
-			_objCurrTransformation = T.toMatrix();
+			// Connect to the existing transformation
+			auto T = C * R * mC * _objAccumTransform;
+
+			// Store
+			_objCurrTransformation = T.matrix();
 
 			break;
 		}
@@ -151,8 +155,16 @@ namespace Vcl { namespace Graphics
 		{
 		case CameraMode::Object:
 		{
-			// Apply the current center
-			_objAccumTransform = RotationAroundCenter{ _trackball.rotation(), _objRotationCenter } * _objAccumTransform;
+			// Build a rotation transformation around the current center
+			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+
+			// Connect to the existing transformation
+			auto T = C * R * mC * _objAccumTransform;
+
+			// Store
+			_objAccumTransform = T;
 
 		}
 		//case CameraMode::CameraTarget:

@@ -255,7 +255,7 @@ namespace Vcl { namespace Mathematics
 		bool eq = true;
 		for (int c = 0; c < Cols; c++)
 			for (int r = 0; r < Rows; r++)
-				eq = eq || equal(x(r, c), y(r, c), tol);
+				eq = eq && equal(x(r, c), y(r, c), tol);
 
 		return eq;
 	}

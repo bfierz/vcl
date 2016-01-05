@@ -29,6 +29,14 @@
 
 namespace Vcl { namespace Graphics
 {
+	void Trackball::startRotate(float ratio_x, float ratio_y, bool right_handed)
+	{
+		_rotate = true;
+		_lastPosition = project(ratio_x, ratio_y);
+		if (!right_handed)
+			_lastPosition.z() *= -1;
+	}
+
 	void Trackball::startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
