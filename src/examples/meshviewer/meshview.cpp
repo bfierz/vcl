@@ -281,3 +281,13 @@ MeshView::Renderer* MeshView::createRenderer() const
 
 	return new FboRenderer();
 }
+
+void MeshView::geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry)
+{
+	QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
+
+	if (scene())
+	{
+		scene()->camera()->setViewport(newGeometry.width(), newGeometry.height());
+	}
+}

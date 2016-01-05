@@ -38,7 +38,6 @@ Scene::Scene(QObject* parent)
 
 	_camera = std::make_unique<Camera>(std::make_shared<OpenGL::MatrixFactory>());
 	_cameraController.setCamera(_camera.get());
-	//_cameraController.setMode(CameraMode::CameraTarget);
 }
 Scene::~Scene()
 {
@@ -75,6 +74,7 @@ void Scene::createBar(int x, int y, int z)
 		bb.extend(vertices[i]);
 	}
 	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_cameraController.setRotationCenter(bb.center());
 }
 
 void Scene::loadMesh(const QUrl& path)
@@ -93,5 +93,7 @@ void Scene::rotate(float ratio_x, float ratio_y)
 void Scene::endRotate()
 {
 	_cameraController.endRotate();
+
+	_cameraController.setRotationCenter({ 1, 0, 0 });
 }
 

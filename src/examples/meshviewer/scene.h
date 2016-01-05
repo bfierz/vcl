@@ -51,6 +51,9 @@ public:
 public:
 	void update();
 
+public:
+	Vcl::Graphics::Camera* camera() const { return _camera.get(); }
+
 public slots:
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);

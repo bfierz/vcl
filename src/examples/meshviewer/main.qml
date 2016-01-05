@@ -116,6 +116,9 @@ ApplicationWindow
 				scene.rotate(mouse.x / width, mouse.y / height)
 				renderer.update()
 			}
+			onWheel:
+			{
+			}
 		}
 	}
 

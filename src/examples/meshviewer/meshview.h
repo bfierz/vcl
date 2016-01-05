@@ -81,5 +81,8 @@ public:
 	}
 
 private:
+	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry);
+
+private:
 	Scene* _scene{ nullptr };
 };
