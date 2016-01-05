@@ -39,13 +39,10 @@ namespace Vcl { namespace Graphics
 		_initialTarget   = camera()->target();
 	}
 
-	void TrackballCameraController::setRotationCenter(const Eigen::Vector3f & center)
+	void TrackballCameraController::setRotationCenter(const Eigen::Vector3f& center)
 	{
 		if (mode() == CameraMode::Object)
 		{
-			// Apply the old center
-			//_objAccumTranslation = _objRotationCenter + _objAccumRotation * -_objRotationCenter;
-
 			// Set the new center
 			_objRotationCenter = center;
 		}
@@ -87,13 +84,11 @@ namespace Vcl { namespace Graphics
 			_trackball.rotate(ratio_x, ratio_y, true);
 
 			// Remove the camera center from the transformation
-			Transformation currT{ _trackball.rotation(), _objRotationCenter };
-			Transformation minT{ Eigen::Quaternionf::Identity(), -_objRotationCenter };
+			auto T = RotationAroundCenter{ _trackball.rotation(), _objRotationCenter } * _objAccumTransform;
 
-			Transformation T = currT * minT * _objAccumTransform;
-
-			_objCurrTransformation.block<3, 1>(0, 3) = T.translation();
-			_objCurrTransformation.block<3, 3>(0, 0) = T.rotation().toRotationMatrix();
+			//_objCurrTransformation.block<3, 1>(0, 3) = T.center();
+			//_objCurrTransformation.block<3, 3>(0, 0) = T.rotation().toRotationMatrix();
+			_objCurrTransformation = T.toMatrix();
 
 			break;
 		}
@@ -156,10 +151,9 @@ namespace Vcl { namespace Graphics
 		{
 		case CameraMode::Object:
 		{
-			Transformation currT{ _trackball.rotation(), _objRotationCenter };
-			Transformation minT{ Eigen::Quaternionf::Identity(), -_objRotationCenter };
+			// Apply the current center
+			_objAccumTransform = RotationAroundCenter{ _trackball.rotation(), _objRotationCenter } * _objAccumTransform;
 
-			_objAccumTransform = currT * minT * _objAccumTransform;
 		}
 		//case CameraMode::CameraTarget:
 		//{

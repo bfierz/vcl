@@ -37,23 +37,45 @@
 
 namespace Vcl { namespace Graphics
 {
-	class Transformation
+	class RotationAroundCenter
 	{
 	public:
-		Transformation(const Eigen::Quaternionf& R, const Eigen::Vector3f& t) : _rotation(R), _translation(t) {}
-
-		const Eigen::Quaternionf& rotation() const { return _rotation; }
-		const Eigen::Vector3f& translation() const { return _translation; }
-
-	public:
-		Transformation operator* (const Transformation& T) const
+		//RotationAroundCenter(const Eigen::Quaternionf& R, const Eigen::Vector3f& c) : _rotation(R), _center(c) {}
+		RotationAroundCenter(const Eigen::Quaternionf& R, const Eigen::Vector3f& c)
 		{
-			return{ _rotation*T._rotation, _rotation*T._translation + _translation };
+			auto A = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -c } };
+			auto B = Eigen::Transform<float, 3, Eigen::Affine>{ R.toRotationMatrix() };
+			auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  c } };
+
+			_transform = C * B * A;
+		}
+		RotationAroundCenter(const Eigen::Transform<float, 3, Eigen::Affine>& T)
+		: _transform(T)
+		{
+
 		}
 
+		const Eigen::Matrix4f toMatrix() const { return _transform.matrix(); }
+
+		//const Eigen::Quaternionf& rotation() const { return _rotation; }
+		//const Eigen::Vector3f&    center()   const { return _center; }
+
+	public:
+		RotationAroundCenter operator* (const RotationAroundCenter& rhs) const
+		{
+			return _transform * rhs._transform;
+		}
+		//RotationAroundCenter operator* (const RotationAroundCenter& rhs) const
+		//{
+		//	Eigen::Quaternionf combined_rot = (_rotation*rhs._rotation).normalized();
+		//
+		//	return{ combined_rot, (combined_rot * -rhs._center) + (_rotation * rhs._center) + (_rotation * -_center) + _center };
+		//}
+
 	private:
-		Eigen::Quaternionf _rotation{ Eigen::Quaternionf::Identity() };
-		Eigen::Vector3f _translation{ Eigen::Vector3f::Zero() };
+		//Eigen::Quaternionf _rotation{ Eigen::Quaternionf::Identity() };
+		//Eigen::Vector3f    _center  { Eigen::Vector3f::Zero() };
+		Eigen::Transform<float, 3, Eigen::Affine> _transform;
 	};
 
 	class TrackballCameraController : public CameraController
@@ -86,9 +108,9 @@ namespace Vcl { namespace Graphics
 		Eigen::Vector3f _initialTarget;
 
 	private: // Paremeters for object camera mode
-		Eigen::Vector3f _objRotationCenter{ Eigen::Vector3f::Zero() };
+		Eigen::Vector3f    _objRotationCenter{ Eigen::Vector3f::Zero() };
 
-		Transformation _objAccumTransform{ Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero() };
+		RotationAroundCenter _objAccumTransform{ Eigen::Quaternionf::Identity(), Eigen::Vector3f::Zero() };
 
 		Eigen::Matrix4f _objCurrTransformation{ Eigen::Matrix4f::Identity() };
 	};
