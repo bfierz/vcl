@@ -46,6 +46,11 @@ Scene::~Scene()
 
 void Scene::update()
 {
+	if (_triMesh)
+	{
+		_surfaceMesh = std::make_unique<GPUSurfaceMesh>(std::move(_triMesh));
+	}
+
 	if (_tetraMesh)
 	{
 		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
@@ -56,6 +61,24 @@ void Scene::update()
 	_projMatrix = _camera->projection();
 }
 
+void Scene::createSurfaceSphere()
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating sphere mesh" << std::endl;
+
+	_triMesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
+
+	// Compute the new camera configuration
+	Eigen::AlignedBox3f bb;
+	auto vertices = _triMesh->vertices();
+	for (size_t i = 0, end = vertices->size(); i < end; i++)
+	{
+		bb.extend(vertices[i]);
+	}
+	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_cameraController.setRotationCenter(bb.center());
+}
 
 void Scene::createBar(int x, int y, int z)
 {
@@ -93,7 +116,5 @@ void Scene::rotate(float ratio_x, float ratio_y)
 void Scene::endRotate()
 {
 	_cameraController.endRotate();
-
-	_cameraController.setRotationCenter({ 1, 0, 0 });
 }
 

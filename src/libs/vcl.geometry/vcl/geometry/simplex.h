@@ -35,6 +35,8 @@
 
 namespace Vcl { namespace Geometry
 {
+	VCL_DECLARE_FLAGS(ElementState, Deleted);
+
 	template<typename MeshIndex>
 	struct IndexDescriptionTrait;
 

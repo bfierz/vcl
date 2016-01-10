@@ -26,35 +26,33 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/opengl.h>
 
 // VCL
-#include <vcl/geometry/tetramesh.h>
 #include <vcl/geometry/trimesh.h>
+#include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-namespace Vcl { namespace Geometry
+class GPUSurfaceMesh
 {
-	template<typename Mesh>
-	class MeshFactory
-	{
-	public:
-		static std::unique_ptr<Mesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+public:
+	GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh);
 
-		static std::unique_ptr<Mesh> loadMesh(const std::string& path);
-	};
+public:
+	size_t nrFaces() const { return _triMesh->nrFaces(); }
 
-	template<>
-	class MeshFactory<TetraMesh>
-	{
-	public:
-		static std::unique_ptr<TetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
 
-		static std::unique_ptr<TetraMesh> loadMesh(const std::string& path);
-	};
+private:
+	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
 
-	class TriMeshFactory
-	{
-	public:
-		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
+	//! Index structure
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;
 
-	};
-}}
+	//! Position data
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _positions;
+
+	//! Volume-colour data
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
+};

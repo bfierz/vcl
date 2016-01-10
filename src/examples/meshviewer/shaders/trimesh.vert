@@ -1,12 +1,12 @@
 #version 430 core
 
 // Data from input-assembler stage
-in ivec4 Index;
+in ivec3 Index;
 in  vec4 Colour;
 
 out VertexData
 {
-	ivec4 Indices;
+	ivec3 Indices;
 } Out;
 
 void main()

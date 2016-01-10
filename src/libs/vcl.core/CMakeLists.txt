@@ -101,6 +101,7 @@ SET(VCL_MATH_INC
 # VCL / UTIL
 SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
+	vcl/util/stringparser.cpp
 )
 SET(VCL_UTIL_INC
 	vcl/util/donotoptimizeaway.h
@@ -109,6 +110,7 @@ SET(VCL_UTIL_INC
 	vcl/util/mortoncodes.h
 	vcl/util/reservememory.h
 	vcl/util/scopeguard.h
+	vcl/util/stringparser.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})

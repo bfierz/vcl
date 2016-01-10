@@ -17,12 +17,14 @@ FIND_PACKAGE(Qt5 COMPONENTS Core Gui OpenGL Qml Quick)
 cmake_policy(SET CMP0020 OLD)
 
 SET(INC
+	gpusurfacemesh.h
 	gpuvolumemesh.h
 	meshview.h
 	scene.h
 )
 
 SET(SRC
+	gpusurfacemesh.cpp
 	gpuvolumemesh.cpp
 	main.cpp
 	meshview.cpp
@@ -37,6 +39,8 @@ SET(QML
 )
 
 SET(SHADERS
+	shaders/trimesh.vert
+	shaders/trimesh.geom
 	shaders/tetramesh.vert
 	shaders/tetramesh.geom
 	shaders/mesh.frag

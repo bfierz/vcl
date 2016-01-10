@@ -155,24 +155,40 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
+	InputLayoutDescription opaqueTriLayout =
+	{
+		{ "Index",  SurfaceFormat::R32G32B32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+	};
+	_opaqueTriLayout = std::make_unique<InputLayout>(opaqueTriLayout);
+	
 	InputLayoutDescription opaqueTetraLayout =
 	{
-		{ "Indices", SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 	_opaqueTetraLayout = std::make_unique<InputLayout>(opaqueTetraLayout);
+
+	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
+	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
 
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
 
+	ShaderProgramDescription opaqueTriDesc;
+	opaqueTriDesc.InputLayout = opaqueTriLayout;
+	opaqueTriDesc.VertexShader = &opaqueTriVert;
+	opaqueTriDesc.GeometryShader = &opaqueTriGeom;
+	opaqueTriDesc.FragmentShader = &meshFrag;
+	_opaqueTriMeshShader = std::make_unique<ShaderProgram>(opaqueTriDesc);
+
 	ShaderProgramDescription opaqueTetraDesc;
 	opaqueTetraDesc.InputLayout = opaqueTetraLayout;
 	opaqueTetraDesc.VertexShader = &opaqueTetraVert;
 	opaqueTetraDesc.GeometryShader = &opaqueTetraGeom;
 	opaqueTetraDesc.FragmentShader = &meshFrag;
-
 	_opaqueTetraMeshShader = std::make_unique<ShaderProgram>(opaqueTetraDesc);
 }
 
@@ -193,31 +209,56 @@ void FboRenderer::render()
 		Eigen::Matrix4f M = scene->modelMatrix();
 		Eigen::Matrix4f V = scene->viewMatrix();
 		Eigen::Matrix4f P = scene->projMatrix();
-		
+
+		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ModelMatrix"), M);
+		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ViewMatrix"), V);
+		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ProjectionMatrix"), P);
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ModelMatrix"), M);
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ViewMatrix"), V);
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ProjectionMatrix"), P);
 
-		// Configure the layout
-		_opaqueTetraMeshShader->bind();
-		_opaqueTetraLayout->bind();
-
-		////////////////////////////////////////////////////////////////////////
-		// Render the mesh
-		////////////////////////////////////////////////////////////////////////
-
-		// Set the vertex positions
-		auto mesh = scene->volumeMesh();
-		if (mesh)
+		auto surfaceMesh = scene->surfaceMesh();
+		if (surfaceMesh)
 		{
-			_opaqueTetraMeshShader->setBuffer("VertexPositions", mesh->positions());
+			// Configure the layout
+			_opaqueTriMeshShader->bind();
+			_opaqueTriLayout->bind();
+
+			////////////////////////////////////////////////////////////////////
+			// Render the mesh
+			////////////////////////////////////////////////////////////////////
+
+			// Set the vertex positions
+			_opaqueTriMeshShader->setBuffer("VertexPositions", surfaceMesh->positions());
 
 			// Bind the buffers
-			glBindVertexBuffer(0, mesh->indices()->id(),       0, sizeof(Eigen::Vector4i));
-			glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+			glBindVertexBuffer(0, surfaceMesh->indices()->id(),     0, sizeof(Eigen::Vector3i));
+			glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, mesh->nrVolumes());
+			glDrawArrays(GL_POINTS, 0, surfaceMesh->nrFaces());
+		}
+
+		auto volumeMesh = scene->volumeMesh();
+		if (volumeMesh)
+		{
+			// Configure the layout
+			_opaqueTetraMeshShader->bind();
+			_opaqueTetraLayout->bind();
+
+			////////////////////////////////////////////////////////////////////
+			// Render the mesh
+			////////////////////////////////////////////////////////////////////
+
+			// Set the vertex positions
+			_opaqueTetraMeshShader->setBuffer("VertexPositions", volumeMesh->positions());
+
+			// Bind the buffers
+			glBindVertexBuffer(0, volumeMesh->indices()->id(),       0, sizeof(Eigen::Vector4i));
+			glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+			// Render the mesh
+			glDrawArrays(GL_POINTS, 0, volumeMesh->nrVolumes());
 		}
 
 		_owner->window()->resetOpenGLState();

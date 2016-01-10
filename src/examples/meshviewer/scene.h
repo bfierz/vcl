@@ -35,6 +35,7 @@
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
 
+#include "gpusurfacemesh.h"
 #include "gpuvolumemesh.h"
 
 /*!
@@ -54,7 +55,8 @@ public:
 public:
 	Vcl::Graphics::Camera* camera() const { return _camera.get(); }
 
-public slots:
+public slots :
+	void createSurfaceSphere();
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);
 
@@ -68,9 +70,11 @@ public:
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
 
+	GPUSurfaceMesh* surfaceMesh() const { return _surfaceMesh.get(); }
 	GPUVolumeMesh* volumeMesh() const { return _volumeMesh.get(); }
 
 private: // Update data
+	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
 	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
 
 	std::unique_ptr<Vcl::Graphics::Camera> _camera;
@@ -82,5 +86,6 @@ private: // Render data
 	Eigen::Matrix4f _viewMatrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 
+	std::unique_ptr<GPUSurfaceMesh> _surfaceMesh;
 	std::unique_ptr<GPUVolumeMesh> _volumeMesh;
 };

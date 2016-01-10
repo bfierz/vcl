@@ -277,4 +277,106 @@ namespace Vcl { namespace Geometry
 
 		#undef SpatialToLinearIndex
 	}
+
+	std::unique_ptr<TriMesh> TriMeshFactory::createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted)
+	{
+		using face_t = std::array<unsigned int, 3>;
+
+		size_t nr_vertices = (stacks + 1) * (slices + 1);
+		size_t face_count = (stacks * slices) * 2;
+		size_t nr_indices = face_count * 3;
+
+		std::vector<Vector3f> positions{ nr_vertices };
+		std::vector<Vector3f> normals{ nr_vertices };
+		std::vector<face_t>   faces{ face_count };
+
+		// Create the positions
+		size_t index = 0;
+		float fstacks = static_cast<float>(stacks);
+		float fslices = static_cast<float>(slices);
+		float pi = static_cast<float>(M_PI);
+
+		for (unsigned int i = 0; i <= static_cast<unsigned int>(stacks); ++i)
+		{
+			float fi = static_cast<float>(i);
+			float rad_y = pi / 2.0f - fi / fstacks * pi;
+			float sin_y = sin(rad_y);
+			float cos_y = cos(rad_y);
+
+			for (unsigned int j = 0; j <= static_cast<unsigned int>(slices); ++j)
+			{
+				float fj = static_cast<float>(j);
+				float rad_xz = fj / fslices * 2.0f * pi;
+				float sin_xz = sin(rad_xz - pi);
+				float cos_xz = cos(rad_xz - pi);
+
+				positions[index].y() = center.x() + sin_y * radius;
+				positions[index].z() = center.y() + sin_xz * cos_y * radius;
+				positions[index].x() = center.z() + cos_xz * cos_y * radius;
+				++index;
+			}
+		}
+		
+		// Create the normals
+		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
+		{
+			normals[i] = positions[i] - center;
+			normals[i].normalize();
+		}
+
+		if (inverted)
+		{
+			for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
+			{
+				normals[i] *= -1;
+			}
+		}
+
+		// Create the indices
+		index = 0;
+		if (inverted)
+		{
+			for (unsigned int i = 0; i < static_cast<unsigned int>(stacks); ++i)
+			{
+				for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
+				{
+					unsigned int row0_base = i * (static_cast<unsigned int>(slices) + 1);
+					unsigned int row1_base = (i + 1) * (static_cast<unsigned int>(slices) + 1);
+
+					faces[index][0] = row0_base + (j);
+					faces[index][1] = row1_base + (j);
+					faces[index][2] = row0_base + (j + 1) % slices;
+					++index;
+
+					faces[index][0] = row1_base + (j);
+					faces[index][1] = row1_base + (j + 1) % slices;
+					faces[index][2] = row0_base + (j + 1) % slices;
+					++index;
+				}
+			}
+		}
+		else
+		{
+			for (unsigned int i = 0; i < static_cast<unsigned int>(stacks); ++i)
+			{
+				for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
+				{
+					unsigned int row0_base = i * (static_cast<unsigned int>(slices) + 1);
+					unsigned int row1_base = (i + 1) * (static_cast<unsigned int>(slices) + 1);
+
+					faces[index][0] = row0_base + (j);
+					faces[index][1] = row0_base + (j + 1) % slices;
+					faces[index][2] = row1_base + (j);
+					++index;
+
+					faces[index][0] = row1_base + (j);
+					faces[index][1] = row0_base + (j + 1) % slices;
+					faces[index][2] = row1_base + (j + 1) % slices;
+					++index;
+				}
+			}
+		}
+		
+		return std::make_unique<TriMesh>(positions, faces);
+	}
 }}

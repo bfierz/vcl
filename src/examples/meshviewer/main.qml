@@ -79,10 +79,27 @@ ApplicationWindow
         Menu
 		{
             title: "Create"
-            MenuItem
+			Menu
 			{
-				text: "Bar"
-				onTriggered: { createBarDialog.open() }
+				title: "Triangle Mesh"
+				MenuItem
+				{
+					text: "Sphere"
+					onTriggered:
+					{
+						scene.createSurfaceSphere()
+						renderer.update()
+					}
+				}
+			}
+			Menu
+			{
+				title: "Tetra Mesh"
+				MenuItem
+				{
+					text: "Bar"
+					onTriggered: { createBarDialog.open() }
+				}
 			}
         }
     }
@@ -96,16 +113,17 @@ ApplicationWindow
 		MouseArea
 		{
 			anchors.fill: parent
+			acceptedButtons: Qt.MiddleButton
 			onPressed:
 			{
-				if (mouse.button == Qt.LeftButton)
+				if (mouse.button & Qt.MiddleButton)
 				{
 					scene.startRotate(mouse.x / width, mouse.y / height)
 				}
 			}
 			onReleased:
 			{
-				if (mouse.button == Qt.LeftButton)
+				if (mouse.button & Qt.MiddleButton)
 				{
 					scene.endRotate()
 					renderer.update()

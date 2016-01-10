@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,17 +44,17 @@
 
 namespace Vcl { namespace Geometry
 {
-	class TetraMesh;
+	class TriMesh;
 
 	template<>
-	struct IndexDescriptionTrait<TetraMesh>
+	struct IndexDescriptionTrait<TriMesh>
 	{
 	public: // Idx Type
 		using IndexType = unsigned int;
 
 	public: // IDs
 		VCL_CREATEID(VertexId, IndexType);	// Size: n0
-		VCL_CREATEID(VolumeId, IndexType);	// Size: n3
+		VCL_CREATEID(FaceId, IndexType);	// Size: n2
 
 	public: // Basic types
 		struct VertexMetaData
@@ -64,7 +64,7 @@ namespace Vcl { namespace Geometry
 			Flags<ElementState> State;
 		};
 
-		struct VolumeMetaData
+		struct FaceMetaData
 		{
 			bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
 
@@ -75,23 +75,23 @@ namespace Vcl { namespace Geometry
 		using Vertex = Eigen::Vector3f;
 
 		//! Index data of a single tetrahedron
-		using Volume = std::array<IndexType, 4>;
+		using Face = std::array<IndexType, 3>;
 	};
 
-	class TetraMesh : public SimplexLevel3<TetraMesh>, public SimplexLevel0<TetraMesh>
+	class TriMesh : public SimplexLevel2<TriMesh>, public SimplexLevel0<TriMesh>
 	{
 	public: // Default constructors
-		TetraMesh() = default;
-		TetraMesh(const TetraMesh& rhs) = default;
-		TetraMesh(TetraMesh&& rhs) = default;
-		virtual ~TetraMesh() = default;
+		TriMesh() = default;
+		TriMesh(const TriMesh& rhs) = default;
+		TriMesh(TriMesh&& rhs) = default;
+		virtual ~TriMesh() = default;
 
 	public:
-		TetraMesh& operator= (const TetraMesh& rhs) = default;
-		TetraMesh& operator= (TetraMesh&& rhs) = default;
+		TriMesh& operator= (const TriMesh& rhs) = default;
+		TriMesh& operator= (TriMesh&& rhs) = default;
 
 	public: // Construct meshes from data
-		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TetraMesh>::Volume>& volumes);
+		TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TriMesh>::Face>& faces);
 
 	public:
 		//! Clear the content of the mesh
@@ -99,15 +99,13 @@ namespace Vcl { namespace Geometry
 
 		//! Add a new property to the volume level
 		template<typename T>
-		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty
+		Property<T, IndexDescriptionTrait<TriMesh>::FaceId>* addFaceProperty
 		(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::reference init_value
+			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::reference init_value
 		)
 		{
-			return volumeProperties().add<T>(name, init_value);
+			return faceProperties().add<T>(name, init_value);
 		}
-
-	private: // Embedders
 	};
 }}

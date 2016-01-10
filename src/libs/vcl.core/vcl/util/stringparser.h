@@ -27,34 +27,55 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <array>
+#include <iostream>
+#include <string>
+#include <vector>
+
 // VCL
-#include <vcl/geometry/tetramesh.h>
-#include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry
+namespace Vcl { namespace Util
 {
-	template<typename Mesh>
-	class MeshFactory
+	class StringParser
 	{
 	public:
-		static std::unique_ptr<Mesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		StringParser();
 
-		static std::unique_ptr<Mesh> loadMesh(const std::string& path);
-	};
-
-	template<>
-	class MeshFactory<TetraMesh>
-	{
 	public:
-		static std::unique_ptr<TetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		bool eos() { return _eos; }
 
-		static std::unique_ptr<TetraMesh> loadMesh(const std::string& path);
-	};
-
-	class TriMeshFactory
-	{
 	public:
-		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
+		void setInputStream(std::istream* stream);
+		void readLine();
+		void readLine(std::string* out_string_ptr);
+		void skipWhiteSpace();
+		void skipLine();
+		void readString(std::string* out_string_ptr);
+		bool readFloat(float* f_ptr);
+		bool readInt(int* i_ptr);
 
+	private: // Parser state
+
+		//! Stream to parse data from
+		std::istream* _stream{ nullptr };
+		
+		//! Size of the parse buffer
+		static const size_t BufferSize{ 512 * 1024 };
+		
+		//! Intermediate parse buffer
+		std::vector<char> _streamBuffer;
+
+		//! Start of the current buffer
+		char* _currentBuffer{ nullptr };
+		
+		//! Size of the current buffer
+		size_t _currentSizeAvailable{ 0 };
+		
+		//! Current read pointer
+		char* _bufferReadPtr{ nullptr };
+		
+		//! Reached end of stream?
+		bool _eos{ false };
 	};
 }}

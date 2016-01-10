@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
-// VCL configuration
-#include <vcl/config/global.h>
-
-// VCL
-#include <vcl/geometry/tetramesh.h>
 #include <vcl/geometry/trimesh.h>
 
 namespace Vcl { namespace Geometry
 {
-	template<typename Mesh>
-	class MeshFactory
+	TriMesh::TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TriMesh>::Face>& faces)
 	{
-	public:
-		static std::unique_ptr<Mesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		faceProperties().resizeProperties(faces.size());
+		vertexProperties().resizeProperties(vertices.size());
 
-		static std::unique_ptr<Mesh> loadMesh(const std::string& path);
-	};
+		for (size_t i = 0; i < vertices.size(); ++i)
+		{
+			_vertices[i] = vertices[i];
+		}
 
-	template<>
-	class MeshFactory<TetraMesh>
+		for (size_t i = 0; i < faces.size(); ++i)
+		{
+			_faces[i] = faces[i];
+		}
+	}
+
+	void TriMesh::clear()
 	{
-	public:
-		static std::unique_ptr<TetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
-
-		static std::unique_ptr<TetraMesh> loadMesh(const std::string& path);
-	};
-
-	class TriMeshFactory
-	{
-	public:
-		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
-
-	};
+		faceProperties().clear();
+		vertexProperties().clear();
+	}
 }}
