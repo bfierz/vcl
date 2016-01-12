@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,56 +26,47 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
 // C++ standard library
 #include <array>
-#include <iostream>
 #include <string>
-#include <vector>
 
 // VCL
+#include <vcl/geometry/io/serialiser.h>
+#include <vcl/geometry/tetramesh.h>
 
-namespace Vcl { namespace Util
+namespace Vcl { namespace Geometry { namespace IO
 {
-	class StringParser
+	class TetraMeshDeserialiser : public AbstractDeserialiser
 	{
 	public:
-		StringParser();
+		std::unique_ptr<TetraMesh> fetch() { return std::move(_mesh); }
 
 	public:
-		bool eos() { return _eos; }
+		virtual void begin();
+		virtual void end();
+		
+	public:
+		virtual void sizeHintNodes(unsigned int hint);
+		virtual void sizeHintEdges(unsigned int hint);
+		virtual void sizeHintFaces(unsigned int hint);
+		virtual void sizeHintVolumes(unsigned int hint);
 
 	public:
-		void setInputStream(std::istream* stream);
-		bool loadLine();
-		void readLine(std::string* out_string_ptr);
-		void skipWhiteSpace();
-		void skipLine();
-		bool readString(std::string* out_string_ptr);
-		bool readFloat(float* f_ptr);
-		bool readInt(int* i_ptr);
+		virtual void addNode(const std::vector<float>& coordinates);
+		virtual void addEdge(const std::vector<unsigned int>& indices);
+		virtual void addFace(const std::vector<unsigned int>& indices);
+		virtual void addVolume(const std::vector<unsigned int>& indices);
 
-	private: // Parser state
+		virtual void addNormal(const Vector3f& normal);
 
-		//! Stream to parse data from
-		std::istream* _stream{ nullptr };
-		
-		//! Size of the parse buffer
-		static const size_t BufferSize{ 512 * 1024 };
-		
-		//! Intermediate parse buffer
-		std::vector<char> _streamBuffer;
+	private:
 
-		//! Start of the current buffer
-		char* _currentBuffer{ nullptr };
-		
-		//! Size of the current buffer
-		size_t _currentSizeAvailable{ 0 };
-		
-		//! Current read pointer
-		char* _bufferReadPtr{ nullptr };
-		
-		//! Reached end of stream?
-		bool _eos{ false };
+		//! Generated mesh
+		std::unique_ptr<TetraMesh> _mesh;
+
+		std::vector<Eigen::Vector3f> _positions;
+		std::vector<std::array<unsigned int, 4>> _volumes;
 	};
-}}
+}}}

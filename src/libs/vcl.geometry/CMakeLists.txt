@@ -3,9 +3,17 @@ PROJECT(vcl_geometry)
 # VCL / GEOMETRY / IO
 SET(VCL_GEOMETRY_IO_INC
 	vcl/geometry/io/serialiser.h
+	
+	vcl/geometry/io/tetramesh_serialiser.h	
+
+	vcl/geometry/io/serialiser_nvidia_tet_file.h
+	vcl/geometry/io/serialiser_tetgen.h
 )
 SET(VCL_GEOMETRY_IO_SRC
-	vcl/geometry/io/serialiser.cpp
+	vcl/geometry/io/tetramesh_serialiser.cpp
+
+	vcl/geometry/io/serialiser_nvidia_tet_file.cpp
+	vcl/geometry/io/serialiser_tetgen.cpp
 )
 
 # VCL / GEOMETRY

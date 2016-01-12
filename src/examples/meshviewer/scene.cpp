@@ -27,7 +27,13 @@
 // C++ standard library
 #include <iostream>
 
+// Qt
+#include <QtCore/QUrl>
+
 // VCL
+#include <vcl/geometry/io/serialiser_nvidia_tet_file.h>
+#include <vcl/geometry/io/serialiser_tetgen.h>
+#include <vcl/geometry/io/tetramesh_serialiser.h>
 #include <vcl/geometry/meshfactory.h>
 #include <vcl/geometry/tetramesh.h>
 
@@ -88,7 +94,6 @@ void Scene::createBar(int x, int y, int z)
 
 	_tetraMesh = MeshFactory<TetraMesh>::createHomogenousCubes(x, y, z);
 
-
 	// Compute the new camera configuration
 	Eigen::AlignedBox3f bb;
 	auto vertices = _tetraMesh->vertices();
@@ -102,7 +107,38 @@ void Scene::createBar(int x, int y, int z)
 
 void Scene::loadMesh(const QUrl& path)
 {
+	using namespace Vcl::Geometry::IO;
 
+	std::cout << "Load mesh: " << path.toLocalFile().toUtf8().data() << std::endl;
+
+	TetraMeshDeserialiser deserialiser;
+
+	if (path.toString().endsWith(".tet"))
+	{
+		NvidiaTetSerialiser loader;
+		loader.load(&deserialiser, path.toLocalFile().toUtf8().data());
+	}
+	else if (path.toString().endsWith(".ele") || path.toString().endsWith(".node"))
+	{
+		TetGenSerialiser loader;
+		loader.load(&deserialiser, path.toLocalFile().toUtf8().data());
+	}
+	else
+	{
+		return;
+	}
+
+	_tetraMesh = deserialiser.fetch();
+
+	// Compute the new camera configuration
+	Eigen::AlignedBox3f bb;
+	auto vertices = _tetraMesh->vertices();
+	for (size_t i = 0, end = vertices->size(); i < end; i++)
+	{
+		bb.extend(vertices[i]);
+	}
+	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_cameraController.setRotationCenter(bb.center());
 }
 
 void Scene::startRotate(float ratio_x, float ratio_y)

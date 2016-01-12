@@ -84,21 +84,10 @@ namespace Vcl { namespace Geometry { namespace IO
 
 	class Serialiser
 	{
-	public: /* Read mesh file */
-		virtual void load(AbstractDeserialiser* /* deserialiser */, const std::string& /* path */) const { DebugError("Not implemented."); }
+	public: // Read mesh file
+		virtual void load(AbstractDeserialiser* deserialiser, const std::string& path) const { DebugError("Not implemented."); }
 
-	public: /* Write mesh file */
-		virtual void store(AbstractSerialiser* /* serialiser */,    const std::string& /* path */) const { DebugError("Not implemented."); }
-
-	protected: /* Helper methods */
-		virtual std::string readToken(std::istream& fin) const;
-		virtual float readFloat(std::istream& fin) const;
-		virtual int readInteger(std::istream& fin) const;
-		virtual unsigned int readUnsignedInteger(std::istream& fin) const;
-		virtual std::string readString(std::ifstream& fin) const;
-		virtual void skipLine(std::ifstream& fin) const;
-		virtual void readLine(std::ifstream& fin, std::stringstream& output) const;
-
-		virtual int convertTokenToInteger(const std::string& token) const;
+	public: // Write mesh file
+		virtual void store(AbstractSerialiser* serialiser,    const std::string& path) const { DebugError("Not implemented."); }
 	};
 }}}

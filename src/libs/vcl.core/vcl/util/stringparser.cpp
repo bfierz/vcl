@@ -32,15 +32,21 @@ namespace Vcl { namespace Util
 {
 	StringParser::StringParser()
 	: _streamBuffer(BufferSize)
+	, _currentBuffer(_streamBuffer.data())
+	, _bufferReadPtr(_currentBuffer)
 	{
 	}
 
 	void StringParser::setInputStream(std::istream* stream)
 	{
 		_stream = stream;
+
+		// Reset the pointers
+		_currentBuffer = _streamBuffer.data();
+		_bufferReadPtr = _currentBuffer;
 	}
 
-	void StringParser::readLine()
+	bool StringParser::loadLine()
 	{
 		// Check if a full line is still available
 		char* current_pointer = _bufferReadPtr;
@@ -48,7 +54,7 @@ namespace Vcl { namespace Util
 		{
 			if ((*current_pointer) == '\n')
 			{
-				return;
+				return true;
 			}
 			++current_pointer;
 		}
@@ -58,17 +64,21 @@ namespace Vcl { namespace Util
 		bool full_line_available = false;
 		while (!full_line_available)
 		{
+			// Copy the remaining data to the front
 			unsigned int copy_amount = (_currentBuffer + _currentSizeAvailable) - _bufferReadPtr;
 			if (copy_amount > 0 && _bufferReadPtr != _currentBuffer)
+				// There was some data read, move the remaining
 			{
 				memmove(_currentBuffer, _bufferReadPtr, copy_amount);
 			}
 			else if (copy_amount == 0 && _stream->eof())
+				// All data was read and we're are at the end of the stream
 			{
 				_eos = true;
-				return;
+				return false;
 			}
 
+			// We want to fill the buffer again
 			_bufferReadPtr = _currentBuffer;
 			_currentSizeAvailable = copy_amount;
 
@@ -97,6 +107,8 @@ namespace Vcl { namespace Util
 				++current_pointer;
 			}
 		}
+
+		return full_line_available;
 	}
 
 	void StringParser::skipWhiteSpace()
@@ -135,7 +147,7 @@ namespace Vcl { namespace Util
 		*_bufferReadPtr = c;
 	}
 
-	void StringParser::readString(std::string* out_string_ptr)
+	bool StringParser::readString(std::string* out_string_ptr)
 	{
 		skipWhiteSpace();
 
@@ -143,6 +155,11 @@ namespace Vcl { namespace Util
 		while ((*_bufferReadPtr) > ' ')
 		{
 			++_bufferReadPtr;
+		}
+
+		if (_bufferReadPtr == begin_ptr)
+		{
+			return false;
 		}
 		
 		// Store the end-pointer and terminate the string
@@ -154,6 +171,8 @@ namespace Vcl { namespace Util
 
 		// Restore the stored end-pointer
 		*_bufferReadPtr = c;
+
+		return true;
 	}
 
 	bool StringParser::readFloat(float* f_ptr)
