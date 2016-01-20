@@ -63,9 +63,7 @@ namespace Vcl { namespace Geometry
 			tmax = min(tmax, max(max(t1, t2), tmin));
 		}
 
-		tmax *= 1.00000024f;
-
-		return tmin <= tmax;
+		return tmax > max(tmin, 0.0f);
 	}
 	template<typename Real, int Width>
 	Vcl::VectorScalar<bool, Width> intersects
@@ -88,8 +86,6 @@ namespace Vcl { namespace Geometry
 			tmax = min(tmax, max(max(t1, t2), tmin));
 		}
 
-		tmax *= 1.00000024f;
-
-		return tmin <= tmax;
+		return tmax > max(tmin, 0.0f);
 	}
 }}
