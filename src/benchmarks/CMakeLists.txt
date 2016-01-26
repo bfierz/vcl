@@ -8,9 +8,6 @@ INCLUDE_DIRECTORIES(${VCL_GOOGLEBENCHMARK_INCLUDE_DIR})
 # Performance benchmarks for mutexes
 SUBDIRS(mutex)
 
-# Performance benchmarks for gemetric distance queries
-SUBDIRS(distance)
-
 # Performance benchmarks for 3x3 Eigen deompositions
 SUBDIRS(eigen33performance)
 
@@ -22,3 +19,6 @@ SUBDIRS(svd33performance)
 
 # Correctness benchmarks for 3x3 SVDs
 SUBDIRS(svd33correctness)
+
+# Benchmark collection for Vcl Geometry
+SUBDIRS(vcl.geometry)

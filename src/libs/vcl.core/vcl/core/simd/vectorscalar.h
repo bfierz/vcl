@@ -164,6 +164,44 @@ namespace Vcl
 	
 namespace Vcl
 {
+	template<typename T>
+	struct VectorTypes
+	{};
+
+	template<>
+	struct VectorTypes<float>
+	{
+		using float_t = float;
+		using int_t = int;
+		using bool_t = bool;
+	};
+
+	template<>
+	struct VectorTypes<VectorScalar<float, 4>>
+	{
+		using float_t = VectorScalar<float, 4>;
+		using int_t   = VectorScalar<int, 4>;
+		using bool_t  = VectorScalar<bool, 4>;
+	};
+
+	template<>
+	struct VectorTypes<VectorScalar<float, 8>>
+	{
+		using float_t = VectorScalar<float, 8>;
+		using int_t = VectorScalar<int, 8>;
+		using bool_t = VectorScalar<bool, 8>;
+	};
+
+	template<>
+	struct VectorTypes<VectorScalar<float, 16>>
+	{
+		using float_t = VectorScalar<float, 16>;
+		using int_t = VectorScalar<int, 16>;
+		using bool_t = VectorScalar<bool, 16>;
+	};
+
+
+
 	template<typename Scalar, int Width>
 	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator +(Scalar a, const VectorScalar<Scalar, Width>& b)
 	{

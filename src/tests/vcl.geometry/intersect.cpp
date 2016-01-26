@@ -39,7 +39,36 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar gather function.
+template<typename Scalar, typename Func>
+void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func intersect)
+{
+	using Vcl::Mathematics::equal;
+	using Vcl::all;
+
+	using real_t = Scalar;
+
+	using vec3_t = Eigen::Matrix<real_t, 3, 1>;
+	using box3_t = Eigen::AlignedBox<real_t, 3>;
+
+	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
+
+	EXPECT_TRUE(all(intersect(b0, ray))) << "Intersection was missed.";
+}
+
+TEST(AxisAlignedBoxRayIntersection, ScalarBarnes)
+{
+	Vcl::Geometry::Ray<float, 3> r{ { 2.0f, 2.0f, 0.0f },{ 0, 0, -1 } };
+
+	testAxisAlignedIntersection(r, Vcl::Geometry::intersects_MaxMult);
+}
+
+TEST(AxisAlignedBoxRayIntersection, ScalarIze)
+{
+	Vcl::Geometry::Ray<float, 3> r{ { 2.0f, 2.0f, 0.0f },{ 0, 0, -1 } };
+
+	testAxisAlignedIntersection(r, Vcl::Geometry::intersects_MaxMult);
+}
+
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 {
 	using Vcl::Geometry::intersects;
@@ -50,7 +79,7 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 
 	using vec3_t = Eigen::Matrix<real_t, 3, 1>;
 	using box3_t = Eigen::AlignedBox<real_t, 3>;
-	using ray3_t = Eigen::ParametrizedLine<real_t, 3>;
+	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
@@ -68,7 +97,7 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat4)
 
 	using vec3_t = Eigen::Matrix<real_t, 3, 1>;
 	using box3_t = Eigen::AlignedBox<real_t, 3>;
-	using ray3_t = Eigen::ParametrizedLine<real_t, 3>;
+	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
@@ -86,7 +115,7 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat8)
 
 	using vec3_t = Eigen::Matrix<real_t, 3, 1>;
 	using box3_t = Eigen::AlignedBox<real_t, 3>;
-	using ray3_t = Eigen::ParametrizedLine<real_t, 3>;
+	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
@@ -104,7 +133,7 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat16)
 
 	using vec3_t = Eigen::Matrix<real_t, 3, 1>;
 	using box3_t = Eigen::AlignedBox<real_t, 3>;
-	using ray3_t = Eigen::ParametrizedLine<real_t, 3>;
+	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };

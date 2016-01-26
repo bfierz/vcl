@@ -28,13 +28,46 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// Eigen
+#include <Eigen/Geometry>
+
 namespace Vcl { namespace Geometry
 {
 	template<typename Scalar, int Dim>
 	class Ray
 	{
+	public:
+		using int_t = typename VectorTypes<Scalar>::int_t;
+		using vector_t = typename Eigen::ParametrizedLine<Scalar, Dim>::VectorType;
+
+	public:
+		Ray(const vector_t& o, const vector_t& d)
+		: _ray(o, d)
+		{
+			_invDir = _ray.direction().cwiseInverse();
+			for (int i = 0; i < Dim; i++)
+				_signs[i] = select(_invDir[i] < 0, int_t{ 1 }, int_t{ 0 });
+		}
+
+	public:
+		operator const Eigen::ParametrizedLine<Scalar, Dim>() const
+		{
+			return _ray;
+		}
+
+		const vector_t& origin() const { return _ray.origin(); }
+		const vector_t& direction() const { return _ray.direction(); }
+		const vector_t& invDirection() const { return _invDir; }
+		const Eigen::Matrix<int_t, Dim, 1>& signs() const { return _signs; }
+
 	private:
-		//! 
+		//! Encapsulated ray object
 		Eigen::ParametrizedLine<Scalar, Dim> _ray;
+
+		//! Inverted ray direction
+		vector_t _invDir;
+
+		//! Signs
+		Eigen::Matrix<int_t, Dim, 1> _signs;
 	};
 }}

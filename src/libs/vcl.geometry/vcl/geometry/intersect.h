@@ -34,6 +34,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>
+#include <vcl/geometry/ray.h>
 #include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
@@ -46,7 +47,7 @@ namespace Vcl { namespace Geometry
 	bool intersects
 	(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Eigen::ParametrizedLine<float, 3>& ray
+		const Ray<float, 3>& ray
 	)
 	{
 		using namespace Vcl::Mathematics;
@@ -65,11 +66,12 @@ namespace Vcl { namespace Geometry
 
 		return tmax > max(tmin, 0.0f);
 	}
+
 	template<typename Real, int Width>
 	Vcl::VectorScalar<bool, Width> intersects
 	(
 		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
-		const Eigen::ParametrizedLine<Vcl::VectorScalar<Real, Width>, 3>& ray
+		const Ray<Vcl::VectorScalar<Real, Width>, 3>& ray
 	)
 	{
 		using namespace Vcl::Mathematics;
@@ -86,6 +88,63 @@ namespace Vcl { namespace Geometry
 			tmax = min(tmax, max(max(t1, t2), tmin));
 		}
 
-		return tmax > max(tmin, 0.0f);
+		return tmax > max(tmin, { 0.0f });
+	}
+
+	/*!
+	 *	Implementation from
+	 *	https://www.solidangle.com/research/jcgt2013_robust_BVH-revised.pdf
+	 */
+	bool intersects_MaxMult
+	(
+		const Eigen::AlignedBox<float, 3>& box,
+		const Ray<float, 3>& r
+	)
+	{
+		using namespace Vcl::Mathematics;
+
+		float txmin, txmax, tymin, tymax, tzmin, tzmax;
+
+		Eigen::Vector3f bounds[] = { box.min(), box.max() };
+
+		txmin = (bounds[    r.signs().x()].x() - r.origin().x()) * r.invDirection().x();
+		txmax = (bounds[1 - r.signs().x()].x() - r.origin().x()) * r.invDirection().x();
+		tymin = (bounds[    r.signs().y()].y() - r.origin().y()) * r.invDirection().y();
+		tymax = (bounds[1 - r.signs().y()].y() - r.origin().y()) * r.invDirection().y();
+		tzmin = (bounds[    r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
+		tzmax = (bounds[1 - r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
+
+		float tmin = max(tzmin, max(tymin, max(txmin, tmin)));
+		float tmax = min(tzmax, min(tymax, min(txmax, tmax)));
+		tmax *= 1.00000024f;
+
+		return tmin <= tmax;
+	}
+	
+	template<typename Real, int Width>
+	Vcl::VectorScalar<bool, Width> intersects_MaxMult
+	(
+		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
+		const Ray<Vcl::VectorScalar<Real, Width>, 3>& r
+	)
+	{
+		using namespace Vcl::Mathematics;
+
+		using real_t = Vcl::VectorScalar<Real, Width>;
+
+		real_t txmin, txmax, tymin, tymax, tzmin, tzmax;
+
+		txmin = (select(r.signs().x() == 0, box.min().x(), box.max().x()) - r.origin().x()) * r.invDirection().x();
+		txmax = (select(r.signs().x() == 1, box.min().x(), box.max().x()) - r.origin().x()) * r.invDirection().x();
+		tymin = (select(r.signs().y() == 0, box.min().y(), box.max().y()) - r.origin().y()) * r.invDirection().y();
+		tymax = (select(r.signs().y() == 1, box.min().y(), box.max().y()) - r.origin().y()) * r.invDirection().y();
+		tzmin = (select(r.signs().z() == 0, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
+		tzmax = (select(r.signs().z() == 1, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
+
+		real_t tmin = max(tzmin, max(tymin, max(txmin, tmin)));
+		real_t tmax = min(tzmax, min(tymax, min(txmax, tmax)));
+		tmax *= 1.00000024f;
+
+		return tmin <= tmax;
 	}
 }}
