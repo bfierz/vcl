@@ -75,7 +75,7 @@ namespace Vcl { namespace Geometry
 		using Vertex = Eigen::Vector3f;
 
 		//! Index data of a single tetrahedron
-		using Volume = std::array<IndexType, 4>;
+		using Volume = std::array<VertexId, 4>;
 	};
 
 	class TetraMesh : public SimplexLevel3<TetraMesh>, public SimplexLevel0<TetraMesh>
@@ -91,7 +91,7 @@ namespace Vcl { namespace Geometry
 		TetraMesh& operator= (TetraMesh&& rhs) = default;
 
 	public: // Construct meshes from data
-		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TetraMesh>::Volume>& volumes);
+		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes);
 
 	public:
 		//! Clear the content of the mesh

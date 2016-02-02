@@ -39,11 +39,17 @@ SET(QML
 )
 
 SET(SHADERS
+	shaders/plane.vert
+	shaders/plane.geom
 	shaders/trimesh.vert
 	shaders/trimesh.geom
 	shaders/tetramesh.vert
 	shaders/tetramesh.geom
 	shaders/mesh.frag
+	
+	shaders/objectid_tetramesh.vert
+	shaders/objectid_tetramesh.geom
+	shaders/objectid.frag
 )
 
 QT5_ADD_RESOURCES(RESOURCES meshviewer.qrc)

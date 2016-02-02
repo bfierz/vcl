@@ -38,6 +38,7 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/state/inputlayout.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
+#include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
 #include "scene.h"
 
@@ -53,6 +54,9 @@ public:
 	void synchronize(QQuickFramebufferObject* item) override;
 
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
+
+private:
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	MeshView* _owner{ nullptr };

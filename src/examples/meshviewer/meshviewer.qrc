@@ -6,10 +6,16 @@
   </qresource>
 
   <qresource>
+    <file>shaders/plane.vert</file>
+    <file>shaders/plane.geom</file>
     <file>shaders/trimesh.vert</file>
     <file>shaders/trimesh.geom</file>
     <file>shaders/tetramesh.vert</file>
     <file>shaders/tetramesh.geom</file>
     <file>shaders/mesh.frag</file>
+
+    <file>shaders/objectid_tetramesh.vert</file>
+    <file>shaders/objectid_tetramesh.geom</file>
+    <file>shaders/objectid.frag</file>
   </qresource>
 </RCC>

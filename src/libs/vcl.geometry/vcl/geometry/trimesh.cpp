@@ -26,7 +26,7 @@
 
 namespace Vcl { namespace Geometry
 {
-	TriMesh::TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TriMesh>::Face>& faces)
+	TriMesh::TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TriMesh>::IndexType, 3>>& faces)
 	{
 		faceProperties().resizeProperties(faces.size());
 		vertexProperties().resizeProperties(vertices.size());
@@ -38,7 +38,13 @@ namespace Vcl { namespace Geometry
 
 		for (size_t i = 0; i < faces.size(); ++i)
 		{
-			_faces[i] = faces[i];
+			Face f
+			{
+				VertexId{ faces[i][0] },
+				VertexId{ faces[i][1] },
+				VertexId{ faces[i][2] }
+			};
+			_faces[i] = f;
 		}
 	}
 

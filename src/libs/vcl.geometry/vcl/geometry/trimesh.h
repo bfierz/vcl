@@ -75,7 +75,7 @@ namespace Vcl { namespace Geometry
 		using Vertex = Eigen::Vector3f;
 
 		//! Index data of a single tetrahedron
-		using Face = std::array<IndexType, 3>;
+		using Face = std::array<VertexId, 3>;
 	};
 
 	class TriMesh : public SimplexLevel2<TriMesh>, public SimplexLevel0<TriMesh>
@@ -91,7 +91,7 @@ namespace Vcl { namespace Geometry
 		TriMesh& operator= (TriMesh&& rhs) = default;
 
 	public: // Construct meshes from data
-		TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TriMesh>::Face>& faces);
+		TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TriMesh>::IndexType, 3>>& faces);
 
 	public:
 		//! Clear the content of the mesh

@@ -26,7 +26,7 @@
 
 namespace Vcl { namespace Geometry
 {
-	TetraMesh::TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<TetraMesh>::Volume>& volumes)
+	TetraMesh::TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes)
 	{
 		volumeProperties().resizeProperties(volumes.size());
 		vertexProperties().resizeProperties(vertices.size());
@@ -38,7 +38,14 @@ namespace Vcl { namespace Geometry
 
 		for (size_t i = 0; i < volumes.size(); ++i)
 		{
-			_volumes[i] = volumes[i];
+			Volume v
+			{
+				VertexId{ volumes[i][0] },
+				VertexId{ volumes[i][1] },
+				VertexId{ volumes[i][2] },
+				VertexId{ volumes[i][3] }
+			};
+			_volumes[i] = v;
 		}
 	}
 
