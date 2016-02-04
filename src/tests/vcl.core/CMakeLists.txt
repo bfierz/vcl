@@ -6,6 +6,7 @@ SET(VCL_TEST_SRC
 	gather.cpp
 	interleavedarray.cpp
 	load.cpp
+	minmax.cpp
 	scatter.cpp
 	scopeguard.cpp
 	smart_ptr.cpp

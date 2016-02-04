@@ -52,19 +52,19 @@ namespace Vcl { namespace Geometry
 	{
 		using namespace Vcl::Mathematics;
 
-		float tmin = -std::numeric_limits<float>::infinity();
-		float tmax =  std::numeric_limits<float>::infinity();
+		float tmin = 0;
+		float tmax = std::numeric_limits<float>::infinity();
 
 		for (int i = 0; i < 3; ++i)
 		{
-			float t1 = (box.min()[i] - ray.origin()[i]) / ray.direction()[i];
-			float t2 = (box.max()[i] - ray.origin()[i]) / ray.direction()[i];
+			float t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
+			float t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
 			tmin = max(tmin, min(min(t1, t2), tmax));
 			tmax = min(tmax, max(max(t1, t2), tmin));
 		}
 
-		return tmax > max(tmin, 0.0f);
+		return tmax >= max(tmin, { 0.0f });
 	}
 
 	template<typename Real, int Width>
@@ -114,11 +114,14 @@ namespace Vcl { namespace Geometry
 		tzmin = (bounds[    r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
 		tzmax = (bounds[1 - r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
 
-		float tmin = max(tzmin, max(tymin, max(txmin, tmin)));
-		float tmax = min(tzmax, min(tymax, min(txmax, tmax)));
+		float tmin = -std::numeric_limits<float>::infinity();
+		float tmax = std::numeric_limits<float>::infinity();
+
+		tmin = max(tzmin, max(tymin, max(txmin, tmin)));
+		tmax = min(tzmax, min(tymax, min(txmax, tmax)));
 		tmax *= 1.00000024f;
 
-		return tmin <= tmax;
+		return tmax >= max(tmin, { 0.0f });
 	}
 	
 	template<typename Real, int Width>
@@ -146,5 +149,32 @@ namespace Vcl { namespace Geometry
 		tmax *= 1.00000024f;
 
 		return tmin <= tmax;
+	}
+	
+	// Method from Pharr, Humphrey
+	bool intersects_Pharr
+	(
+		const Eigen::AlignedBox<float, 3>& box,
+		const Ray<float, 3>& ray
+	)
+	{
+		using namespace Vcl::Mathematics;
+
+		float t0 = 0;
+		float t1 = std::numeric_limits<float>::infinity();
+
+		for (int i = 0; i < 3; ++i)
+		{
+			float tNear = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
+			float tFar  = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
+
+			if (tNear > tFar) std::swap(tNear, tFar);
+			t0 = tNear > t0 ? tNear : t0;
+			t1 = tFar < t1  ? tFar : t1;
+
+			if (t0 > t1) return false;
+		}
+
+		return true;
 	}
 }}
