@@ -64,6 +64,8 @@ private:
 private: // Shaders
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTetraLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTetraMeshShader;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _idTetraLayout;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _idTetraMeshShader;
 
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTriLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTriMeshShader;

@@ -45,6 +45,21 @@ namespace
 	}
 }
 
+namespace
+{
+	struct PerFrameCameraData
+	{
+		// Viewport (x, y, w, h)
+		Eigen::Vector4f Viewport;
+
+		// Transform from world to view space
+		Eigen::Matrix4f ViewMatrix;
+
+		// Transform from view to screen space
+		Eigen::Matrix4f ProjectionMatrix;
+	};
+}
+
 FboRenderer::FboRenderer()
 {
 	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
@@ -65,6 +80,12 @@ FboRenderer::FboRenderer()
 	};
 	_opaqueTriLayout = std::make_unique<InputLayout>(opaqueTriLayout);
 	
+	InputLayoutDescription idTetraLayout =
+	{
+		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+	};
+	_idTetraLayout = std::make_unique<InputLayout>(idTetraLayout);
+
 	InputLayoutDescription opaqueTetraLayout =
 	{
 		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
@@ -77,8 +98,11 @@ FboRenderer::FboRenderer()
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
+	Shader idTetraVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_tetramesh.vert");
+	Shader idTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_tetramesh.geom");
 
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
+	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
 
 	ShaderProgramDescription opaqueTriDesc;
 	opaqueTriDesc.InputLayout = opaqueTriLayout;
@@ -86,6 +110,13 @@ FboRenderer::FboRenderer()
 	opaqueTriDesc.GeometryShader = &opaqueTriGeom;
 	opaqueTriDesc.FragmentShader = &meshFrag;
 	_opaqueTriMeshShader = std::make_unique<ShaderProgram>(opaqueTriDesc);
+
+	ShaderProgramDescription idTetraDesc;
+	idTetraDesc.InputLayout = idTetraLayout;
+	idTetraDesc.VertexShader = &idTetraVert;
+	idTetraDesc.GeometryShader = &idTetraGeom;
+	idTetraDesc.FragmentShader = &idFrag;
+	_idTetraMeshShader = std::make_unique<ShaderProgram>(idTetraDesc);
 
 	ShaderProgramDescription opaqueTetraDesc;
 	opaqueTetraDesc.InputLayout = opaqueTetraLayout;
@@ -110,17 +141,22 @@ void FboRenderer::render()
 		////////////////////////////////////////////////////////////////////////
 		// Prepare the environment
 		////////////////////////////////////////////////////////////////////////
-
 		Eigen::Matrix4f M = scene->modelMatrix();
 		Eigen::Matrix4f V = scene->viewMatrix();
 		Eigen::Matrix4f P = scene->projMatrix();
+		
+		auto cbuffer_cam = _engine->requestPerFrameConstantBuffer(sizeof(PerFrameCameraData));
+		auto cbuffer_cam_ptr = reinterpret_cast<PerFrameCameraData*>(cbuffer_cam.data());
+		cbuffer_cam_ptr->Viewport = { 0, 0, (float)_owner->width(), (float)_owner->height() };
+		cbuffer_cam_ptr->ViewMatrix = V;
+		cbuffer_cam_ptr->ProjectionMatrix = P;
 
+		_opaqueTriMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
 		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ModelMatrix"), M);
-		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ViewMatrix"), V);
-		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ProjectionMatrix"), P);
+		_idTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
+		_idTetraMeshShader->setUniform(_idTetraMeshShader->uniform("ModelMatrix"), M);
+		_opaqueTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
 		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ModelMatrix"), M);
-		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ViewMatrix"), V);
-		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ProjectionMatrix"), P);
 
 		auto surfaceMesh = scene->surfaceMesh();
 		if (surfaceMesh)
@@ -166,10 +202,10 @@ void FboRenderer::render()
 			glDrawArrays(GL_POINTS, 0, volumeMesh->nrVolumes());
 		}
 
-		_owner->window()->resetOpenGLState();
 	}
 
 	_engine->endFrame();
+	_owner->window()->resetOpenGLState();
 	update();
 }
 

@@ -35,8 +35,18 @@ layout (std430) buffer VertexColours
 
 // Shader constants
 uniform mat4 ModelMatrix;
-uniform mat4 ViewMatrix;
-uniform mat4 ProjectionMatrix;
+
+layout(std140) uniform PerFrameCameraData
+{
+	// Viewport (x, y, w, h)
+	vec4 Viewport;
+
+	// Transform from world to view space
+	mat4 ViewMatrix;
+
+	// Transform from view to screen space
+	mat4 ProjectionMatrix;
+};
 
 uniform float VolumeScale = 0.95f;
 uniform bool  UsePerVertexColour = false;
