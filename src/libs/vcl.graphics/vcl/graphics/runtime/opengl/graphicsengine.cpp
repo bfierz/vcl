@@ -349,5 +349,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
 	{
 		auto gl_state = static_pointer_cast<OpenGL::PipelineState>(state);
+
+		gl_state->bind();
 	}
 }}}}

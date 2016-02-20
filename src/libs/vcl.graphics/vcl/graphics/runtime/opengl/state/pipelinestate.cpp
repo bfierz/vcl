@@ -33,7 +33,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	//, _rasterizerState(desc.Rasterizer)
 	{
 		ShaderProgramDescription shader_desc;
-		//shader_desc.Layout = &desc.InputLayout;
+		shader_desc.InputLayout = desc.InputLayout;
 		shader_desc.VertexShader = static_cast<Runtime::OpenGL::Shader*>(desc.VertexShader);
 		shader_desc.TessControlShader = static_cast<Runtime::OpenGL::Shader*>(desc.TessControlShader);
 		shader_desc.TessEvalShader = static_cast<Runtime::OpenGL::Shader*>(desc.TessEvalShader);
@@ -41,5 +41,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		shader_desc.FragmentShader = static_cast<Runtime::OpenGL::Shader*>(desc.FragmentShader);
 
 		_shaderProgram = std::make_unique<ShaderProgram>(shader_desc);
+	}
+
+	void PipelineState::bind()
+	{
+		// Bind the shader
+		_shaderProgram->bind();
+
+		// Bind the input description
+		_inputLayout.bind();
 	}
 }}}}

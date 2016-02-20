@@ -106,6 +106,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	InputLayout::InputLayout(const Runtime::InputLayoutDescription& desc)
+	: _desc(desc)
 	{
 		setup(desc);
 	}

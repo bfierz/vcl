@@ -259,4 +259,10 @@ namespace Vcl { namespace Mathematics
 
 		return eq;
 	}
+
+	template<typename T>
+	constexpr T pi()
+	{
+		return (T) 3.14159265358979323846;
+	}
 }}

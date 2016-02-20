@@ -64,6 +64,7 @@ namespace
 FboRenderer::FboRenderer()
 {
 	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
+	using Vcl::Graphics::Runtime::OpenGL::PipelineState;
 	using Vcl::Graphics::Runtime::OpenGL::Shader;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
@@ -127,9 +128,12 @@ FboRenderer::FboRenderer()
 	opaqueTetraDesc.FragmentShader = &meshFrag;
 	_opaqueTetraMeshShader = std::make_unique<ShaderProgram>(opaqueTetraDesc);
 
-	PipelineStateDescription opaquePSDesc;
-	//opaquePSDesc.InputLayout = ;
-	opaquePSDesc.VertexShader = &opaqueTetraVert;
+	PipelineStateDescription opaqueTetraPSDesc;
+	opaqueTetraPSDesc.InputLayout = opaqueTetraLayout;
+	opaqueTetraPSDesc.VertexShader = &opaqueTetraVert;
+	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeom;
+	opaqueTetraPSDesc.FragmentShader = &meshFrag;
+	_opaqueTetraPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
 }
 
 void FboRenderer::render()
@@ -189,9 +193,8 @@ void FboRenderer::render()
 		auto volumeMesh = scene->volumeMesh();
 		if (volumeMesh)
 		{
-			// Configure the layout
-			_opaqueTetraMeshShader->bind();
-			_opaqueTetraLayout->bind();
+			// Configure the state
+			_engine->setPipelineState(_opaqueTetraPipelineState);
 
 			////////////////////////////////////////////////////////////////////
 			// Render the mesh

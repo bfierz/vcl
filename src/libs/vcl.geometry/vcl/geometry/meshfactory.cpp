@@ -294,7 +294,7 @@ namespace Vcl { namespace Geometry
 		size_t index = 0;
 		float fstacks = static_cast<float>(stacks);
 		float fslices = static_cast<float>(slices);
-		float pi = static_cast<float>(M_PI);
+		float pi = Mathematics::pi<float>();
 
 		for (unsigned int i = 0; i <= static_cast<unsigned int>(stacks); ++i)
 		{

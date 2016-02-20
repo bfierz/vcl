@@ -70,7 +70,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		//! Description
-		InputLayoutDescription desc;
+		InputLayoutDescription _desc;
 
 		//! Vertex array object that caches the input layout
 		GLuint _vaoID{ 0 };

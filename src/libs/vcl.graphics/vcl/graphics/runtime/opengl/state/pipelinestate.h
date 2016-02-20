@@ -52,6 +52,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		BlendState& blendState() { return _blendState; }
 
+	public:
+		void bind();
+
 	private:
 		InputLayout _inputLayout;
 		std::unique_ptr<ShaderProgram> _shaderProgram;
