@@ -31,6 +31,7 @@
 #include <memory>
 
 // VCL
+#include <vcl/core/3rdparty/gsl/span.h>
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
@@ -85,14 +86,18 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! End the current frame
 		virtual void endFrame() = 0;
 
+	public: // Resource allocation
+
 		//! Request a new constant buffer for per frame data
 		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
-		
-	public: // Resource allocation
-		//! Allocate a new dynamic texture with memory for each of the parallel frames
-		virtual DynamicTexture<3> allocateDynamicTexture() = 0;
+
+		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
+		virtual ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Texture> tex) = 0;
 
 		//virtual void queueReadback() = 0;
+
+	public: // Resource management
+		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 
 	public: // Command buffer operations
 		//! Set a new pipeline state

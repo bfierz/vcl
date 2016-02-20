@@ -30,6 +30,9 @@
 // C++ standard library
 #include <memory>
 
+// GSL
+#include <vcl/core/3rdparty/gsl/gsl.h>
+
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/texture.h>
@@ -46,8 +49,20 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class DynamicTexture
 	{
 	public:
+		DynamicTexture(std::array<std::unique_ptr<Texture>, N> source)
+		{
+			_textures = std::move(source);
+		}
+
+	public:
+		gsl::not_null<Texture*> operator[] (size_t idx) const
+		{
+			Require(idx < 3, "Index is in range.");
+
+			return _textures[idx].get();
+		}
 
 	private:
-		std::array<Texture, N> _textures;
+		std::array<std::unique_ptr<Texture>, N> _textures;
 	};
 }}}
