@@ -33,6 +33,7 @@
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
+#include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/runtime/dynamictexture.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
@@ -92,6 +93,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual DynamicTexture<3> allocateDynamicTexture() = 0;
 
 		//virtual void queueReadback() = 0;
+
+	public: // Command buffer operations
+		//! Set a new pipeline state
+		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
 
 	protected:
 		uint64_t currentFrame() const { return _currentFrame; }

@@ -29,6 +29,7 @@
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
+#include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
 #include "scene.h"
@@ -67,6 +68,7 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
+	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
@@ -124,6 +126,10 @@ FboRenderer::FboRenderer()
 	opaqueTetraDesc.GeometryShader = &opaqueTetraGeom;
 	opaqueTetraDesc.FragmentShader = &meshFrag;
 	_opaqueTetraMeshShader = std::make_unique<ShaderProgram>(opaqueTetraDesc);
+
+	PipelineStateDescription opaquePSDesc;
+	//opaquePSDesc.InputLayout = ;
+	opaquePSDesc.VertexShader = &opaqueTetraVert;
 }
 
 void FboRenderer::render()

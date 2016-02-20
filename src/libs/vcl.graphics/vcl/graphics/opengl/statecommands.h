@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,56 +29,58 @@
 #include <vcl/config/opengl.h>
 
 // C++ standard library
-#include <array>
+#include <vector>
 
 // VCL
-#include <vcl/graphics/opengl/statecommands.h>
-#include <vcl/graphics/runtime/state/blendstate.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	/*!
-	 *	\brief OpenGL abstraction of the blending related pipeline states
-	 */
-	class BlendState
+	enum class CommandType
+	{
+		Enable,
+		Disable,
+		Enablei,
+		Disablei,
+		LogicOp,
+		BlendFunc,
+		BlendEquation,
+		BlendFunci,
+		BlendEquationi,
+		BlendColor,
+		ColorMask,
+		ColorMaskIndexed,
+		DepthMask,
+		DepthFunc,
+		StencilOpSeparate,
+		StencilMaskSeparate,
+		CullFace,
+		FrontFace,
+		PolygonMode,
+		PolygonOffsetClamp,
+		PolygonOffset
+	};
+
+	class StateCommands
 	{
 	public:
-		BlendState(const BlendDescription& desc);
+		template<typename... Args>
+		void emplace(CommandType type, Args&&... args)
+		{
+			addTokens(type, { toToken(args)... });
+		}
 
 	public:
-		const BlendDescription& desc() const { return _desc; }
-
-	public:
-		/*!
-		 * \brief Bind the blend configurations
-		 */
 		void bind();
-
-		/*!
-		 * \brief Append the state changes to the state command buffer
-		 */
-		void record(Graphics::OpenGL::StateCommands& states);
-
-	public:
-		bool isValid() const;
-
-	private: // Debug
-		bool check() const;
-
-	public:
-		static bool isIndependentBlendingSupported();
-		static bool areAdvancedBlendOperationsSupported();
-
-	public:
-		static GLenum toGLenum(BlendOperation op);
-		static GLenum toGLenum(LogicOperation op);
-		static GLenum toGLenum(Blend factor);
+		void unbind();
 
 	private:
-		//! Description of the blend state
-		BlendDescription _desc;
+		uint32_t toToken(int arg);
+		uint32_t toToken(float arg);
+		uint32_t toToken(GLenum arg);
+		float toFloat(uint32_t tok);
+		void addTokens(CommandType type, std::initializer_list<uint32_t> params);
+
+	private:
+		std::vector<uint32_t> _commands;
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}}}

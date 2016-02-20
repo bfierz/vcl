@@ -94,6 +94,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void endFrame() override;
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 
+		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
+
 	private:
 		//! Number of parallel frames
 		const int _numConcurrentFrames{ 3 };

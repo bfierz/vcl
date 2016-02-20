@@ -22,63 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-// C++ standard library
-#include <array>
-
-// VCL
-#include <vcl/graphics/opengl/statecommands.h>
-#include <vcl/graphics/runtime/state/blendstate.h>
-
-#ifdef VCL_OPENGL_SUPPORT
+#include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	/*!
-	 *	\brief OpenGL abstraction of the blending related pipeline states
-	 */
-	class BlendState
+	PipelineState::PipelineState(const PipelineStateDescription& desc)
+	: _inputLayout(desc.InputLayout)
+	, _blendState(desc.Blend)
+	//, _depthStencilState(desc.DepthStencil)
+	//, _rasterizerState(desc.Rasterizer)
 	{
-	public:
-		BlendState(const BlendDescription& desc);
+		ShaderProgramDescription shader_desc;
+		//shader_desc.Layout = &desc.InputLayout;
+		shader_desc.VertexShader = static_cast<Runtime::OpenGL::Shader*>(desc.VertexShader);
+		shader_desc.TessControlShader = static_cast<Runtime::OpenGL::Shader*>(desc.TessControlShader);
+		shader_desc.TessEvalShader = static_cast<Runtime::OpenGL::Shader*>(desc.TessEvalShader);
+		shader_desc.GeometryShader = static_cast<Runtime::OpenGL::Shader*>(desc.GeometryShader);
+		shader_desc.FragmentShader = static_cast<Runtime::OpenGL::Shader*>(desc.FragmentShader);
 
-	public:
-		const BlendDescription& desc() const { return _desc; }
-
-	public:
-		/*!
-		 * \brief Bind the blend configurations
-		 */
-		void bind();
-
-		/*!
-		 * \brief Append the state changes to the state command buffer
-		 */
-		void record(Graphics::OpenGL::StateCommands& states);
-
-	public:
-		bool isValid() const;
-
-	private: // Debug
-		bool check() const;
-
-	public:
-		static bool isIndependentBlendingSupported();
-		static bool areAdvancedBlendOperationsSupported();
-
-	public:
-		static GLenum toGLenum(BlendOperation op);
-		static GLenum toGLenum(LogicOperation op);
-		static GLenum toGLenum(Blend factor);
-
-	private:
-		//! Description of the blend state
-		BlendDescription _desc;
-	};
+		_shaderProgram = std::make_unique<ShaderProgram>(shader_desc);
+	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

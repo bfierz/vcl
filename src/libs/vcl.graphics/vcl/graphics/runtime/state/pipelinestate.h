@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,59 +26,53 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
 
 // C++ standard library
-#include <array>
+#include <vector>
 
 // VCL
-#include <vcl/graphics/opengl/statecommands.h>
+#include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
+#include <vcl/graphics/runtime/state/inputlayout.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
+	struct PipelineStateDescription
+	{
+		// Vertex shader
+		Runtime::Shader* VertexShader{ nullptr };
+
+		// Tessellation Control shader
+		Runtime::Shader* TessControlShader{ nullptr };
+
+		// Tessellation Evaluation shader
+		Runtime::Shader* TessEvalShader{ nullptr };
+
+		// Geometry shader
+		Runtime::Shader* GeometryShader{ nullptr };
+
+		// Fragment shader
+		Runtime::Shader* FragmentShader{ nullptr };
+
+		// Blend state
+		Runtime::BlendDescription Blend;
+
+		// Rasterizer state
+		//Runtime::RasterizerDescription Rasterizer;
+
+		// Depth stencil state
+		//Runtime::DepthStencilDescription DepthStencil;
+
+		// Input layout
+		Runtime::InputLayoutDescription InputLayout;
+	};
+
 	/*!
-	 *	\brief OpenGL abstraction of the blending related pipeline states
+	 *	\brief Abstraction of the global states the render pipeline uses
 	 */
-	class BlendState
+	class PipelineState
 	{
 	public:
-		BlendState(const BlendDescription& desc);
-
-	public:
-		const BlendDescription& desc() const { return _desc; }
-
-	public:
-		/*!
-		 * \brief Bind the blend configurations
-		 */
-		void bind();
-
-		/*!
-		 * \brief Append the state changes to the state command buffer
-		 */
-		void record(Graphics::OpenGL::StateCommands& states);
-
-	public:
-		bool isValid() const;
-
-	private: // Debug
-		bool check() const;
-
-	public:
-		static bool isIndependentBlendingSupported();
-		static bool areAdvancedBlendOperationsSupported();
-
-	public:
-		static GLenum toGLenum(BlendOperation op);
-		static GLenum toGLenum(LogicOperation op);
-		static GLenum toGLenum(Blend factor);
-
-	private:
-		//! Description of the blend state
-		BlendDescription _desc;
+		virtual ~PipelineState() = default;
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+}}}

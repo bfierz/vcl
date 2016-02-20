@@ -30,6 +30,7 @@
 
 // VCL
 #include <vcl/graphics/opengl/gl.h>
+#include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 
 namespace
 {
@@ -270,5 +271,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_cbufferOffset += aligned_size;
 
 		return view;
+	}
+
+	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
+	{
+		auto gl_state = static_pointer_cast<OpenGL::PipelineState>(state);
 	}
 }}}}
