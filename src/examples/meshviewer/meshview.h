@@ -39,6 +39,7 @@
 #include <vcl/graphics/runtime/opengl/state/inputlayout.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
+#include <vcl/graphics/runtime/dynamictexture.h>
 
 #include "scene.h"
 
@@ -69,6 +70,9 @@ private: // Shaders
 
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTriLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTriMeshShader;
+
+private: // Render targets
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
 };
 
 class MeshView : public QQuickFramebufferObject

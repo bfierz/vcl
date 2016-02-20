@@ -48,10 +48,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		initialise(init_data);
 	}
 
+	Texture2D::Texture2D(const Texture2D& rhs)
+	: Texture(rhs)
+	{
+		initialise(nullptr);
+	}
+
 	Texture2D::~Texture2D()
 	{
 		// Delete the texture
 		glDeleteTextures(1, &_glId);
+	}
+
+	std::unique_ptr<Runtime::Texture> Texture2D::clone() const
+	{
+		return std::make_unique<Texture2D>(*this);
 	}
 
 	void Texture2D::fill(SurfaceFormat fmt, const void* data)
@@ -73,7 +84,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		SurfaceFormat fmt = this->format();
 		ImageFormat gl_fmt = toImageFormat(fmt);
 
-		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, size, data);
+		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, (GLsizei) size, data);
 	}
 
 	void Texture2D::initialise(const TextureResource* init_data /* = nullptr */)

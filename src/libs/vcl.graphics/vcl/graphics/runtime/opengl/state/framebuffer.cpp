@@ -163,7 +163,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Framebuffer::~Framebuffer()
 	{
 		// Delete FBO; bound targets are implicitly unbound
-		glDeleteFramebuffers(1, &_glId);
+		if (_glId > 0)
+			glDeleteFramebuffers(1, &_glId);
 	}
 
 	void Framebuffer::bind()

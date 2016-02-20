@@ -30,9 +30,11 @@
 
 // C++ standard library
 #include <vector>
+#include <unordered_map>
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
+#include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -51,7 +53,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		operator GLsync() const { return _sync; }
 
 	public:
-		bool isValid() const { return _sync; }
+		bool isValid() const { return _sync != nullptr; }
 
 	private:
 		GLsync _sync{ nullptr };
@@ -73,6 +75,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ref_ptr<Buffer> constantBuffer() const { return _constantBuffer; }
 		void* mappedConstantBuffer() const { return _mappedConstantBuffer; }
 
+		void setRenderTargets(int curr_frame, size_t hash, gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target);
+
 	private:
 		//! Fence guarding the start of a frame
 		Fence _fence;
@@ -82,6 +86,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		/// Pointer to mapped constant buffer
 		void* _mappedConstantBuffer{ nullptr };
+
+	private:
+		//! Framebuffer cache
+		std::unordered_map<size_t, OpenGL::Framebuffer> _fbos;
 	};
 
 	class GraphicsEngine final : public Runtime::GraphicsEngine
@@ -93,6 +101,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void beginFrame() override;
 		void endFrame() override;
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
+		ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Runtime::Texture> tex) override;
+		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
 
 	private:
 		//! Number of parallel frames
@@ -106,5 +116,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Current offset into the constant buffer
 		size_t _cbufferOffset{ 0 };
+
+	private: // Resource held by the engine
+
+		//! Dynamic textures
+		std::vector<owner_ptr<DynamicTexture<3>>> _dynamicTextures;
 	};
 }}}}

@@ -30,6 +30,7 @@
 
 // VCL
 #include <vcl/graphics/opengl/gl.h>
+#include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 
 namespace
 {
@@ -44,6 +45,9 @@ namespace
 		const void* user_param
 	)
 	{
+		VCL_UNREFERENCED_PARAMETER(length);
+		VCL_UNREFERENCED_PARAMETER(user_param);
+
 		// Suppress some useless warnings
 		switch (id)
 		{
@@ -128,6 +132,20 @@ namespace
 		std::cout << ", ID: " << id;
 		std::cout << ", Message: " << message << std::endl;
 	}
+
+	unsigned int calculateFNV(gsl::span<char> str)
+	{
+		unsigned int hash = 2166136261u;
+
+		for (ptrdiff_t i = 0; i < str.length(); ++i)
+		{
+			hash ^= str[i];
+			hash *= 16777619u;
+		}
+
+		return hash;
+	}
+
 }
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -175,6 +193,26 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Frame::unmapConstantBuffer()
 	{
 		_constantBuffer->unmap();
+	}
+
+	void Frame::setRenderTargets(int curr_frame, size_t hash, gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	{
+		auto cache_entry = _fbos.find(hash);
+		if (cache_entry != _fbos.end())
+		{
+			cache_entry->second.bind();
+		}
+		else
+		{
+			const Runtime::Texture* colours[8];
+			for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+			{
+				colours[i] = (*colour_targets[i])[curr_frame].get();
+			}
+			auto depth = (*depth_target)[curr_frame].get();
+			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
+			new_entry.first->second.bind();
+		}
 	}
 
 	GraphicsEngine::GraphicsEngine()
@@ -270,5 +308,40 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_cbufferOffset += aligned_size;
 
 		return view;
+	}
+
+	ref_ptr<DynamicTexture<3>> GraphicsEngine::allocateDynamicTexture(std::unique_ptr<Runtime::Texture> source)
+	{
+		std::array<std::unique_ptr<Runtime::Texture>, 3> textures;
+		textures[0] = std::move(source);
+		for (size_t i = 1; i < textures.size(); i++)
+		{
+			textures[i] = textures[0]->clone();
+		}
+
+		_dynamicTextures.emplace_back(make_owner<DynamicTexture<3>>(std::move(textures)));
+		return _dynamicTextures.back();
+	}
+
+	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	{
+		// Calculate the hash for the set of textures
+		std::array<void*, 9> ptrs;
+		ptrs[0] = depth_target.get();
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			ptrs[i + 1] = colour_targets[i].get();
+		}
+
+		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+
+		// Index of the current frame
+		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
+
+		// Fetch the frame we are using for the current rendering frame
+		auto& curr_frame = _frames[curr_frame_idx];
+
+		// Set the render targets for the current frame
+		curr_frame.setRenderTargets(curr_frame_idx, hash, colour_targets, depth_target);
 	}
 }}}}
