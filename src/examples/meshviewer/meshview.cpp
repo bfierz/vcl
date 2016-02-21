@@ -78,7 +78,7 @@ FboRenderer::FboRenderer()
 
 	InputLayoutDescription opaqueTriLayout =
 	{
-		{ "Index",  SurfaceFormat::R32G32B32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 	_opaqueTriLayout = std::make_unique<InputLayout>(opaqueTriLayout);
@@ -94,7 +94,6 @@ FboRenderer::FboRenderer()
 		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
-	_opaqueTetraLayout = std::make_unique<InputLayout>(opaqueTetraLayout);
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
@@ -120,13 +119,6 @@ FboRenderer::FboRenderer()
 	idTetraDesc.GeometryShader = &idTetraGeom;
 	idTetraDesc.FragmentShader = &idFrag;
 	_idTetraMeshShader = std::make_unique<ShaderProgram>(idTetraDesc);
-
-	ShaderProgramDescription opaqueTetraDesc;
-	opaqueTetraDesc.InputLayout = opaqueTetraLayout;
-	opaqueTetraDesc.VertexShader = &opaqueTetraVert;
-	opaqueTetraDesc.GeometryShader = &opaqueTetraGeom;
-	opaqueTetraDesc.FragmentShader = &meshFrag;
-	_opaqueTetraMeshShader = std::make_unique<ShaderProgram>(opaqueTetraDesc);
 
 	PipelineStateDescription opaqueTetraPSDesc;
 	opaqueTetraPSDesc.InputLayout = opaqueTetraLayout;
@@ -161,13 +153,9 @@ void FboRenderer::render()
 		cbuffer_cam_ptr->ViewMatrix = V;
 		cbuffer_cam_ptr->ProjectionMatrix = P;
 
-		_opaqueTriMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-		_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ModelMatrix"), M);
 		_idTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
 		_idTetraMeshShader->setUniform(_idTetraMeshShader->uniform("ModelMatrix"), M);
-		_opaqueTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-		_opaqueTetraMeshShader->setUniform(_opaqueTetraMeshShader->uniform("ModelMatrix"), M);
-
+		
 		auto surfaceMesh = scene->surfaceMesh();
 		if (surfaceMesh)
 		{
@@ -178,6 +166,9 @@ void FboRenderer::render()
 			////////////////////////////////////////////////////////////////////
 			// Render the mesh
 			////////////////////////////////////////////////////////////////////
+		
+			_opaqueTriMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
+			_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ModelMatrix"), M);
 
 			// Set the vertex positions
 			_opaqueTriMeshShader->setBuffer("VertexPositions", surfaceMesh->positions());
@@ -200,8 +191,11 @@ void FboRenderer::render()
 			// Render the mesh
 			////////////////////////////////////////////////////////////////////
 
+			_opaqueTetraPipelineState->program().setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
+			_opaqueTetraPipelineState->program().setUniform(_opaqueTetraPipelineState->program().uniform("ModelMatrix"), M);
+
 			// Set the vertex positions
-			_opaqueTetraMeshShader->setBuffer("VertexPositions", volumeMesh->positions());
+			_opaqueTetraPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
 
 			// Bind the buffers
 			glBindVertexBuffer(0, volumeMesh->indices()->id(),       0, sizeof(Eigen::Vector4i));

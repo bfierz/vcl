@@ -64,8 +64,6 @@ private:
 	MeshView* _owner{ nullptr };
 
 private: // Shaders
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTetraLayout;
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTetraMeshShader;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _idTetraLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _idTetraMeshShader;
 
@@ -73,7 +71,7 @@ private: // Shaders
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTriMeshShader;
 
 private: // States
-	Vcl::owner_ptr<Vcl::Graphics::Runtime::PipelineState> _opaqueTetraPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraPipelineState;
 
 private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
