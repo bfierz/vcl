@@ -102,7 +102,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void endFrame() override;
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 		ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Runtime::Texture> tex) override;
+		
 		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
+		void setConstantBuffer(int idx, BufferView buffer) override;
 
 		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
 

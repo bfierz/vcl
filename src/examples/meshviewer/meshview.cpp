@@ -48,40 +48,144 @@ namespace
 
 namespace
 {
-	struct PerFrameCameraData
+#define UNIFORM_BUFFER(loc) struct
+
+	namespace std140
+	{
+		struct vec4
+		{
+			float x, y, z, w;
+
+			vec4() {}
+			vec4(const Eigen::Vector4f& v) : x(v.x()), y(v.y()), z(v.z()), w(v.w()) {}
+		};
+
+		struct mat4
+		{
+			vec4 cols[4];
+
+			mat4() {}
+			mat4(const Eigen::Matrix4f& m)
+			{
+				cols[0] = vec4{ Eigen::Vector4f{ m.col(0) } };
+				cols[1] = vec4{ Eigen::Vector4f{ m.col(1) } };
+				cols[2] = vec4{ Eigen::Vector4f{ m.col(2) } };
+				cols[3] = vec4{ Eigen::Vector4f{ m.col(3) } };
+			}
+		};
+	}
+
+#define PER_FRAME_CAMERA_DATA_LOC 0
+
+	UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
 	{
 		// Viewport (x, y, w, h)
-		Eigen::Vector4f Viewport;
+		std140::vec4 Viewport;
+
+		// Frustum (tan(fov / 2), aspect_ratio, near, far)
+		std140::vec4 Frustum;
 
 		// Transform from world to view space
-		Eigen::Matrix4f ViewMatrix;
+		std140::mat4 ViewMatrix;
 
 		// Transform from view to screen space
-		Eigen::Matrix4f ProjectionMatrix;
+		std140::mat4 ProjectionMatrix;
 	};
+}
+
+// Debug code
+namespace
+{
+	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum)
+	{
+		// tan(fov / 2)
+		float scale = frustum.x();
+		float ratio = frustum.y();
+		float near_dist = frustum.z();
+		float far_dist = frustum.w();
+
+		float near_half_height = scale * near_dist;
+		float near_half_width = near_half_height * ratio;
+
+		float far_half_height = scale * far_dist;
+		float far_half_width = far_half_height * ratio;
+
+		return{ near_half_width, near_half_height, far_half_width, far_half_height };
+	}
+
+	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane)
+	{
+		Eigen::Vector3f N = plane.segment<3>(0);
+		float d = plane.w();
+
+		float t = -(p0.dot(N) + d) / dir.dot(N);
+		return p0 + t*dir;
+	}
+
+	void computePlaneCorners(const Eigen::Vector4f& eq, const Eigen::Matrix4f& ViewMatrix, const Eigen::Matrix4f& ModelMatrix, const Eigen::Vector4f& Frustum)
+	{
+		Eigen::Vector3f N = eq.segment<3>(0);
+		float d = eq.w();
+
+		// Point on plane
+		Eigen::Vector3f P = d * N;
+
+		// Model-view matrix
+		Eigen::Matrix4f MV = ViewMatrix * ModelMatrix;
+
+		// Transform the plane normal to the view-space
+		P = (MV * Eigen::Vector4f(P.x(), P.y(), P.z(), 1)).segment<3>(0);
+		N = MV.block<3, 3>(0, 0) * N;
+		d = P.dot(N);
+
+		// Compute the rays of the frustum from camera point into screen
+		Eigen::Vector4f frustum_size = computeFrustumSize(Frustum);
+		Eigen::Vector3f point_on_far = Eigen::Vector3f(0, 0, -Frustum.w());
+
+		Eigen::Vector3f d0 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
+		Eigen::Vector3f d1 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
+		Eigen::Vector3f d2 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
+		Eigen::Vector3f d3 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
+
+		// Finally compute plane corners in view space
+		Eigen::Vector3f p0 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d0, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
+		Eigen::Vector3f p1 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d1, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
+		Eigen::Vector3f p2 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d2, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
+		Eigen::Vector3f p3 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d3, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
+
+		return;
+	}
 }
 
 FboRenderer::FboRenderer()
 {
+	using Vcl::Graphics::Runtime::OpenGL::Buffer;
 	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
 	using Vcl::Graphics::Runtime::OpenGL::PipelineState;
 	using Vcl::Graphics::Runtime::OpenGL::Shader;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
+	using Vcl::Graphics::Runtime::BufferDescription;
+	using Vcl::Graphics::Runtime::BufferInitData;
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
+	using Vcl::Graphics::Runtime::Usage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
 	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
+	InputLayoutDescription planeLayout =
+	{
+		{ "PlaneEquation", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+	};
+	
 	InputLayoutDescription opaqueTriLayout =
 	{
 		{ "Index",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
-	_opaqueTriLayout = std::make_unique<InputLayout>(opaqueTriLayout);
 	
 	InputLayoutDescription idTetraLayout =
 	{
@@ -95,6 +199,9 @@ FboRenderer::FboRenderer()
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 
+	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/plane.vert");
+	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/plane.geom");
+
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
 
@@ -106,12 +213,12 @@ FboRenderer::FboRenderer()
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
 
-	ShaderProgramDescription opaqueTriDesc;
-	opaqueTriDesc.InputLayout = opaqueTriLayout;
-	opaqueTriDesc.VertexShader = &opaqueTriVert;
-	opaqueTriDesc.GeometryShader = &opaqueTriGeom;
-	opaqueTriDesc.FragmentShader = &meshFrag;
-	_opaqueTriMeshShader = std::make_unique<ShaderProgram>(opaqueTriDesc);
+	PipelineStateDescription planePSDesc;
+	planePSDesc.InputLayout = planeLayout;
+	planePSDesc.VertexShader = &planeVert;
+	planePSDesc.GeometryShader = &planeGeom;
+	planePSDesc.FragmentShader = &meshFrag;
+	_planePipelineState = Vcl::make_owner<PipelineState>(planePSDesc);
 
 	ShaderProgramDescription idTetraDesc;
 	idTetraDesc.InputLayout = idTetraLayout;
@@ -120,12 +227,30 @@ FboRenderer::FboRenderer()
 	idTetraDesc.FragmentShader = &idFrag;
 	_idTetraMeshShader = std::make_unique<ShaderProgram>(idTetraDesc);
 
+	PipelineStateDescription opaqueTriPSDesc;
+	opaqueTriPSDesc.InputLayout = opaqueTriLayout;
+	opaqueTriPSDesc.VertexShader = &opaqueTriVert;
+	opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
+	opaqueTriPSDesc.FragmentShader = &meshFrag;
+	_opaqueTriMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTriPSDesc);
+
 	PipelineStateDescription opaqueTetraPSDesc;
 	opaqueTetraPSDesc.InputLayout = opaqueTetraLayout;
 	opaqueTetraPSDesc.VertexShader = &opaqueTetraVert;
 	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeom;
 	opaqueTetraPSDesc.FragmentShader = &meshFrag;
-	_opaqueTetraPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+	_opaqueTetraMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+
+	BufferDescription planeDesc;
+	planeDesc.Usage = Usage::Default;
+	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
+
+	Eigen::Vector4f grouldPlane{ 0, 1, 0, -2 };
+	BufferInitData planeData;
+	planeData.Data = grouldPlane.data();
+	planeData.SizeInBytes = sizeof(Eigen::Vector4f);
+
+	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, false, false, &planeData);
 }
 
 void FboRenderer::render()
@@ -149,29 +274,44 @@ void FboRenderer::render()
 		
 		auto cbuffer_cam = _engine->requestPerFrameConstantBuffer(sizeof(PerFrameCameraData));
 		auto cbuffer_cam_ptr = reinterpret_cast<PerFrameCameraData*>(cbuffer_cam.data());
-		cbuffer_cam_ptr->Viewport = { 0, 0, (float)_owner->width(), (float)_owner->height() };
+		cbuffer_cam_ptr->Viewport = Eigen::Vector4f{ 0, 0, (float)_owner->width(), (float)_owner->height() };
+		cbuffer_cam_ptr->Frustum = scene->frustum();
 		cbuffer_cam_ptr->ViewMatrix = V;
 		cbuffer_cam_ptr->ProjectionMatrix = P;
 
-		_idTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-		_idTetraMeshShader->setUniform(_idTetraMeshShader->uniform("ModelMatrix"), M);
+		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
+
+		//_idTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
+		//_idTetraMeshShader->setUniform(_idTetraMeshShader->uniform("ModelMatrix"), M);
 		
+		// Draw the ground
+		{
+			// Configure the layout
+			_engine->setPipelineState(_planePipelineState);
+		
+			_planePipelineState->program().setUniform(_planePipelineState->program().uniform("ModelMatrix"), M);
+		
+			// Bind the buffers
+			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
+		
+			// Render the mesh
+			glDrawArrays(GL_POINTS, 0, 1);
+		}
+
 		auto surfaceMesh = scene->surfaceMesh();
 		if (surfaceMesh)
 		{
 			// Configure the layout
-			_opaqueTriMeshShader->bind();
-			_opaqueTriLayout->bind();
+			_engine->setPipelineState(_opaqueTriMeshPipelineState);
 
 			////////////////////////////////////////////////////////////////////
 			// Render the mesh
 			////////////////////////////////////////////////////////////////////
 		
-			_opaqueTriMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-			_opaqueTriMeshShader->setUniform(_opaqueTriMeshShader->uniform("ModelMatrix"), M);
+			_opaqueTriMeshPipelineState->program().setUniform(_opaqueTriMeshPipelineState->program().uniform("ModelMatrix"), M);
 
 			// Set the vertex positions
-			_opaqueTriMeshShader->setBuffer("VertexPositions", surfaceMesh->positions());
+			_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", surfaceMesh->positions());
 
 			// Bind the buffers
 			glBindVertexBuffer(0, surfaceMesh->indices()->id(),     0, sizeof(Eigen::Vector3i));
@@ -185,17 +325,16 @@ void FboRenderer::render()
 		if (volumeMesh)
 		{
 			// Configure the state
-			_engine->setPipelineState(_opaqueTetraPipelineState);
+			_engine->setPipelineState(_opaqueTetraMeshPipelineState);
 
 			////////////////////////////////////////////////////////////////////
 			// Render the mesh
 			////////////////////////////////////////////////////////////////////
 
-			_opaqueTetraPipelineState->program().setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-			_opaqueTetraPipelineState->program().setUniform(_opaqueTetraPipelineState->program().uniform("ModelMatrix"), M);
+			_opaqueTetraMeshPipelineState->program().setUniform(_opaqueTetraMeshPipelineState->program().uniform("ModelMatrix"), M);
 
 			// Set the vertex positions
-			_opaqueTetraPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
+			_opaqueTetraMeshPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
 
 			// Bind the buffers
 			glBindVertexBuffer(0, volumeMesh->indices()->id(),       0, sizeof(Eigen::Vector4i));

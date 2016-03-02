@@ -99,6 +99,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	public: // Resource management
 		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 
+		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;
+
 	public: // Command buffer operations
 		//! Set a new pipeline state
 		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
