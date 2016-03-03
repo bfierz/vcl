@@ -29,6 +29,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
@@ -918,6 +919,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_UNIFORM_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
+
+			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 
@@ -938,6 +941,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
+
+			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 }}}}
