@@ -34,6 +34,7 @@
 // Qt
 #include <QtGui/QOpenGLFramebufferObject>
 #include <QtQuick/QQuickFramebufferObject>
+#include <QtQuick/QSGSimpleTextureNode>
 
 // VCL
 #include <vcl/graphics/runtime/opengl/state/inputlayout.h>
@@ -67,14 +68,17 @@ private: // Shaders
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _idTetraLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _idTetraMeshShader;
 
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _opaqueTriLayout;
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _opaqueTriMeshShader;
-
 private: // States
-	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
+
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
 
 private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
+
+private: // Static geometry
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
 };
 
 class MeshView : public QQuickFramebufferObject
@@ -96,7 +100,21 @@ public:
 	}
 
 private:
-	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry);
+	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
+
+	// https://bugreports.qt.io/browse/QTBUG-41073
+	QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* nodeData) override
+	{
+		if (!node)
+		{
+			node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
+			QSGSimpleTextureNode *n = dynamic_cast<QSGSimpleTextureNode *>(node);
+			if (n)
+				n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
+			return node;
+		}
+		return QQuickFramebufferObject::updatePaintNode(node, nodeData);
+	}
 
 private:
 	Scene* _scene{ nullptr };

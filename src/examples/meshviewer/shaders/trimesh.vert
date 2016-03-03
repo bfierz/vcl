@@ -1,10 +1,11 @@
 #version 430 core
+#extension GL_ARB_enhanced_layouts : enable
 
 // Data from input-assembler stage
 in ivec3 Index;
 in  vec4 Colour;
 
-out VertexData
+layout(location = 0) out VertexData
 {
 	ivec3 Indices;
 } Out;

@@ -1,11 +1,12 @@
 #version 430 core
+#extension GL_ARB_enhanced_layouts : enable
 
 // Convert input points to a set of 4 triangles
 layout(points) in;
 layout(triangle_strip, max_vertices = 12) out;
 
 // Input data from last stage
-in VertexData
+layout(location = 0) in VertexData
 {
 	ivec3 Indices;
 } In[1];
@@ -36,10 +37,13 @@ layout (std430) buffer VertexColours
 // Shader constants
 uniform mat4 ModelMatrix;
 
-layout(std140) uniform PerFrameCameraData
+layout(std140, binding = 0) uniform PerFrameCameraData
 {
 	// Viewport (x, y, w, h)
 	vec4 Viewport;
+	
+	// Frustum (tan(fov / 2), aspect_ratio, near, far)
+	vec4 Frustum;
 
 	// Transform from world to view space
 	mat4 ViewMatrix;

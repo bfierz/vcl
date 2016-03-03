@@ -66,6 +66,7 @@ public slots:
 	void endRotate();
 
 public:
+	const Eigen::Vector4f& frustum() const { return _frustumData; }
 	const Eigen::Matrix4f& modelMatrix() const { return _modelMatrix; }
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
@@ -81,6 +82,8 @@ private: // Update data
 	Vcl::Graphics::TrackballCameraController _cameraController;
 	
 private: // Render data
+
+	Eigen::Vector4f _frustumData;
 
 	Eigen::Matrix4f _modelMatrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f _viewMatrix = Eigen::Matrix4f::Identity();

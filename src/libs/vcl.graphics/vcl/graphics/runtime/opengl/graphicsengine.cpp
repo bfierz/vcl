@@ -346,6 +346,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		curr_frame.setRenderTargets(curr_frame_idx, hash, colour_targets, depth_target);
 	}
 
+	void GraphicsEngine::setConstantBuffer(int idx, BufferView view)
+	{	
+		auto& buffer = static_cast<const OpenGL::Buffer&>(view.owner());
+		glBindBufferRange(GL_UNIFORM_BUFFER, idx, buffer.id(), view.offset(), view.size());
+	}
+
 	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
 	{
 		auto gl_state = static_pointer_cast<OpenGL::PipelineState>(state);

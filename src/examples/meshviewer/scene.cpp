@@ -62,6 +62,8 @@ void Scene::update()
 		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
 	}
 
+	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float) _camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
+
 	_modelMatrix = _cameraController.currObjectTransformation();
 	_viewMatrix = _camera->view();
 	_projMatrix = _camera->projection();
@@ -82,7 +84,7 @@ void Scene::createSurfaceSphere()
 	{
 		bb.extend(vertices[i]);
 	}
-	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
 }
 
@@ -101,7 +103,7 @@ void Scene::createBar(int x, int y, int z)
 	{
 		bb.extend(vertices[i]);
 	}
-	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
 }
 
