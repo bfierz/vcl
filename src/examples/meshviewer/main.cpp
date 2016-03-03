@@ -50,8 +50,16 @@ int main(int argc, char **argv)
 {
 	QGuiApplication app(argc, argv);
 
+	// Make types accessible in QML
 	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "MeshView");
 	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "Scene");
+
+	// Configure the default OpenGL format
+	auto gl_fmt = QSurfaceFormat::defaultFormat();
+	gl_fmt.setProfile(QSurfaceFormat::CoreProfile);
+	gl_fmt.setVersion(4, 5);
+	gl_fmt.setOptions(QSurfaceFormat::DebugContext | QSurfaceFormat::ResetNotification);
+	QSurfaceFormat::setDefaultFormat(gl_fmt);
 
 	QQmlApplicationEngine engine;
 
