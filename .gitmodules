@@ -31,3 +31,6 @@
 [submodule "src/externals/EGL"]
 	path = src/externals/EGL
 	url = https://github.com/bfierz/EGL
+[submodule "src/examples/glfw"]
+	path = src/examples/glfw
+	url = https://github.com/glfw/glfw

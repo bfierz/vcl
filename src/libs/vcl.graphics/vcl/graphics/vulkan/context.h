@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,35 +27,70 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
+// C++ standard library
+#include <array>
+#include <string>
+#include <vector>
+
+// Vulkan
+#include <vulkan/vulkan.h>
+
+// GSL
+#include <gsl/gsl>
+
+namespace Vcl { namespace Graphics { namespace Vulkan
 {
-	enum class ShaderType
+	class Device;
+
+	struct ContextQueueInfo
 	{
-		VertexShader,     //!< Shader executing programs on single vertices
-		ControlShader,    //!< Shader executing programs on entire tesellation patches
-		EvaluationShader, //!< Shader executing programs on each vertex generated from tessellation
-		GeometryShader,   //!< Shader executing programs on entire primitives (lines, triangles)
-		FragmentShader,   //!< Shader executing programs on single fragments
-		ComputeShader     //!< Shader executing generic programs
+		//! Index of the vulkan queue family
+		uint32_t FamilyIndex;
 	};
 
-	class Shader
+	enum class CommandBufferType
 	{
-	protected:
-		Shader(ShaderType type, int tag);
+		Default = 0,
+		Static = 1,
+		Transient = 2
+	};
+	
+	class Context final
+	{
+	public:
+		//! Constructor
+		Context(Device* dev, gsl::span<const char*> layers, gsl::span<const char*> extensions);
+
+		//! Destructor
+		~Context();
+
+		//! Convert to Vulkan ID
+		inline operator VkDevice() const
+		{
+			return _device;
+		}
+
+		Device* device() const { return _physicalDevice; }
+		VkPipelineCache cache() const { return _pipelineCache; }
+
+		VkCommandPool commandPool(uint32_t queueIdx, CommandBufferType type);
 
 	public:
-		Shader(const Shader& rhs) = default;
-		virtual ~Shader() = default;
-
-	public:
-		ShaderType type() const { return _type; }
-
+		VkQueue queue(uint32_t idx);
+		
 	private:
-		//! Tag identifying the owner
-		int _tag;
+		//! Vulkan physical device
+		Device* _physicalDevice{ nullptr };
 
-		//! Type of this shader
-		ShaderType _type;
+		//! Vulkan device
+		VkDevice _device{ nullptr };
+
+		//! Queue families
+
+		//! Associated pipeline cache
+		VkPipelineCache _pipelineCache;
+
+		//! Pre-allocated command pools
+		std::vector<std::array<VkCommandPool, 3>> _cmdPools;
 	};
 }}}

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,35 +27,56 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
-	enum class ShaderType
-	{
-		VertexShader,     //!< Shader executing programs on single vertices
-		ControlShader,    //!< Shader executing programs on entire tesellation patches
-		EvaluationShader, //!< Shader executing programs on each vertex generated from tessellation
-		GeometryShader,   //!< Shader executing programs on entire primitives (lines, triangles)
-		FragmentShader,   //!< Shader executing programs on single fragments
-		ComputeShader     //!< Shader executing generic programs
-	};
+// C++ standard library
+#include <array>
+#include <string>
+#include <vector>
 
-	class Shader
+// Vulkan
+#include <vulkan/vulkan.h>
+
+// VCL
+#include <vcl/graphics/vulkan/context.h>
+
+namespace Vcl { namespace Graphics { namespace Vulkan
+{	
+	class Memory final
 	{
-	protected:
-		Shader(ShaderType type, int tag);
+	public:
+		//! Constructor
+		Memory(Context* ctx, size_t size, int heapIndex, VkMemoryPropertyFlags flags);
+
+		//! Destructor
+		~Memory();
+
+		//! Convert to Vulkan ID
+		inline operator VkDeviceMemory() const
+		{
+			return _memory;
+		}
+
+		//! Access the pointer to the context object
+		Context* context() const { return _context; }
 
 	public:
-		Shader(const Shader& rhs) = default;
-		virtual ~Shader() = default;
+		//! \returns the size in bytes
+		size_t sizeInBytes() const { return _sizeInBytes; }
 
 	public:
-		ShaderType type() const { return _type; }
-
+		void* map(size_t offset, size_t length);
+		void unmap();
+		
 	private:
-		//! Tag identifying the owner
-		int _tag;
+		//! Vulkan device
+		Context* _context{ nullptr };
 
-		//! Type of this shader
-		ShaderType _type;
+		//! Vulkan physical memory
+		VkDeviceMemory _memory{ nullptr };
+
+		//! Size of the memory region
+		size_t _sizeInBytes{ 0 };
+
+		//! Memory configuration
+		VkMemoryPropertyFlags _memoryFlags{ 0 };
 	};
 }}}

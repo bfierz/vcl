@@ -52,6 +52,11 @@ IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.math.cuda)
 ENDIF()
 
+# Vulkan related tests
+IF(VCL_VULKAN_SUPPORT)
+	SUBDIRS(vcl.graphics.vulkan)
+ENDIF()
+
 # OpenCL related tests
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	SUBDIRS(vcl.compute.opencl)

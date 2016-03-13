@@ -38,6 +38,27 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
+	enum class PrimitiveType
+	{
+		Undefined = 0,
+		Pointlist = 1,
+		Linelist = 2,
+		Linestrip = 3,
+		Trianglelist = 4,
+		Trianglestrip = 5,
+		LinelistAdj = 10,
+		LinestripAdj = 11,
+		TrianglelistAdj = 12,
+		TrianglestripAdj = 13,
+		Patch = 14
+	};
+
+	struct InputAssemblyDescription
+	{
+		PrimitiveType Topology;
+		bool PrimitiveRestartEnable;
+	};
+
 	struct PipelineStateDescription
 	{
 		// Vertex shader
@@ -55,6 +76,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		// Fragment shader
 		Runtime::Shader* FragmentShader{ nullptr };
 
+		// Input assembly state
+		Runtime::InputAssemblyDescription InputAssembly;
+
+		// Input layout
+		Runtime::InputLayoutDescription InputLayout;
+
 		// Blend state
 		Runtime::BlendDescription Blend;
 
@@ -64,8 +91,6 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		// Depth stencil state
 		//Runtime::DepthStencilDescription DepthStencil;
 
-		// Input layout
-		Runtime::InputLayoutDescription InputLayout;
 	};
 
 	/*!

@@ -145,9 +145,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glCreateVertexArraysVCL(1, &_vaoID);
 
 		int idx = 0;
-		for (const auto& elem : desc)
+		for (const auto& elem : desc.attributes())
 		{
-			VclCheck(implies(elem.StreamType == VertexDataClassification::VertexDataPerInstance, elem.StepRate > 0 && elem.StepRate != -1), "Step rate is > 0 for per instance data.");
+			const auto& binding = desc.binding(elem.InputSlot);
 
 			// GL relevant enumerations
 			auto rt = Vcl::Graphics::OpenGL::GL::toRenderType(elem.Format);
@@ -164,13 +164,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				glVertexArrayAttribBindingVCL(_vaoID, loc, elem.InputSlot);
 
 				// Configure the stream update rate
-				if (elem.StreamType == Runtime::VertexDataClassification::VertexDataPerObject)
+				if (binding.InputRate == Runtime::VertexDataClassification::VertexDataPerObject)
 				{
 					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, 0);
 				}
-				else if (elem.StreamType == Runtime::VertexDataClassification::VertexDataPerInstance)
+				else if (binding.InputRate == Runtime::VertexDataClassification::VertexDataPerInstance)
 				{
-					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, elem.StepRate);
+					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, 1);
 				}
 
 				// Set which underlying number type is used

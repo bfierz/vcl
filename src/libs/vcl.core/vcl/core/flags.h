@@ -26,7 +26,6 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // C++ standard library
 #include <initializer_list>

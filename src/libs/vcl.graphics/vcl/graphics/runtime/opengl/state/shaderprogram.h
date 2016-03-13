@@ -26,6 +26,7 @@
 
 // VCL library
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 #include <vcl/config/opengl.h>
 
 // C++ standard libary

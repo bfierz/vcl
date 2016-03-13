@@ -131,6 +131,16 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_SRC
 	vcl/graphics/runtime/opengl/graphicsengine.cpp
 )
 
+# VCL / GRAPHICS / RUNTIME / VULKAN / RESOURCE
+SET(VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_INC
+	vcl/graphics/runtime/vulkan/resource/buffer.h
+	vcl/graphics/runtime/vulkan/resource/shader.h
+)
+SET(VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_SRC
+	vcl/graphics/runtime/vulkan/resource/buffer.cpp
+	vcl/graphics/runtime/vulkan/resource/shader.cpp
+)
+
 # VCL / GRAPHICS / RUNTIME / RESOURCE
 SET(VCL_GRAPHICS_RUNTIME_RESOURCE_INC
 	vcl/graphics/runtime/resource/buffer.h
@@ -175,6 +185,28 @@ SET(VCL_GRAPHICS_SHADOWS_SRC
 	vcl/graphics/shadows/shadowvolume.cpp
 )
 
+# VCL / GRAPHICS / VULKAN
+SET(VCL_GRAPHICS_VULKAN_INC
+	vcl/graphics/vulkan/commands.h
+	vcl/graphics/vulkan/context.h
+	vcl/graphics/vulkan/device.h
+	vcl/graphics/vulkan/memory.h
+	vcl/graphics/vulkan/pipelinestate.h
+	vcl/graphics/vulkan/platform.h
+	vcl/graphics/vulkan/swapchain.h
+	vcl/graphics/vulkan/tools.h
+)
+SET(VCL_GRAPHICS_VULKAN_SRC
+	vcl/graphics/vulkan/commands.cpp
+	vcl/graphics/vulkan/context.cpp
+	vcl/graphics/vulkan/device.cpp
+	vcl/graphics/vulkan/memory.cpp
+	vcl/graphics/vulkan/pipelinestate.cpp
+	vcl/graphics/vulkan/platform.cpp
+	vcl/graphics/vulkan/swapchain.cpp
+)
+
+
 # VCL / GRAPHICS
 SET(VCL_GRAPHICS_INC
 	vcl/graphics/cameracontroller.h
@@ -203,10 +235,12 @@ SOURCE_GROUP("opengl" FILES ${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
 SOURCE_GROUP("runtime\\opengl" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC})
+SOURCE_GROUP("runtime\\vulkan\\resource" FILES ${VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_INC})
 SOURCE_GROUP("runtime\\resource" FILES ${VCL_GRAPHICS_RUNTIME_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC})
 SOURCE_GROUP("runtime\\state" FILES ${VCL_GRAPHICS_RUNTIME_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_STATE_INC})
 SOURCE_GROUP("runtime" FILES ${VCL_GRAPHICS_RUNTIME_SRC} ${VCL_GRAPHICS_RUNTIME_INC})
 SOURCE_GROUP("shadows" FILES ${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC})
+SOURCE_GROUP("vulkan" FILES ${VCL_GRAPHICS_VULKAN_SRC} ${VCL_GRAPHICS_VULKAN_INC})
 SOURCE_GROUP("" FILES ${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC})
 
 SET(SOURCE
@@ -234,14 +268,32 @@ SET(OPENGL_SOURCE
 	${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC}
 )
 
+SET(VULKAN_SOURCE
+	${VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_INC}
+	
+	${VCL_GRAPHICS_VULKAN_SRC} ${VCL_GRAPHICS_VULKAN_INC}
+)
+
 # Control OpenGL support
 SET(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
 
+# Control Vulkan support
+SET(VCL_VULKAN_SUPPORT CACHE BOOL "Enable Vulkan support")
+
 # Generate library
+ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
+
 IF(VCL_OPENGL_SUPPORT)
-	ADD_LIBRARY(vcl_graphics STATIC ${SOURCE} ${OPENGL_SOURCE})
-ELSE()
-	ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
+	TARGET_SOURCES(vcl_graphics PRIVATE ${OPENGL_SOURCE})
+ENDIF()
+
+IF(VCL_VULKAN_SUPPORT)
+	FIND_PACKAGE(Vulkan REQUIRED)
+	IF(Vulkan_FOUND)
+		TARGET_COMPILE_DEFINITIONS(vcl_graphics PUBLIC VCL_VULKAN_SUPPORT)
+		TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${Vulkan_INCLUDE_DIR})
+		TARGET_LINK_LIBRARIES(vcl_graphics ${Vulkan_LIBRARY})
+	ENDIF()
 ENDIF()
 
 SET_TARGET_PROPERTIES(vcl_graphics PROPERTIES FOLDER libs)
@@ -276,9 +328,11 @@ INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
 INSTALL(FILES ${VCL_GRAPHICS_IMAGEPROCESSING_INC} DESTINATION include/vcl/graphics/imageprocessing)
 INSTALL(FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC} DESTINATION include/vcl/graphics/opengl/algorithm)
 INSTALL(FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC} DESTINATION include/vcl/graphics/opengl/glsl)
+INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_VULKAN_RESOURCE_INC} DESTINATION include/vcl/graphics/runtime/vulkan/resource)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC} DESTINATION include/vcl/graphics/runtime/resource)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_STATE_INC} DESTINATION include/vcl/graphics/runtime/state)
 INSTALL(FILES ${VCL_GRAPHICS_SHADOWS_INC} DESTINATION include/vcl/graphics/shadows)
+INSTALL(FILES ${VCL_GRAPHICS_VULKAN_INC} DESTINATION include/vcl/graphics/vulkan)
 INSTALL(FILES ${VCL_GRAPHICS_INC} DESTINATION include/vcl/graphics)
 
 IF(VCL_OPENGL_SUPPORT)

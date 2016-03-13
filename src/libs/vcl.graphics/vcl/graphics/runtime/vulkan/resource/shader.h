@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2014-2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,35 +27,32 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
+#ifdef VCL_VULKAN_SUPPORT
+
+// Vulkan
+#include <vulkan/vulkan.h>
+
+// VCL
+#include <vcl/graphics/runtime/resource/shader.h>
+
+namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 {
-	enum class ShaderType
+	class Shader : public Runtime::Shader
 	{
-		VertexShader,     //!< Shader executing programs on single vertices
-		ControlShader,    //!< Shader executing programs on entire tesellation patches
-		EvaluationShader, //!< Shader executing programs on each vertex generated from tessellation
-		GeometryShader,   //!< Shader executing programs on entire primitives (lines, triangles)
-		FragmentShader,   //!< Shader executing programs on single fragments
-		ComputeShader     //!< Shader executing generic programs
-	};
-
-	class Shader
-	{
-	protected:
-		Shader(ShaderType type, int tag);
+	public:
+		Shader(VkDevice device, ShaderType type, int tag, const char* source, size_t size);
+		Shader(Shader&& rhs);
+		virtual ~Shader();
 
 	public:
-		Shader(const Shader& rhs) = default;
-		virtual ~Shader() = default;
+		VkPipelineShaderStageCreateInfo getCreateInfo() const;
 
 	public:
-		ShaderType type() const { return _type; }
-
+		static VkShaderStageFlagBits convert(ShaderType type);
+		
 	private:
-		//! Tag identifying the owner
-		int _tag;
-
-		//! Type of this shader
-		ShaderType _type;
+		VkDevice _device;
+		VkShaderModule _shaderModule;
 	};
-}}}
+}}}}
+#endif // VCL_VULKAN_SUPPORT
