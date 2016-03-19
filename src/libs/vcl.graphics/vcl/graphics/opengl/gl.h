@@ -28,18 +28,28 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
+// VCL
+#include <vcl/graphics/opengl/type_traits.h>
+#include <vcl/graphics/surfaceformat.h>
+
 #ifdef VCL_OPENGL_SUPPORT
 
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
 	class GL
 	{
+	public: // Context info
+		static const char* getProfileInfo();
+
 	public:
 		static GLenum getEnum(GLenum e);
 		static GLenum getEnum(GLenum e, int i);
 
 		static GLint getInteger(GLenum e);
 		static GLint getInteger(GLenum e, int i);
+
+	public:
+		static AnyRenderType toRenderType(SurfaceFormat fmt);
 
 	public: // Error checking
 		static bool checkGLError();

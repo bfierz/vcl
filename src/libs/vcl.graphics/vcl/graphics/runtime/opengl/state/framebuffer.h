@@ -48,9 +48,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			const Runtime::Texture** colourTargets, size_t nrColourTargets,
 			const Runtime::Texture* depthTarget
 		);
+		Framebuffer(Framebuffer&&) = default;
 		Framebuffer(const Framebuffer&) = delete;
 		virtual ~Framebuffer();
 
+		Framebuffer& operator= (Framebuffer&&) = default;
 		Framebuffer& operator= (const Framebuffer&) = delete;
 		
 	public:

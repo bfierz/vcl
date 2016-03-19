@@ -33,17 +33,17 @@ namespace Vcl { namespace Graphics
 	class Trackball
 	{
 	public:
-		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-	public:
 		const Eigen::Quaternionf& rotation() const { return _lastQuat; }
 
 	public:
+		void reset();
 		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
+		void startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed = true);
 		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
 		void endRotate();
-		
-		void reset();
+
+	public:
+		bool isRotating() const { return _rotate; }
 
 	private:
 		Eigen::Vector3f project(float ratio_x, float ratio_y);
@@ -57,7 +57,7 @@ namespace Vcl { namespace Graphics
 		Eigen::Vector3f _lastPosition{ Eigen::Vector3f::Zero() };
 
 		//! Current rotation
-		Eigen::Quaternionf _lastQuat{ Eigen::Vector3f::Identity() };
+		Eigen::Quaternionf _lastQuat{ Eigen::Quaternionf::Identity() };
 
 		//! Are we tracking the rotation
 		bool _rotate{ false };
