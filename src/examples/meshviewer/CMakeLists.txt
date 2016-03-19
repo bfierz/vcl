@@ -39,6 +39,8 @@ SET(QML
 )
 
 SET(SHADERS
+	shaders/3DSceneBindings.h
+
 	shaders/plane.vert
 	shaders/plane.geom
 	shaders/trimesh.vert

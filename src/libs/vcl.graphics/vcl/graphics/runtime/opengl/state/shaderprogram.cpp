@@ -736,7 +736,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);
 
-				Check(glGetAttribLocation(_glId, name.c_str()) == loc, "Input layout element is bound correctly", "GL location: {}; input location: {}", glGetAttribLocation(_glId, name.c_str()), loc);
+				Check(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
 			}
 
 			// Check the fragment output against the layout

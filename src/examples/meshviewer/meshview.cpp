@@ -25,6 +25,8 @@
 #include "meshview.h"
 
 // Qt
+#include <QtCore/QRegularExpression>
+#include <QtCore/QStringBuilder>
 #include <QtQuick/QQuickWindow>
 
 // VCL
@@ -32,65 +34,63 @@
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
+// Application
+namespace
+{
+#include "shaders/3DSceneBindings.h"
+}
+
 #include "scene.h"
 
 namespace
 {
-	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path)
+	QString resolveShaderFile(QString dir, QString path)
 	{
-		QFile shader_file{ path };
-		shader_file.open(QIODevice::ReadOnly);
+		QFile shader_file{ dir + path };
+		shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
 		Check(shader_file.isOpen(), "Shader file is open.");
 
-		return{ type, 0, shader_file.readAll().data() };
-	}
-}
+		// Resolve include files (only one level supported atm)
+		QString builder;
+		QTextStream textStream(&shader_file);
 
-namespace
-{
-#define UNIFORM_BUFFER(loc) struct
-
-	namespace std140
-	{
-		struct vec4
+		QRegularExpression inc_regex{ R"(#.*include.*[<"](.+)[">])" };
+		while (!textStream.atEnd())
 		{
-			float x, y, z, w;
+			auto curr_tok = textStream.readLine();
 
-			vec4() {}
-			vec4(const Eigen::Vector4f& v) : x(v.x()), y(v.y()), z(v.z()), w(v.w()) {}
-		};
-
-		struct mat4
-		{
-			vec4 cols[4];
-
-			mat4() {}
-			mat4(const Eigen::Matrix4f& m)
+			QRegularExpressionMatch match;
+			if (curr_tok.indexOf(inc_regex, 0, &match) >= 0 && match.hasMatch())
 			{
-				cols[0] = vec4{ Eigen::Vector4f{ m.col(0) } };
-				cols[1] = vec4{ Eigen::Vector4f{ m.col(1) } };
-				cols[2] = vec4{ Eigen::Vector4f{ m.col(2) } };
-				cols[3] = vec4{ Eigen::Vector4f{ m.col(3) } };
+				QString included_file = resolveShaderFile(dir, match.captured(1));
+				builder = builder % included_file % "\n";
 			}
-		};
+			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
+			{
+				continue;
+			}
+			else
+			{
+				builder = builder % curr_tok % "\n";
+			}
+		}
+
+		shader_file.close();
+
+		return builder;
 	}
 
-#define PER_FRAME_CAMERA_DATA_LOC 0
-
-	UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
+	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path)
 	{
-		// Viewport (x, y, w, h)
-		std140::vec4 Viewport;
+		QRegularExpression dir_regex{ R"((.+/)(.+))" };
+		QRegularExpressionMatch match;
+		path.indexOf(dir_regex, 0, &match);
+		Check(match.hasMatch(), "Split is successfull.");
 
-		// Frustum (tan(fov / 2), aspect_ratio, near, far)
-		std140::vec4 Frustum;
+		QString data = resolveShaderFile(match.captured(1), match.captured(2));
 
-		// Transform from world to view space
-		std140::mat4 ViewMatrix;
-
-		// Transform from view to screen space
-		std140::mat4 ProjectionMatrix;
-	};
+		return{ type, 0, data.toUtf8().data() };
+	}
 }
 
 // Debug code
@@ -187,12 +187,6 @@ FboRenderer::FboRenderer()
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 	
-	InputLayoutDescription idTetraLayout =
-	{
-		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-	};
-	_idTetraLayout = std::make_unique<InputLayout>(idTetraLayout);
-
 	InputLayoutDescription opaqueTetraLayout =
 	{
 		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
@@ -220,12 +214,12 @@ FboRenderer::FboRenderer()
 	planePSDesc.FragmentShader = &meshFrag;
 	_planePipelineState = Vcl::make_owner<PipelineState>(planePSDesc);
 
-	ShaderProgramDescription idTetraDesc;
-	idTetraDesc.InputLayout = idTetraLayout;
-	idTetraDesc.VertexShader = &idTetraVert;
-	idTetraDesc.GeometryShader = &idTetraGeom;
-	idTetraDesc.FragmentShader = &idFrag;
-	_idTetraMeshShader = std::make_unique<ShaderProgram>(idTetraDesc);
+	PipelineStateDescription idTetraPSDesc;
+	idTetraPSDesc.InputLayout = opaqueTetraLayout;
+	idTetraPSDesc.VertexShader = &idTetraVert;
+	idTetraPSDesc.GeometryShader = &idTetraGeom;
+	idTetraPSDesc.FragmentShader = &idFrag;
+	_idTetraMeshPipelineState = Vcl::make_owner<PipelineState>(idTetraPSDesc);
 
 	PipelineStateDescription opaqueTriPSDesc;
 	opaqueTriPSDesc.InputLayout = opaqueTriLayout;
@@ -281,9 +275,6 @@ void FboRenderer::render()
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
-		//_idTetraMeshShader->setConstantBuffer("PerFrameCameraData", &cbuffer_cam.owner(), cbuffer_cam.offset(), cbuffer_cam.size());
-		//_idTetraMeshShader->setUniform(_idTetraMeshShader->uniform("ModelMatrix"), M);
-		
 		// Draw the ground
 		{
 			// Configure the layout

@@ -6,6 +6,7 @@
   </qresource>
 
   <qresource>
+    <file>shaders/3DSceneBindings.h</file>
     <file>shaders/plane.vert</file>
     <file>shaders/plane.geom</file>
     <file>shaders/trimesh.vert</file>

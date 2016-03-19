@@ -1,5 +1,8 @@
 #version 430 core
+#extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
+
+#include "3DSceneBindings.h"
 
 // Convert input points to a set of 2 triangles
 layout(points) in;
@@ -15,21 +18,6 @@ out VertexData
 
 // Shader constants
 uniform mat4 ModelMatrix;
-
-layout(std140, binding = 0) uniform PerFrameCameraData
-{
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
-
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
-
-	// Transform from world to view space
-	mat4 ViewMatrix;
-
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
-};
 
 vec4 computeFrustumSize(vec4 frustum)
 {

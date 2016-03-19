@@ -64,15 +64,13 @@ private:
 private:
 	MeshView* _owner{ nullptr };
 
-private: // Shaders
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::InputLayout> _idTetraLayout;
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::ShaderProgram> _idTetraMeshShader;
-
 private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
+
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
 
 private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
