@@ -22,4 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/geometry/distance.h>
+#pragma once
+
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
+
+namespace Vcl { namespace Geometry
+{
+	template<typename Scalar, int Dim>
+	class Quad
+	{
+	public:
+		using real_t = Scalar;
+		using vector_t = Eigen::Matrix<Scalar, Dim, 1>;
+
+	public:
+		Quad(const vector_t& a, const vector_t& b, const vector_t& c, const vector_t& d)
+		{
+			_data[0] = a;
+			_data[1] = b;
+			_data[2] = c;
+			_data[3] = d;
+		}
+
+	public:
+		const vector_t& operator[] (size_t idx) const
+		{
+			Require(idx < 4, "Id is in [0, 4[");
+
+			return _data[idx];
+		}
+
+	private:
+		vector_t _data[4];
+	};
+}}

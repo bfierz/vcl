@@ -777,7 +777,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		});
 		if (handle != std::end(uniforms))
 		{
-			return{ id(), handle->Location, handle->ResourceLocation };
+			return{ id(), (short) handle->Location, (short) handle->ResourceLocation };
 		}
 		else
 		{

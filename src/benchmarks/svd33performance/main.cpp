@@ -70,7 +70,7 @@ void perfEigenSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems; i++)
+	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		// Map data
 		auto U = resU.at<float>(i);
@@ -111,7 +111,7 @@ void perfTwoSidedSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -155,7 +155,7 @@ void perfJacobiSVDQR
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif /* _OPENMP */
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
@@ -200,7 +200,7 @@ void perfMcAdamsSVD
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (size_t i = 0; i < nr_problems / width; i++)
+	for (int i = 0; i < (int) nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
