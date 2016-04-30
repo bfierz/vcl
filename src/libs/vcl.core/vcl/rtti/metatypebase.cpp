@@ -97,7 +97,7 @@ namespace Vcl { namespace RTTI
 	{
 	}
 
-	void Type::construct(void* ptr, const std::initializer_list<boost::any>& params) const
+	void Type::construct(void* ptr, const std::initializer_list<cdiggins::any>& params) const
 	{
 	}
 

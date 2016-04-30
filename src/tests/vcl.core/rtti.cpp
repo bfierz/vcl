@@ -42,16 +42,15 @@ class BaseObject
 	//VCL_DECLARE_METAOBJECT(BaseObject)
 
 public:
-	BaseObject() {}
-	virtual ~BaseObject() {}
+	BaseObject() = default;
+	BaseObject(const BaseObject&) = delete;
+	virtual ~BaseObject() = default;
+
+	BaseObject& operator = (const BaseObject&) = delete;
 
 public:
 	const std::string& name() const { return _name; }
 	void setName(const std::string& n) { _name = n; }
-
-private:
-	BaseObject(const BaseObject&);
-	BaseObject& operator = (const BaseObject&);
 
 private:
 	std::string _name;
@@ -93,7 +92,6 @@ public:
 private:
 	size_t _size;
 };
-
 
 
 TEST(RttiTest, Attribute)

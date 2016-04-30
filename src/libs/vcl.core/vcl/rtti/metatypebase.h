@@ -31,8 +31,6 @@
 #include <initializer_list>
 #include <vector>
 
-// Boost
-//#include <boost/any.hpp>
 #include "any.h"
 
 // VCL
@@ -88,7 +86,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		/// Construct an instance of this type
-		virtual void construct(void* ptr, const std::initializer_list<boost::any>& params) const;
+		virtual void construct(void* ptr, const std::initializer_list<cdiggins::any>& params) const;
 		
 		/// Destruct an instance of this type
 		virtual void destruct(void* ptr) const;

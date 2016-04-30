@@ -36,8 +36,6 @@
 #include <string>
 #include <vector>
 
-// Boost library
-//#include <boost/any.hpp>
 #include "any.h"
 
 // VCL
@@ -63,17 +61,17 @@ namespace Vcl { namespace RTTI
 	template<typename T>
 	struct extract
 	{
-		static T get(const boost::any& value)
+		static T get(const cdiggins::any& value)
 		{
-			return boost::any_cast<T>(value);
+			return cdiggins::any_cast<T>(value);
 		}
 	};
 	template<typename T>
 	struct extract<std::shared_ptr<T>>
 	{
-		static std::shared_ptr<T> get(const boost::any& value)
+		static std::shared_ptr<T> get(const cdiggins::any& value)
 		{
-			return std::static_pointer_cast<T>(std::move(boost::any_cast<std::shared_ptr<void>>(value)));
+			return std::static_pointer_cast<T>(std::move(cdiggins::any_cast<std::shared_ptr<void>>(value)));
 		}
 	};
 
@@ -127,17 +125,17 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual boost::any pack(std::string value) const
+		virtual cdiggins::any pack(std::string value) const
 		{
-			return boost::any(0);
+			return 0;
 		}
-		virtual boost::any pack(void* link) const
+		virtual cdiggins::any pack(void* link) const
 		{
-			return boost::any(nullptr);
+			return nullptr;
 		}
-		virtual boost::any pack(std::shared_ptr<void> link) const
+		virtual cdiggins::any pack(std::shared_ptr<void> link) const
 		{
-			return boost::any(std::shared_ptr<void>());
+			return std::shared_ptr<void>();
 		}
 
 	private:
@@ -155,7 +153,7 @@ namespace Vcl { namespace RTTI
 		}
 	
 	public:
-		virtual boost::any pack(std::string value) const override
+		virtual cdiggins::any pack(std::string value) const override
 		{
 			return convert<T>(value);
 		}
@@ -171,7 +169,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual boost::any pack(void* link) const override
+		virtual cdiggins::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -187,7 +185,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual boost::any pack(std::shared_ptr<void> link) const override
+		virtual cdiggins::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -215,10 +213,10 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			return callImpl(location, { boost::any(args)... });
+			return callImpl(location, { cdiggins::any(args)... });
 		}
 
-		void* call(void* location, std::vector<boost::any> args) const
+		void* call(void* location, std::vector<cdiggins::any> args) const
 		{
 			return callImpl(location, std::move(args));
 		}
@@ -233,7 +231,7 @@ namespace Vcl { namespace RTTI
 		virtual const type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<boost::any>&& params) const = 0;
+		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -284,20 +282,20 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<boost::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const override
 		{
 			return callImplSeq(location, std::move(params), typename gens<sizeof...(Params)>::type());
 		}
 
 	private:
 		template<int... S>
-		void* callImplSeq(void* location, std::vector<boost::any>&& params, seq<S...>) const
+		void* callImplSeq(void* location, std::vector<cdiggins::any>&& params, seq<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename T, int I>
-		T getParam(const std::vector<boost::any>& params) const
+		T getParam(const std::vector<cdiggins::any>& params) const
 		{
 			return extract<T>::get(params.begin()[I]);
 		}
@@ -341,7 +339,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<boost::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const override
 		{
 			Require(params.size() == 0, "No parameters supplied.");
 
