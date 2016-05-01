@@ -28,6 +28,8 @@
 
 // Include the relevant parts from the library
 #include <vcl/rtti/attribute.h>
+#include <vcl/rtti/constructor.h>
+#include <vcl/rtti/metatype.h>
 
 // C++ standard library
 #include <random>
@@ -43,6 +45,7 @@ class BaseObject
 
 public:
 	BaseObject() = default;
+	BaseObject(const char* name) : _name(name) {}
 	BaseObject(const BaseObject&) = delete;
 	virtual ~BaseObject() = default;
 
@@ -53,7 +56,7 @@ public:
 	void setName(const std::string& n) { _name = n; }
 
 private:
-	std::string _name;
+	std::string _name{ "Initialized" };
 };
 
 class AdditionalBase
@@ -75,7 +78,12 @@ public:
 	}
 
 	DerivedObject(int a)
-		: _size(a)
+	: _size(a)
+	{
+	}
+
+	DerivedObject(int a, int b)
+	: _size(a + b)
 	{
 	}
 
@@ -89,17 +97,105 @@ public:
 		_size = (size_t) f;
 	}
 
+	size_t size() const { return _size; }
+
 private:
 	size_t _size;
 };
 
-
-TEST(RttiTest, Attribute)
+TEST(RttiTest, DefaultConstructor)
 {
 	using namespace Vcl::RTTI;
 
+	// Defines a default ctor
+	Constructor<BaseObject> def_constr{};
+
+	// Allocate memory for the test object
+	BaseObject* obj = (BaseObject*) malloc(sizeof(BaseObject));
+
+	// Calls the default ctor
+	def_constr.call(obj);
+
+	// Expected output
+	EXPECT_EQ(std::string{ "Initialized" }, obj->name()) << "Default ctor was not called.";
+
+	// Cleanup
+	obj->~BaseObject();
+	free(obj);
+}
+
+TEST(RttiTest, MultiParamConstructor)
+{
+	using namespace Vcl::RTTI;
+
+	// Defines a default ctor
+	Constructor<DerivedObject, int> def_constr_a
+	{
+		Parameter<int>("a")
+	};
+	Constructor<DerivedObject, int, int> def_constr_a_b
+	{
+		Parameter<int>("a"), Parameter<int>("b")
+	};
+
+	// Allocate memory for the test object
+	auto obj_a   = (DerivedObject*)malloc(sizeof(DerivedObject));
+	auto obj_a_b = (DerivedObject*)malloc(sizeof(DerivedObject));
+
+	// Calls the default ctor
+	def_constr_a.call(obj_a, 4);
+	def_constr_a_b.call(obj_a_b, 4, 5);
+
+	// Expected output
+	EXPECT_EQ(4, obj_a->size()) << "ctor with one params was not called.";
+	EXPECT_EQ(9, obj_a_b->size()) << "ctor with two params was not called.";
+
+	// Cleanup
+	obj_a->~DerivedObject();
+	free(obj_a);
+	obj_a_b->~DerivedObject();
+	free(obj_a_b);
+}
+
+TEST(RttiTest, SimpleConstructor)
+{
+	using namespace Vcl::RTTI;
+
+	// Defines a default ctor
+	Constructor<BaseObject, const char*> def_constr
+	{
+		Parameter<const char*>("Name")
+	};
+
+	// Check if the parameters can be found
+	EXPECT_TRUE(def_constr.hasParam("Name")) << "Parameter 'Name' is not found.";
+	EXPECT_FALSE(def_constr.hasParam("NotExisting")) << "Parameter 'NotExisting' is found.";
+
+	// Allocate memory for the test object
+	BaseObject* obj = (BaseObject*)malloc(sizeof(BaseObject));
+
+	// Calls the default ctor
+	def_constr.call(obj, "String");
+
+	// Expected output
+	EXPECT_EQ(std::string{ "String" }, obj->name()) << "Default ctor was not called.";
+
+	// Cleanup
+	obj->~BaseObject();
+	free(obj);
+}
+
+TEST(RttiTest, AttributeSimpleSetter)
+{
+	using namespace Vcl::RTTI;
+
+	// Test object
 	BaseObject obj;
 
+	// Set an attribute
 	Attribute<BaseObject, std::string> attr{ "Name", &BaseObject::name, &BaseObject::setName };
 	attr.set(&obj, std::string{ "String" });
+
+	// Expected output
+	EXPECT_EQ(std::string{ "String" }, obj.name()) << "Property 'Name' was not set.";
 }

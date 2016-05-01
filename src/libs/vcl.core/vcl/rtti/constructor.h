@@ -34,18 +34,20 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <tuple>
 #include <vector>
-
-#include "any.h"
+#include <utility>
 
 // VCL
+#include <vcl/core/3rdparty/gsl/string_span.h>
+#include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace RTTI
 {
-	template<int ...> struct seq {};
-	template<int N, int ...S> struct gens : gens<N - 1, N - 1, S...> {};
-	template<int ...S> struct gens<0, S...> { typedef seq<S...> type; };
+	template<int ...> struct index_sequence {};
+	template<int N, int ...S> struct make_index_sequence : make_index_sequence<N - 1, N - 1, S...> {};
+	template<int ...S> struct make_index_sequence<0, S...> { typedef index_sequence<S...> type; };
 
 	template<bool B> struct is_true
 	{
@@ -58,28 +60,47 @@ namespace Vcl { namespace RTTI
 		static const std::true_type::value_type value = std::true_type::value;
 	};
 
+	template < typename T, typename... Ts >
+	auto head(std::tuple<T, Ts...> t)
+	{
+		return std::get<0>(t);
+	}
+
+	template < std::size_t... Ns, typename... Ts >
+	auto tail_impl(std::index_sequence<Ns...>, std::tuple<Ts...> t)
+	{
+		return std::make_tuple(std::get<Ns + 1u>(t)...);
+	}
+
+	template < typename... Ts >
+	auto tail(std::tuple<Ts...> t)
+	{
+		return tail_impl(std::make_index_sequence<sizeof...(Ts)-1u>(), t);
+	}
+
 	template<typename T>
 	struct extract
 	{
-		static T get(const cdiggins::any& value)
+		static T get(const linb::any& value)
 		{
-			return cdiggins::any_cast<T>(value);
+			return linb::any_cast<T>(value);
 		}
 	};
 	template<typename T>
 	struct extract<std::shared_ptr<T>>
 	{
-		static std::shared_ptr<T> get(const cdiggins::any& value)
+		static std::shared_ptr<T> get(const linb::any& value)
 		{
-			return std::static_pointer_cast<T>(std::move(cdiggins::any_cast<std::shared_ptr<void>>(value)));
+			return std::static_pointer_cast<T>(std::move(linb::any_cast<std::shared_ptr<void>>(value)));
 		}
 	};
 
 	class ParameterMetaData
 	{
 	public:
-		ParameterMetaData(std::string name)
-		: _name(std::move(name))
+		template<int N>
+		ParameterMetaData(const char (&name)[N])
+		: _name(name)
 		{
 		}
 
@@ -98,10 +119,10 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		const std::string& name() const { return _name; }
+		gsl::cstring_span<> name() const { return _name; }
 
 	private:
-		std::string _name;
+		gsl::cstring_span<> _name;
 	};
 
 	class ParameterBase
@@ -125,16 +146,19 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual cdiggins::any pack(std::string value) const
+		virtual linb::any pack(std::string value) const
 		{
+			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
 		}
-		virtual cdiggins::any pack(void* link) const
+		virtual linb::any pack(void* link) const
 		{
+			VCL_UNREFERENCED_PARAMETER(link);
 			return nullptr;
 		}
-		virtual cdiggins::any pack(std::shared_ptr<void> link) const
+		virtual linb::any pack(std::shared_ptr<void> link) const
 		{
+			VCL_UNREFERENCED_PARAMETER(link);
 			return std::shared_ptr<void>();
 		}
 
@@ -153,7 +177,7 @@ namespace Vcl { namespace RTTI
 		}
 	
 	public:
-		virtual cdiggins::any pack(std::string value) const override
+		virtual linb::any pack(std::string value) const override
 		{
 			return convert<T>(value);
 		}
@@ -169,7 +193,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual cdiggins::any pack(void* link) const override
+		virtual linb::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -180,12 +204,12 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-			: ParameterBase(std::move(meta_data), &typeid(T))
+		: ParameterBase(std::move(meta_data), &typeid(T))
 		{
 		}
 
 	public:
-		virtual cdiggins::any pack(std::shared_ptr<void> link) const override
+		virtual linb::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -213,10 +237,10 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			return callImpl(location, { cdiggins::any(args)... });
+			return callImpl(location, { linb::any(args)... });
 		}
 
-		void* call(void* location, std::vector<cdiggins::any> args) const
+		void* call(void* location, std::vector<linb::any> args) const
 		{
 			return callImpl(location, std::move(args));
 		}
@@ -231,7 +255,7 @@ namespace Vcl { namespace RTTI
 		virtual const type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const = 0;
+		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -244,9 +268,9 @@ namespace Vcl { namespace RTTI
 		static const int NumParams = sizeof...(Params);
 
 	public:
-		Constructor(const std::array<ParameterBase*, NumParams>& desc)
+		Constructor(Parameter<Params>... desc)
 		: ConstructorBase(NumParams)
-		, _parameters(std::move(desc))
+		, _parameters(std::make_tuple(std::forward<Parameter<Params>>(desc)...))
 		{
 		}
 
@@ -260,48 +284,72 @@ namespace Vcl { namespace RTTI
 
 		virtual bool hasParam(const std::string& name) const override
 		{
-			auto res = std::find_if(_parameters.cbegin(), _parameters.cend(), [&name] (const ParameterBase* p) -> bool
-			{
-				if (p->data().name() == name)
-					return true;
-				else
-					return false;
-			});
-
-			return res != _parameters.cend();
+			return hasParamImpl(_parameters, name);
 		}
 
 		virtual const ParameterBase& param(int idx) const override
 		{
-			return *_parameters[idx];
+			return getParamImpl(_parameters, idx);
 		}
 
-		virtual const type_info*  paramType(int idx) const override
+		virtual const type_info* paramType(int idx) const override
 		{
-			return _parameters[idx]->type();
+			return getParamImpl(_parameters, idx).type();
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const override
 		{
-			return callImplSeq(location, std::move(params), typename gens<sizeof...(Params)>::type());
+			return callImplSeq(location, std::move(params), typename make_index_sequence<sizeof...(Params)>::type());
 		}
 
 	private:
 		template<int... S>
-		void* callImplSeq(void* location, std::vector<cdiggins::any>&& params, seq<S...>) const
+		void* callImplSeq(void* location, std::vector<linb::any>&& params, index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename T, int I>
-		T getParam(const std::vector<cdiggins::any>& params) const
+		T getParam(const std::vector<linb::any>& params) const
 		{
 			return extract<T>::get(params.begin()[I]);
 		}
 
+		template<typename... Ts>
+		const ParameterBase& getParamImpl(const std::tuple<Ts...>& tuple, int idx) const
+		{
+			if (idx == 0)
+				return std::get<0>(tuple);
+			else
+				return getParamImpl(tail(tuple), idx - 1);
+		}
+
+		template<typename T>
+		const ParameterBase& getParamImpl(const std::tuple<T>& tuple, int idx) const
+		{
+			Require(idx == 0, "Tuple with one element has index 0.");
+
+			return std::get<0>(tuple);
+		}
+
+		template<typename... Ts>
+		bool hasParamImpl(const std::tuple<Ts...>& tuple, const std::string& name) const
+		{
+			if (head(_parameters).data().name() == name)
+				return true;
+			else
+				return hasParamImpl(tail(tuple), name);
+		}
+
+		template<typename T>
+		bool hasParamImpl(const std::tuple<T>& tuple, const std::string& name) const
+		{
+			return std::get<0>(tuple).data().name() == name;
+		}
+
 	private:
-		std::array<ParameterBase*, NumParams> _parameters;
+		std::tuple<Parameter<Params>...> _parameters;
 	};
 
 	template<typename T>
@@ -325,21 +373,24 @@ namespace Vcl { namespace RTTI
 
 		virtual bool hasParam(const std::string& name) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(name);
 			return false;
 		}
 
 		virtual const ParameterBase& param(int idx) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(idx);
 			return _default;
 		}
 
 		virtual const type_info* paramType(int idx) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(idx);
 			return nullptr;
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<cdiggins::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const override
 		{
 			Require(params.size() == 0, "No parameters supplied.");
 
@@ -400,11 +451,11 @@ namespace Vcl { namespace RTTI
 			if (sizeof...(Args) != constr->numParams())
 				return false;
 
-			return checkArgsImpl<Args...>(constr, typename gens<sizeof...(Args)>::type());
+			return checkArgsImpl<Args...>(constr, typename make_index_sequence<sizeof...(Args)>::type());
 		}
 
 		template<typename... Args, int... S>
-		bool checkArgsImpl(const ConstructorBase* constr, seq<S...>) const
+		bool checkArgsImpl(const ConstructorBase* constr, index_sequence<S...>) const
 		{
 			std::array<bool, sizeof...(Args)> results{ { checkArg<Args, S>(constr)... } };
 

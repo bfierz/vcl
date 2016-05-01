@@ -32,11 +32,8 @@
 #include <memory>
 #include <string>
 
-// Boost
-//#include <boost/any.hpp>
-#include "any.h"
-
 // VCL
+#include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
 #include <vcl/util/hashedstring.h>
@@ -55,7 +52,7 @@ namespace Vcl { namespace RTTI
 		virtual ~AttributeBase() = default;
 
 	public:
-		virtual void set(void* object, const cdiggins::any& param) const = 0;
+		virtual void set(void* object, const linb::any& param) const = 0;
 		virtual void set(void* object, const std::string& param) const = 0;
 
 		virtual void get(void* object, void* param, void* result) const = 0;
@@ -108,10 +105,14 @@ namespace Vcl { namespace RTTI
 		}
 
 	private:
+		//! Readable attribute name
 		const char* _name;
+
+		//! Attribute name hash
 		size_t _hash;
 
 	private:
+		//! Flags describing the content of the attribute
 		uint32_t _flags{ 0 };
 	};
 		
@@ -154,22 +155,32 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const cdiggins::any& param) const override
+		virtual void set(void* object, const linb::any& param) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
 			DebugError("Not implemented.");
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
 			Require(_setter, "Setter is valid.");
 
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
 			_setter(*static_cast<MetaType*>(object), convert<T>(param));
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
 			DebugError("Not implemented.");
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
 			DebugError("Not implemented.");
 		}
 
@@ -215,7 +226,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const cdiggins::any& param) const override
+		virtual void set(void* object, const linb::any& param) const override
 		{
 			Require(object, "Object is set.");
 			//Require(param, "Value is set.");
@@ -280,7 +291,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const cdiggins::any& param) const override
+		virtual void set(void* object, const linb::any& param) const override
 		{
 			Require(object, "Object is set.");
 			//Require(param, "Value is set.");
@@ -352,7 +363,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const cdiggins::any& param) const override
+		virtual void set(void* object, const linb::any& param) const override
 		{
 			Require(object, "Object is set.");
 			//Require(param, "Value is set.");

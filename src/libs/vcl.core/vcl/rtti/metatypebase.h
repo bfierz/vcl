@@ -31,9 +31,8 @@
 #include <initializer_list>
 #include <vector>
 
-#include "any.h"
-
 // VCL
+#include <vcl/core/3rdparty/any.hpp>
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
 #include <vcl/util/hashedstring.h>
@@ -86,7 +85,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		/// Construct an instance of this type
-		virtual void construct(void* ptr, const std::initializer_list<cdiggins::any>& params) const;
+		virtual void construct(void* ptr, const std::initializer_list<linb::any>& params) const;
 		
 		/// Destruct an instance of this type
 		virtual void destruct(void* ptr) const;

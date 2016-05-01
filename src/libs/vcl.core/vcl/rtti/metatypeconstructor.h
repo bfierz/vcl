@@ -31,9 +31,8 @@
 #include <initializer_list>
 #include <vector>
 
-#include "any.h"
-
 // VCL
+#include <vcl/core/3rdparty/any.hpp>
 #include <vcl/rtti/metatypebase.h>
 
 namespace Vcl { namespace RTTI 
@@ -111,7 +110,7 @@ namespace Vcl { namespace RTTI
 
 			_isConstructable = true;
 
-			_init = [&] (void* ptr, const std::initializer_list<cdiggins::any>& params) -> void { new(ptr) T; };
+			_init = [&] (void* ptr, const std::initializer_list<linb::any>& params) -> void { new(ptr) T; };
 			
 			return this;
 		}
@@ -123,12 +122,12 @@ namespace Vcl { namespace RTTI
 
 			_isConstructable = true;
 
-			_init = [] (void* ptr, const std::initializer_list<cdiggins::any>& params) -> void
+			_init = [] (void* ptr, const std::initializer_list<linb::any>& params) -> void
 			{
 				auto* param_list = params.begin();
-				cdiggins::any a0 = param_list[0];
+				linb::any a0 = param_list[0];
 
-				const T0* p0 = cdiggins::unsafe_any_cast<T0>(&a0);
+				const T0* p0 = linb::unsafe_any_cast<T0>(&a0);
 
 				new(ptr) T(*p0);
 			};
@@ -145,18 +144,18 @@ namespace Vcl { namespace RTTI
 
 			_isConstructable = true;
 			
-			_init = [&] (void* ptr, const std::initializer_list<cdiggins::any>& params) -> void
+			_init = [&] (void* ptr, const std::initializer_list<linb::any>& params) -> void
 			{
 				auto* param_list = params.begin();
 
-				new(ptr) T(cdiggins::any_cast<T0>(param_list[0]), cdiggins::any_cast<T1>(param_list[1]));
+				new(ptr) T(linb::any_cast<T0>(param_list[0]), linb::any_cast<T1>(param_list[1]));
 			};
 			
 			return this;
 		}
 
 	private:
-		virtual void construct(void* ptr, const std::initializer_list<cdiggins::any>& params) const
+		virtual void construct(void* ptr, const std::initializer_list<linb::any>& params) const
 		{
 			if (_init)
 			{
@@ -170,6 +169,6 @@ namespace Vcl { namespace RTTI
 		}
 
 	private:
-		std::function<void(void*, const std::initializer_list<cdiggins::any>&)> _init;
+		std::function<void(void*, const std::initializer_list<linb::any>&)> _init;
 	};
 }}
