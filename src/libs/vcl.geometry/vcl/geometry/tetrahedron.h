@@ -30,6 +30,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {

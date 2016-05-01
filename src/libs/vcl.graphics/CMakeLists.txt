@@ -8,10 +8,12 @@ SET(VCL_CONFIG_INC
 # VCL / GRAPHICS / OPENGL
 SET(VCL_GRAPHICS_OPENGL_INC
 	vcl/graphics/opengl/gl.h
+	vcl/graphics/opengl/statecommands.h
 	vcl/graphics/opengl/type_traits.h
 )
 SET(VCL_GRAPHICS_OPENGL_SRC
 	vcl/graphics/opengl/gl.cpp
+	vcl/graphics/opengl/statecommands.cpp
 	vcl/graphics/opengl/type_traits.cpp
 )
 
@@ -46,14 +48,26 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
 	vcl/graphics/runtime/opengl/state/blendstate.h
 	vcl/graphics/runtime/opengl/state/framebuffer.h
+	vcl/graphics/runtime/opengl/state/inputlayout.h
+	vcl/graphics/runtime/opengl/state/pipelinestate.h
 	vcl/graphics/runtime/opengl/state/sampler.h
 	vcl/graphics/runtime/opengl/state/shaderprogram.h
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
 	vcl/graphics/runtime/opengl/state/blendstate.cpp
 	vcl/graphics/runtime/opengl/state/framebuffer.cpp
+	vcl/graphics/runtime/opengl/state/inputlayout.cpp
+	vcl/graphics/runtime/opengl/state/pipelinestate.cpp
 	vcl/graphics/runtime/opengl/state/sampler.cpp
 	vcl/graphics/runtime/opengl/state/shaderprogram.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME / OPENGL
+SET(VCL_GRAPHICS_RUNTIME_OPENGL_INC
+	vcl/graphics/runtime/opengl/graphicsengine.h
+)
+SET(VCL_GRAPHICS_RUNTIME_OPENGL_SRC
+	vcl/graphics/runtime/opengl/graphicsengine.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / RESOURCE
@@ -70,11 +84,21 @@ SET(VCL_GRAPHICS_RUNTIME_RESOURCE_SRC
 
 # VCL / GRAPHICS / RUNTIME / STATE
 SET(VCL_GRAPHICS_RUNTIME_STATE_INC
+	vcl/graphics/runtime/state/blendstate.h
 	vcl/graphics/runtime/state/inputlayout.h
+	vcl/graphics/runtime/state/pipelinestate.h
 	vcl/graphics/runtime/state/sampler.h
 )
 SET(VCL_GRAPHICS_RUNTIME_STATE_SRC
 	vcl/graphics/runtime/state/sampler.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME
+SET(VCL_GRAPHICS_RUNTIME_INC
+	vcl/graphics/runtime/dynamictexture.h
+	vcl/graphics/runtime/graphicsengine.h
+)
+SET(VCL_GRAPHICS_RUNTIME_SRC
 )
 
 # VCL / GRAPHICS / SHADOWS
@@ -90,10 +114,12 @@ SET(VCL_GRAPHICS_SHADOWS_SRC
 
 # VCL / GRAPHICS
 SET(VCL_GRAPHICS_INC
+	vcl/graphics/cameracontroller.h
 	vcl/graphics/camera.h
 	vcl/graphics/frustum.h
 	vcl/graphics/matrixfactory.h
 	vcl/graphics/surfaceformat.h
+	vcl/graphics/trackballcameracontroller.h
 	vcl/graphics/trackball.h
 )
 SET(VCL_GRAPHICS_SRC
@@ -101,6 +127,7 @@ SET(VCL_GRAPHICS_SRC
 	vcl/graphics/frustum.cpp
 	vcl/graphics/matrixfactory.cpp
 	vcl/graphics/surfaceformat.cpp
+	vcl/graphics/trackballcameracontroller.cpp
 	vcl/graphics/trackball.cpp
 )
 
@@ -108,8 +135,10 @@ SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})
 SOURCE_GROUP("opengl" FILES ${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC})
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
+SOURCE_GROUP("runtime\\opengl" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC})
 SOURCE_GROUP("runtime\\resource" FILES ${VCL_GRAPHICS_RUNTIME_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC})
 SOURCE_GROUP("runtime\\state" FILES ${VCL_GRAPHICS_RUNTIME_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_STATE_INC})
+SOURCE_GROUP("runtime" FILES ${VCL_GRAPHICS_RUNTIME_SRC} ${VCL_GRAPHICS_RUNTIME_INC})
 SOURCE_GROUP("shadows" FILES ${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC})
 SOURCE_GROUP("" FILES ${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC})
 
@@ -120,8 +149,10 @@ SET(SOURCE
 	
 	${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC}
 	${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC}
+	${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC}
 	${VCL_GRAPHICS_RUNTIME_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC}
 	${VCL_GRAPHICS_RUNTIME_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_STATE_INC}
+	${VCL_GRAPHICS_RUNTIME_SRC} ${VCL_GRAPHICS_RUNTIME_INC}
 
 	${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC}
 	${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC}

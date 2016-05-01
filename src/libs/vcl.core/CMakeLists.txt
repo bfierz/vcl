@@ -40,6 +40,20 @@ SET(VCL_CORE_3RDPARTY_INC
 	vcl/core/3rdparty/format.h
 )
 
+# VCL / CORE / 3RDPARTY / GSL
+SET(VCL_CORE_3RDPARTY_GSL_INC
+	vcl/core/3rdparty/gsl/gsl.h
+	vcl/core/3rdparty/gsl/gsl_assert.h
+	vcl/core/3rdparty/gsl/gsl_util.h
+	vcl/core/3rdparty/gsl/span.h
+	vcl/core/3rdparty/gsl/string_span.h
+)
+
+# VCL / CORE / 3RDPARTY / SPDLOG
+SET(VCL_CORE_3RDPARTY_SPDLOG_INC
+	vcl/core/3rdparty/spdlog/spdlog.h
+)
+
 # VCL / CORE / CONTAINER
 SET(VCL_CORE_CONTAINER_SRC
 )
@@ -122,6 +136,7 @@ SET(VCL_RTTI_INC
 # VCL / UTIL
 SET(VCL_UTIL_SRC
 	vcl/util/precisetimer.cpp
+	vcl/util/stringparser.cpp
 )
 SET(VCL_UTIL_INC
 	vcl/util/donotoptimizeaway.h
@@ -130,9 +145,12 @@ SET(VCL_UTIL_INC
 	vcl/util/mortoncodes.h
 	vcl/util/reservememory.h
 	vcl/util/scopeguard.h
+	vcl/util/stringparser.h
 )
 
 SOURCE_GROUP(config FILES ${VCL_CONFIG_INC})
+SOURCE_GROUP(core\\3rdParty\\gsl FILES ${VCL_CORE_3RDPARTY_GSL_INC})
+SOURCE_GROUP(core\\3rdParty\\spdlog FILES ${VCL_CORE_3RDPARTY_SPDLOG_INC})
 SOURCE_GROUP(core\\3rdParty FILES ${VCL_CORE_3RDPARTY_SRC} ${VCL_CORE_3RDPARTY_INL} ${VCL_CORE_3RDPARTY_INC})
 SOURCE_GROUP(core\\container FILES ${VCL_CORE_CONTAINER_SRC} ${VCL_CORE_CONTAINER_INL} ${VCL_CORE_CONTAINER_INC})
 SOURCE_GROUP(core\\memory FILES ${VCL_CORE_MEMORY_SRC} ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC})
@@ -144,6 +162,8 @@ SOURCE_GROUP(util FILES ${VCL_UTIL_SRC} ${VCL_UTIL_INC})
 
 SET(SOURCE
 	${VCL_CONFIG_INC}
+	${VCL_CORE_3RDPARTY_GSL_INC}
+	${VCL_CORE_3RDPARTY_SPDLOG_INC}
 	${VCL_CORE_3RDPARTY_SRC} ${VCL_CORE_3RDPARTY_INL} ${VCL_CORE_3RDPARTY_INC}
 	${VCL_CORE_CONTAINER_SRC} ${VCL_CORE_CONTAINER_INL} ${VCL_CORE_CONTAINER_INC}
 	${VCL_CORE_MEMORY_SRC} ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC}
@@ -165,6 +185,8 @@ TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${PROJECT_BINARY_DIR})
 
 # Setup installation
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
+INSTALL(FILES ${VCL_CORE_3RDPARTY_GSL_INC} DESTINATION include/vcl/core/3rdparty/gsl)
+INSTALL(FILES ${VCL_CORE_3RDPARTY_SPDLOG_INC} DESTINATION include/vcl/core/3rdparty/spdlog)
 INSTALL(FILES ${VCL_CORE_3RDPARTY_INL} ${VCL_CORE_3RDPARTY_INC} DESTINATION include/vcl/core/3rdparty)
 INSTALL(FILES ${VCL_CORE_CONTAINER_INL} ${VCL_CORE_CONTAINER_INC} DESTINATION include/vcl/core/container)
 INSTALL(FILES ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC} DESTINATION include/vcl/core/memory)

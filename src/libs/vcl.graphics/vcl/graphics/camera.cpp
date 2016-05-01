@@ -192,9 +192,9 @@ namespace Vcl { namespace Graphics
 			_view =
 				_factory->createLookAt
 				(
-					_position,
-					_direction,
-					_up,
+					position(),
+					direction(),
+					up(),
 					Handedness::RightHanded
 				);
 			_changedView = false;

@@ -64,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return glewIsSupported("GL_KHR_blend_equation_advanced");
 	}
 
-	void BlendState::bind(float r, float g, float b, float a)
+	void BlendState::bind()
 	{
 		// Alpha to coverage
 		if (desc().AlphaToCoverageEnable)
@@ -100,6 +100,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 					rt.DestBlend == Blend::BlendFactor   ||
 					rt.DestBlend == Blend::InvBlendFactor  )
 				{
+					float r = desc().ConstantColor[0];
+					float g = desc().ConstantColor[1];
+					float b = desc().ConstantColor[2];
+					float a = desc().ConstantColor[3];
+
 					glBlendColor(r, g, b, a);
 				}
 
@@ -147,6 +152,87 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
 				);
 
+				i++;
+			}
+		}
+	}
+
+	void BlendState::record(Graphics::OpenGL::StateCommands& states)
+	{
+		// Alpha to coverage
+		if (desc().AlphaToCoverageEnable)
+		{
+			states.emplace(CommandType::Enable, GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
+
+		// Enable the logic operations if applicable
+		if (desc().LogicOpEnable && desc().RenderTarget[0].BlendEnable == false)
+		{
+			states.emplace(CommandType::Enable, GL_COLOR_LOGIC_OP);
+			states.emplace(CommandType::LogicOp, toGLenum(desc().LogicOp));
+		}
+
+		if (desc().IndependentBlendEnable == false)
+		{
+			const auto& rt = desc().RenderTarget[0];
+			if (rt.BlendEnable && desc().LogicOpEnable == false)
+			{
+				if (rt.SrcBlend == Blend::BlendFactor ||
+					rt.SrcBlend == Blend::InvBlendFactor ||
+					rt.DestBlend == Blend::BlendFactor ||
+					rt.DestBlend == Blend::InvBlendFactor)
+				{
+					float r = desc().ConstantColor[0];
+					float g = desc().ConstantColor[1];
+					float b = desc().ConstantColor[2];
+					float a = desc().ConstantColor[3];
+
+					states.emplace(CommandType::BlendColor, r, g, b, a);
+				}
+
+				states.emplace(CommandType::Enable, GL_BLEND);
+				states.emplace(CommandType::BlendFunc, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
+				states.emplace(CommandType::BlendEquation, toGLenum(rt.BlendOp));
+			}
+
+			// Set write mask
+			if (!rt.RenderTargetWriteMask.areAllSet())
+			{
+				states.emplace
+				(
+					CommandType::ColorMask,
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
+				);
+			}
+		}
+		else
+		{
+			GLint i = 0;
+			for (const auto& rt : desc().RenderTarget)
+			{
+				if (rt.BlendEnable && desc().LogicOpEnable == false)
+				{
+					states.emplace(CommandType::Enablei, GL_BLEND, i);
+					states.emplace(CommandType::BlendFunci, i, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
+					states.emplace(CommandType::BlendEquationi, i, toGLenum(rt.BlendOp));
+				}
+
+				// Set write mask
+				if (!rt.RenderTargetWriteMask.areAllSet())
+				{
+					states.emplace
+					(
+						CommandType::ColorMaskIndexed,
+						i,
+						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
+						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
+						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
+						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
+					);
+				}
 				i++;
 			}
 		}
