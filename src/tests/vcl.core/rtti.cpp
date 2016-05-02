@@ -29,6 +29,7 @@
 // Include the relevant parts from the library
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
+#include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatype.h>
 
 // C++ standard library
@@ -64,7 +65,7 @@ class AdditionalBase
 	//VCL_DECLARE_METAOBJECT(AdditionalBase)
 
 private:
-	std::string _additionalName;
+	std::string _additionalName{ "NoValue" };
 };
 
 class DerivedObject : public BaseObject, public AdditionalBase
@@ -198,4 +199,60 @@ TEST(RttiTest, AttributeSimpleSetter)
 
 	// Expected output
 	EXPECT_EQ(std::string{ "String" }, obj.name()) << "Property 'Name' was not set.";
+}
+
+TEST(RttiTest, SimpleConstructableType)
+{
+	using namespace Vcl::RTTI;
+
+	// Build the constructable type
+	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	type.addConstructor();
+	type.addConstructor(Parameter<const char*>("Name"));
+	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
+	type.createFactory();
+
+	// Build a test object
+	void* obj_mem = type.allocate();
+	type.Type::construct(obj_mem);
+
+	auto obj = (BaseObject*) obj_mem;
+
+	// Check the expected output
+	EXPECT_TRUE(type.hasAttribute("Name")) << "Attribute 'Name' is not found.";
+	EXPECT_EQ(std::string{ "Initialized" }, obj->name()) << "Default ctor was not called.";
+
+	type.destruct(obj_mem);
+	type.deallocate(obj_mem);
+}
+
+TEST(RttiTest, DerivedConstructableType)
+{
+	using namespace Vcl::RTTI;
+
+	// Build the constructable type
+	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	type.addConstructor();
+	type.addConstructor(Parameter<const char*>("Name"));
+	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
+	type.createFactory();
+
+	ConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
+	type_d.inherit<BaseObject>();
+	type_d.inherit<AdditionalBase>();
+	type_d.addConstructor();
+	type_d.addConstructor(Parameter<int>("a"));
+	type_d.addConstructor(Parameter<int>("a"), Parameter<int>("b"));
+
+	// Build a test object
+	void* obj_mem = type_d.allocate();
+	type_d.Type::construct(obj_mem, 42);
+
+	auto obj = (DerivedObject*)obj_mem;
+
+	// Check the expected output
+	EXPECT_EQ(42, obj->size()) << "Constructor was not called correctly.";
+
+	type_d.destruct(obj_mem);
+	type_d.deallocate(obj_mem);
 }

@@ -429,6 +429,8 @@ namespace Vcl { namespace RTTI
 					return;
 				}
 			}
+
+			throw std::runtime_error{ "Default ctor was not found." };
 		}
 
 		template<typename... Args>

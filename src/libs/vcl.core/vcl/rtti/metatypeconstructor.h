@@ -37,15 +37,6 @@
 
 namespace Vcl { namespace RTTI 
 {
-	namespace Internal
-	{
-		template<typename T>
-		ParameterBase* copy(const Parameter<T>& orig)
-		{
-			return new Parameter<T>(orig);
-		}
-	}
-
 	template<typename T>
 	class ConstructableType : public Type
 	{
@@ -65,9 +56,7 @@ namespace Vcl { namespace RTTI
 		{
 			std::swap(_init, rhs._init);
 		}
-		~ConstructableType()
-		{
-		}
+		~ConstructableType() = default;
 
 	public:
 		template<typename Args>
@@ -79,8 +68,7 @@ namespace Vcl { namespace RTTI
 		ConstructableType<T>* addConstructor(Parameter<Args>... descriptors)
 		{
 			// Create an new constructor
-			std::array<ParameterBase*, sizeof...(Args)> meta_data{ { Internal::copy(descriptors)... } };
-			auto constr = std::make_unique<Constructor<T, Args...>>(meta_data);
+			auto constr = std::make_unique<Constructor<T, Args...>>(descriptors...);
 
 			// Store the constructor in the table
 			_constructors.add(std::move(constr));
@@ -110,7 +98,7 @@ namespace Vcl { namespace RTTI
 
 			_isConstructable = true;
 
-			_init = [&] (void* ptr, const std::initializer_list<linb::any>& params) -> void { new(ptr) T; };
+			_init = [&] (void* ptr, const std::initializer_list<linb::any>&) -> void { new(ptr) T; };
 			
 			return this;
 		}
@@ -154,7 +142,6 @@ namespace Vcl { namespace RTTI
 			return this;
 		}
 
-	private:
 		virtual void construct(void* ptr, const std::initializer_list<linb::any>& params) const
 		{
 			if (_init)
