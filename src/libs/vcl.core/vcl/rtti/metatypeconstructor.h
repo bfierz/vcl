@@ -54,7 +54,6 @@ namespace Vcl { namespace RTTI
 		ConstructableType(ConstructableType&& rhs)
 		: Type(std::move(rhs))
 		{
-			std::swap(_init, rhs._init);
 		}
 		~ConstructableType() = default;
 
@@ -85,77 +84,16 @@ namespace Vcl { namespace RTTI
 		template<typename AttribT>
 		ConstructableType<T>* addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
 		{
-			auto attrib = new Attribute<T, AttribT>(name, getter, setter);
+			auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
 			
 			_attributes.push_back(std::move(attrib));
 
 			return this;
-		}
-
-		ConstructableType<T>* createFactory()
-		{
-			Require(_isConstructable == false, "Constructor not set.");
-
-			_isConstructable = true;
-
-			_init = [&] (void* ptr, const std::initializer_list<linb::any>&) -> void { new(ptr) T; };
-			
-			return this;
-		}
-
-		template<typename T0>
-		ConstructableType<T>* createFactory()
-		{
-			Require(_isConstructable == false, "Constructor not set.");
-
-			_isConstructable = true;
-
-			_init = [] (void* ptr, const std::initializer_list<linb::any>& params) -> void
-			{
-				auto* param_list = params.begin();
-				linb::any a0 = param_list[0];
-
-				const T0* p0 = linb::unsafe_any_cast<T0>(&a0);
-
-				new(ptr) T(*p0);
-			};
-			
-			return this;
-		}
-
-		template<typename T0, typename T1>
-		ConstructableType<T>* createFactory()
-		{
-			Require(_isConstructable == false, "Constructor not set.");
-			
-			typedef void function_t(void*);
-
-			_isConstructable = true;
-			
-			_init = [&] (void* ptr, const std::initializer_list<linb::any>& params) -> void
-			{
-				auto* param_list = params.begin();
-
-				new(ptr) T(linb::any_cast<T0>(param_list[0]), linb::any_cast<T1>(param_list[1]));
-			};
-			
-			return this;
-		}
-
-		virtual void construct(void* ptr, const std::initializer_list<linb::any>& params) const
-		{
-			if (_init)
-			{
-				_init(ptr, params);
-			}
 		}
 		
 		virtual void destruct(void* ptr) const override
 		{
 			static_cast<T*>(ptr)->~T();
 		}
-
-	private:
-		std::function<void(void*, const std::initializer_list<linb::any>&)> _init;
 	};
 }}

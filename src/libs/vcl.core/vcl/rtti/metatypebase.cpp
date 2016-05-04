@@ -40,7 +40,6 @@ namespace Vcl { namespace RTTI
 	, _hash(hash)
 	, _size(size)
 	, _alignment(alignment)
-	, _isConstructable(false)
 	{
 		TypeRegistry::add(this);
 	}
@@ -54,15 +53,14 @@ namespace Vcl { namespace RTTI
 		_hash = rhs._hash;
 		_size = rhs._size;
 		_alignment = rhs._alignment;
-		_isConstructable = rhs._isConstructable;
 		
 		rhs._name = 0;
 		rhs._hash = 0;
 		rhs._size = 0;
 		rhs._alignment = 0;
-		rhs._isConstructable = false;
 
 		_parents = std::move(rhs._parents);
+		_constructors = std::move(rhs._constructors);
 		_attributes = std::move(rhs._attributes);
 		_methods = std::move(rhs._methods);
 		
@@ -73,12 +71,6 @@ namespace Vcl { namespace RTTI
 	{
 		if (hash())
 			TypeRegistry::remove(this);
-
-		// Free allocated resources
-		for (AttributeBase*& attrib : _attributes)
-		{
-			VCL_SAFE_DELETE(attrib);
-		};
 	}
 		
 	void* Type::allocate() const
@@ -97,16 +89,16 @@ namespace Vcl { namespace RTTI
 	{
 	}
 
-	void Type::construct(void* ptr, const std::initializer_list<linb::any>& params) const
-	{
-	}
+	//void Type::construct(void* ptr, const std::initializer_list<linb::any>& params) const
+	//{
+	//}
 
 	bool Type::isA(const Type* base) const
 	{
 		const auto* meta = this;
 		while (meta != nullptr)
 		{
-			if (meta == base)
+			if (meta->hash() == base->hash())
 				return true; // found a match
 
 			if (meta->nrParents() > 0)
@@ -121,7 +113,7 @@ namespace Vcl { namespace RTTI
 	{
 		size_t hash = Vcl::Util::StringHash(name).hash();
 
-		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (AttributeBase* attrib)
+		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (const std::unique_ptr<AttributeBase>& attrib)
 		{
 			return attrib->hash() == hash;
 		});
@@ -140,13 +132,13 @@ namespace Vcl { namespace RTTI
 
 		size_t hash = Vcl::Util::StringHash(name).hash();
 
-		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (AttributeBase* attrib)
+		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (const std::unique_ptr<AttributeBase>& attrib)
 		{
 			return attrib->hash() == hash;
 		});
 		
 		if (attribIt != _attributes.end())
-			return *attribIt;
+			return attribIt->get();
 		else if (nrParents() > 0)
 			return parents()[0]->attribute(name);
 		else

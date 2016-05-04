@@ -28,7 +28,6 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <initializer_list>
 #include <vector>
 
 // VCL
@@ -50,7 +49,7 @@ namespace Vcl { namespace RTTI
 		Type(const char* name, size_t hash, size_t size, size_t alignment);
 		Type(const Type&) = delete;
 		Type(Type&&);
-		~Type();
+		virtual ~Type();
 
 	public:
 		Type& operator= (const Type&) = delete;
@@ -84,31 +83,32 @@ namespace Vcl { namespace RTTI
 			_constructors.call(ptr, args...);
 		}
 
-		/// Construct an instance of this type
-		virtual void construct(void* ptr, const std::initializer_list<linb::any>& params) const;
-		
 		/// Destruct an instance of this type
 		virtual void destruct(void* ptr) const;
 		
 	private:
+		//! Readable type name
 		const char* _name;
+
+		//! Hash of the type name
 		size_t _hash;
+
+		//! Size of an instance
 		size_t _size;
+
+		//! Required alignment for an instance
 		size_t _alignment;
-
-	protected:
-		bool _isConstructable;
-
-	protected: /* List of parent types */
+		
+	protected: // List of parent types
 		std::vector<const Type*> _parents;
 
-	protected: /* List of constructors for this type */
+	protected: // List of constructors for this type
 		ConstructorSet _constructors;
 
-	protected: /* List of type attributes */
-		std::vector<AttributeBase*> _attributes;
+	protected: // List of type attributes
+		std::vector<std::unique_ptr<AttributeBase>> _attributes;
 
-	protected: /* List of general methods */
+	protected: // List of general methods
 		std::vector<const void*> _methods;
 	};
 }}

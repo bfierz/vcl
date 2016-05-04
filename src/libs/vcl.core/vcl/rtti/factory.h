@@ -28,8 +28,8 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/rtti/metatype.h>
-#include <vcl/core/rtti/metatyperegistry.h>
+#include <vcl/rtti/metatype.h>
+#include <vcl/rtti/metatyperegistry.h>
 
 namespace Vcl { namespace RTTI
 {
@@ -46,73 +46,11 @@ namespace Vcl { namespace RTTI
 			if (!type)
 				return nullptr;
 
-			if (type->_isConstructable)
-			{
-				return create(name, boost::any(args)...);
-			}
-
 			// Allocate memory for a new type instance
 			auto inst = type->allocate();
 
 			// Call the default constructor
 			type->construct(inst, args...);
-
-			return inst;
-		}
-
-		static void* create(const char* name)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type(name);
-
-			// Is type constructable
-			if (!type || type->_isConstructable == false)
-				return nullptr;
-
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
-			
-			// Call the default constructor
-			std::initializer_list<boost::any> params = {};
-			type->construct(inst, params);
-
-			return inst;
-		}
-		
-		static void* create(const char* name, const boost::any& v0)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type(name);
-
-			// Is type constructable
-			if (!type || type->_isConstructable == false)
-				return nullptr;
-
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
-			
-			// Call the default constructor
-			std::initializer_list<boost::any> params = {v0};
-			type->construct(inst, params);
-
-			return inst;
-		}
-		
-		static void* create(const char* name, const boost::any& v0, const boost::any& v1)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type(name);
-
-			// Is type constructable
-			if (!type || type->_isConstructable == false)
-				return nullptr;
-
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
-			
-			// Call the default constructor
-			std::initializer_list<boost::any> params = {v0, v1};
-			type->construct(inst, params);
 
 			return inst;
 		}

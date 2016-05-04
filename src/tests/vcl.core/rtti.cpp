@@ -29,6 +29,7 @@
 // Include the relevant parts from the library
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
+#include <vcl/rtti/factory.h>
 #include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatype.h>
 
@@ -103,6 +104,18 @@ public:
 private:
 	size_t _size;
 };
+
+VCL_DEFINE_METAOBJECT(BaseObject)
+{
+	type->addConstructor();
+	type->addConstructor(Parameter<const char*>("Name"));
+	type->addAttribute("Name", &BaseObject::name, &BaseObject::setName);
+}
+
+VCL_DEFINE_METAOBJECT(AdditionalBase)
+{
+
+}
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -210,7 +223,6 @@ TEST(RttiTest, SimpleConstructableType)
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
-	type.createFactory();
 
 	// Build a test object
 	void* obj_mem = type.allocate();
@@ -235,7 +247,6 @@ TEST(RttiTest, DerivedConstructableType)
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
-	type.createFactory();
 
 	ConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
 	type_d.inherit<BaseObject>();
@@ -246,13 +257,25 @@ TEST(RttiTest, DerivedConstructableType)
 
 	// Build a test object
 	void* obj_mem = type_d.allocate();
-	type_d.Type::construct(obj_mem, 42);
+	type_d.Type::construct(obj_mem, 42, 4);
 
 	auto obj = (DerivedObject*)obj_mem;
 
 	// Check the expected output
-	EXPECT_EQ(42, obj->size()) << "Constructor was not called correctly.";
+	EXPECT_EQ(46, obj->size()) << "Constructor was not called correctly.";
+	EXPECT_TRUE(type_d.isA(&type)) << "Inheritance is not constructed correctly.";
 
 	type_d.destruct(obj_mem);
 	type_d.deallocate(obj_mem);
+}
+
+TEST(RttiTest, SimpleFactoryUse)
+{
+	using namespace Vcl::RTTI;
+
+	// Create a new type
+	auto obj = (BaseObject*) Factory::create("BaseObject", "Param0");
+
+	EXPECT_EQ(std::string{ "Param0" }, obj->name()) << "Default ctor was not called.";
+
 }

@@ -37,14 +37,21 @@ namespace Vcl { namespace RTTI
 	void TypeRegistry::add(const Type* meta)
 	{
 		TypeMap& metas = instance();
-		metas[meta->hash()] = meta;
+
+		// Only add the entry if it is not yet added
+		auto itr = metas.find(meta->hash());
+		if (itr == metas.end())
+			metas.emplace(meta->hash(), meta);
 	}
 	
 	void TypeRegistry::remove(const Type* meta)
 	{
 		TypeMap& metas = instance();
 
-		metas.erase(meta->hash());
+		// Only remove the type, if it is the one stored
+		auto itr = metas.find(meta->hash());
+		if (itr != metas.end() && itr->second == meta)
+			metas.erase(itr);
 	}
 
 	const Type* TypeRegistry::get(const char* name)

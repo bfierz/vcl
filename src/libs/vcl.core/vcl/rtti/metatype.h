@@ -54,36 +54,38 @@ namespace Vcl { namespace RTTI
 	class MetaTypeSingleton
 	{
 	public:
-		static const Type* get() { Require(_metatype, "Type is initialized."); return _metatype; }
-
-	public:
-		template<int N>
-		static void allocate(const char (&str)[N], void* allocator)
-		{
-			Require(_metatype == nullptr, "Type is not initialized.");
-
-			// Allocate a new type object
-			//void* obj;
-
-			// Construct the type
-			//_metatype = new(obj) ConstructableType<MetaType>;
-			size_t alignment = select_if<std::is_abstract<MetaType>::value, 0, alignof(MetaType)>::value;
-			_metatype = new ConstructableType<MetaType>(str, Vcl::Util::StringHash(str).hash(), sizeof(MetaType), alignment);
-		}
-
-		static void deallocate()
-		{
-			delete _metatype;
-		}
-
-		static Type* construct(ConstructableType<MetaType>* type);
+		static const Type* get() { return &_metatype; }
 
 	private:
-		static Type* _metatype;
+		/*!
+		 *	\brief Initialize a new meta-type
+		 *	\param str Readable name of the meta-type
+		 */
+		template<int N>
+		static ConstructableType<MetaType> init(const char(&str)[N]);
+
+		/*!
+		 *	\brief Configure a newly initialized meta-type
+		 *	\param type Meta-type to configure
+		 */
+		static void construct(ConstructableType<MetaType>* type);
+
+	private:
+		//! Instance of the meta-type
+		static ConstructableType<MetaType> _metatype;
 	};
 
-	template<typename T>
-	Type* MetaTypeSingleton<T>::_metatype = nullptr;
+	template<typename MetaType>
+	template<int N>
+	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char(&str)[N])
+	{
+		ConstructableType<MetaType> type{ str, sizeof(MetaType), alignof(MetaType) };
+
+		// Build the content of the metatype
+		construct(&type);
+
+		return std::move(type);
+	}
 
 	// Template specializations matching different type variations
 	template <typename MetaType>
@@ -108,6 +110,5 @@ namespace Vcl { namespace RTTI
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
 #define VCL_DECLARE_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); }
 #define VCL_DEFINE_METAOBJECT(name) \
-	Vcl::RTTI::Type* Vcl::RTTI::MetaTypeSingleton<name>::construct(Vcl::RTTI::ConstructableType<name>* type)
-#define VCL_ALLOC_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::allocate(#name, nullptr)
-#define VCL_INIT_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::construct(static_cast<Vcl::RTTI::ConstructableType<name>*>(const_cast<Vcl::RTTI::Type*>(Vcl::RTTI::MetaTypeSingleton<name>::get())))
+	Vcl::RTTI::ConstructableType<name> Vcl::RTTI::MetaTypeSingleton<name>::_metatype = Vcl::RTTI::MetaTypeSingleton<name>::init(#name); \
+	void Vcl::RTTI::MetaTypeSingleton<name>::construct(Vcl::RTTI::ConstructableType<name>* type)
