@@ -1,6 +1,6 @@
 [submodule "src/externals/gsl"]
 	path = src/externals/gsl
-	url = https://github.com/Microsoft/GSL
+	url = https://github.com/bfierz/GSL
 [submodule "src/externals/memory"]
 	path = src/externals/memory
 	url = https://github.com/foonathan/memory
@@ -10,3 +10,6 @@
 [submodule "src/externals/spdlog"]
 	path = src/externals/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "src/externals/gbenchmark"]
+	path = src/externals/gbenchmark
+	url = https://github.com/google/benchmark
