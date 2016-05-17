@@ -12,6 +12,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 # Add the externals
 SUBDIRS(externals/fmtlib)
 SUBDIRS(externals/gsl)
+SUBDIRS(externals/json)
 
 # The libraries
 SUBDIRS(libs)
