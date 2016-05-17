@@ -32,7 +32,7 @@
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
-#include <vcl/core/3rdparty/gsl/span.h>
+#include <span.h>
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
 #include <vcl/util/hashedstring.h>

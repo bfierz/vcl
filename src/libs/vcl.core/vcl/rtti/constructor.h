@@ -39,7 +39,7 @@
 #include <utility>
 
 // VCL
-#include <vcl/core/3rdparty/gsl/string_span.h>
+#include <string_span.h>
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 
