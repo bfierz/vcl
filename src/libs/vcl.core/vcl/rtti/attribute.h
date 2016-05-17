@@ -36,6 +36,7 @@
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
+#include <vcl/rtti/serializer.h>
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
@@ -57,6 +58,8 @@ namespace Vcl { namespace RTTI
 
 		virtual void get(void* object, void* param, void* result) const = 0;
 		virtual void get(void* object, const std::string& param, void* result) const = 0;
+
+		virtual void serialize(Serializer& ser, const void* object) = 0;
 
 	public:
 		const char* name() const { return _name; }
@@ -140,9 +143,7 @@ namespace Vcl { namespace RTTI
 			if (getter != nullptr)
 				setHasGetter();
 		}
-
-		virtual ~Attribute() = default;
-
+		
 	public:
 		const T& get(const MetaType& obj) const
 		{
@@ -165,8 +166,6 @@ namespace Vcl { namespace RTTI
 		{
 			Require(_setter, "Setter is valid.");
 
-			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
 			_setter(*static_cast<MetaType*>(object), convert<T>(param));
 		}
 		virtual void get(void* object, void* param, void* result) const override
@@ -175,6 +174,8 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 			DebugError("Not implemented.");
+
+			//_getter()
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
@@ -184,18 +185,26 @@ namespace Vcl { namespace RTTI
 			DebugError("Not implemented.");
 		}
 
+		virtual void serialize(Serializer& ser, const void* object) override
+		{
+			const auto& val = get(*static_cast<const MetaType*>(object));
+			std::string str = convert(val);
+
+			ser.writeAttribute(name(), str);
+		}
+
 	private:
-		/// Function pointer to the stored getter
+		//! Function pointer to the stored getter
 		std::function<const T& (const MetaType&)> _getter;
 
-		/// Function pointer to the stored setter
+		//! Function pointer to the stored setter
 		std::function<void (MetaType&, const T&)> _setter;
 	};
 	
-	/*template<typename MetaType, typename T>
+	template<typename MetaType, typename T>
 	class Attribute<MetaType, std::unique_ptr<T>> : public AttributeBase
 	{
-		typedef std::unique_ptr<T> AttrT;
+		using  AttrT = std::unique_ptr<T>;
 
 	public:
 		Attribute(const char* name, T* (MetaType::*getter)() const, void (MetaType::*setter)(AttrT))
@@ -203,15 +212,10 @@ namespace Vcl { namespace RTTI
 		, _getter(std::mem_fn(getter))
 		, _setter(std::mem_fn(setter))
 		{
-			setIsShared();
 			if (setter != nullptr)
 				setHasSetter();
 			if (getter != nullptr)
 				setHasGetter();
-		}
-
-		virtual ~Attribute()
-		{
 		}
 		
 	public:
@@ -222,29 +226,43 @@ namespace Vcl { namespace RTTI
 
 		void set(MetaType& obj, AttrT val)
 		{
-			_setter(obj, val);
+			_setter(obj, std::move(val));
 		}
 
 	public:
 		virtual void set(void* object, const linb::any& param) const override
 		{
 			Require(object, "Object is set.");
-			//Require(param, "Value is set.");
 
-			auto ptr = reinterpret_cast<T*>(boost::any_cast<void*>(param));
+			auto ptr = linb::any_cast<T*>(param);
 			_setter(*static_cast<MetaType*>(object), std::unique_ptr<T>(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+
 			DebugError("Not implemented.");
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
+
 			DebugError("Not implemented.");
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
+
 			DebugError("Not implemented.");
+		}
+
+		virtual void serialize(Serializer& ser, const void* object) override
+		{
 		}
 
 	private:
@@ -255,7 +273,7 @@ namespace Vcl { namespace RTTI
 		std::function<void (MetaType&, AttrT)> _setter;
 	};
 	
-	template<typename MetaType, typename T>
+	/*template<typename MetaType, typename T>
 	class Attribute<MetaType, std::shared_ptr<T>> : public AttributeBase
 	{
 		typedef T ValueType;

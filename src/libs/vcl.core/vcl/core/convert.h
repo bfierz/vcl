@@ -38,7 +38,10 @@ namespace Vcl
 {
 	template<typename T>
 	T convert(const std::string& value);
-	
+
+	template<typename T>
+	std::string convert(const T& value);
+
 	template<>
 	inline std::string convert<std::string>(const std::string& value)
 	{

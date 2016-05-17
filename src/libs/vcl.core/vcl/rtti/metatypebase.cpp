@@ -40,6 +40,7 @@ namespace Vcl { namespace RTTI
 	, _hash(hash)
 	, _size(size)
 	, _alignment(alignment)
+	, _version(1)
 	{
 		TypeRegistry::add(this);
 	}
@@ -53,11 +54,13 @@ namespace Vcl { namespace RTTI
 		_hash = rhs._hash;
 		_size = rhs._size;
 		_alignment = rhs._alignment;
+		_version = rhs._version;
 		
 		rhs._name = 0;
 		rhs._hash = 0;
 		rhs._size = 0;
 		rhs._alignment = 0;
+		rhs._version = 1;
 
 		_parents = std::move(rhs._parents);
 		_constructors = std::move(rhs._constructors);
@@ -88,10 +91,6 @@ namespace Vcl { namespace RTTI
 	void Type::destruct(void* ptr) const
 	{
 	}
-
-	//void Type::construct(void* ptr, const std::initializer_list<linb::any>& params) const
-	//{
-	//}
 
 	bool Type::isA(const Type* base) const
 	{
@@ -143,5 +142,22 @@ namespace Vcl { namespace RTTI
 			return parents()[0]->attribute(name);
 		else
 			return nullptr;
+	}
+
+	void Type::serialize(Serializer& ser, const void* obj) const
+	{
+		// Write out the type specific data
+		// * Type name
+		// * Version
+		ser.beginType(_name, _version);
+
+		// Serialize each attribute
+		for (const auto& attr : _attributes)
+		{
+			attr->serialize(ser, obj);
+		}
+
+		// Done
+		ser.endType();
 	}
 }}

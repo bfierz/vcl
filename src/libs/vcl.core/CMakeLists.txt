@@ -130,6 +130,7 @@ SET(VCL_RTTI_INC
 	vcl/rtti/metatypelookup.h
 	vcl/rtti/metatyperegistry.h
 	vcl/rtti/metatype.h
+	vcl/rtti/serializer.h
 )
 
 # VCL / UTIL

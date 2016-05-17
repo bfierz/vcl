@@ -32,6 +32,7 @@
 #include <vcl/rtti/factory.h>
 #include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatype.h>
+#include <vcl/rtti/serializer.h>
 
 // C++ standard library
 #include <random>
@@ -39,6 +40,40 @@
 
 // Google test
 #include <gtest/gtest.h>
+
+// Moc classes
+class Serializer : public Vcl::RTTI::Serializer
+{
+public:
+	virtual void beginType(const char* name, int version)
+	{
+
+	}
+
+	virtual void endType()
+	{
+
+	}
+
+	virtual void writeAttribute(const char* name, const std::string& value) override
+	{
+		_attributes[name] = value;
+	}
+
+public:
+	const std::string& attribute(const std::string& name) const
+	{
+		if (_attributes.find(name) != _attributes.end())
+		{
+			return _attributes.find(name)->second;
+		}
+
+		return "";
+	}
+
+private:
+	std::unordered_map<std::string, std::string> _attributes;
+};
 
 // Test classes
 class BaseObject
@@ -52,6 +87,19 @@ public:
 	virtual ~BaseObject() = default;
 
 	BaseObject& operator = (const BaseObject&) = delete;
+
+	BaseObject(Vcl::RTTI::Deserializer* d)
+	{
+		auto type = Vcl::RTTI::MetaTypeSingleton<BaseObject>::get();
+
+		for (const auto& attr : type->attributes())
+		{
+			if (d->hasAttribute(attr->name()))
+			{
+				attr->set(this, d->readAttribute(attr->name()));
+			}
+		}
+	}
 
 public:
 	const std::string& name() const { return _name; }
@@ -71,7 +119,7 @@ private:
 
 class DerivedObject : public BaseObject, public AdditionalBase
 {
-	//VCL_DECLARE_METAOBJECT(DerivedObject)
+	VCL_DECLARE_METAOBJECT(DerivedObject)
 
 public:
 	DerivedObject()
@@ -99,10 +147,15 @@ public:
 		_size = (size_t) f;
 	}
 
+	BaseObject* ownedObj() const { return _ownedObj.get(); }
+	void setOwnedObj(std::unique_ptr<BaseObject> obj) { _ownedObj = std::move(obj); }
+
 	size_t size() const { return _size; }
 
 private:
 	size_t _size;
+
+	std::unique_ptr<BaseObject> _ownedObj;
 };
 
 VCL_DEFINE_METAOBJECT(BaseObject)
@@ -115,6 +168,12 @@ VCL_DEFINE_METAOBJECT(BaseObject)
 VCL_DEFINE_METAOBJECT(AdditionalBase)
 {
 
+}
+
+VCL_DEFINE_METAOBJECT(DerivedObject)
+{
+	type->addConstructor();
+	type->addAttribute("OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj);
 }
 
 TEST(RttiTest, DefaultConstructor)
@@ -199,21 +258,6 @@ TEST(RttiTest, SimpleConstructor)
 	free(obj);
 }
 
-TEST(RttiTest, AttributeSimpleSetter)
-{
-	using namespace Vcl::RTTI;
-
-	// Test object
-	BaseObject obj;
-
-	// Set an attribute
-	Attribute<BaseObject, std::string> attr{ "Name", &BaseObject::name, &BaseObject::setName };
-	attr.set(&obj, std::string{ "String" });
-
-	// Expected output
-	EXPECT_EQ(std::string{ "String" }, obj.name()) << "Property 'Name' was not set.";
-}
-
 TEST(RttiTest, SimpleConstructableType)
 {
 	using namespace Vcl::RTTI;
@@ -278,4 +322,51 @@ TEST(RttiTest, SimpleFactoryUse)
 
 	EXPECT_EQ(std::string{ "Param0" }, obj->name()) << "Default ctor was not called.";
 
+}
+
+TEST(RttiTest, AttributeSimpleSetter)
+{
+	using namespace Vcl::RTTI;
+
+	// Test object
+	BaseObject obj;
+
+	// Set an attribute
+	Attribute<BaseObject, std::string> attr{ "Name", &BaseObject::name, &BaseObject::setName };
+	attr.set(&obj, std::string{ "String" });
+
+	// Expected output
+	EXPECT_EQ(std::string{ "String" }, obj.name()) << "Property 'Name' was not set.";
+}
+
+TEST(RttiTest, AttributeOwnedMember)
+{
+	using namespace Vcl::RTTI;
+
+	// Test object
+	DerivedObject obj;
+	auto mem = std::make_unique<BaseObject>("String");
+
+	// Set an attribute
+	obj.metaType()->attribute("OwnedMember")->set(&obj, mem.release());
+
+	// Expected output
+	EXPECT_EQ(std::string{ "String" }, obj.ownedObj()->name()) << "Property 'Name' was not set.";
+}
+
+TEST(RttiTest, SimpleObjectSerialization)
+{
+	using namespace Vcl::RTTI;
+
+	// Test object
+	BaseObject obj;
+
+	// Serialize
+	::Serializer ser;
+
+	auto type = vcl_meta_type(obj);
+	type->serialize(ser, &obj);
+
+	// Check
+	EXPECT_EQ(std::string{ "Initialized" }, ser.attribute("Name")) << "Attribute was serialized.";
 }

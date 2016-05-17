@@ -32,6 +32,7 @@
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/3rdparty/gsl/span.h>
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
 #include <vcl/util/hashedstring.h>
@@ -42,8 +43,6 @@ namespace Vcl { namespace RTTI
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
 	class Type
 	{
-		friend class Factory;
-
 	public:
 		Type(const char* name, size_t size, size_t alignment);
 		Type(const char* name, size_t hash, size_t size, size_t alignment);
@@ -54,7 +53,7 @@ namespace Vcl { namespace RTTI
 	public:
 		Type& operator= (const Type&) = delete;
 
-	public:
+	public: // Properties
 		const char* name() const { return _name; }
 		size_t hash() const { return _hash; }
 
@@ -64,10 +63,18 @@ namespace Vcl { namespace RTTI
 		bool hasAttribute(const char* name) const;
 		const AttributeBase* attribute(const char* name) const;
 
+		/*!
+		 * \brief Access the list of all attributes
+		 */
+		gsl::span<const std::unique_ptr<AttributeBase>> attributes() const { return _attributes; }
+
 		const ConstructorSet& constructors() const { return _constructors; }
 
-	public:
+	public: // Queries
 		bool isA(const Type* base) const;
+
+	public: // Serialization
+		void serialize(Serializer& ser, const void* obj) const;
 
 	public:
 		/// Allocate memory for a new instance of this type
@@ -98,6 +105,9 @@ namespace Vcl { namespace RTTI
 
 		//! Required alignment for an instance
 		size_t _alignment;
+
+		//! Version number
+		int _version;
 		
 	protected: // List of parent types
 		std::vector<const Type*> _parents;
