@@ -28,7 +28,7 @@
 #include <vector>
 
 // GSL
-#include <vcl/core/3rdparty/gsl/string_span.h>
+#include <string_span.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 

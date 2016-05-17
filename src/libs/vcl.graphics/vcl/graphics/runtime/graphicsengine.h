@@ -30,8 +30,10 @@
 // C++ standard library
 #include <memory>
 
+// GSL
+#include <span.h>
+
 // VCL
-#include <vcl/core/3rdparty/gsl/span.h>
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>

@@ -35,7 +35,6 @@ TARGET_LINK_LIBRARIES(mutexperformance
 	vcl_core
 	${Boost_LIBRARIES}
 	Qt5::Core
-	debug ${VCL_GOOGLEBENCHMARK_LIBRARY_DEBUG}
-	optimized ${VCL_GOOGLEBENCHMARK_LIBRARY_RELEASE}
+	benchmark
 	Shlwapi
 )
