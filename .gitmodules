@@ -13,3 +13,6 @@
 [submodule "src/externals/gbenchmark"]
 	path = src/externals/gbenchmark
 	url = https://github.com/google/benchmark
+[submodule "src/externals/googletest"]
+	path = src/externals/googletest
+	url = https://github.com/google/googletest

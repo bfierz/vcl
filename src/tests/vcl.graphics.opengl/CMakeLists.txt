@@ -27,6 +27,5 @@ TARGET_LINK_LIBRARIES(vcl_graphics_opengl_test
 	vcl_graphics
 	${GLEW_LIBRARY}
 	${OPENGL_gl_LIBRARY}
-	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest.lib
-	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest.lib
+	gtest
 )

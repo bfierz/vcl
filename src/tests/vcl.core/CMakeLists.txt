@@ -29,8 +29,6 @@ SET_TARGET_PROPERTIES(vcl_core_test PROPERTIES FOLDER tests)
 
 TARGET_LINK_LIBRARIES(vcl_core_test
 	vcl_core
-	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest.lib
-	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest_main.lib
-	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest.lib
-	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest_main.lib
+	gtest
+	gtest_main
 )
