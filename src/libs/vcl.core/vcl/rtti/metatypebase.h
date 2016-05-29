@@ -75,6 +75,7 @@ namespace Vcl { namespace RTTI
 
 	public: // Serialization
 		void serialize(Serializer& ser, const void* obj) const;
+		void deserialize(Deserializer& deser, void* obj) const;
 
 	public:
 		/// Allocate memory for a new instance of this type
@@ -93,6 +94,9 @@ namespace Vcl { namespace RTTI
 		/// Destruct an instance of this type
 		virtual void destruct(void* ptr) const;
 		
+	private:
+		void serializeAttributes(Serializer& ser, const void* obj) const;
+
 	private:
 		//! Readable type name
 		const char* _name;

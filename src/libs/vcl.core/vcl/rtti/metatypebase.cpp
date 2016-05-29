@@ -152,12 +152,42 @@ namespace Vcl { namespace RTTI
 		ser.beginType(_name, _version);
 
 		// Serialize each attribute
+		serializeAttributes(ser, obj);
+
+		// Done
+		ser.endType();
+	}
+
+	void Type::serializeAttributes(Serializer& ser, const void* obj) const
+	{
+		// Check the parents attributes
+		for (const auto* p : _parents)
+		{
+			p->serializeAttributes(ser, obj);
+		}
+
+		// Serialize each attribute
 		for (const auto& attr : _attributes)
 		{
 			attr->serialize(ser, obj);
 		}
+	}
 
-		// Done
-		ser.endType();
+	void Type::deserialize(Deserializer& deser, void* obj) const
+	{
+		// Check the parents attributes
+		for (const auto* p : _parents)
+		{
+			p->deserialize(deser, obj);
+		}
+
+		// Deserialize each attribute
+		for (const auto& attr : _attributes)
+		{
+			if (deser.hasAttribute(attr->name()))
+			{
+				attr->deserialize(deser, obj);
+			}
+		}
 	}
 }}

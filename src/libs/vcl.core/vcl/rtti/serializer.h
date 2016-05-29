@@ -44,6 +44,14 @@ namespace Vcl { namespace RTTI
 	class Deserializer
 	{
 	public:
+		virtual void beginType(const std::string& name) = 0;
+
+		//! Denote that the current type is finished
+		virtual void endType() = 0;
+
+		//! \returns the type string of the current object
+		virtual std::string readType() = 0;
+
 		//! \returns true if the current object has the queried attribute
 		virtual bool hasAttribute(const std::string& name) = 0;
 

@@ -60,6 +60,7 @@ namespace Vcl { namespace RTTI
 		virtual void get(void* object, const std::string& param, void* result) const = 0;
 
 		virtual void serialize(Serializer& ser, const void* object) = 0;
+		virtual void deserialize(Deserializer& ser, void* object) = 0;
 
 	public:
 		const char* name() const { return _name; }
@@ -193,6 +194,13 @@ namespace Vcl { namespace RTTI
 			ser.writeAttribute(name(), str);
 		}
 
+		virtual void deserialize(Deserializer& deser, void* object) override
+		{
+			Require(deser.hasAttribute(name()), "Attribute is available.");
+
+			set(object, deser.readAttribute(name()));
+		}
+
 	private:
 		//! Function pointer to the stored getter
 		std::function<const T& (const MetaType&)> _getter;
@@ -263,6 +271,33 @@ namespace Vcl { namespace RTTI
 
 		virtual void serialize(Serializer& ser, const void* object) override
 		{
+			// Print attribute
+			ser.writeAttribute(name(), "");
+
+			// Write content of the attribute
+			auto* type = vcl_meta_type<T>();
+			type->serialize(ser, object);
+		}
+
+		virtual void deserialize(Deserializer& deser, void* object) override
+		{
+			Require(deser.hasAttribute(name()), "Attribute is available.");
+
+			// Start reading a new object
+			deser.beginType(name());
+
+			// Read content of the attribute
+			auto type = vcl_meta_type(deser.readType());
+			auto store = (MetaType*) Factory::create(deser.readType().c_str());
+			auto val = std::unique_ptr<T>(store);
+
+			type->deserialize(deser, val.get());
+
+			auto& obj = *static_cast<MetaType*>(object);
+			set(obj, std::move(val));
+
+			// Done reading the type
+			deser.endType();
 		}
 
 	private:
