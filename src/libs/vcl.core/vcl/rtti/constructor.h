@@ -45,9 +45,11 @@
 
 namespace Vcl { namespace RTTI
 {
-	template<int ...> struct index_sequence {};
-	template<int N, int ...S> struct make_index_sequence : make_index_sequence<N - 1, N - 1, S...> {};
-	template<int ...S> struct make_index_sequence<0, S...> { typedef index_sequence<S...> type; };
+	template <std::size_t...> struct index_sequence {};
+	template <std::size_t N, std::size_t... Is>
+	struct make_index_sequence : make_index_sequence<N - 1, N - 1, Is...> {};
+	template <std::size_t... Is>
+	struct make_index_sequence<0u, Is...> : index_sequence<Is...> { using type = index_sequence<Is...>; };
 
 	template<bool B> struct is_true
 	{
@@ -72,10 +74,17 @@ namespace Vcl { namespace RTTI
 		return std::make_tuple(std::get<Ns + 1u>(t)...);
 	}
 
+	template < std::size_t... Ns, typename... Ts >
+	auto tail_impl(index_sequence<Ns...>, std::tuple<Ts...> t)
+	{
+		return std::make_tuple(std::get<Ns + 1u>(t)...);
+	}
+
 	template < typename... Ts >
 	auto tail(std::tuple<Ts...> t)
 	{
-		return tail_impl(std::make_index_sequence<sizeof...(Ts)-1u>(), t);
+		//return tail_impl(std::make_index_sequence<sizeof...(Ts)-1u>(), t);
+		return tail_impl(make_index_sequence<sizeof...(Ts)-1u>(), t);
 	}
 
 	template<typename T>
@@ -310,10 +319,10 @@ namespace Vcl { namespace RTTI
 			return call(location, getParam<Params, S>(params)...);
 		}
 
-		template<typename T, int I>
-		T getParam(const std::vector<linb::any>& params) const
+		template<typename P, int I>
+		P getParam(const std::vector<linb::any>& params) const
 		{
-			return extract<T>::get(params.begin()[I]);
+			return extract<P>::get(params.begin()[I]);
 		}
 
 		template<typename... Ts>
@@ -325,8 +334,8 @@ namespace Vcl { namespace RTTI
 				return getParamImpl(tail(tuple), idx - 1);
 		}
 
-		template<typename T>
-		const ParameterBase& getParamImpl(const std::tuple<T>& tuple, int idx) const
+		template<typename P>
+		const ParameterBase& getParamImpl(const std::tuple<P>& tuple, int idx) const
 		{
 			Require(idx == 0, "Tuple with one element has index 0.");
 
@@ -342,8 +351,8 @@ namespace Vcl { namespace RTTI
 				return hasParamImpl(tail(tuple), name);
 		}
 
-		template<typename T>
-		bool hasParamImpl(const std::tuple<T>& tuple, const std::string& name) const
+		template<typename P>
+		bool hasParamImpl(const std::tuple<P>& tuple, const std::string& name) const
 		{
 			return std::get<0>(tuple).data().name() == name;
 		}
