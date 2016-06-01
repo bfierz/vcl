@@ -11,6 +11,7 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 # Add the externals
 SUBDIRS(externals/fmtlib)
+#SET_TARGET_PROPERTIES(fmt PROPERTIES FOLDER 3rd-party)
 SUBDIRS(externals/gsl)
 SUBDIRS(externals/json)
 
@@ -21,7 +22,7 @@ SUBDIRS(libs)
 OPTION(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
 IF (VCL_BUILD_BENCHMARKS)
 	SUBDIRS(externals/gbenchmark)
-
+	#SET_TARGET_PROPERTIES(benchmark PROPERTIES FOLDER 3rd-party)
 	SUBDIRS(benchmarks)
 ENDIF (VCL_BUILD_BENCHMARKS)
 
@@ -37,5 +38,11 @@ ENDIF (VCL_BUILD_TOOLS)
 # Unit tests
 OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)
 IF (VCL_BUILD_TESTS)
+	SUBDIRS(externals/googletest)
+	#SET_TARGET_PROPERTIES(gtest PROPERTIES FOLDER 3rd-party)
+	#SET_TARGET_PROPERTIES(gtest_main PROPERTIES FOLDER 3rd-party)
+	#SET_TARGET_PROPERTIES(gmock PROPERTIES FOLDER 3rd-party)
+	#SET_TARGET_PROPERTIES(gmock_main PROPERTIES FOLDER 3rd-party)
+
 	SUBDIRS(tests)
 ENDIF (VCL_BUILD_TESTS)
