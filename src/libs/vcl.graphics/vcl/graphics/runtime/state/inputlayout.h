@@ -54,6 +54,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		std::string Name;
 		SurfaceFormat Format;
 		unsigned int NumberLocations;
+		unsigned int InputSlot;
 		unsigned int Offset;
 		VertexDataClassification StreamType;
 		unsigned int StepRate;

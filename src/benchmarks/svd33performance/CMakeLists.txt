@@ -15,8 +15,7 @@ SET_TARGET_PROPERTIES(svd33performance PROPERTIES FOLDER benchmarks)
 TARGET_LINK_LIBRARIES(svd33performance
 	vcl_core
 	vcl_math
-	debug ${VCL_GOOGLEBENCHMARK_LIBRARY_DEBUG}
-	optimized ${VCL_GOOGLEBENCHMARK_LIBRARY_RELEASE}
+	benchmark
 	Shlwapi
 )
 

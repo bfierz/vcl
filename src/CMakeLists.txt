@@ -9,12 +9,19 @@ INCLUDE(cmake/VCLConfig.cmake)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+# Add the externals
+SUBDIRS(externals/fmtlib)
+SUBDIRS(externals/gsl)
+SUBDIRS(externals/json)
+
 # The libraries
 SUBDIRS(libs)
 
 # Benchmarks
 OPTION(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
 IF (VCL_BUILD_BENCHMARKS)
+	SUBDIRS(externals/gbenchmark)
+
 	SUBDIRS(benchmarks)
 ENDIF (VCL_BUILD_BENCHMARKS)
 

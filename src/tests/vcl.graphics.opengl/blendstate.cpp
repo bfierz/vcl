@@ -37,6 +37,7 @@
 TEST(OpenGL, ConfigureLogicOp)
 {
 	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
 	BlendDescription desc;
@@ -51,6 +52,7 @@ TEST(OpenGL, ConfigureLogicOp)
 TEST(OpenGL, IndependentBlending)
 {
 	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
 	if (BlendState::isIndependentBlendingSupported())
@@ -75,6 +77,7 @@ TEST(OpenGL, IndependentBlending)
 TEST(OpenGL, AdvancedBlendOp)
 {
 	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
 	if (BlendState::areAdvancedBlendOperationsSupported())
