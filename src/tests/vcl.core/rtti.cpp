@@ -41,7 +41,7 @@
 // JSON library
 #include <json.hpp>
 
-// for convenience
+// For convenience
 using json = nlohmann::json;
 
 // Moc classes
@@ -157,7 +157,7 @@ private:
 // Test classes
 class BaseObject
 {
-	//VCL_DECLARE_METAOBJECT(BaseObject)
+	VCL_DECLARE_METAOBJECT(BaseObject)
 
 public:
 	BaseObject() = default;
@@ -166,19 +166,6 @@ public:
 	virtual ~BaseObject() = default;
 
 	BaseObject& operator = (const BaseObject&) = delete;
-
-	BaseObject(Vcl::RTTI::Deserializer* d)
-	{
-		auto type = Vcl::RTTI::MetaTypeSingleton<BaseObject>::get();
-
-		for (const auto& attr : type->attributes())
-		{
-			if (d->hasAttribute(attr->name()))
-			{
-				attr->set(this, d->readAttribute(attr->name()));
-			}
-		}
-	}
 
 public:
 	const std::string& name() const { return _name; }
@@ -190,7 +177,7 @@ private:
 
 class AdditionalBase
 {
-	//VCL_DECLARE_METAOBJECT(AdditionalBase)
+	VCL_DECLARE_METAOBJECT(AdditionalBase)
 
 private:
 	std::string _additionalName{ "NoValue" };
@@ -207,12 +194,12 @@ public:
 	}
 
 	DerivedObject(int a)
-	: _size(a)
+	: _size((float) a)
 	{
 	}
 
 	DerivedObject(int a, int b)
-	: _size(a + b)
+	: _size((float) (a + b))
 	{
 	}
 
@@ -223,16 +210,16 @@ public:
 
 	void setFloat(const float& f)
 	{
-		_size = (size_t) f;
+		_size = f;
 	}
 
 	BaseObject* ownedObj() const { return _ownedObj.get(); }
 	void setOwnedObj(std::unique_ptr<BaseObject> obj) { _ownedObj = std::move(obj); }
 
-	size_t size() const { return _size; }
+	size_t size() const { return (size_t) _size; }
 
 private:
-	size_t _size;
+	float _size;
 
 	std::unique_ptr<BaseObject> _ownedObj;
 };

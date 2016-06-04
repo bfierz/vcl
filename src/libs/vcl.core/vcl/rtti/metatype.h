@@ -94,9 +94,26 @@ namespace Vcl { namespace RTTI
 }}
 
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
-#define VCL_DECLARE_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); }
+#define VCL_DECLARE_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const;
 #define VCL_DEFINE_METAOBJECT(name) \
-	template<> \
+	namespace Vcl { namespace RTTI {                                          \
+	template <>                                                               \
+	class MetaTypeSingleton<name>                                             \
+	{                                                                         \
+	public:                                                                   \
+		static const Type* get() { return &_metatype; }                       \
+	private:                                                                  \
+		template<int N>                                                       \
+		static ConstructableType<name> init(const char(&str)[N])              \
+		{                                                                     \
+			ConstructableType<name> type{ str, sizeof(name), alignof(name) }; \
+			construct(&type);                                                 \
+			return std::move(type);                                           \
+		}                                                                     \
+		static void construct(ConstructableType<name>* type);                 \
+	private:                                                                  \
+		static ConstructableType<name> _metatype;                             \
+	};}}                                                                      \
 	Vcl::RTTI::ConstructableType<name> Vcl::RTTI::MetaTypeSingleton<name>::_metatype = Vcl::RTTI::MetaTypeSingleton<name>::init(#name); \
-	template<> \
+	const Vcl::RTTI::Type* name::metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); } \
 	void Vcl::RTTI::MetaTypeSingleton<name>::construct(Vcl::RTTI::ConstructableType<name>* type)

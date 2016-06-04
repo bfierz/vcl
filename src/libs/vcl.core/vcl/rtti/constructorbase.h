@@ -311,10 +311,10 @@ namespace Vcl { namespace RTTI
 			if (sizeof...(Args) != constr->numParams())
 				return false;
 
-			return checkArgsImpl<Args...>(constr, typename make_index_sequence<sizeof...(Args)>::type());
+			return checkArgsImpl<Args...>(constr, make_index_sequence<sizeof...(Args)>());
 		}
 
-		template<typename... Args, int... S>
+		template<typename... Args, size_t... S>
 		bool checkArgsImpl(const ConstructorBase* constr, index_sequence<S...>) const
 		{
 			std::array<bool, sizeof...(Args)> results{ { checkArg<Args, S>(constr)... } };
