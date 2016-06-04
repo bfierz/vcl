@@ -98,7 +98,9 @@ SET(VCL_RTTI_INL
 	vcl/rtti/metatypeconstructor.inl
 )
 SET(VCL_RTTI_INC
+	vcl/rtti/attributebase.h
 	vcl/rtti/attribute.h
+	vcl/rtti/constructorbase.h
 	vcl/rtti/constructor.h
 	vcl/rtti/factory.h
 	vcl/rtti/metatypebase.h

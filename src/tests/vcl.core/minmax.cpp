@@ -49,13 +49,13 @@ const T& max(const T& a, const T& b)
 
 TEST(MinMax, NanSafeMinMax)
 {
-	EXPECT_TRUE(isnan(min(0.0f, NAN)));
-	EXPECT_TRUE(min(NAN, 0.0f) == 0.0f);
-	EXPECT_TRUE(isnan(max(0.0f, NAN)));
-	EXPECT_TRUE(max(NAN, 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(min(0.0f, std::nanf(""))));
+	EXPECT_TRUE(min(std::nanf(""), 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(max(0.0f, std::nanf(""))));
+	EXPECT_TRUE(max(std::nanf(""), 0.0f) == 0.0f);
 
-	EXPECT_TRUE(isnan(Vcl::Mathematics::min(0.0f, NAN)));
-	EXPECT_TRUE(Vcl::Mathematics::min(NAN, 0.0f) == 0.0f);
-	EXPECT_TRUE(isnan(Vcl::Mathematics::max(0.0f, NAN)));
-	EXPECT_TRUE(Vcl::Mathematics::max(NAN, 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(Vcl::Mathematics::min(0.0f, std::nanf(""))));
+	EXPECT_TRUE(Vcl::Mathematics::min(std::nanf(""), 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(Vcl::Mathematics::max(0.0f, std::nanf(""))));
+	EXPECT_TRUE(Vcl::Mathematics::max(std::nanf(""), 0.0f) == 0.0f);
 }

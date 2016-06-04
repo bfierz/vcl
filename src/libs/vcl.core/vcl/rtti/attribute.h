@@ -36,90 +36,13 @@
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
+#include <vcl/rtti/attributebase.h>
+#include <vcl/rtti/factory.h>
+#include <vcl/rtti/metatypelookup.h>
 #include <vcl/rtti/serializer.h>
-#include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
-	class AttributeBase
-	{
-	public:
-		AttributeBase(const char* name)
-		: _name(name)
-		, _hash(Vcl::Util::StringHash(name).hash())
-		{
-		}
-
-		virtual ~AttributeBase() = default;
-
-	public:
-		virtual void set(void* object, const linb::any& param) const = 0;
-		virtual void set(void* object, const std::string& param) const = 0;
-
-		virtual void get(void* object, void* param, void* result) const = 0;
-		virtual void get(void* object, const std::string& param, void* result) const = 0;
-
-		virtual void serialize(Serializer& ser, const void* object) = 0;
-		virtual void deserialize(Deserializer& ser, void* object) = 0;
-
-	public:
-		const char* name() const { return _name; }
-		size_t hash() const { return _hash; }
-		
-	public:
-		bool isReference() const
-		{
-			return (_flags & 0x00000001) != 0;
-		}
-
-		bool isShared() const
-		{
-			return (_flags & 0x00000002) != 0;
-		}
-
-		bool hasSetter() const
-		{
-			return (_flags & 0x00000004) != 0;
-		}
-
-		bool hasGetter() const
-		{
-			return (_flags & 0x00000008) != 0;
-		}
-
-	protected:
-		void setIsReference()
-		{
-			_flags |= 0x00000001;
-		}
-
-		void setIsShared()
-		{
-			_flags |= 0x00000002;
-		}
-
-		void setHasSetter()
-		{
-			_flags |= 0x00000004;
-		}
-
-		void setHasGetter()
-		{
-			_flags |= 0x00000008;
-		}
-
-	private:
-		//! Readable attribute name
-		const char* _name;
-
-		//! Attribute name hash
-		size_t _hash;
-
-	private:
-		//! Flags describing the content of the attribute
-		uint32_t _flags{ 0 };
-	};
-		
 	template<typename MetaType, typename T>
 	class Attribute : public AttributeBase
 	{
@@ -167,7 +90,7 @@ namespace Vcl { namespace RTTI
 		{
 			Require(_setter, "Setter is valid.");
 
-			_setter(*static_cast<MetaType*>(object), convert<T>(param));
+			_setter(*static_cast<MetaType*>(object), from_string<T>(param));
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
@@ -189,7 +112,7 @@ namespace Vcl { namespace RTTI
 		virtual void serialize(Serializer& ser, const void* object) override
 		{
 			const auto& val = get(*static_cast<const MetaType*>(object));
-			std::string str = convert(val);
+			std::string str = to_string(val);
 
 			ser.writeAttribute(name(), str);
 		}

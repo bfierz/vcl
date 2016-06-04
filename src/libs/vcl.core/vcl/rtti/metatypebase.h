@@ -33,12 +33,16 @@
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
 #include <span.h>
-#include <vcl/rtti/attribute.h>
-#include <vcl/rtti/constructor.h>
+#include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
+	// Forward declaration
+	class AttributeBase;
+	class Serializer;
+	class Deserializer;
+
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
 	class Type

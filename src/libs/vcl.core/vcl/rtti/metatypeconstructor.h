@@ -40,7 +40,7 @@ namespace Vcl { namespace RTTI
 	template<typename T>
 	class ConstructableType : public Type
 	{
-		typedef typename T MetaType;
+		using MetaType = T;
 
 	public:
 		ConstructableType(const char* name, size_t size, size_t alignment)
@@ -64,16 +64,7 @@ namespace Vcl { namespace RTTI
 		ConstructableType<T>* addConstructor();
 
 		template<typename... Args>
-		ConstructableType<T>* addConstructor(Parameter<Args>... descriptors)
-		{
-			// Create an new constructor
-			auto constr = std::make_unique<Constructor<T, Args...>>(descriptors...);
-
-			// Store the constructor in the table
-			_constructors.add(std::move(constr));
-
-			return this;
-		}
+		ConstructableType<T>* addConstructor(Parameter<Args>... descriptors);
 
 		template<typename AttribT>
 		ConstructableType<T>* addAttribute(const char* name, AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
@@ -82,14 +73,7 @@ namespace Vcl { namespace RTTI
 		ConstructableType<T>* addAttribute(const char* name, AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
 
 		template<typename AttribT>
-		ConstructableType<T>* addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
-		{
-			auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
-			
-			_attributes.push_back(std::move(attrib));
-
-			return this;
-		}
+		ConstructableType<T>* addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
 		
 		virtual void destruct(void* ptr) const override
 		{

@@ -27,11 +27,8 @@
 #include <vcl/config/global.h>
 
 // Include the relevant parts from the library
-#include <vcl/rtti/attribute.h>
-#include <vcl/rtti/constructor.h>
-#include <vcl/rtti/factory.h>
-#include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatype.h>
+#include <vcl/rtti/metatypeconstructor.inl>
 #include <vcl/rtti/serializer.h>
 
 // C++ standard library

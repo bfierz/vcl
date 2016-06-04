@@ -53,7 +53,7 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE double abs(double a)
 	{
-		return ::abs(a);
+		return ::fabs(a);
 	}
 
 	VCL_STRONG_INLINE double sqrt(double a)
@@ -136,7 +136,7 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE float abs(float a)
 	{
-		return ::abs(a);
+		return ::fabs(a);
 	}
 
 	VCL_STRONG_INLINE float sqrt(float a)

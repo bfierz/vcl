@@ -32,6 +32,9 @@
 
 namespace Vcl { namespace RTTI 
 {
+	// Forward declaration
+	class Type;
+
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
 	

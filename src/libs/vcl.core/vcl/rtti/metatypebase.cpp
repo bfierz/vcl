@@ -26,7 +26,9 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/rtti/attributebase.h>
 #include <vcl/rtti/metatyperegistry.h>
+#include <vcl/rtti/serializer.h>
 
 namespace Vcl { namespace RTTI 
 {

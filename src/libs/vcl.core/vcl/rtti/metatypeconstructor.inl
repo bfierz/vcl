@@ -25,6 +25,8 @@
 #pragma once
 
 // VCL
+#include <vcl/rtti/attribute.h>
+#include <vcl/rtti/constructor.h>
 #include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatypelookup.h>
 
@@ -50,7 +52,20 @@ namespace Vcl { namespace RTTI
 
 		return this;
 	}
-	
+
+	template<typename T>
+	template<typename... Args>
+	ConstructableType<T>* ConstructableType<T>::addConstructor(Parameter<Args>... descriptors)
+	{
+		// Create an new constructor
+		auto constr = std::make_unique<Constructor<T, Args...>>(descriptors...);
+
+		// Store the constructor in the table
+		_constructors.add(std::move(constr));
+
+		return this;
+	}
+
 	template<typename T>
 	template<typename AttribT>
 	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
@@ -67,6 +82,17 @@ namespace Vcl { namespace RTTI
 	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
 	{
 		auto attrib = std::make_unique<Attribute<T, std::unique_ptr<AttribT>>>(name, getter, setter);
+
+		_attributes.push_back(std::move(attrib));
+
+		return this;
+	}
+
+	template<typename T>
+	template<typename AttribT>
+	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
+	{
+		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
 
 		_attributes.push_back(std::move(attrib));
 

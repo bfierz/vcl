@@ -30,21 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/core/preprocessor.h>
-#include <vcl/rtti/metatypebase.h>
 #include <vcl/rtti/metatypeconstructor.h>
-#include <vcl/rtti/metatypeconstructor.inl>
-
-template<bool Test, int A, int B>
-struct select_if
-{
-	static const int value = B;
-};
-
-template<int A, int B>
-struct select_if<true, A, B>
-{
-	static const int value = A;
-};
 
 namespace Vcl { namespace RTTI 
 {
@@ -110,5 +96,7 @@ namespace Vcl { namespace RTTI
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
 #define VCL_DECLARE_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); }
 #define VCL_DEFINE_METAOBJECT(name) \
+	template<> \
 	Vcl::RTTI::ConstructableType<name> Vcl::RTTI::MetaTypeSingleton<name>::_metatype = Vcl::RTTI::MetaTypeSingleton<name>::init(#name); \
+	template<> \
 	void Vcl::RTTI::MetaTypeSingleton<name>::construct(Vcl::RTTI::ConstructableType<name>* type)

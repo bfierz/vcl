@@ -37,19 +37,19 @@
 namespace Vcl
 {
 	template<typename T>
-	T convert(const std::string& value);
+	T from_string(const std::string& value)
+	{
+		return value;
+	}
 
 	template<typename T>
-	std::string convert(const T& value);
-
-	template<>
-	inline std::string convert<std::string>(const std::string& value)
+	std::string to_string(const T& value)
 	{
 		return value;
 	}
 
 	template<>
-	inline bool convert<bool>(const std::string& value)
+	inline bool from_string<bool>(const std::string& value)
 	{
 		if (value == "true" || value == "1")
 			return true;
@@ -61,19 +61,19 @@ namespace Vcl
 	}
 
 	template<>
-	inline float convert<float>(const std::string& value)
+	inline float from_string<float>(const std::string& value)
 	{
 		return std::stof(value);
 	}
 
 	template<>
-	inline int convert<int>(const std::string& value)
+	inline int from_string<int>(const std::string& value)
 	{
 		return std::stoi(value);
 	}
 	
 	template<>
-	inline Eigen::Vector2f convert<Eigen::Vector2f>(const std::string& value)
+	inline Eigen::Vector2f from_string<Eigen::Vector2f>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
@@ -84,7 +84,7 @@ namespace Vcl
 	}
 	
 	template<>
-	inline Eigen::Vector3f convert<Eigen::Vector3f>(const std::string& value)
+	inline Eigen::Vector3f from_string<Eigen::Vector3f>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
@@ -96,7 +96,7 @@ namespace Vcl
 	}
 
 	template<>
-	inline Eigen::Vector4f convert<Eigen::Vector4f>(const std::string& value)
+	inline Eigen::Vector4f from_string<Eigen::Vector4f>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
@@ -109,7 +109,7 @@ namespace Vcl
 	}
 	
 	template<>
-	inline Eigen::Vector2ui convert<Eigen::Vector2ui>(const std::string& value)
+	inline Eigen::Vector2ui from_string<Eigen::Vector2ui>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
@@ -120,7 +120,7 @@ namespace Vcl
 	}
 	
 	template<>
-	inline Eigen::Vector3ui convert<Eigen::Vector3ui>(const std::string& value)
+	inline Eigen::Vector3ui from_string<Eigen::Vector3ui>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
@@ -132,7 +132,7 @@ namespace Vcl
 	}
 
 	template<>
-	inline Eigen::Vector4ui convert<Eigen::Vector4ui>(const std::string& value)
+	inline Eigen::Vector4ui from_string<Eigen::Vector4ui>(const std::string& value)
 	{
 		size_t pos  = 0;
 		size_t next = 0;
