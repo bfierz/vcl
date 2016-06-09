@@ -46,15 +46,19 @@
 #			define VCL_ABI_WIN64
 #		else
 #			define VCL_ABI_WIN32
-#		endif /* _WIN64 */
-#	endif /* _WIN32 */
+#		endif // _WIN64
+#	endif // _WIN32
 #	if (defined(_M_IX86))
 #		define VCL_ARCH_X86
-#	endif /* _M_IX86 */
+#	endif // _M_IX86
 
 #	if (defined(_M_X64))
 #		define VCL_ARCH_X64
-#	endif /* _M_X64 */
+#	endif // _M_X64
+
+#	if (defined(_M_ARM))
+#		define VCL_ARCH_ARM
+#	endif // _M_ARM
 
 // Inlining
 #	define VCL_STRONG_INLINE __forceinline
@@ -174,7 +178,7 @@
 #			include <immintrin.h>
 #		endif
 		}
-#elif defined(VCL_VECTORIZE_SSE)
+#	elif defined(VCL_VECTORIZE_SSE)
 		extern "C"
 		{
 #		ifdef VCL_VECTORIZE_SSE4_2
@@ -193,6 +197,9 @@
 		}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
+#elif defined VCL_ARCH_ARM
+#	include <arm_neon.h>
+#	define VCL_VECTORIZE_NEON
 #endif
 
 // Implement missing standard function
