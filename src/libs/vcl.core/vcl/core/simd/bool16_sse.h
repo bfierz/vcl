@@ -133,7 +133,7 @@ namespace Vcl
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
 	{
 		int mask  = _mm_movemask_ps(b.mF4[3]) << 12;
 			mask |= _mm_movemask_ps(b.mF4[2]) <<  8;
