@@ -15,6 +15,8 @@ SET_TARGET_PROPERTIES(svd33performance PROPERTIES FOLDER benchmarks)
 TARGET_LINK_LIBRARIES(svd33performance
 	vcl_core
 	vcl_math
+	benchmark
+	Shlwapi
 )
 
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
@@ -30,4 +32,3 @@ IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 		vcl_math_opencl
 	)
 ENDIF()
-

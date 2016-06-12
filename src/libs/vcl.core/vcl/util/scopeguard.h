@@ -45,7 +45,8 @@ namespace std
 		// MSVC specific. Tested on {MSVC2005SP1,MSVC2008SP1,MSVC2010SP1,MSVC2012}x{x32,x64}.
 		return *(static_cast<unsigned*>(static_cast<void*>(details::_getptd() + (sizeof(void*) == 8 ? 0x100 : 0x90)))); // x32 offset - 0x90 , x64 - 0x100
 	}
-#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
+//#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_CLANG)
 	namespace details { extern "C" char * __cxa_get_globals(); }
 	inline int uncaught_exceptions()
 	{

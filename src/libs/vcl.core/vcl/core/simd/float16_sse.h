@@ -191,7 +191,17 @@ namespace Vcl
 				_mm_cmpeq_ps(mF4[3], rhs.mF4[3])
 			);
 		}
-
+		
+		VectorScalar<bool, 16> operator!= (const VectorScalar<float, 16>& rhs) const
+		{
+			return VectorScalar<bool, 16>
+			(
+				_mm_cmpneq_ps(mF4[0], rhs.mF4[0]),
+				_mm_cmpneq_ps(mF4[1], rhs.mF4[1]),
+				_mm_cmpneq_ps(mF4[2], rhs.mF4[2]),
+				_mm_cmpneq_ps(mF4[3], rhs.mF4[3])
+			);
+		}
 		VectorScalar<bool, 16> operator< (const VectorScalar<float, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
@@ -274,7 +284,7 @@ namespace Vcl
 			return _mm_cvtss_f32(_mm_min_ss
 			(
 				_mm_min_ss(_mm_set_ss(_mmVCL_hmin_ps(get(0))), _mm_set_ss(_mmVCL_hmin_ps(get(1)))),
-				_mm_min_ss(_mm_set_ss(_mmVCL_hmin_ps(get(1))), _mm_set_ss(_mmVCL_hmin_ps(get(3))))
+				_mm_min_ss(_mm_set_ss(_mmVCL_hmin_ps(get(2))), _mm_set_ss(_mmVCL_hmin_ps(get(3))))
 			));
 		}
 		VCL_STRONG_INLINE float max() const
@@ -282,7 +292,7 @@ namespace Vcl
 			return _mm_cvtss_f32(_mm_max_ss
 			(
 				_mm_max_ss(_mm_set_ss(_mmVCL_hmax_ps(get(0))), _mm_set_ss(_mmVCL_hmax_ps(get(1)))),
-				_mm_max_ss(_mm_set_ss(_mmVCL_hmax_ps(get(1))), _mm_set_ss(_mmVCL_hmax_ps(get(3))))
+				_mm_max_ss(_mm_set_ss(_mmVCL_hmax_ps(get(2))), _mm_set_ss(_mmVCL_hmax_ps(get(3))))
 			));
 		}
 

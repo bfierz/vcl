@@ -139,6 +139,15 @@ namespace Vcl
 				_mm_cmpeq_ps(get(1), rhs.get(1))
 			);
 		}
+		
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator!= (const VectorScalar<float, 8>& rhs) const
+		{
+			return VectorScalar<bool, 8>
+			(
+				_mm_cmpneq_ps(get(0), rhs.get(0)),
+				_mm_cmpneq_ps(get(1), rhs.get(1))
+			);
+		}
 
 		VCL_STRONG_INLINE VectorScalar<bool, 8> operator< (const VectorScalar<float, 8>& rhs) const
 		{

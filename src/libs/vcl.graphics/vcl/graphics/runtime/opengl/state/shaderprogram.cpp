@@ -29,6 +29,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
@@ -736,7 +737,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);
 
-				Check(glGetAttribLocation(_glId, name.c_str()) == loc, "Input layout element is bound correctly", "GL location: {}; input location: {}", glGetAttribLocation(_glId, name.c_str()), loc);
+				Check(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
 			}
 
 			// Check the fragment output against the layout
@@ -768,11 +769,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	void ShaderProgram::setTexture(const char* name, const Runtime::Texture* tex, const Runtime::Sampler* sampler)
+	UniformHandle ShaderProgram::uniform(const char* name) const
 	{
-		Require(dynamic_cast<const OpenGL::Texture*>(tex), "'img' is from the OpenGL backend");
-		Require(implies(sampler, dynamic_cast<const OpenGL::Sampler*>(sampler)), "'sampler' is from the OpenGL backend");
-
 		const auto& uniforms = _resources->uniforms();
 		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformData& data)
 		{
@@ -780,23 +778,116 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		});
 		if (handle != std::end(uniforms))
 		{
-			auto res = static_cast<const OpenGL::Texture*>(tex);
-			glBindTextureUnit(handle->ResourceLocation, res->id());
-			if (sampler)
-				glBindSampler(handle->ResourceLocation, static_cast<const OpenGL::Sampler*>(sampler)->id());
+			return{ id(), (short) handle->Location, (short) handle->ResourceLocation };
+		}
+		else
+		{
+			return{ id(), -1, -1 };
 		}
 	}
 
-	void ShaderProgram::setImage(const char* name, const Runtime::Texture* img, bool read, bool write)
+	void ShaderProgram::setUniform(const UniformHandle& handle, float value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform1f(id(), handle.Location, value);
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2f& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform2f(id(), handle.Location, value.x(), value.y());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3f& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform3f(id(), handle.Location, value.x(), value.y(), value.z());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4f& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform4f(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
+	}
+
+	void ShaderProgram::setUniform(const UniformHandle& handle, int value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform1i(id(), handle.Location, value);
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2i& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform2i(id(), handle.Location, value.x(), value.y());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3i& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform3i(id(), handle.Location, value.x(), value.y(), value.z());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4i& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform4i(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
+	}
+
+	void ShaderProgram::setUniform(const UniformHandle& handle, unsigned int value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform1ui(id(), handle.Location, value);
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2ui& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform2ui(id(), handle.Location, value.x(), value.y());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3ui& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform3ui(id(), handle.Location, value.x(), value.y(), value.z());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4ui& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniform4ui(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
+	}
+	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value)
+	{
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		glProgramUniformMatrix4fv(id(), handle.Location, 1, GL_FALSE, value.data());
+	}
+
+	void ShaderProgram::setTexture(const UniformHandle& handle, const Runtime::Texture* tex, const Runtime::Sampler* sampler)
+	{
+		Require(dynamic_cast<const OpenGL::Texture*>(tex), "'img' is from the OpenGL backend");
+		Require(implies(sampler, dynamic_cast<const OpenGL::Sampler*>(sampler)), "'sampler' is from the OpenGL backend");
+		Require(id() == handle.Program, "Handle belongs to this program");
+
+		if (handle.Location >= 0)
+		{
+			auto res = static_cast<const OpenGL::Texture*>(tex);
+			glBindTextureUnit(handle.ResourceLocation, res->id());
+			if (sampler)
+				glBindSampler(handle.ResourceLocation, static_cast<const OpenGL::Sampler*>(sampler)->id());
+		}
+	}
+
+	void ShaderProgram::setImage(const UniformHandle& handle, const Runtime::Texture* img, bool read, bool write)
 	{
 		Require(dynamic_cast<const OpenGL::Texture*>(img), "'img' is from the OpenGL backend");
+		Require(id() == handle.Program, "Handle belongs to this program");
 
-		const auto& uniforms = _resources->uniforms();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformData& data)
-		{
-			return strcmp(data.Name.c_str(), name) == 0;
-		});
-		if (handle != std::end(uniforms))
+		if (handle.Location >= 0)
 		{
 			GLenum access = GL_NONE;
 			if (read && !write)
@@ -807,7 +898,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				access |= GL_READ_WRITE;
 
 			auto res = static_cast<const OpenGL::Texture*>(img);
-			glBindImageTexture(handle->ResourceLocation, res->id(), 0, false, 0, access, Texture::toSurfaceFormat(img->format()));
+			glBindImageTexture(handle.ResourceLocation, res->id(), 0, false, 0, access, Texture::toSurfaceFormat(img->format()));
 		}
 	}
 
@@ -828,6 +919,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_UNIFORM_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
+
+			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 
@@ -836,8 +929,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
 		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
-		const auto& uniforms = _resources->uniformBlocks();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformBlockData& data)
+		const auto& uniforms = _resources->buffers();
+		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const BufferBlockData& data)
 		{
 			return strcmp(data.Name.c_str(), name) == 0;
 		});
@@ -848,6 +941,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
+
+			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 }}}}

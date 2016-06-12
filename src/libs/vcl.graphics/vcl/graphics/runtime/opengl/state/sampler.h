@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-// VCL libraries
+// VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 

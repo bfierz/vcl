@@ -115,11 +115,14 @@
 
 #	define VCL_CALLBACK __attribute__ ((__stdcall__))
 
+#	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
+
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline
 #	define VCL_DEBUG_BREAK
 #	define VCL_ALIGN(x)
 #	define VCL_CALLBACK
+#	define VCL_NOEXCEPT_PARAM(param)
 #endif
 
 // Configure macros for SIMD

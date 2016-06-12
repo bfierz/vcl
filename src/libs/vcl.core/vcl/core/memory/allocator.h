@@ -168,8 +168,8 @@ namespace Vcl { namespace Core
 		inline explicit AlignedAllocPolicy() {}
 		inline ~AlignedAllocPolicy() {}
 		inline explicit AlignedAllocPolicy(AlignedAllocPolicy const&) {}
-		template <typename U, int Alignment>
-		inline explicit AlignedAllocPolicy(AlignedAllocPolicy<U, Alignment> const&) {}
+		template <typename U, int AlignmentRhs>
+		inline explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&) {}
 
 	public: // Memory allocation
 		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)

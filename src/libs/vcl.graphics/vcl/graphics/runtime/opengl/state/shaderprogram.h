@@ -200,9 +200,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	struct UniformData
 	{
+		//! Uniform location
 		int Location;
+
+		//! Uniform Name
 		std::string Name;
+
+		//! Uniform type
 		ProgramResourceType Type;
+
+		//! Size of the array, if it is one
 		int ArraySize;
 
 		//! Location of the resource this uniform points to
@@ -235,6 +242,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Location of the resource this uniform points to
 		int ResourceLocation;
+	};
+
+	struct UniformHandle
+	{
+		//! Id of the program the handle belongs to
+		GLuint Program;
+
+		//! Uniform location
+		short Location;
+
+		//! Uniform resource location
+		short ResourceLocation;
 	};
 
 	class ProgramAttributes
@@ -351,6 +370,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		const std::vector<AttributeData>& attributes() const { return _attributes.elems(); }
 		const std::vector<UniformData>& uniforms() const { return _uniforms.elems(); }
 		const std::vector<UniformBlockData>& uniformBlocks() const { return _uniformBlocks.elems(); }
+		const std::vector<BufferBlockData>& buffers() const { return _buffers.elems(); }
 		
 	public:
 		static GLenum toGLenum(ProgramResourceType t);
@@ -374,38 +394,29 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void bind();
 
 	public:
-	//	void setUniform(const std::string& name, float value);
-	//	void setUniform(const std::string& name, const Eigen::Vector2f& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector3f& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector4f& value);
-	//	void setUniform(const std::string& name, int value);
-	//	void setUniform(const std::string& name, const Eigen::Vector2i& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector3i& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector4i& value);
-	//	void setUniform(const std::string& name, unsigned int value);
-	//	void setUniform(const std::string& name, const Eigen::Vector2ui& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector3ui& value);
-	//	void setUniform(const std::string& name, const Eigen::Vector4ui& value);
-	//	void setUniform(const std::string& name, const Eigen::Matrix4f& value);
-		void setTexture(const char* name, const Runtime::Texture* tex, const Runtime::Sampler* sampler);
-		void setImage(const char* name, const Runtime::Texture* img, bool read, bool write);
+		UniformHandle uniform(const char* name) const;
+
+	public:
 		void setConstantBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
 		void setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
 	
-	//public:
-	//	void setUniform(const UniformHandle& handle, float value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector2f& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector3f& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector4f& value);
-	//	void setUniform(const UniformHandle& handle, int value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector2i& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector3i& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector4i& value);
-	//	void setUniform(const UniformHandle& handle, unsigned int value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector2ui& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector3ui& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Vector4ui& value);
-	//	void setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value);
+	public:
+		void setUniform(const UniformHandle& handle, float value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector2f& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector3f& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector4f& value);
+		void setUniform(const UniformHandle& handle, int value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector2i& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector3i& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector4i& value);
+		void setUniform(const UniformHandle& handle, unsigned int value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector2ui& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector3ui& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Vector4ui& value);
+		void setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value);
+
+		void setTexture(const UniformHandle& handle, const Runtime::Texture* tex, const Runtime::Sampler* sampler);
+		void setImage(const UniformHandle& handle, const Runtime::Texture* img, bool read, bool write);
 
 	private:
 		void linkAttributes(const InputLayoutDescription& layout);

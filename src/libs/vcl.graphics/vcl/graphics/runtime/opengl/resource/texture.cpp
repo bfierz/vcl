@@ -148,5 +148,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		return image_format;
 	}
+
+	Texture::Texture(const Texture& rhs)
+	: Runtime::Texture(rhs)
+	, Resource()
+	{
+	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

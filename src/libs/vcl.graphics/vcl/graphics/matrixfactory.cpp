@@ -26,6 +26,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/math/math.h>
 
 namespace Vcl { namespace Graphics
 {
@@ -37,33 +38,36 @@ namespace Vcl { namespace Graphics
 		Handedness handedness
 	) const
 	{
+		Require(Vcl::Mathematics::equal(direction.norm(), 1.f, 1e-4f), "Direction vector is normalized.");
+		Require(Vcl::Mathematics::equal(world_up.norm(),  1.f, 1e-4f), "Up vector is normalized.");
+
 		if (handedness == Handedness::RightHanded)
 		{
 			Eigen::Vector3f right, up, dir;
-			dir = -direction.normalized();
-			right = world_up.normalized().cross(dir).normalized();
-			up = dir.cross(right);
+			dir = direction;
+			right = dir.cross(world_up);
+			up = right.cross(dir);
 
 			Eigen::Matrix4f matrix;
 			matrix << right.x(), right.y(), right.z(), -right.dot(position),
-				      up.x(),    up.y(),    up.z(),    -up.dot(position),
-				      dir.x(),   dir.y(),   dir.z(),   -dir.dot(position),
-				      0.0f, 0.0f, 0.0f, 1.0f;
+				         up.x(),    up.y(),    up.z(),    -up.dot(position),
+				       -dir.x(),  -dir.y(),  -dir.z(),    dir.dot(position),
+				           0.0f,      0.0f,      0.0f,                 1.0f;
 
 			return matrix;
 		}
 		else if (handedness == Handedness::LeftHanded)
 		{
 			Eigen::Vector3f right, up, dir;
-			dir = direction.normalized();
-			right = world_up.normalized().cross(dir).normalized();
+			dir = direction;
+			right = world_up.cross(dir);
 			up = dir.cross(right);
 
 			Eigen::Matrix4f matrix;
 			matrix << right.x(), right.y(), right.z(), -right.dot(position),
-				      up.x(),    up.y(),    up.z(),    -up.dot(position),
-				      dir.x(),   dir.y(),   dir.z(),   -dir.dot(position),
-				      0.0f, 0.0f, 0.0f, 1.0f;
+				         up.x(),    up.y(),    up.z(),    -up.dot(position),
+				        dir.x(),   dir.y(),   dir.z(),   -dir.dot(position),
+				           0.0f,      0.0f,      0.0f,                 1.0f;
 
 			return matrix;
 		}
