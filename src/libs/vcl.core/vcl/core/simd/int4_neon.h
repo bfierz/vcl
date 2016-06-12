@@ -60,7 +60,17 @@ namespace Vcl
 		{
 			Require(0 <= idx && idx < 4, "Access is in range.");
 
-			return vgetq_lane_s32(get(idx), 0);
+			switch (idx)
+			{
+			case 0:
+				return vgetq_lane_s32(get(0), 0);
+			case 1:
+				return vgetq_lane_s32(get(0), 1);
+			case 2:
+				return vgetq_lane_s32(get(0), 2);
+			case 3:
+				return vgetq_lane_s32(get(0), 3);
+			}
 		}
 
 		VCL_STRONG_INLINE int32x4_t get(int i = 0) const
@@ -114,7 +124,7 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3)
 		{
-			int VCL_ALIGN(16) data[4] = { s3, s2, s1, s0 };
+			int VCL_ALIGN(16) data[4] = { s0, s1, s2, s3 };
 			_data[0] = vld1q_s32(data);
 		}
 		VCL_STRONG_INLINE void set(int32x4_t vec)

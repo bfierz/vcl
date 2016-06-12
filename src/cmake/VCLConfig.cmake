@@ -101,8 +101,11 @@ IF(VCL_COMPILER_MSVC)
 	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GS- /fp:fast")
 	
 	# Configure all configuration
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	# * Enable all warnings
+	# * Exceptions
+	# * RTTI
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /EHsc /GR")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /EHsc /GR")
 	
 	# Make AVX available
 	IF(VCL_VECTORIZE_AVX2)

@@ -44,10 +44,7 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar() {}
 		VCL_STRONG_INLINE VectorScalar(int s)
 		{
-			mF4[0] = vdupq_n_s32(s);
-			mF4[1] = vdupq_n_s32(s);
-			mF4[2] = vdupq_n_s32(s);
-			mF4[3] = vdupq_n_s32(s);
+			set(s);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar
 		(
@@ -55,14 +52,8 @@ namespace Vcl
 			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
 		)
 		{
-			int VCL_ALIGN(16) d0[4] = { s03, s02, s01, s00 };
-			int VCL_ALIGN(16) d1[4] = { s07, s06, s05, s04 };
-			int VCL_ALIGN(16) d2[4] = { s11, s10, s09, s08 };
-			int VCL_ALIGN(16) d3[4] = { s15, s14, s13, s12 };
-			mF4[0] = vld1q_s32(d0);
-			mF4[1] = vld1q_s32(d1);
-			mF4[1] = vld1q_s32(d2);
-			mF4[1] = vld1q_s32(d3);
+			set(s00, s01, s02, s03, s04, s05, s06, s07,
+				s08, s09, s10, s11, s12, s13, s14, s15);
 		}
 		VCL_STRONG_INLINE explicit VectorScalar(int32x4_t I4_0, int32x4_t I4_1, int32x4_t I4_2, const int32x4_t& I4_3)
 		{
@@ -91,13 +82,13 @@ namespace Vcl
 			switch (idx % 4)
 			{
 			case 0:
-				return vgetq_lane_f32(get(idx / 4), 0);
+				return vgetq_lane_s32(get(idx / 4), 0);
 			case 1:
-				return vgetq_lane_f32(get(idx / 4), 1);
+				return vgetq_lane_s32(get(idx / 4), 1);
 			case 2:
-				return vgetq_lane_f32(get(idx / 4), 2);
+				return vgetq_lane_s32(get(idx / 4), 2);
 			case 3:
-				return vgetq_lane_f32(get(idx / 4), 3);
+				return vgetq_lane_s32(get(idx / 4), 3);
 			}
 		}
 
@@ -213,6 +204,27 @@ namespace Vcl
 				vcgeq_s32(mF4[0], rhs.mF4[2]),
 				vcgeq_s32(mF4[1], rhs.mF4[3])
 			);
+		}
+		
+	private:
+		VCL_STRONG_INLINE void set(int s0)
+		{
+			mF4[0] = vdupq_n_s32(s0);
+			mF4[1] = vdupq_n_s32(s0);
+			mF4[2] = vdupq_n_s32(s0);
+			mF4[3] = vdupq_n_s32(s0);
+		}
+		VCL_STRONG_INLINE void set(int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
+			                       int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15)
+		{
+			int VCL_ALIGN(16) d0[4] = { s00, s01, s02, s03 };
+			int VCL_ALIGN(16) d1[4] = { s04, s05, s06, s07 };
+			int VCL_ALIGN(16) d2[4] = { s08, s09, s10, s11 };
+			int VCL_ALIGN(16) d3[4] = { s12, s13, s14, s15 };
+			mF4[0] = vld1q_s32(d0);
+			mF4[1] = vld1q_s32(d1);
+			mF4[2] = vld1q_s32(d2);
+			mF4[3] = vld1q_s32(d3);
 		}
 
 	public:

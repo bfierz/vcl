@@ -71,13 +71,13 @@ namespace Vcl
 			switch (idx % 4)
 			{
 			case 0:
-				return vgetq_lane_f32(get(idx / 2), 0);
+				return vgetq_lane_s32(get(idx / 4), 0);
 			case 1:
-				return vgetq_lane_f32(get(idx / 2), 1);
+				return vgetq_lane_s32(get(idx / 4), 1);
 			case 2:
-				return vgetq_lane_f32(get(idx / 2), 2);
+				return vgetq_lane_s32(get(idx / 4), 2);
 			case 3:
-				return vgetq_lane_f32(get(idx / 2), 3);
+				return vgetq_lane_s32(get(idx / 4), 3);
 			}
 		}
 
@@ -187,8 +187,8 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
 		{
-			int VCL_ALIGN(16) d0[4] = { s3, s2, s1, s0 };
-			int VCL_ALIGN(16) d1[4] = { s7, s6, s5, s4 };
+			int VCL_ALIGN(16) d0[4] = { s0, s1, s2, s3 };
+			int VCL_ALIGN(16) d1[4] = { s4, s5, s6, s7 };
 			_data[0] = vld1q_s32(d0);
 			_data[1] = vld1q_s32(d1);
 		}

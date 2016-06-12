@@ -43,8 +43,8 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(bool s)
 		{
-			mF4[0] = s ? vdupq_n_u32(-1) : vdupq_n_u32(0);
-			mF4[1] = s ? vdupq_n_u32(-1) : vdupq_n_u32(0);
+			mF4[0] = s ? vdupq_n_u32((uint32_t) -1) : vdupq_n_u32(0);
+			mF4[1] = s ? vdupq_n_u32((uint32_t) -1) : vdupq_n_u32(0);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(uint32x4_t I4_0, uint32x4_t I4_1)
 		{

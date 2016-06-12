@@ -103,13 +103,13 @@ namespace Vcl
 		float32x4_t m2 = vld1q_f32(p + 8);
 		float32x4_t m3 = vld1q_f32(p + 12);
 
-		vtrnq_f32(m0, m1);
-		vtrnq_f32(m2, m3);
+		float32x4x2_t t0 = vtrnq_f32(m0, m1);
+		float32x4x2_t t1 = vtrnq_f32(m2, m3);
 
-		x = vcombine_f32(vget_low_f32 (m0), vget_high_f32(m2));
-		y = vcombine_f32(vget_low_f32 (m1), vget_high_f32(m3));
-		z = vcombine_f32(vget_high_f32(m0), vget_low_f32 (m2));
-		w = vcombine_f32(vget_high_f32(m0), vget_low_f32 (m2));
+		x = vcombine_f32(vget_low_f32 (t0.val[0]), vget_low_f32 (t1.val[0]));
+		y = vcombine_f32(vget_low_f32 (t0.val[1]), vget_low_f32 (t1.val[1]));
+		z = vcombine_f32(vget_high_f32(t0.val[0]), vget_high_f32(t1.val[0]));
+		w = vcombine_f32(vget_high_f32(t0.val[1]), vget_high_f32(t1.val[1]));
 	}
 
 	VCL_STRONG_INLINE void store
