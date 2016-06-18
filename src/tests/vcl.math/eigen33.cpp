@@ -141,22 +141,27 @@ namespace
 			Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
 			Scalar sqLenRefUc1 = refU.col(1).squaredNorm();
 			Scalar sqLenRefUc2 = refU.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 2 is not normalized.";
 
 			Scalar sqLenResUc0 = resU.col(0).squaredNorm();
 			Scalar sqLenResUc1 = resU.col(1).squaredNorm();
 			Scalar sqLenResUc2 = resU.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 2 is not normalized.";
 
 			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
-			bool eqU = refU.array().abs().isApprox(resU.array().abs(), tol);
+			bool eqU = refU.array().abs().isApprox(resU.array().abs(), 2*tol);
 
 			EXPECT_TRUE(eqS) << "Index: " << i << ", S(" << i << ") -\nRef: " << refS.format(fmt) << ",\nRes: " << resS.format(fmt);
 			EXPECT_TRUE(eqU) << "Index: " << i << ", U(" << i << ") -\nRef: " << refU.format(fmt) << ",\nRes: " << resU.format(fmt);
+
+			Vcl::Matrix3f I = resU.transpose() * resU;
+			Vcl::Matrix3f Iref = Vcl::Matrix3f::Identity();
+
+			EXPECT_TRUE(equal(Iref, I, tol)) << "Index: " << i << ", Result U^t U: not Identity.";
 		}
 	}
 }
