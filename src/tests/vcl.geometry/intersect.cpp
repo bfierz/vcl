@@ -52,7 +52,7 @@ void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func 
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 
-	EXPECT_EQ(result, all(intersect(b0, ray))) << "Intersection was missed.";
+	EXPECT_EQ(result, all(intersect(b0, ray))) << "Intersection was missed. o:" << ray.origin() << ", d:" << ray.direction();
 }
 
 TEST(AxisAlignedBoxRayIntersection, ScalarBarnes)
