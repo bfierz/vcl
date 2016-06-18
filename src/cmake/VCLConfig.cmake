@@ -90,6 +90,7 @@ SET(VCL_VECTORIZE_SSE4_1 CACHE BOOL "Enable SSE 4.1 instruction set")
 SET(VCL_VECTORIZE_SSE4_2 CACHE BOOL "Enable SSE 4.2 instruction set")
 SET(VCL_VECTORIZE_AVX CACHE BOOL "Enable AVX instruction set")
 SET(VCL_VECTORIZE_AVX2 CACHE BOOL "Enable AVX 2 instruction set")
+SET(VCL_VECTORIZE_NEON CACHE BOOL "Enable NEON instruction set")
 
 # Set whether contracts should be used
 SET(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
@@ -118,6 +119,9 @@ IF(VCL_COMPILER_MSVC)
 		# All x64 bit machine come with SSE2, thus it's defined as default
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
+	ELSEIF(VCL_VECTORIZE_NEON)
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:VFPv4")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:VFPv4")
 	ENDIF()
 
 ENDIF(VCL_COMPILER_MSVC)

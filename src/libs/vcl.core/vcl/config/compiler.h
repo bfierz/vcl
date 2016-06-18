@@ -197,9 +197,8 @@
 		}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
-#elif defined VCL_ARCH_ARM
+#elif defined VCL_ARCH_ARM && defined VCL_VECTORIZE_NEON
 #	include <arm_neon.h>
-#	define VCL_VECTORIZE_NEON
 #endif
 
 // Implement missing standard function

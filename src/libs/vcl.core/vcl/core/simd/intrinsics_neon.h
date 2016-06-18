@@ -92,9 +92,20 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float32x4_t vrsqrtq_f32(float32x4_t x)
 	{
-		float32x4_t rsqrt= vrsqrteq_f32(x);
+		const float32x4_t q_step_0 = vrsqrteq_f32(x);
+		// step
+		const float32x4_t q_step_parm0 = vmulq_f32(x, q_step_0);
+		const float32x4_t q_step_result0 = vrsqrtsq_f32(q_step_parm0, q_step_0);
 
-		return vmulq_f32(vrsqrtsq_f32(vmulq_f32(x, rsqrt), rsqrt), rsqrt);
+		// step
+		const float32x4_t q_step_1 = vmulq_f32(q_step_0, q_step_result0);
+		const float32x4_t q_step_parm1 = vmulq_f32(x, q_step_1);
+		const float32x4_t q_step_result1 = vrsqrtsq_f32(q_step_parm1, q_step_1);
+		
+		// take the res
+		const float32x4_t q_step_2 = vmulq_f32(q_step_1, q_step_result1);
+		
+		return q_step_2;
 	}
 
 	VCL_STRONG_INLINE float32x4_t vsqrtq_f32(float32x4_t x)

@@ -10,6 +10,7 @@ SET(VCL_TEST_SRC
 	rtti.cpp
 	scatter.cpp
 	scopeguard.cpp
+	simd.cpp
 	smart_ptr.cpp
 )
 SET(VCL_TEST_INC
