@@ -183,6 +183,7 @@ namespace
 	}
 }
 
+#if defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
 template<typename WideScalar>
 void runMcAdamsTest(float tol)
 {
@@ -223,6 +224,7 @@ void runMcAdamsTest(float tol)
 	// Check against reference solution
 	checkSolution(nr_problems, tol, refU, refV, refS, resU, resV, resS);
 }
+#endif // defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
 
 template<typename WideScalar>
 void runTwoSidedTest(float tol)
@@ -306,14 +308,17 @@ void runQRTest(float tol)
 	checkSolution(nr_problems, tol, refU, refV, refS, resU, resV, resS);
 }
 
+#ifdef VCL_VECTORIZE_SSE
 TEST(SVD33, McAdamsSVDFloat)
 {
 	runMcAdamsTest<float>(1e-5f);
 }
+
 TEST(SVD33, McAdamsSVDFloat4)
 {
 	runMcAdamsTest<Vcl::float4>(1e-5f);
 }
+#endif // defined(VCL_VECTORIZE_SSE)
 
 #ifdef VCL_VECTORIZE_AVX
 TEST(SVD33, McAdamsSVDFloat8)

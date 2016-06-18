@@ -160,6 +160,16 @@ namespace Vcl
 		__m128 mF4[8];
 	};
 }
+#elif defined VCL_VECTORIZE_NEON
+#	include <vcl/core/simd/bool4_neon.h>
+#	include <vcl/core/simd/bool8_neon.h>
+#	include <vcl/core/simd/bool16_neon.h>
+#	include <vcl/core/simd/float4_neon.h>
+#	include <vcl/core/simd/float8_neon.h>
+#	include <vcl/core/simd/float16_neon.h>
+#	include <vcl/core/simd/int4_neon.h>
+#	include <vcl/core/simd/int8_neon.h>
+#	include <vcl/core/simd/int16_neon.h>
 #endif
 	
 namespace Vcl
@@ -263,6 +273,11 @@ namespace Vcl
 	VCL_STRONG_INLINE bool all(bool b)
 	{
 		return b;
+	}
+
+	VCL_STRONG_INLINE bool none(bool b)
+	{
+		return !b;
 	}
 
 	template<typename SCALAR>

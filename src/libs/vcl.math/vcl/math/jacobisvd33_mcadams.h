@@ -39,8 +39,10 @@ namespace Vcl { namespace Mathematics
 	 *	which is an extensive description of the method presented in
 	 *		SIGGRAPH - 2011 - McAdams, Zhu, Selle, Empey, Tamstorf, Teran, Sifakis - Efficient elasticity for character skinning with contact and collisions
 	 */
-	int McAdamsJacobiSVD(Eigen::Matrix<float , 3, 3>& A, Eigen::Matrix<float , 3, 3>& U, Eigen::Matrix<float , 3, 3>& V, unsigned int sweeps = 4);
+#ifdef VCL_VECTORIZE_SSE
+	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps = 4);
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps = 4);
+#endif // defined(VCL_VECTORIZE_SSE)
 
 #ifdef VCL_VECTORIZE_AVX
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps = 4);

@@ -192,7 +192,7 @@ namespace Vcl { namespace Mathematics
 		_mm_store_ss(&z, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
 		return z;
 #else
-		return std::max(a, b);
+		return (a > b) ? a : b;
 #endif
 	}
 
@@ -203,7 +203,7 @@ namespace Vcl { namespace Mathematics
 		_mm_store_ss(&z, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
 		return z;
 #else
-		return std::min(a, b);
+		return (a < b) ? a : b;
 #endif
 	}
 

@@ -40,6 +40,10 @@
 #	include <vcl/core/simd/memory_avx.h>
 #endif //VCL_VECTORIZE_AVX
 
+#if defined VCL_VECTORIZE_NEON
+#	include <vcl/core/simd/memory_neon.h>
+#endif //VCL_VECTORIZE_NEON
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE void load(float& value, const float* base)
