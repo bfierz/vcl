@@ -184,7 +184,7 @@ namespace Vcl
 		VCL_ALIGN(16) float vars[4];
 		_mm_store_ps(vars + 0, rhs.get(0));
 		
-		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << "'";
 		return s;
 	}
 }

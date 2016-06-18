@@ -30,6 +30,7 @@
 // VCL
 VCL_BEGIN_EXTERNAL_HEADERS
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 VCL_END_EXTERNAL_HEADERS
 
 #if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))

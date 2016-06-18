@@ -214,7 +214,7 @@ void runMcAdamsTest(float tol)
 		matrix3_t U = matrix3_t::Identity();
 		matrix3_t V = matrix3_t::Identity();
 
-		Vcl::Mathematics::McAdamsJacobiSVD(S, U, V);
+		Vcl::Mathematics::McAdamsJacobiSVD(S, U, V, 5);
 		
 		resU.at<real_t>(i) = U;
 		resV.at<real_t>(i) = V;
@@ -329,7 +329,7 @@ TEST(SVD33, McAdamsSVDFloat8)
 
 TEST(SVD33, TwoSidedSVDFloat)
 {
-	runTwoSidedTest<float>(1e-5f);
+	runTwoSidedTest<float>(1e-4f);
 }
 TEST(SVD33, TwoSidedSVDFloat4)
 {

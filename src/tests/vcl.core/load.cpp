@@ -48,7 +48,7 @@ TEST(LoadTest, Scalar)
 	using Vcl::all;
 
 	// Setup the memory
-	float mem[] =
+	VCL_ALIGN(16) float mem[] =
 	{
 		11.3805f, 6.10116f, 11.6117f,
 		11.8436f, 6.2012501f, 12.3314f,
@@ -109,7 +109,7 @@ TEST(LoadTest, Vector3)
 	using Vcl::all;
 
 	// Setup the memory
-	Eigen::Vector3f mem [] =
+	VCL_ALIGN(16) Eigen::Vector3f mem [] =
 	{
 		Eigen::Vector3f(11.3805f, 6.10116f, 11.6117f),
 		Eigen::Vector3f(11.8436f, 6.2012501f, 12.3314f),
@@ -232,7 +232,7 @@ TEST(LoadTest, Vector4)
 	using Vcl::all;
 
 	// Setup the memory
-	Eigen::Vector4f mem [] =
+	VCL_ALIGN(16) Eigen::Vector4f mem [] =
 	{
 		Eigen::Vector4f( 0,  1,  3,  4),
 		Eigen::Vector4f( 5,  6,  7,  8),

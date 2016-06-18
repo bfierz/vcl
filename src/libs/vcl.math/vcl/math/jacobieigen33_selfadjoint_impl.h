@@ -41,6 +41,10 @@
 
 namespace Vcl { namespace Mathematics
 {
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(push, off) 
+#endif // VCL_COMPILER_MSVC
+
 	template<typename T>
 	struct JacobiTraits {};
 
@@ -409,4 +413,7 @@ namespace Vcl { namespace Mathematics
 
 		return iter;
 	}
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(pop) 
+#endif // VCL_COMPILER_MSVC
 }}
