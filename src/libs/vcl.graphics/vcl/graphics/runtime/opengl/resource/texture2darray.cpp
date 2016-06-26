@@ -32,13 +32,19 @@
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	Texture2DArray::Texture2DArray
-	(		
-		int w, int h, int layers,
-		Vcl::Graphics::SurfaceFormat fmt,
+	(
+		const Texture2DDescription& desc,
 		const TextureResource* init_data /* = nullptr */
 	)
 	: Texture()
 	{
+		initializeView
+		(
+			TextureType::Texture2DArray, desc.Format,
+			0, desc.MipLevels,
+			0, desc.ArraySize,
+			desc.Width, desc.Height, 1
+		);
 		initialise(init_data);
 	}
 
@@ -81,8 +87,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		
 		// Configure texture
-		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, 0);
-		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, 0);
+		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

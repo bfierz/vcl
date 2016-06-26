@@ -1,6 +1,7 @@
 PROJECT(vcl_graphics_opengl_test)
 
 SET(VCL_TEST_SRC
+	blendstate.cpp
 	buffers.cpp
 	imageprocessor.cpp
 	shaderprogram.cpp
@@ -27,6 +28,5 @@ TARGET_LINK_LIBRARIES(vcl_graphics_opengl_test
 	vcl_graphics
 	${GLEW_LIBRARY}
 	${OPENGL_gl_LIBRARY}
-	debug ${VCL_GTEST_LIBRARY_DEBUG}/gtest.lib
-	optimized ${VCL_GTEST_LIBRARY_RELEASE}/gtest.lib
+	gtest
 )

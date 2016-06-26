@@ -109,7 +109,7 @@ namespace Vcl
 	}
 
 
-	__m128 _mm256_atan2_ps(__m128 in_y, __m128 in_x)
+	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x)
 	{
 		using float4 = VectorScalar<float, 4>;
 

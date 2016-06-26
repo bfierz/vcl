@@ -95,6 +95,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	public:
 		Sampler(const SamplerDescription& desc);
+		virtual ~Sampler() = default;
 
 	public:
 		const SamplerDescription& desc() const { return _desc; }

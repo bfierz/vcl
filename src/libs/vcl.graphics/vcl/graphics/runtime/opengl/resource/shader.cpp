@@ -27,6 +27,9 @@
 // C++ standard library
 #include <vector>
 
+// GSL
+#include <string_span.h>
+
 #ifdef VCL_OPENGL_SUPPORT
 
 #include <vcl/core/contract.h>
@@ -37,6 +40,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	: Runtime::Shader(type, tag)
 	{
 		Require(implies(type == ShaderType::ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
+
+		// Search for the version/extension block
+		size_t len = strlen(source);
 
 		// Create the shader object
 		_glId = glCreateShader(toGLenum(type));
@@ -49,6 +55,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		Ensure(_glId > 0 && glIsShader(_glId), "Shader is created");
+	}
+
+	Shader::Shader(Shader&& rhs)
+	: Resource(std::move(rhs))
+	, Runtime::Shader(rhs)
+	{
 	}
 
 	Shader::~Shader()

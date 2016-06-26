@@ -266,10 +266,10 @@ namespace Vcl
 		_mm_store_si128((__m128i*) (vars +  8), rhs.mF4[2]);
 		_mm_store_si128((__m128i*) (vars + 12), rhs.mF4[3]);
 
-		s << "'" << vars[ 0] << "," << vars[ 1] << "," << vars[ 2] << "," << vars[ 3]
-				 << vars[ 4] << "," << vars[ 5] << "," << vars[ 6] << "," << vars[ 7]
-				 << vars[ 8] << "," << vars[ 9] << "," << vars[10] << "," << vars[11]
-				 << vars[12] << "," << vars[13] << "," << vars[14] << "," << vars[15] << "'";
+		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
+				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]
+				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11]
+				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
 	}

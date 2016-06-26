@@ -65,13 +65,11 @@ void accumulateNormals
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (auto f_itr = f_begin; f_itr != f_end; ++f_itr, ++tf_begin)
+	for (int idx = 0; idx < (int)(f_end - f_begin); idx++)
 	{
-		Check(tf_begin != tf_end, "Size of faces and texture faces match.");
-
-		Eigen::Vector3f p0 = points[f_itr->x()];
-		Eigen::Vector3f p1 = points[f_itr->y()];
-		Eigen::Vector3f p2 = points[f_itr->z()];
+		Eigen::Vector3f p0 = points[(f_begin + idx)->x()];
+		Eigen::Vector3f p1 = points[(f_begin + idx)->y()];
+		Eigen::Vector3f p2 = points[(f_begin + idx)->z()];
 
 		// Compute the edges
 		Eigen::Vector3f p0p1 = p1 - p0; float p0p1_l = p0p1.norm();
@@ -94,14 +92,14 @@ void accumulateNormals
 		// Compute the normalized face normal
 		Eigen::Vector3f n = p0p1.cross(-p2p0);
 
-		normals[f_itr->x()] += angles.x() * n;
-		normals[f_itr->y()] += angles.y() * n;
-		normals[f_itr->z()] += angles.z() * n;
+		normals[(f_begin + idx)->x()] += angles.x() * n;
+		normals[(f_begin + idx)->y()] += angles.y() * n;
+		normals[(f_begin + idx)->z()] += angles.z() * n;
 
 		// Tangent / bitangent
-		Eigen::Vector2f w1 = texcoords[tf_begin->x()];
-		Eigen::Vector2f w2 = texcoords[tf_begin->y()];
-		Eigen::Vector2f w3 = texcoords[tf_begin->z()];
+		Eigen::Vector2f w1 = texcoords[(tf_begin + idx)->x()];
+		Eigen::Vector2f w2 = texcoords[(tf_begin + idx)->y()];
+		Eigen::Vector2f w3 = texcoords[(tf_begin + idx)->z()];
 
 		float x1 =  p0p1.x();
 		float x2 = -p2p0.x();
@@ -119,13 +117,13 @@ void accumulateNormals
 		Eigen::Vector3f sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
 		Eigen::Vector3f tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
 
-		tangents[tf_begin->x()] += angles.x() * sdir;
-		tangents[tf_begin->y()] += angles.y() * sdir;
-		tangents[tf_begin->z()] += angles.z() * sdir;
+		tangents[(tf_begin + idx)->x()] += angles.x() * sdir;
+		tangents[(tf_begin + idx)->y()] += angles.y() * sdir;
+		tangents[(tf_begin + idx)->z()] += angles.z() * sdir;
 
-		bitangents[tf_begin->x()] += angles.x() * tdir;
-		bitangents[tf_begin->y()] += angles.y() * tdir;
-		bitangents[tf_begin->z()] += angles.z() * tdir;
+		bitangents[(tf_begin + idx)->x()] += angles.x() * tdir;
+		bitangents[(tf_begin + idx)->y()] += angles.y() * tdir;
+		bitangents[(tf_begin + idx)->z()] += angles.z() * tdir;
 	}
 }
 

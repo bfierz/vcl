@@ -179,15 +179,14 @@ namespace Vcl
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
-		using wint_t = VectorScalar<int, Width>;
-
+		using intN_t = VectorScalar<int, Width>;
 		for (int c = 0; c < Cols; c++)
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				wint_t scale = wint_t(Rows*Cols);
-				wint_t offset = wint_t(Rows*c + r);
-				wint_t idx = scale*vindex + offset;
+				intN_t scale  = intN_t(Rows*Cols);
+				intN_t offset = intN_t(Rows*c + r);
+				intN_t idx = scale*vindex + offset;
 				scatter(value(r, c), (Scalar*) base, idx);
 			}
 		}

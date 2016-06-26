@@ -27,11 +27,11 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C runtime library
-#include <stdio.h>
-
 // VCL
-#include <vcl/core/3rdparty/format.h>
+VCL_BEGIN_EXTERNAL_HEADERS
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+VCL_END_EXTERNAL_HEADERS
 
 #if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
 #	ifndef VCL_NO_CONTRACTS
@@ -44,11 +44,6 @@
 #endif
 
 #ifdef VCL_CONTRACT
-#	ifdef __GNUC__
-#		define VCL_CONTRACT_SPRINTF snprintf
-#	else
-#		define VCL_CONTRACT_SPRINTF sprintf_s
-#	endif
 
 namespace fmt
 {

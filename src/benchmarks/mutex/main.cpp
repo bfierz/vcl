@@ -27,11 +27,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <condition_variable>
-#include <iostream>
 #include <mutex>
-#include <thread>
-#include <vector>
 
 // Boost library
 #include <boost/thread.hpp>
@@ -44,142 +40,99 @@
 #	include <Windows.h>
 #endif
 
-// VCL
-#include <vcl/util/precisetimer.h>
+// Google benchmark
+#include "benchmark/benchmark.h"
 
-// The loop counter
-int MaxIterations;
+////////////////////////////////////////////////////////////////////////////////
+// C++ STL Mutex
+////////////////////////////////////////////////////////////////////////////////
 
-// List of threads trying to obtain the mutexes
-std::vector<std::thread> Threads;
-
-// Locking all threads until all are ready
-std::mutex m;
-std::condition_variable halt;
-bool ready = false;
-
-// Various mutexes to test
+// Mutex
 std::mutex StdMutex;
-boost::mutex BoostMutex;
-QMutex QtMutex;
 
-#ifdef VCL_ABI_WINAPI
-CRITICAL_SECTION CriticalSection;
-#endif
-
-// Wait function blocking the threads until everything is setup
-void wait(void)
+static void BM_Std(benchmark::State& state)
 {
-	std::unique_lock<std::mutex> lk(m);
-	halt.wait(lk, []{ return ready; });
-}
-
-// Functions testing mutexes
-void stdMutex()
-{
-	wait();
-	for (int i = 0; i < MaxIterations; i++)
+	while (state.KeepRunning())
 	{
 		StdMutex.lock();
 		StdMutex.unlock();
 	}
 }
+// Register the function as a benchmark
+BENCHMARK(BM_Std)->ThreadRange(1, 16);
 
-void boostMutex()
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// Boost Mutex
+////////////////////////////////////////////////////////////////////////////////
+
+// Mutex
+boost::mutex BoostMutex;
+
+static void BM_Boost(benchmark::State& state)
 {
-	wait();
-	for (int i = 0; i < MaxIterations; i++)
+	while (state.KeepRunning())
 	{
 		BoostMutex.lock();
 		BoostMutex.unlock();
 	}
 }
+// Register the function as a benchmark
+BENCHMARK(BM_Boost)->ThreadRange(1, 16);
 
-void qMutex()
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// C++ STL Mutex
+////////////////////////////////////////////////////////////////////////////////
+
+// Mutex
+std::mutex QtMutex;
+
+static void BM_Qt(benchmark::State& state)
 {
-	wait();
-	for (int i = 0; i < MaxIterations; i++)
+	while (state.KeepRunning())
 	{
 		QtMutex.lock();
 		QtMutex.unlock();
 	}
 }
+// Register the function as a benchmark
+BENCHMARK(BM_Qt)->ThreadRange(1, 16);
 
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// Win32 API Critical Section
+////////////////////////////////////////////////////////////////////////////////
 #ifdef VCL_ABI_WINAPI
-void winMutex()
+
+// Mutex
+CRITICAL_SECTION CriticalSection;
+
+static void BM_WindowsCriticalSection(benchmark::State& state)
 {
-	wait();
-	for (int i = 0; i < MaxIterations; i++)
+	if (state.thread_index == 0)
+	{
+		InitializeCriticalSection(&CriticalSection);
+	}
+
+	while (state.KeepRunning())
 	{
 		EnterCriticalSection(&CriticalSection);
 		LeaveCriticalSection(&CriticalSection);
 	}
-}
-#endif
 
-typedef  void(*ThreadFunc)(void);
-
-struct Job
-{
-	ThreadFunc Func;
-	const char* Name;
-};
-
-#define JOB(FUNC) { FUNC, #FUNC }
-
-int main(int argc, char* argv[])
-{
-	MaxIterations = 10000;
-
-	Job jobs [] =
+	if (state.thread_index == 0)
 	{
-		JOB(stdMutex),
-		JOB(boostMutex),
-		JOB(qMutex),
-#ifdef VCL_ABI_WINAPI
-		JOB(winMutex),
-#endif
-	};
-
-	// Win32
-#ifdef VCL_ABI_WINAPI
-	InitializeCriticalSection(&CriticalSection);
-#endif
-
-	for (auto job : jobs)
-	{
-		// Block all threads
-		ready = false;
-
-		// Clear the threads from the previous run
-		Threads.clear();
-
-		// Queue the new tasks
-		for (int i = 0; i < 10; i++)
-		{
-			Threads.emplace_back(job.Func);
-		}
-
-		// Start the threads
-		Vcl::Util::PreciseTimer timer;
-		timer.start();
-
-		ready = true;
-		halt.notify_all();
-
-		for (auto& t : Threads)
-		{
-			t.join();
-		}
-
-		timer.stop();
-
-		std::cout << "Time per mutex (" << job.Name << "): " << timer.interval() << std::endl;
+		DeleteCriticalSection(&CriticalSection);
 	}
-
-	// Win32
-#ifdef VCL_ABI_WINAPI
-	DeleteCriticalSection(&CriticalSection);
-#endif
-	return 0;
 }
+// Register the function as a benchmark
+BENCHMARK(BM_WindowsCriticalSection)->ThreadRange(1, 16);
+
+#endif // VCL_ABI_WINAPI
+////////////////////////////////////////////////////////////////////////////////
+
+BENCHMARK_MAIN()

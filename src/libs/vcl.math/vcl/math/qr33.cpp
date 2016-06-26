@@ -75,4 +75,44 @@ namespace Vcl { namespace Mathematics
 		JacobiRotateQR<double, 2, 0>(R, Q);
 		JacobiRotateQR<double, 2, 1>(R, Q);
 	}
+
+	void HouseholderQR(Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence 0, 1 column elimination
+		HouseholderQR<float, 0>(R, Q);
+		HouseholderQR<float, 1>(R, Q);
+	}
+
+	void HouseholderQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence 0, 1 column elimination
+		HouseholderQR<float4, 0>(R, Q);
+		HouseholderQR<float4, 1>(R, Q);
+	}
+
+	void HouseholderQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence 0, 1 column elimination
+		HouseholderQR<float8, 0>(R, Q);
+		HouseholderQR<float8, 1>(R, Q);
+	}
+
+	void HouseholderQR(Eigen::Matrix<double, 3, 3>& R, Eigen::Matrix<double, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence 0, 1 column elimination
+		HouseholderQR<double, 0>(R, Q);
+		HouseholderQR<double, 1>(R, Q);
+	}
 }}

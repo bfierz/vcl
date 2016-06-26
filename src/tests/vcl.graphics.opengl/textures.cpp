@@ -39,7 +39,13 @@ TEST(OpenGL, InitEmptyTexture2D)
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	OpenGL::Texture2D tex{ 32, 32, SurfaceFormat::R8G8B8A8_UNORM };
+	Texture2DDescription desc2d;
+	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc2d.ArraySize = 1;
+	desc2d.Width = 32;
+	desc2d.Height = 32;
+	desc2d.MipLevels = 1;
+	OpenGL::Texture2D tex{ desc2d };
 
 	// Verify the result
 	int w, h;

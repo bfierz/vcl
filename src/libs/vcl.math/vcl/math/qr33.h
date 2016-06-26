@@ -38,4 +38,10 @@ namespace Vcl { namespace Mathematics
 	void JacobiQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q);
 
 	void JacobiQR(Matrix3d& R, Matrix3d& Q);
+
+	void HouseholderQR(Eigen::Matrix<float,  3, 3>& R, Eigen::Matrix<float,  3, 3>& Q);
+	void HouseholderQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q);
+	void HouseholderQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q);
+
+	void HouseholderQR(Eigen::Matrix<double, 3, 3>& R, Eigen::Matrix<double, 3, 3>& Q);
 }}

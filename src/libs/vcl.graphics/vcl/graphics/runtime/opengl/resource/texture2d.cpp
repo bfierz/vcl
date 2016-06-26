@@ -33,26 +33,36 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	Texture2D::Texture2D
 	(
-		int w, int h,
-		SurfaceFormat fmt,
+		const Texture2DDescription& desc,
 		const TextureResource* init_data /* = nullptr */
 	)
 	: Texture()
 	{
 		initializeView
 		(
-			TextureType::Texture2D, fmt,
+			TextureType::Texture2D, desc.Format,
+			0, desc.MipLevels,
 			0, 1,
-			0, 1,
-			w, h, 1
+			desc.Width, desc.Height, 1
 		);
 		initialise(init_data);
+	}
+
+	Texture2D::Texture2D(const Texture2D& rhs)
+	: Texture(rhs)
+	{
+		initialise(nullptr);
 	}
 
 	Texture2D::~Texture2D()
 	{
 		// Delete the texture
 		glDeleteTextures(1, &_glId);
+	}
+
+	std::unique_ptr<Runtime::Texture> Texture2D::clone() const
+	{
+		return std::make_unique<Texture2D>(*this);
 	}
 
 	void Texture2D::fill(SurfaceFormat fmt, const void* data)
@@ -74,7 +84,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		SurfaceFormat fmt = this->format();
 		ImageFormat gl_fmt = toImageFormat(fmt);
 
-		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, size, data);
+		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, (GLsizei) size, data);
 	}
 
 	void Texture2D::initialise(const TextureResource* init_data /* = nullptr */)
@@ -93,8 +103,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		
 		// Configure texture
-		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, 0);
-		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, 0);
+		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

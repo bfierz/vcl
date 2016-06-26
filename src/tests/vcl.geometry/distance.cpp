@@ -34,14 +34,30 @@
 // Include the relevant parts from the library
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
-#include <vcl/geometry/distance.h>
+#include <vcl/geometry/distancePoint3Triangle3.h>
+#include <vcl/geometry/distanceTriangle3Triangle3.h>
+#include <vcl/math/math.h>
+
+// Reference code
+#include <Mathematics/GteDistPointTriangle.h>
+#include <Mathematics/GteDistTriangle3Triangle3.h>
 
 #include "distance_ref.h"
 
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar gather function.
+// Tests the distance functions.
+gte::Vector3<float> cast(const Eigen::Vector3f& vec)
+{
+	return{ vec.x(), vec.y(), vec.z() };
+}
+
+Eigen::Vector3f cast(const gte::Vector3<float>& vec)
+{
+	return{ vec[0], vec[1], vec[2] };
+}
+
 TEST(PointTriangleDistance, Simple)
 {
 	using Vcl::Geometry::distance;
@@ -87,6 +103,7 @@ TEST(PointTriangleDistance, Simple)
 		points.at<float>(i) = ref_points[i];
 	}
 
+	gte::DCPPoint3Triangle3<float> gteDist;
 	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		Eigen::Vector3f p = ref_points[i];
@@ -102,7 +119,7 @@ TEST(PointTriangleDistance, Simple)
 		vector3_t p = points.at<real_t>(i);
 		std::array<real_t, 3> st;
 
-		real_t d = distance(a, b, c, p, &st);
+		real_t d = distance({ a, b, c }, p, &st);
 		d1[i] = d;
 		s1[i] = st[1];
 		t1[i] = st[2];
@@ -112,5 +129,93 @@ TEST(PointTriangleDistance, Simple)
 		EXPECT_TRUE(equal(d0[i], reinterpret_cast<float*>(d1.data())[i], 1e-4f)) << "Distance differ: " << i;
 		EXPECT_TRUE(equal(s0[i], reinterpret_cast<float*>(s1.data())[i], 1e-4f)) << "S differ: " << i;
 		EXPECT_TRUE(equal(t0[i], reinterpret_cast<float*>(t1.data())[i], 1e-4f)) << "T differ: " << i;
+	}
+}
+
+TEST(TriangleTriangleDistance, Simple)
+{
+	using namespace Vcl::Geometry;
+	using Vcl::Mathematics::equal;
+
+	//using real_t = Vcl::float16;
+	//using real_t = Vcl::float8;
+	using real_t = Vcl::float4;
+	//using real_t = float;
+
+	using int_t = Vcl::int4;
+
+	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
+	using vector3i_t = Eigen::Matrix<int_t, 3, 1>;
+
+	const int width = sizeof(real_t) / sizeof(float);
+	const int problem_size = 64;
+
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_a(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_b(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_c(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_A(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_B(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_C(problem_size);
+
+	for (int i = 0; i < problem_size; i++)
+	{
+		points_a.at<float>(i) = Eigen::Vector3f::Random();
+		points_b.at<float>(i) = Eigen::Vector3f::Random();
+		points_c.at<float>(i) = Eigen::Vector3f::Random();
+		points_A.at<float>(i) = Eigen::Vector3f::Random();
+		points_B.at<float>(i) = Eigen::Vector3f::Random();
+		points_C.at<float>(i) = Eigen::Vector3f::Random();
+	}
+
+	// Shortest distance
+	Vcl::Core::InterleavedArray<float, 1, 1, -1> ref_shortest_dist(problem_size);
+	Vcl::Core::InterleavedArray<float, 1, 1, -1> shortest_dist(problem_size);
+	
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_x(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_y(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_X(problem_size);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_Y(problem_size);
+
+	// Compute the reference solution
+	gte::DCPQuery<float, gte::Triangle3<float>, gte::Triangle3<float>> gteQuery;
+
+	for (int i = 0; i < problem_size; i++)
+	{
+		Eigen::Vector3f triA_0 = points_a.at<float>(i);
+		Eigen::Vector3f triA_1 = points_b.at<float>(i);
+		Eigen::Vector3f triA_2 = points_c.at<float>(i);
+		Eigen::Vector3f triB_0 = points_A.at<float>(i);
+		Eigen::Vector3f triB_1 = points_B.at<float>(i);
+		Eigen::Vector3f triB_2 = points_C.at<float>(i);
+
+		gte::Triangle3<float> A{ cast(triA_0), cast(triA_1), cast(triA_2) };
+		gte::Triangle3<float> B{ cast(triB_0), cast(triB_1), cast(triB_2) };
+
+		auto res = gteQuery(A, B);
+		ref_shortest_dist.at<float>(i)[0] = res.sqrDistance;
+		points_x.at<float>(i) = cast(res.closestPoint[0]);
+		points_y.at<float>(i) = cast(res.closestPoint[1]);
+	}
+
+	// Compute VCL solution
+	for (int i = 0; i < problem_size / width; i++)
+	{
+		vector3_t triA_0 = points_a.at<real_t>(i);
+		vector3_t triA_1 = points_b.at<real_t>(i);
+		vector3_t triA_2 = points_c.at<real_t>(i);
+		vector3_t triB_0 = points_A.at<real_t>(i);
+		vector3_t triB_1 = points_B.at<real_t>(i);
+		vector3_t triB_2 = points_C.at<real_t>(i);
+
+		vector3_t a, b;
+		real_t dist = distance({ triA_0, triA_1, triA_2 }, { triB_0, triB_1, triB_2 }, a, b);
+		shortest_dist.at<real_t>(i)[0] = dist;
+		points_X.at<real_t>(i) = a;
+		points_Y.at<real_t>(i) = b;
+	}
+
+	for (int i = 0; i < (int)problem_size; i++)
+	{
+		EXPECT_TRUE(equal(ref_shortest_dist.at<float>(i)[0], shortest_dist.at<float>(i)[0], 1e-4f)) << "Distance differ: " << i;
 	}
 }

@@ -135,6 +135,15 @@ namespace Vcl
 			);
 		}
 
+		VCL_STRONG_INLINE VectorScalar<bool, 16> operator!= (const VectorScalar<float, 16>& rhs) const
+		{
+			return VectorScalar<bool, 16>
+			(
+				_mm256_cmpneq_ps(mF8[0], rhs.mF8[0]),
+				_mm256_cmpneq_ps(mF8[1], rhs.mF8[1])
+			);
+		}
+
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator< (const VectorScalar<float, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
@@ -222,8 +231,8 @@ namespace Vcl
 		_mm256_store_ps(vars + 0, rhs.mF8[0]);
 		_mm256_store_ps(vars + 4, rhs.mF8[1]);
 		
-		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3]
-				 << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
+				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
 	}

@@ -9,8 +9,8 @@ MESSAGE(STATUS "* Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARY_DIRS}")
 MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARIES}")
 
-# Instruct CMake to run moc automatically when needed.
-SET(CMAKE_AUTOMOC ON)
+# Find the thread library
+FIND_PACKAGE(Threads REQUIRED)
 
 # Find the QtCore library
 FIND_PACKAGE(Qt5Core REQUIRED)
@@ -35,4 +35,6 @@ TARGET_LINK_LIBRARIES(mutexperformance
 	vcl_core
 	${Boost_LIBRARIES}
 	Qt5::Core
+	benchmark
+	Shlwapi
 )

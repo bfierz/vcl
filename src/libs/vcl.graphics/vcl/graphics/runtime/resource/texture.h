@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <array>
+#include <memory>
 
 // VCL
 #include <vcl/graphics/surfaceformat.h>
@@ -146,12 +147,13 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	protected:
 		TextureView() = default;
-
-	public:
-		TextureView(const TextureView&) = delete;
-		virtual ~TextureView() = default;
+		TextureView(const TextureView&) = default;
 
 		TextureView& operator= (const TextureView&) = delete;
+
+	public:
+		virtual ~TextureView() = default;
+
 
 	public:
 		TextureType type() const { return _type; }
@@ -162,9 +164,11 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		int height() const { return _height; }
 		int depth() const { return _depth; }
 
+		int firstLayer() const { return _layer; }
 		int layers() const { return _nrLayers; }
 
 		int firstMipMapLevel() const { return _level; }
+		int mipMapLevels() const { return _nrLevels; }
 
 	protected:
 		void initializeView
@@ -197,8 +201,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	protected:
 		Texture() = default;
+		Texture(const Texture&) = default;
 
 	public:
 		virtual ~Texture() = default;
+
+	public:
+		virtual std::unique_ptr<Texture> clone() const = 0;
 	};
 }}}

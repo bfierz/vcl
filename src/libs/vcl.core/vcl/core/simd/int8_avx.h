@@ -146,8 +146,8 @@ namespace Vcl
 		int VCL_ALIGN(32) vars[8];
 		_mm256_store_si256((__m256i*) (vars + 0), rhs.mF8);
 
-		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3]
-			     << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
+			     << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
 	}

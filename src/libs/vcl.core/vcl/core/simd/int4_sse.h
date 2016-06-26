@@ -150,7 +150,7 @@ namespace Vcl
 		int VCL_ALIGN(16) vars[4];
 		_mm_store_si128((__m128i*) (vars + 0), rhs.get(0));
 
-		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << "'";
 
 		return s;
 	}

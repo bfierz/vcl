@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,4 +22,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/geometry/distance.h>
+#include <vcl/geometry/trimesh.h>
+
+namespace Vcl { namespace Geometry
+{
+	TriMesh::TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TriMesh>::IndexType, 3>>& faces)
+	{
+		faceProperties().resizeProperties(faces.size());
+		vertexProperties().resizeProperties(vertices.size());
+
+		for (size_t i = 0; i < vertices.size(); ++i)
+		{
+			_vertices[i] = vertices[i];
+		}
+
+		for (size_t i = 0; i < faces.size(); ++i)
+		{
+			Face f
+			{
+				VertexId{ faces[i][0] },
+				VertexId{ faces[i][1] },
+				VertexId{ faces[i][2] }
+			};
+			_faces[i] = f;
+		}
+	}
+
+	void TriMesh::clear()
+	{
+		faceProperties().clear();
+		vertexProperties().clear();
+	}
+}}

@@ -39,6 +39,10 @@
 
 namespace Vcl { namespace Mathematics
 {
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(push, off) 
+#endif // VCL_COMPILER_MSVC
+
 	/*
 	 *	Method based on the technical report:
 	 *		2011 - McAdams, Selle, Tamstorf, Teran, Sifakis - Computing the Singular Value Decomposition of 3 x 3 matrices with minimal branching and elementary floating point operations
@@ -95,4 +99,7 @@ namespace Vcl { namespace Mathematics
 
 		return iter_eig33 + 3;
 	}
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(pop) 
+#endif // VCL_COMPILER_MSVC
 }}
