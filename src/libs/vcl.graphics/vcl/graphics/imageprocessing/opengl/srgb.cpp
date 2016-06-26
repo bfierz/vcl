@@ -66,8 +66,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		void main()
 		{
-			uvec2 coords = gl_GlobalInvocationID.xy;
-			vec4 values = imageLoad(Input[0], coords);
+			ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+			vec4 values = imageLoad(input0, coords);
 
 			float sr = LinearToSrgb(values.r);
 			float sg = LinearToSrgb(values.g);

@@ -62,7 +62,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		}
 		else
 		{
-			auto new_cache_entry = std::make_shared<Runtime::OpenGL::Texture2D>(w, h, fmt);
+			Runtime::Texture2DDescription desc;
+			desc.Width = w;
+			desc.Height = h;
+			desc.Format = fmt;
+			desc.ArraySize = 1;
+			desc.MipLevels = 1;
+			auto new_cache_entry = std::make_shared<Runtime::OpenGL::Texture2D>(desc);
 			cache.push_back(new_cache_entry);
 
 			return new_cache_entry;
