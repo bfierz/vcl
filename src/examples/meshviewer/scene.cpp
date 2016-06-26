@@ -42,12 +42,17 @@ Scene::Scene(QObject* parent)
 {
 	using namespace Vcl::Graphics;
 
-	_camera = std::make_unique<Camera>(std::make_shared<OpenGL::MatrixFactory>());
-	_cameraController.setCamera(_camera.get());
+	// Register the camera as a component
+	_entityManager.registerComponent<Camera>();
+
+	// Create a new camera
+	_cameraEntity = _entityManager.create();
+	_camera = _entityManager.create<Camera>(_cameraEntity, std::make_shared<OpenGL::MatrixFactory>());
+	_cameraController.setCamera(_camera);
 }
 Scene::~Scene()
 {
-
+	_entityManager.destroy(_cameraEntity);
 }
 
 void Scene::update()

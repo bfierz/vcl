@@ -47,8 +47,6 @@ namespace Vcl { namespace Core
 	public:
 		GenericId() : _id(InvalidId().id()) {}
 		explicit GenericId(T id) : _id(id) {}
-		GenericId(const GenericId<Derived, T>& rhs) : _id(rhs._id) {}
-		~GenericId() = default;
 
 	public:
 		T id() const { return _id; }
@@ -115,24 +113,11 @@ namespace Vcl { namespace Core
 		: _id(id)
 		, _generation(generation)
 		{}
-		GenerationalId(const GenerationalId<Derived, IdType, GenerationType>& rhs)
-		: _id(rhs._id)
-		, _generation(rhs._generation)
-		{}
-		~GenerationalId() = default;
 
 	public:
 		IdType id() const { return _id; }
 		GenerationType generation() const { return _generation; }
 		bool isValid() const { return _id != InvalidId().id() && _generation != InvalidId().generation(); }
-
-	public:
-		GenerationalId<Derived, IdType, GenerationType>& operator = (const GenerationalId<Derived, IdType, GenerationType>& rhs)
-		{
-			_id = rhs._id;
-			_generation = rhs.generation;
-			return *this;
-		}
 
 	public:
 		bool operator < (const GenerationalId<Derived, IdType, GenerationType>& rhs) const

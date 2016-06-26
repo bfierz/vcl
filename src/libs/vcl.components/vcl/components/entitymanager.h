@@ -155,9 +155,11 @@ namespace Vcl { namespace Components
 		std::vector<uint32_t> _freeIndices;
 
 	private: // Component store
+
+		//! Per type storage of unique components per entity
 		std::unordered_map<size_t, std::unique_ptr<ComponentStoreBase>> _components;
 
+		//! Per type stortage of multi-components per entity
 		std::unordered_multimap<size_t, std::unique_ptr<ComponentStoreBase>> _multiComponents;
-
 	};
 }}

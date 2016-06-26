@@ -32,6 +32,7 @@
 #include <QtCore/QObject>
 
 // VCL
+#include <vcl/components/entitymanager.h>
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
 
@@ -53,7 +54,7 @@ public:
 	void update();
 
 public:
-	Vcl::Graphics::Camera* camera() const { return _camera.get(); }
+	Vcl::Graphics::Camera* camera() const { return _camera; }
 
 public slots :
 	void createSurfaceSphere();
@@ -78,7 +79,6 @@ private: // Update data
 	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
 	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
 
-	std::unique_ptr<Vcl::Graphics::Camera> _camera;
 	Vcl::Graphics::TrackballCameraController _cameraController;
 	
 private: // Render data
@@ -91,4 +91,11 @@ private: // Render data
 
 	std::unique_ptr<GPUSurfaceMesh> _surfaceMesh;
 	std::unique_ptr<GPUVolumeMesh> _volumeMesh;
+
+private: // Entities
+	Vcl::Components::EntityManager _entityManager;
+
+private: // Camera entity
+	Vcl::Components::Entity _cameraEntity;
+	Vcl::Graphics::Camera* _camera;
 };
