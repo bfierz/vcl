@@ -42,4 +42,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		BorderColor[2] = 0;
 		BorderColor[3] = 0;
 	}
+
+	Sampler::Sampler(const SamplerDescription& desc)
+	: _desc(desc)
+	{
+
+	}
 }}}

@@ -35,6 +35,7 @@
 
 // VCL
 #include <vcl/graphics/imageprocessing/link.h>
+#include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
@@ -55,6 +56,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	struct OutputSlotDescription
 	{
 		std::string Name;
+		SurfaceFormat Format;
 	};
 
 	struct TaskDescription
@@ -86,8 +88,6 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		virtual void process(ImageProcessor* processor) = 0;
 
 	protected:
-		virtual void setTaskParameters(ImageProcessor* processor);
-
 		//! Updates the used output resources
 		void updateResources(ImageProcessor* processor);
 

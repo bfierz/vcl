@@ -31,6 +31,48 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
 	void ImageProcessor::execute(Task* filter)
 	{
-		filter->process(this);
+		std::stack<Task*, std::vector<Task*>> queue;
+		std::set<Task*> permanent;
+		std::set<Task*> temporary;
+
+		visit(filter, queue, permanent, temporary);
+
+		while (!queue.empty())
+		{
+			auto curr = queue.top();
+			queue.pop();
+
+			curr->process(this);
+		}
+	}
+
+	void ImageProcessor::visit
+	(
+		Task* task,
+		std::stack<Task*, std::vector<Task*>>& queue,
+		std::set<Task*>& permanent,
+		std::set<Task*>& temporary
+	)
+	{
+		Require(temporary.find(task) == temporary.end(), "Graph is a DAG.");
+
+		if (permanent.find(task) != permanent.end())
+			return;
+
+		temporary.insert(task);
+		permanent.insert(task);
+		queue.push(task);
+
+		unsigned int nr_inputs = task->nrInputSlots();
+		for (int in = 0; in < nr_inputs; in++)
+		{
+			auto slot = task->inputSlot(in);
+			if (slot->source())
+			{
+				visit(slot->source()->task(), queue, permanent, temporary);
+			}
+		}
+
+		temporary.erase(task);
 	}
 }}}

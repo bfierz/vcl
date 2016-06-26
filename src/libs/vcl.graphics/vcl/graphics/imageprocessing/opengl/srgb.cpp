@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -39,16 +39,16 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba8) uniform image2D input0;
+		layout(rgba16f) restrict readonly uniform image2D input0;
 
 		// Input ranges
-		uniform uvec4 inputRange0;
+		uniform ivec4 inputRange0;
 
 		// Kernel output
-		layout(rgba8) uniform image2D output0;		
+		restrict writeonly uniform image2D output0;		
 
 		// Output ranges
-		uniform uvec4 outputRange0;
+		uniform ivec4 outputRange0;
 
 		float LinearToSrgb(float val)
 		{
@@ -83,26 +83,21 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 	void SRGB::process(ImageProcessing::ImageProcessor* processor)
 	{
-		if (nrOutputSlots() == 0)
+		if (nrInputSlots() == 0 || nrOutputSlots() == 0)
 			return;
 
 		// Update the used render targets
 		updateResources(processor);
 
-		// Let the concrete implementation set its own parameters
-		setTaskParameters(processor);
-
 		// Execute the image kernel
-		size_t nr_outputs = _outputSlots.size();
-		const OutputSlot* outputs[16];
-		for (int i = 0; i < nr_outputs; i++)
-			outputs[i] = _outputSlots[i].get();
+		size_t nr_outputs = 1;
+		const Runtime::Texture* output = _outputSlots[0]->resource();
+		Eigen::Vector4i output_range{ 0, 0, output->width(), output->height() };
 
-		size_t nr_inputs = _inputSlots.size();
-		const InputSlot* inputs[16];
-		for (int i = 0; i < nr_inputs; i++)
-			inputs[i] = _inputSlots[i].get();
+		size_t nr_inputs = 1;
+		const Runtime::Texture* input = _inputSlots[0]->resource();
+		Eigen::Vector4i input_range{ 0, 0, input->width(), input->height() };
 
-		processor->enqueKernel(_kernelId, outputs, nr_outputs, inputs, nr_inputs);
+		processor->enqueKernel(_kernelId, output->width(), output->height(), &output, &output_range, nr_outputs, &input, &input_range, nr_inputs);
 	}
 }}}}

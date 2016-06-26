@@ -33,6 +33,7 @@
 
 // VCL 
 #include <vcl/graphics/imageprocessing/imageprocessor.h>
+#include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
@@ -40,11 +41,20 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	class ImageProcessor : public ImageProcessing::ImageProcessor
 	{
 	public:
+		ImageProcessor();
+
+	public:
 		size_t buildKernel(const char* source);
 
 	public:
 		virtual ImagePtr requestImage(int w, int h, SurfaceFormat fmt) override;
-		virtual void enqueKernel(size_t kernel, const OutputSlot** outputs, size_t nr_outputs, const InputSlot** inputs, size_t nr_inputs) override;
+		virtual void enqueKernel
+		(
+			size_t kernel, int w, int h,
+			const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
+			const Runtime::Texture** raw_inputs = nullptr, Eigen::Vector4i* rawInRanges = 0, size_t nr_raw_inputs = 0,
+			const Runtime::Texture** sampled_inputs = nullptr, Eigen::Vector4i* sampledInRanges = nullptr, size_t nr_sampled_inputs = 0
+		) override;
 
 	private:
 		//! Kernel cache
@@ -52,5 +62,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		//! Texture cache
 		std::unordered_map<SurfaceFormat, std::vector<ImagePtr>> _textures;
+
+		//! Linear sampler to handle texture input
+		std::unique_ptr<Runtime::OpenGL::Sampler> _linearSampler;
 	};
 }}}}

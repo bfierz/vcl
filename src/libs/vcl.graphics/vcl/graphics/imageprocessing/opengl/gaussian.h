@@ -22,20 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/imageprocessing/srgb.h>
+#pragma once
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
+// VCL configuration
+#include <vcl/config/global.h>
+
+// VCL
+#include <vcl/graphics/imageprocessing/opengl/imageprocessor.h>
+#include <vcl/graphics/imageprocessing/gaussian.h>
+#include <vcl/graphics/runtime/resource/shader.h>
+
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
-	SRGB::SRGB()
+	class Gaussian : public ImageProcessing::Gaussian
 	{
-		TaskDescription desc;
-		desc.Inputs.resize(1);
-		desc.Inputs[0].Name = "Scene";
+	public:
+		Gaussian(ImageProcessor* processor);
+		virtual ~Gaussian() = default;
+		
+	public:
+		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 
-		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
-
-		initialize(desc);
-	}
-}}}
+	private:
+		size_t _horizontalKernelId;
+		size_t _verticalKernelId;
+	};
+}}}}

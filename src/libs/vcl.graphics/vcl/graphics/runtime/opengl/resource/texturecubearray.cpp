@@ -72,13 +72,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void TextureCubeArray::initialise(const TextureResource* init_data /* = nullptr */)
 	{
 		GLenum colour_fmt = toSurfaceFormat(format());
-		ImageFormat img_fmt = toImageFormat(format());
 
 		glCreateTextures(GL_TEXTURE_CUBE_MAP_ARRAY, 1, &_glId);
 		glTextureStorage3D(_glId, 1, colour_fmt, width(), height(), 6 * layers());
 		
 		if (init_data)
 		{
+			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
 			glTextureSubImage3D(_glId, 0, 0, 0, 0, init_data->Width, init_data->Height, init_data->Layers, img_fmt.Format, img_fmt.Type, init_data->Data);
 		}
 		

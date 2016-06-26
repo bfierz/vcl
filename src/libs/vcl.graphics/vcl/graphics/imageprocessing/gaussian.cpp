@@ -22,19 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/imageprocessing/srgb.h>
+#include <vcl/graphics/imageprocessing/gaussian.h>
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
-	SRGB::SRGB()
+	Gaussian::Gaussian()
 	{
 		TaskDescription desc;
 		desc.Inputs.resize(1);
 		desc.Inputs[0].Name = "Scene";
 
 		desc.Outputs.resize(1);
-		desc.Outputs[0].Name = "GammaCorrectedScene";
-		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
+		desc.Outputs[0].Name = "BlurredScene";
+		desc.Outputs[0].Format = SurfaceFormat::R16G16B16A16_FLOAT;
 
 		initialize(desc);
 	}
