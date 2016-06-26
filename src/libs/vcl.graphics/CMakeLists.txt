@@ -5,6 +5,43 @@ SET(VCL_CONFIG_INC
 	vcl/config/opengl.h
 )
 
+# VCL / GRAPHICS / IMAGEPROCESSING / OPENGL
+SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC
+	vcl/graphics/imageprocessing/opengl/GaussianBlur.h
+	vcl/graphics/imageprocessing/opengl/gaussian.h
+	vcl/graphics/imageprocessing/opengl/imageprocessor.h
+	vcl/graphics/imageprocessing/opengl/luminance.h
+	vcl/graphics/imageprocessing/opengl/srgb.h
+	vcl/graphics/imageprocessing/opengl/tonemap.h
+)
+SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC
+	vcl/graphics/imageprocessing/opengl/gaussian.cpp
+	vcl/graphics/imageprocessing/opengl/imageprocessor.cpp
+	vcl/graphics/imageprocessing/opengl/luminance.cpp
+	vcl/graphics/imageprocessing/opengl/srgb.cpp
+	vcl/graphics/imageprocessing/opengl/tonemap.cpp
+)
+
+# VCL / GRAPHICS / IMAGEPROCESSING
+SET(VCL_GRAPHICS_IMAGEPROCESSING_INC
+	vcl/graphics/imageprocessing/gaussian.h
+	vcl/graphics/imageprocessing/imageprocessor.h
+	vcl/graphics/imageprocessing/link.h
+	vcl/graphics/imageprocessing/luminance.h
+	vcl/graphics/imageprocessing/srgb.h
+	vcl/graphics/imageprocessing/task.h
+	vcl/graphics/imageprocessing/tonemap.h
+)
+SET(VCL_GRAPHICS_IMAGEPROCESSING_SRC
+	vcl/graphics/imageprocessing/gaussian.cpp
+	vcl/graphics/imageprocessing/imageprocessor.cpp
+	vcl/graphics/imageprocessing/link.cpp
+	vcl/graphics/imageprocessing/luminance.cpp
+	vcl/graphics/imageprocessing/srgb.cpp
+	vcl/graphics/imageprocessing/task.cpp
+	vcl/graphics/imageprocessing/tonemap.cpp
+)
+
 # VCL / GRAPHICS / OPENGL
 SET(VCL_GRAPHICS_OPENGL_INC
 	vcl/graphics/opengl/gl.h
@@ -132,6 +169,8 @@ SET(VCL_GRAPHICS_SRC
 )
 
 SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})
+SOURCE_GROUP("imageprocessing\\opengl" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC})
+SOURCE_GROUP("imageprocessing" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_INC})
 SOURCE_GROUP("opengl" FILES ${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC})
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
@@ -145,6 +184,9 @@ SOURCE_GROUP("" FILES ${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC})
 SET(SOURCE
 	${VCL_CONFIG_INC}
 	
+	${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC}
+	${VCL_GRAPHICS_IMAGEPROCESSING_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_INC}
+
 	${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC}
 	
 	${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC}
@@ -172,6 +214,8 @@ TARGET_LINK_LIBRARIES(vcl_graphics
 
 # Setup installation
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
+INSTALL(FILES ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC} DESTINATION include/vcl/graphics/imageprocessing/opengl)
+INSTALL(FILES ${VCL_GRAPHICS_IMAGEPROCESSING_INC} DESTINATION include/vcl/graphics/imageprocessing)
 INSTALL(FILES ${VCL_GRAPHICS_OPENGL_INC} DESTINATION include/vcl/graphics/opengl)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC} DESTINATION include/vcl/graphics/runtime/opengl/resource)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC} DESTINATION include/vcl/graphics/runtime/opengl/state)

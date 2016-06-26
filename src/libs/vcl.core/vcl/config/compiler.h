@@ -29,10 +29,10 @@
 #include <vcl/config/config.h>
 
 // Check library configuration
-#if defined __clang__ && !defined VCL_COMPILER_CLANG
-#	error "VCL was not configured for CLANG"
-#elif defined _MSC_VER && !defined VCL_COMPILER_MSVC
+#if defined _MSC_VER && !defined __clang__ && !defined VCL_COMPILER_MSVC
 #	error "VCL was not configured for MSVC"
+#elif defined __clang__ && !defined VCL_COMPILER_CLANG
+#	error "VCL was not configured for CLANG"
 #elif defined __GNUC__ && !defined VCL_COMPILER_GNU
 #	error "VCL was not configured for the GNU C++ compiler"
 #elif defined __INTEL_COMPILER && !defined VCL_COMPILER_ICL
@@ -113,13 +113,17 @@
 // Inlining
 #	define VCL_STRONG_INLINE inline
 
-#	define VCL_DEBUG_BREAK __builtin_trap
+#	define VCL_DEBUG_BREAK __builtin_trap()
 
 #	define VCL_ALIGN(x) __attribute__((aligned(x)))
 
 #	define VCL_CALLBACK __attribute__ ((__stdcall__))
 
 #	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
+
+#	if defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
+#		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
+#	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline

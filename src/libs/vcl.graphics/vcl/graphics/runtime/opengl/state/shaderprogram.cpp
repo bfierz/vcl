@@ -145,7 +145,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				GLint resLoc = -1;
 				if (type >= ProgramResourceType::Sampler1D)
 				{
-					glGetUniformiv(program, values[3], &resLoc);
+					resLoc = glGetProgramResourceLocation(program, GL_UNIFORM, name.data());
+					glProgramUniform1i(program, values[3], resLoc);
 				}
 
 				// Construct the uniform
@@ -218,7 +219,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				name.resize(values[0]);
 				glGetProgramResourceName(program, GL_SHADER_STORAGE_BLOCK, u, (GLsizei) name.size(), nullptr, name.data());
 
-				GLint loc = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, name.data());;
+				GLint loc = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, name.data());
 				GLint res_loc = values[1];
 
 				// Construct the uniform
@@ -640,6 +641,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Link the program
 		glLinkProgram(id());
+
+		GLint linked, valid;
+		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
+		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
+		if (linked == GL_FALSE || valid == GL_FALSE)
+			return;
+		
 
 		// Link the program to the input layout
 		if (!desc.ComputeShader)

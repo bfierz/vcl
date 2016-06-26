@@ -1,7 +1,7 @@
 PROJECT(meshviewer)
 
 # Status message
-MESSAGE(STATUS "Configuring 'mutexperformance'")
+MESSAGE(STATUS "Configuring 'meshviewer'")
 
 # Find includes in corresponding build directories
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)

@@ -22,30 +22,57 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/runtime/state/sampler.h>
+#include <vcl/graphics/imageprocessing/imageprocessor.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
+// VCL
+#include <vcl/core/contract.h>
+
+namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
-	SamplerDescription::SamplerDescription()
+	void ImageProcessor::execute(Task* filter)
 	{
-		Filter = Filter::MinMagMipLinear;
-		AddressU = TextureAddressMode::Clamp;
-		AddressV = TextureAddressMode::Clamp;
-		AddressW = TextureAddressMode::Clamp;
-		MinLOD = -std::numeric_limits<float>::max();
-		MaxLOD = std::numeric_limits<float>::max();
-		MipLODBias = 0.0f;
-		MaxAnisotropy = 16;
-		ComparisonFunc = ComparisonFunction::Never;
-		BorderColor[0] = 0;
-		BorderColor[1] = 0;
-		BorderColor[2] = 0;
-		BorderColor[3] = 0;
+		std::stack<Task*, std::vector<Task*>> queue;
+		std::set<Task*> permanent;
+		std::set<Task*> temporary;
+
+		visit(filter, queue, permanent, temporary);
+
+		while (!queue.empty())
+		{
+			auto curr = queue.top();
+			queue.pop();
+
+			curr->process(this);
+		}
 	}
 
-	Sampler::Sampler(const SamplerDescription& desc)
-	: _desc(desc)
+	void ImageProcessor::visit
+	(
+		Task* task,
+		std::stack<Task*, std::vector<Task*>>& queue,
+		std::set<Task*>& permanent,
+		std::set<Task*>& temporary
+	)
 	{
+		Require(temporary.find(task) == temporary.end(), "Graph is a DAG.");
 
+		if (permanent.find(task) != permanent.end())
+			return;
+
+		temporary.insert(task);
+		permanent.insert(task);
+		queue.push(task);
+
+		unsigned int nr_inputs = task->nrInputSlots();
+		for (int in = 0; in < nr_inputs; in++)
+		{
+			auto slot = task->inputSlot(in);
+			if (slot->source())
+			{
+				visit(slot->source()->task(), queue, permanent, temporary);
+			}
+		}
+
+		temporary.erase(task);
 	}
 }}}

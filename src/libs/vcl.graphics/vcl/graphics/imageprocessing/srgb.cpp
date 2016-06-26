@@ -22,30 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/runtime/state/sampler.h>
+#include <vcl/graphics/imageprocessing/srgb.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
+namespace Vcl { namespace Graphics { namespace ImageProcessing
 {
-	SamplerDescription::SamplerDescription()
+	SRGB::SRGB()
 	{
-		Filter = Filter::MinMagMipLinear;
-		AddressU = TextureAddressMode::Clamp;
-		AddressV = TextureAddressMode::Clamp;
-		AddressW = TextureAddressMode::Clamp;
-		MinLOD = -std::numeric_limits<float>::max();
-		MaxLOD = std::numeric_limits<float>::max();
-		MipLODBias = 0.0f;
-		MaxAnisotropy = 16;
-		ComparisonFunc = ComparisonFunction::Never;
-		BorderColor[0] = 0;
-		BorderColor[1] = 0;
-		BorderColor[2] = 0;
-		BorderColor[3] = 0;
-	}
+		TaskDescription desc;
+		desc.Inputs.resize(1);
+		desc.Inputs[0].Name = "Scene";
 
-	Sampler::Sampler(const SamplerDescription& desc)
-	: _desc(desc)
-	{
+		desc.Outputs.resize(1);
+		desc.Outputs[0].Name = "GammaCorrectedScene";
+		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
 
+		initialize(desc);
 	}
 }}}

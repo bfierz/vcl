@@ -22,30 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/runtime/state/sampler.h>
+#pragma once
 
-namespace Vcl { namespace Graphics { namespace Runtime
+// VCL configuration
+#include <vcl/config/global.h>
+
+// VCL
+#include <vcl/graphics/imageprocessing/opengl/imageprocessor.h>
+#include <vcl/graphics/imageprocessing/srgb.h>
+#include <vcl/graphics/runtime/resource/shader.h>
+
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
-	SamplerDescription::SamplerDescription()
+	class SRGB : public ImageProcessing::SRGB
 	{
-		Filter = Filter::MinMagMipLinear;
-		AddressU = TextureAddressMode::Clamp;
-		AddressV = TextureAddressMode::Clamp;
-		AddressW = TextureAddressMode::Clamp;
-		MinLOD = -std::numeric_limits<float>::max();
-		MaxLOD = std::numeric_limits<float>::max();
-		MipLODBias = 0.0f;
-		MaxAnisotropy = 16;
-		ComparisonFunc = ComparisonFunction::Never;
-		BorderColor[0] = 0;
-		BorderColor[1] = 0;
-		BorderColor[2] = 0;
-		BorderColor[3] = 0;
-	}
+	public:
+		SRGB(ImageProcessor* processor);
+		virtual ~SRGB() = default;
+		
+	public:
+		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 
-	Sampler::Sampler(const SamplerDescription& desc)
-	: _desc(desc)
-	{
-
-	}
-}}}
+	private:
+		size_t _kernelId;
+	};
+}}}}
