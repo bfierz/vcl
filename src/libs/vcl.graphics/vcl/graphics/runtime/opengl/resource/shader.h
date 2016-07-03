@@ -39,7 +39,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source);
+		Shader(ShaderType type, int tag, const char* source, const char* header = nullptr);
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 

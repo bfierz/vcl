@@ -1,0 +1,375 @@
+namespace
+{
+	const char* module = R"(
+
+#version 430 core
+
+#define WORKGROUP_SIZE 128
+#define WARP_SIZE 32
+
+// Local layout
+layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+
+#if defined radixSortBlocksKeysOnly
+
+// Output data
+layout(std430, binding = 0) writeonly buffer KeysOut
+{
+  uvec4 keysOut[];
+};
+
+// Input data
+layout(std430, binding = 1) readonly buffer KeysIn
+{
+  uvec4 keysIn[];
+};
+
+// Kernel parameters
+uniform uint nbits;
+uniform uint startbit;
+
+// Shared data
+shared uint l_data[4 * WORKGROUP_SIZE];
+shared uint l_numTrue;
+
+// Local data
+uvec4 key;
+
+//----------------------------------------------------------------------------
+// Scans each warp in parallel ("warp-scan"), one element per thread.
+// uses 2 numElements of shared memory per thread (64 = elements per warp)
+//----------------------------------------------------------------------------
+uint scanwarp(uint val, int maxlevel)
+{
+    // The following is the same as 2 * RadixSort::WARP_SIZE * warpId + threadInWarp = 
+    // 64*(threadIdx.x >> 5) + (threadIdx.x & (RadixSort::WARP_SIZE - 1))
+    uint localId = gl_LocalInvocationID.x;
+    uint idx = 2 * localId - (localId & (WARP_SIZE - 1));
+    l_data[idx] = 0;
+    idx += WARP_SIZE;
+    l_data[idx] = val;     
+
+    if (0 <= maxlevel) { l_data[idx] += l_data[idx - 1]; }
+    if (1 <= maxlevel) { l_data[idx] += l_data[idx - 2]; }
+    if (2 <= maxlevel) { l_data[idx] += l_data[idx - 4]; }
+    if (3 <= maxlevel) { l_data[idx] += l_data[idx - 8]; }
+    if (4 <= maxlevel) { l_data[idx] += l_data[idx -16]; }
+
+    return l_data[idx] - val;  // convert inclusive -> exclusive
+}
+
+//----------------------------------------------------------------------------
+// scan4 scans 4*RadixSort::CTA_SIZE numElements in a block (4 per thread), using 
+// a warp-scan algorithm
+//----------------------------------------------------------------------------
+uvec4 scan4(uvec4 idata)
+{    
+    
+    uint idx = gl_LocalInvocationID.x;
+
+    uvec4 val4 = idata;
+    uint sum[3];
+    sum[0] = val4.x;
+    sum[1] = val4.y + sum[0];
+    sum[2] = val4.z + sum[1];
+    
+    uint val = val4.w + sum[2];
+    
+    val = scanwarp(val, 4);
+    memoryBarrierShared();
+	barrier();
+
+    if ((idx & (WARP_SIZE - 1)) == WARP_SIZE - 1)
+    {
+        l_data[idx >> 5] = val + val4.w + sum[2];
+    }
+    memoryBarrierShared();
+	barrier();
+
+	if (idx < WARP_SIZE)
+		l_data[idx] = scanwarp(l_data[idx], 2);
+    
+    memoryBarrierShared();
+	barrier();
+
+    val += l_data[idx >> 5];
+
+    val4.x = val;
+    val4.y = val + sum[0];
+    val4.z = val + sum[1];
+    val4.w = val + sum[2];
+
+    return val4;
+}
+
+uvec4 rank4(uvec4 preds)
+{
+	uint localId = gl_LocalInvocationID.x;
+	uint localSize = gl_WorkGroupSize.x;
+
+	uvec4 address = scan4(preds);
+	
+	if (localId == localSize - 1) 
+	{
+		l_numTrue = address.w + preds.w;
+	}
+    memoryBarrierShared();
+	barrier();
+	
+	uvec4 rank;
+	uint idx = localId*4;
+	rank.x = (preds.x != 0) ? address.x : l_numTrue + idx + 0 - address.x;
+	rank.y = (preds.y != 0) ? address.y : l_numTrue + idx + 1 - address.y;
+	rank.z = (preds.z != 0) ? address.z : l_numTrue + idx + 2 - address.z;
+	rank.w = (preds.w != 0) ? address.w : l_numTrue + idx + 3 - address.w;
+	
+	return rank;
+}
+
+void radixSortBlockKeysOnly(uint nbits, uint startbit)
+{
+	uint localId = gl_LocalInvocationID.x;
+    uint localSize = gl_WorkGroupSize.x;
+	
+	for (uint shift = startbit; shift < (startbit + nbits); ++shift)
+	{
+		uvec4 lsb;
+		lsb.y = ((key.y >> shift) & 0x1) ^ 0x1;
+		lsb.x = ((key.x >> shift) & 0x1) ^ 0x1;
+        lsb.z = ((key.z >> shift) & 0x1) ^ 0x1;
+        lsb.w = ((key.w >> shift) & 0x1) ^ 0x1;
+        
+		uvec4 r = rank4(lsb);
+
+        // This arithmetic strides the ranks across 4 CTA_SIZE regions
+        l_data[(r.x & 3) * localSize + (r.x >> 2)] = key.x;
+        l_data[(r.y & 3) * localSize + (r.y >> 2)] = key.y;
+        l_data[(r.z & 3) * localSize + (r.z >> 2)] = key.z;
+        l_data[(r.w & 3) * localSize + (r.w >> 2)] = key.w;
+		memoryBarrierShared();
+		barrier();
+
+        // The above allows us to read without 4-way bank conflicts:
+        key.x = l_data[localId];
+        key.y = l_data[localId +     localSize];
+        key.z = l_data[localId + 2 * localSize];
+        key.w = l_data[localId + 3 * localSize];
+		
+		memoryBarrierShared();
+		barrier();
+	}
+}
+
+void main()
+{
+	key = keysIn[gl_GlobalInvocationID.x];
+    memoryBarrierShared();
+	barrier();
+
+	radixSortBlockKeysOnly(nbits, startbit);
+	
+	keysOut[gl_GlobalInvocationID.x] = key;
+}
+
+#elif defined findRadixOffsets
+
+//----------------------------------------------------------------------------
+// Given an array with blocks sorted according to a 4-bit radix group, each 
+// block counts the number of keys that fall into each radix in the group, and 
+// finds the starting offset of each radix in the block.  It then writes the radix 
+// counts to the counters array, and the starting offsets to the blockOffsets array.
+//
+// Template parameters are used to generate efficient code for various special cases
+// For example, we have to handle arrays that are a multiple of the block size 
+// (fullBlocks) differently than arrays that are not. "loop" is used when persistent 
+// CTAs are used. 
+//
+// By persistent CTAs we mean that we launch only as many thread blocks as can 
+// be resident in the GPU and no more, rather than launching as many threads as
+// we have elements. Persistent CTAs loop over blocks of elements until all work
+// is complete.  This can be faster in some cases.  In our tests it is faster
+// for large sorts (and the threshold is higher on compute version 1.1 and earlier
+// GPUs than it is on compute version 1.2 GPUs.
+//                                
+//----------------------------------------------------------------------------
+// Output data
+layout(std430, binding = 0) writeonly buffer Counters
+{
+  uint counters[];
+};
+layout(std430, binding = 1) writeonly buffer BlockOffsets
+{
+  uint blockOffsets[];
+};
+
+// Input data
+layout(std430, binding = 2) readonly buffer Keys
+{
+  uvec2 keys[];
+};
+
+// Kernel parameters
+uniform uint startbit;
+uniform uint totalBlocks;
+
+// Shared data
+shared uint l_radix1[2 * WORKGROUP_SIZE];
+shared uint l_startPointers[16];
+
+void main()
+{
+    uint groupId = gl_WorkGroupID.x;
+    uint localId = gl_LocalInvocationID.x;
+    uint groupSize = gl_WorkGroupSize.x;
+
+    uvec2 radix2 = keys[gl_GlobalInvocationID.x];
+
+    l_radix1[2 * localId]     = (radix2.x >> startbit) & 0xF;
+    l_radix1[2 * localId + 1] = (radix2.y >> startbit) & 0xF;
+
+    // Finds the position where the l_radix1 entries differ and stores start 
+    // index for each radix.
+    if(localId < 16) 
+    {
+        l_startPointers[localId] = 0; 
+    }
+    memoryBarrierShared();
+	barrier();
+
+    if((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
+    {
+        l_startPointers[l_radix1[localId]] = localId;
+    }
+    if(l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1]) 
+    {
+        l_startPointers[l_radix1[localId + groupSize]] = localId + groupSize;
+    }
+    memoryBarrierShared();
+	barrier();
+
+    if(localId < 16) 
+    {
+        blockOffsets[groupId*16 + localId] = l_startPointers[localId];
+    }
+    memoryBarrierShared();
+	barrier();
+
+    // Compute the sizes of each block.
+    if((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
+    {
+        l_startPointers[l_radix1[localId - 1]] = 
+            localId - l_startPointers[l_radix1[localId - 1]];
+    }
+    if(l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1] ) 
+    {
+        l_startPointers[l_radix1[localId + groupSize - 1]] = 
+            localId + groupSize - l_startPointers[l_radix1[localId + groupSize - 1]];
+    }
+        
+
+    if(localId == groupSize - 1) 
+    {
+        l_startPointers[l_radix1[2 * groupSize - 1]] = 
+            2 * groupSize - l_startPointers[l_radix1[2 * groupSize - 1]];
+    }
+    memoryBarrierShared();
+	barrier();
+
+    if(localId < 16) 
+    {
+        counters[localId * totalBlocks + groupId] = l_startPointers[localId];
+    }
+}
+
+#elif defined reorderDataKeysOnly
+//----------------------------------------------------------------------------
+// reorderData shuffles data in the array globally after the radix offsets 
+// have been found. On compute version 1.1 and earlier GPUs, this code depends 
+// on RadixSort::CTA_SIZE being 16 * number of radices (i.e. 16 * 2^nbits).
+// 
+// On compute version 1.1 GPUs ("manualCoalesce=true") this function ensures
+// that all writes are coalesced using extra work in the kernel.  On later
+// GPUs coalescing rules have been relaxed, so this extra overhead hurts 
+// performance.  On these GPUs we set manualCoalesce=false and directly store
+// the results.
+//
+// Template parameters are used to generate efficient code for various special cases
+// For example, we have to handle arrays that are a multiple of the block size 
+// (fullBlocks) differently than arrays that are not.  "loop" is used when persistent 
+// CTAs are used. 
+//
+// By persistent CTAs we mean that we launch only as many thread blocks as can 
+// be resident in the GPU and no more, rather than launching as many threads as
+// we have elements. Persistent CTAs loop over blocks of elements until all work
+// is complete.  This can be faster in some cases.  In our tests it is faster
+// for large sorts (and the threshold is higher on compute version 1.1 and earlier
+// GPUs than it is on compute version 1.2 GPUs.
+//----------------------------------------------------------------------------
+// Output data
+layout(std430, binding = 0) writeonly buffer OutKeys
+{
+  uint outKeys[];
+};
+
+// Input data
+layout(std430, binding = 1) readonly buffer Keys
+{
+  uvec2 keys[];
+};
+layout(std430, binding = 2) readonly buffer BlockOffsets
+{
+  uint blockOffsets[];
+};
+layout(std430, binding = 3) readonly buffer Offsets
+{
+  uint offsets[];
+};
+
+// Kernel parameters
+uniform uint startbit;
+uniform uint numElements;
+uniform uint totalBlocks;
+
+// Shared data
+shared uint l_keys[2 * WORKGROUP_SIZE];
+shared uint l_offsets[16];
+shared uint l_blockOffsets[16];
+
+void main()
+{
+    uint groupSize = gl_WorkGroupSize.x;
+    uint groupId   = gl_WorkGroupID.x;
+
+	uint globalId  = gl_GlobalInvocationID.x;
+    uint localId   = gl_LocalInvocationID.x;
+
+    l_keys[2*localId+0] = keys[globalId].x;
+    l_keys[2*localId+1] = keys[globalId].y;
+
+    if (localId < 16)  
+    {
+        l_offsets[localId]      = offsets[localId * totalBlocks + groupId];
+        l_blockOffsets[localId] = blockOffsets[groupId * 16 + localId];
+    }
+	memoryBarrierShared();
+	barrier();
+	
+	uint key = l_keys[localId];
+    uint radix = (key >> startbit) & 0xF;
+    uint globalOffset = l_offsets[radix] + localId - l_blockOffsets[radix];
+    if (globalOffset < numElements)
+    {
+        outKeys[globalOffset]   = key;
+    }
+	
+	key = l_keys[localId + groupSize];
+    radix = (key >> startbit) & 0xF;
+    globalOffset = l_offsets[radix] + localId + groupSize - l_blockOffsets[radix];
+    if (globalOffset < numElements)
+    {
+        outKeys[globalOffset]   = key;
+    }
+}
+#endif
+)";
+}
