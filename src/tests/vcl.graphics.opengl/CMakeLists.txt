@@ -4,6 +4,7 @@ SET(VCL_TEST_SRC
 	blendstate.cpp
 	buffers.cpp
 	imageprocessor.cpp
+	radixsort.cpp
 	shaderprogram.cpp
 	textures.cpp
 	main.cpp
