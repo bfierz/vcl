@@ -37,14 +37,22 @@ namespace Vcl { namespace Graphics
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */
-	class ScanExclusiveLarge
+	class ScanExclusive
 	{
 	public:
-		ScanExclusiveLarge(unsigned int maxElements);
-		virtual ~ScanExclusiveLarge() = default;
+		ScanExclusive(unsigned int maxElements);
+		virtual ~ScanExclusive() = default;
 
 	public:
 		void operator()
+		(
+			ref_ptr<Runtime::OpenGL::Buffer> dst,
+			ref_ptr<Runtime::OpenGL::Buffer> src,
+			unsigned int arrayLength
+		);
+
+	private:
+		void scanExclusiveSmall
 		(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
@@ -52,7 +60,14 @@ namespace Vcl { namespace Graphics
 			unsigned int arrayLength
 		);
 
-	private:
+		void scanExclusiveLarge
+		(
+			ref_ptr<Runtime::OpenGL::Buffer> dst,
+			ref_ptr<Runtime::OpenGL::Buffer> src,
+			unsigned int batchSize,
+			unsigned int arrayLength
+		);
+
 		void scanExclusiveLocal1
 		(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
@@ -83,14 +98,14 @@ namespace Vcl { namespace Graphics
 
 	private: // Configurations
 
-		const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
+		static const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
 
 		static const unsigned int WarpSize = 32;
 		static const unsigned int WorkgroupSize = 256;
 		static const unsigned int MaxBatchElements = 64 * 1048576;
 		static const unsigned int MinShortArraySize = 4;
 		static const unsigned int MaxShortArraySize = 4 * WorkgroupSize;
-		static const unsigned int MinLargeArraySize = 8 * WorkgroupSize;
+		static const unsigned int MinLargeArraySize = 4 * WorkgroupSize;
 		static const unsigned int MaxLargeArraySize = 4 * WorkgroupSize * WorkgroupSize;
 
 	private: // Buffers

@@ -15,13 +15,13 @@ layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 // Output data
 layout(std430, binding = 0) writeonly buffer KeysOut
 {
-  uvec4 keysOut[];
+	uvec4 keysOut[];
 };
 
 // Input data
 layout(std430, binding = 1) readonly buffer KeysIn
 {
-  uvec4 keysIn[];
+	uvec4 keysIn[];
 };
 
 // Kernel parameters
@@ -49,11 +49,11 @@ uint scanwarp(uint val, int maxlevel)
     idx += WARP_SIZE;
     l_data[idx] = val;     
 
-    if (0 <= maxlevel) { l_data[idx] += l_data[idx - 1]; }
-    if (1 <= maxlevel) { l_data[idx] += l_data[idx - 2]; }
-    if (2 <= maxlevel) { l_data[idx] += l_data[idx - 4]; }
-    if (3 <= maxlevel) { l_data[idx] += l_data[idx - 8]; }
-    if (4 <= maxlevel) { l_data[idx] += l_data[idx -16]; }
+    if (0 <= maxlevel) { l_data[idx] += l_data[idx -  1]; }
+    if (1 <= maxlevel) { l_data[idx] += l_data[idx -  2]; }
+    if (2 <= maxlevel) { l_data[idx] += l_data[idx -  4]; }
+    if (3 <= maxlevel) { l_data[idx] += l_data[idx -  8]; }
+    if (4 <= maxlevel) { l_data[idx] += l_data[idx - 16]; }
 
     return l_data[idx] - val;  // convert inclusive -> exclusive
 }
@@ -63,8 +63,7 @@ uint scanwarp(uint val, int maxlevel)
 // a warp-scan algorithm
 //----------------------------------------------------------------------------
 uvec4 scan4(uvec4 idata)
-{    
-    
+{
     uint idx = gl_LocalInvocationID.x;
 
     uvec4 val4 = idata;
@@ -104,7 +103,7 @@ uvec4 scan4(uvec4 idata)
 
 uvec4 rank4(uvec4 preds)
 {
-	uint localId = gl_LocalInvocationID.x;
+	uint localId   = gl_LocalInvocationID.x;
 	uint localSize = gl_WorkGroupSize.x;
 
 	uvec4 address = scan4(preds);
@@ -128,7 +127,7 @@ uvec4 rank4(uvec4 preds)
 
 void radixSortBlockKeysOnly(uint nbits, uint startbit)
 {
-	uint localId = gl_LocalInvocationID.x;
+	uint localId   = gl_LocalInvocationID.x;
     uint localSize = gl_WorkGroupSize.x;
 	
 	for (uint shift = startbit; shift < (startbit + nbits); ++shift)
@@ -150,8 +149,8 @@ void radixSortBlockKeysOnly(uint nbits, uint startbit)
 		barrier();
 
         // The above allows us to read without 4-way bank conflicts:
-        key.x = l_data[localId];
-        key.y = l_data[localId +     localSize];
+        key.x = l_data[localId + 0 * localSize];
+        key.y = l_data[localId + 1 * localSize];
         key.z = l_data[localId + 2 * localSize];
         key.w = l_data[localId + 3 * localSize];
 		
@@ -162,12 +161,14 @@ void radixSortBlockKeysOnly(uint nbits, uint startbit)
 
 void main()
 {
+	// Store the keys in private memory in order to manipulate
+	// them in the subsequent function
 	key = keysIn[gl_GlobalInvocationID.x];
-    memoryBarrierShared();
-	barrier();
 
+	// Sort the keys within this block
 	radixSortBlockKeysOnly(nbits, startbit);
 	
+	// Store the keys again
 	keysOut[gl_GlobalInvocationID.x] = key;
 }
 
@@ -224,7 +225,7 @@ void main()
 
     uvec2 radix2 = keys[gl_GlobalInvocationID.x];
 
-    l_radix1[2 * localId]     = (radix2.x >> startbit) & 0xF;
+    l_radix1[2 * localId + 0] = (radix2.x >> startbit) & 0xF;
     l_radix1[2 * localId + 1] = (radix2.y >> startbit) & 0xF;
 
     // Finds the position where the l_radix1 entries differ and stores start 
@@ -236,18 +237,18 @@ void main()
     memoryBarrierShared();
 	barrier();
 
-    if((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
+    if ((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
     {
         l_startPointers[l_radix1[localId]] = localId;
     }
-    if(l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1]) 
+    if (l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1]) 
     {
         l_startPointers[l_radix1[localId + groupSize]] = localId + groupSize;
     }
     memoryBarrierShared();
 	barrier();
 
-    if(localId < 16) 
+    if (localId < 16) 
     {
         blockOffsets[groupId*16 + localId] = l_startPointers[localId];
     }
@@ -265,7 +266,8 @@ void main()
         l_startPointers[l_radix1[localId + groupSize - 1]] = 
             localId + groupSize - l_startPointers[l_radix1[localId + groupSize - 1]];
     }
-        
+    memoryBarrierShared();
+	barrier();
 
     if(localId == groupSize - 1) 
     {
@@ -359,7 +361,7 @@ void main()
     uint globalOffset = l_offsets[radix] + localId - l_blockOffsets[radix];
     if (globalOffset < numElements)
     {
-        outKeys[globalOffset]   = key;
+		outKeys[globalOffset]   = key;
     }
 	
 	key = l_keys[localId + groupSize];

@@ -35,39 +35,39 @@
 // Google test
 #include <gtest/gtest.h>
 
-TEST(OpenGL, ScanExclusiveLarge)
+void ExecuteScanTest(unsigned int size)
 {
 	using namespace Vcl::Graphics;
 
-	ScanExclusiveLarge scan{ 2048 };
-	
+	ScanExclusive scan{ size };
+
 	// Define the input buffer
-	int numbers[8*256];
-	for (int i = 0; i < 8*256; i++)
+	std::vector<int> numbers(size);
+	for (int i = 0; i < size; i++)
 		numbers[i] = i;
 
 	Runtime::BufferDescription desc =
 	{
-		8 * 1024,
+		sizeof(unsigned int) * numbers.size(),
 		Runtime::Usage::Staging,
 		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
 	};
 
 	Runtime::BufferInitData data =
 	{
-		numbers,
-		8 * 1024
+		numbers.data(),
+		sizeof(unsigned int) * numbers.size()
 	};
 
-	auto input  = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
+	auto input = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
 	auto output = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true);
 
-	scan(output, input, 1, 8 * 256);
+	scan(output, input, size);
 
-	int* ptr = (int*) output->map(0, 8 * 1024, Runtime::CPUAccess::Read);
+	int* ptr = (int*)output->map(0, sizeof(unsigned int) * numbers.size(), Runtime::CPUAccess::Read);
 
 	int s = 0;
-	for (int i = 0; i < 8 * 256; i++)
+	for (int i = 0; i < size; i++)
 	{
 		EXPECT_EQ(s, ptr[i]) << "Prefix sum is wrong: " << i;
 		s += i;
@@ -76,18 +76,34 @@ TEST(OpenGL, ScanExclusiveLarge)
 	output->unmap();
 }
 
-TEST(OpenGL, RadixSort)
+TEST(OpenGL, ScanExclusiveSmall)
+{
+	ExecuteScanTest(4);
+	ExecuteScanTest(12);
+	ExecuteScanTest(40);
+	ExecuteScanTest(256);
+	ExecuteScanTest(1020);
+	ExecuteScanTest(1024);
+}
+
+TEST(OpenGL, ScanExclusiveLarge)
+{
+	ExecuteScanTest(2048);
+	ExecuteScanTest(3072);
+}
+
+void ExecuteRadixSortTest(unsigned int size)
 {
 	using namespace Vcl::Graphics;
 
-	const unsigned int num_keys = 16 * 2048;
+	const unsigned int num_keys = size;
 
 	RadixSort sort{ num_keys };
 
 	// Define the input buffer
-	int numbers[num_keys];
+	std::vector<int> numbers(num_keys);
 	for (int i = 0; i < num_keys; i++)
-		numbers[i] = num_keys - i;
+		numbers[i] = num_keys - (i + 0);
 
 	Runtime::BufferDescription desc =
 	{
@@ -98,13 +114,13 @@ TEST(OpenGL, RadixSort)
 
 	Runtime::BufferInitData data =
 	{
-		numbers,
+		numbers.data(),
 		num_keys * sizeof(int)
 	};
 
 	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
 
-	sort(keys, num_keys, 16);
+	sort(keys, num_keys, 20);
 
 	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::CPUAccess::Read);
 
@@ -116,4 +132,13 @@ TEST(OpenGL, RadixSort)
 	}
 
 	keys->unmap();
+}
+
+TEST(OpenGL, RadixSort)
+{
+	ExecuteRadixSortTest(512);
+	ExecuteRadixSortTest(768);
+	ExecuteRadixSortTest(1024);
+	ExecuteRadixSortTest(2048);
+	ExecuteRadixSortTest(3072);
 }

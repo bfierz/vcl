@@ -54,7 +54,9 @@ layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 // and saving instructions
 uint scan1Inclusive(uint idata, uint size)
 {
-    uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x & (size - 1));
+    //uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x & (size - 1));
+	uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x % size);
+
     l_data[pos] = 0;
     pos += size;
     l_data[pos] = idata;
@@ -114,8 +116,15 @@ layout(std430, binding = 1) buffer Source
   uvec4 src[];
 };
 
+// Number of elements to process
+uniform uint N;
+
+
 void main()
 {
+	if (4 * gl_GlobalInvocationID.x >= N)
+		return;
+
 	// Load data
 	uvec4 idata4 = src[gl_GlobalInvocationID.x];
 
@@ -163,7 +172,7 @@ void main()
 	}
 
     // Compute
-    uint odata = scan1Exclusive(data, size);
+    uint odata = scan1Exclusive(data, N);
 
     // Avoid out-of-bound access
     if (gl_GlobalInvocationID.x < N)
@@ -243,7 +252,7 @@ namespace Vcl { namespace Graphics
 		}
 	}
 
-	ScanExclusiveLarge::ScanExclusiveLarge(unsigned int maxElements)
+	ScanExclusive::ScanExclusive(unsigned int maxElements)
 	: _maxElements(maxElements)
 	{
 		using namespace Vcl::Graphics::Runtime;
@@ -262,8 +271,56 @@ namespace Vcl { namespace Graphics
 		_scanExclusiveLocal2Kernel = createKernel(module, "#define scanExclusiveLocal2\n");
 		_uniformUpdateKernel = createKernel(module, "#define uniformUpdate\n");
 	}
+	
+	void ScanExclusive::operator()
+	(
+		ref_ptr<Runtime::OpenGL::Buffer> dst,
+		ref_ptr<Runtime::OpenGL::Buffer> src,
+		unsigned int arrayLength
+	)
+	{
+		// Check all work-groups to be fully packed with data
+		Require(arrayLength % 4 == 0, "SCan works on multiles of 4");
+		Require(implies(arrayLength > MaxShortArraySize, arrayLength % MaxWorkgroupInclusiveScanSize == 0), "Only allow batches of full sizes.");
 
-	void ScanExclusiveLarge::operator()
+		if (arrayLength <= MaxShortArraySize)
+		{
+			scanExclusiveSmall(dst, src, 1, arrayLength);
+		}
+		else
+		{
+			unsigned int batchSize = arrayLength / MaxWorkgroupInclusiveScanSize;
+			scanExclusiveLarge(dst, src, batchSize, MaxWorkgroupInclusiveScanSize);
+		}
+	}
+
+	void ScanExclusive::scanExclusiveSmall
+	(
+		ref_ptr<Runtime::OpenGL::Buffer> dst,
+		ref_ptr<Runtime::OpenGL::Buffer> src,
+		unsigned int batchSize,
+		unsigned int arrayLength
+	)
+	{
+		// Check supported size range
+		Check((arrayLength >= MinShortArraySize) && (arrayLength <= MaxShortArraySize), "Array is within size");
+
+		// Check total batch size limit
+		Check((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
+
+		// Check all work-groups to be fully packed with data
+		Check((batchSize * arrayLength) % 4 == 0, "All work-groups are fully packed");
+
+		return scanExclusiveLocal1
+		(
+			dst,
+			src,
+			batchSize,
+			arrayLength
+		);
+	}
+
+	void ScanExclusive::scanExclusiveLarge
 	(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
@@ -307,7 +364,7 @@ namespace Vcl { namespace Graphics
 		);
 	}
 
-	void ScanExclusiveLarge::scanExclusiveLocal1
+	void ScanExclusive::scanExclusiveLocal1
 	(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
@@ -320,16 +377,24 @@ namespace Vcl { namespace Graphics
 		// Bind the program to the pipeline
 		_scanExclusiveLocal1Kernel->bind();
 
+		// Number of elements to process
+		unsigned int elements = n * size;
+
 		// Bind the buffers and parameters
 		_scanExclusiveLocal1Kernel->setBuffer("Destination", dst.get());
 		_scanExclusiveLocal1Kernel->setBuffer("Source", src.get());
 		_scanExclusiveLocal1Kernel->setUniform(_scanExclusiveLocal1Kernel->uniform("size"), size);
+		_scanExclusiveLocal1Kernel->setUniform(_scanExclusiveLocal1Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		glDispatchCompute((n*size) / 4, 1, 1);
+		unsigned int nr_workgroups = iSnapUp((n*size) / 4, WorkgroupSize) / WorkgroupSize;
+		glDispatchCompute(nr_workgroups, 1, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
-	void ScanExclusiveLarge::scanExclusiveLocal2
+	void ScanExclusive::scanExclusiveLocal2
 	(
 		ref_ptr<Runtime::OpenGL::Buffer> buffer,
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
@@ -350,14 +415,16 @@ namespace Vcl { namespace Graphics
 		_scanExclusiveLocal2Kernel->setBuffer("Destination", dst.get());
 		_scanExclusiveLocal2Kernel->setBuffer("Source", src.get());
 		_scanExclusiveLocal2Kernel->setBuffer("Workspace", buffer.get());
-		_scanExclusiveLocal2Kernel->setUniform(_scanExclusiveLocal2Kernel->uniform("size"), size);
 		_scanExclusiveLocal2Kernel->setUniform(_scanExclusiveLocal2Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		glDispatchCompute(iSnapUp(elements, WorkgroupSize), 1, 1);
+		glDispatchCompute(iSnapUp(elements, WorkgroupSize) / WorkgroupSize, 1, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
-	void ScanExclusiveLarge::uniformUpdate
+	void ScanExclusive::uniformUpdate
 	(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> buffer,
@@ -374,6 +441,9 @@ namespace Vcl { namespace Graphics
 		_uniformUpdateKernel->setBuffer("Workspace", buffer.get());
 
 		// Execute the compute shader
-		glDispatchCompute(n * WorkgroupSize, 1, 1);
+		glDispatchCompute(n, 1, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}

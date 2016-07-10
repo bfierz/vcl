@@ -111,7 +111,8 @@ namespace Vcl { namespace Graphics
 
 		findRadixOffsetsOCL(startbit, numElements);
 
-		_scan(_countersSum, _counters, 1, numElements / 2 / LocalSize * 16);
+		unsigned int array_length = numElements * 16 / 2 / LocalSize;
+		_scan(_countersSum, _counters, array_length);
 
 		reorderDataKeysOnlyOCL(keys, startbit, numElements);
 	}
@@ -120,7 +121,7 @@ namespace Vcl { namespace Graphics
 	{
 		Require(_radixSortBlocksKeysOnlyKernel, "Kernel is loaded.");
 
-		unsigned int totalBlocks = numElements / 4 / LocalSize;
+		unsigned int totalBlocks = std::max<unsigned int>(numElements / 4 / LocalSize, 1);
 
 		// Bind the program to the pipeline
 		_radixSortBlocksKeysOnlyKernel->bind();
@@ -133,14 +134,17 @@ namespace Vcl { namespace Graphics
 		_radixSortBlocksKeysOnlyKernel->setUniform(_radixSortBlocksKeysOnlyKernel->uniform("startbit"), startbit);
 
 		// Execute the compute shader
-		glDispatchCompute(LocalSize*totalBlocks, 1, 1);
+		glDispatchCompute(totalBlocks, 1, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
 	void RadixSort::findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements)
 	{
 		Require(_findRadixOffsetsKernel, "Kernel is loaded.");
 
-		unsigned int totalBlocks = numElements / 2 / LocalSize;
+		unsigned int totalBlocks = std::max<unsigned int>(numElements / 2 / LocalSize, 1);
 
 		// Bind the program to the pipeline
 		_findRadixOffsetsKernel->bind();
@@ -154,14 +158,17 @@ namespace Vcl { namespace Graphics
 		_findRadixOffsetsKernel->setUniform(_findRadixOffsetsKernel->uniform("totalBlocks"), totalBlocks);
 
 		// Execute the compute shader
-		glDispatchCompute(LocalSize*totalBlocks, 1, 1);
+		glDispatchCompute(totalBlocks, 1, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
-	
+
 	void RadixSort::reorderDataKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int startbit, unsigned int numElements)
 	{
 		Require(_reorderDataKeysOnlyKernel, "Kernel is loaded.");
 
-		unsigned int totalBlocks = numElements / 2 / LocalSize;
+		unsigned int totalBlocks = std::max<unsigned int>(numElements / 2 / LocalSize, 1);
 
 		// Bind the program to the pipeline
 		_reorderDataKeysOnlyKernel->bind();
@@ -176,10 +183,9 @@ namespace Vcl { namespace Graphics
 		_reorderDataKeysOnlyKernel->setUniform(_reorderDataKeysOnlyKernel->uniform("totalBlocks"), totalBlocks);
 
 		// Execute the compute shader
-		glDispatchCompute(LocalSize*totalBlocks, 1, 1);
+		glDispatchCompute(totalBlocks, 1, 1);
 
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		unsigned int* out = (unsigned int*)keys->map(0, keys->sizeInBytes(), Runtime::CPUAccess::Read);
-		keys->unmap();
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}

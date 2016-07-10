@@ -87,7 +87,7 @@ namespace Vcl { namespace Graphics
 		owner_ptr<Runtime::OpenGL::ShaderProgram> _reorderDataKeysOnlyKernel;
 
 		//! Sub algorithm
-		ScanExclusiveLarge _scan;
+		ScanExclusive _scan;
 
 	private: // Buffers
 
