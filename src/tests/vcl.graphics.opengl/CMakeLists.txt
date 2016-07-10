@@ -1,17 +1,11 @@
 PROJECT(vcl_graphics_opengl_test)
 
-SET(VCL_TEST_SRC
-	blendstate.cpp
-	buffers.cpp
-	imageprocessor.cpp
-	radixsort.cpp
-	shaderprogram.cpp
-	textures.cpp
-	main.cpp
+FILE(GLOB VCL_TEST_SRC
+	*.cpp
 )
-SET(VCL_TEST_INC
-	bitmap.h
-	pattern.h
+
+FILE(GLOB VCL_TEST_INC
+	*.h
 )
 
 SET(SOURCE

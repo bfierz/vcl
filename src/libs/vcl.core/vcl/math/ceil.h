@@ -24,8 +24,16 @@
  */
 #pragma once
 
+ // VCL configuration
+#include <vcl/config/global.h>
+
 namespace Vcl { namespace Mathematics
 {
+	uint32_t ceil(uint32_t dividend, uint32_t divisor)
+	{
+		return ((dividend % divisor) == 0) ? dividend : (dividend - dividend % divisor + divisor);
+	}
+
 	template<int N>
 	inline uint32_t ceil(uint32_t val)
 	{

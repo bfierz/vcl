@@ -27,60 +27,74 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
+#include <random>
 
 // Include the relevant parts from the library
-#include <vcl/graphics/opengl/algorithm/radixsort.h>
+#include <vcl/graphics/opengl/algorithm/histogram.h>
 
 // Google test
 #include <gtest/gtest.h>
 
-void ExecuteRadixSortTest(unsigned int size)
+void BuildHistogramTest(unsigned int buckets, unsigned int size)
 {
 	using namespace Vcl::Graphics;
 
-	const unsigned int num_keys = size;
+	// Random number generator
+	std::mt19937 rnd;
+	std::uniform_int<unsigned int> dist{ 0, buckets - 1 };
 
-	RadixSort sort{ num_keys };
+	Histogram hist{ size, buckets };
 
 	// Define the input buffer
-	std::vector<int> numbers(num_keys);
-	for (int i = 0; i < num_keys; i++)
-		numbers[i] = num_keys - (i + 0);
+	std::vector<int> numbers(size);
+	for (int i = 0; i < size; i++)
+		numbers[i] = dist(rnd);
+
+	std::vector<int> histogram(buckets, 0);
+	for (int i = 0; i < size; i++)
+		histogram[numbers[i]]++;
 
 	Runtime::BufferDescription desc =
 	{
-		num_keys * sizeof(int),
+		sizeof(unsigned int) * numbers.size(),
 		Runtime::Usage::Staging,
-		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
+		Runtime::CPUAccess::Write
 	};
 
 	Runtime::BufferInitData data =
 	{
 		numbers.data(),
-		num_keys * sizeof(int)
+		sizeof(unsigned int) * numbers.size()
 	};
 
-	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
-
-	sort(keys, num_keys, 20);
-
-	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::CPUAccess::Read);
-
-	int last = std::numeric_limits<int>::min();
-	for (int i = 0; i < num_keys; i++)
+	Runtime::BufferDescription out_desc =
 	{
-		EXPECT_LT(last, ptr[i]) << "Order is wrong: " << i;
-		last = ptr[i];
+		sizeof(unsigned int) * buckets,
+		Runtime::Usage::Staging,
+		Runtime::CPUAccess::Read
+	};
+
+	auto input = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
+	auto output = Vcl::make_owner<Runtime::OpenGL::Buffer>(out_desc, true, true);
+
+	hist(output, input, size);
+
+	int* ptr = (int*)output->map(0, output->sizeInBytes(), Runtime::CPUAccess::Read);
+
+	for (int i = 0; i < buckets; i++)
+	{
+		EXPECT_EQ(histogram[i], ptr[i]) << "Prefix sum is wrong: " << i;
 	}
 
-	keys->unmap();
+	output->unmap();
 }
 
-TEST(OpenGL, RadixSort)
+TEST(OpenGL, Histogram)
 {
-	// Test range of valid input sizes
-	for (int i = 512; i < (1 << 14); i += 512)
-	{
-		ExecuteRadixSortTest(i);
-	}
+	BuildHistogramTest(64, 32);
+	BuildHistogramTest(64, 64);
+	BuildHistogramTest(64, 65);
+	BuildHistogramTest(64, 128);
+	BuildHistogramTest(64, 129);
+	BuildHistogramTest(64, 512);
 }
