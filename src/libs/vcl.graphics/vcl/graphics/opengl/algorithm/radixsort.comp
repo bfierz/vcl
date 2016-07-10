@@ -1,6 +1,6 @@
 namespace
 {
-	const char* module = R"(
+const char* module = R"(
 
 #version 430 core
 
