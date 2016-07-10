@@ -62,13 +62,13 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc_large =
 		{
 			maxElements * sizeof(unsigned int),
-			Usage::Staging,
+			Usage::Default,
 			CPUAccess::Read
 		};
 		BufferDescription desc_small =
 		{
 			WarpSize * numBlocks * sizeof(unsigned int),
-			Usage::Staging,
+			Usage::Default,
 			CPUAccess::Read
 		};
 		

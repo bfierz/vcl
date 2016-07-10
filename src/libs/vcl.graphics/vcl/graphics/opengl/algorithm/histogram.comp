@@ -1,0 +1,84 @@
+namespace
+{
+const char* module = R"(
+
+#version 430 core
+
+#define WORKGROUP_SIZE 128
+#define WARP_SIZE 32
+
+// Local layout
+layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
+
+// Kernel parameters
+uniform uint numElements;
+uniform uint numBuckets;
+uniform uint numPartialHistograms;
+
+#if defined partialHistograms
+
+// Output data
+layout(std430, binding = 0) buffer Buckets
+{
+	uint buckets[];
+};
+
+// Input data
+layout(std430, binding = 1) readonly buffer Values
+{
+	uint values[];
+};
+
+// Shared data
+shared uint l_partials[NUM_BUCKETS];
+
+void main()
+{
+	// Initialize temporary accumulation array in shared memory
+	for (uint i = gl_LocalInvocationID.x; i < NUM_BUCKETS; i += WORKGROUP_SIZE)
+		l_partials[i] = 0;
+
+	memoryBarrierShared();
+	barrier();
+
+	// Accumulate on shared memory
+	if (gl_GlobalInvocationID.x < numElements)
+		atomicAdd(l_partials[values[gl_GlobalInvocationID.x]], 1);
+	
+	memoryBarrierShared();
+	barrier();
+
+	// Write partial histograms to global memory
+	for (uint i = gl_LocalInvocationID.x; i < NUM_BUCKETS; i += WORKGROUP_SIZE)
+		buckets[gl_WorkGroupID.x * NUM_BUCKETS + i] = l_partials[i];
+}
+
+#elif defined collectPartialHistograms
+
+// Output data
+layout(std430, binding = 0) writeonly buffer Histogram
+{
+	uint histogram[];
+};
+
+// Input data
+layout(std430, binding = 1) readonly buffer Buckets
+{
+	uint buckets[];
+};
+
+void main()
+{	
+	if (gl_GlobalInvocationID.x >= NUM_BUCKETS)
+		return;
+
+	// Accumulate the individual buckets
+	uint accum = 0;
+	for (uint i = 0; i < numPartialHistograms; i++)
+		accum += buckets[i * NUM_BUCKETS + gl_GlobalInvocationID.x];
+
+	histogram[gl_GlobalInvocationID.x] = accum;
+}
+#endif
+)";
+}
