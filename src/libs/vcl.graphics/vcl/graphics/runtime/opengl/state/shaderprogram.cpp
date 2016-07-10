@@ -647,7 +647,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
 		if (linked == GL_FALSE || valid == GL_FALSE)
 			return;
-		
 
 		// Link the program to the input layout
 		if (!desc.ComputeShader)
