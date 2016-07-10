@@ -127,7 +127,7 @@ void ExecuteRadixSortTest(unsigned int size)
 	int last = std::numeric_limits<int>::min();
 	for (int i = 0; i < num_keys; i++)
 	{
-		EXPECT_LE(last, ptr[i]) << "Order is wrong: " << i;
+		EXPECT_LT(last, ptr[i]) << "Order is wrong: " << i;
 		last = ptr[i];
 	}
 
@@ -136,9 +136,9 @@ void ExecuteRadixSortTest(unsigned int size)
 
 TEST(OpenGL, RadixSort)
 {
-	ExecuteRadixSortTest(512);
-	ExecuteRadixSortTest(768);
-	ExecuteRadixSortTest(1024);
-	ExecuteRadixSortTest(2048);
-	ExecuteRadixSortTest(3072);
+	// Test range of valid input sizes
+	for (int i = 512; i < (1 << 14); i += 512)
+	{
+		ExecuteRadixSortTest(i);
+	}
 }
