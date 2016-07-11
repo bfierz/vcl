@@ -28,7 +28,6 @@
 #include <vcl/core/contract.h>
 
 // Compute shader
-
 #include "radixsort.comp"
 
 namespace Vcl { namespace Graphics

@@ -27,6 +27,10 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// Define OpenGL configuration
+#define VCL_GL_EXT_direct_state_access
+//#define VCL_GL_ARB_direct_state_access
+
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_OPENGL_SUPPORT
 #	include <GL/glew.h>

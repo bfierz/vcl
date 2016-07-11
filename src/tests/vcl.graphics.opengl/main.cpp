@@ -34,7 +34,7 @@
 // Force the use of the NVIDIA GPU in an Optimius system
 extern "C"
 {
-	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
+//	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
 
 int TestReturnValue;
