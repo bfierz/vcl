@@ -26,192 +26,10 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/math/ceil.h>
 
-////////////////////////////////////////////////////////////////////////////////
-// Scan kernels
-////////////////////////////////////////////////////////////////////////////////
-namespace
-{
-	const char* module = R"(
-
-#version 430 core
-
-#define WORKGROUP_SIZE 256
-
-// Number of elements
-uniform uint size;
-
-// Local data
-shared uint l_data[2 * WORKGROUP_SIZE];
-
-// Local layout
-layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
-
-///////////////////////////////////////////////////////////////////////////////
-// Naive inclusive scan: O(N * log2(N)) operations
-// Allocate 2 * 'size' local memory, initialize the first half
-// with 'size' zeros avoiding if(pos >= offset) condition evaluation
-// and saving instructions
-uint scan1Inclusive(uint idata, uint size)
-{
-    //uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x & (size - 1));
-	uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x % size);
-
-    l_data[pos] = 0;
-    pos += size;
-    l_data[pos] = idata;
-
-    for (uint offset = 1; offset < size; offset <<= 1)
-	{
-		memoryBarrierShared();
-		barrier();
-
-        uint t = l_data[pos] + l_data[pos - offset];
-		memoryBarrierShared();
-		barrier();
-
-        l_data[pos] = t;
-    }
-
-    return l_data[pos];
-}
-
-uint scan1Exclusive(uint idata, uint size)
-{
-    return scan1Inclusive(idata, size) - idata;
-}
-
-// Vector scan: the array to be scanned is stored
-// in work-item private memory as uvec4
-uvec4 scan4Inclusive(uvec4 data4, uint size)
-{
-    // Level-0 inclusive scan
-    data4.y += data4.x;
-    data4.z += data4.y;
-    data4.w += data4.z;
-
-    // Level-1 exclusive scan
-    uint val = scan1Inclusive(data4.w, size / 4) - data4.w;
-
-    return (data4 + uvec4(val));
-}
-
-uvec4 scan4Exclusive(uvec4 data4, uint size)
-{
-    return scan4Inclusive(data4, size) - data4;
-}
-
-// Main methods
-#ifdef scanExclusiveLocal1
-
-// Output data
-layout(std430, binding = 0) buffer Destination
-{
-  uvec4 dst[];
-};
-
-// Input data
-layout(std430, binding = 1) buffer Source
-{
-  uvec4 src[];
-};
-
-// Number of elements to process
-uniform uint N;
-
-
-void main()
-{
-	if (4 * gl_GlobalInvocationID.x >= N)
-		return;
-
-	// Load data
-	uvec4 idata4 = src[gl_GlobalInvocationID.x];
-
-	// Calculate exclusive scan
-	uvec4 odata4 = scan4Exclusive(idata4, size);
-
-	// Write back
-	dst[gl_GlobalInvocationID.x] = odata4;
-}
-#elif defined scanExclusiveLocal2
-
-// Output data
-layout(std430, binding = 0) buffer Destination
-{
-  uint dst[];
-};
-
-// Input data
-layout(std430, binding = 1) buffer Source
-{
-  uint src[];
-};
-
-// Intermediate work data
-layout(std430, binding = 2) buffer Workspace
-{
-  uint buf[];
-};
-
-// Number of elements to process
-uniform uint N;
-
-// Exclusive scan of top elements of bottom-level scans (4 * WORKGROUP_SIZE)
-void main()
-{
-    // Load top elements
-    // Convert results of bottom-level scan back to inclusive
-    // Skip loads and stores for inactive work-items of the work-group with highest index(pos >= N)
-    uint data = 0;
-    if (gl_GlobalInvocationID.x < N)
-	{
-		data =
-			dst[(4 * WORKGROUP_SIZE - 1) + (4 * WORKGROUP_SIZE) * gl_GlobalInvocationID.x] + 
-			src[(4 * WORKGROUP_SIZE - 1) + (4 * WORKGROUP_SIZE) * gl_GlobalInvocationID.x];
-	}
-
-    // Compute
-    uint odata = scan1Exclusive(data, N);
-
-    // Avoid out-of-bound access
-    if (gl_GlobalInvocationID.x < N)
-        buf[gl_GlobalInvocationID.x] = odata;
-}
-
-#elif defined uniformUpdate
-
-// Output data
-layout(std430, binding = 0) buffer Destination
-{
-  uvec4 dst[];
-};
-
-// Input data
-layout(std430, binding = 1) buffer Workspace
-{
-  uint buf[];
-};
-
-// Top element to pass down
-shared uint top;
-
-// Final step of large-array scan: combine basic inclusive scan with exclusive scan of top elements of input arrays
-void main()
-{
-    uvec4 data4 = dst[gl_GlobalInvocationID.x];
-
-    if (gl_LocalInvocationID.x == 0)
-        top = buf[gl_WorkGroupID.x];
-
-    memoryBarrierShared();
-	barrier();
-    data4 += uvec4(top);
-    dst[gl_GlobalInvocationID.x] = data4;
-}
-#endif
-)";
-}
+// Compute shader
+#include "scan.comp"
 
 namespace Vcl { namespace Graphics
 {
@@ -230,11 +48,6 @@ namespace Vcl { namespace Graphics
 
 			// Create the shader program
 			return make_owner<OpenGL::ShaderProgram>(desc);
-		}
-
-		unsigned int iSnapUp(unsigned int dividend, unsigned int divisor)
-		{
-			return ((dividend % divisor) == 0) ? dividend : (dividend - dividend % divisor + divisor);
 		}
 
 		unsigned int factorRadix2(unsigned int& log2L, unsigned int L)
@@ -372,6 +185,8 @@ namespace Vcl { namespace Graphics
 		unsigned int size
 	)
 	{
+		using Vcl::Mathematics::ceil;
+
 		Require(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
 
 		// Bind the program to the pipeline
@@ -387,7 +202,7 @@ namespace Vcl { namespace Graphics
 		_scanExclusiveLocal1Kernel->setUniform(_scanExclusiveLocal1Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		unsigned int nr_workgroups = iSnapUp((n*size) / 4, WorkgroupSize) / WorkgroupSize;
+		unsigned int nr_workgroups = ceil((n*size) / 4, WorkgroupSize) / WorkgroupSize;
 		glDispatchCompute(nr_workgroups, 1, 1);
 
 		// Insert buffer write barrier
@@ -403,6 +218,8 @@ namespace Vcl { namespace Graphics
 		unsigned int size
 	)
 	{
+		using Vcl::Mathematics::ceil;
+
 		Require(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
 
 		// Bind the program to the pipeline
@@ -418,7 +235,7 @@ namespace Vcl { namespace Graphics
 		_scanExclusiveLocal2Kernel->setUniform(_scanExclusiveLocal2Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		glDispatchCompute(iSnapUp(elements, WorkgroupSize) / WorkgroupSize, 1, 1);
+		glDispatchCompute(ceil(elements, WorkgroupSize) / WorkgroupSize, 1, 1);
 
 		// Insert buffer write barrier
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

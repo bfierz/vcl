@@ -29,7 +29,7 @@
 
 namespace Vcl { namespace Mathematics
 {
-	uint32_t ceil(uint32_t dividend, uint32_t divisor)
+	inline uint32_t ceil(uint32_t dividend, uint32_t divisor)
 	{
 		return ((dividend % divisor) == 0) ? dividend : (dividend - dividend % divisor + divisor);
 	}

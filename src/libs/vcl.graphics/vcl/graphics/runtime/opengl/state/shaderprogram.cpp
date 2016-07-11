@@ -642,11 +642,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Link the program
 		glLinkProgram(id());
 
-		GLint linked, valid;
+		GLint linked;
 		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
-		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
-		if (linked == GL_FALSE || valid == GL_FALSE)
+		if (linked == GL_FALSE)
 			return;
+
+#ifdef VCL_DEBUG
+		glValidateProgram(id());
+
+		GLint valid;
+		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
+		if (valid == GL_FALSE)
+			return;
+#endif
 
 		// Link the program to the input layout
 		if (!desc.ComputeShader)
@@ -933,6 +941,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset, size_t size)
 	{
+		Require(_resources, "Resources are defined.");
 		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
 		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
