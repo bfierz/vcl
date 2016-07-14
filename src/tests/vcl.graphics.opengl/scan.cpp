@@ -79,6 +79,7 @@ TEST(OpenGL, ScanExclusiveSmall)
 {
 	ExecuteScanTest(4);
 	ExecuteScanTest(12);
+	ExecuteScanTest(16);
 	ExecuteScanTest(40);
 	ExecuteScanTest(256);
 	ExecuteScanTest(1020);
