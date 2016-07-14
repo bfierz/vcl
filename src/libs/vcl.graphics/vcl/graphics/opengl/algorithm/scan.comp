@@ -57,11 +57,11 @@ uint scan1Inclusive(uint idata, uint size)
 	{
 		memoryBarrierShared();
 		barrier();
-
+	
         uint t = l_data[pos] + l_data[pos - offset];
 		memoryBarrierShared();
 		barrier();
-
+	
         l_data[pos] = t;
     }
 
@@ -114,17 +114,17 @@ uniform uint N;
 
 void main()
 {
-	if (4 * gl_GlobalInvocationID.x >= N)
-		return;
-
 	// Load data
-	uvec4 idata4 = src[gl_GlobalInvocationID.x];
+	uvec4 idata4 = uvec4(0);
+	if (4 * gl_GlobalInvocationID.x < N)
+		idata4 = src[gl_GlobalInvocationID.x];
 
 	// Calculate exclusive scan
 	uvec4 odata4 = scan4Exclusive(idata4, size);
 
 	// Write back
-	dst[gl_GlobalInvocationID.x] = odata4;
+	if (4 * gl_GlobalInvocationID.x < N)
+		dst[gl_GlobalInvocationID.x] = odata4;
 }
 #elif defined scanExclusiveLocal2
 

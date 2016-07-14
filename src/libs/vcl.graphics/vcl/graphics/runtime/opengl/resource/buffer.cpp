@@ -31,6 +31,22 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
+#	if defined(VCL_GL_ARB_direct_state_access)
+#		define glCreateBuffersVCL glCreateBuffers
+#		define glNamedBufferStorageVCL glNamedBufferStorage
+#		define glMapNamedBufferRange glMapNamedBufferRange
+#		define glUnmapNamedBufferVCL glUnmapNamedBuffer
+#		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRange
+#		define glCopyNamedBufferSubDataVCL glCopyNamedBufferSubData
+#	elif defined(VCL_GL_EXT_direct_state_access)
+#		define glCreateBuffersVCL glGenBuffers
+#		define glNamedBufferStorageVCL glNamedBufferStorageEXT
+#		define glMapNamedBufferRangeVCL glMapNamedBufferRangeEXT
+#		define glUnmapNamedBufferVCL glUnmapNamedBufferEXT
+#		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRangeEXT
+#		define glCopyNamedBufferSubDataVCL glNamedCopyBufferSubDataEXT
+#	endif
+
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	BufferBindPoint::BufferBindPoint(GLenum target, GLuint id)
@@ -97,21 +113,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			break;
 		}
 		
-#if defined(VCL_GL_ARB_direct_state_access)
 		// Allocate a GL buffer ID
-		glCreateBuffers(1, &_glId);
+		glCreateBuffersVCL(1, &_glId);
 
 		// Allocate GPU memory
 		void* init_data_ptr = init_data ? init_data->Data : nullptr;
-		glNamedBufferStorage(_glId, desc.SizeInBytes, init_data_ptr, flags);
-#elif defined(VCL_GL_EXT_direct_state_access)
-		// Allocate a GL buffer ID
-		glGenBuffers(1, &_glId);
-
-		// Allocate GPU memory
-		void* init_data_ptr = init_data ? init_data->Data : nullptr;
-		glNamedBufferStorageEXT(_glId, desc.SizeInBytes, init_data_ptr, flags);
-#endif
+		glNamedBufferStorageVCL(_glId, desc.SizeInBytes, init_data_ptr, flags);
 		
 		Ensure(_glId > 0, "GL buffer is created.");
 	}
@@ -122,11 +129,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		if (_mappedAccess.isAnySet())
 		{
-#if defined(VCL_GL_ARB_direct_state_access)
-			glUnmapNamedBuffer(_glId);
-#elif defined(VCL_GL_EXT_direct_state_access)
-			glUnmapNamedBufferEXT(_glId);
-#endif
+			glUnmapNamedBufferVCL(_glId);
 
 			// Reset the mapped indicator
 			_mappedAccess.clear();
@@ -191,11 +194,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			if (access.isSet(CPUAccess::Write))
 				map_flags |= GL_MAP_WRITE_BIT;
 
-#if defined(VCL_GL_ARB_direct_state_access)
-			mappedPtr = glMapNamedBufferRange(_glId, offset, length, map_flags);
-#elif defined(VCL_GL_EXT_direct_state_access)
-			mappedPtr = glMapNamedBufferRangeEXT(_glId, offset, length, map_flags);
-#endif
+			mappedPtr = glMapNamedBufferRangeVCL(_glId, offset, length, map_flags);
 
 			_mappedAccess = access;
 			_mappedOptions = options;
@@ -218,11 +217,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			if (access.isSet(CPUAccess::Read))
 				map_flags |= GL_MAP_READ_BIT;
 
-#if defined(VCL_GL_ARB_direct_state_access)
-			mappedPtr = glMapNamedBufferRange(_glId, offset, length, map_flags);
-#elif defined(VCL_GL_EXT_direct_state_access)
-			mappedPtr = glMapNamedBufferRangeEXT(_glId, offset, length, map_flags);
-#endif
+			mappedPtr = glMapNamedBufferRangeVCL(_glId, offset, length, map_flags);
 
 			_mappedAccess = access;
 			_mappedOptions = options;
@@ -249,12 +244,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// If access is not using the coherency flag, we have to 
 		// make sure that we are still providing coherent memory access
-#if defined(VCL_GL_ARB_direct_state_access)
-		glFlushMappedNamedBufferRange(_glId, offset, length);
-#elif defined(VCL_GL_EXT_direct_state_access)
-		glFlushMappedNamedBufferRangeEXT(_glId, offset, length);
-#endif
-
+		glFlushMappedNamedBufferRangeVCL(_glId, offset, length);
 	}
 
 	void Buffer::unmap()
@@ -269,11 +259,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_mappedSize = 0;
 
 		// Unmap the buffer
-#if defined(VCL_GL_ARB_direct_state_access)
-		GLboolean success = glUnmapNamedBuffer(_glId);
-#elif defined(VCL_GL_EXT_direct_state_access)
-		GLboolean success = glUnmapNamedBufferEXT(_glId);
-#endif
+		GLboolean success = glUnmapNamedBufferVCL(_glId);
 		if (!success)
 		{
 			// Memory was lost
@@ -306,12 +292,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			size = sizeInBytes() - srcOffset;
 		Check(dstOffset + size <= target.sizeInBytes(), "Size to copy is valid");
 		
-#if defined(VCL_GL_ARB_direct_state_access)
-		glCopyNamedBufferSubData(_glId, target.id(), srcOffset, dstOffset, size);
-#elif defined(VCL_GL_EXT_direct_state_access)
-		glNamedCopyBufferSubDataEXT(_glId, target.id(), srcOffset, dstOffset, size);
-#endif
-
+		glCopyNamedBufferSubDataVCL(_glId, target.id(), srcOffset, dstOffset, size);
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT
