@@ -50,8 +50,13 @@ TEST(OpenGL, InitEmptyTexture2D)
 	// Verify the result
 	int w, h;
 	int miplevel = 0;
+#if defined(VCL_GL_ARB_direct_state_access)
 	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_WIDTH, &w);
 	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_HEIGHT, &h);
+#elif defined(VCL_GL_EXT_direct_state_access)
+	glGetTextureLevelParameterivEXT(tex.id(), GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
+	glGetTextureLevelParameterivEXT(tex.id(), GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
+#endif
 
 	EXPECT_EQ(32, w) << "Texture has wrong width.";
 	EXPECT_EQ(32, h) << "Texture has wrong height.";

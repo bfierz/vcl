@@ -51,7 +51,7 @@ namespace Vcl { namespace Graphics
 	}
 
 	RadixSort::RadixSort(unsigned int maxElements)
-	: _scan(maxElements / 2 / LocalSize * 16)
+	: _scan(maxElements * 16 / 2 / LocalSize)
 	{
 		using namespace Vcl::Graphics::Runtime;
 
@@ -62,13 +62,13 @@ namespace Vcl { namespace Graphics
 		{
 			maxElements * sizeof(unsigned int),
 			Usage::Default,
-			CPUAccess::Read
+			{}
 		};
 		BufferDescription desc_small =
 		{
-			WarpSize * numBlocks * sizeof(unsigned int),
+			32 * numBlocks * sizeof(unsigned int),
 			Usage::Default,
-			CPUAccess::Read
+			{}
 		};
 		
 		_tmpKeys      = make_owner<OpenGL::Buffer>(desc_large);
@@ -113,7 +113,7 @@ namespace Vcl { namespace Graphics
 
 		unsigned int array_length = numElements * 16 / 2 / LocalSize;
 		_scan(_countersSum, _counters, array_length);
-
+		
 		reorderDataKeysOnlyOCL(keys, startbit, numElements);
 	}
 

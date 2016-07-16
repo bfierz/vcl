@@ -30,10 +30,6 @@ const char* module = R"glsl(
 
 #define WORKGROUP_SIZE 128
 
-#define LOG2_WARP_SIZE 5U
-#define      WARP_SIZE (1U << LOG2_WARP_SIZE)
-
-
 // Local layout
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
 
@@ -62,78 +58,68 @@ shared uint l_numTrue;
 // Local data
 uvec4 key;
 
-//----------------------------------------------------------------------------
-// Scans each warp in parallel ("warp-scan"), one element per thread.
-// uses 2 numElements of shared memory per thread (64 = elements per warp)
-//----------------------------------------------------------------------------
-uint scanwarp(uint val, uint maxlevel)
+///////////////////////////////////////////////////////////////////////////////
+// Naive inclusive scan: O(N * log2(N)) operations based on Blelloch
+// Allocate 2 * 'size' local memory, initialize the first half
+// with 'size' zeros avoiding if(pos >= offset) condition evaluation
+// and saving instructions
+uint scan1Inclusive(uint idata, uint size)
 {
-    // The following is the same as 2 * RadixSort::WARP_SIZE * warpId + threadInWarp = 
-    // 64*(threadIdx.x >> 5) + (threadIdx.x & (RadixSort::WARP_SIZE - 1))
-    uint localId = gl_LocalInvocationID.x;
-    uint idx = 2 * localId - (localId & (WARP_SIZE - 1));
-    l_data[idx] = 0;
-    idx += WARP_SIZE;
-    l_data[idx] = val;
+    //uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x & (size - 1));
+	uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x % size);
 
-    if (0 <= maxlevel) { l_data[idx] += l_data[idx -  1]; }
-    if (1 <= maxlevel) { l_data[idx] += l_data[idx -  2]; }
-    if (2 <= maxlevel) { l_data[idx] += l_data[idx -  4]; }
-    if (3 <= maxlevel) { l_data[idx] += l_data[idx -  8]; }
-    if (4 <= maxlevel) { l_data[idx] += l_data[idx - 16]; }
+    l_data[pos] = 0;
+    pos += size;
+    l_data[pos] = idata;
 
-    return l_data[idx] - val;  // convert inclusive -> exclusive
-}
-
-//----------------------------------------------------------------------------
-// scan4 scans 4*RadixSort::CTA_SIZE numElements in a block (4 per thread), using 
-// a warp-scan algorithm
-//----------------------------------------------------------------------------
-uvec4 scan4(uvec4 idata)
-{
-    uint idx = gl_LocalInvocationID.x;
-
-    uvec4 val4 = idata;
-    uint sum[3];
-    sum[0] = val4.x;
-    sum[1] = val4.y + sum[0];
-    sum[2] = val4.z + sum[1];
-    
-    uint val = val4.w + sum[2];
-    
-    val = scanwarp(val, LOG2_WARP_SIZE - 1);
-    memoryBarrierShared();
-	barrier();
-
-    if ((idx & (WARP_SIZE - 1)) == WARP_SIZE - 1)
-    {
-        l_data[idx >> LOG2_WARP_SIZE] = val + val4.w + sum[2];
+    for (uint offset = 1; offset < size; offset <<= 1)
+	{
+		memoryBarrierShared();
+		barrier();
+	
+        uint t = l_data[pos] + l_data[pos - offset];
+		memoryBarrierShared();
+		barrier();
+	
+        l_data[pos] = t;
     }
-    memoryBarrierShared();
-	barrier();
 
-	if (idx < WARP_SIZE)
-		l_data[idx] = scanwarp(l_data[idx], (LOG2_WARP_SIZE - 1) / 2);
-    
-    memoryBarrierShared();
-	barrier();
-
-    val += l_data[idx >> LOG2_WARP_SIZE];
-
-    val4.x = val;
-    val4.y = val + sum[0];
-    val4.z = val + sum[1];
-    val4.w = val + sum[2];
-
-    return val4;
+    return l_data[pos];
 }
+
+uint scan1Exclusive(uint idata, uint size)
+{
+    return scan1Inclusive(idata, size) - idata;
+}
+
+// Vector scan: the array to be scanned is stored
+// in work-item private memory as uvec4
+uvec4 scan4Inclusive(uvec4 data4, uint size)
+{
+    // Level-0 inclusive scan
+    data4.y += data4.x;
+    data4.z += data4.y;
+    data4.w += data4.z;
+
+    // Level-1 exclusive scan
+    uint val = scan1Inclusive(data4.w, size / 4) - data4.w;
+
+    return (data4 + uvec4(val));
+}
+
+uvec4 scan4Exclusive(uvec4 data4, uint size)
+{
+    return scan4Inclusive(data4, size) - data4;
+}
+///////////////////////////////////////////////////////////////////////////////
 
 uvec4 rank4(uvec4 preds)
 {
 	uint localId   = gl_LocalInvocationID.x;
 	uint localSize = gl_WorkGroupSize.x;
 
-	uvec4 address = scan4(preds);
+	//uvec4 address = scan4(preds);
+	uvec4 address = scan4Exclusive(preds, localSize * 4);
 	
 	if (localId == localSize - 1) 
 	{
