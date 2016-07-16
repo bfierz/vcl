@@ -125,7 +125,7 @@ namespace Vcl { namespace Mathematics
 		B = H * B;
 
 		Eigen::Matrix<Scalar, 3, 3> T = Eigen::Matrix<Scalar, 3, 3>::Identity();
-		T.block<3 - c, 3 - c>(c, c) = H;
+		T.template block<3 - c, 3 - c>(c, c) = H;
 		Q = Q * T.transpose();
 	}
 
