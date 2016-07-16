@@ -36,24 +36,6 @@
 
 namespace Vcl { namespace Graphics
 {
-	namespace
-	{
-		owner_ptr<Runtime::OpenGL::ShaderProgram> createKernel(const char* source, const char* header)
-		{
-			using namespace Vcl::Graphics::Runtime;
-
-			// Compile the shader
-			OpenGL::Shader cs(ShaderType::ComputeShader, 0, source, header);
-
-			// Create the program descriptor
-			OpenGL::ShaderProgramDescription desc;
-			desc.ComputeShader = &cs;
-
-			// Create the shader program
-			return make_owner<OpenGL::ShaderProgram>(desc);
-		}
-	}
-
 	Histogram::Histogram(unsigned int nr_elements, unsigned int nr_buckets)
 	: _maxNrElements(nr_elements)
 	, _maxNrBuckets(nr_buckets)
@@ -78,8 +60,8 @@ namespace Vcl { namespace Graphics
 		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}", nr_buckets);
 
 		// Load the kernels
-		_partialHistogramKernel         = createKernel(module, partials.c_str());
-		_collectPartialHistogramsKernel = createKernel(module, collect.c_str());
+		_partialHistogramKernel         = OpenGL::createComputeKernel(module, { partials.c_str() });
+		_collectPartialHistogramsKernel = OpenGL::createComputeKernel(module, { collect.c_str()  });
 	}
 
 	void Histogram::operator()

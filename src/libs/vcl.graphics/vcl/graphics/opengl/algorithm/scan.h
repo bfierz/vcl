@@ -35,7 +35,7 @@
 namespace Vcl { namespace Graphics
 {
 	/*!
-	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
+	 * Note: This implementation is base on NVIDIAs OpenCL scan sample
 	 */
 	class ScanExclusive
 	{
@@ -92,15 +92,14 @@ namespace Vcl { namespace Graphics
 
 	private: // Module, Kernels
 
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal1Kernel;
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal2Kernel;
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _uniformUpdateKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal1Kernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal2Kernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _uniformUpdateKernel;
 
 	private: // Configurations
 
 		static const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
 
-		static const unsigned int WarpSize = 32;
 		static const unsigned int WorkgroupSize = 256;
 		static const unsigned int MaxBatchElements = 64 * 1048576;
 		static const unsigned int MinShortArraySize = 4;
@@ -110,7 +109,7 @@ namespace Vcl { namespace Graphics
 
 	private: // Buffers
 
-			 //! Maximum number of stored entries
+		//! Maximum number of stored entries
 		size_t _maxElements = 0;
 
 		//! Memory objects for original keys and work space
