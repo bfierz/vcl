@@ -197,10 +197,10 @@
  	(((d)&0xff)<<24) | (((c)&0xff)<<16) | (((b)&0xff)<<8) | ((a)&0xff) )
 
 #define SSP_CONST_SETR_8I( a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p ) \
-    { __CNST8TO64_( (ssp_s64)(a), (ssp_s64)(b), (ssp_s64)(c), (ssp_s64)(d), \
-                 (ssp_s64)(e), (ssp_s64)(f), (ssp_s64)(g), (ssp_s64)(h) ), \
-      __CNST8TO64_( (ssp_s64)(i), (ssp_s64)(j), (ssp_s64)(k), (ssp_s64)(l), \
-                 (ssp_s64)(m), (ssp_s64)(n), (ssp_s64)(o), (ssp_s64)(p) ) }
+    { (long long int) __CNST8TO64_( (ssp_s64)(a), (ssp_s64)(b), (ssp_s64)(c), (ssp_s64)(d), \
+                                    (ssp_s64)(e), (ssp_s64)(f), (ssp_s64)(g), (ssp_s64)(h) ), \
+      (long long int) __CNST8TO64_( (ssp_s64)(i), (ssp_s64)(j), (ssp_s64)(k), (ssp_s64)(l), \
+                                    (ssp_s64)(m), (ssp_s64)(n), (ssp_s64)(o), (ssp_s64)(p) ) }
 
 #define SSP_CONST_SET_8I( a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p ) \
     SSP_CONST_SETR_8I( (p), (o), (n), (m), (l), (k), (j), (i), (h), (g), (f), (e), (d), (c), (b), (a) )
@@ -217,10 +217,10 @@
 	( ((d)<<48) | (((c)&0xFFFF)<<32) | (((b)&0xFFFF)<<16) | ((a)&0xFFFF) )
 
 #define SSP_CONST_SETR_16I( a, b, c, d, e, f, g, h ) \
-    { __CNST16TO64_( (ssp_u64)(a), (ssp_u64)(b), \
-                     (ssp_u64)(c), (ssp_u64)(d) ), \
-      __CNST16TO64_( (ssp_u64)(e), (ssp_u64)(f), \
-                     (ssp_u64)(g), (ssp_u64)(h) ) }
+    { (long long int) __CNST16TO64_( (ssp_u64)(a), (ssp_u64)(b), \
+                                     (ssp_u64)(c), (ssp_u64)(d) ), \
+      (long long int) __CNST16TO64_( (ssp_u64)(e), (ssp_u64)(f), \
+                                     (ssp_u64)(g), (ssp_u64)(h) ) }
 
 #define SSP_CONST_SET_16I( a, b, c, d, e, f, g, h ) \
     SSP_CONST_SETR_16I( (h), (g), (f), (e), (d), (c), (b), (a) )
@@ -237,8 +237,8 @@
 	( ((b)<<32) | ((a) & 0xFFFFFFFF) )
 
 #define SSP_CONST_SETR_32I( a, b, c, d ) \
-    { __CNST32TO64_( (ssp_u64)(a), (ssp_u64)(b) ), \
-      __CNST32TO64_( (ssp_u64)(c), (ssp_u64)(d) ) }
+    { (long long int) __CNST32TO64_( (ssp_u64)(a), (ssp_u64)(b) ), \
+      (long long int) __CNST32TO64_( (ssp_u64)(c), (ssp_u64)(d) ) }
 
 #define SSP_CONST_SET_32I( a, b, c, d ) \
     SSP_CONST_SETR_32I( (d), (c), (b), (a) )

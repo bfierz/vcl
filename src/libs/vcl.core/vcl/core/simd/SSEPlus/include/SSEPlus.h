@@ -6,7 +6,7 @@
 #define __SSEPLUS_H__
 
 #include "SSEPlus_base.h"
-#include "SSEPlus_CPUID.h"
+//#include "SSEPlus_CPUID.h"
 #include "SSEPlus_REF.h"
 #include "SSEPlus_SSE.h"
 #include "SSEPlus_SSE2.h"
