@@ -17,7 +17,12 @@ addons:
     - g++-4.8
     - g++-4.9
     - g++-5
-    - libboost-dev
+    - libboost-atomic1.61-dev
+    - libboost-chrono1.61-dev
+    - libboost-date_time1.61-dev
+    - libboost-program_options1.61-dev
+    - libboost-system1.61-dev
+    - libboost-thread1.61-dev
     - qt57
 install:
   - wget --no-check-certificate https://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
