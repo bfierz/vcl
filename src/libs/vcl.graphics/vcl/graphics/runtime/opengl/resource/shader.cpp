@@ -40,7 +40,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	Shader::Shader(ShaderType type, int tag, const char* source, const char* header)
+	Shader::Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	: Runtime::Shader(type, tag)
 	{
 		Require(implies(type == ShaderType::ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
@@ -54,22 +54,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		
 		// Build the source table
-		const char* table[3] =
-		{
-			version_begin != version_end ? version_begin : "",
-			header ? header : "",
-			version_begin != version_end ? version_end : source
-		};
-		GLint sizes[3] =
-		{
-			version_begin != version_end ? (version_end - version_begin) : 0,
-			header ? strlen(header) : 0,
-			strlen(source) - (version_begin != version_end ? (version_end - source) : 0)
-		};
+		std::vector<const char*> table;
+		table.reserve(2 + headers.size());
+		table.emplace_back(version_begin != version_end ? version_begin : "");
+		for (auto header : headers)
+			table.emplace_back(header);
+
+		table.emplace_back(version_begin != version_end ? version_end : source);
+
+		std::vector<GLint> sizes;
+		sizes.reserve(2 + headers.size());
+		sizes.emplace_back(version_begin != version_end ? (version_end - version_begin) : 0);
+		for (auto header : headers)
+			sizes.emplace_back(header ? strlen(header) : 0);
+		
+		sizes.emplace_back(strlen(source) - (version_begin != version_end ? (version_end - source) : 0));
 
 		// Create the shader object
 		_glId = glCreateShader(toGLenum(type));
-		glShaderSource(_glId, 3, table, sizes);
+		glShaderSource(_glId, table.size(), table.data(), sizes.data());
 		glCompileShader(_glId);
 
 		AssertBlock

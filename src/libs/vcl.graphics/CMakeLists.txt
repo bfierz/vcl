@@ -48,6 +48,7 @@ FILE(GLOB VCL_GRAPHICS_OPENGL_ALGORITHM_INC
 )
 FILE(GLOB VCL_GRAPHICS_OPENGL_ALGORITHM_SRC
 	vcl/graphics/opengl/algorithm/*.cpp
+	vcl/graphics/opengl/algorithm/*.glslinc
 	vcl/graphics/opengl/algorithm/*.comp
 )
 

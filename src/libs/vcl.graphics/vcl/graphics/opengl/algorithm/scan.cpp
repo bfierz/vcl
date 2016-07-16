@@ -29,27 +29,13 @@
 #include <vcl/math/ceil.h>
 
 // Compute shader
+#include "scan.glslinc"
 #include "scan.comp"
 
 namespace Vcl { namespace Graphics
 {
 	namespace
 	{
-		owner_ptr<Runtime::OpenGL::ShaderProgram> createKernel(const char* source, const char* header)
-		{
-			using namespace Vcl::Graphics::Runtime;
-
-			// Compile the shader
-			OpenGL::Shader cs(ShaderType::ComputeShader, 0, source, header);
-
-			// Create the program descriptor
-			OpenGL::ShaderProgramDescription desc;
-			desc.ComputeShader = &cs;
-
-			// Create the shader program
-			return make_owner<OpenGL::ShaderProgram>(desc);
-		}
-
 		unsigned int factorRadix2(unsigned int& log2L, unsigned int L)
 		{
 			if (!L)
@@ -80,9 +66,9 @@ namespace Vcl { namespace Graphics
 		_workSpace = make_owner<OpenGL::Buffer>(desc);
 
 		// Load the sorting kernels
-		_scanExclusiveLocal1Kernel = createKernel(module, "#define scanExclusiveLocal1\n");
-		_scanExclusiveLocal2Kernel = createKernel(module, "#define scanExclusiveLocal2\n");
-		_uniformUpdateKernel = createKernel(module, "#define uniformUpdate\n");
+		_scanExclusiveLocal1Kernel = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal1\n", module_scan });
+		_scanExclusiveLocal2Kernel = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal2\n", module_scan });
+		_uniformUpdateKernel       = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
 	}
 	
 	void ScanExclusive::operator()

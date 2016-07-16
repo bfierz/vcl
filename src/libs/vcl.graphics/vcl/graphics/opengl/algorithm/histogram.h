@@ -82,8 +82,8 @@ namespace Vcl { namespace Graphics
 
 	private: // Module, Kernels
 
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _partialHistogramKernel;
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _collectPartialHistogramsKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _partialHistogramKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _collectPartialHistogramsKernel;
 
 	private: // Buffers
 

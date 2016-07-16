@@ -82,9 +82,9 @@ namespace Vcl { namespace Graphics
 		
 	private: // Module, Kernels
 
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _radixSortBlocksKeysOnlyKernel;
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _findRadixOffsetsKernel;
-		owner_ptr<Runtime::OpenGL::ShaderProgram> _reorderDataKeysOnlyKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _radixSortBlocksKeysOnlyKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _findRadixOffsetsKernel;
+		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _reorderDataKeysOnlyKernel;
 
 		//! Sub algorithm
 		ScanExclusive _scan;

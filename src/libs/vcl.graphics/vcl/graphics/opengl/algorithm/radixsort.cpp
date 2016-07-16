@@ -28,28 +28,11 @@
 #include <vcl/core/contract.h>
 
 // Compute shader
+#include "scan.glslinc"
 #include "radixsort.comp"
 
 namespace Vcl { namespace Graphics
 {
-	namespace
-	{
-		owner_ptr<Runtime::OpenGL::ShaderProgram> createKernel(const char* source, const char* header)
-		{
-			using namespace Vcl::Graphics::Runtime;
-
-			// Compile the shader
-			OpenGL::Shader cs(ShaderType::ComputeShader, 0, source, header);
-
-			// Create the program descriptor
-			OpenGL::ShaderProgramDescription desc;
-			desc.ComputeShader = &cs;
-
-			// Create the shader program
-			return make_owner<OpenGL::ShaderProgram>(desc);
-		}
-	}
-
 	RadixSort::RadixSort(unsigned int maxElements)
 	: _scan(maxElements * 16 / 2 / LocalSize)
 	{
@@ -77,9 +60,9 @@ namespace Vcl { namespace Graphics
 		_blockOffsets = make_owner<OpenGL::Buffer>(desc_small);
 
 		// Load the sorting kernels
-		_radixSortBlocksKeysOnlyKernel = createKernel(module, "#define radixSortBlocksKeysOnly\n");
-		_findRadixOffsetsKernel        = createKernel(module, "#define findRadixOffsets\n");
-		_reorderDataKeysOnlyKernel     = createKernel(module, "#define reorderDataKeysOnly\n");
+		_radixSortBlocksKeysOnlyKernel = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define radixSortBlocksKeysOnly\n", module_scan });
+		_findRadixOffsetsKernel        = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define findRadixOffsets\n", module_scan });
+		_reorderDataKeysOnlyKernel     = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
 	}
 
 	void RadixSort::operator()
