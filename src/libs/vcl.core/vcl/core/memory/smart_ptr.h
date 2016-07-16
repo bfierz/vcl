@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <atomic>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <type_traits>
@@ -40,6 +41,9 @@ namespace Vcl
 {
 	namespace Core
 	{
+		template<typename T>
+		class ref_ptr;
+
 		namespace Detail
 		{
 			struct StaticTag {};
@@ -156,7 +160,7 @@ namespace Vcl
 
 		public:
 			ref_ptr() = default;
-			ref_ptr(nullptr_t) {}
+			ref_ptr(std::nullptr_t) {}
 
 			template
 			<
