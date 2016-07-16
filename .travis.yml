@@ -3,10 +3,6 @@ branches:
   only:
     - master
 env:
-  - compiler='g++-4.8' build_type='Debug'
-  - compiler='g++-4.8' build_type='Release'
-  - compiler='g++-4.9' build_type='Debug'
-  - compiler='g++-4.9' build_type='Release'
   - compiler='g++-5' build_type='Debug'
   - compiler='g++-5' build_type='Release'
 addons:
@@ -19,11 +15,11 @@ addons:
     - g++-5
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y libboost-atomic1.61-dev libboost-chrono1.61-dev libboost-date_time1.61-dev libboost-program_options1.61-dev libboost-system1.61-dev libboost-thread1.61-dev qt57
+  - sudo apt-get install -y libboost-atomic1.55-dev libboost-chrono1.55-dev libboost-date_time1.55-dev libboost-program_options1.55-dev libboost-system1.55-dev libboost-thread1.55-dev qt54
 install:
   - wget --no-check-certificate https://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
   - tar -xzf cmake-3.3.1-Linux-x86_64.tar.gz
-  - export CC='gcc-4.8'
+  - export CC='gcc-5'
   - export CXX=$compiler
 script:
   - mkdir $CXX && cd $CXX
