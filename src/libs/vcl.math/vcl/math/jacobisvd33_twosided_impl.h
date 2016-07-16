@@ -323,7 +323,7 @@ namespace Vcl { namespace Mathematics
 			//	kappa = -kappa;
 			//}
 		
-			auto b0 = ::abs(d2) > ::abs(d1);
+			auto b0 = abs(d2) > abs(d1);
 			cswap(b0, d1, d2);
 			cswap(b0, c1, s1); c1 = select(b0, -c1, c1);
 			cswap(b0, c2, s2); c2 = select(b0, -c2, c2);
