@@ -91,9 +91,6 @@ namespace Vcl { namespace Graphics
 
 	private: // Buffers
 
-		//! Warp size
-		static const unsigned int WarpSize = 32;
-
 		//! Work group size
 		static const unsigned int LocalSize = 128;
 
