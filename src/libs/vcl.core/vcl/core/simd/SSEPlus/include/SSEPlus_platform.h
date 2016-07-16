@@ -252,7 +252,7 @@
 // 64 bit integer types
 
 #define SSP_CONST_SETR_64I( a, b ) \
-    { (a), (b) }
+    { (long long int) (a), (long long int) (b) }
 
 #define SSP_CONST_SET_64I( a, b ) \
     SSP_CONST_SETR_64I( (b), (a) )
