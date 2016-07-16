@@ -24,12 +24,15 @@
  */
 namespace
 {
-const char* module = R"(
+const char* module = R"glsl(
 
 #version 430 core
 
 #define WORKGROUP_SIZE 128
-#define WARP_SIZE 32
+
+#define LOG2_WARP_SIZE 5U
+#define      WARP_SIZE (1U << LOG2_WARP_SIZE)
+
 
 // Local layout
 layout(local_size_x = WORKGROUP_SIZE, local_size_y = 1, local_size_z = 1) in;
@@ -63,7 +66,7 @@ uvec4 key;
 // Scans each warp in parallel ("warp-scan"), one element per thread.
 // uses 2 numElements of shared memory per thread (64 = elements per warp)
 //----------------------------------------------------------------------------
-uint scanwarp(uint val, int maxlevel)
+uint scanwarp(uint val, uint maxlevel)
 {
     // The following is the same as 2 * RadixSort::WARP_SIZE * warpId + threadInWarp = 
     // 64*(threadIdx.x >> 5) + (threadIdx.x & (RadixSort::WARP_SIZE - 1))
@@ -71,7 +74,7 @@ uint scanwarp(uint val, int maxlevel)
     uint idx = 2 * localId - (localId & (WARP_SIZE - 1));
     l_data[idx] = 0;
     idx += WARP_SIZE;
-    l_data[idx] = val;     
+    l_data[idx] = val;
 
     if (0 <= maxlevel) { l_data[idx] += l_data[idx -  1]; }
     if (1 <= maxlevel) { l_data[idx] += l_data[idx -  2]; }
@@ -98,24 +101,24 @@ uvec4 scan4(uvec4 idata)
     
     uint val = val4.w + sum[2];
     
-    val = scanwarp(val, 4);
+    val = scanwarp(val, LOG2_WARP_SIZE - 1);
     memoryBarrierShared();
 	barrier();
 
     if ((idx & (WARP_SIZE - 1)) == WARP_SIZE - 1)
     {
-        l_data[idx >> 5] = val + val4.w + sum[2];
+        l_data[idx >> LOG2_WARP_SIZE] = val + val4.w + sum[2];
     }
     memoryBarrierShared();
 	barrier();
 
 	if (idx < WARP_SIZE)
-		l_data[idx] = scanwarp(l_data[idx], 2);
+		l_data[idx] = scanwarp(l_data[idx], (LOG2_WARP_SIZE - 1) / 2);
     
     memoryBarrierShared();
 	barrier();
 
-    val += l_data[idx >> 5];
+    val += l_data[idx >> LOG2_WARP_SIZE];
 
     val4.x = val;
     val4.y = val + sum[0];
@@ -243,28 +246,32 @@ shared uint l_startPointers[16];
 
 void main()
 {
-    uint groupId = gl_WorkGroupID.x;
-    uint localId = gl_LocalInvocationID.x;
+    uint localId   = gl_LocalInvocationID.x;
+	uint globalId  = gl_GlobalInvocationID.x;
+    uint groupId   = gl_WorkGroupID.x;
     uint groupSize = gl_WorkGroupSize.x;
 
-    uvec2 radix2 = keys[gl_GlobalInvocationID.x];
+    uvec2 radix2 = keys[globalId];
 
     l_radix1[2 * localId + 0] = (radix2.x >> startbit) & 0xF;
     l_radix1[2 * localId + 1] = (radix2.y >> startbit) & 0xF;
 
     // Finds the position where the l_radix1 entries differ and stores start 
     // index for each radix.
-    if(localId < 16) 
+    if (localId < 16) 
     {
         l_startPointers[localId] = 0; 
     }
     memoryBarrierShared();
 	barrier();
 
-    if ((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
+    if ((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1])) 
     {
         l_startPointers[l_radix1[localId]] = localId;
     }
+    memoryBarrierShared();
+	barrier();
+	
     if (l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1]) 
     {
         l_startPointers[l_radix1[localId + groupSize]] = localId + groupSize;
@@ -274,18 +281,21 @@ void main()
 
     if (localId < 16) 
     {
-        blockOffsets[groupId*16 + localId] = l_startPointers[localId];
+        blockOffsets[16 * groupId + localId] = l_startPointers[localId];
     }
     memoryBarrierShared();
 	barrier();
 
     // Compute the sizes of each block.
-    if((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1]) ) 
+    if ((localId > 0) && (l_radix1[localId] != l_radix1[localId - 1])) 
     {
         l_startPointers[l_radix1[localId - 1]] = 
             localId - l_startPointers[l_radix1[localId - 1]];
     }
-    if(l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1] ) 
+    memoryBarrierShared();
+	barrier();
+
+    if (l_radix1[localId + groupSize] != l_radix1[localId + groupSize - 1]) 
     {
         l_startPointers[l_radix1[localId + groupSize - 1]] = 
             localId + groupSize - l_startPointers[l_radix1[localId + groupSize - 1]];
@@ -293,7 +303,7 @@ void main()
     memoryBarrierShared();
 	barrier();
 
-    if(localId == groupSize - 1) 
+    if (localId == groupSize - 1) 
     {
         l_startPointers[l_radix1[2 * groupSize - 1]] = 
             2 * groupSize - l_startPointers[l_radix1[2 * groupSize - 1]];
@@ -301,7 +311,7 @@ void main()
     memoryBarrierShared();
 	barrier();
 
-    if(localId < 16) 
+    if (localId < 16) 
     {
         counters[localId * totalBlocks + groupId] = l_startPointers[localId];
     }
@@ -397,5 +407,5 @@ void main()
     }
 }
 #endif
-)";
+)glsl";
 }
