@@ -28,6 +28,9 @@
 VCL_BEGIN_EXTERNAL_HEADERS
 #define USE_SSE2
 #include <vcl/core/simd/sse_mathfun.h>
+
+#include "SSEPlus/include/SSEPlus.h"
+
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
@@ -35,7 +38,6 @@ VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl
 {
-
 	__m128 _mm_sin_ps(__m128 v)
 	{
 		return sin_ps(v);
@@ -160,5 +162,23 @@ namespace Vcl
 		return _mm_sub_ps(fi, j);
 #endif
 	}
+
+	__m128i _mmVCL_abs_epi32(__m128i a)
+	{
+#ifdef VCL_VECTORIZE_SSSE3
+		return _mm_abs_epi32(a);
+#else
+		return ssp_abs_epi32_SSE2(a);
+#endif
+	}
+	__m128i _mmVCL_max_epi32(__m128i a, __m128i b)
+	{
+#ifdef VCL_VECTORIZE_SSE4_1
+		return _mm_max_epi32(a, b);
+#else
+		return ssp_max_epi32_SSE2(a, b);
+#endif
+	}
+
 }
 #endif // defined(VCL_VECTORIZE_SSE)

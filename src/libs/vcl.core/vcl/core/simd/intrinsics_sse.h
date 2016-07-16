@@ -60,6 +60,9 @@ namespace Vcl
 		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), _mm_set1_epi32(0xffffffff));
 	}
 
+	__m128i _mmVCL_abs_epi32(__m128i a);
+	__m128i _mmVCL_max_epi32(__m128i a, __m128i b);
+
 	__m128 _mm_sin_ps(__m128 v);	
 	__m128 _mm_cos_ps(__m128 v);
 	__m128 _mm_log_ps(__m128 v);

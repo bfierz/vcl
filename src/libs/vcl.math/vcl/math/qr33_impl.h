@@ -115,12 +115,12 @@ namespace Vcl { namespace Mathematics
 	{
 		static_assert(0 <= c && c < 2, "p in [0,2)");
 
-		Eigen::Matrix<Scalar, 3 - c, 1> u = R.block<3 - c, 1>(c, c);
+		Eigen::Matrix<Scalar, 3 - c, 1> u = R.template block<3 - c, 1>(c, c);
 		Scalar s = sgn(u(0)) * u.norm();
 		u(0) += s;
 		u.normalize();
 
-		auto B = R.block<3 - c, 3 - c>(c, c);
+		auto B = R.template block<3 - c, 3 - c>(c, c);
 		auto H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
 		B = H * B;
 
