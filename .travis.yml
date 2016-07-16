@@ -1,4 +1,7 @@
 language: cpp
+branches:
+  only:
+    - master
 env:
   - compiler='g++-4.8' build_type='Debug'
   - compiler='g++-4.8' build_type='Release'
@@ -14,6 +17,8 @@ addons:
     - g++-4.8
     - g++-4.9
     - g++-5
+    - libboost-dev
+    - qt57
 install:
   - wget --no-check-certificate https://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
   - tar -xzf cmake-3.3.1-Linux-x86_64.tar.gz
