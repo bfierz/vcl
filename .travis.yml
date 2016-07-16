@@ -5,15 +5,15 @@ branches:
 os: linux
 dist: trusty
 env:
-  - compiler='g++-5' build_type='Debug'
-  - compiler='g++-5' build_type='Release'
+  - compiler='g++-6' build_type='Debug'
+  - compiler='g++-6' build_type='Release'
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
     - boost-latest
     packages:
-    - g++-5
+    - g++-6
     - libboost-all-dev
 install:
   - EIGEN_VERSION=3.2.8
