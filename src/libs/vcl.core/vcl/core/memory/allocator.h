@@ -174,11 +174,11 @@ namespace Vcl { namespace Core
 	public: // Memory allocation
 		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)
 		{
-			return reinterpret_cast<pointer>(_aligned_malloc(cnt * sizeof(T), Alignment));
+			return reinterpret_cast<pointer>(_mm_malloc(cnt * sizeof(T), Alignment));
 		}
 		inline void deallocate(pointer p, size_type)
 		{
-			_aligned_free(p);
+			_mm_free(p);
 		}
 
 	public: // Size

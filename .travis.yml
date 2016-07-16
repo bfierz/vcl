@@ -31,3 +31,4 @@ script:
   - cd ./tests/vcl.core
   - make
   - ls -l .
+  - ./vcl_core_test
