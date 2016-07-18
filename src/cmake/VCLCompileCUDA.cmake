@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2014 Basil Fierz
+# Copyright (c) 2016 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,9 +47,20 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	GET_FILENAME_COMPONENT(RT_DIR  ${CUDA_cudadevrt_LIBRARY} DIRECTORY)
 	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)	
 
+		# Load old environment if necessary
+	SET(VCVARS "")
+	IF (MSVC_VERSION EQUAL 1900)
+		IF (CMAKE_CL_64)
+			SET(VCVARS "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd" "/Release" "/x64")
+		ELSE(CMAKE_CL_64)
+			SET(VCVARS "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd" "/Release" "/x86")
+		ENDIF(CMAKE_CL_64)
+	ENDIF (MSVC_VERSION EQUAL 1900)
+
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
 
+		COMMAND ${VCVARS}
 		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --m64 ${include_dir_param} -L"${RT_DIR}" -l"${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"

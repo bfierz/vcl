@@ -144,7 +144,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 		const char* separator = " ";
 		const char* terminator = "\0";
 		std::vector<char> cmd;
-		cmd.reserve(strlen(prg) + strlen(params) + 2);
+		cmd.reserve(strlen(prg) + (params ? strlen(params) : 0) + 2);
 
 		std::copy(prg, prg + strlen(prg), std::back_inserter(cmd));
 
@@ -272,6 +272,9 @@ int main(int argc, char* argv [])
 		std::stringstream cmd_compile;
 		std::stringstream cmd_link;
 
+		// Force a compiler version
+		cmd_compile << R"(--use-local-env --cl-version 2013 )";
+
 		if (vm.count("include"))
 		{
 			for (auto& inc : vm["include"].as<std::vector<std::string>>())
@@ -356,10 +359,7 @@ int main(int argc, char* argv [])
 
 	// We are compiling cuda
 	fatbin_cmdbuilder << R"(--cuda )";
-
-	// Add a hash
-	fatbin_cmdbuilder << R"(--key="xxxxxxxxxx" )";
-	
+		
 	// Add the orignal filename as identifier
 	fatbin_cmdbuilder << R"(--ident=")" << vm["symbol"].as<std::string>() << R"(" )";
 
