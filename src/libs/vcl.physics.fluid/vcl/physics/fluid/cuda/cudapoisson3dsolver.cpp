@@ -18,7 +18,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		ref_ptr<Vcl::Compute::Cuda::CommandQueue> queue,
 		Eigen::Vector3i dim
 	)
-	: ConjugateGradientsContext(ctx, nullptr, dim.x()*dim.y()*dim.z())
+	: ConjugateGradientsContext(ctx, queue, dim.x()*dim.y()*dim.z())
 	, _queue(queue)
 	{
 		// Load the module
@@ -113,18 +113,24 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		unsigned int Y = y;
 		unsigned int Z = z;
 		
+		std::vector<float> Acenter(x*y*z, 0.0f);
+		std::vector<float> Ax(x*y*z, 0.0f);
+		std::vector<float> Ay(x*y*z, 0.0f);
+		std::vector<float> Az(x*y*z, 0.0f);
+		std::vector<float> field(x*y*z, 0.0f);
+		std::vector<float> rhs(x*y*z, 0.0f);
+		std::vector<float> skip(x*y*z, 0.0f);
 		std::vector<float> d(x*y*z, 0.0f);
-		
-		cuMemcpyDtoH(d.data(), mDevResidual, d.size() * sizeof(float));
-		
-		auto Acenter = (float*) laplacian0.map();
-		auto Ax      = (float*) laplacian1.map();
-		auto Ay      = (float*) laplacian3.map();
-		auto Az      = (float*) laplacian2.map();
-		
-		auto field = (float*) pressure.map();
-		auto rhs = (float*) divergence.map();
-		auto skip = (float*) obstacles.map();
+
+		cuMemcpyDtoH(Acenter.data(), laplacian0.devicePtr(), Acenter.size() * sizeof(float));
+		cuMemcpyDtoH(Ax.data(),      laplacian1.devicePtr(), Ax.size() * sizeof(float));
+		cuMemcpyDtoH(Ay.data(),      laplacian2.devicePtr(), Ay.size() * sizeof(float));
+		cuMemcpyDtoH(Az.data(),      laplacian3.devicePtr(), Az.size() * sizeof(float));
+		cuMemcpyDtoH(field.data(), pressure.devicePtr(), field.size() * sizeof(float));
+		cuMemcpyDtoH(rhs.data(), divergence.devicePtr(), rhs.size() * sizeof(float));
+		cuMemcpyDtoH(skip.data(), obstacles.devicePtr(), skip.size() * sizeof(float));
+
+		cuMemcpyDtoH(d.data(), residual.devicePtr(), d.size() * sizeof(float));
 		
 		float error_L1 = 0.0f;
 		size_t index = X*Y + X + 1;

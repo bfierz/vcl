@@ -145,20 +145,32 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		std::vector<float> a(x*y*z, 0.0f);
 		std::vector<float> b(x*y*z, 0.0f);
 		std::vector<float> c(x*y*z, 0.0f);
+
+		std::vector<float> Acenter(x*y*z, 0.0f);
+		std::vector<float> Ax(x*y*z, 0.0f);
+		std::vector<float> Ay(x*y*z, 0.0f);
+		std::vector<float> Az(x*y*z, 0.0f);
+		std::vector<float> skip(x*y*z, 0.0f);
 		
 		cuMemcpyDtoH(a.data(), pressure.devicePtr(), a.size() * sizeof(float));
 		cuMemcpyDtoH(b.data(), divergence.devicePtr(), b.size() * sizeof(float));
 		cuMemcpyDtoH(c.data(), sol.devicePtr(), c.size() * sizeof(float));
-		
-		auto Acenter = (float*) laplacian0.map();
-		auto Ax = (float*) laplacian1.map();
-		auto Ay = (float*) laplacian3.map();
-		auto Az = (float*) laplacian2.map();
+
+		cuMemcpyDtoH(Acenter.data(), laplacian0.devicePtr(), Acenter.size() * sizeof(float));
+		cuMemcpyDtoH(Ax.data(), laplacian1.devicePtr(), Ax.size() * sizeof(float));
+		cuMemcpyDtoH(Ay.data(), laplacian3.devicePtr(), Ay.size() * sizeof(float));
+		cuMemcpyDtoH(Az.data(), laplacian2.devicePtr(), Az.size() * sizeof(float));
+		cuMemcpyDtoH(skip.data(), obstacles.devicePtr(), skip.size() * sizeof(float));
+
+		//auto Acenter = (float*) laplacian0.map();
+		//auto Ax = (float*) laplacian1.map();
+		//auto Ay = (float*) laplacian3.map();
+		//auto Az = (float*) laplacian2.map();
 		
 		auto field = a.data();
 		auto rhs = b.data();
 		auto result = c.data();
-		auto skip = (float*) obstacles.map();
+		//auto skip = (float*) obstacles.map();
 		
 		// x^{n+1} = D^-1 (b - R x^{n})
 		//                -------------
