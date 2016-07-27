@@ -184,7 +184,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-			: ParameterBase(std::move(meta_data), &typeid(T))
+			: ParameterBase(std::move(meta_data), &typeid(T*))
 		{
 		}
 
@@ -200,7 +200,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-		: ParameterBase(std::move(meta_data), &typeid(T))
+		: ParameterBase(std::move(meta_data), &typeid(std::shared_ptr<T>))
 		{
 		}
 
