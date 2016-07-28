@@ -57,7 +57,7 @@ namespace Vcl { namespace Mathematics
 
 		// Adapted the polar decomposition from Eigen
 		Scalar x = (U * V.transpose()).determinant();
-		Check(all(equal(abs(x), Scalar(1), Scalar(1e-5))), "Determinant is -1 or 1.", "Determinant: {}", x);
+		Check(all(equal(abs(x), Scalar(1), Scalar(NumericTrait<Scalar>::base_t(1e-5)))), "Determinant is -1 or 1.", "Determinant: {}", x);
 
 		// Assumes ordered singular values
 		Check(all(abs(SV(2, 2)) <= abs(SV(1, 1)) && abs(SV(1, 1)) <= abs(SV(0, 0))), "Singular values are ordered", "Singular values: {}, {}, {}", SV(0, 0), SV(1, 1), SV(2, 2));

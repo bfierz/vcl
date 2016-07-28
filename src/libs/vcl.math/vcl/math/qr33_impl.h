@@ -57,7 +57,7 @@ namespace Vcl { namespace Mathematics
 		Scalar s = a21 * rho;
 
 		// Check for singular case
-		auto b = (a11*a11 + a21*a21) < Scalar(1e-5*1e-5);
+		auto b = (a11*a11 + a21*a21) < Scalar(NumericTrait<Scalar>::base_t(1e-5*1e-5));
 		c = select(b, sgn(a11), c);
 		s = select(b, Scalar(1), s);
 

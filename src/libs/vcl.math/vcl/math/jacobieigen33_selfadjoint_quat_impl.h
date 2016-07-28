@@ -47,13 +47,13 @@ namespace Vcl { namespace Mathematics
 		//const Real pi = Real(3.1415926535897932384626433832795);
 
 		//const Real gamma = Real(3) + Real(2) * Real(std::sqrt(Real(2)));
-		const Real gamma = Real(5.8284271247461900976033774484194);
+		const Real gamma = NumericTrait<Real>::base_t(5.8284271247461900976033774484194);
 
 		//const Real c_star = Real(std::cos(pi / Real(8)));
-		const Real c_star = Real(0.92387953251128675612818318939679);
+		const Real c_star = NumericTrait<Real>::base_t(0.92387953251128675612818318939679);
 		
 		//const Real s_star = Real(std::sin(pi / Real(8)));
-		const Real s_star = Real(0.3826834323650897717284599840304);
+		const Real s_star = NumericTrait<Real>::base_t(0.3826834323650897717284599840304);
 		
 		// cos(theta / 2)
 		Real c_h = Real(2) * (a11 - a22);

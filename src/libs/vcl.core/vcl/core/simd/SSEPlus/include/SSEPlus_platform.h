@@ -97,10 +97,10 @@
 //#undef SSP_MSVC	
 
 #define SSP_CONST_SETR_8I( a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p ) \
-    { (unsigned __int8)(a), (unsigned __int8)(b), (unsigned __int8)(c), (unsigned __int8)(d), \
-      (unsigned __int8)(e), (unsigned __int8)(f), (unsigned __int8)(g), (unsigned __int8)(h), \
-      (unsigned __int8)(i), (unsigned __int8)(j), (unsigned __int8)(k), (unsigned __int8)(l), \
-      (unsigned __int8)(m), (unsigned __int8)(n), (unsigned __int8)(o), (unsigned __int8)(p) }
+    { (__int8)(a), (__int8)(b), (__int8)(c), (__int8)(d), \
+      (__int8)(e), (__int8)(f), (__int8)(g), (__int8)(h), \
+      (__int8)(i), (__int8)(j), (__int8)(k), (__int8)(l), \
+      (__int8)(m), (__int8)(n), (__int8)(o), (__int8)(p) }
 
 #define SSP_CONST_SET_8I( a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p ) \
     SSP_CONST_SETR_8I( (p), (o), (n), (m), (l), (k), (j), (i), (h), (g), (f), (e), (d), (c), (b), (a) )
@@ -112,7 +112,7 @@
     SSP_CONST_SET1_8I( 0 )
 
 #define __CNST16I28I_( x ) \
-    ((unsigned __int8)((x) & 0xFF)), ((unsigned __int8)(((x) >> 8) & 0xFF))
+    ((__int8)((x) & 0xFF)), ((__int8)(((x) >> 8) & 0xFF))
 
 #define SSP_CONST_SETR_16I( a, b, c, d, e, f, g, h ) \
     { __CNST16I28I_((a)), __CNST16I28I_((b)), __CNST16I28I_((c)), __CNST16I28I_((d)), __CNST16I28I_((e)), __CNST16I28I_((f)), __CNST16I28I_((g)), __CNST16I28I_((h)) }
@@ -127,7 +127,7 @@
     SSP_CONST_SETZERO_8I()
 
 #define __CNST32I28I_( x ) \
-    ((unsigned __int8)((x) & 0xFF)), ((unsigned __int8)(((x) >> 8) & 0xFF)), ((unsigned __int8)(((x) >> 16) & 0xFF)), ((unsigned __int8)(((x) >> 24) & 0xFF))
+    ((__int8)((x) & 0xFF)), ((__int8)(((x) >> 8) & 0xFF)), ((__int8)(((x) >> 16) & 0xFF)), ((__int8)(((x) >> 24) & 0xFF))
 
 #define SSP_CONST_SETR_32I( a, b, c, d ) \
     { __CNST32I28I_((a)), __CNST32I28I_((b)), __CNST32I28I_((c)), __CNST32I28I_((d)) }
@@ -142,7 +142,7 @@
     SSP_CONST_SETZERO_8I()
 
 #define __CNST64I28I_( x ) \
-    ((unsigned __int8)((x) & 0xFF)), ((unsigned __int8)(((x) >> 8) & 0xFF)), ((unsigned __int8)(((x) >> 16) & 0xFF)), ((unsigned __int8)(((x) >> 24) & 0xFF)), ((unsigned __int8)(((x) >> 32) & 0xFF)), ((unsigned __int8)(((x) >> 40) & 0xFF)), ((unsigned __int8)(((x) >> 48) & 0xFF)), ((unsigned __int8)(((x) >> 56) & 0xFF))
+    ((__int8)((x) & 0xFF)), ((__int8)(((x) >> 8) & 0xFF)), ((__int8)(((x) >> 16) & 0xFF)), (( __int8)(((x) >> 24) & 0xFF)), ((__int8)(((x) >> 32) & 0xFF)), ((__int8)(((x) >> 40) & 0xFF)), ((__int8)(((x) >> 48) & 0xFF)), ((__int8)(((x) >> 56) & 0xFF))
 
 #define SSP_CONST_SETR_64I( a, b ) \
     { __CNST64I28I_((a)), __CNST64I28I_((b)) }
