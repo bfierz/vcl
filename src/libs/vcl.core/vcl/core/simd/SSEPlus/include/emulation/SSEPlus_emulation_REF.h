@@ -2998,7 +2998,7 @@ SSP_FORCEINLINE unsigned short ssp_popcnt16_REF( unsigned short val )
 {
     int i;
     ssp_u16 cnt=0;
-    for( i=0; i<15, val; ++i, val = val>>1 )
+    for( i=0; i < 15 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }
@@ -3007,7 +3007,7 @@ SSP_FORCEINLINE unsigned int ssp_popcnt_REF( unsigned int val )
 {
     int i;
     ssp_u32 cnt = 0;
-    for( i=0; i<31, val; ++i, val = val>>1 )
+    for( i=0; i < 31 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }
@@ -3016,7 +3016,7 @@ SSP_FORCEINLINE ssp_u64 ssp_popcnt64_REF( ssp_u64 val )
 {
     int i;
     ssp_u64 cnt = 0;
-    for( i=0; i<63, val; ++i, val = val>>1 )
+    for( i=0; i < 63 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }
