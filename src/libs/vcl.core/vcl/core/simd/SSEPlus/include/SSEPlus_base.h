@@ -86,7 +86,7 @@ const static double SSP_F64_ALLOWANCE =  0.0001;
 //---------------------------------------
 #define STRING2(x) #x
 #define STRING(x) STRING2(x)
-#define WARN( ) __FILE__"("STRING(__LINE__)") : NOTE " 
+#define WARN( ) STRING(__FILE__)"("STRING(__LINE__)") : NOTE " 
 
 //#define _SSP_SHUFFLE(w,x,y,z) (((w)<<3) | ((x)<<2) | ((y)<<1) | (z))
 

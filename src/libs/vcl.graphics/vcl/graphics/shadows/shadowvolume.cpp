@@ -275,7 +275,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		Require(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", "Angle: %f", mDirection.cross(mUp).dot(mRight));
+		RequireEx(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", "Angle: %f", mDirection.cross(mUp).dot(mRight));
 
 		return mFactory->createLookAt(mPosition, mDirection, mUp, Handedness::RightHanded);
 	}

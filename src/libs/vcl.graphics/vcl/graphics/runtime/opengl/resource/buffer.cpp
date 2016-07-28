@@ -198,7 +198,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			GLint64 min_align = 0;
 			glGetInteger64v(GL_MIN_MAP_BUFFER_ALIGNMENT, &min_align);
-			Ensure(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", "Offset: {}, Minimum aligment: {}", offset, min_align);
+			EnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", "Offset: {}, Minimum aligment: {}", offset, min_align);
 		}
 
 		return mappedPtr;

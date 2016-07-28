@@ -210,7 +210,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
-		Check(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
+		CheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
 #endif /* VCL_DEBUG */
 
 		M(p,q) = 0;

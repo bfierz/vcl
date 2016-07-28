@@ -59,7 +59,22 @@ namespace Vcl { namespace Assert
 	 *
 	 *	This macro defines when the assert handler called and if the debugger should be invoked
 	 */
-#	define vcl_assert(type, expr, description, ...)                               \
+#	define vcl_assert(type, expr, description)                                    \
+	{                                                                             \
+		static bool ignoreAlways = false;                                         \
+		if (!ignoreAlways && !(expr))                                             \
+		{                                                                         \
+			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n",            \
+							type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr),     \
+							description);                                         \
+			if (Vcl::Assert::handler(description, msgbuf.data(), &ignoreAlways))  \
+			{                                                                     \
+				VCL_DEBUG_BREAK;                                                  \
+			}                                                                     \
+		}                                                                         \
+	}
+
+#	define vcl_assert_ex(type, expr, description, ...)                            \
 	{                                                                             \
 		static bool ignoreAlways = false;                                         \
 		if (!ignoreAlways && !(expr))                                             \
@@ -76,32 +91,53 @@ namespace Vcl { namespace Assert
 
 	// Define wrappers around the contract method
 #	ifndef Check
-#		define Check(expr, description,...)   vcl_assert("Check",   (expr), description, __VA_ARGS__)
+#		define Check(expr, description)             vcl_assert("Check",   (expr), description)
+#	endif									     
+#	ifndef CheckEx							     
+#		define CheckEx(expr, description, ...)   vcl_assert_ex("Check",   (expr), description, __VA_ARGS__)
+#	endif									     
+#	ifndef Require							     
+#		define Require(expr, description)           vcl_assert("Require", (expr), description)
 #	endif
-#	ifndef Require
-#		define Require(expr, description,...) vcl_assert("Require", (expr), description, __VA_ARGS__)
+#	ifndef RequireEx
+#		define RequireEx(expr, description, ...) vcl_assert_ex("Require", (expr), description, __VA_ARGS__)
 #	endif
 #	ifndef Ensure
-#		define Ensure(expr, description,...)  vcl_assert("Ensure",  (expr), description, __VA_ARGS__)
+#		define Ensure(expr, description)            vcl_assert("Ensure",  (expr), description)
+#	endif
+#	ifndef EnsureEx
+#		define EnsureEx(expr, description, ...)  vcl_assert_ex("Ensure",  (expr), description, __VA_ARGS__)
 #	endif
 #	ifndef DebugError
-#		define DebugError(description,...)    vcl_assert("Error",   (VCL_EVAL_FALSE), description, __VA_ARGS__)
+#		define DebugError(description, ...)      vcl_assert_ex("Error",   (VCL_EVAL_FALSE), description, __VA_ARGS__)
 #	endif
 #	ifndef AssertBlock
 #		define AssertBlock if(VCL_EVAL_TRUE)
 #	endif
 #else
 #	ifndef Check
-#		define Check(expr, description,...)
+#		define Check(expr, description)
+#	endif
+#	ifndef CheckEx
+#		define CheckEx(expr, description, ...)
 #	endif
 #	ifndef Require
-#		define Require(expr, description,...)
+#		define Require(expr, description)
+#	endif
+#	ifndef RequireEx
+#		define RequireEx(expr, description, ...)
 #	endif
 #	ifndef Ensure
-#		define Ensure(expr, description,...)
+#		define Ensure(expr, description)
+#	endif
+#	ifndef EnsureEx
+#		define EnsureEx(expr, description, ...)
 #	endif
 #	ifndef DebugError
-#		define DebugError(description,...)
+#		define DebugError(description)
+#	endif
+#	ifndef DebugErrorEx
+#		define DebugErrorEx(description, ...)
 #	endif
 #	ifndef AssertBlock
 #		define AssertBlock if(VCL_EVAL_FALSE)
