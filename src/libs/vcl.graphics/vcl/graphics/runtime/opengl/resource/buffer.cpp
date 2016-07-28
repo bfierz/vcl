@@ -237,7 +237,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Ensure(!_mappedAccess.isAnySet(), "Buffer is not mapped.");
 	}
 
-	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size)
+	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size) const
 	{
 		Require(_glId > 0, "GL buffer is created.");
 		Require(target.id() > 0, "GL buffer is created.");

@@ -88,7 +88,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
 
 	public:
-		void copyTo(Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max());
+		void copyTo(Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
 
 	private:
 		//! Buffer can be mapped persistently
