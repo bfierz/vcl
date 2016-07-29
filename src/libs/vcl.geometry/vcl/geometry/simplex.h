@@ -35,8 +35,6 @@
 
 namespace Vcl { namespace Geometry
 {
-	VCL_DECLARE_FLAGS(ElementState, Deleted);
-
 	template<typename MeshIndex>
 	struct IndexDescriptionTrait;
 
@@ -110,8 +108,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel0()
 		: _vertexData("VertexData")
 		{
-			_vertices = _vertexData.add<Vertex>("Vertices");
-			_verticesMetaData = _vertexData.add<VertexMetaData>("VerticesMetaData");
+            _vertices = _vertexData.template add<Vertex>("Vertices");
+            _verticesMetaData = _vertexData.template add<VertexMetaData>("VerticesMetaData");
 		}
 		virtual ~SimplexLevel0() = default;
 
@@ -175,14 +173,14 @@ namespace Vcl { namespace Geometry
 
 
 	public: // Iterator Types
-		using EdgeEnumerator = typename Enumerator<EdgeId, Edge, SimplexLevel1<Derived>>;
+        using EdgeEnumerator = Enumerator<EdgeId, Edge, SimplexLevel1<Derived>>;
 
 	public:
 		SimplexLevel1()
 		: _edgeData("EdgeGroup")
 		{
-			_edges = _edgeData.add<Edge>("Edges");
-			_edgesMetaData = _edgeData.add<EdgeMetaData>("EdgesMetaData");
+            _edges = _edgeData.template add<Edge>("Edges");
+            _edgesMetaData = _edgeData.template add<EdgeMetaData>("EdgesMetaData");
 		}
 		virtual ~SimplexLevel1() = default;
 
@@ -230,14 +228,14 @@ namespace Vcl { namespace Geometry
 		using FaceMetaData = typename IndexDescriptionTrait<Derived>::FaceMetaData;
 
 	public: // Iterator Types
-		using FaceEnumerator = typename Enumerator<FaceId, Face, SimplexLevel2<Derived>>;
+        using FaceEnumerator = Enumerator<FaceId, Face, SimplexLevel2<Derived>>;
 
 	public:
 		SimplexLevel2()
 		: _faceData("FaceGroup")
 		{
-			_faces = _faceData.add<Face>("Faces");
-			_facesMetaData = _faceData.add<FaceMetaData>("FacesMetaData");
+            _faces = _faceData.template add<Face>("Faces");
+            _facesMetaData = _faceData.template add<FaceMetaData>("FacesMetaData");
 		}
 		virtual ~SimplexLevel2() = default;
 		
@@ -285,14 +283,14 @@ namespace Vcl { namespace Geometry
 		using VolumeMetaData = typename IndexDescriptionTrait<Derived>::VolumeMetaData;
 
 	public: // Iterator Types
-		using VolumeEnumerator = typename Enumerator<VolumeId, Volume, SimplexLevel3<Derived>>;
+        using VolumeEnumerator = Enumerator<VolumeId, Volume, SimplexLevel3<Derived>>;
 
 	public:
 		SimplexLevel3()
 		: _volumeData("VolumeGroup")
 		{
-			_volumes = _volumeData.add<Volume>("Volumes");
-			_volumesMetaData = _volumeData.add<VolumeMetaData>("VolumesMetaData");
+            _volumes = _volumeData.template add<Volume>("Volumes");
+            _volumesMetaData = _volumeData.template add<VolumeMetaData>("VolumesMetaData");
 		}
 		virtual ~SimplexLevel3() = default;
 

@@ -32,7 +32,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	enum class Filter
+	enum class FilterType
 	{
 		MinMagMipPoint = 0,
 		MinMagPointMipLinear = 0x1,
@@ -79,7 +79,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 		SamplerDescription();
 
-		Filter  		     Filter;
+		FilterType 		     Filter;
 		TextureAddressMode   AddressU;
 		TextureAddressMode   AddressV;
 		TextureAddressMode   AddressW;

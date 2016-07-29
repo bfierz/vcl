@@ -83,9 +83,6 @@ namespace Vcl
 		typedef typename T::Bits Bits;
 
 	public:
-		typedef char Description[512];
-
-	public:
 		inline Flags(void)
 		: _flags(0)
 		{
@@ -124,24 +121,6 @@ namespace Vcl
 		inline bool areAllSet(void) const
 		{
 			return (_flags == ((1ull << T::Count) - 1u));
-		}
-
-		const char* toString(Description& description) const
-		{
-			int offset = 0;
-			for (size_t i = 0; i < sizeof(_flags) * 8; i++)
-			{
-				if ((_flags & (1u << i)) != 0)
-				{
-					offset += _snprintf_s(description + offset, sizeof(description) - offset, _TRUNCATE, "%s, ", T::ToString(1u << i));
-				}
-			}
-			
-			// remove the trailing comma, if any
-			if (offset > 1)
-				description[offset-2] = 0;
-
-			return description;
 		}
 
 	public: /* Operators */
