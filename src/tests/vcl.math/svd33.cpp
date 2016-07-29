@@ -57,11 +57,11 @@ namespace
 		{
 			if (i < 8)
 			{
-				F.at<Scalar>(i) = Eigen::Matrix<Scalar, 3, 3>::Identity();
+				F.template at<Scalar>(i) = Eigen::Matrix<Scalar, 3, 3>::Identity();
 			}
 			else if (i < 16)
 			{
-				F.at<Scalar>(i) = 0.35f * Eigen::Matrix<Scalar, 3, 3>::Identity();
+				F.template at<Scalar>(i) = 0.35f * Eigen::Matrix<Scalar, 3, 3>::Identity();
 			}
 			else
 			{
@@ -69,7 +69,7 @@ namespace
 				rnd << d(rng), d(rng), d(rng),
 					   d(rng), d(rng), d(rng),
 					   d(rng), d(rng), d(rng);
-				F.at<Scalar>(i) = rnd;
+				F.template at<Scalar>(i) = rnd;
 			}
 		}
 
@@ -89,11 +89,11 @@ namespace
 		// Compute reference using Eigen
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f A = F.at<Scalar>(i);
+			Vcl::Matrix3f A = F.template at<Scalar>(i);
 			Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-			U.at<Scalar>(i) = eigen_svd.matrixU();
-			V.at<Scalar>(i) = eigen_svd.matrixV();
-			S.at<Scalar>(i) = eigen_svd.singularValues();
+			U.template at<Scalar>(i) = eigen_svd.matrixU();
+			V.template at<Scalar>(i) = eigen_svd.matrixV();
+			S.template at<Scalar>(i) = eigen_svd.singularValues();
 		}
 	}
 
@@ -116,13 +116,13 @@ namespace
 
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f refU = refUa.at<Scalar>(i);
-			Vcl::Matrix3f refV = refVa.at<Scalar>(i);
-			Vcl::Vector3f refS = refSa.at<Scalar>(i);
+			Vcl::Matrix3f refU = refUa.template at<Scalar>(i);
+			Vcl::Matrix3f refV = refVa.template at<Scalar>(i);
+			Vcl::Vector3f refS = refSa.template at<Scalar>(i);
 
-			Vcl::Matrix3f resU = resUa.at<Scalar>(i);
-			Vcl::Matrix3f resV = resVa.at<Scalar>(i);
-			Vcl::Vector3f resS = resSa.at<Scalar>(i);
+			Vcl::Matrix3f resU = resUa.template at<Scalar>(i);
+			Vcl::Matrix3f resV = resVa.template at<Scalar>(i);
+			Vcl::Vector3f resS = resSa.template at<Scalar>(i);
 
 			if (refS(0) > 0 && refS(1) > 0 && refS(2) < 0)
 				refV.col(2) *= -1;
