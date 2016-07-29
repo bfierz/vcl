@@ -70,15 +70,15 @@
 #	define VCL_PP_RIGHT_PARENTHESIS )
 #	define VCL_PP_VA_NUM_ARGS(...) VCL_PP_VA_NUM_ARGS_HELPER VCL_PP_LEFT_PARENTHESIS __VA_ARGS__, VCL_PP_VA_NUM_ARGS_REVERSE_SEQUENCE VCL_PP_RIGHT_PARENTHESIS
 #else
-#	define VCL_VA_NUM_ARGS(...) VCL_VA_NUM_ARGS_HELPER(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
-#	define VCL_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
+#	define VCL_PP_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
+#	define VCL_PP_VA_NUM_ARGS(...) VCL_PP_VA_NUM_ARGS_HELPER(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
 #endif
 
 // VCL_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
 #ifdef VCL_COMPILER_MSVC
 # define VCL_PP_PASS_VA(...)	VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
 #else
-# define VCL_PP_PASS_VA(...)	(__VA_ARGS__)
+# define VCL_PP_PASS_VA(...)	( __VA_ARGS__ )
 #endif
 
 

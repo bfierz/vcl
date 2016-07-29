@@ -128,7 +128,7 @@ namespace Vcl { namespace Mathematics
 		Real c = s*ct;
 
 		// Clamp the angle if it is to large
-		const Real eps = NumericTrait<Real>::base_t(1e-6);
+        const Real eps = typename NumericTrait<Real>::base_t(1e-6);
 		auto b = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps*abs(u1));
 		c = select(b, Real(1), c);
 		s = select(b, Real(0), s);

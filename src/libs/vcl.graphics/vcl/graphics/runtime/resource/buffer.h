@@ -59,8 +59,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	};
 	
 	VCL_DECLARE_FLAGS(CPUAccess,
-		
-		/*! 
+
+		/*!
 		 * The resource is to be mappable so that the CPU can change its contents.
 		 */
 		Write,

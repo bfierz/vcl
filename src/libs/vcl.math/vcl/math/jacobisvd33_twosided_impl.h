@@ -164,7 +164,7 @@ namespace Vcl { namespace Mathematics
 		Real a12 = a12_in;
 		Real a21 = a21_in;
 
-		const Real eps = NumericTrait<Real>::base_t(1e-6);
+        const Real eps = typename NumericTrait<Real>::base_t(1e-6);
 
 		//bool flag = (abs(a21) < 1e-6 && abs(a22) < 1e-6);
 		//if (flag)

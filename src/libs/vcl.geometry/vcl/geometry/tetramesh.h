@@ -59,16 +59,16 @@ namespace Vcl { namespace Geometry
 	public: // Basic types
 		struct VertexMetaData
 		{
-			bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
+			//bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
 
-			Flags<ElementState> State;
+			//Flags<ElementState> State;
 		};
 
 		struct VolumeMetaData
 		{
-			bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
+			//bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
 
-			Flags<ElementState> State;
+			//Flags<ElementState> State;
 		};
 
 		//! Position data of a single vertex

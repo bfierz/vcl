@@ -131,8 +131,8 @@ ENDIF(VCL_COMPILER_MSVC)
 IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
 
 	# Configure all configuration
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-ignored-attributes")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-ignored-attributes")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-ignored-attributes -Wno-misleading-indentation")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-ignored-attributes -Wno-misleading-indentation")
 
 	IF(VCL_VECTORIZE_AVX2)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
