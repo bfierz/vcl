@@ -7,6 +7,8 @@
 
 #include "SSEPlus_platform.h"
 
+#include <vcl/config/macros.h>
+
 #include <xmmintrin.h>  // SSE  (Required to use the __m128, and __m128d type)
 #include <emmintrin.h>  // SSE2 (Required to use the __m128i type)
 
@@ -79,14 +81,6 @@ ssp_u16 MAX_U16 = 65535;
 //---------------------------------------
 const static float  SSP_F32_ALLOWANCE =  0.0001f;
 const static double SSP_F64_ALLOWANCE =  0.0001;
-
-
-//---------------------------------------
-// Warning macros
-//---------------------------------------
-#define STRING2(x) #x
-#define STRING(x) STRING2(x)
-#define WARN( ) STRING(__FILE__) ## "("STRING(__LINE__)") : NOTE " 
 
 //#define _SSP_SHUFFLE(w,x,y,z) (((w)<<3) | ((x)<<2) | ((y)<<1) | (z))
 
