@@ -287,8 +287,8 @@ TEST(RttiTest, MultiParamConstructor)
 	def_constr_a_b.call(obj_a_b, 4, 5);
 
 	// Expected output
-	EXPECT_EQ(4, obj_a->size()) << "ctor with one params was not called.";
-	EXPECT_EQ(9, obj_a_b->size()) << "ctor with two params was not called.";
+	EXPECT_EQ(4u, obj_a->size()) << "ctor with one params was not called.";
+	EXPECT_EQ(9u, obj_a_b->size()) << "ctor with two params was not called.";
 
 	// Cleanup
 	obj_a->~DerivedObject();
@@ -373,7 +373,7 @@ TEST(RttiTest, DerivedConstructableType)
 	auto obj = (DerivedObject*)obj_mem;
 
 	// Check the expected output
-	EXPECT_EQ(46, obj->size()) << "Constructor was not called correctly.";
+	EXPECT_EQ(46u, obj->size()) << "Constructor was not called correctly.";
 	EXPECT_TRUE(type_d.isA(&type)) << "Inheritance is not constructed correctly.";
 
 	type_d.destruct(obj_mem);
