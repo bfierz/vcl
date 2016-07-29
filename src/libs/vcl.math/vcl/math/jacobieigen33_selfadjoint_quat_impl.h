@@ -453,7 +453,10 @@ namespace Vcl { namespace Mathematics
 		}
 
 		// Normalize and return the rotation quaternion
-		Q = U.normalized();
+		//Q = U.normalized();
+
+		// Replace normalization due to Eigen 3.3 compatibility
+		Q = U.coeffs() / sqrt(U.coeffs().squaredNorm());
 
 		// Return the Eigenvalues
 #if 0

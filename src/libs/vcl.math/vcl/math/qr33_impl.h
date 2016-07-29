@@ -118,7 +118,10 @@ namespace Vcl { namespace Mathematics
 		Eigen::Matrix<Scalar, 3 - c, 1> u = R.template block<3 - c, 1>(c, c);
 		Scalar s = sgn(u(0)) * u.norm();
 		u(0) += s;
-		u.normalize();
+		//u.normalize();
+
+		// Replace normalization due to Eigen 3.3 compatibility
+		u = u / sqrt(u.squaredNorm());
 
 		auto B = R.template block<3 - c, 3 - c>(c, c);
 		auto H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
