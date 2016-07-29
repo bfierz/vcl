@@ -170,6 +170,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		int firstMipMapLevel() const { return _level; }
 		int mipMapLevels() const { return _nrLevels; }
 
+		size_t sizeInBytes() const { return _sizeInBytes; }
+
 	protected:
 		void initializeView
 		(
@@ -195,6 +197,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		int _width;
 		int _height;
 		int _depth;
+
+	private:
+		size_t _sizeInBytes;
 	};
 
 	class Texture : public TextureView
