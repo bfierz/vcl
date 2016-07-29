@@ -164,7 +164,7 @@ namespace Vcl { namespace Mathematics
 		Real a12 = a12_in;
 		Real a21 = a21_in;
 
-		const Real eps = typename NumericTrait<Real>::base_t(1e-6);
+		const Real eps = NumericTrait<Real>::base_t(1e-6);
 
 		//bool flag = (abs(a21) < 1e-6 && abs(a22) < 1e-6);
 		//if (flag)
@@ -346,8 +346,8 @@ namespace Vcl { namespace Mathematics
 		Real Apq = A(p,p)*c1*s2 - A(q,p)*s1*s2 + A(p,q)*c1*c2 - A(q,q)*s1*c2;
 		Real Aqp = A(p,p)*kappa*s1*c2 + A(q,p)*kappa*c1*c2 - A(p,q)*kappa*s1*s2 - A(q,q)*kappa*c1*s2;
 
-		CheckEx(all(abs(Apq) < Real(typename NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
-		CheckEx(all(abs(Aqp) < Real(typename NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Aqp);
+		CheckEx(all(abs(Apq) < Real(NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
+		CheckEx(all(abs(Aqp) < Real(NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Aqp);
 #endif /* VCL_DEBUG */
 
 		A(p,q) = 0;
