@@ -230,7 +230,7 @@ namespace Vcl { namespace Core
 	public:
 		inline explicit Allocator() {}
 		inline ~Allocator() {}
-		inline Allocator(Allocator const& rhs) :Traits(rhs), Policy(rhs) {}
+		inline Allocator(Allocator const& rhs) : Policy(rhs), Traits(rhs) {}
 		template <typename U, typename P, typename T2>
 		inline Allocator(Allocator<U, P, T2> const& rhs) : Traits(rhs), Policy(rhs) {}
 	};
