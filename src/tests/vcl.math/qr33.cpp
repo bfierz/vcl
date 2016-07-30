@@ -89,9 +89,9 @@ TEST(QR33, SimpleHouseholder)
 	Matrix3f Ares = Q*R;
 	Matrix3f I = Q.transpose()*Q;
 
-	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly";
-	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly";
-	EXPECT_TRUE(equal(0, R(2, 1), 1e-4f)) << "R(2, 1) is not computed correctly";
+	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly: " << R(1, 0);
+	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly: " << R(2, 0);
+	EXPECT_TRUE(equal(0, R(2, 1), 1e-4f)) << "R(2, 1) is not computed correctly: " << R(2, 1);
 	EXPECT_TRUE(equal(A, Ares, 1e-4f)) << "Verification A = QR failed";
 	EXPECT_TRUE(equal(Iref, I, 1e-4f)) << "Verification I = Q^T*Q failed";
 }
