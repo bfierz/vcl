@@ -36,7 +36,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	ImageProcessor::ImageProcessor()
 	{
 		Runtime::SamplerDescription desc;
-		desc.Filter = Runtime::Filter::MinMagLinearMipPoint;
+		desc.Filter = Runtime::FilterType::MinMagLinearMipPoint;
 		_linearSampler = std::make_unique<Runtime::OpenGL::Sampler>(desc);
 	}
 

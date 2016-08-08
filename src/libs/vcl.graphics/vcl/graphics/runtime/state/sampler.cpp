@@ -28,7 +28,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 {
 	SamplerDescription::SamplerDescription()
 	{
-		Filter = Filter::MinMagMipLinear;
+		Filter = FilterType::MinMagMipLinear;
 		AddressU = TextureAddressMode::Clamp;
 		AddressV = TextureAddressMode::Clamp;
 		AddressW = TextureAddressMode::Clamp;
