@@ -74,6 +74,7 @@ private: // States
 
 private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::Texture> _idBufferDepth;
 
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
@@ -87,7 +88,7 @@ class MeshView : public QQuickFramebufferObject
 	Q_PROPERTY(Scene* scene READ scene WRITE setScene)
 
 public:
-	Renderer* createRenderer() const;
+	MeshView(QQuickItem *parent = Q_NULLPTR);
 
 public:
 	Scene* scene() const { return _scene; }
@@ -97,22 +98,9 @@ public:
 		update();
 	}
 
-private:
+private: // Implementations
+	Renderer* createRenderer() const override;
 	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
-
-	// https://bugreports.qt.io/browse/QTBUG-41073
-	QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* nodeData) override
-	{
-		if (!node)
-		{
-			node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
-			QSGSimpleTextureNode *n = dynamic_cast<QSGSimpleTextureNode *>(node);
-			if (n)
-				n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-			return node;
-		}
-		return QQuickFramebufferObject::updatePaintNode(node, nodeData);
-	}
 
 private:
 	Scene* _scene{ nullptr };

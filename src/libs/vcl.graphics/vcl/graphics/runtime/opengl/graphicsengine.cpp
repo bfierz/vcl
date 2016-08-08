@@ -30,8 +30,10 @@
 
 // VCL
 #include <vcl/graphics/opengl/gl.h>
+#include <vcl/graphics/runtime/opengl/resource/texture.h>
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
+#include <vcl/math/ceil.h>
 
 namespace
 {
@@ -174,7 +176,107 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return *this;
 	}
 
+	StagingArea::StagingArea(Frame* frame)
+	: _frame(frame)
+	{
+		Require(frame, "Owner is set.");
+
+		BufferDescription desc;
+		desc.Usage = Usage::Staging;
+		desc.CPUAccess = CPUAccess::Read;
+		desc.SizeInBytes = 1000 * 4096;
+
+		_stagingBuffer = make_owner<Buffer>(desc);
+		_hostBuffer = std::make_unique<char[]>(desc.SizeInBytes);
+	}
+
+	void StagingArea::transfer()
+	{
+		using Vcl::Mathematics::ceil;
+
+		if (_requests.empty())
+			return;
+
+		// Compute the transfer size
+		size_t size = ceil(_requests.back().offset() + _requests.back().size(), _alignment);
+
+		// Do the transfer
+		_stagingBuffer->copyTo(_hostBuffer.get(), 0, 0, size);
+
+		// Clear the requests
+		_stagingBufferOffset = 0;
+		_requests.clear();
+	}
+
+	BufferView StagingArea::copyFrom(const BufferView& view)
+	{
+		using Vcl::Mathematics::ceil;
+
+		// Request size from the staging buffer
+		size_t size_incr = ceil(view.size(), _alignment);
+		
+		// Check the available size
+		updateIfNeeded(size_incr);
+		
+		// Copy the content to the readback buffer
+		dynamic_cast<const OpenGL::Buffer&>(view.owner()).copyTo(*_stagingBuffer, 0, _stagingBufferOffset, view.size());
+
+		// View on the copied data
+		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.size() };
+		_stagingBufferOffset += size_incr;
+
+		// Store the request
+		_requests.emplace_back(staged_area);
+
+		return staged_area;
+	}
+
+	BufferView StagingArea::copyFrom(const TextureView& view)
+	{
+		using Vcl::Mathematics::ceil;
+
+		// Request size from the staging buffer
+		size_t size_incr = ceil(view.sizeInBytes(), _alignment);
+
+		// Check the available size
+		updateIfNeeded(size_incr);
+
+		// Copy the content to the readback buffer
+		dynamic_cast<const OpenGL::Texture&>(view).copyTo(*_stagingBuffer, _stagingBufferOffset);
+
+		// View on the copied data
+		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.sizeInBytes() };
+		_stagingBufferOffset += size_incr;
+
+		// Store the request
+		_requests.emplace_back(staged_area);
+
+		return staged_area;
+	}
+
+	void StagingArea::updateIfNeeded(size_t size)
+	{
+		if (_stagingBuffer->sizeInBytes() < _stagingBufferOffset + size)
+		{
+			BufferDescription desc;
+			desc.Usage = Usage::Staging;
+			desc.CPUAccess = CPUAccess::Read;
+			desc.SizeInBytes = _stagingBuffer->sizeInBytes() * 2;
+
+			// Allocate a new buffer
+			auto tmp = make_owner<Buffer>(desc);
+			_stagingBuffer->copyTo(*tmp);
+
+			// Mark the buffer for deletion
+			_frame->queueBufferForDeletion(std::move(_stagingBuffer));
+
+			_stagingBuffer = std::move(tmp);
+			_hostBuffer = std::make_unique<char[]>(desc.SizeInBytes);
+		}
+	}
+
 	Frame::Frame()
+	: _readBackStage(this)
 	{
 		BufferDescription cbuffer_desc;
 
@@ -196,8 +298,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_constantBuffer->unmap();
 	}
 
-	void Frame::setRenderTargets(int curr_frame, size_t hash, gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	void Frame::setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
 	{
+		// Calculate the hash for the set of textures
+		std::array<void*, 9> ptrs;
+		ptrs[0] = depth_target;
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			ptrs[i + 1] = colour_targets[i];
+		}
+
+		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+
+		// Find the FBO in the cache
 		auto cache_entry = _fbos.find(hash);
 		if (cache_entry != _fbos.end())
 		{
@@ -208,12 +321,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			const Runtime::Texture* colours[8];
 			for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
 			{
-				colours[i] = (*colour_targets[i])[curr_frame].get();
+				colours[i] = colour_targets[i];
 			}
-			auto depth = (*depth_target)[curr_frame].get();
+			auto depth = depth_target;
 			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
 			new_entry.first->second.bind();
 		}
+	}
+
+	void Frame::queueBufferForDeletion(owner_ptr<Buffer> buffer)
+	{
+		_bufferRecycleQueue.push_back(std::move(buffer));
 	}
 
 	GraphicsEngine::GraphicsEngine()
@@ -262,12 +380,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		incrFrameCounter();
 
 		// Fetch the frame we want to use for the current rendering frame
-		auto& curr_frame = _frames[currentFrame() % _numConcurrentFrames];
+		_current_frame = &_frames[currentFrame() % _numConcurrentFrames];
 
 		// Wait until the requested frame is done with processing
-		if (curr_frame.fence()->isValid())
+		if (_current_frame->fence()->isValid())
 		{
-			auto wait_result = glClientWaitSync(*curr_frame.fence(), GL_NONE, 1000000000);
+			auto wait_result = glClientWaitSync(*_current_frame->fence(), GL_NONE, 1000000000);
 			if (wait_result != GL_CONDITION_SATISFIED || wait_result != GL_ALREADY_SIGNALED)
 			{
 				if (wait_result == GL_TIMEOUT_EXPIRED)
@@ -279,30 +397,47 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Map the per frame constant buffer
-		curr_frame.mapConstantBuffer();
+		_current_frame->mapConstantBuffer();
 
 		// Reset the begin pointer for constant buffer chunk requests
 		_cbufferOffset = 0;
+
+		// Reset the staging area to use it again for the new frame
+		_current_frame->readBackBuffer()->transfer();
+
+		// Execute the callbacks of the read-back requests
+		{
+
+		}
+
+		// Execute the stored commands
+		{
+			std::unique_lock<std::mutex> lck{ _cmdMutex };
+
+			for (auto& cmd : _genericCmds)
+			{
+				cmd();
+			}
+
+			_genericCmds.clear();
+		}
 	}
 
 	void GraphicsEngine::endFrame()
 	{
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[currentFrame() % _numConcurrentFrames];
-
 		// Unmap the constant buffer
-		curr_frame.unmapConstantBuffer();
+		_current_frame->unmapConstantBuffer();
 
 		// Queue a fence sync object to mark the end of the frame
-		curr_frame.setFence(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE));
+		_current_frame->setFence(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE));
+
+		// Clear the current frame to mark that not frame is active anymore
+		_current_frame = nullptr;
 	}
 
 	BufferView GraphicsEngine::requestPerFrameConstantBuffer(size_t size)
 	{
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[currentFrame() % _numConcurrentFrames];
-
-		BufferView view{ curr_frame.constantBuffer(), _cbufferOffset, size, curr_frame.mappedConstantBuffer() };
+		BufferView view{ _current_frame->constantBuffer(), _cbufferOffset, size, _current_frame->mappedConstantBuffer() };
 
 		// Calculate the next offset		
 		size_t aligned_size =  ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
@@ -311,7 +446,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return view;
 	}
 
-	ref_ptr<DynamicTexture<3>> GraphicsEngine::allocateDynamicTexture(std::unique_ptr<Runtime::Texture> source)
+	ref_ptr<DynamicTexture<3>> GraphicsEngine::allocatePersistentTexture(std::unique_ptr<Runtime::Texture> source)
 	{
 		std::array<std::unique_ptr<Runtime::Texture>, 3> textures;
 		textures[0] = std::move(source);
@@ -320,22 +455,41 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			textures[i] = textures[0]->clone();
 		}
 
-		_dynamicTextures.emplace_back(make_owner<DynamicTexture<3>>(std::move(textures)));
-		return _dynamicTextures.back();
+		_persistentTextures.emplace_back(make_owner<DynamicTexture<3>>(std::move(textures)));
+		return _persistentTextures.back();
 	}
 
-	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	void GraphicsEngine::deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex)
 	{
-		// Calculate the hash for the set of textures
-		std::array<void*, 9> ptrs;
-		ptrs[0] = depth_target.get();
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
-		{
-			ptrs[i + 1] = colour_targets[i].get();
-		}
 
-		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+	}
 
+	void GraphicsEngine::queueReadback(ref_ptr<DynamicTexture<3>> tex)
+	{
+		// Index of the current frame
+		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
+
+		// Fetch the staging area
+		auto staging_area = _current_frame->readBackBuffer();
+
+		// Queue the copy command
+		auto memory_range = staging_area->copyFrom(*(*tex)[curr_frame_idx]);
+	}
+
+	void GraphicsEngine::enqueueCommand(std::function<void(void)> cmd)
+	{
+		std::unique_lock<std::mutex> lck{ _cmdMutex };
+
+		_genericCmds.emplace_back(std::move(cmd));
+	}
+
+	void GraphicsEngine::resetRenderTargets()
+	{
+
+	}
+
+	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	{
 		// Index of the current frame
 		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
 
@@ -343,7 +497,69 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		auto& curr_frame = _frames[curr_frame_idx];
 
 		// Set the render targets for the current frame
-		curr_frame.setRenderTargets(curr_frame_idx, hash, colour_targets, depth_target);
+		Runtime::Texture* colours[8];
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			colours[i] = colour_targets[i].get();
+		}
+
+		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth_target.get());
+	}
+
+	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	{
+		// Index of the current frame
+		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
+
+		// Fetch the frame we are using for the current rendering frame
+		auto& curr_frame = _frames[curr_frame_idx];
+
+		// Set the render targets for the current frame
+		Runtime::Texture* colours[8];
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			colours[i] = (*colour_targets[i])[curr_frame_idx];
+		}
+
+		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth_target.get());
+	}
+
+	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	{
+		// Index of the current frame
+		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
+
+		// Fetch the frame we are using for the current rendering frame
+		auto& curr_frame = _frames[curr_frame_idx];
+
+		// Set the render targets for the current frame
+		Runtime::Texture* colours[8];
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			colours[i] = colour_targets[i].get();
+		}
+		auto depth = (*depth_target)[curr_frame_idx];
+
+		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth);
+	}
+
+	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
+	{
+		// Index of the current frame
+		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
+
+		// Fetch the frame we are using for the current rendering frame
+		auto& curr_frame = _frames[curr_frame_idx];
+
+		// Set the render targets for the current frame
+		Runtime::Texture* colours[8];
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			colours[i] = (*colour_targets[i])[curr_frame_idx];
+		}
+		auto depth = (*depth_target)[curr_frame_idx];
+
+		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth);
 	}
 
 	void GraphicsEngine::setConstantBuffer(int idx, BufferView view)

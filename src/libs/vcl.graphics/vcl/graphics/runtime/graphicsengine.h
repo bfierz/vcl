@@ -94,11 +94,23 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
 
 		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
-		virtual ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Texture> tex) = 0;
+		virtual ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Texture> tex) = 0;
 
-		//virtual void queueReadback() = 0;
+		//! Mark a persistent texture for removal
+		virtual void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) = 0;
+
+		//! Enque a read-back command which will be executed next frame
+		virtual void queueReadback(ref_ptr<DynamicTexture<3>> tex) = 0;
+
+		//! Enque a generic command which will be executed next frame
+		virtual void enqueueCommand(std::function<void(void)>) = 0;
 
 	public: // Resource management
+		virtual void resetRenderTargets() = 0;
+
+		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;

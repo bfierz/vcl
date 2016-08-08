@@ -33,6 +33,17 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	BufferBindPoint::BufferBindPoint(GLenum target, GLuint id)
+	: _target(target)
+	, _id(id)
+	{
+		glBindBuffer(_target, _id);
+	}
+	BufferBindPoint::~BufferBindPoint()
+	{
+		glBindBuffer(_target, GL_NONE);
+	}
+
 	Buffer::Buffer(const BufferDescription& desc, bool allowPersistentMapping, bool allowCoherentMapping, const BufferInitData* init_data)
 	: Runtime::Buffer(desc.SizeInBytes, desc.Usage, desc.CPUAccess)
 	, Resource()
@@ -120,6 +131,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		Ensure(_glId == 0, "GL buffer is cleaned up.");
+	}
+
+	BufferBindPoint Buffer::bind(GLenum target)
+	{
+		return{ target, _glId };
 	}
 
 	void* Buffer::map(size_t offset, size_t length, Flags<CPUAccess> access, Flags<MapOptions> options)
@@ -237,6 +253,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Ensure(!_mappedAccess.isAnySet(), "Buffer is not mapped.");
 	}
 
+	void Buffer::copyTo(void* dst, size_t srcOffset, size_t dstOffset, size_t size) const
+	{
+		Require(_glId > 0, "GL buffer is created.");
+		Require(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
+
+		if (size == std::numeric_limits<size_t>::max())
+			size = sizeInBytes() - srcOffset;
+
+		glGetNamedBufferSubData(_glId, srcOffset, size, (char*) dst + dstOffset);
+	}
+
 	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size) const
 	{
 		Require(_glId > 0, "GL buffer is created.");
@@ -245,7 +272,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Require(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
 		Require(implies(size < std::numeric_limits<size_t>::max(), dstOffset + size <= target.sizeInBytes()), "Size to copy is valid");
 
-		if (size < std::numeric_limits<size_t>::max())
+		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
 		Check(dstOffset + size <= target.sizeInBytes(), "Size to copy is valid");
 

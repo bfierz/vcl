@@ -52,16 +52,6 @@ Scene::~Scene()
 
 void Scene::update()
 {
-	if (_triMesh)
-	{
-		_surfaceMesh = std::make_unique<GPUSurfaceMesh>(std::move(_triMesh));
-	}
-
-	if (_tetraMesh)
-	{
-		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
-	}
-
 	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float) _camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
 
 	_modelMatrix = _cameraController.currObjectTransformation();
@@ -86,6 +76,12 @@ void Scene::createSurfaceSphere()
 	}
 	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
+
+	// Create GPU buffers
+	_engine->enqueueCommand([this]()
+	{
+		_surfaceMesh = std::make_unique<GPUSurfaceMesh>(std::move(_triMesh));
+	});
 }
 
 void Scene::createBar(int x, int y, int z)
@@ -105,6 +101,12 @@ void Scene::createBar(int x, int y, int z)
 	}
 	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
+
+	// Create GPU buffers
+	_engine->enqueueCommand([this]()
+	{
+		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
+	});
 }
 
 void Scene::loadMesh(const QUrl& path)
@@ -141,6 +143,12 @@ void Scene::loadMesh(const QUrl& path)
 	}
 	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
+
+	// Create GPU buffers
+	_engine->enqueueCommand([this]()
+	{
+		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
+	});
 }
 
 void Scene::startRotate(float ratio_x, float ratio_y)

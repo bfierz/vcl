@@ -72,11 +72,26 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		InvalidateRange
 	);
 
+	class BufferBindPoint
+	{
+	public:
+		BufferBindPoint(GLenum target, GLuint id);
+		~BufferBindPoint();
+
+	private:
+		GLenum _target;
+		GLuint _id;
+	};
+
 	class Buffer : public Runtime::Buffer, public Resource
 	{
 	public:
 		Buffer(const BufferDescription& desc, bool allowPersistentMapping = false, bool allowCoherentMapping = false, const BufferInitData* init_data = nullptr);
 		virtual ~Buffer();
+
+	public:
+		//! Bind the buffer to the GL pipeline
+		BufferBindPoint bind(GLenum target);
 
 	public:
 		void* map(size_t offset, size_t length, Flags<CPUAccess> access = CPUAccess::Write, Flags<MapOptions> options = {});
@@ -88,6 +103,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
 
 	public:
+		void copyTo(void* dst, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
 		void copyTo(Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
 
 	private:

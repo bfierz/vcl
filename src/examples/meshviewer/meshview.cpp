@@ -31,6 +31,7 @@
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
+#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
@@ -275,6 +276,39 @@ void FboRenderer::render()
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
+		// Draw the object buffer
+		{
+			_engine->setRenderTargets(_idBuffer, _idBufferDepth);
+
+			auto volumeMesh = scene->volumeMesh();
+			if (volumeMesh)
+			{
+				_engine->setPipelineState(_idTetraMeshPipelineState);
+
+				////////////////////////////////////////////////////////////////////
+				// Render the mesh
+				////////////////////////////////////////////////////////////////////
+
+				_opaqueTetraMeshPipelineState->program().setUniform(_opaqueTetraMeshPipelineState->program().uniform("ModelMatrix"), M);
+
+				// Set the vertex positions
+				_opaqueTetraMeshPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
+
+				// Bind the buffers
+				glBindVertexBuffer(0, volumeMesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
+				glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+				// Render the mesh
+				glDrawArrays(GL_POINTS, 0, (GLsizei)volumeMesh->nrVolumes());
+			}
+
+			// Queue a read-back
+			_engine->queueReadback(_idBuffer);
+		}
+
+		// Reset the render target
+		this->framebufferObject()->bind();
+
 		// Draw the ground
 		{
 			// Configure the layout
@@ -309,7 +343,7 @@ void FboRenderer::render()
 			glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, surfaceMesh->nrFaces());
+			glDrawArrays(GL_POINTS, 0, (GLsizei) surfaceMesh->nrFaces());
 		}
 
 		auto volumeMesh = scene->volumeMesh();
@@ -332,9 +366,8 @@ void FboRenderer::render()
 			glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, volumeMesh->nrVolumes());
+			glDrawArrays(GL_POINTS, 0, (GLsizei)volumeMesh->nrVolumes());
 		}
-
 	}
 
 	_engine->endFrame();
@@ -348,6 +381,7 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 	if (view)
 	{
 		_owner = view;
+		_owner->scene()->setEngine(_engine.get());
 	}
 
 	if (_owner && _owner->scene())
@@ -358,12 +392,35 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 
 QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size)
 {
+	// Clean-up the old render-targets
+	if (_idBuffer)
+	{
+		_engine->deletePersistentTexture(_idBuffer);
+	}
+
+	// Create the new render-targets
+	Vcl::Graphics::Runtime::Texture2DDescription desc;
+	desc.Width = size.width();
+	desc.Height = size.height();
+	desc.Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
+	desc.ArraySize = 1;
+	desc.MipLevels = 1;
+	_idBuffer = _engine->allocatePersistentTexture(std::make_unique<Vcl::Graphics::Runtime::OpenGL::Texture2D>(desc));
+
+	desc.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	_idBufferDepth = Vcl::make_owner<Vcl::Graphics::Runtime::OpenGL::Texture2D>(desc);
+
 	QOpenGLFramebufferObjectFormat format;
 	format.setAttachment(QOpenGLFramebufferObject::Depth);
 	format.setSamples(4);
 	return new QOpenGLFramebufferObject(size, format);
 }
 
+MeshView::MeshView(QQuickItem* parent)
+: QQuickFramebufferObject(parent)
+{
+	setMirrorVertically(true);
+}
 
 MeshView::Renderer* MeshView::createRenderer() const
 {
