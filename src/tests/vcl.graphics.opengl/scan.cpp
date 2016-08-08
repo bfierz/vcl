@@ -29,35 +29,65 @@
 // C++ Standard Library
 
 // Include the relevant parts from the library
-#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
+#include <vcl/graphics/opengl/algorithm/scan.h>
 
 // Google test
 #include <gtest/gtest.h>
 
-TEST(OpenGL, InitEmptyTexture2D)
+void ExecuteScanTest(unsigned int size)
 {
-	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	Texture2DDescription desc2d;
-	desc2d.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	desc2d.ArraySize = 1;
-	desc2d.Width = 32;
-	desc2d.Height = 32;
-	desc2d.MipLevels = 1;
-	OpenGL::Texture2D tex{ desc2d };
+	ScanExclusive scan{ size };
 
-	// Verify the result
-	int w, h;
-	int miplevel = 0;
-#if defined(VCL_GL_ARB_direct_state_access)
-	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_WIDTH, &w);
-	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_HEIGHT, &h);
-#elif defined(VCL_GL_EXT_direct_state_access)
-	glGetTextureLevelParameterivEXT(tex.id(), GL_TEXTURE_2D, miplevel, GL_TEXTURE_WIDTH, &w);
-	glGetTextureLevelParameterivEXT(tex.id(), GL_TEXTURE_2D, miplevel, GL_TEXTURE_HEIGHT, &h);
-#endif
+	// Define the input buffer
+	std::vector<int> numbers(size);
+	for (int i = 0; i < size; i++)
+		numbers[i] = i;
 
-	EXPECT_EQ(32, w) << "Texture has wrong width.";
-	EXPECT_EQ(32, h) << "Texture has wrong height.";
+	Runtime::BufferDescription desc =
+	{
+		sizeof(unsigned int) * numbers.size(),
+		Runtime::Usage::Staging,
+		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
+	};
+
+	Runtime::BufferInitData data =
+	{
+		numbers.data(),
+		sizeof(unsigned int) * numbers.size()
+	};
+
+	auto input = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
+	auto output = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true);
+
+	scan(output, input, size);
+
+	int* ptr = (int*)output->map(0, sizeof(unsigned int) * numbers.size(), Runtime::CPUAccess::Read);
+
+	int s = 0;
+	for (int i = 0; i < size; i++)
+	{
+		EXPECT_EQ(s, ptr[i]) << "Prefix sum is wrong: " << i;
+		s += i;
+	}
+
+	output->unmap();
+}
+
+TEST(OpenGL, ScanExclusiveSmall)
+{
+	ExecuteScanTest(4);
+	ExecuteScanTest(12);
+	ExecuteScanTest(16);
+	ExecuteScanTest(40);
+	ExecuteScanTest(256);
+	ExecuteScanTest(1020);
+	ExecuteScanTest(1024);
+}
+
+TEST(OpenGL, ScanExclusiveLarge)
+{
+	ExecuteScanTest(2048);
+	ExecuteScanTest(3072);
 }

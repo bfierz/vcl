@@ -30,6 +30,9 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
+// C++ standard library
+#include <initializer_list>
+
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
@@ -39,7 +42,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source);
+		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 

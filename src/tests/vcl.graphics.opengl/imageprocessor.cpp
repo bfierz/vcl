@@ -197,7 +197,8 @@ TEST(OpenGL, ImageProcessingTaskLuminance)
 	out_tex.read(luminance.size() * sizeof(FP16), luminance.data());
 
 	float log_lum = half_to_float_fast5(luminance[0]).f;
-	unsigned char lum = (unsigned char) (255.0f * std::exp(log_lum));
+	float scaled_lum = roundf(255.0f * std::exp(log_lum));
+	unsigned char lum = (unsigned char)scaled_lum;
 
 	EXPECT_EQ(127, lum) << "Luminance computation was not successful";
 }

@@ -161,4 +161,11 @@ namespace Vcl { namespace Assert
 	}
 }}
 
+namespace fmt
+{
+	std::string format()
+	{
+		return "";
+	}
+}
 #endif

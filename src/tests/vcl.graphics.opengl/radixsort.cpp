@@ -22,30 +22,65 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/state/sampler.h>
+// C++ Standard Library
 
-#ifdef VCL_OPENGL_SUPPORT
+// Include the relevant parts from the library
+#include <vcl/graphics/opengl/algorithm/radixsort.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+// Google test
+#include <gtest/gtest.h>
+
+void ExecuteRadixSortTest(unsigned int size)
 {
-	class Sampler : public Runtime::Sampler, public Resource
-	{
-	public:
-		Sampler(const SamplerDescription& desc);
-		virtual ~Sampler();
+	using namespace Vcl::Graphics;
 
-	private:
-		void convert(FilterType filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
-		GLenum convert(TextureAddressMode mode) const;
-		GLenum convert(ComparisonFunction func) const;
+	const unsigned int num_keys = size;
+
+	RadixSort sort{ num_keys };
+
+	// Define the input buffer
+	std::vector<int> numbers(num_keys);
+	for (int i = 0; i < num_keys; i++)
+		numbers[i] = num_keys - (i + 0);
+
+	Runtime::BufferDescription desc =
+	{
+		num_keys * sizeof(int),
+		Runtime::Usage::Staging,
+		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+
+	Runtime::BufferInitData data =
+	{
+		numbers.data(),
+		num_keys * sizeof(int)
+	};
+
+	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
+
+	sort(keys, num_keys, 20);
+
+	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::CPUAccess::Read);
+
+	int last = std::numeric_limits<int>::min();
+	for (int i = 0; i < num_keys; i++)
+	{
+		EXPECT_LT(last, ptr[i]) << "Order is wrong: " << i;
+		last = ptr[i];
+	}
+
+	keys->unmap();
+}
+
+TEST(OpenGL, RadixSort)
+{
+	// Test range of valid input sizes
+	for (int i = 512; i < (1 << 14); i += 512)
+	{
+		ExecuteRadixSortTest(i);
+	}
+}
