@@ -41,6 +41,10 @@ SET(QML
 SET(SHADERS
 	shaders/3DSceneBindings.h
 
+	shaders/boundinggrid.vert
+	shaders/boundinggrid.geom
+	shaders/boundinggrid.frag
+
 	shaders/plane.vert
 	shaders/plane.geom
 	shaders/trimesh.vert

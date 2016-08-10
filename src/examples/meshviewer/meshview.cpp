@@ -194,6 +194,10 @@ FboRenderer::FboRenderer()
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 
+	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/boundinggrid.vert");
+	Shader boxGeom = createShader(ShaderType::GeometryShader, ":/shaders/boundinggrid.geom");
+	Shader boxFrag = createShader(ShaderType::FragmentShader, ":/shaders/boundinggrid.frag");
+
 	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/plane.vert");
 	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/plane.geom");
 
@@ -207,6 +211,12 @@ FboRenderer::FboRenderer()
 
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
+
+	PipelineStateDescription boxPSDesc;
+	boxPSDesc.VertexShader = &boxVert;
+	boxPSDesc.GeometryShader = &boxGeom;
+	boxPSDesc.FragmentShader = &boxFrag;
+	_boxPipelineState = Vcl::make_owner<PipelineState>(boxPSDesc);
 
 	PipelineStateDescription planePSDesc;
 	planePSDesc.InputLayout = planeLayout;
@@ -308,6 +318,17 @@ void FboRenderer::render()
 
 		// Reset the render target
 		this->framebufferObject()->bind();
+
+		// Draw the bounding grid
+		{
+			// Configure the layout
+			_engine->setPipelineState(_boxPipelineState);
+
+			_boxPipelineState->program().setUniform(_boxPipelineState->program().uniform("ModelMatrix"), M);
+
+			// Render the mesh
+			glDrawArraysInstanced(GL_LINE_STRIP, 0, 15, 2);
+		}
 
 		// Draw the ground
 		{

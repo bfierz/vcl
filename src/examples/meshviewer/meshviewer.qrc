@@ -7,6 +7,9 @@
 
   <qresource>
     <file>shaders/3DSceneBindings.h</file>
+    <file>shaders/boundinggrid.vert</file>
+    <file>shaders/boundinggrid.geom</file>
+    <file>shaders/boundinggrid.frag</file>
     <file>shaders/plane.vert</file>
     <file>shaders/plane.geom</file>
     <file>shaders/trimesh.vert</file>

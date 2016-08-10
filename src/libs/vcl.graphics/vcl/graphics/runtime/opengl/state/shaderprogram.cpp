@@ -645,7 +645,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLint linked;
 		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
 		if (linked == GL_FALSE)
+		{
+			AssertBlock
+			{
+				printInfoLog();
+			}
 			return;
+		}
 
 #ifdef VCL_DEBUG
 		glValidateProgram(id());
@@ -686,10 +692,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Collect the uniforms of this program
 		_resources = std::make_unique<ProgramResources>(id());
 
-		AssertBlock
-		{
-			printInfoLog();
-		}
 		Ensure(id() > 0, "Shader program is created");
 	}
 
@@ -703,6 +705,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::linkAttributes(const InputLayoutDescription& layout)
 	{
+		// If no layout is set, nothing needs to be done
+		if (layout.size() == 0)
+			return;
+
 		// Match the attributes against the interface provided in the program description
 		// The interface may contain more data than the shader can consume.
 		// The interface must provide at least the used by the shader.

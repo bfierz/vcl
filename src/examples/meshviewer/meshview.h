@@ -65,6 +65,7 @@ private:
 	MeshView* _owner{ nullptr };
 
 private: // States
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _boxPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
