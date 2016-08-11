@@ -133,8 +133,8 @@ number of cells per cube dimension:
     glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, N + 1);
 ```
 
-Using Separate Colours for each face
-------------------------------------
+Using Separate Colours for each Dimension
+-----------------------------------------
 
 So far we the rendered grid cube has only a single color. In this section, I
 will extend the shader a bit to allow us to select a color for each dimension.
