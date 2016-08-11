@@ -23,10 +23,7 @@
  * SOFTWARE.
  */
 #version 430 core
-#extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
-
-#include "3DSceneBindings.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shader Configuration
@@ -57,11 +54,11 @@ layout(location = 0) out VertexData
 void emitLine(int a, int b)
 {
 	Out.Colour = In[a].Colour;
-	gl_Position = ProjectionMatrix * gl_in[a].gl_Position;
+	gl_Position = gl_in[a].gl_Position;
 	EmitVertex();
 
 	Out.Colour = In[a].Colour;
-	gl_Position = ProjectionMatrix * gl_in[b].gl_Position;
+	gl_Position = gl_in[b].gl_Position;
 	EmitVertex();
 
 	EndPrimitive();

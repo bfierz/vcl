@@ -71,12 +71,6 @@ uniform float Resolution = 10;
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ////////////////////////////////////////////////////////////////////////////////
-
-// Axis selection
-int selector[6] = { 1, 2,
-                    0, 2,
-                    0, 1 };
-
 void main()
 {
 	// Size of the entire bounding grid
@@ -99,21 +93,23 @@ void main()
 
 	// Accumulate the position of the node
 	vec3 pos = Origin;
-	Out.Colour = Colours[selector[2*primitiveID + 1]];
 	switch (nodeID)
 	{
+	case 0:
+		Out.Colour = Colours[axisTre];
+		break;
 	case 1:
-		pos += size * Axis[selector[2*primitiveID + 0]];
-		Out.Colour = Colours[selector[2*primitiveID + 0]];
+		pos += size * Axis[axisTwo];
+		Out.Colour = Colours[axisTwo];
 		break;
 	case 2:
-		pos += size * Axis[selector[2*primitiveID + 0]];
-		pos += size * Axis[selector[2*primitiveID + 1]];
-		Out.Colour = Colours[selector[2*primitiveID + 1]];
+		pos += size * Axis[axisTwo];
+		pos += size * Axis[axisTre];
+		Out.Colour = Colours[axisTre];
 		break;
 	case 3:
-		pos += size * Axis[selector[2*primitiveID + 1]];
-		Out.Colour = Colours[selector[2*primitiveID + 0]];
+		pos += size * Axis[axisTre];
+		Out.Colour = Colours[axisTwo];
 		break;
 	}
 
@@ -121,5 +117,5 @@ void main()
 	pos += float(gl_InstanceID) * StepSize * Axis[axisOne];
 
 	// Transform the point to view space
-	gl_Position = ViewMatrix * ModelMatrix * vec4(pos, 1);
+	gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(pos, 1);
 }
