@@ -326,8 +326,9 @@ void FboRenderer::render()
 
 			_boxPipelineState->program().setUniform(_boxPipelineState->program().uniform("ModelMatrix"), M);
 
-			// Render the mesh
-			glDrawArraysInstanced(GL_LINE_STRIP, 0, 15, 2);
+			// Render the grid
+			// 3 Line-loops with 4 points, 11 replications of the loops
+			glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, 11);
 		}
 
 		// Draw the ground
