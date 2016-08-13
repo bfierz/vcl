@@ -32,8 +32,8 @@ import MeshViewerRendering 1.0
 
 ApplicationWindow
 {
-    width: 400
-    height: 400
+    width: 800
+    height: 800
 
 	OpenMeshDialog
 	{

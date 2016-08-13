@@ -4,7 +4,7 @@ Shader Generated Grid Cube
 In this document I want do describe a little shader snippet which generates grid
 cube on the fly using OpenGL and GLSL.
 
-// TODO: Insert sample image here
+<img src="black.png" alt="Black grid cube" style="width: 400px;"/>
 
 Basic Desgin
 ------------
@@ -43,7 +43,7 @@ the two built-in variables:
 The basic idea is to define a loop for each dimension, and then sweeping these
 loops along each dimension. 
 
-// TODO: Insert concept drawing
+![Sketch of basic working principle](sketch.png "Sketch of basic working principle")
 
 The individual loops are here-by modelled using four points by using
 `GL_LINES_ADJACENCY`:
@@ -168,4 +168,4 @@ In the geometry shader these colour values will then be reused such that the
 first value of each input line primitive will define the colour of the entire
 output primitive.
 
-// TODO final image of grid cube with colours
+<img src="coloured.png" alt="Coloured grid cube" style="width: 400px;"/>
