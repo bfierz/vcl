@@ -28,10 +28,14 @@
 
 #include "3DSceneBindings.h"
 
+#define NR_SLICES 4
+#define NR_SLICES_PER_BATCH 1
+#define NR_SLICE_BATCHES (NR_SLICES / NR_SLICES_PER_BATCH)
+
 // Convert input points to a set of 4 triangles
 layout(points) in;
-layout(invocations = 6) in;
-layout(triangle_strip, max_vertices = 10) out;
+layout(invocations = 6 * NR_SLICE_BATCHES) in;
+layout(triangle_strip, max_vertices = (NR_SLICES_PER_BATCH + 1) * 2) out;
 
 // Input data from last stage
 in VertexData
@@ -102,14 +106,14 @@ vec4 computeOrientation(vec3 edge)
  *	\param sl Index of the slies to generate primitives for
  *	\param slices Number of slices to generate primitives for
  */
-void generateCylinder(vec4 o, vec3 c, int st, float h, int sl, int slices, vec2[4] cp, vec2[4] cn, vec4 colour)
+void generateCylinder(vec4 o, vec3 c, int st, float h, int sl, int slices, vec2[NR_SLICES] cp, vec2[NR_SLICES] cn, vec4 colour)
 {
 	for (int j = sl; j <= sl + slices; ++j)
 	{
 		vec3 h0 = vec3(0, float(st + 0) * h, 0);
 		vec3 h1 = vec3(0, float(st + 1) * h, 0);
-		vec3 c0 = vec3(cp[j % slices].x, 0.0f, cp[j % slices].y);
-		vec3 n0 = quatvecmul(o, vec3(cn[j % slices].x, 0.0f, cn[j % slices].y));
+		vec3 c0 = vec3(cp[j % NR_SLICES].x, 0.0f, cp[j % NR_SLICES].y);
+		vec3 n0 = quatvecmul(o, vec3(cn[j % NR_SLICES].x, 0.0f, cn[j % NR_SLICES].y));
 
 		Out.Colour = colour;
 		Out.Normal = n0;
@@ -128,29 +132,25 @@ void generateCylinder(vec4 o, vec3 c, int st, float h, int sl, int slices, vec2[
 
 void main(void)
 {
-	// Cylinder configuration
-	const int stacks = 1;
-	const int slices = 4;
-	float radius = Radius;
-
 	// Compute Vertices for one cylinder slide
-	vec2 cp[slices];
-	vec2 cn[slices];
-	for (int i = 0; i < slices; i++)
+	vec2 cp[NR_SLICES];
+	vec2 cn[NR_SLICES];
+	for (int i = 0; i < NR_SLICES; i++)
 	{
 		float fi = i;
-		float rad_xz = fi / slices * 2.0f * 3.1416;
+		float rad_xz = fi / NR_SLICES * 2.0f * 3.1416;
 		float sin_xz = sin(rad_xz - 3.1416);
 		float cos_xz = cos(rad_xz - 3.1416);
 
-		cp[i].x = cos_xz * radius;
-		cp[i].y = sin_xz * radius;
+		cp[i].x = cos_xz * Radius;
+		cp[i].y = sin_xz * Radius;
 
 		cn[i].x = cp[i].x;
 		cn[i].y = cp[i].y;
 		cn[i] = normalize(cn[i]);
 	}
 
+	// Edges for a single tetrahedron
 	ivec2 e[6] =
 	{
 		ivec2(1, 0),
@@ -169,8 +169,8 @@ void main(void)
 	p[2] = vec3(Position[idx.z].x, Position[idx.z].y, Position[idx.z].z);
 	p[3] = vec3(Position[idx.w].x, Position[idx.w].y, Position[idx.w].z);
 
-	vec3 e0 = p[e[gl_InvocationID].x];
-	vec3 e1 = p[e[gl_InvocationID].y];
+	vec3 e0 = p[e[gl_InvocationID / NR_SLICE_BATCHES].x];
+	vec3 e1 = p[e[gl_InvocationID / NR_SLICE_BATCHES].y];
 
 	// Colour of the tube
 	vec4 colour = vec4(0.5, 0.5, 0.5, 1);
@@ -179,5 +179,6 @@ void main(void)
 	vec4 o = computeOrientation(e1 - e0);
 
 	// Render the cylinder (e0, e1)
-	generateCylinder(o, e0, 0, length(e1 - e0), 0, slices, cp, cn, colour);
+	int sliceBatchIdx = (gl_InvocationID % NR_SLICE_BATCHES) * NR_SLICES_PER_BATCH;
+	generateCylinder(o, e0, 0, length(e1 - e0), sliceBatchIdx, NR_SLICES_PER_BATCH, cp, cn, colour);
 }
