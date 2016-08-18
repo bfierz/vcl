@@ -206,6 +206,8 @@ FboRenderer::FboRenderer()
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
+	Shader opaqueTetraGeomWire = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh_wireframe.geom");
+	Shader opaqueTetraGeomPoints = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh_sphere.geom");
 	Shader idTetraVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_tetramesh.vert");
 	Shader idTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_tetramesh.geom");
 
@@ -245,6 +247,12 @@ FboRenderer::FboRenderer()
 	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeom;
 	opaqueTetraPSDesc.FragmentShader = &meshFrag;
 	_opaqueTetraMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+
+	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeomWire;
+	_opaqueTetraMeshWirePipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+
+	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeomPoints;
+	_opaqueTetraMeshPointsPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
 
 	BufferDescription planeDesc;
 	planeDesc.Usage = Usage::Default;
@@ -371,30 +379,42 @@ void FboRenderer::render()
 		auto volumeMesh = scene->volumeMesh();
 		if (volumeMesh)
 		{
-			// Configure the state
-			_engine->setPipelineState(_opaqueTetraMeshPipelineState);
-
-			////////////////////////////////////////////////////////////////////
-			// Render the mesh
-			////////////////////////////////////////////////////////////////////
-
-			_opaqueTetraMeshPipelineState->program().setUniform(_opaqueTetraMeshPipelineState->program().uniform("ModelMatrix"), M);
-
-			// Set the vertex positions
-			_opaqueTetraMeshPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
-
-			// Bind the buffers
-			glBindVertexBuffer(0, volumeMesh->indices()->id(),       0, sizeof(Eigen::Vector4i));
-			glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
-
-			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, (GLsizei)volumeMesh->nrVolumes());
+			if (_renderWireframe)
+			{
+				renderTetMesh(volumeMesh, _opaqueTetraMeshPointsPipelineState, M);
+				renderTetMesh(volumeMesh, _opaqueTetraMeshWirePipelineState, M);
+			}
+			else
+			{
+				renderTetMesh(volumeMesh, _opaqueTetraMeshPipelineState, M);
+			}
 		}
 	}
 
 	_engine->endFrame();
 	_owner->window()->resetOpenGLState();
 	update();
+}
+
+void FboRenderer::renderTetMesh(GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	////////////////////////////////////////////////////////////////////
+	// Render the mesh
+	////////////////////////////////////////////////////////////////////
+	ps->program().setUniform(ps->program().uniform("ModelMatrix"), M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
+	glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrVolumes());
 }
 
 void FboRenderer::synchronize(QQuickFramebufferObject* item)
@@ -404,6 +424,8 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 	{
 		_owner = view;
 		_owner->scene()->setEngine(_engine.get());
+
+		_renderWireframe = _owner->renderWireframe();
 	}
 
 	if (_owner && _owner->scene())

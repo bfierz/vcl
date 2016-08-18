@@ -51,6 +51,8 @@ SET(SHADERS
 	shaders/trimesh.geom
 	shaders/tetramesh.vert
 	shaders/tetramesh.geom
+	shaders/tetramesh_sphere.geom
+	shaders/tetramesh_wireframe.geom
 	shaders/mesh.frag
 	
 	shaders/objectid_tetramesh.vert

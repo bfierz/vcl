@@ -113,16 +113,16 @@ void generateCylinder(vec4 o, vec3 c, int st, float h, int sl, int slices, vec2[
 		vec3 h0 = vec3(0, float(st + 0) * h, 0);
 		vec3 h1 = vec3(0, float(st + 1) * h, 0);
 		vec3 c0 = vec3(cp[j % NR_SLICES].x, 0.0f, cp[j % NR_SLICES].y);
-		vec3 n0 = quatvecmul(o, vec3(cn[j % NR_SLICES].x, 0.0f, cn[j % NR_SLICES].y));
+		vec4 n0 = ViewMatrix * vec4(quatvecmul(o, vec3(cn[j % NR_SLICES].x, 0.0f, cn[j % NR_SLICES].y)), 0);
 
 		Out.Colour = colour;
-		Out.Normal = n0;
+		Out.Normal = n0.xyz;
 		Out.Position = ViewMatrix * ModelMatrix * vec4(quatvecmul(o, h0 + c0) + c, 1);
 		gl_Position = ProjectionMatrix * Out.Position;
 		EmitVertex();
 
 		Out.Colour = colour;
-		Out.Normal = n0;
+		Out.Normal = n0.xyz;
 		Out.Position = ViewMatrix * ModelMatrix * vec4(quatvecmul(o, h1 + c0) + c, 1);
 		gl_Position = ProjectionMatrix * Out.Position;
 		EmitVertex();

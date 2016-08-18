@@ -59,17 +59,25 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
+	void renderTetMesh(GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+
+private:
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	MeshView* _owner{ nullptr };
+
+	bool _renderWireframe{ false };
 
 private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _boxPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
+
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshWirePipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPointsPipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
 
@@ -87,6 +95,7 @@ class MeshView : public QQuickFramebufferObject
 
 	// Properties
 	Q_PROPERTY(Scene* scene READ scene WRITE setScene)
+	Q_PROPERTY(bool renderWireframe READ renderWireframe WRITE setRenderWireframe)
 
 public:
 	MeshView(QQuickItem *parent = Q_NULLPTR);
@@ -99,10 +108,18 @@ public:
 		update();
 	}
 
+	bool renderWireframe() const { return _renderWireframe; }
+	void setRenderWireframe(bool wireframe)
+	{
+		_renderWireframe = wireframe;
+		update();
+	}
+
 private: // Implementations
 	Renderer* createRenderer() const override;
 	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
 
 private:
 	Scene* _scene{ nullptr };
+	bool _renderWireframe{ false };
 };

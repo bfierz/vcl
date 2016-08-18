@@ -25,6 +25,7 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.1
 
@@ -109,6 +110,25 @@ ApplicationWindow
         id: renderer
         anchors.fill: parent
         anchors.margins: 10
+		
+		CheckBox
+		{
+			style: CheckBoxStyle
+			{
+				label: Text
+				{
+					color: "white"
+					text: "Wireframe"
+				}
+			}
+			checked: false
+
+			onClicked:
+			{
+				renderer.renderWireframe = checked
+			}
+		}
+
 
 		MouseArea
 		{
