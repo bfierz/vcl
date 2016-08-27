@@ -93,6 +93,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Request a new constant buffer for per frame data
 		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
 
+		//! Request linear device memory for per frame data
+		virtual BufferView requestPerFrameLinearMemory(size_t size) = 0;
+
 		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
 		virtual ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Texture> tex) = 0;
 

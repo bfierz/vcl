@@ -16,6 +16,14 @@ FIND_PACKAGE(Qt5 COMPONENTS Core Gui OpenGL Qml Quick)
 # Uses console mode only. Not need to link against qtmain.lib.
 cmake_policy(SET CMP0020 OLD)
 
+SET(UTIL_INC
+	util/frustumhelpers.h
+)
+SET(UTIL_SRC
+	util/frustumhelpers.cpp
+)
+
+
 SET(INC
 	gpusurfacemesh.h
 	gpuvolumemesh.h
@@ -38,15 +46,21 @@ SET(QML
 	OpenMeshDialog.qml
 )
 
+SET(SHADERS_DEBUG
+    shaders/debug/plane.vert
+    shaders/debug/plane.geom
+    shaders/debug/object.frag
+)
+    
 SET(SHADERS
+	shaders/UniformBuffer.h
+	shaders/MarchingCubes.h
 	shaders/3DSceneBindings.h
 
 	shaders/boundinggrid.vert
 	shaders/boundinggrid.geom
 	shaders/boundinggrid.frag
 
-	shaders/plane.vert
-	shaders/plane.geom
 	shaders/trimesh.vert
 	shaders/trimesh.geom
 	shaders/tetramesh.vert
@@ -64,10 +78,12 @@ QT5_ADD_RESOURCES(RESOURCES meshviewer.qrc)
 
 SOURCE_GROUP("qml" FILES ${QML})
 SOURCE_GROUP("res" FILES ${RESOURCES})
+SOURCE_GROUP("shaders\\debug" FILES ${SHADERS_DEBUG})
 SOURCE_GROUP("shaders" FILES ${SHADERS})
+SOURCE_GROUP("utils" FILES ${UTIL_SRC} ${UTIL_INC})
 SOURCE_GROUP("" FILES ${SRC} ${INC})
 
-ADD_EXECUTABLE(meshviewer ${SRC} ${INC} ${QML} ${RESOURCES} ${SHADERS})
+ADD_EXECUTABLE(meshviewer ${UTIL_SRC} ${UTIL_INC} ${SRC} ${INC} ${QML} ${RESOURCES} ${SHADERS} ${SHADERS_DEBUG})
 SET_TARGET_PROPERTIES(meshviewer PROPERTIES FOLDER examples)
 
 TARGET_LINK_LIBRARIES(meshviewer

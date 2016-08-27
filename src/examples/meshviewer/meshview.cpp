@@ -30,6 +30,7 @@
 #include <QtQuick/QQuickWindow>
 
 // VCL
+#include <vcl/geometry/MarchingCubesTables.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
@@ -39,14 +40,24 @@
 namespace
 {
 #include "shaders/3DSceneBindings.h"
+#include "shaders/MarchingCubes.h"
 }
 
+#include "util/frustumhelpers.h"
 #include "scene.h"
 
 namespace
 {
-	QString resolveShaderFile(QString dir, QString path)
+	QString resolveShaderFile(QString full_path)
 	{
+		QRegularExpression dir_regex{ R"((.+/)(.+))" };
+		QRegularExpressionMatch match;
+		full_path.indexOf(dir_regex, 0, &match);
+		Check(match.hasMatch(), "Split is successfull.");
+
+		QString dir = match.captured(1);
+		QString path = match.captured(2);
+
 		QFile shader_file{ dir + path };
 		shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
 		Check(shader_file.isOpen(), "Shader file is open.");
@@ -63,7 +74,7 @@ namespace
 			QRegularExpressionMatch match;
 			if (curr_tok.indexOf(inc_regex, 0, &match) >= 0 && match.hasMatch())
 			{
-				QString included_file = resolveShaderFile(dir, match.captured(1));
+				QString included_file = resolveShaderFile(dir + match.captured(1));
 				builder = builder % included_file % "\n";
 			}
 			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
@@ -83,78 +94,9 @@ namespace
 
 	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path)
 	{
-		QRegularExpression dir_regex{ R"((.+/)(.+))" };
-		QRegularExpressionMatch match;
-		path.indexOf(dir_regex, 0, &match);
-		Check(match.hasMatch(), "Split is successfull.");
-
-		QString data = resolveShaderFile(match.captured(1), match.captured(2));
+		QString data = resolveShaderFile(path);
 
 		return{ type, 0, data.toUtf8().data() };
-	}
-}
-
-// Debug code
-namespace
-{
-	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum)
-	{
-		// tan(fov / 2)
-		float scale = frustum.x();
-		float ratio = frustum.y();
-		float near_dist = frustum.z();
-		float far_dist = frustum.w();
-
-		float near_half_height = scale * near_dist;
-		float near_half_width = near_half_height * ratio;
-
-		float far_half_height = scale * far_dist;
-		float far_half_width = far_half_height * ratio;
-
-		return{ near_half_width, near_half_height, far_half_width, far_half_height };
-	}
-
-	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane)
-	{
-		Eigen::Vector3f N = plane.segment<3>(0);
-		float d = plane.w();
-
-		float t = -(p0.dot(N) + d) / dir.dot(N);
-		return p0 + t*dir;
-	}
-
-	void computePlaneCorners(const Eigen::Vector4f& eq, const Eigen::Matrix4f& ViewMatrix, const Eigen::Matrix4f& ModelMatrix, const Eigen::Vector4f& Frustum)
-	{
-		Eigen::Vector3f N = eq.segment<3>(0);
-		float d = eq.w();
-
-		// Point on plane
-		Eigen::Vector3f P = d * N;
-
-		// Model-view matrix
-		Eigen::Matrix4f MV = ViewMatrix * ModelMatrix;
-
-		// Transform the plane normal to the view-space
-		P = (MV * Eigen::Vector4f(P.x(), P.y(), P.z(), 1)).segment<3>(0);
-		N = MV.block<3, 3>(0, 0) * N;
-		d = P.dot(N);
-
-		// Compute the rays of the frustum from camera point into screen
-		Eigen::Vector4f frustum_size = computeFrustumSize(Frustum);
-		Eigen::Vector3f point_on_far = Eigen::Vector3f(0, 0, -Frustum.w());
-
-		Eigen::Vector3f d0 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d1 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d2 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d3 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-
-		// Finally compute plane corners in view space
-		Eigen::Vector3f p0 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d0, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p1 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d1, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p2 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d2, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p3 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d3, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-
-		return;
 	}
 }
 
@@ -198,8 +140,8 @@ FboRenderer::FboRenderer()
 	Shader boxGeom = createShader(ShaderType::GeometryShader, ":/shaders/boundinggrid.geom");
 	Shader boxFrag = createShader(ShaderType::FragmentShader, ":/shaders/boundinggrid.frag");
 
-	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/plane.vert");
-	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/plane.geom");
+	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/debug/plane.vert");
+	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/debug/plane.geom");
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
@@ -254,6 +196,22 @@ FboRenderer::FboRenderer()
 	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeomPoints;
 	_opaqueTetraMeshPointsPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
 
+	// Build up the marching cubes tables
+	MarchingCubesTables mcTables;
+	memcpy(mcTables.caseToNumPolys, Vcl::Geometry::caseToNumPolys, sizeof(Vcl::Geometry::caseToNumPolys));
+	memcpy(mcTables.edgeVertexList, Vcl::Geometry::edgeVertexList, sizeof(Vcl::Geometry::edgeVertexList));
+
+	BufferDescription mcDesc;
+	mcDesc.Usage = Usage::Default;
+	mcDesc.SizeInBytes = sizeof(MarchingCubesTables);
+
+	BufferInitData mcData;
+	mcData.Data = &mcTables;
+	mcData.SizeInBytes = sizeof(MarchingCubesTables);
+
+	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, false, false, &mcData);
+
+	// Buffer for the ground plane
 	BufferDescription planeDesc;
 	planeDesc.Usage = Usage::Default;
 	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
@@ -344,6 +302,7 @@ void FboRenderer::render()
 			// Configure the layout
 			_engine->setPipelineState(_planePipelineState);
 		
+			_engine->setConstantBuffer(MARCHING_CUBES_TABLES_LOC, { _marchingCubesTables, 0, _marchingCubesTables->sizeInBytes(), nullptr });
 			_planePipelineState->program().setUniform(_planePipelineState->program().uniform("ModelMatrix"), M);
 		
 			// Bind the buffers
@@ -352,6 +311,48 @@ void FboRenderer::render()
 			// Render the mesh
 			glDrawArrays(GL_POINTS, 0, 1);
 		}
+		/*{
+			std::vector<Eigen::Vector3f> points;
+			Vcl::Util::computePlaneFrustumIntersection({ 0, 1, 0, -2 }, V * M, scene->frustum(), points);
+
+			auto plane_buffer = _engine->requestPerFrameLinearMemory(points.size() * sizeof(Eigen::Vector3f));
+			auto plane_buffer_ptr = reinterpret_cast<Eigen::Vector3f*>(plane_buffer.data());
+			Eigen::Matrix4f T = (V * M).inverse();
+			std::transform(points.begin(), points.end(), plane_buffer_ptr, [&T](const Eigen::Vector3f& v) -> Eigen::Vector3f
+			{
+				return (T * Eigen::Vector4f(v.x(), v.y(), v.z(), 1)).segment<3>(0);
+			});
+
+			auto plane_idx_buffer = _engine->requestPerFrameLinearMemory(points.size() * sizeof(int));
+			auto plane_idx_buffer_ptr = reinterpret_cast<int*>(plane_idx_buffer.data());
+			std::iota(plane_idx_buffer_ptr, plane_idx_buffer_ptr + points.size(), 0);
+
+			auto plane_col_buffer = _engine->requestPerFrameLinearMemory(points.size() / 3 * sizeof(Eigen::Vector4f));
+			auto plane_col_buffer_ptr = reinterpret_cast<Eigen::Vector4f*>(plane_col_buffer.data());
+			std::fill(plane_col_buffer_ptr, plane_col_buffer_ptr + points.size() / 3, Eigen::Vector4f(0, 1, 0, 1));
+
+			// Configure the layout
+			_engine->setPipelineState(_opaqueTriMeshPipelineState);
+
+			////////////////////////////////////////////////////////////////////
+			// Render the mesh
+			////////////////////////////////////////////////////////////////////
+
+			_opaqueTriMeshPipelineState->program().setUniform(_opaqueTriMeshPipelineState->program().uniform("ModelMatrix"), M);
+
+			// Set the vertex positions
+			_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", &plane_buffer.owner(), plane_buffer.offset(), plane_buffer.size());
+
+			// Bind the buffers
+			auto& gl_plane_indices = static_cast<const Vcl::Graphics::Runtime::OpenGL::Buffer&>(plane_idx_buffer.owner());
+			glBindVertexBuffer(0, gl_plane_indices.id(), plane_idx_buffer.offset(), sizeof(Eigen::Vector3i));
+
+			auto& gl_plane_colours = static_cast<const Vcl::Graphics::Runtime::OpenGL::Buffer&>(plane_col_buffer.owner());
+			glBindVertexBuffer(1, gl_plane_colours.id(), plane_col_buffer.offset(), sizeof(Eigen::Vector4f));
+
+			// Render the mesh
+			glDrawArrays(GL_POINTS, 0, (GLsizei)points.size() / 3);
+		}*/
 
 		auto surfaceMesh = scene->surfaceMesh();
 		if (surfaceMesh)

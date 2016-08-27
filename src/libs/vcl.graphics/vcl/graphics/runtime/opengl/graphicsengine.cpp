@@ -278,23 +278,32 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Frame::Frame()
 	: _readBackStage(this)
 	{
-		BufferDescription cbuffer_desc;
-
 		// Allocate a junk of 512 KB for constant buffers per frame
+		BufferDescription cbuffer_desc;
 		cbuffer_desc.SizeInBytes = 1 << 19;
 		cbuffer_desc.CPUAccess = CPUAccess::Write;
 		cbuffer_desc.Usage = Usage::Dynamic;
 
 		_constantBuffer = make_owner<Buffer>(cbuffer_desc, true, true);
+
+		// Allocate a junk of 16 MB for linear memory per frame
+		BufferDescription linbuffer_desc;
+		linbuffer_desc.SizeInBytes = 1 << 24;
+		linbuffer_desc.CPUAccess = CPUAccess::Write;
+		linbuffer_desc.Usage = Usage::Dynamic;
+
+		_linearMemoryBuffer = make_owner<Buffer>(linbuffer_desc, true, true);
 	}
 
-	void Frame::mapConstantBuffer()
+	void Frame::mapBuffers()
 	{
 		_mappedConstantBuffer = _constantBuffer->map(0, _constantBuffer->sizeInBytes(), CPUAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
+		_mappedLinearMemory = _linearMemoryBuffer->map(0, _linearMemoryBuffer->sizeInBytes(), CPUAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
 	}
 
-	void Frame::unmapConstantBuffer()
+	void Frame::unmapBuffers()
 	{
+		_linearMemoryBuffer->unmap();
 		_constantBuffer->unmap();
 	}
 
@@ -397,10 +406,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Map the per frame constant buffer
-		_current_frame->mapConstantBuffer();
+		_current_frame->mapBuffers();
 
-		// Reset the begin pointer for constant buffer chunk requests
+		// Reset the begin pointer for buffer chunk requests
 		_cbufferOffset = 0;
+		_linearBufferOffset = 0;
 
 		// Reset the staging area to use it again for the new frame
 		_current_frame->readBackBuffer()->transfer();
@@ -426,7 +436,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void GraphicsEngine::endFrame()
 	{
 		// Unmap the constant buffer
-		_current_frame->unmapConstantBuffer();
+		_current_frame->unmapBuffers();
 
 		// Queue a fence sync object to mark the end of the frame
 		_current_frame->setFence(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE));
@@ -442,6 +452,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Calculate the next offset		
 		size_t aligned_size =  ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
 		_cbufferOffset += aligned_size;
+
+		return view;
+	}
+
+	BufferView GraphicsEngine::requestPerFrameLinearMemory(size_t size)
+	{
+		BufferView view{ _current_frame->linearMemoryBuffer(), _linearBufferOffset, size, _current_frame->mappedLinearMemoryBuffer() };
+
+		// Calculate the next offset		
+		size_t aligned_size = ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
+		_linearBufferOffset += aligned_size;
 
 		return view;
 	}

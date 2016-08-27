@@ -85,6 +85,9 @@ private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::Texture> _idBufferDepth;
 
+private: // Support buffers
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _marchingCubesTables;
+
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
 };

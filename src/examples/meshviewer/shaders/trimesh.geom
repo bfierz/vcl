@@ -1,9 +1,12 @@
 #version 430 core
+#extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
 
-// Convert input points to a set of 4 triangles
+#include "3DSceneBindings.h"
+
+// Convert input points to a set of 1 triangle
 layout(points) in;
-layout(triangle_strip, max_vertices = 12) out;
+layout(triangle_strip, max_vertices = 3) out;
 
 // Input data from last stage
 layout(location = 0) in VertexData
@@ -25,32 +28,17 @@ struct Vertex
 	float x, y, z;
 };
 
-layout (std430) buffer VertexPositions
+layout (std430, binding = 0) buffer VertexPositions
 { 
 	Vertex Position[];
 };
-layout (std430) buffer VertexColours
+layout (std430, binding = 1) buffer VertexColours
 { 
 	vec4 Colour[];
 };
 
 // Shader constants
 uniform mat4 ModelMatrix;
-
-layout(std140, binding = 0) uniform PerFrameCameraData
-{
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
-	
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
-
-	// Transform from world to view space
-	mat4 ViewMatrix;
-
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
-};
 
 uniform float ElementScale = 0.95f;
 uniform bool  UsePerVertexColour = false;
@@ -59,8 +47,8 @@ void main(void)
 {
 	float s = ElementScale;
 
-	vec4 p0, p1, p2, p3;
-	vec4 c0, c1, c2, c3;
+	vec4 p0, p1, p2;
+	vec4 c0, c1, c2;
 	vec3 n;
 
 	ivec3 idx = In[0].Indices;

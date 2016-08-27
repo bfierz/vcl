@@ -22,46 +22,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef GLSL_3D_SCENE_BINDINGS
-#define GLSL_3D_SCENE_BINDINGS
+#ifndef GLSL_MARCHING_CUBES
+#define GLSL_MARCHING_CUBES
 
 #include "UniformBuffer.h"
 
 // Define common locations
-#define PER_FRAME_CAMERA_DATA_LOC 0
-#define PER_FRAME_LIGHT_DATA_LOC 1
+#define MARCHING_CUBES_TABLES_LOC 6
 
-// Define common buffers
-UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
+UNIFORM_BUFFER(MARCHING_CUBES_TABLES_LOC) MarchingCubesTables
 {
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
+	// LuT: Number of generated polygons for each in/out permutation
+	int caseToNumPolys[256];
 
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
-
-	// Transform from world to view space
-	mat4 ViewMatrix;
-
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
+	// LuT: Indices of edges where vertices are generated
+	vec4 edgeVertexList[256 * 5];
 };
 
-struct HemisphereLight
-{
-	// Colour of the sky
-	vec3 SkyColour;
-
-	// Colour of the ground
-	vec3 GroundColor;
-
-	// Main direction of the light
-	vec3 Direction;
-};
-
-UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC) PerFrameLightData
-{
-	HemisphereLight HemiLight;
-};
-
-#endif // GLSL_3D_SCENE_BINDINGS
+#endif // GLSL_MARCHING_CUBES

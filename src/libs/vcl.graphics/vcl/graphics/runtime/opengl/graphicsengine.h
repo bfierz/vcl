@@ -104,8 +104,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Frame();
 
 	public:
-		void mapConstantBuffer();
-		void unmapConstantBuffer();
+		void mapBuffers();
+		void unmapBuffers();
 
 	public:
 		const Fence* fence() const { return &_fence; }
@@ -113,6 +113,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		ref_ptr<Buffer> constantBuffer() const { return _constantBuffer; }
 		void* mappedConstantBuffer() const { return _mappedConstantBuffer; }
+
+		ref_ptr<Buffer> linearMemoryBuffer() const { return _linearMemoryBuffer; }
+		void* mappedLinearMemoryBuffer() const { return _mappedLinearMemory; }
 
 		StagingArea* readBackBuffer() { return &_readBackStage; }
 
@@ -129,6 +132,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		/// Pointer to mapped constant buffer
 		void* _mappedConstantBuffer{ nullptr };
+
+		//! Buffer used for linear memory
+		owner_ptr<Buffer> _linearMemoryBuffer;
+
+		/// Pointer to mapped constant buffer
+		void* _mappedLinearMemory{ nullptr };
 
 	private:
 		//! Framebuffer cache
@@ -151,6 +160,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void endFrame() override;
 		
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
+		BufferView requestPerFrameLinearMemory(size_t size) override;
+
 		ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Runtime::Texture> tex) override;
 		void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) override;
 
@@ -180,6 +191,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Current offset into the constant buffer
 		size_t _cbufferOffset{ 0 };
+
+		//! Current offset into the linear memory buffer
+		size_t _linearBufferOffset{ 0 };
 
 	private: // Command management
 

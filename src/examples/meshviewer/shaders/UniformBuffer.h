@@ -22,46 +22,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef GLSL_3D_SCENE_BINDINGS
-#define GLSL_3D_SCENE_BINDINGS
+#ifndef GLSL_UNIFORMBUFFER
+#define GLSL_UNIFORMBUFFER
 
-#include "UniformBuffer.h"
+#ifdef __cplusplus
+#	define UNIFORM_BUFFER(loc) struct
+	
+	namespace std140
+	{
+		struct vec3
+		{
+			float x, y, z;
 
-// Define common locations
-#define PER_FRAME_CAMERA_DATA_LOC 0
-#define PER_FRAME_LIGHT_DATA_LOC 1
+			vec3() {}
+			vec3(const Eigen::Vector3f& v) : x(v.x()), y(v.y()), z(v.z()) {}
+			
+		private:
+			float pad;
+		};
 
-// Define common buffers
-UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
-{
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
+		struct vec4
+		{
+			float x, y, z, w;
 
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
+			vec4() {}
+			vec4(const Eigen::Vector4f& v) : x(v.x()), y(v.y()), z(v.z()), w(v.w()) {}
+		};
 
-	// Transform from world to view space
-	mat4 ViewMatrix;
+		struct mat4
+		{
+			vec4 cols[4];
 
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
-};
+			mat4() {}
+			mat4(const Eigen::Matrix4f& m)
+			{
+				cols[0] = vec4{ Eigen::Vector4f{ m.col(0) } };
+				cols[1] = vec4{ Eigen::Vector4f{ m.col(1) } };
+				cols[2] = vec4{ Eigen::Vector4f{ m.col(2) } };
+				cols[3] = vec4{ Eigen::Vector4f{ m.col(3) } };
+			}
+		};
+	}
+	
+	using std140::vec3;
+	using std140::vec4;
+	using std140::mat4;
 
-struct HemisphereLight
-{
-	// Colour of the sky
-	vec3 SkyColour;
+#else
+#	define UNIFORM_BUFFER(loc) layout(std140, binding = loc) uniform
+#endif // __cplusplus
 
-	// Colour of the ground
-	vec3 GroundColor;
-
-	// Main direction of the light
-	vec3 Direction;
-};
-
-UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC) PerFrameLightData
-{
-	HemisphereLight HemiLight;
-};
-
-#endif // GLSL_3D_SCENE_BINDINGS
+#endif // GLSL_UNIFORMBUFFER

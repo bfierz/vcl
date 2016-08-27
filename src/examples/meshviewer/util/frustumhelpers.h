@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,46 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef GLSL_3D_SCENE_BINDINGS
-#define GLSL_3D_SCENE_BINDINGS
+#pragma once
 
-#include "UniformBuffer.h"
+ // VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-// Define common locations
-#define PER_FRAME_CAMERA_DATA_LOC 0
-#define PER_FRAME_LIGHT_DATA_LOC 1
-
-// Define common buffers
-UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
+namespace Vcl { namespace Util
 {
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
+	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum);
 
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
+	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane);
 
-	// Transform from world to view space
-	mat4 ViewMatrix;
+	float computePlaneVertexDistance(const Eigen::Vector4f& eq, const Eigen::Vector3f& v);
 
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
-};
-
-struct HemisphereLight
-{
-	// Colour of the sky
-	vec3 SkyColour;
-
-	// Colour of the ground
-	vec3 GroundColor;
-
-	// Main direction of the light
-	vec3 Direction;
-};
-
-UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC) PerFrameLightData
-{
-	HemisphereLight HemiLight;
-};
-
-#endif // GLSL_3D_SCENE_BINDINGS
+	void computePlaneFrustumIntersection(const Eigen::Vector4f& plane, const Eigen::Matrix4f& View, const Eigen::Vector4f& Frustum, std::vector<Eigen::Vector3f>& vertices);
+}}
