@@ -254,7 +254,7 @@ void FboRenderer::render()
 
 		// Draw the object buffer
 		{
-			_engine->setRenderTargets(_idBuffer, _idBufferDepth);
+			_engine->setRenderTargets({ &_idBuffer, 1 }, _idBufferDepth);
 
 			auto volumeMesh = scene->volumeMesh();
 			if (volumeMesh)

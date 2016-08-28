@@ -32,7 +32,7 @@
 #include <cstring>
 
 // GSL
-#include <string_span.h>
+#include <string_span>
 
 #ifdef VCL_OPENGL_SUPPORT
 

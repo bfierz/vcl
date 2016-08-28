@@ -40,7 +40,7 @@
 #include <utility>
 
 // GSL
-#include <string_span.h>
+#include <string_span>
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
