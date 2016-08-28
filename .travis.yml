@@ -3,7 +3,6 @@ branches:
   only:
     - master
 os: linux
-dist: trusty
 env:
   - compiler='g++-6' build_type='Debug'
   - compiler='g++-6' build_type='Release'
