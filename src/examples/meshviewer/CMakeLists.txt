@@ -50,17 +50,18 @@ SET(SHADERS_DEBUG
     shaders/debug/plane.vert
     shaders/debug/plane.geom
     shaders/debug/object.frag
+	
+	shaders/debug/boundinggrid.vert
+	shaders/debug/boundinggrid.geom
+
+	shaders/debug/staticcolour.frag
 )
     
 SET(SHADERS
 	shaders/UniformBuffer.h
 	shaders/MarchingCubes.h
 	shaders/3DSceneBindings.h
-
-	shaders/boundinggrid.vert
-	shaders/boundinggrid.geom
-	shaders/boundinggrid.frag
-
+	
 	shaders/trimesh.vert
 	shaders/trimesh.geom
 	shaders/tetramesh.vert

@@ -136,9 +136,9 @@ FboRenderer::FboRenderer()
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 
-	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/boundinggrid.vert");
-	Shader boxGeom = createShader(ShaderType::GeometryShader, ":/shaders/boundinggrid.geom");
-	Shader boxFrag = createShader(ShaderType::FragmentShader, ":/shaders/boundinggrid.frag");
+	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/debug/boundinggrid.vert");
+	Shader boxGeom = createShader(ShaderType::GeometryShader, ":/shaders/debug/boundinggrid.geom");
+	Shader boxFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/staticcolour.frag");
 
 	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/debug/plane.vert");
 	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/debug/plane.geom");
@@ -259,23 +259,7 @@ void FboRenderer::render()
 			auto volumeMesh = scene->volumeMesh();
 			if (volumeMesh)
 			{
-				_engine->setPipelineState(_idTetraMeshPipelineState);
-
-				////////////////////////////////////////////////////////////////////
-				// Render the mesh
-				////////////////////////////////////////////////////////////////////
-
-				_opaqueTetraMeshPipelineState->program().setUniform(_opaqueTetraMeshPipelineState->program().uniform("ModelMatrix"), M);
-
-				// Set the vertex positions
-				_opaqueTetraMeshPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
-
-				// Bind the buffers
-				glBindVertexBuffer(0, volumeMesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
-				glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
-
-				// Render the mesh
-				glDrawArrays(GL_POINTS, 0, (GLsizei)volumeMesh->nrVolumes());
+				renderTetMesh(volumeMesh, _opaqueTetraMeshPipelineState, M);
 			}
 
 			// Queue a read-back

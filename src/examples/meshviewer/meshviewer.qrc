@@ -10,14 +10,16 @@
     <file>shaders/debug/plane.vert</file>
     <file>shaders/debug/plane.geom</file>
     <file>shaders/debug/object.frag</file>
+
+    <file>shaders/debug/boundinggrid.vert</file>
+    <file>shaders/debug/boundinggrid.geom</file>
+    
+    <file>shaders/debug/staticcolour.frag</file>
     
     <file>shaders/UniformBuffer.h</file>
     <file>shaders/MarchingCubes.h</file>
     <file>shaders/3DSceneBindings.h</file>
     
-    <file>shaders/boundinggrid.vert</file>
-    <file>shaders/boundinggrid.geom</file>
-    <file>shaders/boundinggrid.frag</file>
     <file>shaders/trimesh.vert</file>
     <file>shaders/trimesh.geom</file>
     <file>shaders/tetramesh.vert</file>
