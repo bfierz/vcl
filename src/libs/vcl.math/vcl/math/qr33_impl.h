@@ -123,8 +123,8 @@ namespace Vcl { namespace Mathematics
 		//u.normalize();
 		u = u / sqrt(u.squaredNorm());
 
-		auto B = R.template block<3 - c, 3 - c>(c, c);
-		auto H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> B = R.template block<3 - c, 3 - c>(c, c);
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
 		R.template block<3 - c, 3 - c>(c, c) = H * B;
 
 		Eigen::Matrix<Scalar, 3, 3> T = Eigen::Matrix<Scalar, 3, 3>::Identity();
