@@ -59,7 +59,7 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc =
 		{
 			std::max(1u, maxElements / MaxWorkgroupInclusiveScanSize) * sizeof(unsigned int),
-			Usage::Default,
+			ResourceUsage::Default,
 			{}
 		};
 

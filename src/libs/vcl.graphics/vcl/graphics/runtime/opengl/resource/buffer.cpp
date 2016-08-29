@@ -66,24 +66,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	, _allowPersistentMapping(allowPersistentMapping)
 	, _allowCoherentMapping(allowCoherentMapping)
 	{
-		Require(implies(usage() == Usage::Immutable, cpuAccess().isAnySet() == false), "No CPU access requested for immutable buffer.");
-		Require(implies(usage() == Usage::Dynamic, cpuAccess().isSet(CPUAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
+		Require(implies(usage() == ResourceUsage::Immutable, cpuAccess().isAnySet() == false), "No CPU access requested for immutable buffer.");
+		Require(implies(usage() == ResourceUsage::Dynamic, cpuAccess().isSet(ResourceAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
 		Require(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
 		Require(implies(_allowCoherentMapping, _allowPersistentMapping), "A coherent buffer access is persistent.");
 
 		GLenum flags = GL_NONE;
 		switch (usage())
 		{
-		case Usage::Default:
+		case ResourceUsage::Default:
 			// Allows to use glBufferSubData
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 			break;
 
-		case Usage::Immutable:
+		case ResourceUsage::Immutable:
 			flags |= GL_NONE;
 			break;
 
-		case Usage::Dynamic:
+		case ResourceUsage::Dynamic:
 			// Dynamic buffers are always map writable
 			flags |= GL_MAP_WRITE_BIT;
 
@@ -95,7 +95,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			break;
 
-		case Usage::Staging:
+		case ResourceUsage::Staging:
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 
 			if (_allowPersistentMapping)
@@ -104,10 +104,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			if (_allowCoherentMapping)
 				flags |= GL_MAP_COHERENT_BIT;
 
-			if (cpuAccess().isSet(CPUAccess::Write))
+			if (cpuAccess().isSet(ResourceAccess::Write))
 				flags |= GL_MAP_WRITE_BIT;
 
-			if (cpuAccess().isSet(CPUAccess::Read))
+			if (cpuAccess().isSet(ResourceAccess::Read))
 				flags |= GL_MAP_READ_BIT;
 
 			break;
@@ -154,21 +154,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return{ target, _glId };
 	}
 
-	void* Buffer::map(size_t offset, size_t length, Flags<CPUAccess> access, Flags<MapOptions> options)
+	void* Buffer::map(size_t offset, size_t length, Flags<ResourceAccess> access, Flags<MapOptions> options)
 	{
 		Require(_glId > 0, "GL buffer is created.");
 		Require(!_mappedAccess.isAnySet(), "Buffer is not mapped");
-		Require(usage() == Usage::Dynamic || usage() == Usage::Staging, "GL memory is mappable");
+		Require(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, "GL memory is mappable");
 		Require(offset + length <= sizeInBytes(), "Map request lies in range");
 
 		Require(implies(options.isSet(MapOptions::CoherentWrite), _allowCoherentMapping && options.isSet(MapOptions::Persistent)), "Coherent access was configured upon creation");
 		Require(implies(options.isSet(MapOptions::Persistent), _allowPersistentMapping), "Persistent mapping was configured upon creation");
-		Require(implies(options.isSet(MapOptions::ExplicitFlush), access.isSet(CPUAccess::Write)), "Explicit flush control only valid when mapped write");
-		Require(implies(options.isSet(MapOptions::InvalidateBuffer), !access.isSet(CPUAccess::Read)), "Invalidation is valid on write");
-		Require(implies(options.isSet(MapOptions::InvalidateRange), !access.isSet(CPUAccess::Read)), "Invalidation is valid on write");
+		Require(implies(options.isSet(MapOptions::ExplicitFlush), access.isSet(ResourceAccess::Write)), "Explicit flush control only valid when mapped write");
+		Require(implies(options.isSet(MapOptions::InvalidateBuffer), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
+		Require(implies(options.isSet(MapOptions::InvalidateRange), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
 
-		Require(implies(access.isSet(CPUAccess::Read), cpuAccess().isSet(CPUAccess::Read)), "Read access was requested at initialization");
-		Require(implies(access.isSet(CPUAccess::Write), cpuAccess().isSet(CPUAccess::Write)), "Write access was requested at initialization");
+		Require(implies(access.isSet(ResourceAccess::Read), cpuAccess().isSet(ResourceAccess::Read)), "Read access was requested at initialization");
+		Require(implies(access.isSet(ResourceAccess::Write), cpuAccess().isSet(ResourceAccess::Write)), "Write access was requested at initialization");
 
 		// Mapped pointer
 		void* mappedPtr = nullptr;
@@ -181,17 +181,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			map_flags |= GL_MAP_INVALIDATE_RANGE_BIT;
 
 		// Persistently map the buffer to the host memory, if usage allows it
-		if (usage() == Usage::Dynamic && access.isSet(CPUAccess::Write))
+		if (usage() == ResourceUsage::Dynamic && access.isSet(ResourceAccess::Write))
 		{
 			if (options.isSet(MapOptions::Persistent))
 				map_flags |= GL_MAP_PERSISTENT_BIT;
 
 			if (options.isSet(MapOptions::CoherentWrite))
 				map_flags |= GL_MAP_COHERENT_BIT;
-			else if (options.isSet(MapOptions::ExplicitFlush) && access.isSet(CPUAccess::Write))
+			else if (options.isSet(MapOptions::ExplicitFlush) && access.isSet(ResourceAccess::Write))
 				map_flags |= GL_MAP_FLUSH_EXPLICIT_BIT;
 
-			if (access.isSet(CPUAccess::Write))
+			if (access.isSet(ResourceAccess::Write))
 				map_flags |= GL_MAP_WRITE_BIT;
 
 			mappedPtr = glMapNamedBufferRangeVCL(_glId, offset, length, map_flags);
@@ -201,20 +201,20 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			_mappedOffset = offset;
 			_mappedSize = length;
 		}
-		else if (usage() == Usage::Staging && cpuAccess().isAnySet())
+		else if (usage() == ResourceUsage::Staging && cpuAccess().isAnySet())
 		{
 			if (options.isSet(MapOptions::Persistent))
 				map_flags |= GL_MAP_PERSISTENT_BIT;
 
 			if (options.isSet(MapOptions::CoherentWrite))
 				map_flags |= GL_MAP_COHERENT_BIT;
-			else if (options.isSet(MapOptions::ExplicitFlush) && access.isSet(CPUAccess::Write))
+			else if (options.isSet(MapOptions::ExplicitFlush) && access.isSet(ResourceAccess::Write))
 				map_flags |= GL_MAP_FLUSH_EXPLICIT_BIT;
 
-			if (access.isSet(CPUAccess::Write))
+			if (access.isSet(ResourceAccess::Write))
 				map_flags |= GL_MAP_WRITE_BIT;
 
-			if (access.isSet(CPUAccess::Read))
+			if (access.isSet(ResourceAccess::Read))
 				map_flags |= GL_MAP_READ_BIT;
 
 			mappedPtr = glMapNamedBufferRangeVCL(_glId, offset, length, map_flags);
@@ -225,7 +225,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			_mappedSize = length;
 		}
 		
-		Ensure(implies(usage() == Usage::Dynamic || usage() == Usage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
+		Ensure(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
 		AssertBlock
 		{
 			GLint64 min_align = 0;
@@ -239,7 +239,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Buffer::flushRange(size_t offset, size_t length)
 	{
 		Require(_glId > 0, "GL buffer is created.");
-		Require(_mappedAccess.isSet(CPUAccess::Write) && _mappedOptions.isSet(MapOptions::ExplicitFlush), "Buffer is mapped with explicit flush");
+		Require(_mappedAccess.isSet(ResourceAccess::Write) && _mappedOptions.isSet(MapOptions::ExplicitFlush), "Buffer is mapped with explicit flush");
 		Require(offset + length <= _mappedSize, "Flush request lies in mapped range");
 
 		// If access is not using the coherency flag, we have to 
@@ -250,7 +250,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Buffer::unmap()
 	{
 		Require(_glId > 0, "GL buffer is created.");
-		Require(implies(usage() == Usage::Dynamic || usage() == Usage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
+		Require(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
 
 		// Mark buffer as unmapped
 		_mappedAccess.clear();

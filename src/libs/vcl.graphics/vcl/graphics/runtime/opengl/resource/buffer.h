@@ -94,7 +94,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		BufferBindPoint bind(GLenum target);
 
 	public:
-		void* map(size_t offset, size_t length, Flags<CPUAccess> access = CPUAccess::Write, Flags<MapOptions> options = {});
+		void* map(size_t offset, size_t length, Flags<ResourceAccess> access = ResourceAccess::Write, Flags<MapOptions> options = {});
 		void unmap();
 
 		/*!
@@ -115,7 +115,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		//! Flags indicating with which host access the buffer was mapped
-		Flags<CPUAccess> _mappedAccess;
+		Flags<ResourceAccess> _mappedAccess;
 
 		//! Flags indicating with which host access the buffer was mapped
 		Flags<MapOptions> _mappedOptions;

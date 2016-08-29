@@ -33,7 +33,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	enum class Usage
+	enum class ResourceUsage
 	{
 		/*! 
 		 * The resource is readable and writeable by the client.
@@ -58,7 +58,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		Staging = 3
 	};
 	
-	VCL_DECLARE_FLAGS(CPUAccess,
+	VCL_DECLARE_FLAGS(ResourceAccess,
 
 		/*!
 		 * The resource is to be mappable so that the CPU can change its contents.
@@ -74,8 +74,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	struct BufferDescription
 	{
 		uint32_t SizeInBytes;
-		Usage Usage;
-		Flags<CPUAccess> CPUAccess;
+		ResourceUsage Usage;
+		Flags<ResourceAccess> CPUAccess;
 	};
 
 	struct BufferInitData
@@ -90,17 +90,17 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class Buffer
 	{
 	protected:
-		Buffer(size_t size, Usage usage, Flags<CPUAccess> cpuAccess);
+		Buffer(size_t size, ResourceUsage usage, Flags<ResourceAccess> cpuAccess);
 
 	public:
 		virtual ~Buffer() = default;
 
 	public:
 		//! \returns the assigned usage of the buffer
-		Usage usage() const { return _usage; }
+		ResourceUsage usage() const { return _usage; }
 
 		//! \returns the valid CPU access
-		Flags<CPUAccess> cpuAccess() const { return _cpuAccess; }
+		Flags<ResourceAccess> cpuAccess() const { return _cpuAccess; }
 
 	public:
 		//! \returns the size in bytes
@@ -111,9 +111,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		size_t _sizeInBytes{ 0 };
 
 		//! Buffer usage
-		Usage _usage;
+		ResourceUsage _usage;
 
 		//! Valid CPU access pattern
-		Flags<CPUAccess> _cpuAccess;
+		Flags<ResourceAccess> _cpuAccess;
 	};
 }}}
