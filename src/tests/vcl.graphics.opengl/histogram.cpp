@@ -57,8 +57,8 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 	Runtime::BufferDescription desc =
 	{
 		sizeof(unsigned int) * numbers.size(),
-		Runtime::Usage::Staging,
-		Runtime::CPUAccess::Write
+		Runtime::ResourceUsage::Staging,
+		Runtime::ResourceAccess::Write
 	};
 
 	Runtime::BufferInitData data =
@@ -70,8 +70,8 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 	Runtime::BufferDescription out_desc =
 	{
 		sizeof(unsigned int) * buckets,
-		Runtime::Usage::Staging,
-		Runtime::CPUAccess::Read
+		Runtime::ResourceUsage::Staging,
+		Runtime::ResourceAccess::Read
 	};
 
 	auto input = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
@@ -79,7 +79,7 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 
 	hist(output, input, size);
 
-	int* ptr = (int*)output->map(0, output->sizeInBytes(), Runtime::CPUAccess::Read);
+	int* ptr = (int*)output->map(0, output->sizeInBytes(), Runtime::ResourceAccess::Read);
 
 	for (int i = 0; i < buckets; i++)
 	{

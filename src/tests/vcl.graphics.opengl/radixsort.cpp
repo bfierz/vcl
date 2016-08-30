@@ -50,8 +50,8 @@ void ExecuteRadixSortTest(unsigned int size)
 	Runtime::BufferDescription desc =
 	{
 		num_keys * sizeof(int),
-		Runtime::Usage::Staging,
-		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
+		Runtime::ResourceUsage::Staging,
+		Runtime::ResourceAccess::Read | Runtime::ResourceAccess::Write
 	};
 
 	Runtime::BufferInitData data =
@@ -64,7 +64,7 @@ void ExecuteRadixSortTest(unsigned int size)
 
 	sort(keys, num_keys, 20);
 
-	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::CPUAccess::Read);
+	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::ResourceAccess::Read);
 
 	int last = std::numeric_limits<int>::min();
 	for (int i = 0; i < num_keys; i++)

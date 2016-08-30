@@ -42,7 +42,7 @@ TEST(OpenGL, CreateBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		Usage::Default,
+		ResourceUsage::Default,
 		{}
 	};
 
@@ -64,8 +64,8 @@ TEST(OpenGL, CheckBufferInit)
 	BufferDescription desc =
 	{
 		1024,
-		Usage::Staging,
-		CPUAccess::Read | CPUAccess::Write
+		ResourceUsage::Staging,
+		ResourceAccess::Read | ResourceAccess::Write
 	};
 
 	BufferInitData data =
@@ -77,7 +77,7 @@ TEST(OpenGL, CheckBufferInit)
 	OpenGL::Buffer buf(desc, true, true, &data);
 
 	bool equal = true;
-	auto ptr = (float*) buf.map(0, 1024, CPUAccess::Read);
+	auto ptr = (float*) buf.map(0, 1024, ResourceAccess::Read);
 	for (int i = 0; i < 256; i++)
 	{
 		equal = equal && (ptr[i] == numbers[i]);
@@ -105,8 +105,8 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 	BufferDescription desc =
 	{
 		1024,
-		Usage::Staging,
-		CPUAccess::Read | CPUAccess::Write
+		ResourceUsage::Staging,
+		ResourceAccess::Read | ResourceAccess::Write
 	};
 
 	BufferInitData data =
@@ -119,14 +119,14 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 
 	EXPECT_TRUE(buf0.id() != 0) << "Buffer not created.";
 
-	auto writePtr = (float*) buf0.map(0, 1024, CPUAccess::Write);
+	auto writePtr = (float*) buf0.map(0, 1024, ResourceAccess::Write);
 	for (int i = 0; i < 95; i++)
 	{
 		writePtr[i] = numbers[i];
 	}
 	buf0.unmap();
 
-	auto readPtr = (float*) buf0.map(0, 1024, CPUAccess::Read);
+	auto readPtr = (float*) buf0.map(0, 1024, ResourceAccess::Read);
 	bool equal = true;
 	for (int i = 0; i < 95; i++)
 	{

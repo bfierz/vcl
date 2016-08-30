@@ -48,8 +48,8 @@ void ExecuteScanTest(unsigned int size)
 	Runtime::BufferDescription desc =
 	{
 		sizeof(unsigned int) * numbers.size(),
-		Runtime::Usage::Staging,
-		Runtime::CPUAccess::Read | Runtime::CPUAccess::Write
+		Runtime::ResourceUsage::Staging,
+		Runtime::ResourceAccess::Read | Runtime::ResourceAccess::Write
 	};
 
 	Runtime::BufferInitData data =
@@ -63,7 +63,7 @@ void ExecuteScanTest(unsigned int size)
 
 	scan(output, input, size);
 
-	int* ptr = (int*)output->map(0, sizeof(unsigned int) * numbers.size(), Runtime::CPUAccess::Read);
+	int* ptr = (int*)output->map(0, sizeof(unsigned int) * numbers.size(), Runtime::ResourceAccess::Read);
 
 	int s = 0;
 	for (int i = 0; i < size; i++)

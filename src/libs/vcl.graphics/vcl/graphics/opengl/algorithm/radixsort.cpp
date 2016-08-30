@@ -44,13 +44,13 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc_large =
 		{
 			maxElements * sizeof(unsigned int),
-			Usage::Default,
+			ResourceUsage::Default,
 			{}
 		};
 		BufferDescription desc_small =
 		{
 			32 * numBlocks * sizeof(unsigned int),
-			Usage::Default,
+			ResourceUsage::Default,
 			{}
 		};
 		

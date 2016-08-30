@@ -182,8 +182,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Require(frame, "Owner is set.");
 
 		BufferDescription desc;
-		desc.Usage = Usage::Staging;
-		desc.CPUAccess = CPUAccess::Read;
+		desc.Usage = ResourceUsage::Staging;
+		desc.CPUAccess = ResourceAccess::Read;
 		desc.SizeInBytes = 1000 * 4096;
 
 		_stagingBuffer = make_owner<Buffer>(desc);
@@ -259,8 +259,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_stagingBuffer->sizeInBytes() < _stagingBufferOffset + size)
 		{
 			BufferDescription desc;
-			desc.Usage = Usage::Staging;
-			desc.CPUAccess = CPUAccess::Read;
+			desc.Usage = ResourceUsage::Staging;
+			desc.CPUAccess = ResourceAccess::Read;
 			desc.SizeInBytes = _stagingBuffer->sizeInBytes() * 2;
 
 			// Allocate a new buffer
@@ -281,24 +281,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Allocate a junk of 512 KB for constant buffers per frame
 		BufferDescription cbuffer_desc;
 		cbuffer_desc.SizeInBytes = 1 << 19;
-		cbuffer_desc.CPUAccess = CPUAccess::Write;
-		cbuffer_desc.Usage = Usage::Dynamic;
+		cbuffer_desc.CPUAccess = ResourceAccess::Write;
+		cbuffer_desc.Usage = ResourceUsage::Dynamic;
 
 		_constantBuffer = make_owner<Buffer>(cbuffer_desc, true, true);
 
 		// Allocate a junk of 16 MB for linear memory per frame
 		BufferDescription linbuffer_desc;
 		linbuffer_desc.SizeInBytes = 1 << 24;
-		linbuffer_desc.CPUAccess = CPUAccess::Write;
-		linbuffer_desc.Usage = Usage::Dynamic;
+		linbuffer_desc.CPUAccess = ResourceAccess::Write;
+		linbuffer_desc.Usage = ResourceUsage::Dynamic;
 
 		_linearMemoryBuffer = make_owner<Buffer>(linbuffer_desc, true, true);
 	}
 
 	void Frame::mapBuffers()
 	{
-		_mappedConstantBuffer = _constantBuffer->map(0, _constantBuffer->sizeInBytes(), CPUAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
-		_mappedLinearMemory = _linearMemoryBuffer->map(0, _linearMemoryBuffer->sizeInBytes(), CPUAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
+		_mappedConstantBuffer = _constantBuffer->map(0, _constantBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
+		_mappedLinearMemory = _linearMemoryBuffer->map(0, _linearMemoryBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
 	}
 
 	void Frame::unmapBuffers()

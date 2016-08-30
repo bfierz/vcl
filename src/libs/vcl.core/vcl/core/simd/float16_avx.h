@@ -227,9 +227,9 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
-		float VCL_ALIGN(16) vars[8];
+		float VCL_ALIGN(32) vars[16];
 		_mm256_store_ps(vars + 0, rhs.mF8[0]);
-		_mm256_store_ps(vars + 4, rhs.mF8[1]);
+		_mm256_store_ps(vars + 8, rhs.mF8[1]);
 		
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
 				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
