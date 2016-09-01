@@ -32,6 +32,8 @@
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics
 {
 	/*!
@@ -116,3 +118,5 @@ namespace Vcl { namespace Graphics
 		owner_ptr<Runtime::OpenGL::Buffer> _workSpace;
 	};
 }}
+
+#endif // VCL_OPENGL_SUPPORT

@@ -32,6 +32,8 @@
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics
 {
 	class Histogram
@@ -91,3 +93,5 @@ namespace Vcl { namespace Graphics
 		owner_ptr<Runtime::OpenGL::Buffer> _partialHistograms;
 	};
 }}
+
+#endif // VCL_OPENGL_SUPPORT

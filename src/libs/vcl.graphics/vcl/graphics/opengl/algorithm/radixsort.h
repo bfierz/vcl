@@ -33,6 +33,8 @@
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/opengl/algorithm/scan.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics
 {
 	/*!
@@ -110,3 +112,5 @@ namespace Vcl { namespace Graphics
 		owner_ptr<Runtime::OpenGL::Buffer> _blockOffsets;
 	};
 }}
+
+#endif // VCL_OPENGL_SUPPORT

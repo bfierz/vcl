@@ -32,6 +32,8 @@
 #include "scan.glslinc"
 #include "scan.comp"
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics
 {
 	namespace
@@ -250,3 +252,5 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
+
+#endif // VCL_OPENGL_SUPPORT

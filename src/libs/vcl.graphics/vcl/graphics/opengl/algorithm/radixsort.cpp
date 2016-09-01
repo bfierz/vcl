@@ -31,6 +31,8 @@
 #include "scan.glslinc"
 #include "radixsort.comp"
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics
 {
 	RadixSort::RadixSort(unsigned int maxElements)
@@ -172,3 +174,5 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
+
+#endif // VCL_OPENGL_SUPPORT

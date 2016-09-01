@@ -31,6 +31,8 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/util/hashedstring.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	ImageProcessor::ImageProcessor()
@@ -146,3 +148,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		glDispatchCompute(w, h, 1);
 	}
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

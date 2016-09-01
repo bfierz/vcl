@@ -32,6 +32,8 @@
 #include <vcl/graphics/imageprocessing/tonemap.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	class Tonemap : public ImageProcessing::Tonemap
@@ -53,3 +55,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		size_t _reinhardKernelId;
 	};
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

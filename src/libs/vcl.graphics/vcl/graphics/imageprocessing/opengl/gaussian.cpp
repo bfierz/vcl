@@ -30,6 +30,8 @@
 // Local
 #include "GaussianBlur.h"
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	Gaussian::Gaussian(ImageProcessor* processor)
@@ -191,3 +193,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		processor->enqueKernel(_verticalKernelId, output_range.z(), output_range.w(), &voutput, &output_range, nr_outputs, &vinput, &input_range, nr_inputs);
 	}
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

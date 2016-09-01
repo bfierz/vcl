@@ -36,6 +36,8 @@
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	class ImageProcessor : public ImageProcessing::ImageProcessor
@@ -67,3 +69,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		std::unique_ptr<Runtime::OpenGL::Sampler> _linearSampler;
 	};
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT
