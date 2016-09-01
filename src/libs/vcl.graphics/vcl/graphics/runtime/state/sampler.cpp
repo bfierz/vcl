@@ -24,6 +24,9 @@
  */
 #include <vcl/graphics/runtime/state/sampler.h>
 
+ // C++ Standard Library
+#include <limits>
+
 namespace Vcl { namespace Graphics { namespace Runtime
 {
 	SamplerDescription::SamplerDescription()
