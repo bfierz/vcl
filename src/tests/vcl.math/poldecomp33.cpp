@@ -57,7 +57,7 @@ namespace
 			rnd << d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng);
-			F.at<Scalar>(i) = rnd;
+			F.template at<Scalar>(i) = rnd;
 		}
 
 		return std::move(F);
@@ -75,23 +75,26 @@ namespace
 		// Compute reference using Eigen
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f A = F.at<Scalar>(i);
+			Vcl::Matrix3f A = F.template at<Scalar>(i);
 
 			Eigen::JacobiSVD<Eigen::Matrix<Scalar, 3, 3>> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
 			// Adapted the polar decomposition from Eigen
-			Scalar x = (svd.matrixU() * svd.matrixV().adjoint()).determinant();
+			Scalar x = (svd.matrixU() * svd.matrixV().transpose()).determinant();
 			Eigen::Matrix<Scalar, 3, 1> sv(svd.singularValues());
 
 			int index;
 			sv.minCoeff(&index);
 
 			Eigen::Matrix<Scalar, 3, 3> V(svd.matrixV());
-			V.col(index) /= x;
-			sv.coeffRef(index) /= x;
+			if (x < 0)
+			{
+				V.col(index) *= -1.0f;
+				sv.coeffRef(index) *= -1.0f;
+			}
 
-			R.at<Scalar>(i) = svd.matrixU() * V.adjoint();
-			S.at<Scalar>(i) = V * sv.asDiagonal() * V.adjoint();
+			R.template at<Scalar>(i) = svd.matrixU() * V.transpose();
+			S.template at<Scalar>(i) = V * sv.asDiagonal() * V.transpose();
 		}
 	}
 
@@ -108,13 +111,15 @@ namespace
 	{
 		using Vcl::Mathematics::equal;
 
+		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
+
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f refR = refRa.at<Scalar>(i);
-			Vcl::Matrix3f refS = refSa.at<Scalar>(i);
+			Vcl::Matrix3f refR = refRa.template at<Scalar>(i);
+			Vcl::Matrix3f refS = refSa.template at<Scalar>(i);
 
-			Vcl::Matrix3f resR = resRa.at<Scalar>(i);
-			Vcl::Matrix3f resS = resSa.at<Scalar>(i);
+			Vcl::Matrix3f resR = resRa.template at<Scalar>(i);
+			Vcl::Matrix3f resS = resSa.template at<Scalar>(i);
 
 			Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
 			Scalar sqLenRefRc1 = refR.col(1).squaredNorm();
@@ -133,8 +138,13 @@ namespace
 			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
 			bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
 
-			EXPECT_TRUE(eqS) << "S(" << i << ") - Ref: " << refS << ", Actual: " << resS;
-			EXPECT_TRUE(eqR) << "R(" << i << ") - Ref: " << refR << ", Actual: " << resR;
+			EXPECT_TRUE(eqS) << "S(" << i << ") - Ref: " << refS.format(fmt) << ", Actual: " << resS.format(fmt);
+			EXPECT_TRUE(eqR) << "R(" << i << ") - Ref: " << refR.format(fmt) << ", Actual: " << resR.format(fmt);
+
+			Vcl::Matrix3f I = resR.transpose() * resR;
+			Vcl::Matrix3f Iref = Vcl::Matrix3f::Identity();
+
+			EXPECT_TRUE(equal(Iref, I, tol)) << "Index: " << i << ", Result U^t U: not Identity.";
 		}
 	}
 }
@@ -181,13 +191,13 @@ TEST(PolarDecomposition33, PolDecompFloat)
 }
 TEST(PolarDecomposition33, PolDecompFloat4)
 {
-	runPolDecompTest<Vcl::float4>(1e-5f);
+	runPolDecompTest<Vcl::float4>(5e-5f);
 }
 TEST(PolarDecomposition33, PolDecompFloat8)
 {
-	runPolDecompTest<Vcl::float8>(1e-5f);
+	runPolDecompTest<Vcl::float8>(5e-5f);
 }
 TEST(PolarDecomposition33, PolDecompFloat16)
 {
-	runPolDecompTest<Vcl::float16>(1e-5f);
+	runPolDecompTest<Vcl::float16>(5e-5f);
 }

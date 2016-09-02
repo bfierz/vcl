@@ -29,6 +29,7 @@
 #include <vcl/config/opengl.h>
 
 // C++ standard library
+#include <mutex>
 #include <vector>
 #include <unordered_map>
 
@@ -39,6 +40,8 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	class Frame;
+
 	class Fence final
 	{
 	public:
@@ -59,14 +62,50 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLsync _sync{ nullptr };
 	};
 
+	class StagingArea final
+	{
+	public:
+		StagingArea(Frame* frame);
+
+	public:
+		void transfer();
+
+	public:
+		BufferView copyFrom(const BufferView& view);
+		BufferView copyFrom(const TextureView& view);
+
+	private:
+		void updateIfNeeded(size_t size);
+
+	private:
+		//! Owning frame
+		Frame* _frame{ nullptr };
+
+		//! Backend staging buffer
+		owner_ptr<Buffer> _stagingBuffer;
+		
+		//! Host copy of the GPU memory
+		std::unique_ptr<char[]> _hostBuffer;
+
+		//! Current offset in the buffer
+		size_t _stagingBufferOffset{ 0 };
+
+		//! Staging buffer alignment
+		size_t _alignment{ 256 };
+
+	private:
+		//! List of read-back requrests
+		std::vector<BufferView> _requests;
+	};
+
 	class Frame final
 	{
 	public:
 		Frame();
 
 	public:
-		void mapConstantBuffer();
-		void unmapConstantBuffer();
+		void mapBuffers();
+		void unmapBuffers();
 
 	public:
 		const Fence* fence() const { return &_fence; }
@@ -75,7 +114,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ref_ptr<Buffer> constantBuffer() const { return _constantBuffer; }
 		void* mappedConstantBuffer() const { return _mappedConstantBuffer; }
 
-		void setRenderTargets(int curr_frame, size_t hash, gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target);
+		ref_ptr<Buffer> linearMemoryBuffer() const { return _linearMemoryBuffer; }
+		void* mappedLinearMemoryBuffer() const { return _mappedLinearMemory; }
+
+		StagingArea* readBackBuffer() { return &_readBackStage; }
+
+		void setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target);
+
+		void queueBufferForDeletion(owner_ptr<Buffer> buffer);
 
 	private:
 		//! Fence guarding the start of a frame
@@ -87,9 +133,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		/// Pointer to mapped constant buffer
 		void* _mappedConstantBuffer{ nullptr };
 
+		//! Buffer used for linear memory
+		owner_ptr<Buffer> _linearMemoryBuffer;
+
+		/// Pointer to mapped constant buffer
+		void* _mappedLinearMemory{ nullptr };
+
 	private:
 		//! Framebuffer cache
 		std::unordered_map<size_t, OpenGL::Framebuffer> _fbos;
+
+		//! Staging area for data read-back
+		StagingArea _readBackStage;
+
+		//! Queue buffers for deletion
+		std::vector<owner_ptr<Buffer>> _bufferRecycleQueue;
 	};
 
 	class GraphicsEngine final : public Runtime::GraphicsEngine
@@ -100,9 +158,22 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		void beginFrame() override;
 		void endFrame() override;
-		BufferView requestPerFrameConstantBuffer(size_t size) override;
-		ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Runtime::Texture> tex) override;
 		
+		BufferView requestPerFrameConstantBuffer(size_t size) override;
+		BufferView requestPerFrameLinearMemory(size_t size) override;
+
+		ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Runtime::Texture> tex) override;
+		void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) override;
+
+		void queueReadback(ref_ptr<DynamicTexture<3>> tex) override;
+
+		void enqueueCommand(std::function<void(void)>) override;
+
+		void resetRenderTargets() override;
+
+		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
 		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
 		void setConstantBuffer(int idx, BufferView buffer) override;
 
@@ -121,9 +192,23 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! Current offset into the constant buffer
 		size_t _cbufferOffset{ 0 };
 
+		//! Current offset into the linear memory buffer
+		size_t _linearBufferOffset{ 0 };
+
+	private: // Command management
+
+		//! Command lock
+		std::mutex _cmdMutex;
+
+		//! List of generic commands executed at frame start
+		std::vector<std::function<void(void)>> _genericCmds;
+
 	private: // Resource held by the engine
 
 		//! Dynamic textures
-		std::vector<owner_ptr<DynamicTexture<3>>> _dynamicTextures;
+		std::vector<owner_ptr<DynamicTexture<3>>> _persistentTextures;
+
+	private: // Tracking state
+		Frame* _current_frame{ nullptr };
 	};
 }}}}

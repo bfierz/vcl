@@ -165,9 +165,9 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		Require(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", "Length: %f", _direction.norm());
-		Require(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", "Length: %f", _up.norm());
-		Require(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", "Length: %f", _right.norm());
+		RequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", "Length: %f", _direction.norm());
+		RequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", "Length: %f", _up.norm());
+		RequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", "Length: %f", _right.norm());
 			
 		real_t ratio = _x / _y;
 
@@ -355,7 +355,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 			
-		Require(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
+		RequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
 
 		return factory.createLookAt(_position.template cast<float>(), _direction.template cast<float>(), _up.template cast<float>(), Handedness::RightHanded).template cast<Scalar>();
 	}
@@ -400,7 +400,7 @@ namespace Vcl { namespace Graphics
 		{
 			real_t d = dir.dot(frustum.corner(i) - p[0]);
 			proj_points[i] = frustum.corner(i) - d * dir;
-			Check(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", "d = %f", dir.dot(proj_points[i] - p[0]));
+			CheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", "d = %f", dir.dot(proj_points[i] - p[0]));
 		}
 
 		// Compute center of projected points
@@ -482,7 +482,7 @@ namespace Vcl { namespace Graphics
 			Check(equal(abs(dm4), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
 			Check(equal(abs(dm5), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
 
-			Check(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", -dir.cross(n[5]).dot(n[3]));
+			CheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", -dir.cross(n[5]).dot(n[3]));
 		}
 
 		OrthographicViewFrustum<real_t> ortho

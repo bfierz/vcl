@@ -40,6 +40,10 @@
 #	include <vcl/core/simd/memory_avx.h>
 #endif //VCL_VECTORIZE_AVX
 
+#if defined VCL_VECTORIZE_NEON
+#	include <vcl/core/simd/memory_neon.h>
+#endif //VCL_VECTORIZE_NEON
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE void load(float& value, const float* base)
@@ -93,7 +97,7 @@ namespace Vcl
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 		static_assert(sizeof(Eigen::Matrix<Scalar, Rows, Cols>) == Rows*Cols*sizeof(Scalar), "Size of matrix type does not contain any padding.");
 
-		using wint_t = VectorScalar<int, Width>;
+		using wideint_t = VectorScalar<int, Width>;
 
 		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> res;
 
@@ -101,9 +105,9 @@ namespace Vcl
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				wint_t scale = wint_t(Rows*Cols);
-				wint_t offset = wint_t(Rows*c + r);
-				wint_t idx = scale*vindex + offset;
+				wideint_t scale = wideint_t(Rows*Cols);
+				wideint_t offset = wideint_t(Rows*c + r);
+				wideint_t idx = scale*vindex + offset;
 				res(r, c) = gather((Scalar*) base, idx);
 			}
 		}

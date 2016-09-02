@@ -25,6 +25,7 @@
 #include <vcl/util/stringparser.h>
 
 // C++ standard library
+#include <cstring>
 #include <stdexcept>
 #include <sstream>
 
@@ -65,7 +66,7 @@ namespace Vcl { namespace Util
 		while (!full_line_available)
 		{
 			// Copy the remaining data to the front
-			unsigned int copy_amount = (_currentBuffer + _currentSizeAvailable) - _bufferReadPtr;
+			size_t copy_amount = (_currentBuffer + _currentSizeAvailable) - _bufferReadPtr;
 			if (copy_amount > 0 && _bufferReadPtr != _currentBuffer)
 				// There was some data read, move the remaining
 			{
@@ -89,7 +90,7 @@ namespace Vcl { namespace Util
 			}
 
 			_stream->read(_currentBuffer + _currentSizeAvailable, BufferSize - _currentSizeAvailable);
-			unsigned int amount_read = _stream->gcount();
+			size_t amount_read = _stream->gcount();
 			if (amount_read == 0)
 			{
 				throw std::runtime_error("");
@@ -203,7 +204,7 @@ namespace Vcl { namespace Util
 		*_bufferReadPtr = '\0';
 
 		// Convert the string to a float
-		*f_ptr = atof(begin_ptr);
+		*f_ptr = static_cast<float>(atof(begin_ptr));
 
 		// Restore the stored end-pointer
 		*_bufferReadPtr = c;

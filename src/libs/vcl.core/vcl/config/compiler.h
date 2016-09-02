@@ -29,10 +29,10 @@
 #include <vcl/config/config.h>
 
 // Check library configuration
-#if defined __clang__ && !defined VCL_COMPILER_CLANG
-#	error "VCL was not configured for CLANG"
-#elif defined _MSC_VER && !defined VCL_COMPILER_MSVC
+#if defined _MSC_VER && !defined __clang__ && !defined VCL_COMPILER_MSVC
 #	error "VCL was not configured for MSVC"
+#elif defined __clang__ && !defined VCL_COMPILER_CLANG
+#	error "VCL was not configured for CLANG"
 #elif defined __GNUC__ && !defined VCL_COMPILER_GNU
 #	error "VCL was not configured for the GNU C++ compiler"
 #elif defined __INTEL_COMPILER && !defined VCL_COMPILER_ICL
@@ -46,15 +46,19 @@
 #			define VCL_ABI_WIN64
 #		else
 #			define VCL_ABI_WIN32
-#		endif /* _WIN64 */
-#	endif /* _WIN32 */
+#		endif // _WIN64
+#	endif // _WIN32
 #	if (defined(_M_IX86))
 #		define VCL_ARCH_X86
-#	endif /* _M_IX86 */
+#	endif // _M_IX86
 
 #	if (defined(_M_X64))
 #		define VCL_ARCH_X64
-#	endif /* _M_X64 */
+#	endif // _M_X64
+
+#	if (defined(_M_ARM))
+#		define VCL_ARCH_ARM
+#	endif // _M_ARM
 
 // Inlining
 #	define VCL_STRONG_INLINE __forceinline
@@ -109,13 +113,17 @@
 // Inlining
 #	define VCL_STRONG_INLINE inline
 
-#	define VCL_DEBUG_BREAK __builtin_trap
+#	define VCL_DEBUG_BREAK __builtin_trap()
 
 #	define VCL_ALIGN(x) __attribute__((aligned(x)))
 
 #	define VCL_CALLBACK __attribute__ ((__stdcall__))
 
 #	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
+
+#	if defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
+#		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
+#	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline
@@ -174,7 +182,7 @@
 #			include <immintrin.h>
 #		endif
 		}
-#elif defined(VCL_VECTORIZE_SSE)
+#	elif defined(VCL_VECTORIZE_SSE)
 		extern "C"
 		{
 #		ifdef VCL_VECTORIZE_SSE4_2
@@ -193,6 +201,8 @@
 		}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
+#elif defined VCL_ARCH_ARM && defined VCL_VECTORIZE_NEON
+#	include <arm_neon.h>
 #endif
 
 // Implement missing standard function

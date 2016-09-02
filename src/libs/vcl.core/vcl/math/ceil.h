@@ -24,8 +24,17 @@
  */
 #pragma once
 
+ // VCL configuration
+#include <vcl/config/global.h>
+
 namespace Vcl { namespace Mathematics
 {
+	inline uint32_t ceil(uint32_t val, uint32_t N)
+	{
+		uint32_t div = (val + (N - 1)) / N;
+		return div * N;
+	}
+
 	template<int N>
 	inline uint32_t ceil(uint32_t val)
 	{
@@ -87,6 +96,12 @@ namespace Vcl { namespace Mathematics
 	{
 		uint32_t res = (val + 1023) & 0xfffffC00;
 		return res;
+	}
+
+	inline uint64_t ceil(uint64_t val, uint64_t N)
+	{
+		uint64_t div = (val + (N - 1)) / N;
+		return div * N;
 	}
 
 	template<int N>

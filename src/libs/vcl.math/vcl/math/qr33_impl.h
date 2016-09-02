@@ -33,10 +33,15 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
+// Set to use the rsqrt optimization
 //#define VCL_MATH_JACOBIQR_USE_RSQRT
 
 namespace Vcl { namespace Mathematics
 {
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(push, off) 
+#endif // VCL_COMPILER_MSVC
+
 	template<typename Scalar>
 	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> JacobiRotationAngle(const Scalar& a11, const Scalar& a21)
 	{
@@ -52,26 +57,11 @@ namespace Vcl { namespace Mathematics
 		Scalar s = a21 * rho;
 
 		// Check for singular case
-		auto b = (a11*a11 + a21*a21) < Scalar(1e-5*1e-5);
+        auto b = (a11*a11 + a21*a21) < Scalar(typename NumericTrait<Scalar>::base_t(1e-5*1e-5));
 		c = select(b, sgn(a11), c);
 		s = select(b, Scalar(1), s);
 
 		return Eigen::Matrix<Scalar, 2, 1>(c, s);
-	}
-
-	template<typename Scalar>
-	VCL_STRONG_INLINE Eigen::Matrix<Scalar, 2, 1> ApproxJacobiRotationQuaternion(const Scalar& a11, const Scalar& a21)
-	{
-		Scalar rho = Scalar(sqrt(a11*a11 + a21*a21));
-		Scalar s_h = select(rho > Scalar(1e-6), a21, 0);
-		Scalar c_h = abs(a11) + max(rho, Scalar(1e-6));
-		cswap(a11 < Scalar(0), s_h, c_h);
-
-		Scalar omega = Scalar(1) / Scalar(sqrt(c_h*c_h + s_h*s_h));
-		c_h = omega*c_h;
-		s_h = omega*s_h;
-
-		return Eigen::Matrix<Scalar, 2, 1>(c_h, s_h);
 	}
 
 	template<typename Scalar, int p, int q>
@@ -83,9 +73,14 @@ namespace Vcl { namespace Mathematics
 
 		// Rotates A through phi in pq-plane to set R(p, q) = 0.
 		// Rotation stored in Q whose columns are eigenvectors of R
-		auto cs = JacobiRotationAngle(R(q, q), R(p, q));
+		auto cs = JacobiRotationAngle(R(q, q), R(p, q));		
 		Scalar c = cs(0);
 		Scalar s = cs(1);
+
+		//Eigen::Matrix<Scalar, 3, 3> G = Eigen::Matrix<Scalar, 3, 3>::Identity();
+		//G(p, p) = c;  G(q, p) = s;
+		//G(p, q) = -s; G(q, q) = c;
+		//R = G * R;
 
 		Scalar Rpp = c * R(p, p) - s * R(q, p);
 		Scalar Rpq = c * R(p, q) - s * R(q, q);
@@ -115,6 +110,28 @@ namespace Vcl { namespace Mathematics
 		}
 	}
 
+	template<typename Scalar, int c>
+	VCL_STRONG_INLINE void HouseholderQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
+	{
+		static_assert(0 <= c && c < 2, "p in [0,2)");
+
+		Eigen::Matrix<Scalar, 3 - c, 1> u = R.template block<3 - c, 1>(c, c);
+		Scalar s = sgn(u(0)) * u.norm();
+		u(0) += s;
+
+		// Replace normalization due to Eigen 3.3 compatibility
+		//u.normalize();
+		u = u / sqrt(u.squaredNorm());
+
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> B = R.template block<3 - c, 3 - c>(c, c);
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
+		R.template block<3 - c, 3 - c>(c, c) = H * B;
+
+		Eigen::Matrix<Scalar, 3, 3> T = Eigen::Matrix<Scalar, 3, 3>::Identity();
+		T.template block<3 - c, 3 - c>(c, c) = H;
+		Q = Q * T.transpose();
+	}
+
 	template<typename Scalar>
 	void JacobiQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
 	{
@@ -127,4 +144,18 @@ namespace Vcl { namespace Mathematics
 		JacobiRotateQR<Scalar, 2, 0>(R, Q);
 		JacobiRotateQR<Scalar, 2, 1>(R, Q);
 	}
+
+	template<typename Scalar>
+	void HouseholderQR(Eigen::Matrix<Scalar, 3, 3>& R, Eigen::Matrix<Scalar, 3, 3>& Q)
+	{
+		// Initialize Q
+		Q.setIdentity();
+
+		// Clear values below the diagonal with a fixed sequence 0, 1 column elimination
+		HouseholderQR<Scalar, 0>(R, Q);
+		HouseholderQR<Scalar, 1>(R, Q);
+	}
+#ifdef VCL_COMPILER_MSVC
+#	pragma strict_gs_check(pop) 
+#endif // VCL_COMPILER_MSVC
 }}

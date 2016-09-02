@@ -34,8 +34,7 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar gather function.
-TEST(QR33, Simple)
+TEST(QR33, SimpleGivens)
 {
 	using Vcl::Matrix3f;
 	using Vcl::Mathematics::equal;
@@ -48,10 +47,51 @@ TEST(QR33, Simple)
 	Matrix3f Ref;
 	Ref << 14, 21, -14, 0, 175, -70, 0, 0, 35;
 
+	Matrix3f Iref = Matrix3f::Identity();
+
 	// Compute decomposition
 	Matrix3f R = A;
 	Matrix3f Q;
 	JacobiQR(R, Q);
 
-	EXPECT_TRUE(equal(Ref, R, 1e-4f)) << "Simple Example";
+	// Check reverse result
+	Matrix3f Ares = Q*R;
+	Matrix3f I = Q.transpose()*Q;
+
+	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly";
+	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly";
+	EXPECT_TRUE(equal(0, R(2, 1), 1e-4f)) << "R(2, 1) is not computed correctly";
+	EXPECT_TRUE(equal(A, Ares, 1e-4f)) << "Verification A = QR failed";
+	EXPECT_TRUE(equal(Iref, I, 1e-4f)) << "Verification I = Q^T*Q failed";
+}
+
+TEST(QR33, SimpleHouseholder)
+{
+	using Vcl::Matrix3f;
+	using Vcl::Mathematics::equal;
+	using Vcl::Mathematics::HouseholderQR;
+
+	// Sample values from: http://en.wikipedia.org/wiki/QR_decomposition
+	Matrix3f A;
+	A << 12, -51, 4, 6, 167, -68, -4, 24, -41;
+
+	Matrix3f Ref;
+	Ref << 14, 21, -14, 0, 175, -70, 0, 0, 35;
+
+	Matrix3f Iref = Matrix3f::Identity();
+
+	// Compute decomposition
+	Matrix3f R = A;
+	Matrix3f Q;
+	HouseholderQR(R, Q);
+
+	// Check reverse result
+	Matrix3f Ares = Q*R;
+	Matrix3f I = Q.transpose()*Q;
+
+	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly: " << R(1, 0);
+	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly: " << R(2, 0);
+	EXPECT_TRUE(equal(0, R(2, 1), 1e-4f)) << "R(2, 1) is not computed correctly: " << R(2, 1);
+	EXPECT_TRUE(equal(A, Ares, 1e-4f)) << "Verification A = QR failed";
+	EXPECT_TRUE(equal(Iref, I, 1e-4f)) << "Verification I = Q^T*Q failed";
 }

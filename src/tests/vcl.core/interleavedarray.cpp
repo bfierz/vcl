@@ -47,7 +47,7 @@ void consecutiveLayoutTest(size_t size)
 	auto rnd = std::bind(rnd_dist, rnd_dev);
 
 	// Create reference data
-	std::vector<Eigen::Matrix<float, ROWS, COLS>> ref_data(size);
+	std::vector<Eigen::Matrix<float, ROWS, COLS>, Eigen::aligned_allocator<Eigen::Matrix<float, ROWS, COLS>>> ref_data(size);
 	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data)
 	{
 		for (int c = 0; c < data.cols(); c++)
@@ -124,7 +124,7 @@ void stridedLayoutTest(size_t size)
 	auto rnd = std::bind(rnd_dist, rnd_dev);
 
 	// Create reference data
-	std::vector<Eigen::Matrix<float, ROWS, COLS>> ref_data(size);
+	std::vector<Eigen::Matrix<float, ROWS, COLS>, Eigen::aligned_allocator<Eigen::Matrix<float, ROWS, COLS>>> ref_data(size);
 	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data)
 	{
 		for (int c = 0; c < data.cols(); c++)

@@ -2,7 +2,7 @@
 #extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
 
-#include "3DSceneBindings.h"
+#include "../3DSceneBindings.h"
 
 // Convert input points to a set of 2 triangles
 layout(points) in;

@@ -92,5 +92,5 @@ TEST(AllocatorTest, AlignedAllocInitObject)
 
 	// Check alignment of vector data
 	auto base_ptr = reinterpret_cast<size_t>(v.data()) & 0x3f;
-	EXPECT_EQ(0, base_ptr);
+	EXPECT_EQ(0u, base_ptr);
 }

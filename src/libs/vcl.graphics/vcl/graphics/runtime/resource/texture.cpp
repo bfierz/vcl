@@ -26,6 +26,7 @@
 
 // VCL library
 #include <vcl/core/contract.h>
+#include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
@@ -46,5 +47,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		_width = width;
 		_height = height;
 		_depth = depth;
+
+		_sizeInBytes = width * height * depth * Vcl::Graphics::sizeInBytes(f);
 	}
 }}}

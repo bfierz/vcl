@@ -196,7 +196,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
-		glClearNamedFramebufferfi(_glId, GL_DEPTH_STENCIL, depth, stencil);
+		glClearNamedFramebufferfi(_glId, GL_DEPTH_STENCIL, 0, depth, stencil);
 	}
 	void Framebuffer::clear(float depth)
 	{

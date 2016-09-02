@@ -33,6 +33,7 @@
 
 // VCL
 #include <vcl/components/entitymanager.h>
+#include <vcl/graphics/runtime/graphicsengine.h>
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
 
@@ -49,6 +50,9 @@ class Scene : public QObject
 public:
 	Scene(QObject* parent = 0);
 	~Scene();
+
+public:
+	void setEngine(Vcl::Graphics::Runtime::GraphicsEngine* engine) { _engine = engine; }
 
 public:
 	void update();
@@ -74,6 +78,9 @@ public:
 
 	GPUSurfaceMesh* surfaceMesh() const { return _surfaceMesh.get(); }
 	GPUVolumeMesh* volumeMesh() const { return _volumeMesh.get(); }
+
+private: // Engine
+	Vcl::Graphics::Runtime::GraphicsEngine* _engine{ nullptr };
 
 private: // Update data
 	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;

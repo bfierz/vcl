@@ -39,6 +39,10 @@
 #include <vcl/math/jacobieigen33_selfadjoint.h>
 #include <vcl/math/jacobieigen33_selfadjoint_quat.h>
 
+#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
+#define VCL_MATH_SELFADJOINTJACOBI_USE_RCP
+#include <vcl/math/jacobieigen33_selfadjoint_impl.h>
+
 // Google test
 #include <gtest/gtest.h>
 
@@ -86,7 +90,7 @@ namespace
 			rnd << d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng);
-			A.at<Scalar>(i) = rnd.transpose() * rnd;
+			A.template at<Scalar>(i) = rnd.transpose() * rnd;
 		}
 
 		return std::move(A);
@@ -104,13 +108,13 @@ namespace
 		// Compute reference using Eigen
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f A = ATA.at<Scalar>(i);
+			Vcl::Matrix3f A = ATA.template at<Scalar>(i);
 
 			Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver;
 			solver.compute(A, Eigen::ComputeEigenvectors);
 
-			U.at<Scalar>(i) = solver.eigenvectors();
-			S.at<Scalar>(i) = solver.eigenvalues();
+			U.template at<Scalar>(i) = solver.eigenvectors();
+			S.template at<Scalar>(i) = solver.eigenvalues();
 		}
 	}
 
@@ -131,32 +135,37 @@ namespace
 
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f refU = refUa.at<Scalar>(i);
-			Vcl::Vector3f refS = refSa.at<Scalar>(i);
+			Vcl::Matrix3f refU = refUa.template at<Scalar>(i);
+			Vcl::Vector3f refS = refSa.template at<Scalar>(i);
 
-			Vcl::Matrix3f resU = resUa.at<Scalar>(i);
-			Vcl::Vector3f resS = resSa.at<Scalar>(i);
+			Vcl::Matrix3f resU = resUa.template at<Scalar>(i);
+			Vcl::Vector3f resS = resSa.template at<Scalar>(i);
 			SortEigenvalues(resS, resU);
 
 			Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
 			Scalar sqLenRefUc1 = refU.col(1).squaredNorm();
 			Scalar sqLenRefUc2 = refU.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Index: " << i << ", Reference U(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc0, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc1, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefUc2, Scalar(1), tol)) << "Index: " << i << ", Reference U: Column 2 is not normalized.";
 
 			Scalar sqLenResUc0 = resU.col(0).squaredNorm();
 			Scalar sqLenResUc1 = resU.col(1).squaredNorm();
 			Scalar sqLenResUc2 = resU.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Index: " << i << ", Result U(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc0, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 0 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc1, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 1 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 2 is not normalized.";
 
 			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
-			bool eqU = refU.array().abs().isApprox(resU.array().abs(), tol);
+			bool eqU = refU.array().abs().isApprox(resU.array().abs(), 2*tol);
 
 			EXPECT_TRUE(eqS) << "Index: " << i << ", S(" << i << ") -\nRef: " << refS.format(fmt) << ",\nRes: " << resS.format(fmt);
 			EXPECT_TRUE(eqU) << "Index: " << i << ", U(" << i << ") -\nRef: " << refU.format(fmt) << ",\nRes: " << resU.format(fmt);
+
+			Vcl::Matrix3f I = resU.transpose() * resU;
+			Vcl::Matrix3f Iref = Vcl::Matrix3f::Identity();
+
+			EXPECT_TRUE(equal(Iref, I, tol)) << "Index: " << i << ", Result U^t U: not Identity.";
 		}
 	}
 }
@@ -185,15 +194,15 @@ void runJacobiEigen33Test(float tol)
 
 	for (int i = 0; i < static_cast<int>(stride / width); i++)
 	{
-		matrix3_t ATA = A.at<real_t>(i);
+		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;
 		vector3_t S;
 
 		Vcl::Mathematics::SelfAdjointJacobiEigen(ATA, U);
 		S = ATA.diagonal();
 
-		resU.at<real_t>(i) = U;
-		resS.at<real_t>(i) = S;
+		resU.template at<real_t>(i) = U;
+		resS.template at<real_t>(i) = S;
 	}
 
 	// Check against reference solution
@@ -224,19 +233,49 @@ void runJacobiEigenQuat33Test(float tol)
 
 	for (int i = 0; i < static_cast<int>(stride / width); i++)
 	{
-		matrix3_t ATA = A.at<real_t>(i);
+		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;
 		vector3_t S;
 
 		Vcl::Mathematics::SelfAdjointJacobiEigenQuat(ATA, U);
 		S = ATA.diagonal();
 
-		resU.at<real_t>(i) = U;
-		resS.at<real_t>(i) = S;
+		resU.template at<real_t>(i) = U;
+		resS.template at<real_t>(i) = S;
 	}
 
 	// Check against reference solution
 	checkSolution(nr_problems, tol, refU, refS, resU, resS);
+}
+
+TEST(Eigen33, JacobiRotationAngleFloat4)
+{
+	Vcl::float4 a11{ 0.0636276379f, 0.620737076f, 0.930427194f, 1.56127894f };
+	Vcl::float4 a12{ 0.221034527f,  0.599013686f, 0.525564313f, 1.41785979f };
+	Vcl::float4 a22{ 1.57842779f,   0.872990131f, 0.716681361f, 1.48913455f };
+
+	Vcl::float4 c{ -0.989938557f, -0.776543200f, 0.774360895f, 0.716042221f };
+	Vcl::float4 s{  0.141497672f,  0.630063951f, 0.632744193f, 0.698056936f };
+
+	auto cs = Vcl::Mathematics::JacobiRotationAngle(a11, a12, a22);
+
+	EXPECT_TRUE(Vcl::all(Vcl::equal(c, cs(0), Vcl::float4(1e-5f)))) << "Cosinus was computed wrong: " << cs(0);
+	EXPECT_TRUE(Vcl::all(Vcl::equal(s, cs(1), Vcl::float4(1e-5f)))) <<   "Sinus was computed wrong: " << cs(1);
+}
+
+TEST(Eigen33, JacobiRotationAngleFloat8)
+{
+	Vcl::float8 a11{ 0.0636276379f, 0.620737076f, 0.930427194f, 1.56127894f, 1.36132240f,  1.17526937f,  1.15197527f,  1.03158689f  };
+	Vcl::float8 a12{ 0.221034527f,  0.599013686f, 0.525564313f, 1.41785979f, 0.277331233f, 0.342120767f, 0.592817068f, 0.618788481f };
+	Vcl::float8 a22{ 1.57842779f,   0.872990131f, 0.716681361f, 1.48913455f, 0.114264831f, 0.201089293f, 0.925793409f, 0.934002161f };
+
+	Vcl::float8 c{ -0.989938557f, -0.776543200f, 0.774360895f, 0.716042221f, 0.978186727f, 0.953498065f, 0.770515859f, 0.734373033f };
+	Vcl::float8 s{  0.141497672f,  0.630063951f, 0.632744193f, 0.698056936f, 0.207727432f, 0.301399142f, 0.637420893f, 0.678746164f };
+
+	auto cs = Vcl::Mathematics::JacobiRotationAngle(a11, a12, a22);
+
+	EXPECT_TRUE(Vcl::all(Vcl::equal(c, cs(0), Vcl::float8(1e-5f)))) << "Cosinus was computed wrong: " << cs(0);
+	EXPECT_TRUE(Vcl::all(Vcl::equal(s, cs(1), Vcl::float8(1e-5f)))) <<   "Sinus was computed wrong: " << cs(1);
 }
 
 TEST(Eigen33, EigenFloat)

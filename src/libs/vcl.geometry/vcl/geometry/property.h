@@ -144,11 +144,11 @@ namespace Vcl { namespace Geometry
 		, _allocPolicy(nullptr)
 		{
 			// Check for instanciations
-#ifdef VCL_COMPILER_GNUC
+#ifdef VCL_COMPILER_GNU
 			DebugError("Implementation is not verified yet.");
 #else
 			static_assert(false, "Implementation is not verified yet.");
-#endif /* VCL_COMPILER_GNUC */
+#endif // VCL_COMPILER_GNU
 
 			std::swap(_allocPolicy, rhs._allocPolicy);
 			std::swap(_data, rhs._data);

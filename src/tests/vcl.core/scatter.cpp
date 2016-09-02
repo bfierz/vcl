@@ -72,7 +72,7 @@ TEST(ScatterTest, Scalar)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 4>(ref4, out, idx4);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(float); i++)
 	{
 		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "4-way code failed.";
 	}
@@ -86,7 +86,7 @@ TEST(ScatterTest, Scalar)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 8>(ref8, out, idx8);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(float); i++)
 	{
 		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "8-way code failed.";
 	}
@@ -102,7 +102,7 @@ TEST(ScatterTest, Scalar)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 16>(ref16, out, idx16);
-	for (int i = 0; i < sizeof(mem) / sizeof(float); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(float); i++)
 	{
 		EXPECT_TRUE(implies(out[i] > 0, out[i] == mem[i])) << "16-way code failed.";
 	}
@@ -172,7 +172,7 @@ TEST(ScatterTest, Matrix)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 4, 3, 1>(ref4, out, idx4);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
 	{
 		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "4-way code failed.";
 	}
@@ -200,7 +200,7 @@ TEST(ScatterTest, Matrix)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 8, 3, 1>(ref8, out, idx8);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
 	{
 		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "8-way code failed.";
 	}
@@ -235,7 +235,7 @@ TEST(ScatterTest, Matrix)
 
 	memset(out, 0, sizeof(out));
 	Vcl::scatter<float, 16, 3, 1>(ref16, out, idx16);
-	for (int i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
+    for (unsigned i = 0; i < sizeof(mem) / sizeof(Eigen::Vector3f); i++)
 	{
 		EXPECT_TRUE(implies(out[i] != Eigen::Vector3f::Zero(), out[i] == mem[i])) << "16-way code failed.";
 	}

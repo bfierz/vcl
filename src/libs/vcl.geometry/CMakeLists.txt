@@ -41,6 +41,8 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/multiindextrimesh.h
 	vcl/geometry/tetramesh.h
 	vcl/geometry/trimesh.h
+	
+	vcl/geometry/marchingcubestables.h
 )
 SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distancePoint3Triangle3.cpp
@@ -52,6 +54,8 @@ SET(VCL_GEOMETRY_SRC
 	vcl/geometry/multiindextrimesh.cpp
 	vcl/geometry/tetramesh.cpp
 	vcl/geometry/trimesh.cpp
+	
+	vcl/geometry/marchingcubestables.cpp
 )
 
 SOURCE_GROUP("io" FILES ${VCL_GEOMETRY_IO_SRC} ${VCL_GEOMETRY_IO_INC})

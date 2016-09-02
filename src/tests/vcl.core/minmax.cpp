@@ -31,6 +31,7 @@
 
 // C++ standard library
 #include <cmath>
+#include <sstream>
 
 // Google test
 #include <gtest/gtest.h>
@@ -49,13 +50,23 @@ const T& max(const T& a, const T& b)
 
 TEST(MinMax, NanSafeMinMax)
 {
-	EXPECT_TRUE(std::isnan(min(0.0f, std::nanf(""))));
-	EXPECT_TRUE(min(std::nanf(""), 0.0f) == 0.0f);
-	EXPECT_TRUE(std::isnan(max(0.0f, std::nanf(""))));
-	EXPECT_TRUE(max(std::nanf(""), 0.0f) == 0.0f);
+	// Prepare a buffer with a NaN float
+	float in_nan = std::nanf("");
+	std::stringstream nan_stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
+	nan_stream.write((char*) &in_nan, sizeof(in_nan));
+	nan_stream.seekg(0);
 
-	EXPECT_TRUE(std::isnan(Vcl::Mathematics::min(0.0f, std::nanf(""))));
-	EXPECT_TRUE(Vcl::Mathematics::min(std::nanf(""), 0.0f) == 0.0f);
-	EXPECT_TRUE(std::isnan(Vcl::Mathematics::max(0.0f, std::nanf(""))));
-	EXPECT_TRUE(Vcl::Mathematics::max(std::nanf(""), 0.0f) == 0.0f);
+	float nan = 0;
+	nan_stream.read((char*)&nan, sizeof(nan));
+
+	// Do the tests
+	EXPECT_TRUE(std::isnan(min(0.0f, nan)));
+	EXPECT_TRUE(min(nan, 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(max(0.0f, nan)));
+	EXPECT_TRUE(max(nan, 0.0f) == 0.0f);
+
+	EXPECT_TRUE(std::isnan(Vcl::Mathematics::min(0.0f, nan)));
+	EXPECT_TRUE(Vcl::Mathematics::min(nan, 0.0f) == 0.0f);
+	EXPECT_TRUE(std::isnan(Vcl::Mathematics::max(0.0f, nan)));
+	EXPECT_TRUE(Vcl::Mathematics::max(nan, 0.0f) == 0.0f);
 }

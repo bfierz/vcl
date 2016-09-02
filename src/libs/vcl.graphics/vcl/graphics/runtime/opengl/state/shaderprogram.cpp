@@ -145,7 +145,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				GLint resLoc = -1;
 				if (type >= ProgramResourceType::Sampler1D)
 				{
-					glGetUniformiv(program, values[3], &resLoc);
+					resLoc = glGetProgramResourceLocation(program, GL_UNIFORM, name.data());
+					glProgramUniform1i(program, values[3], resLoc);
 				}
 
 				// Construct the uniform
@@ -218,7 +219,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				name.resize(values[0]);
 				glGetProgramResourceName(program, GL_SHADER_STORAGE_BLOCK, u, (GLsizei) name.size(), nullptr, name.data());
 
-				GLint loc = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, name.data());;
+				GLint loc = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, name.data());
 				GLint res_loc = values[1];
 
 				// Construct the uniform
@@ -641,6 +642,26 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Link the program
 		glLinkProgram(id());
 
+		GLint linked;
+		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
+		if (linked == GL_FALSE)
+		{
+			AssertBlock
+			{
+				printInfoLog();
+			}
+			return;
+		}
+
+#ifdef VCL_DEBUG
+		glValidateProgram(id());
+
+		GLint valid;
+		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
+		if (valid == GL_FALSE)
+			return;
+#endif
+
 		// Link the program to the input layout
 		if (!desc.ComputeShader)
 			linkAttributes(desc.InputLayout);
@@ -671,10 +692,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Collect the uniforms of this program
 		_resources = std::make_unique<ProgramResources>(id());
 
-		AssertBlock
-		{
-			printInfoLog();
-		}
 		Ensure(id() > 0, "Shader program is created");
 	}
 
@@ -688,6 +705,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::linkAttributes(const InputLayoutDescription& layout)
 	{
+		// If no layout is set, nothing needs to be done
+		if (layout.size() == 0)
+			return;
+
 		// Match the attributes against the interface provided in the program description
 		// The interface may contain more data than the shader can consume.
 		// The interface must provide at least the used by the shader.
@@ -737,7 +758,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);
 
-				Check(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
+				CheckEx(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
 			}
 
 			// Check the fragment output against the layout
@@ -926,6 +947,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset, size_t size)
 	{
+		Require(_resources, "Resources are defined.");
 		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
 		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 

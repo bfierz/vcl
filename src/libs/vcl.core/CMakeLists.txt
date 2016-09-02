@@ -54,33 +54,52 @@ SET(VCL_CORE_MEMORY_INC
 SET(VCL_CORE_SIMD_SRC
 	vcl/core/simd/intrinsics_avx.cpp
 	vcl/core/simd/intrinsics_sse.cpp
+	vcl/core/simd/intrinsics_neon.cpp
 )
 SET(VCL_CORE_SIMD_INL
 )
 SET(VCL_CORE_SIMD_INC
 	vcl/core/simd/avx_mathfun.h
 	vcl/core/simd/sse_mathfun.h
+	vcl/core/simd/neon_mathfun.h
 	vcl/core/simd/bool4_sse.h
+	vcl/core/simd/bool4_neon.h
 	vcl/core/simd/bool8_avx.h
 	vcl/core/simd/bool8_sse.h
+	vcl/core/simd/bool8_neon.h
 	vcl/core/simd/bool16_avx.h
 	vcl/core/simd/bool16_sse.h
+	vcl/core/simd/bool16_neon.h
 	vcl/core/simd/float4_sse.h
+	vcl/core/simd/float4_neon.h
 	vcl/core/simd/float8_avx.h
 	vcl/core/simd/float8_sse.h
+	vcl/core/simd/float8_neon.h
 	vcl/core/simd/float16_avx.h
 	vcl/core/simd/float16_sse.h
+	vcl/core/simd/float16_neon.h
 	vcl/core/simd/int4_sse.h
+	vcl/core/simd/int4_neon.h
 	vcl/core/simd/int8_avx.h
 	vcl/core/simd/int8_sse.h
+	vcl/core/simd/int8_neon.h
 	vcl/core/simd/int16_avx.h
 	vcl/core/simd/int16_sse.h
+	vcl/core/simd/int16_neon.h
 	vcl/core/simd/intrinsics_avx.h
 	vcl/core/simd/intrinsics_sse.h
+	vcl/core/simd/intrinsics_neon.h
 	vcl/core/simd/memory.h
 	vcl/core/simd/memory_avx.h
 	vcl/core/simd/memory_sse.h
+	vcl/core/simd/memory_neon.h
 	vcl/core/simd/vectorscalar.h
+)
+
+# VCL / DEBUG / MSVC
+SET(VCL_DEBUG_MSVC_INC
+	vcl/debug/msvc/eigen.natvis
+	vcl/debug/msvc/qt5.natvis
 )
 
 # VCL / MATH
@@ -131,6 +150,7 @@ SOURCE_GROUP(core\\container FILES ${VCL_CORE_CONTAINER_SRC} ${VCL_CORE_CONTAINE
 SOURCE_GROUP(core\\memory FILES ${VCL_CORE_MEMORY_SRC} ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC})
 SOURCE_GROUP(core\\simd FILES ${VCL_CORE_SIMD_SRC} ${VCL_CORE_SIMD_INL} ${VCL_CORE_SIMD_INC})
 SOURCE_GROUP(core FILES ${VCL_CORE_SRC} ${VCL_CORE_INC})
+SOURCE_GROUP(debug\\msvc FILES ${VCL_DEBUG_MSVC_INC})
 SOURCE_GROUP(math FILES ${VCL_MATH_INC})
 SOURCE_GROUP(rtti FILES ${VCL_RTTI_SRC} ${VCL_RTTI_INL} ${VCL_RTTI_INC})
 SOURCE_GROUP(util FILES ${VCL_UTIL_SRC} ${VCL_UTIL_INC})
@@ -138,6 +158,7 @@ SOURCE_GROUP(util FILES ${VCL_UTIL_SRC} ${VCL_UTIL_INC})
 SET(SOURCE
 	${VCL_CONFIG_INC}
 	${VCL_CORE_CONTAINER_SRC} ${VCL_CORE_CONTAINER_INL} ${VCL_CORE_CONTAINER_INC}
+	${VCL_DEBUG_MSVC_INC}
 	${VCL_CORE_MEMORY_SRC} ${VCL_CORE_MEMORY_INL} ${VCL_CORE_MEMORY_INC}
 	${VCL_CORE_SIMD_SRC} ${VCL_CORE_SIMD_INL} ${VCL_CORE_SIMD_INC}
 	${VCL_CORE_SRC} ${VCL_CORE_INC}

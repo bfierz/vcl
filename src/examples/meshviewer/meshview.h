@@ -59,21 +59,34 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
+	void renderTetMesh(GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+
+private:
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	MeshView* _owner{ nullptr };
 
+	bool _renderWireframe{ false };
+
 private: // States
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _boxPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
+
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshWirePipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPointsPipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
 
 private: // Render targets
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::Texture> _idBufferDepth;
+
+private: // Support buffers
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _marchingCubesTables;
 
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
@@ -85,9 +98,10 @@ class MeshView : public QQuickFramebufferObject
 
 	// Properties
 	Q_PROPERTY(Scene* scene READ scene WRITE setScene)
+	Q_PROPERTY(bool renderWireframe READ renderWireframe WRITE setRenderWireframe)
 
 public:
-	Renderer* createRenderer() const;
+	MeshView(QQuickItem *parent = Q_NULLPTR);
 
 public:
 	Scene* scene() const { return _scene; }
@@ -97,23 +111,18 @@ public:
 		update();
 	}
 
-private:
-	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
-
-	// https://bugreports.qt.io/browse/QTBUG-41073
-	QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* nodeData) override
+	bool renderWireframe() const { return _renderWireframe; }
+	void setRenderWireframe(bool wireframe)
 	{
-		if (!node)
-		{
-			node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
-			QSGSimpleTextureNode *n = dynamic_cast<QSGSimpleTextureNode *>(node);
-			if (n)
-				n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-			return node;
-		}
-		return QQuickFramebufferObject::updatePaintNode(node, nodeData);
+		_renderWireframe = wireframe;
+		update();
 	}
+
+private: // Implementations
+	Renderer* createRenderer() const override;
+	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
 
 private:
 	Scene* _scene{ nullptr };
+	bool _renderWireframe{ false };
 };
