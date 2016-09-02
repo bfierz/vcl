@@ -32,6 +32,7 @@
 #include <array>
 
 // VCL
+#include <vcl/core/flags.h>
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
