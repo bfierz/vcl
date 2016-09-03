@@ -77,15 +77,15 @@ namespace Vcl { namespace Components
 		template<typename C, typename Func>
 		void registerComponent(Func&& func)
 		{
-			Require(_components.find(typeid(C).hash_code()) == _components.end(), "Component type not registered.");
+			Require(_multiComponents.find(typeid(C).hash_code()) == _multiComponents.end(), "Component type not registered.");
 
 			size_t hash = typeid(C).hash_code();
-			if (_components.find(hash) == _components.end())
+			if (_multiComponents.find(hash) == _multiComponents.end())
 			{
-				_components[hash] = std::make_unique<MultiComponentStore<C, Func>>(std::forward<Func&&>(func));
+				_multiComponents[hash] = std::make_unique<MultiComponentStore<C, Func>>(std::forward<Func&&>(func));
 			}
 
-			Ensure(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			Ensure(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 		}
 
 		template<typename C, typename... Args>
@@ -146,13 +146,13 @@ namespace Vcl { namespace Components
 			size_t hash = typeid(C).hash_code();
 			if (ComponentTraits<C>::IsUnique)
 			{
-				auto& c = *static_cast<ComponentStore<C>*>(_components[hash].get());
+				auto& c = *static_cast<ComponentStore<C>*>(_components.find(hash)->second.get());
 
 				return c.has(e._id);
 			}
 			else
 			{
-				auto& c = *static_cast<MultiComponentStoreBase<C>*>(_components[hash].get());
+				auto& c = *static_cast<MultiComponentStoreBase<C>*>(_multiComponents.find(hash)->second.get());
 
 				return c.has(e._id);
 			}
@@ -184,6 +184,6 @@ namespace Vcl { namespace Components
 		std::unordered_map<size_t, std::unique_ptr<ComponentStoreBase>> _components;
 
 		//! Per type stortage of multi-components per entity
-		std::unordered_multimap<size_t, std::unique_ptr<ComponentStoreBase>> _multiComponents;
+		std::unordered_map<size_t, std::unique_ptr<ComponentStoreBase>> _multiComponents;
 	};
 }}
