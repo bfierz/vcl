@@ -44,6 +44,10 @@ Scene::Scene(QObject* parent)
 
 	// Register the camera as a component
 	_entityManager.registerComponent<Camera>();
+	_entityManager.registerComponent<Vcl::Geometry::TetraMesh>();
+	_entityManager.registerComponent<Vcl::Geometry::TriMesh>();
+	_entityManager.registerComponent<GPUSurfaceMesh>();
+	_entityManager.registerComponent<GPUVolumeMesh>();
 
 	// Create a new camera
 	_cameraEntity = _entityManager.create();
@@ -70,11 +74,15 @@ void Scene::createSurfaceSphere()
 
 	std::cout << "Creating sphere mesh" << std::endl;
 
-	_triMesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
+	// Create a new entity
+	auto mesh_entity = _entityManager.create();
+	_meshes.push_back(mesh_entity);
+
+	auto mesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
 
 	// Compute the new camera configuration
 	Eigen::AlignedBox3f bb;
-	auto vertices = _triMesh->vertices();
+	auto vertices = mesh->vertices();
 	for (size_t i = 0, end = vertices->size(); i < end; i++)
 	{
 		bb.extend(vertices[i]);
@@ -82,10 +90,13 @@ void Scene::createSurfaceSphere()
 	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
 
+	// Create the mesh component
+	auto mesh_component = _entityManager.create<TriMesh>(mesh_entity, std::move(*mesh));
+
 	// Create GPU buffers
-	_engine->enqueueCommand([this]()
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
 	{
-		_surfaceMesh = std::make_unique<GPUSurfaceMesh>(std::move(_triMesh));
+		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
 	});
 }
 
@@ -95,23 +106,9 @@ void Scene::createBar(int x, int y, int z)
 
 	std::cout << "Creating bar mesh of resolution (" << x << ", " << y << ", " << z << ")" << std::endl;
 
-	_tetraMesh = MeshFactory<TetraMesh>::createHomogenousCubes(x, y, z);
+	auto mesh = MeshFactory<TetraMesh>::createHomogenousCubes(x, y, z);
 
-	// Compute the new camera configuration
-	Eigen::AlignedBox3f bb;
-	auto vertices = _tetraMesh->vertices();
-	for (size_t i = 0, end = vertices->size(); i < end; i++)
-	{
-		bb.extend(vertices[i]);
-	}
-	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
-	_cameraController.setRotationCenter(bb.center());
-
-	// Create GPU buffers
-	_engine->enqueueCommand([this]()
-	{
-		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
-	});
+	initializeTetraMesh(std::move(mesh));
 }
 
 void Scene::loadMesh(const QUrl& path)
@@ -137,22 +134,35 @@ void Scene::loadMesh(const QUrl& path)
 		return;
 	}
 
-	_tetraMesh = deserialiser.fetch();
+	auto mesh = deserialiser.fetch();
+	initializeTetraMesh(std::move(mesh));
+}
+
+void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
+{
+	using namespace Vcl::Geometry;
+
+	// Create a new entity
+	auto mesh_entity = _entityManager.create();
+	_meshes.push_back(mesh_entity);
 
 	// Compute the new camera configuration
 	Eigen::AlignedBox3f bb;
-	auto vertices = _tetraMesh->vertices();
+	auto vertices = mesh->vertices();
 	for (size_t i = 0, end = vertices->size(); i < end; i++)
 	{
 		bb.extend(vertices[i]);
 	}
-	_camera->encloseInFrustum(bb.center(), { 0, 0, -1 }, bb.diagonal().norm());
+	_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
 	_cameraController.setRotationCenter(bb.center());
 
+	// Create the mesh component
+	auto mesh_component = _entityManager.create<TetraMesh>(mesh_entity, std::move(*mesh));
+
 	// Create GPU buffers
-	_engine->enqueueCommand([this]()
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
 	{
-		_volumeMesh = std::make_unique<GPUVolumeMesh>(std::move(_tetraMesh));
+		_entityManager.create<GPUVolumeMesh>(mesh_entity, mesh_component);
 	});
 }
 

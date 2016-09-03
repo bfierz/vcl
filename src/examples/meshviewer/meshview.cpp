@@ -113,7 +113,7 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
-	using Vcl::Graphics::Runtime::Usage;
+	using Vcl::Graphics::Runtime::ResourceUsage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
@@ -202,7 +202,7 @@ FboRenderer::FboRenderer()
 	memcpy(mcTables.edgeVertexList, Vcl::Geometry::edgeVertexList, sizeof(Vcl::Geometry::edgeVertexList));
 
 	BufferDescription mcDesc;
-	mcDesc.Usage = Usage::Default;
+	mcDesc.Usage = ResourceUsage::Default;
 	mcDesc.SizeInBytes = sizeof(MarchingCubesTables);
 
 	BufferInitData mcData;
@@ -213,7 +213,7 @@ FboRenderer::FboRenderer()
 
 	// Buffer for the ground plane
 	BufferDescription planeDesc;
-	planeDesc.Usage = Usage::Default;
+	planeDesc.Usage = ResourceUsage::Default;
 	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	Eigen::Vector4f grouldPlane{ 0, 1, 0, -2 };
@@ -256,10 +256,13 @@ void FboRenderer::render()
 		{
 			_engine->setRenderTargets({ &_idBuffer, 1 }, _idBufferDepth);
 
-			auto volumeMesh = scene->volumeMesh();
-			if (volumeMesh)
+			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
+			if (!volumes->empty())
 			{
-				renderTetMesh(volumeMesh, _opaqueTetraMeshPipelineState, M);
+				volumes->forEach([this, &M](const GPUVolumeMesh* volume_mesh)
+				{
+					renderTetMesh(volume_mesh, _opaqueTetraMeshPipelineState, M);
+				});
 			}
 
 			// Queue a read-back
@@ -338,8 +341,8 @@ void FboRenderer::render()
 			glDrawArrays(GL_POINTS, 0, (GLsizei)points.size() / 3);
 		}*/
 
-		auto surfaceMesh = scene->surfaceMesh();
-		if (surfaceMesh)
+		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
+		if (!surfaces->empty())
 		{
 			// Configure the layout
 			_engine->setPipelineState(_opaqueTriMeshPipelineState);
@@ -350,29 +353,35 @@ void FboRenderer::render()
 		
 			_opaqueTriMeshPipelineState->program().setUniform(_opaqueTriMeshPipelineState->program().uniform("ModelMatrix"), M);
 
-			// Set the vertex positions
-			_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", surfaceMesh->positions());
+			surfaces->forEach([this](const GPUSurfaceMesh* surfaceMesh)
+			{
+				// Set the vertex positions
+				_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", surfaceMesh->positions());
 
-			// Bind the buffers
-			glBindVertexBuffer(0, surfaceMesh->indices()->id(),     0, sizeof(Eigen::Vector3i));
-			glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+				// Bind the buffers
+				glBindVertexBuffer(0, surfaceMesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
+				glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
-			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, (GLsizei) surfaceMesh->nrFaces());
+				// Render the mesh
+				glDrawArrays(GL_POINTS, 0, (GLsizei)surfaceMesh->nrFaces());
+			});
 		}
 
-		auto volumeMesh = scene->volumeMesh();
-		if (volumeMesh)
+		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
+		if (!volumes->empty())
 		{
-			if (_renderWireframe)
+			volumes->forEach([this, &M](const GPUVolumeMesh* volume_mesh)
 			{
-				renderTetMesh(volumeMesh, _opaqueTetraMeshPointsPipelineState, M);
-				renderTetMesh(volumeMesh, _opaqueTetraMeshWirePipelineState, M);
-			}
-			else
-			{
-				renderTetMesh(volumeMesh, _opaqueTetraMeshPipelineState, M);
-			}
+				if (_renderWireframe)
+				{
+					renderTetMesh(volume_mesh, _opaqueTetraMeshPointsPipelineState, M);
+					renderTetMesh(volume_mesh, _opaqueTetraMeshWirePipelineState, M);
+				}
+				else
+				{
+					renderTetMesh(volume_mesh, _opaqueTetraMeshPipelineState, M);
+				}
+			});
 		}
 	}
 
@@ -381,7 +390,7 @@ void FboRenderer::render()
 	update();
 }
 
-void FboRenderer::renderTetMesh(GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
 {
 	// Configure the state
 	_engine->setPipelineState(ps);

@@ -59,7 +59,7 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
-	void renderTetMesh(GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+	void renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 
 private:
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;

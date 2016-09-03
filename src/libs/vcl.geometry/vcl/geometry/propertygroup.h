@@ -158,7 +158,7 @@ namespace Vcl { namespace Geometry
 			auto prop = _data.find(name);
 			if (prop != _data.end())
 			{
-				return static_cast<Property<T, index_type>*>(prop->second);
+				return static_cast<Property<T, index_type>*>(prop->second.get());
 			}
 			else if (create_if_not_found)
 			{

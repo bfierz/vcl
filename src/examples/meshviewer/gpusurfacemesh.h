@@ -35,7 +35,7 @@
 class GPUSurfaceMesh
 {
 public:
-	GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh);
+	GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh);
 
 public:
 	size_t nrFaces() const { return _triMesh->nrFaces(); }
@@ -45,7 +45,7 @@ public:
 	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
 
 private:
-	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
+	Vcl::Geometry::TriMesh* _triMesh;
 
 	//! Index structure
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;

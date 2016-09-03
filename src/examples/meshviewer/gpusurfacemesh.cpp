@@ -27,15 +27,15 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-GPUSurfaceMesh::GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
-: _triMesh(std::move(mesh))
+GPUSurfaceMesh::GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh)
+: _triMesh(mesh)
 {
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
 
 	// Create the index buffer
 	BufferDescription idxDesc;
-	idxDesc.Usage = Usage::Default;
+	idxDesc.Usage = ResourceUsage::Default;
 	idxDesc.SizeInBytes = _triMesh->nrFaces() * sizeof(IndexDescriptionTrait<TriMesh>::Face);
 
 	BufferInitData idxData;
@@ -46,8 +46,8 @@ GPUSurfaceMesh::GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
 
 	// Create the position buffer
 	BufferDescription posDesc;
-	posDesc.CPUAccess = CPUAccess::Write;
-	posDesc.Usage = Usage::Default;
+	posDesc.CPUAccess = ResourceAccess::Write;
+	posDesc.Usage = ResourceUsage::Default;
 	posDesc.SizeInBytes = _triMesh->nrVertices() * sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
 
 	BufferInitData posData;
@@ -60,8 +60,8 @@ GPUSurfaceMesh::GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
 	auto colours = _triMesh->addFaceProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
 
 	BufferDescription colDesc;
-	colDesc.CPUAccess = CPUAccess::Write;
-	colDesc.Usage = Usage::Default;
+	colDesc.CPUAccess = ResourceAccess::Write;
+	colDesc.Usage = ResourceUsage::Default;
 	colDesc.SizeInBytes = _triMesh->nrFaces() * sizeof(Eigen::Vector4f);
 
 	BufferInitData colData;

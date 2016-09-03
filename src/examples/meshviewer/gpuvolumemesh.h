@@ -35,7 +35,7 @@
 class GPUVolumeMesh
 {
 public:
-	GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
+	GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh);
 	~GPUVolumeMesh();
 
 public:
@@ -46,7 +46,7 @@ public:
 	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
 
 private:
-	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
+	Vcl::Geometry::TetraMesh* _tetraMesh;
 
 	//! Index structure
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;

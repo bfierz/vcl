@@ -67,6 +67,11 @@ namespace Vcl { namespace Components
 		using ComponentType = T;
 
 	public:
+		bool empty() const
+		{
+			return _components.empty();
+		}
+
 		bool has(EntityId id) const
 		{
 			return _components.find(id.id()) != _components.end();
@@ -75,6 +80,15 @@ namespace Vcl { namespace Components
 		auto operator()(EntityId id) -> ComponentType*
 		{
 			return &_components.find(id.id())->second;
+		}
+
+		template<typename Func>
+		void forEach(Func&& f) const
+		{
+			for (auto& entry : _components)
+			{
+				f(&entry.second);
+			}
 		}
 
 	public:
@@ -101,6 +115,11 @@ namespace Vcl { namespace Components
 		using Store = std::unordered_multimap<size_t, ComponentType>;
 
 	public:
+		bool empty() const
+		{
+			return _components.empty();
+		}
+
 		bool has(EntityId id) const
 		{
 			return _components.find(id.id()) != _components.end();

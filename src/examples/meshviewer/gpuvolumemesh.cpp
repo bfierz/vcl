@@ -27,15 +27,15 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
-: _tetraMesh(std::move(mesh))
+GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
+: _tetraMesh(mesh)
 {
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
 
 	// Create the index buffer
 	BufferDescription idxDesc;
-	idxDesc.Usage = Usage::Default;
+	idxDesc.Usage = ResourceUsage::Default;
 	idxDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
 
 	BufferInitData idxData;
@@ -46,8 +46,8 @@ GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 
 	// Create the position buffer
 	BufferDescription posDesc;
-	posDesc.CPUAccess = CPUAccess::Write;
-	posDesc.Usage = Usage::Default;
+	posDesc.CPUAccess = ResourceAccess::Write;
+	posDesc.Usage = ResourceUsage::Default;
 	posDesc.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 
 	BufferInitData posData;
@@ -60,8 +60,8 @@ GPUVolumeMesh::GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	auto colours = _tetraMesh->addVolumeProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
 
 	BufferDescription colDesc;
-	colDesc.CPUAccess = CPUAccess::Write;
-	colDesc.Usage = Usage::Default;
+	colDesc.CPUAccess = ResourceAccess::Write;
+	colDesc.Usage = ResourceUsage::Default;
 	colDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
 
 	BufferInitData colData;

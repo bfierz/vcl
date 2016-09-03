@@ -58,6 +58,9 @@ public:
 	void update();
 
 public:
+	const Vcl::Components::EntityManager* entityManager() const { return &_entityManager; }
+
+public:
 	Vcl::Graphics::Camera* camera() const { return _camera; }
 
 public slots :
@@ -76,16 +79,13 @@ public:
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
 
-	GPUSurfaceMesh* surfaceMesh() const { return _surfaceMesh.get(); }
-	GPUVolumeMesh* volumeMesh() const { return _volumeMesh.get(); }
+private:
+	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
 
 private: // Engine
 	Vcl::Graphics::Runtime::GraphicsEngine* _engine{ nullptr };
 
 private: // Update data
-	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
-	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
-
 	Vcl::Graphics::TrackballCameraController _cameraController;
 	
 private: // Render data
@@ -96,13 +96,13 @@ private: // Render data
 	Eigen::Matrix4f _viewMatrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 
-	std::unique_ptr<GPUSurfaceMesh> _surfaceMesh;
-	std::unique_ptr<GPUVolumeMesh> _volumeMesh;
-
 private: // Entities
 	Vcl::Components::EntityManager _entityManager;
 
 private: // Camera entity
 	Vcl::Components::Entity _cameraEntity;
 	Vcl::Graphics::Camera* _camera;
+
+private: // Mesh entities
+	std::vector<Vcl::Components::Entity> _meshes;
 };
