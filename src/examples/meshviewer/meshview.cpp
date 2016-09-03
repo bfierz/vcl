@@ -274,14 +274,10 @@ void FboRenderer::render()
 
 		// Draw the bounding grid
 		{
-			// Configure the layout
-			_engine->setPipelineState(_boxPipelineState);
+			// Align the grid to the scene bounding box
+			const auto& bb = scene->boundingBox();
 
-			_boxPipelineState->program().setUniform(_boxPipelineState->program().uniform("ModelMatrix"), M);
-
-			// Render the grid
-			// 3 Line-loops with 4 points, 11 replications of the loops
-			glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, 11);
+			renderBoundingBox(bb, 10, _boxPipelineState, M);
 		}
 
 		// Draw the ground
@@ -344,42 +340,25 @@ void FboRenderer::render()
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())
 		{
-			// Configure the layout
-			_engine->setPipelineState(_opaqueTriMeshPipelineState);
-
-			////////////////////////////////////////////////////////////////////
-			// Render the mesh
-			////////////////////////////////////////////////////////////////////
-		
-			_opaqueTriMeshPipelineState->program().setUniform(_opaqueTriMeshPipelineState->program().uniform("ModelMatrix"), M);
-
-			surfaces->forEach([this](const GPUSurfaceMesh* surfaceMesh)
+			surfaces->forEach([this, &M](const GPUSurfaceMesh* mesh)
 			{
-				// Set the vertex positions
-				_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", surfaceMesh->positions());
-
-				// Bind the buffers
-				glBindVertexBuffer(0, surfaceMesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
-				glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
-
-				// Render the mesh
-				glDrawArrays(GL_POINTS, 0, (GLsizei)surfaceMesh->nrFaces());
+				renderTriMesh(mesh, _opaqueTriMeshPipelineState, M);
 			});
 		}
 
 		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 		if (!volumes->empty())
 		{
-			volumes->forEach([this, &M](const GPUVolumeMesh* volume_mesh)
+			volumes->forEach([this, &M](const GPUVolumeMesh* mesh)
 			{
 				if (_renderWireframe)
 				{
-					renderTetMesh(volume_mesh, _opaqueTetraMeshPointsPipelineState, M);
-					renderTetMesh(volume_mesh, _opaqueTetraMeshWirePipelineState, M);
+					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, M);
+					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, M);
 				}
 				else
 				{
-					renderTetMesh(volume_mesh, _opaqueTetraMeshPipelineState, M);
+					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, M);
 				}
 			});
 		}
@@ -390,15 +369,57 @@ void FboRenderer::render()
 	update();
 }
 
+void FboRenderer::renderBoundingBox
+(
+	const Eigen::AlignedBox3f& bb,
+	unsigned int resolution, 
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps,
+	const Eigen::Matrix4f& M
+)
+{
+	// Configure the layout
+	_engine->setPipelineState(ps);
+
+	// View on the scene
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Compute the grid paramters
+	float maxSize = bb.diagonal().maxCoeff();
+	Eigen::Vector3f origin = bb.center() - 0.5f * maxSize * Eigen::Vector3f::Ones().eval();
+
+	ps->program().setUniform("Origin", origin);
+	ps->program().setUniform("StepSize", maxSize / (float)resolution);
+	ps->program().setUniform("Resolution", (float)resolution);
+
+	// Render the grid
+	// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
+	glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, resolution + 1);
+}
+
+void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
+	glBindVertexBuffer(1, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrFaces());
+}
+
 void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
 {
 	// Configure the state
 	_engine->setPipelineState(ps);
 
-	////////////////////////////////////////////////////////////////////
-	// Render the mesh
-	////////////////////////////////////////////////////////////////////
-	ps->program().setUniform(ps->program().uniform("ModelMatrix"), M);
+	ps->program().setUniform("ModelMatrix", M);
 
 	// Set the vertex positions
 	ps->program().setBuffer("VertexPositions", mesh->positions());

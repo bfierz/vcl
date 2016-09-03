@@ -37,8 +37,9 @@
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
 
-#include "gpusurfacemesh.h"
-#include "gpuvolumemesh.h"
+#include "components/gpusurfacemesh.h"
+#include "components/gpuvolumemesh.h"
+#include "components/meshstatisticscomponent.h"
 
 /*!
  *	\note Combination of model and view-model
@@ -74,6 +75,8 @@ public slots:
 	void endRotate();
 
 public:
+	const Eigen::AlignedBox3f& boundingBox() const { return _boundingBox; }
+
 	const Eigen::Vector4f& frustum() const { return _frustumData; }
 	const Eigen::Matrix4f& modelMatrix() const { return _modelMatrix; }
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
@@ -89,6 +92,8 @@ private: // Update data
 	Vcl::Graphics::TrackballCameraController _cameraController;
 	
 private: // Render data
+
+	Eigen::AlignedBox3f _boundingBox;
 
 	Eigen::Vector4f _frustumData;
 
