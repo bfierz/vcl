@@ -171,7 +171,8 @@ namespace Vcl { namespace Components
 		template<typename IdType>
 		auto operator()(EntityId id, const IdType&& comp_id) -> ComponentType*
 		{
-			auto components = _components.equal_range(id.id());
+			// For some reason the 'this->' is important for GCC
+			auto components = this->_components.equal_range(id.id());
 			auto comp_iter = std::find_if(components.first, components.second, std::bind(_func, comp_id));
 
 			if (comp_iter != components.end())

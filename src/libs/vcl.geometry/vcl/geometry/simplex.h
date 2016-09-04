@@ -114,8 +114,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel0(const SimplexLevel0& rhs)
 		: _vertexData(rhs._vertexData)
 		{
-			_vertices = _vertexData.property<Vertex>("Vertices");
-			_verticesMetaData = _vertexData.property<VertexMetaData>("VerticesMetaData");
+			_vertices = _vertexData.template property<Vertex>("Vertices");
+			_verticesMetaData = _vertexData.template property<VertexMetaData>("VerticesMetaData");
 		}
 		SimplexLevel0(SimplexLevel0&& rhs)
 		: _vertexData(std::move(rhs._vertexData))
@@ -123,8 +123,8 @@ namespace Vcl { namespace Geometry
 			rhs._vertices = nullptr;
 			rhs._verticesMetaData = nullptr;
 
-			_vertices = _vertexData.property<Vertex>("Vertices");
-			_verticesMetaData = _vertexData.property<VertexMetaData>("VerticesMetaData");
+			_vertices = _vertexData.template property<Vertex>("Vertices");
+			_verticesMetaData = _vertexData.template property<VertexMetaData>("VerticesMetaData");
 		}
 		virtual ~SimplexLevel0() = default;
 
@@ -200,8 +200,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel1(const SimplexLevel1& rhs)
 		: _edgeData(rhs._edgeData)
 		{
-			_edges = _edgeData.property<Edge>("Edges");
-			_edgesMetaData = _edgeData.property<EdgeMetaData>("EdgesMetaData");
+			_edges = _edgeData.template property<Edge>("Edges");
+			_edgesMetaData = _edgeData.template property<EdgeMetaData>("EdgesMetaData");
 		}
 		SimplexLevel1(SimplexLevel1&& rhs)
 		: _edgeData(std::move(rhs._edgeData))
@@ -209,8 +209,8 @@ namespace Vcl { namespace Geometry
 			rhs._edges = nullptr;
 			rhs._edgesMetaData = nullptr;
 
-			_edges = _edgeData.property<Edge>("Edges");
-			_edgesMetaData = _edgeData.property<EdgeMetaData>("EdgesMetaData");
+			_edges = _edgeData.template property<Edge>("Edges");
+			_edgesMetaData = _edgeData.template property<EdgeMetaData>("EdgesMetaData");
 		}
 		virtual ~SimplexLevel1() = default;
 
@@ -270,8 +270,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel2(const SimplexLevel2& rhs)
 		: _faceData(rhs._faceData)
 		{
-			_faces = _faceData.property<Face>("Faces");
-			_facesMetaData = _faceData.property<FaceMetaData>("FacesMetaData");
+			_faces = _faceData.template property<Face>("Faces");
+			_facesMetaData = _faceData.template property<FaceMetaData>("FacesMetaData");
 		}
 		SimplexLevel2(SimplexLevel2&& rhs)
 		: _faceData(std::move(rhs._faceData))
@@ -279,8 +279,8 @@ namespace Vcl { namespace Geometry
 			rhs._faces = nullptr;
 			rhs._facesMetaData = nullptr;
 
-			_faces = _faceData.property<Face>("Faces");
-			_facesMetaData = _faceData.property<FaceMetaData>("FacesMetaData");
+			_faces = _faceData.template property<Face>("Faces");
+			_facesMetaData = _faceData.template property<FaceMetaData>("FacesMetaData");
 		}
 		virtual ~SimplexLevel2() = default;
 		
@@ -340,8 +340,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel3(const SimplexLevel3& rhs)
 		: _volumeData(rhs._volumeData)
 		{
-			_volumes = _volumeData.property<Volume>("Volumes");
-			_volumesMetaData = _volumeData.property<VolumeMetaData>("VolumesMetaData");
+			_volumes = _volumeData.template property<Volume>("Volumes");
+			_volumesMetaData = _volumeData.template property<VolumeMetaData>("VolumesMetaData");
 		}
 		SimplexLevel3(SimplexLevel3&& rhs)
 		: _volumeData(std::move(rhs._volumeData))
@@ -349,8 +349,8 @@ namespace Vcl { namespace Geometry
 			rhs._volumes = nullptr;
 			rhs._volumesMetaData = nullptr;
 
-			_volumes = _volumeData.property<Volume>("Volumes");
-			_volumesMetaData = _volumeData.property<VolumeMetaData>("VolumesMetaData");
+			_volumes = _volumeData.template property<Volume>("Volumes");
+			_volumesMetaData = _volumeData.template property<VolumeMetaData>("VolumesMetaData");
 		}
 		virtual ~SimplexLevel3() = default;
 

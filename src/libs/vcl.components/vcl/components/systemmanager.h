@@ -32,7 +32,7 @@
 
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
-#include <vcl/components/entityManager.h>
+#include <vcl/components/entitymanager.h>
 #include <vcl/components/system.h>
 
 namespace Vcl { namespace Components
@@ -56,7 +56,7 @@ namespace Vcl { namespace Components
 		 *	\returs a pointer to the added system
 		 */
 		template <typename S>
-		void add(Core::owner_ptr<S> system)
+		Core::ref_ptr<S> add(Core::owner_ptr<S> system)
 		{
 			_systems.emplace_back(std::move(system));
 			return _systems.back();
