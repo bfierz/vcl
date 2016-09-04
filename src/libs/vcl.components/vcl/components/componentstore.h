@@ -157,6 +157,9 @@ namespace Vcl { namespace Components
 	class MultiComponentStore : public MultiComponentStoreBase<T>
 	{
 	public:
+		using ComponentType = T;
+
+	public:
 		MultiComponentStore(Func&& f)
 		: _func(std::forward<Func&&>(f))
 		{
