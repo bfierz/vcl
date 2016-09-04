@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -140,7 +141,7 @@ namespace Vcl { namespace Components
 			return &newElemIter->second;
 		}
 
-	private:
+	protected:
 		//! Storage of the allocated components
 		Store _components;
 	};
