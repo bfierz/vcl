@@ -28,6 +28,22 @@
 // VCL
 #include <vcl/graphics/opengl/gl.h>
 
+#if defined(VCL_GL_ARB_direct_state_access)
+#	define glCreateVertexArraysVCL glCreateVertexArrays
+#	define glEnableVertexArrayAttribVCL glEnableVertexArrayAttrib
+#	define glVertexArrayAttribBindingVCL glVertexArrayAttribBinding
+#	define glVertexArrayBindingDivisorVCL glVertexArrayBindingDivisor
+#	define glVertexArrayAttribIFormatVCL glVertexArrayAttribIFormat
+#	define glVertexArrayAttribFormatVCL glVertexArrayAttribFormat
+#elif defined(VCL_GL_EXT_direct_state_access)
+#	define glCreateVertexArraysVCL glGenVertexArrays
+#	define glEnableVertexArrayAttribVCL glEnableVertexArrayAttribEXT
+#	define glVertexArrayAttribBindingVCL glVertexArrayVertexAttribBindingEXT
+#	define glVertexArrayBindingDivisorVCL glVertexArrayVertexBindingDivisorEXT
+#	define glVertexArrayAttribIFormatVCL glVertexArrayVertexAttribIFormatEXT
+#	define glVertexArrayAttribFormatVCL glVertexArrayVertexAttribFormatEXT
+#endif
+
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	template<>
@@ -126,7 +142,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Require(_vaoID == 0, "No yet created.");
 		Require(glewIsSupported("GL_ARB_vertex_attrib_binding"), "Vertex attribute binding is supported.");
 
-		glCreateVertexArrays(1, &_vaoID);
+		glCreateVertexArraysVCL(1, &_vaoID);
 
 		int idx = 0;
 		for (const auto& elem : desc)
@@ -142,30 +158,30 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				int loc = desc.location(idx) + sub_loc;
 
 				// Enable the attribute 'loc'
-				glEnableVertexArrayAttrib(_vaoID, loc);
+				glEnableVertexArrayAttribVCL(_vaoID, loc);
 
 				// Bind 'loc' to the vertex buffer 'elem.StreamIndex'
-				glVertexArrayAttribBinding(_vaoID, loc, elem.InputSlot);
+				glVertexArrayAttribBindingVCL(_vaoID, loc, elem.InputSlot);
 
 				// Configure the stream update rate
 				if (elem.StreamType == Runtime::VertexDataClassification::VertexDataPerObject)
 				{
-					glVertexArrayBindingDivisor(_vaoID, elem.InputSlot, 0);
+					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, 0);
 				}
 				else if (elem.StreamType == Runtime::VertexDataClassification::VertexDataPerInstance)
 				{
-					glVertexArrayBindingDivisor(_vaoID, elem.InputSlot, elem.StepRate);
+					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, elem.StepRate);
 				}
 
 				// Set which underlying number type is used
 				GLuint elementOffset = elem.Offset + sub_loc * rt.componentSize() * rt.nrComponents();
 				if (rt.isIntegral())
 				{
-					glVertexArrayAttribIFormat(_vaoID, loc, rt.nrComponents(), rt.componentType(), elementOffset);
+					glVertexArrayAttribIFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), elementOffset);
 				}
 				else
 				{
-					glVertexArrayAttribFormat(_vaoID, loc, rt.nrComponents(), rt.componentType(), GL_FALSE, elementOffset);
+					glVertexArrayAttribFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), GL_FALSE, elementOffset);
 				}
 			}
 

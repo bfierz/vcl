@@ -34,7 +34,7 @@
 #	if defined(VCL_GL_ARB_direct_state_access)
 #		define glCreateBuffersVCL glCreateBuffers
 #		define glNamedBufferStorageVCL glNamedBufferStorage
-#		define glMapNamedBufferRange glMapNamedBufferRange
+#		define glMapNamedBufferRangeVCL glMapNamedBufferRange
 #		define glUnmapNamedBufferVCL glUnmapNamedBuffer
 #		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRange
 #		define glCopyNamedBufferSubDataVCL glCopyNamedBufferSubData

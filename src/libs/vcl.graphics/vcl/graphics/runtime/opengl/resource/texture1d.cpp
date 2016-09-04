@@ -77,8 +77,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLenum colour_fmt = toSurfaceFormat(format());
 
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glCreateTexturesVCL(GL_TEXTURE_1D, 1, &_glId);
-		glTextureStorage1DVCL(_glId, 1, colour_fmt, width());
+		glCreateTextures(GL_TEXTURE_1D, 1, &_glId);
+		glTextureStorage1D(_glId, 1, colour_fmt, width());
 
 		if (init_data)
 		{
