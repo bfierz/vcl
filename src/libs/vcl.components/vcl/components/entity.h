@@ -163,10 +163,13 @@ namespace Vcl { namespace Core
 
 namespace Vcl { namespace Components
 {
+	// Forward declaration
+	class EntityManager;
+
 	/*!
-	* \class Entity
-	* \brief Representation of a single entity
-	*/
+	 * \class Entity
+	 * \brief Representation of a single entity
+	 */
 	VCL_CREATE_GENERATIONALID(EntityId, uint32_t, uint32_t);
 
 	/*!
