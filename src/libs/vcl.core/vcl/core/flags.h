@@ -44,17 +44,17 @@ struct name		                                                                   
 	static_assert(Count <= sizeof(uint32_t)*8, "Too many flags");                      \
 	enum Enum                                                                          \
 	{                                                                                  \
-		VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_ENUM, __VA_ARGS__)                     \
+		VCL_PP_VA_EXPAND_ARGS VCL_PP_PASS_VA(VCL_DECLARE_FLAGS_ENUM, __VA_ARGS__)      \
 	};                                                                                 \
 	struct Bits                                                                        \
 	{                                                                                  \
-		VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_BITS, __VA_ARGS__)                     \
+		VCL_PP_VA_EXPAND_ARGS VCL_PP_PASS_VA(VCL_DECLARE_FLAGS_BITS, __VA_ARGS__)      \
 	};                                                                                 \
 	static const char* ToString(size_t value)                                          \
 	{                                                                                  \
 		switch (value)                                                                 \
 		{                                                                              \
-		VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_TO_STRING, __VA_ARGS__)                \
+		VCL_PP_VA_EXPAND_ARGS VCL_PP_PASS_VA(VCL_DECLARE_FLAGS_TO_STRING, __VA_ARGS__) \
 		default:                                                                       \
 			VCL_NO_SWITCH_DEFAULT;                                                     \
 		}                                                                              \

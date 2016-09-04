@@ -402,6 +402,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
 	
 	public:
+		template<typename T>
+		void setUniform(const char* name, T&& value)
+		{
+			auto handle = uniform(name);
+			setUniform(handle, value);
+		}
+
 		void setUniform(const UniformHandle& handle, float value);
 		void setUniform(const UniformHandle& handle, const Eigen::Vector2f& value);
 		void setUniform(const UniformHandle& handle, const Eigen::Vector3f& value);

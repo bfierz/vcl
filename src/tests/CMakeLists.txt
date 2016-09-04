@@ -8,6 +8,9 @@ SUBDIRS(vcl.geometry)
 # Test for the library containing math routines
 SUBDIRS(vcl.math)
 
+# Tests for the components library
+SUBDIRS(vcl.components)
+
 # OpenGL related tests
 IF(GLEW_FOUND AND VCL_OPENGL_SUPPORT)
 	SUBDIRS(vcl.graphics.opengl)

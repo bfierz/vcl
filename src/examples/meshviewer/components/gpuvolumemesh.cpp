@@ -22,51 +22,55 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "gpusurfacemesh.h"
+#include "gpuvolumemesh.h"
 
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-GPUSurfaceMesh::GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
-: _triMesh(std::move(mesh))
+GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
+: _tetraMesh(mesh)
 {
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
 
 	// Create the index buffer
 	BufferDescription idxDesc;
-	idxDesc.Usage = Usage::Default;
-	idxDesc.SizeInBytes = _triMesh->nrFaces() * sizeof(IndexDescriptionTrait<TriMesh>::Face);
+	idxDesc.Usage = ResourceUsage::Default;
+	idxDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
 
 	BufferInitData idxData;
-	idxData.Data = _triMesh->faces()->data();
-	idxData.SizeInBytes = _triMesh->nrFaces() * sizeof(IndexDescriptionTrait<TriMesh>::Face);
+	idxData.Data = _tetraMesh->volumes()->data();
+	idxData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
 
 	_indices = std::make_unique<OpenGL::Buffer>(idxDesc, false, false, &idxData);
 
 	// Create the position buffer
 	BufferDescription posDesc;
-	posDesc.CPUAccess = CPUAccess::Write;
-	posDesc.Usage = Usage::Default;
-	posDesc.SizeInBytes = _triMesh->nrVertices() * sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+	posDesc.CPUAccess = ResourceAccess::Write;
+	posDesc.Usage = ResourceUsage::Default;
+	posDesc.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 
 	BufferInitData posData;
-	posData.Data = _triMesh->vertices()->data();
-	posData.SizeInBytes = _triMesh->nrVertices() * sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+	posData.Data = _tetraMesh->vertices()->data();
+	posData.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 
 	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
 
 	// Create the volume-colour buffer
-	auto colours = _triMesh->addFaceProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
+	auto colours = _tetraMesh->addVolumeProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
 
 	BufferDescription colDesc;
-	colDesc.CPUAccess = CPUAccess::Write;
-	colDesc.Usage = Usage::Default;
-	colDesc.SizeInBytes = _triMesh->nrFaces() * sizeof(Eigen::Vector4f);
+	colDesc.CPUAccess = ResourceAccess::Write;
+	colDesc.Usage = ResourceUsage::Default;
+	colDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
 
 	BufferInitData colData;
 	colData.Data = colours->data();
-	colData.SizeInBytes = _triMesh->nrFaces() * sizeof(Eigen::Vector4f);
+	colData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
 
 	_volumeColours = std::make_unique<OpenGL::Buffer>(colDesc, false, false, &colData);
+}
+
+GPUVolumeMesh::~GPUVolumeMesh()
+{
 }

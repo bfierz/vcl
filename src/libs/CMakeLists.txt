@@ -10,6 +10,9 @@ SUBDIRS(vcl.geometry)
 # Library containing graphics classes
 SUBDIRS(vcl.graphics)
 
+# Library implementing a simple entity component system
+SUBDIRS(vcl.components)
+
 # Library containing abstracted compute classes
 SUBDIRS(vcl.compute)
 
@@ -26,3 +29,4 @@ IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.core.cuda)
 	SUBDIRS(vcl.math.cuda)
 ENDIF()
+

@@ -29,23 +29,24 @@
 #include <vcl/config/opengl.h>
 
 // VCL
-#include <vcl/geometry/trimesh.h>
+#include <vcl/geometry/tetramesh.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-class GPUSurfaceMesh
+class GPUVolumeMesh
 {
 public:
-	GPUSurfaceMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh);
+	GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh);
+	~GPUVolumeMesh();
 
 public:
-	size_t nrFaces() const { return _triMesh->nrFaces(); }
+	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
 
 	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
 
 private:
-	std::unique_ptr<Vcl::Geometry::TriMesh> _triMesh;
+	Vcl::Geometry::TetraMesh* _tetraMesh;
 
 	//! Index structure
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;

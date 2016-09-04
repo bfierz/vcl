@@ -32,5 +32,9 @@ script:
   - cd ..
   - cd ./vcl.math
   - make
+  - cd ..
+  - cd ./vcl.components
+  - make
   - ../../bin/vcl_core_test
   - ../../bin/vcl_math_test
+  - ../../bin/vcl_components_test
