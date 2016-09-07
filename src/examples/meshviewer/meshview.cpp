@@ -255,6 +255,7 @@ void FboRenderer::render()
 		// Draw the object buffer
 		{
 			_engine->setRenderTargets({ &_idBuffer, 1 }, _idBufferDepth);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())

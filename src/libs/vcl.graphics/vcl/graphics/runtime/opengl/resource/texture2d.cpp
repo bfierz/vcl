@@ -68,7 +68,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Texture2D::copyTo(Buffer& target, size_t dstOffset) const
 	{
 		auto binder = target.bind(GL_PIXEL_PACK_BUFFER);
-		read(sizeInBytes(), 0);
+		read(sizeInBytes(), (void*) dstOffset);
 	}
 
 	void Texture2D::fill(SurfaceFormat fmt, const void* data)
@@ -99,7 +99,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ImageFormat gl_fmt = toImageFormat(fmt);
 
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, (GLsizei)size, data);
+		glGetTextureSubImage(_glId, 0, 0, 0, 0, width(), height(), depth(), gl_fmt.Format, gl_fmt.Type, (GLsizei)size, data);
 #	elif defined(VCL_GL_EXT_direct_state_access)
 		glGetTextureImageEXT(_glId, GL_TEXTURE_2D, 0, gl_fmt.Format, gl_fmt.Type, data);
 #	endif

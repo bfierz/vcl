@@ -297,8 +297,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Frame::mapBuffers()
 	{
-		_mappedConstantBuffer = _constantBuffer->map(0, _constantBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
-		_mappedLinearMemory = _linearMemoryBuffer->map(0, _linearMemoryBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized);
+		_mappedConstantBuffer = _constantBuffer->map(0, _constantBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized | MapOptions::InvalidateBuffer);
+		_mappedLinearMemory = _linearMemoryBuffer->map(0, _linearMemoryBuffer->sizeInBytes(), ResourceAccess::Write, MapOptions::Persistent | MapOptions::CoherentWrite | MapOptions::Unsynchronized | MapOptions::InvalidateBuffer);
 	}
 
 	void Frame::unmapBuffers()
@@ -405,13 +405,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			}
 		}
 
-		// Map the per frame constant buffer
-		_current_frame->mapBuffers();
-
-		// Reset the begin pointer for buffer chunk requests
-		_cbufferOffset = 0;
-		_linearBufferOffset = 0;
-
 		// Reset the staging area to use it again for the new frame
 		_current_frame->readBackBuffer()->transfer();
 
@@ -419,6 +412,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 
 		}
+
+		// Map the per frame constant buffer
+		_current_frame->mapBuffers();
+
+		// Reset the begin pointer for buffer chunk requests
+		_cbufferOffset = 0;
+		_linearBufferOffset = 0;
 
 		// Execute the stored commands
 		{
