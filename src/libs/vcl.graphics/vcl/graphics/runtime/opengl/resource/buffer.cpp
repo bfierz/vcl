@@ -118,7 +118,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Allocate GPU memory
 		void* init_data_ptr = init_data ? init_data->Data : nullptr;
+
 		glNamedBufferStorageVCL(_glId, desc.SizeInBytes, init_data_ptr, flags);
+		
+		// Alternative formulation for to prevent performance warnings
+		//if (usage() != ResourceUsage::Staging)
+		//{
+		//	glNamedBufferStorageVCL(_glId, desc.SizeInBytes, init_data_ptr, flags);
+		//}
+		//else
+		//{
+		//	// Use old BufferData approach to prevent performance warnings
+		//	flags = GL_DYNAMIC_DRAW;
+		//	if (cpuAccess().isSet(ResourceAccess::Write))
+		//		flags = GL_DYNAMIC_DRAW;
+		//	else if (cpuAccess().isSet(ResourceAccess::Read))
+		//		flags = GL_DYNAMIC_READ;
+		//
+		//	glNamedBufferData(_glId, desc.SizeInBytes, init_data_ptr, flags);
+		//}
 		
 		Ensure(_glId > 0, "GL buffer is created.");
 	}

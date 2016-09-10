@@ -51,15 +51,6 @@ namespace
 		VCL_UNREFERENCED_PARAMETER(length);
 		VCL_UNREFERENCED_PARAMETER(user_param);
 
-		// Suppress some useless warnings
-		switch (id)
-		{
-		case 131218: // NVIDIA: "shader will be recompiled due to GL state mismatches"
-			return;
-		default:
-			break;
-		}
-
 		std::cout << "Source: ";
 		switch (source)
 		{
@@ -261,7 +252,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			BufferDescription desc;
 			desc.Usage = ResourceUsage::Staging;
 			desc.CPUAccess = ResourceAccess::Read;
-			desc.SizeInBytes = _stagingBuffer->sizeInBytes() * 2;
+			desc.SizeInBytes = (uint32_t) _stagingBuffer->sizeInBytes() * 2;
 
 			// Allocate a new buffer
 			auto tmp = make_owner<Buffer>(desc);
@@ -363,12 +354,26 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		std::cout << "Status:       Shading:  " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 		std::cout << "Status: Using GLEW:     " << glewGetString(GLEW_VERSION) << std::endl;
 
+		// Control V-Sync
+		//wglSwapIntervalEXT(0);
+
 		// Enable the synchronous debug output
-		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 		// Disable debug severity: notification
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+		// Disable specific messages
+		GLuint perf_messages_ids[] =
+		{
+			131154, // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering
+		//	131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
+		};
+		glDebugMessageControl
+		(
+			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE,
+			sizeof(perf_messages_ids) / sizeof(GLuint), perf_messages_ids, GL_FALSE
+		);
 
 		// Register debug callback
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
