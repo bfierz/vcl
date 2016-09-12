@@ -448,6 +448,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Clear the current frame to mark that not frame is active anymore
 		_current_frame = nullptr;
+
+		// Flush the OpenGL command pipeline to ensure command processing before the
+		// UI command list is build
+		glFlush();
 	}
 
 	BufferView GraphicsEngine::requestPerFrameConstantBuffer(size_t size)
