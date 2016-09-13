@@ -22,29 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#version 430 core
-#extension GL_GOOGLE_include_directive : enable
-#extension GL_ARB_enhanced_layouts : enable
+#ifndef GLSL_STANDARDFRAMEBUFFER
+#define GLSL_STANDARDFRAMEBUFFER
 
-#include "../framebuffer/simpleframebuffer.h"
-
-////////////////////////////////////////////////////////////////////////////////
-// Shader Input
-////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in VertexData
-{
-	vec4 Position;
-	vec3 Normal;
-	vec4 Colour;
-} In;
+ ////////////////////////////////////////////////////////////////////////////////
+ // Shader Output
+ ////////////////////////////////////////////////////////////////////////////////
+layout(location = 0) out vec4 FragmentColour;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ////////////////////////////////////////////////////////////////////////////////
-void main(void)
+void writeFragmentColour(vec3 colour)
 {
-	vec3 V = normalize(-In.Position.xyz);
-	vec3 N = normalize(In.Normal);
-
-	writeFragmentColour(vec4(In.Colour.rgb * dot(N, V), In.Colour.a));
+	FragmentColour = vec4(colour, 1);
 }
+
+void writeFragmentColour(vec4 colour)
+{
+	FragmentColour = colour;
+}
+
+#endif // GLSL_STANDARDFRAMEBUFFER

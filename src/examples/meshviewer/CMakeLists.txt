@@ -64,6 +64,11 @@ SET(SHADERS_DEBUG
 
 	shaders/debug/staticcolour.frag
 )
+
+SET(SHADERS_FRAMEBUFFER
+    shaders/framebuffer/simpleframebuffer.h
+    shaders/framebuffer/simpleoitbuffer.h
+)
     
 SET(SHADERS
 	shaders/UniformBuffer.h
@@ -88,6 +93,7 @@ QT5_ADD_RESOURCES(RESOURCES meshviewer.qrc)
 SOURCE_GROUP("qml" FILES ${QML})
 SOURCE_GROUP("res" FILES ${RESOURCES})
 SOURCE_GROUP("shaders\\debug" FILES ${SHADERS_DEBUG})
+SOURCE_GROUP("shaders\\framebuffer" FILES ${SHADERS_FRAMEBUFFER})
 SOURCE_GROUP("shaders" FILES ${SHADERS})
 
 SOURCE_GROUP("components" FILES ${COMPONENTS_SRC} ${COMPONENTS_INC})
@@ -99,7 +105,7 @@ ADD_EXECUTABLE(meshviewer
 	${UTIL_SRC} ${UTIL_INC}
 	${SRC} ${INC}
 	${QML} ${RESOURCES}
-	${SHADERS} ${SHADERS_DEBUG}
+	${SHADERS} ${SHADERS_DEBUG} ${SHADERS_FRAMEBUFFER}
 )
 SET_TARGET_PROPERTIES(meshviewer PROPERTIES FOLDER examples)
 

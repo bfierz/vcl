@@ -153,7 +153,7 @@ FboRenderer::FboRenderer()
 	Shader idTetraVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_tetramesh.vert");
 	Shader idTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_tetramesh.geom");
 
-	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
+	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/object.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
 
 	PipelineStateDescription boxPSDesc;
@@ -254,20 +254,26 @@ void FboRenderer::render()
 
 		// Draw the object buffer
 		{
-			_engine->setRenderTargets({ &_idBuffer, 1 }, _idBufferDepth);
+			_idBuffer->bind(_engine.get());
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
 			{
-				volumes->forEach([this, &M](const GPUVolumeMesh* volume_mesh)
+				int object_id = 0;
+				volumes->forEach([this, &M, &object_id](const GPUVolumeMesh* volume_mesh)
 				{
-					renderTetMesh(volume_mesh, _opaqueTetraMeshPipelineState, M);
+					object_id++;
+					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", object_id);
+					
+					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, M);
 				});
 			}
 
 			// Queue a read-back
-			_engine->queueReadback(_idBuffer);
+			_engine->queueReadback(_idBuffer->renderTarget(0), [](const Vcl::Graphics::Runtime::BufferView& view)
+			{
+			});
 		}
 
 		// Reset the render target
@@ -287,7 +293,7 @@ void FboRenderer::render()
 			_engine->setPipelineState(_planePipelineState);
 		
 			_engine->setConstantBuffer(MARCHING_CUBES_TABLES_LOC, { _marchingCubesTables, 0, _marchingCubesTables->sizeInBytes(), nullptr });
-			_planePipelineState->program().setUniform(_planePipelineState->program().uniform("ModelMatrix"), M);
+			_planePipelineState->program().setUniform("ModelMatrix", M);
 		
 			// Bind the buffers
 			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
@@ -452,23 +458,25 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 
 QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size)
 {
-	// Clean-up the old render-targets
-	if (_idBuffer)
-	{
-		_engine->deletePersistentTexture(_idBuffer);
-	}
+	using Vcl::Graphics::Runtime::DepthBufferDescription;
+	using Vcl::Graphics::Runtime::RenderTargetDescription;
+	using Vcl::Graphics::Runtime::FramebufferDescription;
 
-	// Create the new render-targets
-	Vcl::Graphics::Runtime::Texture2DDescription desc;
-	desc.Width = size.width();
-	desc.Height = size.height();
-	desc.Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
-	desc.ArraySize = 1;
-	desc.MipLevels = 1;
-	_idBuffer = _engine->allocatePersistentTexture(std::make_unique<Vcl::Graphics::Runtime::OpenGL::Texture2D>(desc));
+	FramebufferDescription id_fbo_desc;
+	id_fbo_desc.Width = size.width();
+	id_fbo_desc.Height = size.height();
+	id_fbo_desc.NrRenderTargets = 1;
+	id_fbo_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
+	id_fbo_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(id_fbo_desc);
 
-	desc.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	_idBufferDepth = Vcl::make_owner<Vcl::Graphics::Runtime::OpenGL::Texture2D>(desc);
+	FramebufferDescription abuffer_desc;
+	abuffer_desc.Width = size.width();
+	abuffer_desc.Height = size.height();
+	abuffer_desc.NrRenderTargets = 1;
+	abuffer_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
+	abuffer_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(abuffer_desc);
 
 	QOpenGLFramebufferObjectFormat format;
 	format.setAttachment(QOpenGLFramebufferObject::Depth);

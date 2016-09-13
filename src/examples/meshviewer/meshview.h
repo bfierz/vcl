@@ -42,6 +42,7 @@
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 #include <vcl/graphics/runtime/dynamictexture.h>
+#include <vcl/graphics/runtime/framebuffer.h>
 
 #include "scene.h"
 
@@ -84,8 +85,12 @@ private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
 
 private: // Render targets
-	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
-	Vcl::owner_ptr<Vcl::Graphics::Runtime::Texture> _idBufferDepth;
+
+	//! Store id of the rendered geometry
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::GBuffer> _idBuffer;
+
+	//! Stores all the rendered fragments for OIT
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::ABuffer> _transparencyBuffer;
 
 private: // Support buffers
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _marchingCubesTables;

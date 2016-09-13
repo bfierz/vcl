@@ -213,7 +213,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		dynamic_cast<const OpenGL::Buffer&>(view.owner()).copyTo(*_stagingBuffer, 0, _stagingBufferOffset, view.size());
 
 		// View on the copied data
-		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.size() };
+		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.size(), _hostBuffer.get() };
 		_stagingBufferOffset += size_incr;
 
 		// Store the request
@@ -236,7 +236,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		dynamic_cast<const OpenGL::Texture&>(view).copyTo(*_stagingBuffer, _stagingBufferOffset);
 
 		// View on the copied data
-		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.sizeInBytes() };
+		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.sizeInBytes(), _hostBuffer.get() };
 		_stagingBufferOffset += size_incr;
 
 		// Store the request
@@ -394,12 +394,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		incrFrameCounter();
 
 		// Fetch the frame we want to use for the current rendering frame
-		_current_frame = &_frames[currentFrame() % _numConcurrentFrames];
+		_currentFrame = &_frames[currentFrame() % _numConcurrentFrames];
 
 		// Wait until the requested frame is done with processing
-		if (_current_frame->fence()->isValid())
+		if (_currentFrame->fence()->isValid())
 		{
-			auto wait_result = glClientWaitSync(*_current_frame->fence(), GL_NONE, 1000000000);
+			auto wait_result = glClientWaitSync(*_currentFrame->fence(), GL_NONE, 1000000000);
 			if (wait_result != GL_CONDITION_SATISFIED || wait_result != GL_ALREADY_SIGNALED)
 			{
 				if (wait_result == GL_TIMEOUT_EXPIRED)
@@ -411,15 +411,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Reset the staging area to use it again for the new frame
-		_current_frame->readBackBuffer()->transfer();
+		_currentFrame->readBackBuffer()->transfer();
 
 		// Execute the callbacks of the read-back requests
+		for (auto& callback : _readBackCallbacks)
 		{
-
+			callback.second(callback.first);
 		}
 
 		// Map the per frame constant buffer
-		_current_frame->mapBuffers();
+		_currentFrame->mapBuffers();
 
 		// Reset the begin pointer for buffer chunk requests
 		_cbufferOffset = 0;
@@ -441,18 +442,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void GraphicsEngine::endFrame()
 	{
 		// Unmap the constant buffer
-		_current_frame->unmapBuffers();
+		_currentFrame->unmapBuffers();
 
 		// Queue a fence sync object to mark the end of the frame
-		_current_frame->setFence(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE));
+		_currentFrame->setFence(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, GL_NONE));
 
 		// Clear the current frame to mark that not frame is active anymore
-		_current_frame = nullptr;
+		_currentFrame = nullptr;
 	}
 
 	BufferView GraphicsEngine::requestPerFrameConstantBuffer(size_t size)
 	{
-		BufferView view{ _current_frame->constantBuffer(), _cbufferOffset, size, _current_frame->mappedConstantBuffer() };
+		BufferView view{ _currentFrame->constantBuffer(), _cbufferOffset, size, _currentFrame->mappedConstantBuffer() };
 
 		// Calculate the next offset		
 		size_t aligned_size =  ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
@@ -463,7 +464,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	BufferView GraphicsEngine::requestPerFrameLinearMemory(size_t size)
 	{
-		BufferView view{ _current_frame->linearMemoryBuffer(), _linearBufferOffset, size, _current_frame->mappedLinearMemoryBuffer() };
+		BufferView view{ _currentFrame->linearMemoryBuffer(), _linearBufferOffset, size, _currentFrame->mappedLinearMemoryBuffer() };
 
 		// Calculate the next offset		
 		size_t aligned_size = ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
@@ -490,16 +491,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	}
 
-	void GraphicsEngine::queueReadback(ref_ptr<DynamicTexture<3>> tex)
+	void GraphicsEngine::queueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
 	{
 		// Index of the current frame
 		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
 
 		// Fetch the staging area
-		auto staging_area = _current_frame->readBackBuffer();
+		auto staging_area = _currentFrame->readBackBuffer();
 
 		// Queue the copy command
-		auto memory_range = staging_area->copyFrom(*(*tex)[curr_frame_idx]);
+		auto memory_range = staging_area->copyFrom(tex);
+
+		// Queue the callback
+		_readBackCallbacks.emplace_back(memory_range, std::move(callback));
 	}
 
 	void GraphicsEngine::enqueueCommand(std::function<void(void)> cmd)

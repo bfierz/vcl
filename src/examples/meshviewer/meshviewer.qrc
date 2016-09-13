@@ -15,7 +15,10 @@
     <file>shaders/debug/boundinggrid.geom</file>
     
     <file>shaders/debug/staticcolour.frag</file>
-    
+
+    <file>shaders/framebuffer/simpleframebuffer.h</file>
+    <file>shaders/framebuffer/simpleoitbuffer.h</file>
+
     <file>shaders/UniformBuffer.h</file>
     <file>shaders/MarchingCubes.h</file>
     <file>shaders/3DSceneBindings.h</file>

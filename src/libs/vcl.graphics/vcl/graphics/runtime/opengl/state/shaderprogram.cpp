@@ -730,7 +730,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				glBindAttribLocation(_glId, loc, name.c_str());
 			}
-			else
+			else if (name.find("gl_") != 0)
 			{
 				// Append to error output
 				DebugError("Attribute could not be matched.");

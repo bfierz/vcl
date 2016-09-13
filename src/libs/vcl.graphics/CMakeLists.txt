@@ -143,9 +143,11 @@ SET(VCL_GRAPHICS_RUNTIME_STATE_SRC
 # VCL / GRAPHICS / RUNTIME
 SET(VCL_GRAPHICS_RUNTIME_INC
 	vcl/graphics/runtime/dynamictexture.h
+	vcl/graphics/runtime/framebuffer.h
 	vcl/graphics/runtime/graphicsengine.h
 )
 SET(VCL_GRAPHICS_RUNTIME_SRC
+	vcl/graphics/runtime/framebuffer.cpp
 )
 
 # VCL / GRAPHICS / SHADOWS

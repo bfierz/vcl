@@ -103,7 +103,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) = 0;
 
 		//! Enque a read-back command which will be executed next frame
-		virtual void queueReadback(ref_ptr<DynamicTexture<3>> tex) = 0;
+		virtual void queueReadback(const Texture& tex, std::function<void(const BufferView&)> callback) = 0;
 
 		//! Enque a generic command which will be executed next frame
 		virtual void enqueueCommand(std::function<void(void)>) = 0;

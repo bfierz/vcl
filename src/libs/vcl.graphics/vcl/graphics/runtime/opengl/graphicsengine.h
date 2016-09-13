@@ -165,7 +165,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Runtime::Texture> tex) override;
 		void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) override;
 
-		void queueReadback(ref_ptr<DynamicTexture<3>> tex) override;
+		void queueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback) override;
 
 		void enqueueCommand(std::function<void(void)>) override;
 
@@ -209,6 +209,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		std::vector<owner_ptr<DynamicTexture<3>>> _persistentTextures;
 
 	private: // Tracking state
-		Frame* _current_frame{ nullptr };
+		Frame* _currentFrame{ nullptr };
+
+		// Read-back requests
+		std::vector<std::pair<BufferView, std::function<void(const BufferView&)>>> _readBackCallbacks;
 	};
 }}}}

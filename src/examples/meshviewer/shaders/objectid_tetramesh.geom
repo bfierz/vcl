@@ -1,24 +1,55 @@
+/*
+ * This file is part of the Visual Computing Library (VCL) release under the
+ * MIT license.
+ *
+ * Copyright (c) 2016 Basil Fierz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 #version 430 core
+#extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
+
+#include "3DSceneBindings.h"
+
+////////////////////////////////////////////////////////////////////////////////
+// Shader Configuration
+////////////////////////////////////////////////////////////////////////////////
 
 // Convert input points to a set of 4 triangles
 layout(points) in;
 layout(triangle_strip, max_vertices = 12) out;
 
 // Input data from last stage
-in VertexData
+layout(location = 0) in VertexData
 {
 	ivec4 Indices;
+
+	int PrimitiveID;
 } In[1];
 
 // Output data
-out VertexData
+layout(location = 0) out VertexData
 {
-	// IDs of the vertices that go with the barycentric coords
-	flat ivec4 VertexIds;
+	// ID of the primitive
+	flat int PrimitiveId;
 
-	// Barycentric coords
-	vec2 BarycentricCoords;
 } Out;
 
 // Shader buffers
@@ -32,24 +63,15 @@ layout (std430) buffer VertexPositions
 	Vertex Position[];
 };
 
+////////////////////////////////////////////////////////////////////////////////
 // Shader constants
+////////////////////////////////////////////////////////////////////////////////
+
 uniform mat4 ModelMatrix;
 
-layout(std140, binding = 0) uniform PerFrameCameraData
-{
-	// Viewport (x, y, w, h)
-	vec4 Viewport;
-	
-	// Frustum (tan(fov / 2), aspect_ratio, near, far)
-	vec4 Frustum;
-
-	// Transform from world to view space
-	mat4 ViewMatrix;
-
-	// Transform from view to screen space
-	mat4 ProjectionMatrix;
-};
-
+////////////////////////////////////////////////////////////////////////////////
+// Implementation
+////////////////////////////////////////////////////////////////////////////////
 void main(void)
 {
 	// Volume vertices
@@ -60,37 +82,36 @@ void main(void)
 	vec4 p3 = vec4(Position[idx.w].x, Position[idx.w].y, Position[idx.w].z, 1);
 
 	// Model-view matrix
-	mat4 MV = ViewMatrix * ModelMatrix;
+	mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 
 	// Transform to view-space
-	p0 = MV * p0;
-	p1 = MV * p1;
-	p2 = MV * p2;
-	p3 = MV * p3;
+	p0 = MVP * p0;
+	p1 = MVP * p1;
+	p2 = MVP * p2;
+	p3 = MVP * p3;
+
+	// Set the common output
+	Out.PrimitiveId = In[0].PrimitiveID;
 
 	// Assemble primitives
-	Out.VertexIds = ivec4(idx.yzw, -1);
-	Out.BarycentricCoords = vec2(0, 0); gl_Position = ProjectionMatrix * p1; EmitVertex();
-	Out.BarycentricCoords = vec2(1, 0); gl_Position = ProjectionMatrix * p2; EmitVertex();
-	Out.BarycentricCoords = vec2(0, 1); gl_Position = ProjectionMatrix * p3; EmitVertex();
+	gl_Position = p1; EmitVertex();
+	gl_Position = p2; EmitVertex();
+	gl_Position = p3; EmitVertex();
 	EndPrimitive();
 	
-	Out.VertexIds = ivec4(idx.zxw, -1);
-	Out.BarycentricCoords = vec2(0, 0); gl_Position = ProjectionMatrix * p2; EmitVertex();
-	Out.BarycentricCoords = vec2(1, 0); gl_Position = ProjectionMatrix * p0; EmitVertex();
-	Out.BarycentricCoords = vec2(0, 1); gl_Position = ProjectionMatrix * p3; EmitVertex();
+	gl_Position = p2; EmitVertex();
+	gl_Position = p0; EmitVertex();
+	gl_Position = p3; EmitVertex();
 	EndPrimitive();
 	
-	Out.VertexIds = ivec4(idx.wxy, -1);
-	Out.BarycentricCoords = vec2(0, 0); gl_Position = ProjectionMatrix * p3; EmitVertex();
-	Out.BarycentricCoords = vec2(1, 0); gl_Position = ProjectionMatrix * p0; EmitVertex();
-	Out.BarycentricCoords = vec2(0, 1); gl_Position = ProjectionMatrix * p1; EmitVertex();
+	gl_Position = p3; EmitVertex();
+	gl_Position = p0; EmitVertex();
+	gl_Position = p1; EmitVertex();
 	EndPrimitive();
 	
-	Out.VertexIds = ivec4(idx.xzy, -1);
-	Out.BarycentricCoords = vec2(0, 0); gl_Position = ProjectionMatrix * p0; EmitVertex();
-	Out.BarycentricCoords = vec2(1, 0); gl_Position = ProjectionMatrix * p2; EmitVertex();
-	Out.BarycentricCoords = vec2(0, 1); gl_Position = ProjectionMatrix * p1; EmitVertex();
+	gl_Position = p0; EmitVertex();
+	gl_Position = p2; EmitVertex();
+	gl_Position = p1; EmitVertex();
 	EndPrimitive();
 }
 	

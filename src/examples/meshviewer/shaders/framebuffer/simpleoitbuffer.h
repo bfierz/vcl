@@ -22,35 +22,82 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#version 430 core
-#extension GL_ARB_enhanced_layouts : enable
+#ifndef GLSL_SIMPLEOITBUFFER
+#define GLSL_SIMPLEOITBUFFER
 
-////////////////////////////////////////////////////////////////////////////////
-// Shader Input
-////////////////////////////////////////////////////////////////////////////////
-in ivec4 Index;
+ // Define common locations
+#define ABUFFER_CONFIG_LOC 11
+#define ABUFFER_BUFFER_LOC 10
+
+ ////////////////////////////////////////////////////////////////////////////////
+ // Shader Configuration
+ ////////////////////////////////////////////////////////////////////////////////
+layout(early_fragment_tests) in;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shader Output
 ////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) out VertexData
+
+// Links to the first fragment in the linked list
+layout(std430, binding = ABUFFER_BUFFER_LOC + 0) buffer IotFragmentLink
 {
-	// Indices of the tetrahedron vertices
-	ivec4 Indices;
+	int fragmentLink[];
+};
 
-	// Id of the tetrahedron
-	int PrimitiveID;
+// Pool with fragments. Stores colour (encoded as uint) in x and depth in y
+layout(std430, binding = ABUFFER_BUFFER_LOC + 1) buffer IotFragmentPool
+{
+	int fragmentFirstFreeElement;
+	int fragmentPool[];
+};
 
-} Out;
+////////////////////////////////////////////////////////////////////////////////
+// Constants
+////////////////////////////////////////////////////////////////////////////////
+
+UNIFORM_BUFFER(ABUFFER_CONFIG_LOC) ABufferConfig
+{
+	// Width of the ABuffer
+	uint iotBufferWidth;
+
+	// Height of the ABuffer
+	uint iotBufferHeight;
+
+	// Size of the entire fragment pool
+	int fragmentPoolSize;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ////////////////////////////////////////////////////////////////////////////////
-void main()
+int allocateNewFragment(uvec2 coords)
 {
-	// Pass index data to next stage
-	Out.Indices = Index;
+	if (coords.x < iotBufferWidth && coords.y < iotBufferHeight)
+	{
+		int idx = atomicAdd(fragmentFirstFreeElement);
+		if (idx < fragmentPoolSize)
+		{
+			int prev = atomicExchange(fragmentLink[coords.y * iotBufferWidth + coords.x], idx);
+			fragmentPool[idx] = prev;
 
-	// Manual generation of the primitive Id
-	Out.PrimitiveID	= gl_VertexID;
+			return idx;
+		}
+	}
+	
+	return -1;
 }
+
+void writeFragment(int idx, vec3 colour, float depth)
+{
+	writeFragmentColour(vec4(colour, 1), depth);
+}
+
+void writeFragment(int idx, vec4 colour, float depth)
+{
+	uvec4 bytes = uvec4(clamp(colour * 255, 0, 255));
+	uint bits = (bytes.a << 24) | (bytes.b << 16) | (bytes.g << 8) | (bytes.r);
+
+	fragmentPool[idx] = uvec2(bits, floatBitsToUint(depth));
+}
+
+#endif // GLSL_SIMPLEOITBUFFER
