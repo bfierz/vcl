@@ -36,8 +36,8 @@
 #include <sstream>
 #include <vector>
 
-// Boost
-#include <boost/program_options.hpp>
+// CxxOpts
+#include <vcl/core/3rdparty/cxxopts.hpp>
 
 // Windows API
 #ifdef VCL_ABI_WINAPI
@@ -45,8 +45,6 @@
 #else
 VCL_ERROR("No compatible process API found.")
 #endif
-
-namespace po = boost::program_options;
 
 namespace Vcl { namespace Tools { namespace Cuc
 {
@@ -204,56 +202,58 @@ int main(int argc, char* argv [])
 	namespace fs = boost::filesystem;
 #endif
 
+	cxxopts::Options options(argv[0], "clc - command line options");
 
-	// Declare the supported options.
-	po::options_description desc
-	("Usage: cuc [options]\n\nOptions");
-	desc.add_options()
-		("help", "Print this help information on this tool.")
-		("version", "Print version information on this tool.")
-		("m64", "Specify that this should be compiled in 64bit.")
-		("profile", po::value<std::vector<std::string>>(), "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)")
-		("include,I", po::value<std::vector<std::string>>(), "Additional include directory")
-		("symbol", po::value<std::string>(), "Name of the symbol used for the compiled module")
-		("output-file,o", po::value<std::string>(), "Specify the output file.")
-		("input-file", po::value<std::string>(), "Specify the input file.")
-		;
-
-	po::positional_options_description p;
-	p.add("input-file", -1);
-
-	po::variables_map vm;
-	po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-	po::notify(vm);
-
-	// Print the help message
-	if (vm.count("help") > 0)
+	try
 	{
-		std::cout << desc << std::endl;
+		options.add_options()
+			("help", "Print this help information on this tool.")
+			("version", "Print version information on this tool.")
+			("m64", "Specify that this should be compiled in 64bit.")
+			("profile", "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
+			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
+			("symbol", "Name of the symbol used for the compiled module", cxxopts::value<std::string>())
+			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
+			("input-file", "Specify the input file.", cxxopts::value<std::string>())
+			;
+		options.parse_positional("input-file");
+
+		options.parse(argc, argv);
+	}
+	catch (const cxxopts::OptionException& e)
+	{
+		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
 	}
 
-	if (vm.count("symbol") == 0 || vm.count("input-file") == 0 || vm.count("output-file") == 0)
+	// Print the help message
+	if (options.count("help") > 0)
 	{
-		std::cout << desc << std::endl;
+		std::cout << options.help({ "" }) << std::endl;
+		return 1;
+	}
+
+	if (options.count("symbol") == 0 || options.count("input-file") == 0 || options.count("output-file") == 0)
+	{
+		std::cout << options.help({ "" }) << std::endl;
 		return -1;
 	}
 
 	std::vector<std::string> profiles;
-	if (vm.count("profile"))
+	if (options.count("profile"))
 	{
-		profiles = vm["profile"].as<std::vector<std::string>>();
+		profiles = options["profile"].as<std::vector<std::string>>();
 	}
 
 	// Construct the base name for the intermediate files
 #if (_MSC_VER < 1900)
-	std::string tmp_file_base = fs::basename(fs::path(vm["input-file"].as<std::string>()));
+	std::string tmp_file_base = fs::basename(fs::path(options["input-file"].as<std::string>()));
 #else
-	std::string tmp_file_base = fs::path(vm["input-file"].as<std::string>()).stem().string();
+	std::string tmp_file_base = fs::path(options["input-file"].as<std::string>()).stem().string();
 #endif
 
 	// Add the address 
-	if (vm.count("m64"))
+	if (options.count("m64"))
 	{
 		tmp_file_base += "_m64";
 	}
@@ -269,9 +269,9 @@ int main(int argc, char* argv [])
 	{
 		std::stringstream cmd;
 
-		if (vm.count("include"))
+		if (options.count("include"))
 		{
-			for (auto& inc : vm["include"].as<std::vector<std::string>>())
+			for (auto& inc : options["include"].as<std::vector<std::string>>())
 			{
 				cmd << "-I \"" << inc << "\" ";
 			}
@@ -296,7 +296,7 @@ int main(int argc, char* argv [])
 			tmp_file += p + ".ptx";
 		}
 		compiled_files.emplace_back(p, tmp_file);
-		cmd << "-o \"" << tmp_file << "\" \"" << vm["input-file"].as<std::string>() << "\"";
+		cmd << "-o \"" << tmp_file << "\" \"" << options["input-file"].as<std::string>() << "\"";
 
 		exec("nvcc.exe", cmd.str().c_str());
 	}
@@ -311,7 +311,7 @@ int main(int argc, char* argv [])
 	//fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
 
 	// Set the bitness
-	if (vm.count("m64"))
+	if (options.count("m64"))
 	{
 		fatbin_cmdbuilder << "-64 ";
 	}
@@ -327,7 +327,7 @@ int main(int argc, char* argv [])
 	fatbin_cmdbuilder << R"(--key="xxxxxxxxxx" )";
 	
 	// Add the orignal filename as identifier
-	fatbin_cmdbuilder << R"(--ident=")" << vm["symbol"].as<std::string>() << R"(" )";
+	fatbin_cmdbuilder << R"(--ident=")" << options["symbol"].as<std::string>() << R"(" )";
 
 	// Add all the created files
 	for (auto& profile_file : compiled_files)
@@ -343,12 +343,12 @@ int main(int argc, char* argv [])
 	bin2c_cmdbuilder.clear();
 	bin2c_cmdbuilder << "--group 4 ";
 
-	if (vm.count("symbol"))
+	if (options.count("symbol"))
 	{
-		bin2c_cmdbuilder << "--symbol " << vm["symbol"].as<std::string>() << " ";
+		bin2c_cmdbuilder << "--symbol " << options["symbol"].as<std::string>() << " ";
 	}
 
-	bin2c_cmdbuilder << "-o " << vm["output-file"].as<std::string>() << " ";
+	bin2c_cmdbuilder << "-o " << options["output-file"].as<std::string>() << " ";
 	bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
 
 	// Invoke the binary file translator

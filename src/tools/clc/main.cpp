@@ -33,8 +33,8 @@
 #include <sstream>
 #include <vector>
 
-// Boost
-#include <boost/program_options.hpp>
+// CxxOpts
+#include <vcl/core/3rdparty/cxxopts.hpp>
 
 // Windows API
 #ifdef VCL_ABI_WINAPI
@@ -45,8 +45,6 @@ VCL_ERROR("No compatible process API found.")
 
 // CLC
 #include "nvidia.h"
-
-namespace po = boost::program_options;
 
 // Copy entire file to container
 // Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
@@ -227,36 +225,39 @@ int main(int argc, char* argv [])
 	using namespace Vcl::Tools::Clc;
 	namespace fs = std::tr2::sys;
 
-	// Declare the supported options.
-	po::options_description desc
-	("Usage: clc [options]\n\nOptions");
-	desc.add_options()
-		("help", "Print this help information on this tool.")
-		("version", "Print version information on this tool.")
-		("compiler", po::value<std::string>(), "Compiler providing the preprocessor. Allowed options are clang, gcc, msvc, intel")
-		("symbol", po::value<std::string>(), "Name of the symbol used for the compiled module")
-		("include,I", po::value<std::vector<std::string>>(), "Additional include directory")
-		("output-file,o", po::value<std::string>(), "Specify the output file.")
-		("input-file", po::value<std::string>(), "Specify the input file.")
-		;
+	cxxopts::Options options(argv[0], "clc - command line options");
 
-	po::positional_options_description p;
-	p.add("input-file", -1);
-
-	po::variables_map vm;
-	po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-	po::notify(vm);
-
-	// Print the help message
-	if (vm.count("help") > 0)
+	try
 	{
-		std::cout << desc << std::endl;
+		options.add_options()
+			("help", "Print this help information on this tool.")
+			("version", "Print version information on this tool.")
+			("compiler", "Compiler providing the preprocessor. Allowed options are clang, gcc, msvc, intel", cxxopts::value<std::string>())
+			("symbol", "Name of the symbol used for the compiled module", cxxopts::value<std::string>())
+			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
+			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
+			("input-file", "Specify the input file.", cxxopts::value<std::string>())
+			;
+		options.parse_positional("input-file");
+
+		options.parse(argc, argv);
+	}
+	catch (const cxxopts::OptionException& e)
+	{
+		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
 	}
 
-	if (vm.count("input-file") == 0 || vm.count("output-file") == 0)
+	// Print the help message
+	if (options.count("help") > 0)
 	{
-		std::cout << desc << std::endl;
+		std::cout << options.help({ "" }) << std::endl;
+		return 1;
+	}
+
+	if (options.count("input-file") == 0 || options.count("output-file") == 0)
+	{
+		std::cout << options.help({ "" }) << std::endl;
 		return -1;
 	}
 
@@ -266,21 +267,21 @@ int main(int argc, char* argv [])
 	Compiler format = Compiler::Msvc;
 #endif
 
-	if (vm.count("compiler") > 0)
+	if (options.count("compiler") > 0)
 	{
-		if (vm["compiler"].as<std::string>() == "msvc")
+		if (options["compiler"].as<std::string>() == "msvc")
 		{
 			compiler = "cl";
 			param_tok = '/';
 			format = Compiler::Msvc;
 		}
-		else if (vm["compiler"].as<std::string>() == "clang")
+		else if (options["compiler"].as<std::string>() == "clang")
 		{
 			compiler = "clang";
 			param_tok = '-';
 			format = Compiler::Clang;
 		}
-		else if (vm["compiler"].as<std::string>() == "gcc")
+		else if (options["compiler"].as<std::string>() == "gcc")
 		{
 			compiler = "gcc";
 			param_tok = '-';
@@ -289,16 +290,16 @@ int main(int argc, char* argv [])
 		else
 		{
 			std::cerr << "Invalid compiler string" << std::endl;
-			std::cout << desc << std::endl;
+			std::cout << options.help({ "" }) << std::endl;
 			return -1;
 		}
 	}
 
 	// Generate intermediate file name
 #if (_MSC_VER < 1900)
-	std::string preprocess_file = fs::basename(fs::path{ vm["input-file"].as<std::string>() }) + ".i";
+	std::string preprocess_file = fs::basename(fs::path{ options["input-file"].as<std::string>() }) + ".i";
 #else
-	std::string preprocess_file = fs::path{ vm["input-file"].as<std::string>() }.stem().string() + ".i";
+	std::string preprocess_file = fs::path{ options["input-file"].as<std::string>() }.stem().string() + ".i";
 #endif
 
 	// Preprocess the source file
@@ -317,16 +318,16 @@ int main(int argc, char* argv [])
 	}
 
 	// Add include directories
-	if (vm.count("include"))
+	if (options.count("include"))
 	{
-		for (auto& inc : vm["include"].as<std::vector<std::string>>())
+		for (auto& inc : options["include"].as<std::vector<std::string>>())
 		{
 			cmd << param_tok << "I \"" << inc << "\" ";
 		}
 	}
 
 	// Add the input file
-	cmd << R"(")" << vm["input-file"].as<std::string>() << R"(")";
+	cmd << R"(")" << options["input-file"].as<std::string>() << R"(")";
 
 	// Invoke the preprocessor
 	exec(compiler.c_str(), cmd.str().c_str());
@@ -370,12 +371,12 @@ int main(int argc, char* argv [])
 	cmd.clear();
 	cmd << "--group 4 ";
 
-	if (vm.count("symbol"))
+	if (options.count("symbol"))
 	{
-		cmd << "--symbol " << vm["symbol"].as<std::string>() << " ";
+		cmd << "--symbol " << options["symbol"].as<std::string>() << " ";
 	}
 
-	cmd << "-o " << vm["output-file"].as<std::string>() << " ";
+	cmd << "-o " << options["output-file"].as<std::string>() << " ";
 	cmd << preprocess_file;
 
 	// Invoke the binary file translator
