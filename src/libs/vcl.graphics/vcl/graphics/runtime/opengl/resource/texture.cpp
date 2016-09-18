@@ -154,5 +154,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	, Resource()
 	{
 	}
+
+	void Texture::clear(SurfaceFormat fmt, const void* data)
+	{
+		ImageFormat gl_fmt = toImageFormat(fmt);
+
+		glClearTexSubImage(_glId, 0, 0, 0, 0, width(), height(), depth(), gl_fmt.Format, gl_fmt.Type, data);
+	}
+
+	void Texture::copyTo(Buffer& target, size_t dstOffset) const
+	{
+		auto binder = target.bind(GL_PIXEL_PACK_BUFFER);
+		read(sizeInBytes(), (void*)dstOffset);
+	}
+
 }}}}
 #endif // VCL_OPENGL_SUPPORT

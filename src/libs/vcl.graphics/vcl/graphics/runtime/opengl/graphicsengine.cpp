@@ -418,6 +418,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			callback.second(callback.first);
 		}
+		_readBackCallbacks.clear();
 
 		// Map the per frame constant buffer
 		_currentFrame->mapBuffers();
@@ -497,9 +498,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void GraphicsEngine::queueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
 	{
-		// Index of the current frame
-		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
-
 		// Fetch the staging area
 		auto staging_area = _currentFrame->readBackBuffer();
 

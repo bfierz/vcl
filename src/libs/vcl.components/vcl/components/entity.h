@@ -200,3 +200,17 @@ namespace Vcl { namespace Components
 		EntityId _id;
 	};
 }}
+
+namespace std
+{
+	template<>
+	struct hash<Vcl::Components::EntityId>
+	{
+		size_t operator()(const Vcl::Components::EntityId& id) const
+		{
+			size_t h1 = std::hash<uint32_t>()(id.id());
+			size_t h2 = std::hash<uint32_t>()(id.generation());
+			return h1 ^ (h2 << 1);
+		}
+	};
+}

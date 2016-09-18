@@ -65,12 +65,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return std::make_unique<Texture2D>(*this);
 	}
 
-	void Texture2D::copyTo(Buffer& target, size_t dstOffset) const
-	{
-		auto binder = target.bind(GL_PIXEL_PACK_BUFFER);
-		read(sizeInBytes(), (void*) dstOffset);
-	}
-
 	void Texture2D::fill(SurfaceFormat fmt, const void* data)
 	{
 		ImageFormat gl_fmt = toImageFormat(fmt);

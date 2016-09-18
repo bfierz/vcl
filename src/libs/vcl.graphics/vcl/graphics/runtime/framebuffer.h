@@ -72,6 +72,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		virtual void bind(GraphicsEngine* engine) = 0;
+		virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
+		virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
+		virtual void clear(int idx, const Eigen::Vector4ui& colour) = 0;
+		virtual void clear(float depth, int stencil) = 0;
+		virtual void clear(float depth) = 0;
+		virtual void clear(int stencil) = 0;
 
 	public:
 		const FramebufferDescription& description() const { return _desc; }
@@ -92,6 +98,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		void bind(GraphicsEngine* engine) override;
+		void clear(int idx, const Eigen::Vector4f& colour) override;
+		void clear(int idx, const Eigen::Vector4i& colour) override;
+		void clear(int idx, const Eigen::Vector4ui& colour) override;
+		void clear(float depth, int stencil) override;
+		void clear(float depth) override;
+		void clear(int stencil) override;
 
 		const Vcl::Graphics::Runtime::Texture& renderTarget(size_t idx) { return *_renderTargets[idx]; }
 
@@ -110,6 +122,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		void bind(GraphicsEngine* engine) override;
+		void clear(int idx, const Eigen::Vector4f& colour) override;
+		void clear(int idx, const Eigen::Vector4i& colour) override;
+		void clear(int idx, const Eigen::Vector4ui& colour) override;
+		void clear(float depth, int stencil) override;
+		void clear(float depth) override;
+		void clear(int stencil) override;
 		void resolve();
 
 	private:

@@ -89,6 +89,9 @@ private: // Render targets
 	//! Store id of the rendered geometry
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::GBuffer> _idBuffer;
 
+	//! Store the on the host side
+	std::unique_ptr<Eigen::Vector2i[]> _idBufferHost;
+
 	//! Stores all the rendered fragments for OIT
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::ABuffer> _transparencyBuffer;
 
@@ -111,6 +114,9 @@ public:
 	MeshView(QQuickItem *parent = Q_NULLPTR);
 
 public:
+	Q_INVOKABLE void selectObject(int x, int y);
+
+public:
 	Scene* scene() const { return _scene; }
 	void setScene(Scene* s)
 	{
@@ -125,6 +131,9 @@ public:
 		update();
 	}
 
+	const Eigen::Vector2i* idBuffer() const { return _idBuffer.get(); }
+	void syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height);
+
 private: // Implementations
 	Renderer* createRenderer() const override;
 	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
@@ -132,4 +141,13 @@ private: // Implementations
 private:
 	Scene* _scene{ nullptr };
 	bool _renderWireframe{ false };
+
+	//! Store the on the host side
+	std::unique_ptr<Eigen::Vector2i[]> _idBuffer;
+
+	//! ID buffer width
+	uint32_t _idBufferWidth{ 0 };
+
+	//! ID buffer height
+	uint32_t _idBufferHeight{ 0 };
 };

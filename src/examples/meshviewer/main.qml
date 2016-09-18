@@ -133,10 +133,14 @@ ApplicationWindow
 		MouseArea
 		{
 			anchors.fill: parent
-			acceptedButtons: Qt.MiddleButton
+			acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 			onPressed:
 			{
-				if (mouse.button & Qt.MiddleButton)
+				if (mouse.button & Qt.LeftButton)
+				{
+					parent.selectObject(mouse.x, mouse.y)
+				}
+				else if (mouse.button & Qt.MiddleButton)
 				{
 					scene.startRotate(mouse.x / width, mouse.y / height)
 				}

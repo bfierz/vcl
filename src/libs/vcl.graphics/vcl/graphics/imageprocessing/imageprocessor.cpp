@@ -64,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		queue.push(task);
 
 		unsigned int nr_inputs = task->nrInputSlots();
-		for (int in = 0; in < nr_inputs; in++)
+		for (unsigned int in = 0; in < nr_inputs; in++)
 		{
 			auto slot = task->inputSlot(in);
 			if (slot->source())

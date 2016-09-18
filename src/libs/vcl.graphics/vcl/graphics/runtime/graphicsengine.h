@@ -60,7 +60,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		size_t size() const { return _sizeInBytes; }
 
 	public:
-		void* data() { return _data; }
+		void* data() const { return _data; }
 
 	public:
 		const Buffer& owner() const { return *_owner; }

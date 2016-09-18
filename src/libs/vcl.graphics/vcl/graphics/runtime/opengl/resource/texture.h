@@ -60,7 +60,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		static ImageFormat toImageFormat(SurfaceFormat fmt);		
 
 	public:
-		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const = 0;
+		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const;
+
+	public:
+		virtual void clear(SurfaceFormat fmt, const void* data) override;
 
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) = 0;

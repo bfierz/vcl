@@ -71,6 +71,32 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		gsl::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
 		engine->setRenderTargets(rt, _depthTarget);
 	}
+	void GBuffer::clear(int idx, const Eigen::Vector4f& colour)
+	{
+		//_renderTargets[idx]->clear(SurfaceFormat::R32G32B32A32_FLOAT, &colour);
+		glClearBufferfv(GL_COLOR, 0, colour.data());
+	}
+	void GBuffer::clear(int idx, const Eigen::Vector4i& colour)
+	{
+		//_renderTargets[idx]->clear(SurfaceFormat::R32G32B32A32_SINT, &colour);
+		glClearBufferiv(GL_COLOR, 0, colour.data());
+	}
+	void GBuffer::clear(int idx, const Eigen::Vector4ui& colour)
+	{
+
+	}
+	void GBuffer::clear(float depth, int stencil)
+	{
+
+	}
+	void GBuffer::clear(float depth)
+	{
+		glClearBufferfi(GL_DEPTH, 0, depth, 0);
+	}
+	void GBuffer::clear(int stencil)
+	{
+
+	}
 
 	ABuffer::ABuffer(const FramebufferDescription& desc)
 	: Framebuffer{ desc }
@@ -98,4 +124,32 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	}
 
+	void ABuffer::clear(int idx, const Eigen::Vector4f& colour)
+	{
+
+	}
+	void ABuffer::clear(int idx, const Eigen::Vector4i& colour)
+	{
+
+	}
+	void ABuffer::clear(int idx, const Eigen::Vector4ui& colour)
+	{
+
+	}
+	void ABuffer::clear(float depth, int stencil)
+	{
+
+	}
+	void ABuffer::clear(float depth)
+	{
+
+	}
+	void ABuffer::clear(int stencil)
+	{
+
+	}
+	void ABuffer::resolve()
+	{
+
+	}
 }}}

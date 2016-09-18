@@ -71,10 +71,10 @@ namespace
 		{
 			auto curr_tok = textStream.readLine();
 
-			QRegularExpressionMatch match;
-			if (curr_tok.indexOf(inc_regex, 0, &match) >= 0 && match.hasMatch())
+			QRegularExpressionMatch match_inc;
+			if (curr_tok.indexOf(inc_regex, 0, &match_inc) >= 0 && match_inc.hasMatch())
 			{
-				QString included_file = resolveShaderFile(dir + match.captured(1));
+				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
 				builder = builder % included_file % "\n";
 			}
 			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
@@ -228,10 +228,6 @@ void FboRenderer::render()
 {
 	_engine->beginFrame();
 
-	glClearColor(0, 0, 0, 1);
-	glClearDepth(1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if (_owner)
 	{
 		auto scene = _owner->scene();
@@ -255,29 +251,33 @@ void FboRenderer::render()
 		// Draw the object buffer
 		{
 			_idBuffer->bind(_engine.get());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			_idBuffer->clear(0, Eigen::Vector4i{ 0, 0, 0, 0 });
+			_idBuffer->clear(0, 1);
 
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
 			{
-				int object_id = 0;
-				volumes->forEach([this, &M, &object_id](const GPUVolumeMesh* volume_mesh)
+				volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
 				{
-					object_id++;
-					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", object_id);
+					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
 					
 					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, M);
 				});
 			}
 
 			// Queue a read-back
-			_engine->queueReadback(_idBuffer->renderTarget(0), [](const Vcl::Graphics::Runtime::BufferView& view)
+			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
 			{
+				std::memcpy(_idBufferHost.get(), view.data(), view.size());
 			});
 		}
 
 		// Reset the render target
 		this->framebufferObject()->bind();
+
+		glClearColor(0, 0, 0, 1);
+		glClearDepth(1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw the bounding grid
 		{
@@ -347,7 +347,7 @@ void FboRenderer::render()
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())
 		{
-			surfaces->forEach([this, &M](const GPUSurfaceMesh* mesh)
+			surfaces->forEach([this, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
 			{
 				renderTriMesh(mesh, _opaqueTriMeshPipelineState, M);
 			});
@@ -356,7 +356,7 @@ void FboRenderer::render()
 		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 		if (!volumes->empty())
 		{
-			volumes->forEach([this, &M](const GPUVolumeMesh* mesh)
+			volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
 			{
 				if (_renderWireframe)
 				{
@@ -448,6 +448,12 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 		_owner->scene()->setEngine(_engine.get());
 
 		_renderWireframe = _owner->renderWireframe();
+
+		// Sync the ID buffer
+		if (_idBuffer)
+		{
+			_owner->syncIdBuffer(_idBufferHost, _idBuffer->width(), _idBuffer->height());
+		}
 	}
 
 	if (_owner && _owner->scene())
@@ -470,6 +476,9 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 	id_fbo_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
 	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(id_fbo_desc);
 
+	// Create the host version
+	_idBufferHost = std::make_unique<Eigen::Vector2i[]>(_idBuffer->width() * _idBuffer->height());
+
 	FramebufferDescription abuffer_desc;
 	abuffer_desc.Width = size.width();
 	abuffer_desc.Height = size.height();
@@ -488,6 +497,30 @@ MeshView::MeshView(QQuickItem* parent)
 : QQuickFramebufferObject(parent)
 {
 	setMirrorVertically(true);
+}
+
+void MeshView::selectObject(int x, int y)
+{
+	if (_idBuffer && _idBufferWidth > 0 && _idBufferHeight > 0)
+	{
+		// Convert index to GL coordinates
+		y = height() - y;
+
+		uint32_t idx = y * _idBufferWidth + x;
+		auto ids = _idBuffer[idx];
+
+		std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+	}
+}
+
+void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)
+{
+	if (_idBufferWidth != width || _idBufferHeight != height)
+		_idBuffer= std::make_unique<Eigen::Vector2i[]>(width * height);
+
+	std::swap(_idBuffer, data);
+	_idBufferWidth = width;
+	_idBufferHeight = height;
 }
 
 MeshView::Renderer* MeshView::createRenderer() const

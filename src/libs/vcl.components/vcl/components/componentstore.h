@@ -75,12 +75,12 @@ namespace Vcl { namespace Components
 
 		bool has(EntityId id) const
 		{
-			return _components.find(id.id()) != _components.end();
+			return _components.find(id) != _components.end();
 		}
 
 		auto operator()(EntityId id) -> ComponentType*
 		{
-			return &_components.find(id.id())->second;
+			return &_components.find(id)->second;
 		}
 
 		template<typename Func>
@@ -88,7 +88,7 @@ namespace Vcl { namespace Components
 		{
 			for (auto& entry : _components)
 			{
-				f(&entry.second);
+				f(entry.first, &entry.second);
 			}
 		}
 
@@ -98,14 +98,14 @@ namespace Vcl { namespace Components
 		{
 			Require(!has(id), "Component for entity does not exist.");
 
-			auto newElemIter = _components.emplace(id.id(), std::forward<Args>(args)...);
+			auto newElemIter = _components.emplace(id, std::forward<Args>(args)...);
 
 			Ensure(newElemIter.second, "Element was inserted.");
 			return &newElemIter.first->second;
 		}
 
 	public:
-		std::unordered_map<size_t, ComponentType> _components;
+		std::unordered_map<EntityId, ComponentType> _components;
 	};
 
 	template<typename T>
@@ -113,7 +113,7 @@ namespace Vcl { namespace Components
 	{
 	public:
 		using ComponentType = T;
-		using Store = std::unordered_multimap<size_t, ComponentType>;
+		using Store = std::unordered_multimap<EntityId, ComponentType>;
 
 	public:
 		bool empty() const
@@ -123,19 +123,19 @@ namespace Vcl { namespace Components
 
 		bool has(EntityId id) const
 		{
-			return _components.find(id.id()) != _components.end();
+			return _components.find(id) != _components.end();
 		}
 
 		auto operator()(EntityId id) -> std::pair<typename Store::iterator, typename Store::iterator>
 		{
-			return _components.equal_range(id.id());
+			return _components.equal_range(id);
 		}
 
 	public:
 		template<typename... Args>
 		auto create(EntityId id, Args... args) -> ComponentType*
 		{
-			auto newElemIter = _components.emplace(id.id(), std::forward<Args>(args)...);
+			auto newElemIter = _components.emplace(id, std::forward<Args>(args)...);
 
 			Ensure(newElemIter != _components.end(), "Element was inserted.");
 			return &newElemIter->second;
@@ -172,7 +172,7 @@ namespace Vcl { namespace Components
 		auto operator()(EntityId id, const IdType&& comp_id) -> ComponentType*
 		{
 			// For some reason the 'this->' is important for GCC
-			auto components = this->_components.equal_range(id.id());
+			auto components = this->_components.equal_range(id);
 			auto comp_iter = std::find_if(components.first, components.second, std::bind(_func, comp_id));
 
 			if (comp_iter != components.end())

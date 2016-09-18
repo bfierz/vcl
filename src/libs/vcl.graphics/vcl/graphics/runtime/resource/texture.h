@@ -213,5 +213,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		virtual std::unique_ptr<Texture> clone() const = 0;
+
+	public:
+		virtual void clear(SurfaceFormat fmt, const void* data) = 0;
 	};
 }}}

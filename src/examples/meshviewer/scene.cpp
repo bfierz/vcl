@@ -66,7 +66,7 @@ void Scene::update()
 	if (!volumes->empty())
 	{
 		Eigen::AlignedBox3f bb;
-		volumes->forEach([&bb](const MeshStatistics* stats)
+		volumes->forEach([&bb](Vcl::Components::EntityId id, const MeshStatistics* stats)
 		{
 			bb.extend(stats->boundingBox());
 		});
