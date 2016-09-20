@@ -106,8 +106,10 @@ public:
 
 		// Initialize content
 		_camera = std::make_unique<Camera>(std::make_shared<Vcl::Graphics::OpenGL::MatrixFactory>());
-		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, 0, 1 }, 20.0f);
-		_cameraController.setCamera(_camera.get());
+		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, -1, 0 }, 20.0f, { 0, 0, 1 });
+
+		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
+		_cameraController->setCamera(_camera.get());
 
 		Shader boxVert{ ShaderType::VertexShader,   0, vert_shader };
 		Shader boxGeom{ ShaderType::GeometryShader, 0, geom_shader };
@@ -127,11 +129,11 @@ public:
 
 		if (down)
 		{
-			_cameraController.startRotate((float) p.x() / (float) width(), (float) p.y() / (float) height());
+			_cameraController->startRotate((float) p.x() / (float) width(), (float) p.y() / (float) height());
 		}
 		else
 		{
-			_cameraController.endRotate();
+			_cameraController->endRotate();
 		}
 
 		return true;
@@ -142,7 +144,7 @@ public:
 		if (Widget::mouseMotionEvent(p, rel, button, modifiers))
 			return true;
 
-		_cameraController.rotate((float)p.x() / (float)width(), (float)p.y() / (float)height());
+		_cameraController->rotate((float)p.x() / (float)width(), (float)p.y() / (float)height());
 		return true;
 	}
 
@@ -154,7 +156,7 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		Eigen::Matrix4f vp = _camera->projection() * _camera->view();
-		Eigen::Matrix4f m = _cameraController.currObjectTransformation();
+		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
 		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
 		renderBoundingBox(bb, _gridResolution, _boxPipelineState.get(), m, vp);
 	}
@@ -190,7 +192,7 @@ private:
 	}
 
 private:
-	Vcl::Graphics::TrackballCameraController _cameraController;
+	std::unique_ptr<Vcl::Graphics::TrackballCameraController> _cameraController;
 
 private:
 	std::unique_ptr<Vcl::Graphics::Camera> _camera;

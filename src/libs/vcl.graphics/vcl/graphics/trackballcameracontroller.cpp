@@ -91,6 +91,22 @@ namespace Vcl { namespace Graphics
 
 		if (mode() == CameraMode::Object || mode() == CameraMode::CameraTarget)
 		{
+			if (_trackball.up() != camera()->up())
+			{
+				// Build a rotation transformation around the current center
+				auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
+				auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+				auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
+
+				// Connect to the existing transformation
+				auto T = C * R * mC * _objAccumTransform;
+
+				// Store
+				_objCurrTransformation = T.matrix();
+
+				_trackball.reset(camera()->up());
+			}
+
 			_trackball.startRotate(ratio_x, ratio_y, true);
 		}
 		else if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)

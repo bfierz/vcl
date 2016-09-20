@@ -29,37 +29,31 @@
 
 namespace Vcl { namespace Graphics
 {
-	void Trackball::reset()
+	void Trackball::reset(const Eigen::Vector3f& up)
 	{
 		_rotate = false;
+		_up = up;
 		_lastQuat = Eigen::Quaternionf::Identity();
 	}
 
 	void Trackball::startRotate(float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
-		_lastPosition = project(ratio_x, ratio_y);
-		if (!right_handed)
-			_lastPosition.z() *= -1;
+		_lastPosition = project(ratio_x, ratio_y, right_handed);
 	}
 
 	void Trackball::startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
 		_lastQuat = inital_rotation;
-		_lastPosition = project(ratio_x, ratio_y);
-		if (!right_handed)
-			_lastPosition.z() *= -1;
+		_lastPosition = project(ratio_x, ratio_y, right_handed);
 	}
 
 	void Trackball::rotate(float ratio_x, float ratio_y, bool right_handed)
 	{
 		if (!_rotate) return;
 
-		Eigen::Vector3f new_pos = project(ratio_x, ratio_y);
-		if (!right_handed)
-			new_pos.z() *= -1;
-
+		Eigen::Vector3f new_pos = project(ratio_x, ratio_y, right_handed);
 		Eigen::Quaternionf new_quat = fromPosition(new_pos);
 
 		_lastPosition = new_pos;
@@ -72,7 +66,7 @@ namespace Vcl { namespace Graphics
 		_rotate = false;
 	}
 
-	Eigen::Vector3f Trackball::project(float ratio_x, float ratio_y)
+	Eigen::Vector3f Trackball::project(float ratio_x, float ratio_y, bool right_handed)
 	{
 		using Vcl::Mathematics::clamp;
 
@@ -101,7 +95,12 @@ namespace Vcl { namespace Graphics
 			projection.z() = t * t / d;
 		}
 
-		return projection;
+		if (!right_handed)
+			projection.z() *= -1;
+
+		// Rotate to actual up vector
+		auto rot = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f{0.0f, 1.0f, 0.0f}, _up);
+		return rot * projection;
 	}
 
 	Eigen::Quaternionf Trackball::fromPosition(Eigen::Vector3f v) const
