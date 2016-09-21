@@ -57,7 +57,7 @@ namespace Vcl { namespace Mathematics
 		Scalar s = a21 * rho;
 
 		// Check for singular case
-		auto b = (a11*a11 + a21*a21) < Scalar(1e-5*1e-5);
+        auto b = (a11*a11 + a21*a21) < Scalar(typename NumericTrait<Scalar>::base_t(1e-5*1e-5));
 		c = select(b, sgn(a11), c);
 		s = select(b, Scalar(1), s);
 
@@ -118,11 +118,14 @@ namespace Vcl { namespace Mathematics
 		Eigen::Matrix<Scalar, 3 - c, 1> u = R.template block<3 - c, 1>(c, c);
 		Scalar s = sgn(u(0)) * u.norm();
 		u(0) += s;
-		u.normalize();
 
-		auto B = R.template block<3 - c, 3 - c>(c, c);
-		auto H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
-		B = H * B;
+		// Replace normalization due to Eigen 3.3 compatibility
+		//u.normalize();
+		u = u / sqrt(u.squaredNorm());
+
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> B = R.template block<3 - c, 3 - c>(c, c);
+		Eigen::Matrix<Scalar, 3 - c, 3 - c> H = Eigen::Matrix<Scalar, 3 - c, 3 - c>::Identity() - Scalar(2) * u * u.transpose();
+		R.template block<3 - c, 3 - c>(c, c) = H * B;
 
 		Eigen::Matrix<Scalar, 3, 3> T = Eigen::Matrix<Scalar, 3, 3>::Identity();
 		T.template block<3 - c, 3 - c>(c, c) = H;

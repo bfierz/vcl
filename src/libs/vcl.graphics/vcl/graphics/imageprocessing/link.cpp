@@ -24,6 +24,9 @@
  */
 #include <vcl/graphics/imageprocessing/link.h>
 
+// C++ Standard Library
+#include <algorithm>
+
 // VCL
 #include <vcl/core/contract.h>
 

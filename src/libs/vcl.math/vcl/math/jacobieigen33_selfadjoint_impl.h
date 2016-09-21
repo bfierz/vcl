@@ -128,7 +128,8 @@ namespace Vcl { namespace Mathematics
 		Real c = s*ct;
 
 		// Clamp the angle if it is to large
-		auto b = ((abs(u1) < Real(1e-6)) && (abs(u2) < Real(1e-6))) || (abs(u2) < Real(1e-6)*abs(u1));
+        const Real eps = typename NumericTrait<Real>::base_t(1e-6);
+		auto b = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps*abs(u1));
 		c = select(b, Real(1), c);
 		s = select(b, Real(0), s);
 
@@ -209,7 +210,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
-		Check(all(abs(Apq) < REAL(1e-6)), "Off diagonal element is 0.", "Error: {}", Apq);
+		CheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
 #endif /* VCL_DEBUG */
 
 		M(p,q) = 0;

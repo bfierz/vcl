@@ -31,12 +31,14 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/util/hashedstring.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	ImageProcessor::ImageProcessor()
 	{
 		Runtime::SamplerDescription desc;
-		desc.Filter = Runtime::Filter::MinMagLinearMipPoint;
+		desc.Filter = Runtime::FilterType::MinMagLinearMipPoint;
 		_linearSampler = std::make_unique<Runtime::OpenGL::Sampler>(desc);
 	}
 
@@ -125,8 +127,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		char sampled_input_range_name [] = "textureRange0";
 		for (int i = 0; i < nr_sampled_inputs; i++)
 		{
-			sampled_input_name[7] = '0' + i;
-			sampled_input_range_name[12] = '0' + i;
+			sampled_input_name[7] = '0' + (char) i;
+			sampled_input_range_name[12] = '0' + (char) i;
 
 			auto in_handle = prog->uniform(sampled_input_name);
 			prog->setTexture(in_handle, sampled_inputs[i], _linearSampler.get());
@@ -146,3 +148,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		glDispatchCompute(w, h, 1);
 	}
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

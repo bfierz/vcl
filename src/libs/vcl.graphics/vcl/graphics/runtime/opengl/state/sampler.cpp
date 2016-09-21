@@ -47,7 +47,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glSamplerParameteri(_glId, GL_TEXTURE_MIN_FILTER, min);
 		glSamplerParameteri(_glId, GL_TEXTURE_MAG_FILTER, mag);
 
-		if (desc.Filter == Filter::Anisotropic || desc.Filter == Filter::ComparisonAnisotropic)
+		if (desc.Filter == FilterType::Anisotropic || desc.Filter == FilterType::ComparisonAnisotropic)
 			glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat) desc.MaxAnisotropy);
 		else
 			glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
@@ -72,30 +72,30 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glDeleteSamplers(1, &_glId);
 	}
 	
-	void Sampler::convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const
+	void Sampler::convert(FilterType filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const
 	{
 		if (enable_mipmap)
 		{
 			switch (filter)
 			{
-			case Filter::MinMagMipPoint                      : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinMagPointMipLinear                : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinPointMagLinearMipPoint           : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinPointMagMipLinear                : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinLinearMagMipPoint                : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinLinearMagPointMipLinear          : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinMagLinearMipPoint                : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinMagMipLinear                     : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::Anisotropic                         : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::ComparisonMinMagMipPoint            : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagPointMipLinear      : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinPointMagLinearMipPoint : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinPointMagMipLinear      : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinLinearMagMipPoint      : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinLinearMagPointMipLinear: min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagMipLinear           : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonAnisotropic               : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::MinMagMipPoint                      : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinMagPointMipLinear                : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinPointMagLinearMipPoint           : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinPointMagMipLinear                : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinLinearMagMipPoint                : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinLinearMagPointMipLinear          : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinMagLinearMipPoint                : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinMagMipLinear                     : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::Anisotropic                         : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::ComparisonMinMagMipPoint            : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagPointMipLinear      : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinPointMagLinearMipPoint : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinPointMagMipLinear      : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinLinearMagMipPoint      : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinLinearMagPointMipLinear: min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagMipLinear           : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			default: { DebugError("Enumeration value is valid."); }
 			}
 		}
@@ -103,24 +103,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			switch (filter)
 			{
-			case Filter::MinMagMipPoint                      : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinMagPointMipLinear                : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinPointMagLinearMipPoint           : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinPointMagMipLinear                : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinLinearMagMipPoint                : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinLinearMagPointMipLinear          : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::MinMagLinearMipPoint                : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::MinMagMipLinear                     : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
-			case Filter::Anisotropic                         : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
-			case Filter::ComparisonMinMagMipPoint            : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagPointMipLinear      : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinPointMagLinearMipPoint : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinPointMagMipLinear      : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinLinearMagMipPoint      : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinLinearMagPointMipLinear: min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonMinMagMipLinear           : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			case Filter::ComparisonAnisotropic               : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::MinMagMipPoint                      : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinMagPointMipLinear                : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinPointMagLinearMipPoint           : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinPointMagMipLinear                : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinLinearMagMipPoint                : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinLinearMagPointMipLinear          : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::MinMagLinearMipPoint                : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::MinMagMipLinear                     : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_NONE; return;
+			case FilterType::Anisotropic                         : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
+			case FilterType::ComparisonMinMagMipPoint            : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagPointMipLinear      : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinPointMagLinearMipPoint : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinPointMagMipLinear      : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinLinearMagMipPoint      : min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinLinearMagPointMipLinear: min = GL_LINEAR;  mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonMinMagMipLinear           : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
+			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			default: { DebugError("Enumeration value is valid."); }
 			}
 		}

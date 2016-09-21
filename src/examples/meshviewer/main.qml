@@ -25,6 +25,7 @@
 
 import QtQuick 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
 import QtQuick.Window 2.1
 
@@ -32,8 +33,8 @@ import MeshViewerRendering 1.0
 
 ApplicationWindow
 {
-    width: 400
-    height: 400
+    width: 800
+    height: 800
 
 	OpenMeshDialog
 	{
@@ -109,14 +110,37 @@ ApplicationWindow
         id: renderer
         anchors.fill: parent
         anchors.margins: 10
+		
+		CheckBox
+		{
+			style: CheckBoxStyle
+			{
+				label: Text
+				{
+					color: "white"
+					text: "Wireframe"
+				}
+			}
+			checked: false
+
+			onClicked:
+			{
+				renderer.renderWireframe = checked
+			}
+		}
+
 
 		MouseArea
 		{
 			anchors.fill: parent
-			acceptedButtons: Qt.MiddleButton
+			acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 			onPressed:
 			{
-				if (mouse.button & Qt.MiddleButton)
+				if (mouse.button & Qt.LeftButton)
+				{
+					parent.selectObject(mouse.x, mouse.y)
+				}
+				else if (mouse.button & Qt.MiddleButton)
 				{
 					scene.startRotate(mouse.x / width, mouse.y / height)
 				}

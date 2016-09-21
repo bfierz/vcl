@@ -1,6 +1,10 @@
 SUBDIRS(fluids)
-SUBDIRS(meshviewer)
 SUBDIRS(simd)
+
+IF(VCL_OPENGL_SUPPORT)
+	SUBDIRS(meshviewer)
+	SUBDIRS(opengl)
+ENDIF()
 
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	SUBDIRS(opencl)

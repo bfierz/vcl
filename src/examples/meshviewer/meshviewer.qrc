@@ -6,13 +6,29 @@
   </qresource>
 
   <qresource>
+    
+    <file>shaders/debug/plane.vert</file>
+    <file>shaders/debug/plane.geom</file>
+    <file>shaders/debug/object.frag</file>
+
+    <file>shaders/debug/boundinggrid.vert</file>
+    <file>shaders/debug/boundinggrid.geom</file>
+    
+    <file>shaders/debug/staticcolour.frag</file>
+
+    <file>shaders/framebuffer/simpleframebuffer.h</file>
+    <file>shaders/framebuffer/simpleoitbuffer.h</file>
+
+    <file>shaders/UniformBuffer.h</file>
+    <file>shaders/MarchingCubes.h</file>
     <file>shaders/3DSceneBindings.h</file>
-    <file>shaders/plane.vert</file>
-    <file>shaders/plane.geom</file>
+    
     <file>shaders/trimesh.vert</file>
     <file>shaders/trimesh.geom</file>
     <file>shaders/tetramesh.vert</file>
     <file>shaders/tetramesh.geom</file>
+    <file>shaders/tetramesh_sphere.geom</file>
+    <file>shaders/tetramesh_wireframe.geom</file>
     <file>shaders/mesh.frag</file>
 
     <file>shaders/objectid_tetramesh.vert</file>

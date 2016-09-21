@@ -127,7 +127,7 @@ namespace Vcl
 
 			operator bool() const
 			{
-				return _ptr;
+				return _ptr != nullptr;
 			}
 
 			T& operator*()

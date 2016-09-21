@@ -1,35 +1,52 @@
-#version 400 core
+/*
+ * This file is part of the Visual Computing Library (VCL) release under the
+ * MIT license.
+ *
+ * Copyright (c) 2016 Basil Fierz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#version 430 core
+#extension GL_ARB_enhanced_layouts : enable
 
 ////////////////////////////////////////////////////////////////////////////////
-// Input data from last stage
+// Shader Input
 ////////////////////////////////////////////////////////////////////////////////
-in VertexData
+layout(location = 0) in VertexData
 {
-	// IDs of the vertices that go with the barycentric coords
-	flat ivec4 VertexIds;
+	// ID of the primitive
+	flat int PrimitiveId;
 
-	// Barycentric coords
-	vec2 BarycentricCoords;
 } In;
 
-in int gl_PrimitiveID;
-
 ////////////////////////////////////////////////////////////////////////////////
-// Output data
+// Shader Output
 ////////////////////////////////////////////////////////////////////////////////
 
 // x/y: Object ID; Primitive ID
 out ivec2 ObjectIds;
 
-// x/y/z/w: Vertex IDs of primitive triangles/quad
-out ivec4 VertexIds;
-
-// x/y: Barycentric coordinates of a fragment within the triangle
-out vec2 BarycentricCoords;
-
 ////////////////////////////////////////////////////////////////////////////////
-// Shader constants
+// Shader Constants
 ////////////////////////////////////////////////////////////////////////////////
+
+// Id of the object to render
 uniform int ObjectIdx;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,5 +56,5 @@ void main(void)
 {
 	// Store 0-based IDs
 	ObjectIds.x = ObjectIdx;
-    ObjectIds.y = gl_PrimitiveID;
+    ObjectIds.y = In.PrimitiveId;
 }

@@ -92,6 +92,7 @@ namespace Vcl { namespace RTTI
 
 	void Type::destruct(void* ptr) const
 	{
+		VCL_UNREFERENCED_PARAMETER(ptr);
 	}
 
 	bool Type::isA(const Type* base) const

@@ -30,7 +30,9 @@
 #include <QtQuick/QQuickWindow>
 
 // VCL
+#include <vcl/geometry/MarchingCubesTables.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
+#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
@@ -38,14 +40,24 @@
 namespace
 {
 #include "shaders/3DSceneBindings.h"
+#include "shaders/MarchingCubes.h"
 }
 
+#include "util/frustumhelpers.h"
 #include "scene.h"
 
 namespace
 {
-	QString resolveShaderFile(QString dir, QString path)
+	QString resolveShaderFile(QString full_path)
 	{
+		QRegularExpression dir_regex{ R"((.+/)(.+))" };
+		QRegularExpressionMatch match;
+		full_path.indexOf(dir_regex, 0, &match);
+		Check(match.hasMatch(), "Split is successfull.");
+
+		QString dir = match.captured(1);
+		QString path = match.captured(2);
+
 		QFile shader_file{ dir + path };
 		shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
 		Check(shader_file.isOpen(), "Shader file is open.");
@@ -59,10 +71,10 @@ namespace
 		{
 			auto curr_tok = textStream.readLine();
 
-			QRegularExpressionMatch match;
-			if (curr_tok.indexOf(inc_regex, 0, &match) >= 0 && match.hasMatch())
+			QRegularExpressionMatch match_inc;
+			if (curr_tok.indexOf(inc_regex, 0, &match_inc) >= 0 && match_inc.hasMatch())
 			{
-				QString included_file = resolveShaderFile(dir, match.captured(1));
+				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
 				builder = builder % included_file % "\n";
 			}
 			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
@@ -82,78 +94,9 @@ namespace
 
 	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path)
 	{
-		QRegularExpression dir_regex{ R"((.+/)(.+))" };
-		QRegularExpressionMatch match;
-		path.indexOf(dir_regex, 0, &match);
-		Check(match.hasMatch(), "Split is successfull.");
-
-		QString data = resolveShaderFile(match.captured(1), match.captured(2));
+		QString data = resolveShaderFile(path);
 
 		return{ type, 0, data.toUtf8().data() };
-	}
-}
-
-// Debug code
-namespace
-{
-	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum)
-	{
-		// tan(fov / 2)
-		float scale = frustum.x();
-		float ratio = frustum.y();
-		float near_dist = frustum.z();
-		float far_dist = frustum.w();
-
-		float near_half_height = scale * near_dist;
-		float near_half_width = near_half_height * ratio;
-
-		float far_half_height = scale * far_dist;
-		float far_half_width = far_half_height * ratio;
-
-		return{ near_half_width, near_half_height, far_half_width, far_half_height };
-	}
-
-	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane)
-	{
-		Eigen::Vector3f N = plane.segment<3>(0);
-		float d = plane.w();
-
-		float t = -(p0.dot(N) + d) / dir.dot(N);
-		return p0 + t*dir;
-	}
-
-	void computePlaneCorners(const Eigen::Vector4f& eq, const Eigen::Matrix4f& ViewMatrix, const Eigen::Matrix4f& ModelMatrix, const Eigen::Vector4f& Frustum)
-	{
-		Eigen::Vector3f N = eq.segment<3>(0);
-		float d = eq.w();
-
-		// Point on plane
-		Eigen::Vector3f P = d * N;
-
-		// Model-view matrix
-		Eigen::Matrix4f MV = ViewMatrix * ModelMatrix;
-
-		// Transform the plane normal to the view-space
-		P = (MV * Eigen::Vector4f(P.x(), P.y(), P.z(), 1)).segment<3>(0);
-		N = MV.block<3, 3>(0, 0) * N;
-		d = P.dot(N);
-
-		// Compute the rays of the frustum from camera point into screen
-		Eigen::Vector4f frustum_size = computeFrustumSize(Frustum);
-		Eigen::Vector3f point_on_far = Eigen::Vector3f(0, 0, -Frustum.w());
-
-		Eigen::Vector3f d0 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d1 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() - Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d2 = (point_on_far - Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-		Eigen::Vector3f d3 = (point_on_far + Eigen::Vector3f(1, 0, 0) * frustum_size.z() + Eigen::Vector3f(0, 1, 0) * frustum_size.w()).normalized();
-
-		// Finally compute plane corners in view space
-		Eigen::Vector3f p0 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d0, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p1 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d1, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p2 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d2, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-		Eigen::Vector3f p3 = intersectRayPlane(Eigen::Vector3f(0, 0, 0), d3, Eigen::Vector4f(N.x(), N.y(), N.z(), d));
-
-		return;
 	}
 }
 
@@ -170,7 +113,7 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
-	using Vcl::Graphics::Runtime::Usage;
+	using Vcl::Graphics::Runtime::ResourceUsage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
@@ -193,19 +136,31 @@ FboRenderer::FboRenderer()
 		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 
-	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/plane.vert");
-	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/plane.geom");
+	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/debug/boundinggrid.vert");
+	Shader boxGeom = createShader(ShaderType::GeometryShader, ":/shaders/debug/boundinggrid.geom");
+	Shader boxFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/staticcolour.frag");
+
+	Shader planeVert = createShader(ShaderType::VertexShader, ":/shaders/debug/plane.vert");
+	Shader planeGeom = createShader(ShaderType::GeometryShader, ":/shaders/debug/plane.geom");
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
+	Shader opaqueTetraGeomWire = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh_wireframe.geom");
+	Shader opaqueTetraGeomPoints = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh_sphere.geom");
 	Shader idTetraVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_tetramesh.vert");
 	Shader idTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_tetramesh.geom");
 
-	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/mesh.frag");
+	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/object.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
+
+	PipelineStateDescription boxPSDesc;
+	boxPSDesc.VertexShader = &boxVert;
+	boxPSDesc.GeometryShader = &boxGeom;
+	boxPSDesc.FragmentShader = &boxFrag;
+	_boxPipelineState = Vcl::make_owner<PipelineState>(boxPSDesc);
 
 	PipelineStateDescription planePSDesc;
 	planePSDesc.InputLayout = planeLayout;
@@ -235,8 +190,30 @@ FboRenderer::FboRenderer()
 	opaqueTetraPSDesc.FragmentShader = &meshFrag;
 	_opaqueTetraMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
 
+	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeomWire;
+	_opaqueTetraMeshWirePipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+
+	opaqueTetraPSDesc.GeometryShader = &opaqueTetraGeomPoints;
+	_opaqueTetraMeshPointsPipelineState = Vcl::make_owner<PipelineState>(opaqueTetraPSDesc);
+
+	// Build up the marching cubes tables
+	MarchingCubesTables mcTables;
+	memcpy(mcTables.caseToNumPolys, Vcl::Geometry::caseToNumPolys, sizeof(Vcl::Geometry::caseToNumPolys));
+	memcpy(mcTables.edgeVertexList, Vcl::Geometry::edgeVertexList, sizeof(Vcl::Geometry::edgeVertexList));
+
+	BufferDescription mcDesc;
+	mcDesc.Usage = ResourceUsage::Default;
+	mcDesc.SizeInBytes = sizeof(MarchingCubesTables);
+
+	BufferInitData mcData;
+	mcData.Data = &mcTables;
+	mcData.SizeInBytes = sizeof(MarchingCubesTables);
+
+	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, false, false, &mcData);
+
+	// Buffer for the ground plane
 	BufferDescription planeDesc;
-	planeDesc.Usage = Usage::Default;
+	planeDesc.Usage = ResourceUsage::Default;
 	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	Eigen::Vector4f grouldPlane{ 0, 1, 0, -2 };
@@ -250,10 +227,6 @@ FboRenderer::FboRenderer()
 void FboRenderer::render()
 {
 	_engine->beginFrame();
-
-	glClearColor(0, 0, 0, 1);
-	glClearDepth(1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (_owner)
 	{
@@ -275,12 +248,52 @@ void FboRenderer::render()
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
+		// Draw the object buffer
+		{
+			_idBuffer->bind(_engine.get());
+			_idBuffer->clear(0, Eigen::Vector4i{ 0, 0, 0, 0 });
+			_idBuffer->clear(0, 1);
+
+			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
+			if (!volumes->empty())
+			{
+				volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
+				{
+					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
+					
+					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, M);
+				});
+			}
+
+			// Queue a read-back
+			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
+			{
+				std::memcpy(_idBufferHost.get(), view.data(), view.size());
+			});
+		}
+
+		// Reset the render target
+		this->framebufferObject()->bind();
+
+		glClearColor(0, 0, 0, 1);
+		glClearDepth(1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Draw the bounding grid
+		{
+			// Align the grid to the scene bounding box
+			const auto& bb = scene->boundingBox();
+
+			renderBoundingBox(bb, 10, _boxPipelineState, M);
+		}
+
 		// Draw the ground
 		{
 			// Configure the layout
 			_engine->setPipelineState(_planePipelineState);
 		
-			_planePipelineState->program().setUniform(_planePipelineState->program().uniform("ModelMatrix"), M);
+			_engine->setConstantBuffer(MARCHING_CUBES_TABLES_LOC, { _marchingCubesTables, 0, _marchingCubesTables->sizeInBytes(), nullptr });
+			_planePipelineState->program().setUniform("ModelMatrix", M);
 		
 			// Bind the buffers
 			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
@@ -288,58 +301,142 @@ void FboRenderer::render()
 			// Render the mesh
 			glDrawArrays(GL_POINTS, 0, 1);
 		}
+		/*{
+			std::vector<Eigen::Vector3f> points;
+			Vcl::Util::computePlaneFrustumIntersection({ 0, 1, 0, -2 }, V * M, scene->frustum(), points);
 
-		auto surfaceMesh = scene->surfaceMesh();
-		if (surfaceMesh)
-		{
+			auto plane_buffer = _engine->requestPerFrameLinearMemory(points.size() * sizeof(Eigen::Vector3f));
+			auto plane_buffer_ptr = reinterpret_cast<Eigen::Vector3f*>(plane_buffer.data());
+			Eigen::Matrix4f T = (V * M).inverse();
+			std::transform(points.begin(), points.end(), plane_buffer_ptr, [&T](const Eigen::Vector3f& v) -> Eigen::Vector3f
+			{
+				return (T * Eigen::Vector4f(v.x(), v.y(), v.z(), 1)).segment<3>(0);
+			});
+
+			auto plane_idx_buffer = _engine->requestPerFrameLinearMemory(points.size() * sizeof(int));
+			auto plane_idx_buffer_ptr = reinterpret_cast<int*>(plane_idx_buffer.data());
+			std::iota(plane_idx_buffer_ptr, plane_idx_buffer_ptr + points.size(), 0);
+
+			auto plane_col_buffer = _engine->requestPerFrameLinearMemory(points.size() / 3 * sizeof(Eigen::Vector4f));
+			auto plane_col_buffer_ptr = reinterpret_cast<Eigen::Vector4f*>(plane_col_buffer.data());
+			std::fill(plane_col_buffer_ptr, plane_col_buffer_ptr + points.size() / 3, Eigen::Vector4f(0, 1, 0, 1));
+
 			// Configure the layout
 			_engine->setPipelineState(_opaqueTriMeshPipelineState);
 
 			////////////////////////////////////////////////////////////////////
 			// Render the mesh
 			////////////////////////////////////////////////////////////////////
-		
+
 			_opaqueTriMeshPipelineState->program().setUniform(_opaqueTriMeshPipelineState->program().uniform("ModelMatrix"), M);
 
 			// Set the vertex positions
-			_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", surfaceMesh->positions());
+			_opaqueTriMeshPipelineState->program().setBuffer("VertexPositions", &plane_buffer.owner(), plane_buffer.offset(), plane_buffer.size());
 
 			// Bind the buffers
-			glBindVertexBuffer(0, surfaceMesh->indices()->id(),     0, sizeof(Eigen::Vector3i));
-			glBindVertexBuffer(1, surfaceMesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+			auto& gl_plane_indices = static_cast<const Vcl::Graphics::Runtime::OpenGL::Buffer&>(plane_idx_buffer.owner());
+			glBindVertexBuffer(0, gl_plane_indices.id(), plane_idx_buffer.offset(), sizeof(Eigen::Vector3i));
+
+			auto& gl_plane_colours = static_cast<const Vcl::Graphics::Runtime::OpenGL::Buffer&>(plane_col_buffer.owner());
+			glBindVertexBuffer(1, gl_plane_colours.id(), plane_col_buffer.offset(), sizeof(Eigen::Vector4f));
 
 			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, surfaceMesh->nrFaces());
-		}
+			glDrawArrays(GL_POINTS, 0, (GLsizei)points.size() / 3);
+		}*/
 
-		auto volumeMesh = scene->volumeMesh();
-		if (volumeMesh)
+		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
+		if (!surfaces->empty())
 		{
-			// Configure the state
-			_engine->setPipelineState(_opaqueTetraMeshPipelineState);
-
-			////////////////////////////////////////////////////////////////////
-			// Render the mesh
-			////////////////////////////////////////////////////////////////////
-
-			_opaqueTetraMeshPipelineState->program().setUniform(_opaqueTetraMeshPipelineState->program().uniform("ModelMatrix"), M);
-
-			// Set the vertex positions
-			_opaqueTetraMeshPipelineState->program().setBuffer("VertexPositions", volumeMesh->positions());
-
-			// Bind the buffers
-			glBindVertexBuffer(0, volumeMesh->indices()->id(),       0, sizeof(Eigen::Vector4i));
-			glBindVertexBuffer(1, volumeMesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
-
-			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, volumeMesh->nrVolumes());
+			surfaces->forEach([this, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
+			{
+				renderTriMesh(mesh, _opaqueTriMeshPipelineState, M);
+			});
 		}
 
+		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
+		if (!volumes->empty())
+		{
+			volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
+			{
+				if (_renderWireframe)
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, M);
+					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, M);
+				}
+				else
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, M);
+				}
+			});
+		}
 	}
 
 	_engine->endFrame();
 	_owner->window()->resetOpenGLState();
 	update();
+}
+
+void FboRenderer::renderBoundingBox
+(
+	const Eigen::AlignedBox3f& bb,
+	unsigned int resolution, 
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps,
+	const Eigen::Matrix4f& M
+)
+{
+	// Configure the layout
+	_engine->setPipelineState(ps);
+
+	// View on the scene
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Compute the grid paramters
+	float maxSize = bb.diagonal().maxCoeff();
+	Eigen::Vector3f origin = bb.center() - 0.5f * maxSize * Eigen::Vector3f::Ones().eval();
+
+	ps->program().setUniform("Origin", origin);
+	ps->program().setUniform("StepSize", maxSize / (float)resolution);
+	ps->program().setUniform("Resolution", (float)resolution);
+
+	// Render the grid
+	// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
+	glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, resolution + 1);
+}
+
+void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
+	glBindVertexBuffer(1, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrFaces());
+}
+
+void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
+	glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrVolumes());
 }
 
 void FboRenderer::synchronize(QQuickFramebufferObject* item)
@@ -348,6 +445,15 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 	if (view)
 	{
 		_owner = view;
+		_owner->scene()->setEngine(_engine.get());
+
+		_renderWireframe = _owner->renderWireframe();
+
+		// Sync the ID buffer
+		if (_idBuffer)
+		{
+			_owner->syncIdBuffer(_idBufferHost, _idBuffer->width(), _idBuffer->height());
+		}
 	}
 
 	if (_owner && _owner->scene())
@@ -358,12 +464,64 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 
 QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size)
 {
+	using Vcl::Graphics::Runtime::DepthBufferDescription;
+	using Vcl::Graphics::Runtime::RenderTargetDescription;
+	using Vcl::Graphics::Runtime::FramebufferDescription;
+
+	FramebufferDescription id_fbo_desc;
+	id_fbo_desc.Width = size.width();
+	id_fbo_desc.Height = size.height();
+	id_fbo_desc.NrRenderTargets = 1;
+	id_fbo_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
+	id_fbo_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(id_fbo_desc);
+
+	// Create the host version
+	_idBufferHost = std::make_unique<Eigen::Vector2i[]>(_idBuffer->width() * _idBuffer->height());
+
+	FramebufferDescription abuffer_desc;
+	abuffer_desc.Width = size.width();
+	abuffer_desc.Height = size.height();
+	abuffer_desc.NrRenderTargets = 1;
+	abuffer_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
+	abuffer_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(abuffer_desc);
+
 	QOpenGLFramebufferObjectFormat format;
 	format.setAttachment(QOpenGLFramebufferObject::Depth);
 	format.setSamples(4);
 	return new QOpenGLFramebufferObject(size, format);
 }
 
+MeshView::MeshView(QQuickItem* parent)
+: QQuickFramebufferObject(parent)
+{
+	setMirrorVertically(true);
+}
+
+void MeshView::selectObject(int x, int y)
+{
+	if (_idBuffer && _idBufferWidth > 0 && _idBufferHeight > 0)
+	{
+		// Convert index to GL coordinates
+		y = height() - y;
+
+		uint32_t idx = y * _idBufferWidth + x;
+		auto ids = _idBuffer[idx];
+
+		std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+	}
+}
+
+void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)
+{
+	if (_idBufferWidth != width || _idBufferHeight != height)
+		_idBuffer= std::make_unique<Eigen::Vector2i[]>(width * height);
+
+	std::swap(_idBuffer, data);
+	_idBufferWidth = width;
+	_idBufferHeight = height;
+}
 
 MeshView::Renderer* MeshView::createRenderer() const
 {

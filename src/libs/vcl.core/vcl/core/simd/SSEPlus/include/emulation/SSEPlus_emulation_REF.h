@@ -1123,7 +1123,7 @@ SSP_FORCEINLINE __m128i ssp_extract_si64_REF( __m128i a ,__m128i b )
     len = (len) ? len : 64;    
     if( (ndx+len) > 64 )               // If the sum of ndx and length is greater than 64, the results are undefined.
         return a;                      // If index = 0 and length = 0/64, extract all lower bits.
-    mask = ~(-1 << len);
+    mask = ~(ssp_u64(-1) << len);
     A.u64[0] = A.u64[0] >> ndx;
     A.u64[0] = A.u64[0] & mask;
     return A.i;
@@ -1142,7 +1142,7 @@ SSP_FORCEINLINE __m128i ssp_extracti_si64_REF( __m128i a, int len, int ndx )
     len = (len) ? len : 64;    
     if( (ndx+len) > 64 )               // If the sum of ndx and length is greater than 64, the results are undefined.
         return a;                      // If index = 0 and length = 0/64, extract all lower bits.
-    mask = ~(-1 << len);
+    mask = ~(ssp_u64(-1) << len);
     A.u64[0] = A.u64[0] >> ndx;
     A.u64[0] = A.u64[0] & mask;
     return A.i;
@@ -1518,7 +1518,7 @@ SSP_FORCEINLINE __m128i ssp_insert_si64_REF( __m128i a, __m128i b )
     }
 
     len = (len) ? len : 64;         // A value of zero for field length is interpreted as 64.
-    mask = ~(-1 << len);
+    mask = ~(ssp_u64(-1) << len);
     B.u64[0]  = B.u64[0] & mask;
     B.u64[0]  = B.u64[0] << ndx;
     mask      = ~(mask << ndx);
@@ -1548,7 +1548,7 @@ SSP_FORCEINLINE __m128i ssp_inserti_si64_REF( __m128i a, __m128i b, int len, int
     }
 
     len = (len) ? len : 64;         // A value of zero for field length is interpreted as 64.
-    mask = ~(-1 << len);
+    mask = ~(ssp_u64(-1) << len);
     B.u64[0]  = B.u64[0] & mask;
     B.u64[0]  = B.u64[0] << ndx;
     mask      = ~(mask << ndx);
@@ -2998,7 +2998,7 @@ SSP_FORCEINLINE unsigned short ssp_popcnt16_REF( unsigned short val )
 {
     int i;
     ssp_u16 cnt=0;
-    for( i=0; i<15, val; ++i, val = val>>1 )
+    for( i=0; i < 15 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }
@@ -3007,7 +3007,7 @@ SSP_FORCEINLINE unsigned int ssp_popcnt_REF( unsigned int val )
 {
     int i;
     ssp_u32 cnt = 0;
-    for( i=0; i<31, val; ++i, val = val>>1 )
+    for( i=0; i < 31 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }
@@ -3016,7 +3016,7 @@ SSP_FORCEINLINE ssp_u64 ssp_popcnt64_REF( ssp_u64 val )
 {
     int i;
     ssp_u64 cnt = 0;
-    for( i=0; i<63, val; ++i, val = val>>1 )
+    for( i=0; i < 63 && val != 0; ++i, val = val>>1 )
         cnt += val & 0x1;
     return cnt;
 }

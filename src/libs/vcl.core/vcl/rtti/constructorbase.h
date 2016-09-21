@@ -40,7 +40,7 @@
 #include <utility>
 
 // GSL
-#include <string_span.h>
+#include <string_span>
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
@@ -67,25 +67,25 @@ namespace Vcl { namespace RTTI
 	};
 
 	template < typename T, typename... Ts >
-	auto head(std::tuple<T, Ts...> t)
+	auto& head(std::tuple<T, Ts...> t)
 	{
 		return std::get<0>(t);
 	}
 
 	template < std::size_t... Ns, typename... Ts >
-	auto tail_impl(std::index_sequence<Ns...>, std::tuple<Ts...> t)
+	auto tail_impl(std::index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
-		return std::make_tuple(std::get<Ns + 1u>(t)...);
+		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
 
 	template < std::size_t... Ns, typename... Ts >
-	auto tail_impl(index_sequence<Ns...>, std::tuple<Ts...> t)
+	auto tail_impl(index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
-		return std::make_tuple(std::get<Ns + 1u>(t)...);
+		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
 
 	template < typename... Ts >
-	auto tail(std::tuple<Ts...> t)
+	auto tail(const std::tuple<Ts...>& t)
 	{
 		//return tail_impl(std::make_index_sequence<sizeof...(Ts)-1u>(), t);
 		return tail_impl(make_index_sequence<sizeof...(Ts)-1u>(), t);
@@ -184,7 +184,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-			: ParameterBase(std::move(meta_data), &typeid(T))
+			: ParameterBase(std::move(meta_data), &typeid(T*))
 		{
 		}
 
@@ -200,7 +200,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-		: ParameterBase(std::move(meta_data), &typeid(T))
+		: ParameterBase(std::move(meta_data), &typeid(std::shared_ptr<T>))
 		{
 		}
 

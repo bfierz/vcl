@@ -32,6 +32,8 @@
 #include <vcl/graphics/imageprocessing/srgb.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	class SRGB : public ImageProcessing::SRGB
@@ -47,3 +49,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		size_t _kernelId;
 	};
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

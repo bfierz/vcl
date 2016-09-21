@@ -74,7 +74,7 @@ namespace Vcl { namespace Geometry
 			L[4] = _data[3] - _data[1];
 			L[5] = _data[3] - _data[2];
 
-			ScalarT A = (real_t) 0.5 * (L[2].cross(L[0]).norm() +
+			real_t A = (real_t) 0.5 * (L[2].cross(L[0]).norm() +
 			                            L[3].cross(L[0]).norm() +
 			                            L[4].cross(L[1]).norm() +
 			                            L[3].cross(L[2]).norm());
@@ -169,7 +169,7 @@ namespace Vcl { namespace Geometry
 			if (tmp <= -1.0)
 				return static_cast<real_t>(M_PI);	// avoid rounding errors
 
-			tmp = (ScalarT)acos(tmp);
+			tmp = (real_t)acos(tmp);
 
 			return tmp;
 		}

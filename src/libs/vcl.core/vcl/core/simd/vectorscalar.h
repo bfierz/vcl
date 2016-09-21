@@ -210,6 +210,28 @@ namespace Vcl
 		using bool_t = VectorScalar<bool, 16>;
 	};
 
+	template<typename T>
+	struct NumericTrait
+	{
+		using base_t = T;
+	};
+
+	template<>
+	struct NumericTrait<VectorScalar<float, 4>>
+	{
+		using base_t = float;
+	};
+	template<>
+	struct NumericTrait<VectorScalar<float, 8>>
+	{
+		using base_t = float;
+	};
+	template<>
+	struct NumericTrait<VectorScalar<float, 16>>
+	{
+		using base_t = float;
+	};
+
 
 
 	template<typename Scalar, int Width>

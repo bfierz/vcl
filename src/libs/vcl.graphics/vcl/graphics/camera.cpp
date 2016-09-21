@@ -217,13 +217,13 @@ namespace Vcl { namespace Graphics
 		_view = view;
 	}
 
-	void Camera::encloseInFrustum(const Eigen::Vector3f& center, const Eigen::Vector3f& dir_to_camera, float radius)
+	void Camera::encloseInFrustum(const Eigen::Vector3f& center, const Eigen::Vector3f& dir_to_camera, float radius, const Eigen::Vector3f& up)
 	{
 		assert(radius > 0.0f);
 
 		setPosition(center + dir_to_camera.normalized() * 2.0f * 1.05f * radius);
 		setTarget(center);
-		setUp(Eigen::Vector3f(0, 1, 0));
+		setUp(up);
 
 		_nearPlane = 0.001f * (position() - target()).norm();
 		_farPlane = 3.0f * 1.05f * radius;

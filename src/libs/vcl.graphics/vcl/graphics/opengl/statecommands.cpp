@@ -27,6 +27,8 @@
 // VCL
 #include <vcl/core/contract.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
 	void StateCommands::bind()
@@ -204,3 +206,5 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		return *(float*) &tok;
 	}
 }}}
+
+#endif // VCL_OPENGL_SUPPORT

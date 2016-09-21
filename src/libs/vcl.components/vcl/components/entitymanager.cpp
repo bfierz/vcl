@@ -22,38 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/components/entitymanager.h>
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-// VCL
-#include <vcl/geometry/tetramesh.h>
-#include <vcl/graphics/runtime/opengl/resource/buffer.h>
-
-class GPUVolumeMesh
+namespace Vcl { namespace Components
 {
-public:
-	GPUVolumeMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
-	~GPUVolumeMesh();
+	Entity EntityManager::create()
+	{
+		uint32_t index, generation;
+		if (_freeIndices.empty())
+		{
+			// Get the next free index
+			index = (uint32_t) _generations.size();
 
-public:
-	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
+			// Allocate the new index
+			_generations.push_back(1);
 
-	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
+			// Return the new generation for construction
+			generation = _generations.back();
+		}
+		else
+		{
+			index = _freeIndices.back();
+			_freeIndices.pop_back();
+			generation = _generations[index];
+		}
 
-private:
-	std::unique_ptr<Vcl::Geometry::TetraMesh> _tetraMesh;
+		return{ this, index, generation };
+	}
 
-	//! Index structure
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;
+	void EntityManager::destroy(Entity e)
+	{
+		Require(e._manager == this, "Entity belongs the this system.");
 
-	//! Position data
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _positions;
+		uint32_t index = e._id.id();
+		_generations[index]++;
+		_freeIndices.push_back(index);
+	}
+}}
 
-	//! Volume-colour data
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
-};

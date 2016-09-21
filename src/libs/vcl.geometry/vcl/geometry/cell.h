@@ -63,7 +63,7 @@ namespace Vcl { namespace Geometry
 		using Traits = CellTraits<Derived>;
 		using Vertices = std::array<IndexType, NumVertices> ;
 
-		Cell() { static_assert(sizeof(Cell) == sizeof(Vertices) + sizeof(Element), "Constants don't occupy space."); }
+        Cell() { static_assert(sizeof(Cell) == sizeof(Vertices), "Constants don't occupy space."); }
 		Cell(const Vertices& indices) : _indices(indices) {}
 		
 		IndexType& operator[](int index)       { return _indices[index]; }

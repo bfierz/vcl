@@ -42,6 +42,7 @@
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 #include <vcl/graphics/runtime/dynamictexture.h>
+#include <vcl/graphics/runtime/framebuffer.h>
 
 #include "scene.h"
 
@@ -59,21 +60,43 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
+	void renderBoundingBox(const Eigen::AlignedBox3f& bb, unsigned int resolution, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+	void renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+	void renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+
+private:
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	MeshView* _owner{ nullptr };
 
+	bool _renderWireframe{ false };
+
 private: // States
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _boxPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
+
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshWirePipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPointsPipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
 
 private: // Render targets
-	Vcl::ref_ptr<Vcl::Graphics::Runtime::DynamicTexture<3>> _idBuffer;
+
+	//! Store id of the rendered geometry
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::GBuffer> _idBuffer;
+
+	//! Store the on the host side
+	std::unique_ptr<Eigen::Vector2i[]> _idBufferHost;
+
+	//! Stores all the rendered fragments for OIT
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::ABuffer> _transparencyBuffer;
+
+private: // Support buffers
+	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _marchingCubesTables;
 
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
@@ -85,9 +108,13 @@ class MeshView : public QQuickFramebufferObject
 
 	// Properties
 	Q_PROPERTY(Scene* scene READ scene WRITE setScene)
+	Q_PROPERTY(bool renderWireframe READ renderWireframe WRITE setRenderWireframe)
 
 public:
-	Renderer* createRenderer() const;
+	MeshView(QQuickItem *parent = Q_NULLPTR);
+
+public:
+	Q_INVOKABLE void selectObject(int x, int y);
 
 public:
 	Scene* scene() const { return _scene; }
@@ -97,23 +124,30 @@ public:
 		update();
 	}
 
-private:
-	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
-
-	// https://bugreports.qt.io/browse/QTBUG-41073
-	QSGNode* updatePaintNode(QSGNode* node, UpdatePaintNodeData* nodeData) override
+	bool renderWireframe() const { return _renderWireframe; }
+	void setRenderWireframe(bool wireframe)
 	{
-		if (!node)
-		{
-			node = QQuickFramebufferObject::updatePaintNode(node, nodeData);
-			QSGSimpleTextureNode *n = dynamic_cast<QSGSimpleTextureNode *>(node);
-			if (n)
-				n->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
-			return node;
-		}
-		return QQuickFramebufferObject::updatePaintNode(node, nodeData);
+		_renderWireframe = wireframe;
+		update();
 	}
+
+	const Eigen::Vector2i* idBuffer() const { return _idBuffer.get(); }
+	void syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height);
+
+private: // Implementations
+	Renderer* createRenderer() const override;
+	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
 
 private:
 	Scene* _scene{ nullptr };
+	bool _renderWireframe{ false };
+
+	//! Store the on the host side
+	std::unique_ptr<Eigen::Vector2i[]> _idBuffer;
+
+	//! ID buffer width
+	uint32_t _idBufferWidth{ 0 };
+
+	//! ID buffer height
+	uint32_t _idBufferHeight{ 0 };
 };

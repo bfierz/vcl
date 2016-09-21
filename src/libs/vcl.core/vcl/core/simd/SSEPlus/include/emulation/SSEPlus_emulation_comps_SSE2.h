@@ -657,66 +657,98 @@ SSP_FORCEINLINE __m128 ssp_comngt_ss_SSE2(__m128 a, __m128 b)
 /** \SSE5{SSE2,_mm_comfalse_epi16, pcomw } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epi16_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epi32, pcomd } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epi32_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epi64, pcomq } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epi64_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epi8, pcomb } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epi8_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epu16, pcomuw } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epu16_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epu32, pcomud } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epu32_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epu64, pcomuq } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epu64_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_epu8, pcomub } */  
 SSP_FORCEINLINE __m128i ssp_comfalse_epu8_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_si128();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_pd, compd } */  
 SSP_FORCEINLINE __m128d ssp_comfalse_pd_SSE2(__m128d a, __m128d b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_pd();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_ps, comps } */  
 SSP_FORCEINLINE __m128 ssp_comfalse_ps_SSE2(__m128 a, __m128 b)
 {
+	(void)a;
+	(void)b;
+
 	return _mm_setzero_ps();
 }
 
 /** \SSE5{SSE2,_mm_comfalse_sd, comsd } */  
 SSP_FORCEINLINE __m128d ssp_comfalse_sd_SSE2(__m128d a, __m128d b)
 {
+	(void)b;
+
 	ssp_m128 B;
 	B.i = _mm_set_epi32(0xFFFFFFFF, 0xFFFFFFFF, 0, 0);
 	return _mm_and_pd(a, B.d);
@@ -725,6 +757,8 @@ SSP_FORCEINLINE __m128d ssp_comfalse_sd_SSE2(__m128d a, __m128d b)
 /** \SSE5{SSE2,_mm_comfalse_ss, comss } */  
 SSP_FORCEINLINE __m128 ssp_comfalse_ss_SSE2(__m128 a, __m128 b)
 {
+	(void)b;
+
 	ssp_m128 B;
 	B.i = _mm_set_epi32(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0);
 	return _mm_and_ps(a, B.f);
@@ -988,54 +1022,81 @@ SSP_FORCEINLINE __m128 ssp_comgt_ss_SSE2(__m128 a, __m128 b)
 /** \SSE5{SSE2,_mm_comtrue_epi16, pcomw } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epi16_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epi32, pcomd } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epi32_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epi64, pcomq } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epi64_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epi8, pcomb } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epi8_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epu16, pcomuw } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epu16_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epu32, pcomud } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epu32_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epu64, pcomuq } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epu64_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_epu8, pcomub } */  
 SSP_FORCEINLINE __m128i ssp_comtrue_epu8_SSE2(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+	
 	return _mm_set1_epi32(0xFFFFFFFF);
 }
 
 /** \SSE5{SSE2,_mm_comtrue_pd, compd } */  
 SSP_FORCEINLINE __m128d ssp_comtrue_pd_SSE2(__m128d a, __m128d b)
 {
+	(void)a;
+	(void)b;
+	
 	ssp_m128 B;
 	B.i = _mm_set1_epi32(0xFFFFFFFF);
 	return B.d;
@@ -1044,6 +1105,9 @@ SSP_FORCEINLINE __m128d ssp_comtrue_pd_SSE2(__m128d a, __m128d b)
 /** \SSE5{SSE2,_mm_comtrue_ps, comps } */  
 SSP_FORCEINLINE __m128 ssp_comtrue_ps_SSE2(__m128 a, __m128 b)
 {
+	(void)a;
+	(void)b;
+	
 	ssp_m128 B;
 	B.i = _mm_set1_epi32(0xFFFFFFFF);
 	return B.f;
@@ -1052,6 +1116,8 @@ SSP_FORCEINLINE __m128 ssp_comtrue_ps_SSE2(__m128 a, __m128 b)
 /** \SSE5{SSE2,_mm_comtrue_sd, comsd } */  
 SSP_FORCEINLINE __m128d ssp_comtrue_sd_SSE2(__m128d a, __m128d b)
 {
+	(void)b;
+	
 	ssp_m128 B;
 	B.i = _mm_set_epi32(0, 0, 0xFFFFFFFF, 0xFFFFFFFF);
 	return _mm_or_pd(a, B.d);
@@ -1060,6 +1126,8 @@ SSP_FORCEINLINE __m128d ssp_comtrue_sd_SSE2(__m128d a, __m128d b)
 /** \SSE5{SSE2,_mm_comtrue_ss, comss } */  
 SSP_FORCEINLINE __m128 ssp_comtrue_ss_SSE2(__m128 a, __m128 b)
 {
+	(void)b;
+	
 	ssp_m128 B;
 	B.i = _mm_set_epi32(0, 0, 0, 0xFFFFFFFF);
 	return _mm_or_ps(a, B.f);

@@ -43,7 +43,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual ~Sampler();
 
 	private:
-		void convert(Filter filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
+		void convert(FilterType filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const;
 		GLenum convert(TextureAddressMode mode) const;
 		GLenum convert(ComparisonFunction func) const;
 	};

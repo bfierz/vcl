@@ -57,7 +57,7 @@ namespace
 			rnd << d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng);
-			F.at<Scalar>(i) = rnd;
+			F.template at<Scalar>(i) = rnd;
 		}
 
 		return std::move(F);
@@ -75,7 +75,7 @@ namespace
 		// Compute reference using Eigen
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f A = F.at<Scalar>(i);
+			Vcl::Matrix3f A = F.template at<Scalar>(i);
 
 			Eigen::JacobiSVD<Eigen::Matrix<Scalar, 3, 3>> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
@@ -93,8 +93,8 @@ namespace
 				sv.coeffRef(index) *= -1.0f;
 			}
 
-			R.at<Scalar>(i) = svd.matrixU() * V.transpose();
-			S.at<Scalar>(i) = V * sv.asDiagonal() * V.transpose();
+			R.template at<Scalar>(i) = svd.matrixU() * V.transpose();
+			S.template at<Scalar>(i) = V * sv.asDiagonal() * V.transpose();
 		}
 	}
 
@@ -115,11 +115,11 @@ namespace
 
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f refR = refRa.at<Scalar>(i);
-			Vcl::Matrix3f refS = refSa.at<Scalar>(i);
+			Vcl::Matrix3f refR = refRa.template at<Scalar>(i);
+			Vcl::Matrix3f refS = refSa.template at<Scalar>(i);
 
-			Vcl::Matrix3f resR = resRa.at<Scalar>(i);
-			Vcl::Matrix3f resS = resSa.at<Scalar>(i);
+			Vcl::Matrix3f resR = resRa.template at<Scalar>(i);
+			Vcl::Matrix3f resS = resSa.template at<Scalar>(i);
 
 			Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
 			Scalar sqLenRefRc1 = refR.col(1).squaredNorm();

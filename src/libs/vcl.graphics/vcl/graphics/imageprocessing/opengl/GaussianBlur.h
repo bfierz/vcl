@@ -37,14 +37,14 @@
 #include <string>
 #include <stdarg.h>
 
-inline std::string stringFormatA( const char * fmt, ... )
+inline std::string stringFormatA(const char * fmt, ...)
 {
     int nSize = 0;
     char buff[4096];
     va_list args;
     va_start(args, fmt);
-    nSize = vsnprintf_s( buff, sizeof(buff) - 1, fmt, args); // C4996
-    return std::string( buff );    
+    nSize = vsnprintf(buff, sizeof(buff) - 1, fmt, args); // C4996
+	return{ buff };
 }
 
 inline std::vector<double> GenerateSeparableGaussKernel( double sigma, int kernelSize )

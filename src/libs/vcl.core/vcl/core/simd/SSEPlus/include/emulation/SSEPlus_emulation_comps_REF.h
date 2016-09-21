@@ -1093,6 +1093,9 @@ SSP_FORCEINLINE __m128 ssp_comngt_ss_REF(__m128 a, __m128 b)
 /** \SSE5{Reference,_mm_comfalse_epi16, pcomw } */
 SSP_FORCEINLINE __m128i ssp_comfalse_epi16_REF(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
     const static __m128i tmp = SSP_CONST_SET_32I( 0,0,0,0 );  
     return tmp;
 }
@@ -1142,6 +1145,9 @@ SSP_FORCEINLINE __m128i ssp_comfalse_epu8_REF(__m128i a, __m128i b)
 /** \SSE5{Reference,_mm_comfalse_pd, compd } */
 SSP_FORCEINLINE __m128d ssp_comfalse_pd_REF(__m128d a, __m128d b)
 {
+	(void)a;
+	(void)b;
+
     const static __m128d tmp = SSP_CONST_SET_64F( 0, 0 );      
     return tmp;
 }
@@ -1149,6 +1155,9 @@ SSP_FORCEINLINE __m128d ssp_comfalse_pd_REF(__m128d a, __m128d b)
 /** \SSE5{Reference,_mm_comfalse_ps, comps } */
 SSP_FORCEINLINE __m128 ssp_comfalse_ps_REF(__m128 a, __m128 b)
 {
+	(void)a;
+	(void)b;
+
    const static __m128 tmp = SSP_CONST_SET_32F( 0, 0, 0, 0 );      
    return tmp;
 }
@@ -1156,6 +1165,8 @@ SSP_FORCEINLINE __m128 ssp_comfalse_ps_REF(__m128 a, __m128 b)
 /** \SSE5{Reference,_mm_comfalse_sd, comsd } */
 SSP_FORCEINLINE __m128d ssp_comfalse_sd_REF(__m128d a, __m128d b)
 {
+	(void)b;
+
     ssp_m128 A;
     A.d = a;
     A.u64[0] = 0;
@@ -1165,6 +1176,8 @@ SSP_FORCEINLINE __m128d ssp_comfalse_sd_REF(__m128d a, __m128d b)
 /** \SSE5{Reference,_mm_comfalse_ss, comss } */
 SSP_FORCEINLINE __m128 ssp_comfalse_ss_REF(__m128 a, __m128 b)
 {
+	(void)b;
+
     ssp_m128 A;
     A.f = a;
     A.u32[0] = 0;
@@ -1592,6 +1605,9 @@ SSP_FORCEINLINE __m128 ssp_comgt_ss_REF(__m128 a, __m128 b)
 /** \SSE5{Reference,_mm_comtrue_epi16, pcomw } */
 SSP_FORCEINLINE __m128i ssp_comtrue_epi16_REF(__m128i a, __m128i b)
 {
+	(void)a;
+	(void)b;
+
     const static __m128i tmp = SSP_CONST_SET_64I( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF );  
     return tmp;
 }
@@ -1640,7 +1656,10 @@ SSP_FORCEINLINE __m128i ssp_comtrue_epu8_REF(__m128i a, __m128i b)
 
 /** \SSE5{Reference,_mm_comtrue_pd, compd } */
 SSP_FORCEINLINE __m128d ssp_comtrue_pd_REF(__m128d a, __m128d b)
-{   
+{
+	(void)a;
+	(void)b;
+
     const static __m128i tmp = SSP_CONST_SET_64I( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF );
     ssp_m128 A;  
     A.i = tmp;
@@ -1649,7 +1668,10 @@ SSP_FORCEINLINE __m128d ssp_comtrue_pd_REF(__m128d a, __m128d b)
 
 /** \SSE5{Reference,_mm_comtrue_ps, comps } */
 SSP_FORCEINLINE __m128 ssp_comtrue_ps_REF(__m128 a, __m128 b)
-{   
+{
+	(void)a;
+	(void)b;
+
     const static __m128i tmp = SSP_CONST_SET_64I( 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF );
     ssp_m128 A;  
     A.i = tmp;
@@ -1658,7 +1680,9 @@ SSP_FORCEINLINE __m128 ssp_comtrue_ps_REF(__m128 a, __m128 b)
 
 /** \SSE5{Reference,_mm_comtrue_sd, comsd } */
 SSP_FORCEINLINE __m128d ssp_comtrue_sd_REF(__m128d a, __m128d b)
-{   
+{
+	(void)b;
+
     ssp_m128 A;    
     A.d      = a;
     A.u64[0] = 0xFFFFFFFFFFFFFFFF;
@@ -1667,7 +1691,9 @@ SSP_FORCEINLINE __m128d ssp_comtrue_sd_REF(__m128d a, __m128d b)
 
 /** \SSE5{Reference,_mm_comtrue_ss, comss } */
 SSP_FORCEINLINE __m128 ssp_comtrue_ss_REF(__m128 a, __m128 b)
-{   
+{
+	(void)b;
+
     ssp_m128 A;
     A.f = a;
     A.u32[0] = 0xFFFFFFFF;

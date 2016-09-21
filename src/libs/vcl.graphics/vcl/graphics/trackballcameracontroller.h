@@ -40,6 +40,9 @@ namespace Vcl { namespace Graphics
 	class TrackballCameraController : public CameraController
 	{
 	public:
+		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+	public:
 		const Eigen::Matrix4f currObjectTransformation() const { return _objCurrTransformation; }
 
 	public: // Rotation controls

@@ -34,8 +34,8 @@
 #include <vector>
 #include <utility>
 
-// Boost
-#include <boost/program_options.hpp>
+// CxxOpts
+#include <vcl/core/3rdparty/cxxopts.hpp>
 
 // Copy entire file to container
 // Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
@@ -57,52 +57,51 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-
-namespace po = boost::program_options;
-
 int main(int argc, char* argv [])
 {
-	// Declare the supported options.
-	po::options_description desc
-		("Usage: bin2c [options]\n\nOptions");
-	desc.add_options()
-		("help", "Print this help information on this tool.")
-		("version", "Print version information on this tool.")
-		("group", po::value<int>(), "Number of bytes written together. Valid values are 1, 2, 4 and 8.")
-		("symbol", po::value<std::string>(), "Specify the symbol name used for the converted data.")
-		("output-file,o", po::value<std::string>(), "Specify the output file.")
-		("input-file", po::value<std::string>(), "Specify the input file.")
-		;
+	cxxopts::Options options(argv[0], "bin2c - command line options");
 
-	po::positional_options_description p;
-	p.add("input-file", -1);
-
-	po::variables_map vm;
-	po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-	po::notify(vm);
-
-	// Print the help message
-	if (vm.count("help") > 0)
+	try
 	{
-		std::cout << desc << std::endl;
+		options.add_options()
+			("help", "Print this help information on this tool.")
+			("version", "Print version information on this tool.")
+			("group", "Number of bytes written together. Valid values are 1, 2, 4 and 8.", cxxopts::value<int>())
+			("symbol", "Specify the symbol name used for the converted data.", cxxopts::value<std::string>())
+			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
+			("input-file", "Specify the input file.", cxxopts::value<std::string>())
+			;
+		options.parse_positional("input-file");
+
+		options.parse(argc, argv);
+	}
+	catch (const cxxopts::OptionException& e)
+	{
+		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
 	}
 
-	if (vm.count("input-file") == 0 || vm.count("output-file") == 0)
+	// Print the help message
+	if (options.count("help") > 0)
 	{
-		std::cout << desc << std::endl;
-		return -1;
+		std::cout << options.help({ "" }) << std::endl;
+		return 1;
 	}
 
+	if (options.count("input-file") == 0 || options.count("output-file") == 0)
+	{
+		std::cout << options.help({ "" }) << std::endl;
+		return 1;
+	}
 
 	// Output width
 	int width = 1;
-	if (vm.count("group") > 0)
+	if (options.count("group") > 0)
 	{
-		int group = vm["group"].as<int>();
+		int group = options["group"].as<int>();
 		if (!(group == 1 || group == 2 || group == 4 || group == 8))
 		{
-			std::cout << desc << std::endl;
+			std::cout << options.help({ "" }) << std::endl;
 			return -1;
 		}
 
@@ -128,12 +127,12 @@ int main(int argc, char* argv [])
 
 	// Export symbol name
 	std::string export_symbol{ "BinData" };
-	if (vm.count("symbol") > 0)
+	if (options.count("symbol") > 0)
 	{
-		export_symbol = vm["symbol"].as<std::string>();
+		export_symbol = options["symbol"].as<std::string>();
 	}
 
-	std::ifstream ifile{ vm["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in };
+	std::ifstream ifile{ options["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in };
 	if (ifile.is_open())
 	{
 		// Copy the file to a temporary buffer
@@ -147,7 +146,7 @@ int main(int argc, char* argv [])
 		}
 
 		// Write the temporary buffer to the output
-		std::ofstream ofile{ vm["output-file"].as<std::string>() };
+		std::ofstream ofile{ options["output-file"].as<std::string>() };
 		if (ofile.is_open())
 		{
 			// Write header

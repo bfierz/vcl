@@ -949,7 +949,7 @@ If a greater range is desired, use the slower function ssp_round_ps_REF().
 SSP_FORCEINLINE
 __m128 ssp_round_ps_SSE2( __m128  a, int iRoundMode )
 {
-    #pragma message( "" WARN() "SSEPlus SSE2 rounding functions overflow if input outside 32 bit integer range" )
+	VCL_WARNING("SSEPlus SSE2 rounding functions overflow if input outside 32 bit integer range");
 
     enum ENUM_MXCSR
     {
@@ -984,7 +984,7 @@ __m128 ssp_round_ps_SSE2( __m128  a, int iRoundMode )
 SSP_FORCEINLINE
 __m128d ssp_round_pd_SSE2( __m128d  a, int iRoundMode )
 {
-    #pragma message( "" WARN() "SSEPlus SSE2 rounding functions overflow if input outside 32 bit integer range" )
+	VCL_WARNING("SSEPlus SSE2 rounding functions overflow if input outside 32 bit integer range");
 
     enum ENUM_MXCSR
     {

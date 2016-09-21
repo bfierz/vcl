@@ -31,7 +31,7 @@
 #include <memory>
 
 // GSL
-#include <span.h>
+#include <span>
 
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
@@ -60,7 +60,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		size_t size() const { return _sizeInBytes; }
 
 	public:
-		void* data() { return _data; }
+		void* data() const { return _data; }
 
 	public:
 		const Buffer& owner() const { return *_owner; }
@@ -93,12 +93,27 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Request a new constant buffer for per frame data
 		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
 
-		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
-		virtual ref_ptr<DynamicTexture<3>> allocateDynamicTexture(std::unique_ptr<Texture> tex) = 0;
+		//! Request linear device memory for per frame data
+		virtual BufferView requestPerFrameLinearMemory(size_t size) = 0;
 
-		//virtual void queueReadback() = 0;
+		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
+		virtual ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Texture> tex) = 0;
+
+		//! Mark a persistent texture for removal
+		virtual void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) = 0;
+
+		//! Enque a read-back command which will be executed next frame
+		virtual void queueReadback(const Texture& tex, std::function<void(const BufferView&)> callback) = 0;
+
+		//! Enque a generic command which will be executed next frame
+		virtual void enqueueCommand(std::function<void(void)>) = 0;
 
 	public: // Resource management
+		virtual void resetRenderTargets() = 0;
+
+		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;

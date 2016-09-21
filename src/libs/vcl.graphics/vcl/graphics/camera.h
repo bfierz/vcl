@@ -166,7 +166,7 @@ namespace Vcl { namespace Graphics
 
 	public:
 		//! Set the camera parameters such that the defined part of the scene is in the frustum
-		void encloseInFrustum(const Eigen::Vector3f& center, const Eigen::Vector3f& dir_to_camera, float radius);
+		void encloseInFrustum(const Eigen::Vector3f& center, const Eigen::Vector3f& dir_to_camera, float radius, const Eigen::Vector3f& up = { 0, 1, 0 });
 
 	private:
 		//! Unproject a 2D point

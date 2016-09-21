@@ -57,8 +57,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void Texture3D::fill(SurfaceFormat fmt, const void* data)
 	{
 		ImageFormat gl_fmt = toImageFormat(fmt);
-		
+
+#	if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage3D(_glId, 0, 0, 0, 0, width(), height(), depth(), gl_fmt.Format, gl_fmt.Type, data);
+#	elif defined(VCL_GL_EXT_direct_state_access)
+		glTextureSubImage3DEXT(_glId, GL_TEXTURE_3D, 0, 0, 0, 0, width(), height(), depth(), gl_fmt.Format, gl_fmt.Type, data);
+#	endif
 	}
 
 	void Texture3D::fill(SurfaceFormat fmt, int mip_level, const void* data)
@@ -73,6 +77,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		GLenum colour_fmt = toSurfaceFormat(format());
 
+#	if defined(VCL_GL_ARB_direct_state_access)
 		glCreateTextures(GL_TEXTURE_3D, 1, &_glId);
 		glTextureStorage3D(_glId, 1, colour_fmt, width(), height(), depth());
 		
@@ -85,6 +90,20 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Configure texture
 		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
 		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+#	elif defined(VCL_GL_EXT_direct_state_access)
+		glGenTextures(1, &_glId);
+		glTextureStorage3DEXT(_glId, GL_TEXTURE_3D, 1, colour_fmt, width(), height(), depth());
+
+		if (init_data)
+		{
+			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
+			glTextureSubImage3DEXT(_glId, GL_TEXTURE_3D, 0, 0, 0, 0, init_data->Width, init_data->Height, init_data->Depth, img_fmt.Format, img_fmt.Type, init_data->Data);
+		}
+
+		// Configure texture
+		glTextureParameteriEXT(_glId, GL_TEXTURE_3D, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTextureParameteriEXT(_glId, GL_TEXTURE_3D, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+#	endif
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

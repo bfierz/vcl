@@ -90,7 +90,7 @@ namespace
 			rnd << d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng);
-			A.at<Scalar>(i) = rnd.transpose() * rnd;
+			A.template at<Scalar>(i) = rnd.transpose() * rnd;
 		}
 
 		return std::move(A);
@@ -108,13 +108,13 @@ namespace
 		// Compute reference using Eigen
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f A = ATA.at<Scalar>(i);
+			Vcl::Matrix3f A = ATA.template at<Scalar>(i);
 
 			Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver;
 			solver.compute(A, Eigen::ComputeEigenvectors);
 
-			U.at<Scalar>(i) = solver.eigenvectors();
-			S.at<Scalar>(i) = solver.eigenvalues();
+			U.template at<Scalar>(i) = solver.eigenvectors();
+			S.template at<Scalar>(i) = solver.eigenvalues();
 		}
 	}
 
@@ -135,11 +135,11 @@ namespace
 
 		for (int i = 0; i < static_cast<int>(nr_problems); i++)
 		{
-			Vcl::Matrix3f refU = refUa.at<Scalar>(i);
-			Vcl::Vector3f refS = refSa.at<Scalar>(i);
+			Vcl::Matrix3f refU = refUa.template at<Scalar>(i);
+			Vcl::Vector3f refS = refSa.template at<Scalar>(i);
 
-			Vcl::Matrix3f resU = resUa.at<Scalar>(i);
-			Vcl::Vector3f resS = resSa.at<Scalar>(i);
+			Vcl::Matrix3f resU = resUa.template at<Scalar>(i);
+			Vcl::Vector3f resS = resSa.template at<Scalar>(i);
 			SortEigenvalues(resS, resU);
 
 			Scalar sqLenRefUc0 = refU.col(0).squaredNorm();
@@ -194,15 +194,15 @@ void runJacobiEigen33Test(float tol)
 
 	for (int i = 0; i < static_cast<int>(stride / width); i++)
 	{
-		matrix3_t ATA = A.at<real_t>(i);
+		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;
 		vector3_t S;
 
 		Vcl::Mathematics::SelfAdjointJacobiEigen(ATA, U);
 		S = ATA.diagonal();
 
-		resU.at<real_t>(i) = U;
-		resS.at<real_t>(i) = S;
+		resU.template at<real_t>(i) = U;
+		resS.template at<real_t>(i) = S;
 	}
 
 	// Check against reference solution
@@ -233,15 +233,15 @@ void runJacobiEigenQuat33Test(float tol)
 
 	for (int i = 0; i < static_cast<int>(stride / width); i++)
 	{
-		matrix3_t ATA = A.at<real_t>(i);
+		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;
 		vector3_t S;
 
 		Vcl::Mathematics::SelfAdjointJacobiEigenQuat(ATA, U);
 		S = ATA.diagonal();
 
-		resU.at<real_t>(i) = U;
-		resS.at<real_t>(i) = S;
+		resU.template at<real_t>(i) = U;
+		resS.template at<real_t>(i) = S;
 	}
 
 	// Check against reference solution

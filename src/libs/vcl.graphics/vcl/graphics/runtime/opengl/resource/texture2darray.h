@@ -43,7 +43,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		void initialise(const TextureResource* init_data = nullptr);
-		
+
+	public:
+		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { DebugError("Not implemented"); }
+
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) override;
 		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;

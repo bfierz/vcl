@@ -32,6 +32,8 @@
 #include <vcl/graphics/imageprocessing/luminance.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
 {
 	class Luminance : public ImageProcessing::Luminance
@@ -51,3 +53,5 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		size_t _downscaleKernelId;
 	};
 }}}}
+
+#endif // VCL_OPENGL_SUPPORT

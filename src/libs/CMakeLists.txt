@@ -10,6 +10,9 @@ SUBDIRS(vcl.geometry)
 # Library containing graphics classes
 SUBDIRS(vcl.graphics)
 
+# Library implementing a simple entity component system
+SUBDIRS(vcl.components)
+
 # Library containing abstracted compute classes
 SUBDIRS(vcl.compute)
 
@@ -29,3 +32,4 @@ ENDIF()
 
 # Library, which contains the fluid solver
 SUBDIRS(vcl.physics.fluid)
+

@@ -29,6 +29,7 @@
 #include <vcl/config/opengl.h>
 
 // C++ standard libary
+#include <initializer_list>
 #include <memory>
 #include <vector>
 
@@ -401,6 +402,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
 	
 	public:
+		template<typename T>
+		void setUniform(const char* name, T&& value)
+		{
+			auto handle = uniform(name);
+			setUniform(handle, value);
+		}
+
 		void setUniform(const UniformHandle& handle, float value);
 		void setUniform(const UniformHandle& handle, const Eigen::Vector2f& value);
 		void setUniform(const UniformHandle& handle, const Eigen::Vector3f& value);
@@ -429,6 +437,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! Uniforms and resources
 		std::unique_ptr<ProgramResources> _resources;
 	};
+
+	inline std::unique_ptr<Runtime::OpenGL::ShaderProgram> createComputeKernel(const char* source, std::initializer_list<const char*> headers = {})
+	{
+		using namespace Vcl::Graphics::Runtime;
+
+		// Compile the shader
+		OpenGL::Shader cs(ShaderType::ComputeShader, 0, source, headers);
+
+		// Create the program descriptor
+		OpenGL::ShaderProgramDescription desc;
+		desc.ComputeShader = &cs;
+
+		// Create the shader program
+		return std::make_unique<OpenGL::ShaderProgram>(desc);
+	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT
 

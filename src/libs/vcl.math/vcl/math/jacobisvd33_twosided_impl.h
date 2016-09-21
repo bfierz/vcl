@@ -164,13 +164,15 @@ namespace Vcl { namespace Mathematics
 		Real a12 = a12_in;
 		Real a21 = a21_in;
 
+        const Real eps = typename NumericTrait<Real>::base_t(1e-6);
+
 		//bool flag = (abs(a21) < 1e-6 && abs(a22) < 1e-6);
 		//if (flag)
 		//{
 		//	a21 = a12;
 		//	a12 =   0;
 		//}
-		auto b0 = (abs(a21) < Real(1e-6)) && (abs(a22) < Real(1e-6));
+		auto b0 = (abs(a21) < eps) && (abs(a22) < eps);
 		a21 = select(b0,     a12, a21);
 		a12 = select(b0, Real(0), a12);
 
@@ -201,8 +203,8 @@ namespace Vcl { namespace Mathematics
 #endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 		s = select(rho < 0, -s, s);
 		c = s*rho;
-		
-		auto b1 = ((abs(u1) < Real(1e-6)) && (abs(u2) < Real(1e-6))) || (abs(u2) < Real(1e-6)*abs(u1));
+
+		auto b1 = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps*abs(u1));
 		c = select(b1, Real(1), c);
 		s = select(b1, Real(0), s);
 
@@ -256,7 +258,7 @@ namespace Vcl { namespace Mathematics
 #endif // defined(VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT)
 
 		
-		auto b2 = ((abs(u1) < Real(1e-6)) && (abs(u2) < Real(1e-6))) || (abs(u2) < Real(1e-6)*abs(u1));
+		auto b2 = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps*abs(u1));
 		c2 = select(b2, Real(1), c2);
 		s2 = select(b2, Real(0), s2);
 
@@ -344,8 +346,8 @@ namespace Vcl { namespace Mathematics
 		Real Apq = A(p,p)*c1*s2 - A(q,p)*s1*s2 + A(p,q)*c1*c2 - A(q,q)*s1*c2;
 		Real Aqp = A(p,p)*kappa*s1*c2 + A(q,p)*kappa*c1*c2 - A(p,q)*kappa*s1*s2 - A(q,q)*kappa*c1*s2;
 
-		Check(all(abs(Apq) < 1e-6), "Off diagonal element is 0.", "Error: {}", Apq);
-		Check(all(abs(Aqp) < 1e-6), "Off diagonal element is 0.", "Error: {}", Aqp);
+		CheckEx(all(abs(Apq) < Real(NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
+		CheckEx(all(abs(Aqp) < Real(NumericTrait<Real>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Aqp);
 #endif /* VCL_DEBUG */
 
 		A(p,q) = 0;
@@ -369,7 +371,7 @@ namespace Vcl { namespace Mathematics
 		A(k,p) = Akp;
 		A(k,q) = Akq;
 
-		for (int k = 0; k < 3; k++)
+		for (k = 0; k < 3; k++)
 		{
 			// Store rotation in U
 			Real Ukp = c1 * U(k, p) - s1 * U(k, q);

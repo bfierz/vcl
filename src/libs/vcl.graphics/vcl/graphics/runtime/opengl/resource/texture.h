@@ -33,6 +33,8 @@
 #include <memory>
 
 // VCL
+#include <vcl/core/contract.h>
+#include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
@@ -56,6 +58,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		static GLenum toSurfaceFormat(SurfaceFormat type);
 		static ImageFormat toImageFormat(SurfaceFormat fmt);		
+
+	public:
+		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const;
+
+	public:
+		virtual void clear(SurfaceFormat fmt, const void* data) override;
 
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) = 0;
