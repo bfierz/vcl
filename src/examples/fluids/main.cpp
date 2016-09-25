@@ -58,34 +58,44 @@ int main(int argc, char* argv[])
 	int c = 128;
 	Vcl::Physics::Fluid::Cuda::CenterGrid grid(ctx, Vcl::static_pointer_cast<Vcl::Compute::Cuda::CommandQueue>(ctx->defaultQueue()), Eigen::Vector3i(c, c, c), 1.0f);
 	grid.setBuoyancy(1);
-	grid.setVorticityCoeff(0.2f);
+	//grid.setVorticityCoeff(0.2f);
 	Vcl::Physics::Fluid::Cuda::EulerFluidSimulation solver(ctx);
 	Vcl::Physics::Fluid::Cuda::EnergyDecomposition energy(ctx);
 	//Vcl::Physics::Fluid::Cuda::WaveletTrubulenceFluidSimulation noise(context);
 
 	std::vector<std::array<unsigned char, 4>> bitmap;
 	bitmap.resize(c * c);
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 100; i++)
 	{
-		solver.update(grid, 0.016);
+		solver.update(grid, 0.016f);
 		energy.compute(grid);
 		
 		std::vector<float> density(grid.densities(0)->size() / sizeof(float), 0.0f);
 		ctx->defaultQueue()->read(density.data(), grid.densities(0), true);
 
+		std::vector<float> vel_x(grid.velocities(0, 0)->size() / sizeof(float), 0.0f);
+		std::vector<float> vel_y(grid.velocities(0, 1)->size() / sizeof(float), 0.0f);
+		std::vector<float> vel_z(grid.velocities(0, 2)->size() / sizeof(float), 0.0f);
+		ctx->defaultQueue()->read(vel_x.data(), grid.velocities(0, 0), true);
+		ctx->defaultQueue()->read(vel_y.data(), grid.velocities(0, 1), true);
+		ctx->defaultQueue()->read(vel_z.data(), grid.velocities(0, 2), true);
+
 		for (int z = 0; z < c; z++)
 		{
 			for (int x = 0; x < c; x++)
 			{
-				unsigned char d = (unsigned char) (density[z * c * c + c/2 * c + x]*12.5);
+				const int y = c / 2;
+				unsigned char d = (unsigned char) fmin(density[z * c * c + y * c + x]*100, 255.0f);
 				bitmap[z * c + x][0] = d;
 				bitmap[z * c + x][1] = d;
 				bitmap[z * c + x][2] = d;
-				bitmap[z * c + x][3] = d;
+				bitmap[z * c + x][3] = 1;
 			}
 		}
 		
 		Vcl::IO::Bitmap::store("density" + std::to_string(i) + ".bmp", c, c, bitmap);
+
+		std::cout << "Frame: " << i << std::endl;
 	}
 #endif // VCL_CUDA_SUPPORT
 

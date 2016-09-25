@@ -21,7 +21,7 @@ __global__ void LinearGridIndex
 	const int k = idx.z();
 
 	const int index = idx();
-
+	
 	indices[index].x = i;
 	indices[index].y = j;
 	indices[index].z = k;

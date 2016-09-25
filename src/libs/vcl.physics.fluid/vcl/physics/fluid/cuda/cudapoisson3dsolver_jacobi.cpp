@@ -1,5 +1,8 @@
 #include <vcl/physics/fluid/cuda/cudapoisson3dsolver_jacobi.h>
 
+// C++ standard library
+#include <iostream>
+
 // VCL library
 #include <vcl/compute/cuda/buffer.h>
 #include <vcl/compute/cuda/device.h>
@@ -177,11 +180,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		//                      q
 		float error_L1 = 0.0f;
 		size_t index = X*Y + X + 1;
-		for (size_t z = 1; z < Z - 1; z++, index += 2 * X)
+		for (size_t sz = 1; sz < Z - 1; sz++, index += 2 * X)
 		{
-			for (size_t y = 1; y < Y - 1; y++, index += 2)
+			for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
 			{
-				for (size_t x = 1; x < X - 1; x++, index++)
+				for (size_t sx = 1; sx < X - 1; sx++, index++)
 				{
 					float q =
 						field[index - 1] * Ax[index] +

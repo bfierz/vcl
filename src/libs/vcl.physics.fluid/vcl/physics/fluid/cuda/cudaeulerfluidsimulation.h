@@ -56,7 +56,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		virtual ~EulerFluidSimulation();
 
 	public:
-		virtual void update(Fluid::CenterGrid& g, double dt) override;
+		virtual void update(Fluid::CenterGrid& g, float dt) override;
 
 	private:
 

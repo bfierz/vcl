@@ -4,6 +4,7 @@ SET(VCL_TEST_SRC
 	blockgrid.cu
 	grid.cu
 	grid.cpp
+	poissonsolver.cpp
 )
 SET(VCL_TEST_INC
 )

@@ -50,8 +50,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 		_poissonSolver = std::make_unique<Cuda::CenterGrid3DPoissonSolver>(ctx, queue);
 		//_poissonSolver = std::make_unique<OpenMP::CenterGrid3DPoissonSolver>();
-		//_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
-		_advection = std::make_unique<MacCormackAdvection>(ctx);
+		_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
+		//_advection = std::make_unique<MacCormackAdvection>(ctx);
 
 		// Load the module
 		_fluidModule = ctx->createModuleFromSource((int8_t*) EulerfluidSimulationCudaModule, EulerfluidSimulationCudaModuleSize*sizeof(uint32_t));
@@ -68,7 +68,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 	}
 
-	void EulerFluidSimulation::update(Fluid::CenterGrid& g, double dt)
+	void EulerFluidSimulation::update(Fluid::CenterGrid& g, float dt)
 	{
 		using namespace Eigen;
 		using namespace Vcl::Compute;
@@ -215,7 +215,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Add buoyancy
 		if (grid->heatDiffusion() > 0.0f)
 		{
-		//	addBuoyancy(mHeat);
+			grid->accumulate(*queue, *force_z, *heat_curr, grid->buoyancy());
 		}
 		else
 		{
@@ -226,7 +226,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->accumulate(*queue, *vel_curr_x, *force_x, dt);
 		grid->accumulate(*queue, *vel_curr_y, *force_y, dt);
 		grid->accumulate(*queue, *vel_curr_z, *force_z, dt);
-
+		
 		// Project into divergence free field
 		_poissonSolver->solve(g);
 
@@ -243,6 +243,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Configure the advection algorithm
 		_advection->setSize(res_x, res_y, res_z);
 
+		// Advect from current to prev
 		const float dt0 = dt / grid->spacing();
 		(*_advection)(queue, dt0, grid, heat_curr,    heat_prev);
 		(*_advection)(queue, dt0, grid, density_curr, density_prev);
@@ -250,12 +251,14 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		(*_advection)(queue, dt0, grid, vel_curr_y,   vel_prev_y);
 		(*_advection)(queue, dt0, grid, vel_curr_z,   vel_prev_z);
 
+		// Fix border in updated fields
 		grid->copyBorderX(*queue, *vel_prev_x, res);
 		grid->copyBorderY(*queue, *vel_prev_y, res);
 		grid->copyBorderZ(*queue, *vel_prev_z, res);
 		grid->setBorderZero(*queue, *density_prev, res);
 		grid->setBorderZero(*queue, *heat_prev, res);
-
+		
+		// Swap current and prev
 		grid->swap();
 	}
 }}}}

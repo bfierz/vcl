@@ -30,7 +30,7 @@
 
 // C++ standard library
 #include <array>
-#include <set>
+#include <unordered_set>
 #include <unordered_map>
 #include <vector>
 
@@ -132,7 +132,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 	private: // Intermediate buffer management
 		std::vector<ref_ptr<Compute::Buffer>> _freeTmpBuffers;
-		std::set<ref_ptr<Compute::Buffer>> _aquiredTmpBuffers;
+		std::unordered_set<ref_ptr<Compute::Buffer>> _aquiredTmpBuffers;
 
 	private: // Kernel functions
 

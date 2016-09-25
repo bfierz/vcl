@@ -82,7 +82,7 @@ __global__ void ComputeDivergence
 extern "C"
 __global__ void BuildLHS
 (
-	float* Acenter,
+	float* Ac,
 	float* Ax,
 	float* Ay,
 	float* Az,
@@ -114,111 +114,73 @@ __global__ void BuildLHS
 	__syncthreads();
 #endif
 
-	float a_center = 0.0f;
+	// Initialize write-back data
+	float a_c = 0.0f;
 	float a_x = 0.0f;
 	float a_y = 0.0f;
 	float a_z = 0.0f;
 
-	if (0 < i && i < res.x - 1 && 
-		0 < j && j < res.y - 1 &&
-		0 < k && k < res.z - 1)
-	{
 #ifdef USE_SM
-		float skip_center = obstacles[tid];
-		float skip_right = obstacles[tid + 1];
-		float skip_left = obstacles[tid - 1];
+	if (!obstacles[tid])
 #else
-		float skip_center = skip[index];
-		float skip_right = skip[index + 1];
-		float skip_left = skip[index - 1];
+	if (!skip[index])
 #endif
-
-		float skip_front = skip[index + res.x];
-		float skip_back = skip[index - res.x];
-		float skip_up = skip[index + res.x*res.y];
-		float skip_down = skip[index - res.x*res.y];
-
-		// if the cell is a variable
-		if (!skip_center)
+	{
+		// Set the matrix to the Poisson stencil in order
+#ifdef USE_SM
+		if (i < (res.x - 1) && !obstacles[tid + 1])
+#else
+		if (i < (res.x - 1) && !skip[index + 1])
+#endif
 		{
-			// check to see if we're solving the heat equation instead
-			if (heat)
-			{
-				a_center = 1.0f;
-
-				// set the matrix to the Poisson stencil in order
-				if (!skip_right)
-				{
-					a_center += heat_const;
-					a_x = -heat_const;
-				}
-				if (!skip_left)
-				{
-					a_center += heat_const;
-				}
-				if (!skip_front)
-				{
-					a_center += heat_const;
-					a_y = -heat_const;
-				}
-				if (!skip_back)
-				{
-					a_center += heat_const;
-				}
-				if (!skip_up)
-				{
-					a_center += heat_const;
-					a_z = -heat_const;
-				}
-				if (!skip_down)
-				{
-					a_center += heat_const;
-				}
-			}
-			else
-			{
-				// set the matrix to the Poisson stencil in order
-				if (!skip_right)
-				{
-					a_center += 1.0f;
-					a_x = -1.0f;
-				}
-				if (!skip_left)
-				{
-					a_center += 1.0f;
-				}
-				if (!skip_front)
-				{
-					a_center += 1.0f;
-					a_y = -1.0f;
-				}
-				if (!skip_back)
-				{
-					a_center += 1.0f;
-				}
-				if (!skip_up)
-				{
-					a_center += 1.0f;
-					a_z = -1.0f;
-				}
-				if (!skip_down)
-				{
-					a_center += 1.0f;
-				}
-			}
+			a_c += 1.0;
+			a_x = -1.0;
 		}
-		else
+#ifdef USE_SM
+		if (i > 0 && !obstacles[tid - 1])
+#else
+		if (i > 0 && !skip[index - 1])
+#endif
 		{
-			// if the center cell's an obstacle, zero out the matrix row
+			a_c += 1.0;
+		}
+		if (j < (res.y - 1) && !skip[index + res.x])
+		{
+			a_c += 1.0;
+			a_y = -1.0;
+		}
+		if (j > 0 && !skip[index - res.x])
+		{
+			a_c += 1.0;
+		}
+		if (k < (res.z - 1) && !skip[index + res.x*res.y])
+		{
+			a_c += 1.0;
+			a_z = -1.0;
+		}
+		if (k > 0 && !skip[index - res.x*res.y])
+		{
+			a_c += 1.0;
 		}
 	}
 
 	if (index < res.x*res.y*res.z)
 	{
-		Acenter[index] = a_center;
-		Ax[index] = a_x;
-		Ay[index] = a_y;
-		Az[index] = a_z;
+		// check to see if we're solving the heat equation instead
+		if (heat)
+		{
+			Ac[index] = heat_const * a_c;
+			Ax[index] = heat_const * a_x;
+			Ay[index] = heat_const * a_y;
+			Az[index] = heat_const * a_z;
+		}
+		else
+		{
+			Ac[index] = a_c;
+			Ax[index] = a_x;
+			Ay[index] = a_y;
+			Az[index] = a_z;
+		}
 	}
 }
 

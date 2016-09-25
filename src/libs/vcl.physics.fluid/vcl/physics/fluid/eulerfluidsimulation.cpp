@@ -39,7 +39,7 @@ namespace Vcl { namespace Physics { namespace Fluid
 
 	}
 
-	void EulerFluidSimulation::update(Fluid::CenterGrid& g, double dt)
+	void EulerFluidSimulation::update(Fluid::CenterGrid& g, float dt)
 	{
 	}
 

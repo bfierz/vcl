@@ -46,7 +46,7 @@ namespace Vcl { namespace Physics { namespace Fluid
 		virtual ~EulerFluidSimulation();
 
 	public:
-		virtual void update(Fluid::CenterGrid& g, double dt);
+		virtual void update(Fluid::CenterGrid& g, float dt);
 
 	protected:
 		void addBuoyancy(float* forceZ, float buoyancy, const float* source, const Eigen::Vector3i& dim);

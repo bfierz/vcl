@@ -40,6 +40,8 @@
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
+#define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
+
 namespace Vcl { namespace Compute { namespace Cuda
 {
 	template<typename T>
@@ -47,8 +49,9 @@ namespace Vcl { namespace Compute { namespace Cuda
 	{
 		KernelArg(const T& arg) : Arg(arg) { /*static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "T is simple type.");*/ }
 
+		static size_t alignment() { return alignof(T); }
 		static size_t size() { return sizeof(T); }
-		 void* ptr() { return &Arg; }
+		const T* ptr() { return &Arg; }
 
 	private:
 		T Arg;
@@ -59,8 +62,9 @@ namespace Vcl { namespace Compute { namespace Cuda
 	{
 		KernelArg(const dim3& arg) : Arg(arg) {}
 
+		static size_t alignment() { return alignof(dim3); }
 		static size_t size() { return sizeof(dim3); }
-		void* ptr() { return &Arg; }
+		const dim3* ptr() { return &Arg; }
 
 	private:
 		dim3 Arg;
@@ -68,10 +72,11 @@ namespace Vcl { namespace Compute { namespace Cuda
 	template<typename U>
 	struct KernelArg<ref_ptr<U>>
 	{
-		KernelArg(const ref_ptr<U>& arg) : Arg((CUdeviceptr) *arg) { static_assert(std::is_base_of<Compute::Buffer, std::decay<U>::type>::value, "Type is derived from Buffer."); }
+		KernelArg(const ref_ptr<U>& arg) : Arg(static_cast<const Compute::Cuda::Buffer*>(arg.get())->devicePtr()) { static_assert(std::is_base_of<Compute::Buffer, std::decay<U>::type>::value, "Type is derived from Buffer."); }
 
+		static size_t alignment() { return alignof(CUdeviceptr); }
 		static size_t size() { return sizeof(CUdeviceptr); }
-		void* ptr() { return &Arg; }
+		const CUdeviceptr* ptr() { return &Arg; }
 
 	private:
 		CUdeviceptr Arg;
@@ -79,10 +84,11 @@ namespace Vcl { namespace Compute { namespace Cuda
 	template<>
 	struct KernelArg<Cuda::Buffer>
 	{
-		KernelArg(const Cuda::Buffer& arg) : Arg((CUdeviceptr) arg) {}
+		KernelArg(const Cuda::Buffer& arg) : Arg(arg.devicePtr()) {}
 
+		static size_t alignment() { return alignof(CUdeviceptr); }
 		static size_t size() { return sizeof(CUdeviceptr); }
-		void* ptr() { return &Arg; }
+		const CUdeviceptr* ptr() { return &Arg; }
 
 	private:
 		CUdeviceptr Arg;
@@ -121,21 +127,43 @@ namespace Vcl { namespace Compute { namespace Cuda
 			const Args&... args
 		)
 		{
-			void* params [] = { KernelArg<typename std::decay<Args>::type> {args}.ptr()... };
-			//void* params [] = { ((void*) &args)... };
+			size_t param_size = 0;
+			size_t _[] = { addToParams(param_size, args)... };
+			(void) _;
 			
-			runImpl(queue, gridDim, blockDim, dynamicSharedMemory, params);
+			void* config[] =
+			{
+				CU_LAUNCH_PARAM_BUFFER_POINTER, _paramMemory.get(),
+				CU_LAUNCH_PARAM_BUFFER_SIZE,    &param_size,
+				CU_LAUNCH_PARAM_END
+			};
+
+			runImpl(queue, gridDim, blockDim, dynamicSharedMemory, config);
 		}
 
 		void run(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory);
 		
 	private:
+		template<typename T>
+		size_t addToParams(size_t& param_size, T&& arg)
+		{
+			KernelArg<typename std::decay<T>::type> a{ arg };
+
+			param_size = ALIGN_UP(param_size, a.alignment());
+			memcpy(_paramMemory.get() + param_size, a.ptr(), a.size());
+			param_size += a.size();
+
+			return param_size;
+		}
 		void runImpl(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, void** params);
 
 	private: // Kernel data
 
 		//! Pointer to the device kernel
 		CUfunction _func;
+
+		//! Memory to store kernel parameters
+		std::unique_ptr<char[]> _paramMemory;
 
 	private: // Kernel information
 		int _nrMaxThreadsPerBlock;
