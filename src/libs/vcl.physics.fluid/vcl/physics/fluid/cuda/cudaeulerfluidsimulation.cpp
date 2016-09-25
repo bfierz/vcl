@@ -50,8 +50,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 		_poissonSolver = std::make_unique<Cuda::CenterGrid3DPoissonSolver>(ctx, queue);
 		//_poissonSolver = std::make_unique<OpenMP::CenterGrid3DPoissonSolver>();
-		_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
-		//_advection = std::make_unique<MacCormackAdvection>(ctx);
+		//_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
+		_advection = std::make_unique<MacCormackAdvection>(ctx);
 
 		// Load the module
 		_fluidModule = ctx->createModuleFromSource((int8_t*) EulerfluidSimulationCudaModule, EulerfluidSimulationCudaModuleSize*sizeof(uint32_t));
@@ -61,6 +61,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			// Load the fluid simulation related kernels
 			_compVorticity = static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("ComputeVorticity"));
 			_addVorticity  = static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("AddVorticity"));
+			_updateDensity = static_pointer_cast<Compute::Cuda::Kernel>(_fluidModule->kernel("SimpleDensityUpdate"));
 		}
 	}
 	EulerFluidSimulation::~EulerFluidSimulation()
@@ -105,8 +106,6 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		int res_x = res.x();
 		int res_y = res.y();
 		int res_z = res.z();
-		int cells = res_x * res_y * res_z;
-		Check(cells >= 0, "Dimensions are positive.");
 
 		// Clear the force buffers
 		queue->setZero(force_x);
@@ -119,46 +118,22 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->setBorderZero(*queue, *vel_curr_z, res);
 		grid->setBorderZero(*queue, *density_curr, res);
 
-		//////////////////////////////////////////////////////////////////////////////
-		// Map the CUDA buffers for a prototype implementation
-		std::vector<uint32_t> obstacle(obstacles->size() / sizeof(unsigned int), 0);
-		std::vector<float> density(density_curr->size() / sizeof(float), 0.0f);
-		queue->read(obstacle.data(), { obstacles }, false);
-		queue->read(density.data(), { density_curr }, true);
-
-		// Add an inlet
-		for (size_t z = 1; z < 8; z++)
+		// Update the density field
 		{
-			for (size_t y = res_y / 2 - 5; y < res_y / 2 + 5; y++)
-			{
-				for (size_t x = res_x / 2 - 5; x < res_x / 2 + 5; x++)
-				{
-					size_t index = z*res_x*res_y + y*res_x + x;
-					float d = density[index];
-					density[index] = fmax(d + 0.5f, 1.0f);
-				}
-			}
-		}
+			const dim3 block_size(16, 4, 4);
+			dim3 grid_size(res_x / 16, res_y / 4, res_z / 4);
 
-		// Clean-up density field
-		size_t index = res_x*res_y + res_x + 1;
-		for (size_t z = 1; z < res_z - 1; z++, index += 2 * res_x)
-		{
-			for (size_t y = 1; y < res_y - 1; y++, index += 2)
-			{
-				for (size_t x = 1; x < res_x - 1; x++, index++)
-				{
-					if (obstacle[index])
-					{
-						density[index] = 0.0f;
-					}
-				}
-			}
+			_updateDensity->run
+			(
+				*queue,
+				grid_size,
+				block_size,
+				0,
+				obstacles,
+				density_curr,
+				res
+			);
 		}
-
-		queue->write({ obstacles }, obstacle.data(), false);
-		queue->write({ density_curr }, density.data(), true);
-		//////////////////////////////////////////////////////////////////////////////
 
 		// Add vorticity 
 		if (grid->vorticityCoeff() > 0.0f)

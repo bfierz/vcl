@@ -8,6 +8,42 @@
 
 typedef unsigned int uint;
 
+
+extern "C"
+__global__ void SimpleDensityUpdate
+(
+	const uint*  __restrict__ obstacle,
+	float* __restrict__ density,
+	dim3 res
+)
+{
+	// Current index
+	GridIdx3D<8> idx(res.x, res.y, res.z);
+
+	const int x = idx.x();
+	const int y = idx.y();
+	const int z = idx.z();
+	const int index = idx();
+
+	if (0 < x && x < res.x - 1 &&
+		0 < y && y < res.y - 1 &&
+		0 < z && z < res.z - 1 &&
+		obstacle[index] == 0     )
+	{
+		if (z < 8 &&
+			res.y / 2 - 5 < y && y < res.y / 2 + 5 &&
+			res.x / 2 - 5 < x && x < res.x / 2 + 5)
+		{
+			float d = density[index];
+			density[index] = max(d + 0.5f, 1.0f);
+		}
+	}
+	else
+	{
+		density[index] = 0;
+	}
+}
+
 extern "C"
 __global__ void ComputeVorticity
 (

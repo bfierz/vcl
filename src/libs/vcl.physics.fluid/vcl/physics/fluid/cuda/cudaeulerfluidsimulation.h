@@ -79,5 +79,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 		//! Device function adding the vorticity to the force field
 		ref_ptr<Vcl::Compute::Cuda::Kernel> _addVorticity = nullptr;
+
+		//! Simple update to the density field
+		ref_ptr<Vcl::Compute::Cuda::Kernel> _updateDensity = nullptr;
 	};
 }}}}
