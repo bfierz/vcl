@@ -124,24 +124,29 @@ TEST_F(CudaFluid, BlockLinearGridIndex)
 	auto kernel = static_pointer_cast<Compute::Cuda::Kernel>(module->kernel("BlockLinearGridIndex"));
 	
 	// Size of a cube size
-	int s = 24;
+	int b = 8;
+	int g = 3;
+	int s = b*g;
 
 	auto buffer = static_pointer_cast<Compute::Cuda::Buffer>(ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, s*s*s*sizeof(int4)));
 
-	kernel->run(*queue, dim3(3, 3, 3), dim3(8, 8, 8), 0, buffer, dim3(s, s, s));
+	kernel->run(*queue, dim3(g, g, g), dim3(b, b, b), 0, buffer, dim3(s, s, s));
 
 	std::vector<int4> indices(s*s*s);
 	queue->read(indices.data(), { buffer }, true);
 
 	int i = 0;
-	for (int z = 0; z < s; z++)
-	for (int y = 0; y < s; y++)
-	for (int x = 0; x < s; x++)
+	for (int bz = 0; bz < g; bz++)
+	for (int by = 0; by < g; by++)
+	for (int bx = 0; bx < g; bx++)
+	for (int z = 0; z < b; z++)
+	for (int y = 0; y < b; y++)
+	for (int x = 0; x < b; x++)
 	{
 		int idx = i++;
-		EXPECT_EQ(x, indices[idx].x);
-		EXPECT_EQ(y, indices[idx].y);
-		EXPECT_EQ(z, indices[idx].z);
+		EXPECT_EQ(bx*b + x, indices[idx].x);
+		EXPECT_EQ(by*b + y, indices[idx].y);
+		EXPECT_EQ(bz*b + z, indices[idx].z);
 	}
 }
 #endif // VCL_CUDA_SUPPORT

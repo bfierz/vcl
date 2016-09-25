@@ -36,7 +36,7 @@ public:
 		return blockSize*bIdx + x + y*BlockSize + z*BlockSize*BlockSize;
 #else
 		return x() + y()*X() + z()*X()*Y();
-#endif /* VCL_CUDA_BLOCK_GRID */
+#endif // VCL_CUDA_BLOCK_GRID
 	}
 
 	__device__ inline int operator() (int i, int j, int k) const
@@ -59,7 +59,7 @@ public:
 		return blockSize*bIdx + x + y*BlockSize + z*BlockSize*BlockSize;
 #else
 		return i + j*X() + k*X()*Y();
-#endif /* VCL_CUDA_BLOCK_GRID */
+#endif // VCL_CUDA_BLOCK_GRID
 	}
 
 	__device__ inline int x() const
@@ -72,7 +72,7 @@ public:
 		return x + X*BlockSize;
 #else
 		return 1 * blockIdx.x*blockDim.x + 1 * threadIdx.x;
-#endif /* VCL_CUDA_BLOCK_GRID */
+#endif // VCL_CUDA_BLOCK_GRID
 	}
 
 	__device__ inline int y() const
@@ -85,7 +85,7 @@ public:
 		return y + Y*BlockSize;
 #else
 		return 1 * blockIdx.y*blockDim.y + 1 * threadIdx.y;
-#endif /* VCL_CUDA_BLOCK_GRID */
+#endif // VCL_CUDA_BLOCK_GRID
 	}
 
 	__device__ inline int z() const
@@ -98,7 +98,7 @@ public:
 		return z * Z*BlockSize;
 #else
 		return 1 * blockIdx.z*blockDim.z + 1 * threadIdx.z;
-#endif /* VCL_CUDA_BLOCK_GRID */
+#endif // VCL_CUDA_BLOCK_GRID
 	}
 
 	__device__ inline int X() const
@@ -123,10 +123,10 @@ private:
 };
 
 template<int BlockSize>
-class GridBlockedIdx3D
+class GridBlockLinearIdx3D
 {
 public:
-	__device__ inline GridBlockedIdx3D(int x, int y, int z)
+	__device__ inline GridBlockLinearIdx3D(int x, int y, int z)
 	: _x(x)
 	, _y(y)
 	, _z(z)
@@ -137,28 +137,17 @@ public:
 	{
 		const int blockSize = BlockSize*BlockSize*BlockSize;
 
-		//int W = BlockSize / blockDim.x;
-		//int H = BlockSize / blockDim.y;
-		//int D = BlockSize / blockDim.z;
-
-		//int X = blockIdx.x / W;
-		//int Y = blockIdx.y / H;
-		//int Z = blockIdx.z / D;
-
 		int X = blockIdx.x;
 		int Y = blockIdx.y;
-		int Z = blockIdx.z / 2;
+		int Z = blockIdx.z;
 
 		// Compute the index of the grid-block
-		int bIdx = X + Y*BlockSize + Z*BlockSize*BlockSize;
+		int bIdx = X + Y*gridDim.x + Z*gridDim.x*gridDim.y;
 
 		// Compute the index within the block
-		//int x = blockDim.x * (blockIdx.x % W) + threadIdx.x;
-		//int y = blockDim.y * (blockIdx.y % H) + threadIdx.y;
-		//int z = blockDim.z * (blockIdx.z % D) + threadIdx.z;
 		int x = threadIdx.x;
 		int y = threadIdx.y;
-		int z = blockDim.z * (blockIdx.z % 2) + threadIdx.z;
+		int z = threadIdx.z;
 
 		return blockSize*bIdx + x + y*BlockSize + z*BlockSize*BlockSize;
 	}
@@ -167,39 +156,31 @@ public:
 	{
 		const int blockSize = BlockSize*BlockSize*BlockSize;
 
-		int X = i >> 3;// / BlockSize;
-		int Y = j >> 3;// / BlockSize;
-		int Z = k >> 3;// / BlockSize;
+		int X = i / BlockSize;
+		int Y = j / BlockSize;
+		int Z = k / BlockSize;
 
 		// Compute the index of the grid-block
 		int bIdx = X + Y*BlockSize + Z*BlockSize*BlockSize;
 
 		// Compute the index within the block
-		int x = i & 7;//% BlockSize;
-		int y = j & 7;//% BlockSize;
-		int z = k & 7;//% BlockSize;
+		int x = i % BlockSize;
+		int y = j % BlockSize;
+		int z = k % BlockSize;
 
 		return blockSize*bIdx + x + y*BlockSize + z*BlockSize*BlockSize;
 	}
 
 	__device__ inline int x() const
 	{
-		//int W = BlockSize / blockDim.x;
-		//int X = blockIdx.x / W;
-		//int x = blockDim.x * (blockIdx.x % W) + threadIdx.x;
-
 		int X = blockIdx.x;
 		int x = threadIdx.x;
 
-		return x + X*BlockSize;
+		return x + X*BlockSize;		
 	}
 
 	__device__ inline int y() const
 	{
-		//int H = BlockSize / blockDim.y;
-		//int Y = blockIdx.y / H;
-		//int y = blockDim.y * (blockIdx.y % H) + threadIdx.y;
-
 		int Y = blockIdx.y;
 		int y = threadIdx.y;
 
@@ -208,14 +189,10 @@ public:
 
 	__device__ inline int z() const
 	{
-		//int D = BlockSize / blockDim.z;
-		//int Z = blockIdx.z / D;
-		//int z = blockDim.z * (blockIdx.z % D) + threadIdx.z;
+		int Z = blockIdx.z;
+		int z = threadIdx.z;
 
-		int Z = blockIdx.z / 2;
-		int z = blockDim.z * (blockIdx.z % 2) + threadIdx.z;
-
-		return z * Z*BlockSize;
+		return z + Z*BlockSize;
 	}
 
 	__device__ inline int X() const
@@ -239,4 +216,4 @@ private:
 	int _z;
 };
 
-#endif /* VCL_COMPUTE_CUDA_GRID_CUH */
+#endif // VCL_COMPUTE_CUDA_GRID_CUH

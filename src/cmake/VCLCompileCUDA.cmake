@@ -61,7 +61,7 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 		OUTPUT ${output_file}
 
 		COMMAND ${VCVARS}
-		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --m64 ${include_dir_param} -L"${RT_DIR}" -l"${RT_FILE}" -o ${output_file} ${file_to_compile}
+		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)

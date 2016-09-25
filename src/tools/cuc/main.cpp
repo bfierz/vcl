@@ -202,7 +202,7 @@ int main(int argc, char* argv [])
 	namespace fs = boost::filesystem;
 #endif
 
-	cxxopts::Options options(argv[0], "clc - command line options");
+	cxxopts::Options options(argv[0], "cuc - command line options");
 
 	try
 	{
@@ -212,6 +212,8 @@ int main(int argc, char* argv [])
 			("m64", "Specify that this should be compiled in 64bit.")
 			("profile", "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
 			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
+			("L,library-path", "Additional library directory (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
+			("l,library", "Additional library (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
 			("symbol", "Name of the symbol used for the compiled module", cxxopts::value<std::string>())
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
@@ -309,16 +311,16 @@ int main(int argc, char* argv [])
 		}
 
 		// Link against CUDA libraries
-		if (vm.count("library-path"))
+		if (options.count("library-path"))
 		{
-			for (auto& path : vm["library-path"].as<std::vector<std::string>>())
+			for (auto& path : options["library-path"].as<std::vector<std::string>>())
 			{
 				cmd_link << "-L\"" << path << "\" ";
 			}
 		}
-		if (vm.count("library"))
+		if (options.count("library"))
 		{
-			for (auto& lib : vm["library"].as<std::vector<std::string>>())
+			for (auto& lib : options["library"].as<std::vector<std::string>>())
 			{
 				cmd_link << "-l\"" << lib<< "\" ";
 			}

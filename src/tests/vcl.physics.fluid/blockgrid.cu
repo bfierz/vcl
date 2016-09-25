@@ -14,7 +14,7 @@ __global__ void BlockLinearGridIndex
 )
 {
 	// Current index
-	GridBlockedIdx3D<8> idx(res.x, res.y, res.z);
+	GridBlockLinearIdx3D<8> idx(res.x, res.y, res.z);
 
 	const int i = idx.x();
 	const int j = idx.y();
