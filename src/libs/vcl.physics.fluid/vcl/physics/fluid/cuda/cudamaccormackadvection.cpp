@@ -67,14 +67,17 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 	{
 		using namespace Vcl::Compute::Cuda;
 
-		Advection::setSize(x, y, z);
+		if (this->x() != x || this->y() != y || this->z() != z)
+		{
+			Advection::setSize(x, y, z);
 
-		if (_intermediateBuffer)
-			context()->release(_intermediateBuffer);
+			if (_intermediateBuffer)
+				context()->release(_intermediateBuffer);
 
-		unsigned int cells = x * y * z;
-		unsigned int mem_size = cells * sizeof(float);
-		_intermediateBuffer = static_pointer_cast<Buffer>(context()->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size));
+			unsigned int cells = x * y * z;
+			unsigned int mem_size = cells * sizeof(float);
+			_intermediateBuffer = static_pointer_cast<Buffer>(context()->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size));
+		}
 	}
 
 	void MacCormackAdvection::operator()

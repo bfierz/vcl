@@ -63,7 +63,5 @@ namespace Vcl { namespace Physics { namespace Fluid
 		void copyBorderX(float* field, const Eigen::Vector3i& dim);
 		void copyBorderY(float* field, const Eigen::Vector3i& dim);
 		void copyBorderZ(float* field, const Eigen::Vector3i& dim);
-
-	private:
 	};
 }}}

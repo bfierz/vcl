@@ -116,9 +116,10 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->setBorderZero(*queue, *vel_curr_x, res);
 		grid->setBorderZero(*queue, *vel_curr_y, res);
 		grid->setBorderZero(*queue, *vel_curr_z, res);
-		grid->setBorderZero(*queue, *density_curr, res);
 
 		// Update the density field
+		// Move to update fields block
+		grid->setBorderZero(*queue, *density_curr, res);
 		{
 			const dim3 block_size(16, 4, 4);
 			dim3 grid_size(res_x / 16, res_y / 4, res_z / 4);
@@ -188,6 +189,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		}
 
 		// Add buoyancy
+		// Move block to compute force method
 		if (grid->heatDiffusion() > 0.0f)
 		{
 			grid->accumulate(*queue, *force_z, *heat_curr, grid->buoyancy());
@@ -205,6 +207,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Project into divergence free field
 		_poissonSolver->solve(g);
 
+		// Can be combined with top accumulate?
 		if (grid->heatDiffusion() > 0.0f)
 		{
 		//	diffuseHeat(dt);
@@ -220,11 +223,13 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 		// Advect from current to prev
 		const float dt0 = dt / grid->spacing();
-		(*_advection)(queue, dt0, grid, heat_curr,    heat_prev);
+		(*_advection)(queue, dt0, grid, vel_curr_x, vel_prev_x);
+		(*_advection)(queue, dt0, grid, vel_curr_y, vel_prev_y);
+		(*_advection)(queue, dt0, grid, vel_curr_z, vel_prev_z);
+
+		// Move to external advection block
+		(*_advection)(queue, dt0, grid, heat_curr, heat_prev);
 		(*_advection)(queue, dt0, grid, density_curr, density_prev);
-		(*_advection)(queue, dt0, grid, vel_curr_x,   vel_prev_x);
-		(*_advection)(queue, dt0, grid, vel_curr_y,   vel_prev_y);
-		(*_advection)(queue, dt0, grid, vel_curr_z,   vel_prev_z);
 
 		// Fix border in updated fields
 		grid->copyBorderX(*queue, *vel_prev_x, res);

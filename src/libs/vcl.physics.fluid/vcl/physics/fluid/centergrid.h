@@ -77,7 +77,7 @@ namespace Vcl { namespace Physics { namespace Fluid
 	{
 	public:
 		CenterGrid(const Eigen::Vector3i& resolution, float spacing, int blockSize);
-		virtual ~CenterGrid();
+		virtual ~CenterGrid() = default;
 
 	public:
 		const Eigen::Vector3i& resolution() const { return _resolution; }

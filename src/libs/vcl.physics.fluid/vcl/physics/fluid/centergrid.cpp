@@ -33,10 +33,6 @@ namespace Vcl { namespace Physics { namespace Fluid
 	{
 	}
 
-	CenterGrid::~CenterGrid()
-	{
-	}
-
 	DefaultCenterGrid::DefaultCenterGrid(const Eigen::Vector3i& resolution, float spacing)
 	: CenterGrid(resolution, spacing, -1)
 	{
