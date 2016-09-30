@@ -63,7 +63,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		//! Link to the owning CL context
 		Context* _ownerCtx{ nullptr };
 
-		//! CL memory object
+		//! Cuda memory object
 		CUdeviceptr _devicePtr{ 0 };
 	};
 }}}

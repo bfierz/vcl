@@ -29,6 +29,7 @@
 // C++ Standard Library
 
 // Include the relevant parts from the library
+#include <vcl/compute/cuda/buffer.h>
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/cuda/context.h>
 #include <vcl/compute/cuda/device.h>
@@ -74,6 +75,34 @@ TEST(Cuda, InitBuffer)
 
 	std::vector<unsigned int> result(32);
 	queue->read(result.data(), buffer, true);
+
+	for (unsigned int p : result)
+		EXPECT_EQ(pattern, p) << "Pattern was not set correctly";
+
+	Platform::dispose();
+}
+
+TEST(Cuda, InitUnifiedMemory)
+{
+	using namespace Vcl::Compute::Cuda;
+
+	Platform::initialise();
+	Platform* platform = Platform::instance();
+	const Device& device = platform->device(0);
+	auto ctx = Vcl::make_owner<Context>(device);
+	ctx->bind();
+
+	auto queue = ctx->createCommandQueue();
+	auto buffer = ctx->createBuffer(Vcl::Compute::BufferAccess::Unified, 128);
+
+	unsigned int pattern = 0xdeadbeef;
+	queue->fill(buffer, &pattern, sizeof(pattern));
+	queue->sync();
+	ctx->sync();
+
+	std::vector<unsigned int> result(32);
+	auto src_ptr = (const void*)(CUdeviceptr)*Vcl::static_pointer_cast<Vcl::Compute::Cuda::Buffer>(buffer);
+	memcpy(result.data(), src_ptr, 32*sizeof(unsigned int));
 
 	for (unsigned int p : result)
 		EXPECT_EQ(pattern, p) << "Pattern was not set correctly";

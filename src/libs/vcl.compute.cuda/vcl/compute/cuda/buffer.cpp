@@ -43,8 +43,16 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void Buffer::allocate()
 	{
-		// Allocate the required device memory
-		VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
+		if (hostAccess() == BufferAccess::Unified)
+		{
+			// Allocate the required memory
+			VCL_CU_SAFE_CALL(cuMemAllocManaged(&_devicePtr, size(), CU_MEM_ATTACH_GLOBAL));
+		}
+		else
+		{
+			// Allocate the required device memory
+			VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
+		}
 	}
 
 	void Buffer::free()
