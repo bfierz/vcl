@@ -69,14 +69,7 @@ namespace Vcl { namespace Util
 	};
 
 	class StringHash
-	{
-	public:
-		struct DynamicConstCharString
-		{
-			VCL_STRONG_INLINE DynamicConstCharString(const char* str) : str(str) {}
-			const char* str;
-		};
- 
+	{ 
 	public:
 		template <size_t N>
 		VCL_STRONG_INLINE StringHash(const char (&str)[N])
@@ -84,8 +77,8 @@ namespace Vcl { namespace Util
 		{
 		}
  
-		VCL_STRONG_INLINE StringHash(DynamicConstCharString str)	
-		: mHash(calculateFNV(str.str))
+		VCL_STRONG_INLINE StringHash(const gsl::cstring_span<> str)
+		: mHash(calculateFNV(str.data()))
 		{
 		}
 

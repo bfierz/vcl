@@ -24,6 +24,9 @@
  */
 #include <vcl/rtti/metatyperegistry.h>
 
+// VCL
+#include <vcl/util/hashedstring.h>
+
 namespace Vcl { namespace RTTI 
 {
 	TypeRegistry::TypeMap& TypeRegistry::instance()
@@ -54,7 +57,7 @@ namespace Vcl { namespace RTTI
 			metas.erase(itr);
 	}
 
-	const Type* TypeRegistry::get(const char* name)
+	const Type* TypeRegistry::get(const gsl::cstring_span<> name)
 	{
 		const TypeMap& metas = instance();
 

@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// GSL
+#include <string_span>
+
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
@@ -41,13 +44,12 @@ namespace Vcl { namespace RTTI
 	class AttributeBase
 	{
 	public:
-		AttributeBase(const char* name)
+		template<size_t N>
+		AttributeBase(const char (&name)[N])
 		: _name(name)
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
 		}
-
-		virtual ~AttributeBase() = default;
 
 	public:
 		virtual void set(void* object, const linb::any& param) const = 0;
@@ -60,7 +62,7 @@ namespace Vcl { namespace RTTI
 		virtual void deserialize(Deserializer& ser, void* object) = 0;
 
 	public:
-		const char* name() const { return _name; }
+		gsl::cstring_span<> name() const { return _name; }
 		size_t hash() const { return _hash; }
 		
 	public:
@@ -107,7 +109,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable attribute name
-		const char* _name;
+		gsl::cstring_span<> _name;
 
 		//! Attribute name hash
 		size_t _hash;

@@ -48,9 +48,9 @@ using json = nlohmann::json;
 class Serializer : public Vcl::RTTI::Serializer
 {
 public:
-	virtual void beginType(const char* name, int version) override
+	virtual void beginType(const gsl::cstring_span<> name, int version) override
 	{
-		_objects.emplace_back(_attrib, json{ {"Type", name },  { "Version", version } });
+		_objects.emplace_back(_attrib, json{ {"Type", name.data() },  { "Version", version } });
 	}
 
 	virtual void endType() override
@@ -68,15 +68,15 @@ public:
 		}
 	}
 
-	virtual void writeAttribute(const char* name, const std::string& value) override
+	virtual void writeAttribute(const gsl::cstring_span<> name, const gsl::cstring_span<> value) override
 	{
-		_attrib = name;
+		_attrib = name.data();
 		if (!_objects.empty())
 		{
-			_objects.back().second["Attributes"][name] = value;
+			_objects.back().second["Attributes"][name.data()] = value.data();
 		}
 
-		_attributes[name] = value;
+		_attributes[name.data()] = value.data();
 	}
 
 public:
@@ -102,10 +102,10 @@ private:
 	json _storage;
 
 	/// Stack of currently edited objects
-	std::vector<std::pair<const char*, json>> _objects;
+	std::vector<std::pair<const std::string, json>> _objects;
 
 	/// Current attribute
-	const char* _attrib{ "" };
+	std::string _attrib;
 };
 
 class Deserializer : public Vcl::RTTI::Deserializer
@@ -117,12 +117,12 @@ public:
 	}
 
 public:
-	virtual void beginType(const std::string& name) override
+	virtual void beginType(const gsl::cstring_span<> name) override
 	{
 		if (name.empty())
 			_object_stack.emplace_back(&_storage);
 		else
-			_object_stack.emplace_back(&(*_object_stack.back())["Attributes"][name]);
+			_object_stack.emplace_back(&(*_object_stack.back())["Attributes"][name.data()]);
 	}
 
 	virtual void endType() override
@@ -136,15 +136,15 @@ public:
 		return (*_object_stack.back())["Type"];
 	}
 
-	virtual bool hasAttribute(const std::string& name) override
+	virtual bool hasAttribute(const gsl::cstring_span<> name) override
 	{
 		auto& attribs = (*_object_stack.back())["Attributes"];
-		return attribs.find(name) != attribs.cend();
+		return attribs.find(name.data()) != attribs.cend();
 	}
 
-	virtual std::string readAttribute(const std::string& name) override
+	virtual std::string readAttribute(const gsl::cstring_span<> name) override
 	{
-		return (*_object_stack.back())["Attributes"][name];
+		return (*_object_stack.back())["Attributes"][name.data()];
 	}
 
 private:
@@ -457,7 +457,7 @@ TEST(RttiTest, SimpleObjectDeserialization)
 	::Deserializer loader(storage);
 	loader.beginType("");
 
-	void* obj_store = Factory::create(loader.readType().c_str());
+	void* obj_store = Factory::create(loader.readType());
 	BaseObject& obj = *reinterpret_cast<BaseObject*>(obj_store);
 
 	auto type = vcl_meta_type(obj);
@@ -517,7 +517,7 @@ TEST(RttiTest, ComplexObjectDeserialization)
 	::Deserializer loader(storage);
 
 	loader.beginType("");
-	void* obj_store = Factory::create(loader.readType().c_str());
+	void* obj_store = Factory::create(loader.readType());
 	DerivedObject& obj = *reinterpret_cast<DerivedObject*>(obj_store);
 
 	auto type = vcl_meta_type(obj);

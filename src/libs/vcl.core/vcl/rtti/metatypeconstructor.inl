@@ -67,8 +67,8 @@ namespace Vcl { namespace RTTI
 	}
 
 	template<typename T>
-	template<typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
+	template<size_t N, typename AttribT>
+	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
 	{
 		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
 			
@@ -78,8 +78,8 @@ namespace Vcl { namespace RTTI
 	}
 
 	template<typename T>
-	template<typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
+	template<size_t N, typename AttribT>
+	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
 	{
 		auto attrib = std::make_unique<Attribute<T, std::unique_ptr<AttribT>>>(name, getter, setter);
 
@@ -89,8 +89,8 @@ namespace Vcl { namespace RTTI
 	}
 
 	template<typename T>
-	template<typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
+	template<size_t N, typename AttribT>
+	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
 	{
 		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
 

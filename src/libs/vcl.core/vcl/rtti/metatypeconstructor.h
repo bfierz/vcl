@@ -43,11 +43,13 @@ namespace Vcl { namespace RTTI
 		using MetaType = T;
 
 	public:
-		ConstructableType(const char* name, size_t size, size_t alignment)
+		template<size_t N>
+		ConstructableType(const char(&name)[N], size_t size, size_t alignment)
 		: Type(name, size, alignment)
 		{
 		}
-		ConstructableType(const char* name, size_t hash, size_t size, size_t alignment)
+		template<size_t N>
+		ConstructableType(const char(&name)[N], size_t hash, size_t size, size_t alignment)
 		: Type(name, hash, size, alignment)
 		{
 		}
@@ -66,14 +68,14 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		ConstructableType<T>* addConstructor(Parameter<Args>... descriptors);
 
-		template<typename AttribT>
-		ConstructableType<T>* addAttribute(const char* name, AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
+		template<size_t N, typename AttribT>
+		ConstructableType<T>* addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
 
-		template<typename AttribT>
-		ConstructableType<T>* addAttribute(const char* name, AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
+		template<size_t N, typename AttribT>
+		ConstructableType<T>* addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
 
-		template<typename AttribT>
-		ConstructableType<T>* addAttribute(const char* name, const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
+		template<size_t N, typename AttribT>
+		ConstructableType<T>* addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
 		
 		virtual void destruct(void* ptr) const override
 		{

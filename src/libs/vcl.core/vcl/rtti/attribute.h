@@ -47,7 +47,14 @@ namespace Vcl { namespace RTTI
 	class Attribute : public AttributeBase
 	{
 	public:
-		Attribute(const char* name, const T& (MetaType::*getter)() const, void (MetaType::*setter)(const T&))
+		using Getter = T (MetaType::*)() const;
+		using Setter = void (MetaType::*)(T);
+		using RefGetter = const T& (MetaType::*)() const;
+		using RefSetter = void (MetaType::*)(const T&);
+
+	public:
+		template<size_t N>
+		Attribute(const char(&name)[N], RefGetter getter, RefSetter setter)
 		: AttributeBase(name)
 		, _getter(std::mem_fn(getter))
 		, _setter(std::mem_fn(setter))
@@ -57,7 +64,8 @@ namespace Vcl { namespace RTTI
 			if (getter != nullptr)
 				setHasGetter();
 		}
-		Attribute(const char* name, T (MetaType::*getter)() const, void (MetaType::*setter)(T))
+		template<size_t N>
+		Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(std::mem_fn(getter))
 		, _setter(std::mem_fn(setter))
@@ -137,27 +145,27 @@ namespace Vcl { namespace RTTI
 	{
 		using  AttrT = std::unique_ptr<T>;
 
+		using Getter = T*(MetaType::*)() const;
+		using Setter = void (MetaType::*)(AttrT);
+
 	public:
-		Attribute(const char* name, T* (MetaType::*getter)() const, void (MetaType::*setter)(AttrT))
+		template<size_t N>
+		Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
-		, _getter(std::mem_fn(getter))
-		, _setter(std::mem_fn(setter))
+		, _getter(getter)
+		, _setter(setter)
 		{
-			if (setter != nullptr)
-				setHasSetter();
-			if (getter != nullptr)
-				setHasGetter();
 		}
 		
 	public:
 		T* get(const MetaType& obj) const
 		{
-			return _getter(obj);
+			return (obj.*_getter)();
 		}
 
 		void set(MetaType& obj, AttrT val)
 		{
-			_setter(obj, std::move(val));
+			(obj.*_setter)(std::move(val));
 		}
 
 	public:
@@ -166,7 +174,7 @@ namespace Vcl { namespace RTTI
 			Require(object, "Object is set.");
 
 			auto ptr = linb::any_cast<T*>(param);
-			_setter(*static_cast<MetaType*>(object), std::unique_ptr<T>(ptr));
+			(static_cast<MetaType*>(object)->*_setter)(std::unique_ptr<T>(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
@@ -210,8 +218,8 @@ namespace Vcl { namespace RTTI
 			deser.beginType(name());
 
 			// Read content of the attribute
-			auto type = vcl_meta_type(deser.readType());
-			auto store = (MetaType*) Factory::create(deser.readType().c_str());
+			auto type = vcl_meta_type_by_name(deser.readType());
+			auto store = (MetaType*) Factory::create(deser.readType());
 			auto val = std::unique_ptr<T>(store);
 
 			type->deserialize(deser, val.get());
@@ -225,10 +233,10 @@ namespace Vcl { namespace RTTI
 
 	private:
 		/// Function pointer to the stored getter
-		std::function<T* (const MetaType&)> _getter;
+		Getter _getter;
 
 		/// Function pointer to the stored setter
-		std::function<void (MetaType&, AttrT)> _setter;
+		Setter _setter;
 	};
 	
 	/*template<typename MetaType, typename T>

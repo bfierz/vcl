@@ -27,24 +27,26 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL
+// GSL
+#include <string_span>
+
 namespace Vcl { namespace RTTI
 {
 	class Serializer
 	{
 	public:
-		virtual void beginType(const char* name, int version) = 0;
+		virtual void beginType(const gsl::cstring_span<> name, int version) = 0;
 
 		//! Denote that the current type is finished
 		virtual void endType() = 0;
 
-		virtual void writeAttribute(const char* name, const std::string& value) = 0;
+		virtual void writeAttribute(const gsl::cstring_span<>, const gsl::cstring_span<> value) = 0;
 	};
 
 	class Deserializer
 	{
 	public:
-		virtual void beginType(const std::string& name) = 0;
+		virtual void beginType(const gsl::cstring_span<> name) = 0;
 
 		//! Denote that the current type is finished
 		virtual void endType() = 0;
@@ -53,9 +55,9 @@ namespace Vcl { namespace RTTI
 		virtual std::string readType() = 0;
 
 		//! \returns true if the current object has the queried attribute
-		virtual bool hasAttribute(const std::string& name) = 0;
+		virtual bool hasAttribute(const gsl::cstring_span<> name) = 0;
 
 
-		virtual std::string readAttribute(const std::string& name) = 0;
+		virtual std::string readAttribute(const gsl::cstring_span<> name) = 0;
 	};
 }}
