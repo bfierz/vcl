@@ -90,6 +90,7 @@ namespace Vcl { namespace Physics { namespace Fluid
 		void setBuoyancy(float b) { _buoyancy = b; }
 
 		float heatDiffusion() const { return _heatDiffusion; }
+		void setHeatDiffusion(float d) { _heatDiffusion = d; }
 
 		float vorticityCoeff() const { return _vorticityCoeff; }
 		void setVorticityCoeff(float v) { _vorticityCoeff = v; }

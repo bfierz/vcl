@@ -273,7 +273,7 @@ int main(int argc, char* argv [])
 		std::stringstream cmd_link;
 
 		// Force a compiler version
-		cmd_compile << R"(--use-local-env --cl-version 2013 )";
+		//cmd_compile << R"(--use-local-env --cl-version 2013 )";
 
 		if (options.count("include"))
 		{

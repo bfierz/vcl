@@ -121,7 +121,9 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		virtual ~CenterGrid3DPoissonSolver();
 
 	public:
-		virtual void solve(Fluid::CenterGrid& g) override;
+		virtual void updateSolver(Fluid::CenterGrid& g) override;
+		virtual void makeDivergenceFree(Fluid::CenterGrid& g) override;
+		virtual void diffuseField(Fluid::CenterGrid& g, float diffusion_constant) override;
 
 	private: // Configurations
 

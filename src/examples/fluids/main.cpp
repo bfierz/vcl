@@ -59,18 +59,19 @@ int main(int argc, char* argv[])
 	Vcl::Physics::Fluid::Cuda::CenterGrid grid(ctx, Vcl::static_pointer_cast<Vcl::Compute::Cuda::CommandQueue>(ctx->defaultQueue()), Eigen::Vector3i(c, c, c), 1.0f);
 	grid.setBuoyancy(1);
 	grid.setVorticityCoeff(0.2f);
+	//grid.setHeatDiffusion(0.1f);
 	Vcl::Physics::Fluid::Cuda::EulerFluidSimulation solver(ctx);
 	//Vcl::Physics::Fluid::Cuda::EnergyDecomposition energy(ctx);
 	//Vcl::Physics::Fluid::Cuda::WaveletTrubulenceFluidSimulation noise(context);
 
 	std::vector<std::array<unsigned char, 4>> bitmap;
 	bitmap.resize(c * c);
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		solver.update(grid, 0.016f);
 		//energy.compute(grid);
 		
-		if (i > 900)
+		//if (i > 900)
 		{
 			std::vector<float> density(grid.densities(0)->size() / sizeof(float), 0.0f);
 			ctx->defaultQueue()->read(density.data(), grid.densities(0), true);

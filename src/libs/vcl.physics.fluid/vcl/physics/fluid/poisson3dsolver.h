@@ -41,7 +41,9 @@ namespace Vcl { namespace Physics { namespace Fluid
 		float residualLength() const { return _residualLength; }
 
 	public:
-		virtual void solve(Fluid::CenterGrid& g) = 0;
+		virtual void updateSolver(Fluid::CenterGrid& g) = 0;
+		virtual void makeDivergenceFree(Fluid::CenterGrid& g) = 0;
+		virtual void diffuseField(Fluid::CenterGrid& g, float diffusion_constant) = 0;
 
 	private: // Solver configuration
 

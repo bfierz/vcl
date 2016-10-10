@@ -204,13 +204,23 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		grid->accumulate(*queue, *vel_curr_y, *force_y, dt);
 		grid->accumulate(*queue, *vel_curr_z, *force_z, dt);
 		
+		// Prepare the solver
+		_poissonSolver->updateSolver(g);
+
 		// Project into divergence free field
-		_poissonSolver->solve(g);
+		_poissonSolver->makeDivergenceFree(g);
 
 		// Can be combined with top accumulate?
 		if (grid->heatDiffusion() > 0.0f)
 		{
-		//	diffuseHeat(dt);
+			grid->copyBorderX(*queue, *heat_prev, res);
+			grid->copyBorderY(*queue, *heat_prev, res);
+			grid->copyBorderZ(*queue, *heat_prev, res);
+
+			const float heat_const = dt * grid->heatDiffusion() / (grid->spacing() * grid->spacing());
+
+			// Diffuse the heat field
+			_poissonSolver->diffuseField(g, heat_const);
 		}
 
 		// Advect

@@ -325,7 +325,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		_ownerCtx->release(_divergence);
 	}
 
-	void CenterGrid3DPoissonSolver::solve(Fluid::CenterGrid& g)
+	void CenterGrid3DPoissonSolver::updateSolver(Fluid::CenterGrid& g)
 	{
 		Require(dynamic_cast<Cuda::CenterGrid*>(&g), "Grid is a CUDA grid.");
 
@@ -358,11 +358,54 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 			_divergence = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, mem_size)); _queue->setZero(_divergence);
 		}
 
+		dim3 block_size(16, 8, 1);
+		dim3 grid_size(x / block_size.x, y / block_size.y, z / block_size.z);
+		
+		// Problem domain
+		dim3 dimension(x, y, z);
+
 		// Fetch the internal solver buffers
 		auto& laplacian0 = *_laplacian[0];
 		auto& laplacian1 = *_laplacian[1];
 		auto& laplacian2 = *_laplacian[2];
 		auto& laplacian3 = *_laplacian[3];
+
+		// Fetch the grid data
+		const auto obstacles = grid->obstacles();
+
+		// Build the left hand side of the laplace equation
+		_buildLhs->run
+		(
+			*_queue,
+			grid_size,
+			block_size,
+			0,
+			laplacian0,
+			laplacian1,
+			laplacian2,
+			laplacian3,
+			obstacles,
+			0,
+			false,
+			dimension
+		);
+	}
+
+	void CenterGrid3DPoissonSolver::makeDivergenceFree(Fluid::CenterGrid& g)
+	{
+		Require(dynamic_cast<Cuda::CenterGrid*>(&g), "Grid is a CUDA grid.");
+
+		Cuda::CenterGrid* grid = dynamic_cast<Cuda::CenterGrid*>(&g);
+		if (!grid)
+			return;
+
+		int x = grid->resolution().x();
+		int y = grid->resolution().y();
+		int z = grid->resolution().z();
+		Check(x * y * z >= 0, "Dimensions are positive.");
+		Check(_laplacian[0]->size() < x * y * z * sizeof(float), "Not enough memory allocated");
+
+		// Fetch the internal solver buffers
 		auto& pressure   = *_pressure;
 		auto& divergence = *_divergence;
 		
@@ -420,23 +463,6 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				cellSize
 			);
 
-			// Build the left hand side of the laplace equation
-			_buildLhs->run
-			(
-				*_queue,
-				grid_size,
-				block_size,
-				0,
-				laplacian0,
-				laplacian1,
-				laplacian2,
-				laplacian3,
-				obstacles,
-				0,
-				false,
-				dimension
-			);
-
 			// Compute the pressure field
 			_solver->solve(_solverCtx.get());
 
@@ -456,6 +482,70 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 				invCellSize
 			);
 		}
+	}
+
+	void CenterGrid3DPoissonSolver::diffuseField(Fluid::CenterGrid& g, float diffusion_constant)
+	{
+		Require(dynamic_cast<Cuda::CenterGrid*>(&g), "Grid is a CUDA grid.");
+
+		Cuda::CenterGrid* grid = dynamic_cast<Cuda::CenterGrid*>(&g);
+		if (!grid)
+			return;
+
+		////////////////////////////////////////////////////////////////////////
+		int x = grid->resolution().x();
+		int y = grid->resolution().y();
+		int z = grid->resolution().z();
+		dim3 block_size(16, 8, 1);
+		dim3 grid_size(x / block_size.x, y / block_size.y, z / block_size.z);
+
+		// Problem domain
+		dim3 dimension(x, y, z);
+
+		// Fetch the internal solver buffers
+		auto& laplacian0 = *_laplacian[0];
+		auto& laplacian1 = *_laplacian[1];
+		auto& laplacian2 = *_laplacian[2];
+		auto& laplacian3 = *_laplacian[3];
+
+		// Fetch the grid data
+		const auto obstacles = grid->obstacles();
+
+		// Build the left hand side of the laplace equation
+		_buildLhs->run
+		(
+			*_queue,
+			grid_size,
+			block_size,
+			0,
+			laplacian0,
+			laplacian1,
+			laplacian2,
+			laplacian3,
+			obstacles,
+			diffusion_constant,
+			true,
+			dimension
+		);
+		////////////////////////////////////////////////////////////////////////
+
+		std::array<ref_ptr<Compute::Buffer>, 4> laplacian =
+		{
+			_laplacian[0],
+			_laplacian[1],
+			_laplacian[2],
+			_laplacian[3]
+		};
+		_solverCtx->setData
+		(
+			laplacian,
+			grid->obstacles(),
+			grid->heat(0),
+			grid->heat(1),
+			grid->resolution()
+		);
+
+		_solver->solve(_solverCtx.get());
 	}
 }}}}
 #endif // VCL_CUDA_SUPPORT
