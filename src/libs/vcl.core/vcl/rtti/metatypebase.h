@@ -37,6 +37,7 @@
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/rtti/constructorbase.h>
+#include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
@@ -142,6 +143,9 @@ namespace Vcl { namespace RTTI
 
 	protected: // List of type attributes
 		std::vector<std::unique_ptr<AttributeBase>> _attributes;
+
+	public:
+		gsl::span<const AttributeBase*> _attributeArray;
 
 	protected: // List of general methods
 		std::vector<const void*> _methods;

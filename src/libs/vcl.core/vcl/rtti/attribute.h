@@ -41,34 +41,39 @@
 #include <vcl/rtti/metatypelookup.h>
 #include <vcl/rtti/serializer.h>
 
+#define VCL_RTTI_ATTR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _attributes) = std::make_tuple(
+#define VCL_RTTI_ATTR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _attribute_bases) = convertToAttributeBaseArray(VCL_PP_JOIN(Object, _attributes));
+
 namespace Vcl { namespace RTTI 
 {
+	namespace detail
+	{
+		template<typename... Args, size_t... Is>
+		VCL_STRONG_INLINE auto convertToAttributeBaseArrayImpl(const std::tuple<Args...>& attributes, std::index_sequence<Is...>)
+		{
+			return std::array<const Vcl::RTTI::AttributeBase*, sizeof...(Args)>{ (&(std::get<Is>(attributes)))... };
+		}
+	}
+
+	template<typename... Args>
+	VCL_STRONG_INLINE auto convertToAttributeBaseArray(const std::tuple<Args...>& attributes)
+	{
+		return detail::convertToAttributeBaseArrayImpl(attributes, std::index_sequence_for<Args...>{});
+	}
+
 	template<typename MetaType, typename T>
 	class Attribute : public AttributeBase
 	{
 	public:
 		using Getter = T (MetaType::*)() const;
 		using Setter = void (MetaType::*)(T);
-		using RefGetter = const T& (MetaType::*)() const;
-		using RefSetter = void (MetaType::*)(const T&);
 
 	public:
 		template<size_t N>
-		Attribute(const char(&name)[N], RefGetter getter, RefSetter setter)
-		: AttributeBase(name)
-		, _getter(std::mem_fn(getter))
-		, _setter(std::mem_fn(setter))
-		{
-			if (setter != nullptr)
-				setHasSetter();
-			if (getter != nullptr)
-				setHasGetter();
-		}
-		template<size_t N>
 		Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
-		, _getter(std::mem_fn(getter))
-		, _setter(std::mem_fn(setter))
+		, _getter(getter)
+		, _setter(setter)
 		{
 			if (setter != nullptr)
 				setHasSetter();
@@ -77,14 +82,14 @@ namespace Vcl { namespace RTTI
 		}
 		
 	public:
-		const T& get(const MetaType& obj) const
+		T get(const MetaType& obj) const
 		{
-			return _getter(obj);
+			return (obj.*_getter)();
 		}
 
-		void set(MetaType& obj, const T& val)
+		void set(MetaType& obj, T val)
 		{
-			_setter(obj, val);
+			(obj.*_setter)(std::move(val));
 		}
 
 	public:
@@ -98,7 +103,93 @@ namespace Vcl { namespace RTTI
 		{
 			Require(_setter, "Setter is valid.");
 
-			_setter(*static_cast<MetaType*>(object), from_string<T>(param));
+			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
+		}
+		virtual void get(void* object, void* param, void* result) const override
+		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
+			DebugError("Not implemented.");
+
+			//_getter()
+		}
+		virtual void get(void* object, const std::string& param, void* result) const override
+		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			VCL_UNREFERENCED_PARAMETER(result);
+			DebugError("Not implemented.");
+		}
+
+		virtual void serialize(Serializer& ser, const void* object) override
+		{
+			T val = get(*static_cast<const MetaType*>(object));
+			std::string str = to_string(val);
+
+			ser.writeAttribute(name(), str);
+		}
+
+		virtual void deserialize(Deserializer& deser, void* object) override
+		{
+			Require(deser.hasAttribute(name()), "Attribute is available.");
+
+			set(object, deser.readAttribute(name()));
+		}
+
+	private:
+		//! Function pointer to the stored getter
+		Getter _getter;
+
+		//! Function pointer to the stored setter
+		Setter _setter;
+	};
+
+	template<typename MetaType, typename T>
+	class Attribute<MetaType, const T&> : public AttributeBase
+	{
+	public:
+		using  AttrT = const T&;
+
+		using Getter = AttrT (MetaType::*)() const;
+		using Setter = void (MetaType::*)(AttrT);
+
+	public:
+		template<size_t N>
+		Attribute(const char(&name)[N], Getter getter, Setter setter)
+		: AttributeBase(name)
+		, _getter(getter)
+		, _setter(setter)
+		{
+			if (setter != nullptr)
+				setHasSetter();
+			if (getter != nullptr)
+				setHasGetter();
+		}
+
+	public:
+		const T& get(const MetaType& obj) const
+		{
+			return (obj.*_getter)();
+		}
+
+		void set(MetaType& obj, const T& val)
+		{
+			(obj.*_setter)(std::move(val));
+		}
+
+	public:
+		virtual void set(void* object, const linb::any& param) const override
+		{
+			VCL_UNREFERENCED_PARAMETER(object);
+			VCL_UNREFERENCED_PARAMETER(param);
+			DebugError("Not implemented.");
+		}
+		virtual void set(void* object, const std::string& param) const override
+		{
+			Require(_setter, "Setter is valid.");
+
+			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
@@ -134,12 +225,12 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Function pointer to the stored getter
-		std::function<const T& (const MetaType&)> _getter;
+		Getter _getter;
 
 		//! Function pointer to the stored setter
-		std::function<void (MetaType&, const T&)> _setter;
+		Setter _setter;
 	};
-	
+
 	template<typename MetaType, typename T>
 	class Attribute<MetaType, std::unique_ptr<T>> : public AttributeBase
 	{
@@ -155,6 +246,10 @@ namespace Vcl { namespace RTTI
 		, _getter(getter)
 		, _setter(setter)
 		{
+			if (setter != nullptr)
+				setHasSetter();
+			if (getter != nullptr)
+				setHasGetter();
 		}
 		
 	public:
@@ -202,7 +297,7 @@ namespace Vcl { namespace RTTI
 
 		virtual void serialize(Serializer& ser, const void* object) override
 		{
-			// Print attribute
+			// Write attribute name
 			ser.writeAttribute(name(), "");
 
 			// Write content of the attribute

@@ -76,7 +76,13 @@ namespace Vcl { namespace RTTI
 
 		template<size_t N, typename AttribT>
 		ConstructableType<T>* addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
-		
+
+		template<size_t N>
+		void registerAttributes(std::array<const AttributeBase*, N>& attributes)
+		{
+			_attributeArray = attributes;
+		}
+
 		virtual void destruct(void* ptr) const override
 		{
 			static_cast<T*>(ptr)->~T();

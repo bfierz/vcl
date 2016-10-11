@@ -92,7 +92,7 @@ namespace Vcl { namespace RTTI
 	template<size_t N, typename AttribT>
 	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
 	{
-		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
+		auto attrib = std::make_unique<Attribute<T, const AttribT&>>(name, getter, setter);
 
 		_attributes.push_back(std::move(attrib));
 

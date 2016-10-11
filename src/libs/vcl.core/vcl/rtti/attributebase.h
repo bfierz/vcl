@@ -46,7 +46,7 @@ namespace Vcl { namespace RTTI
 	public:
 		template<size_t N>
 		AttributeBase(const char (&name)[N])
-		: _name(name)
+		: _name(name, N)
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
 		}
