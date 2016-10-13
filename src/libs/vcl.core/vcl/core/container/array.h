@@ -35,6 +35,10 @@
 #include <type_traits>
 
 #if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+namespace std
+{
+	using std::experimental::make_array;
+}
 #else
 ////////////////////////////////////////////////////////////////////////////////
 // http://en.cppreference.com/w/cpp/experimental/make_array
