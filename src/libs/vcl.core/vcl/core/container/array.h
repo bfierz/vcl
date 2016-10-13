@@ -27,14 +27,19 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+#	include <experimental/array>
+#endif
 #include <array>
 #include <tuple>
 #include <type_traits>
 
-namespace Vcl { namespace Core
+#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+#else
+////////////////////////////////////////////////////////////////////////////////
+// http://en.cppreference.com/w/cpp/experimental/make_array
+namespace std
 {
-	////////////////////////////////////////////////////////////////////////////////
-	// http://en.cppreference.com/w/cpp/experimental/make_array
 	namespace details
 	{
 		template<class> struct is_ref_wrapper : std::false_type {};
@@ -60,8 +65,12 @@ namespace Vcl { namespace Core
 	{
 		return{ std::forward<Types>(t)... };
 	}
-	////////////////////////////////////////////////////////////////////////////////
-
+}
+////////////////////////////////////////////////////////////////////////////////
+#endif
+	
+namespace Vcl { namespace Core
+{
 	namespace detail
 	{
 		template<typename T, typename... Args, size_t... Is>
