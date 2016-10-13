@@ -40,10 +40,14 @@
 #include <utility>
 
 // VCL
+#include <vcl/core/container/array.h>
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 #include <vcl/rtti/constructorbase.h>
+
+#define VCL_RTTI_CTOR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _constructors) = std::make_tuple(
+#define VCL_RTTI_CTOR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _constructor_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::ConstructorBase*>(VCL_PP_JOIN(Object, _constructors));
 
 namespace Vcl { namespace RTTI
 {
@@ -84,7 +88,7 @@ namespace Vcl { namespace RTTI
 			return new(location) T(std::forward<Params>(params)...);
 		}
 
-		virtual bool hasParam(const std::string& name) const override
+		virtual bool hasParam(const gsl::cstring_span<> name) const override
 		{
 			return hasParamImpl(_parameters, name);
 		}
@@ -132,11 +136,13 @@ namespace Vcl { namespace RTTI
 		{
 			Require(idx == 0, "Tuple with one element has index 0.");
 
+			VCL_UNREFERENCED_PARAMETER(idx);
+
 			return std::get<0>(tuple);
 		}
 
 		template<typename... Ts>
-		bool hasParamImpl(const std::tuple<Ts...>& tuple, const std::string& name) const
+		bool hasParamImpl(const std::tuple<Ts...>& tuple, const gsl::cstring_span<>& name) const
 		{
 			if (head(_parameters).data().name() == name)
 				return true;
@@ -145,7 +151,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		template<typename P>
-		bool hasParamImpl(const std::tuple<P>& tuple, const std::string& name) const
+		bool hasParamImpl(const std::tuple<P>& tuple, const gsl::cstring_span<>& name) const
 		{
 			return std::get<0>(tuple).data().name() == name;
 		}
@@ -173,7 +179,7 @@ namespace Vcl { namespace RTTI
 			return new(location) T;
 		}
 
-		virtual bool hasParam(const std::string& name) const override
+		virtual bool hasParam(const gsl::cstring_span<> name) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(name);
 			return false;
@@ -196,7 +202,9 @@ namespace Vcl { namespace RTTI
 		{
 			Require(params.size() == 0, "No parameters supplied.");
 
-			return new(location) T;
+			VCL_UNREFERENCED_PARAMETER(params);
+
+			return new(location) T();
 		}
 
 		ParameterBase _default{ { "Default" }, 0 };

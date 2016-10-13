@@ -53,20 +53,11 @@ namespace Vcl { namespace RTTI
 	public:
 		template<size_t N>
 		Type(const char(&name)[N], size_t size, size_t alignment)
-		: Type(name, Vcl::Util::StringHash(name).hash(), size, alignment)
+		: Type(gsl::ensure_z(name), Vcl::Util::StringHash(name).hash(), size, alignment)
 		{
 		}
 
-		template<size_t N>
-		Type(const char(&name)[N], size_t hash, size_t size, size_t alignment)
-		: _name(name)
-		, _hash(hash)
-		, _size(size)
-		, _alignment(alignment)
-		, _version(1)
-		{
-			TypeRegistry::add(this);
-		}
+		Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment);
 
 		Type(const Type&) = delete;
 		Type(Type&&);
@@ -88,7 +79,7 @@ namespace Vcl { namespace RTTI
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		gsl::span<const std::unique_ptr<AttributeBase>> attributes() const { return _attributes; }
+		gsl::span<const AttributeBase*> attributes() const { return _attributes; }
 
 		const ConstructorSet& constructors() const { return _constructors; }
 
@@ -135,19 +126,17 @@ namespace Vcl { namespace RTTI
 		//! Version number
 		int _version;
 		
-	protected: // List of parent types
-		std::vector<const Type*> _parents;
+	protected:
+		//! List of base types of this type
+		gsl::span<const Type*> _parents;
 
-	protected: // List of constructors for this type
+		//! List of constructors for this type
 		ConstructorSet _constructors;
 
-	protected: // List of type attributes
-		std::vector<std::unique_ptr<AttributeBase>> _attributes;
+		//! List of type attributes
+		gsl::span<const AttributeBase*> _attributes;
 
-	public:
-		gsl::span<const AttributeBase*> _attributeArray;
-
-	protected: // List of general methods
-		std::vector<const void*> _methods;
+		//! List of general methods
+		gsl::span<const void*> _methods;
 	};
 }}

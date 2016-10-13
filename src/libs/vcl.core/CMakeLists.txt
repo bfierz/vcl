@@ -36,6 +36,7 @@ SET(VCL_CORE_CONTAINER_SRC
 SET(VCL_CORE_CONTAINER_INL
 )
 SET(VCL_CORE_CONTAINER_INC
+	vcl/core/container/array.h
 	vcl/core/container/bitvector.h
 	vcl/core/container/bucketadapter.h
 )

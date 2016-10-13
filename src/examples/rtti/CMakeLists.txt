@@ -1,6 +1,8 @@
 PROJECT(simple_rtti)
 
 SET(SIMPLE_SRC
+	baseobject.cpp
+	baseobject.h
 	simple.cpp
 )
 

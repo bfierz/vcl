@@ -34,67 +34,73 @@ namespace Vcl { namespace RTTI
 {
 	template<typename T>
 	template<typename Args>
-	ConstructableType<T>* ConstructableType<T>::inherit()
+	DynamicConstructableType<T>* DynamicConstructableType<T>::inherit()
 	{
-		_parents.push_back(vcl_meta_type<Args>());
-		
+		_concreteParents.push_back(vcl_meta_type<Args>());
+		_parents = _concreteParents;
+
 		return this;
 	}
 
 	template<typename T>
-	ConstructableType<T>* ConstructableType<T>::addConstructor()
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addConstructor()
 	{
 		// Create an new constructor
 		auto constr = std::make_unique<Constructor<T>>();
 
 		// Store the constructor in the table
-		_constructors.add(std::move(constr));
+		_concreteConstructors.push_back(std::move(constr));
+		_constructors.set(_concreteConstructors);
 
 		return this;
 	}
 
 	template<typename T>
 	template<typename... Args>
-	ConstructableType<T>* ConstructableType<T>::addConstructor(Parameter<Args>... descriptors)
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addConstructor(Parameter<Args>... descriptors)
 	{
 		// Create an new constructor
 		auto constr = std::make_unique<Constructor<T, Args...>>(descriptors...);
 
 		// Store the constructor in the table
-		_constructors.add(std::move(constr));
+		_concreteConstructors.push_back(std::move(constr));
+		_constructors.set(_concreteConstructors);
 
 		return this;
 	}
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
 	{
 		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
-			
-		_attributes.push_back(std::move(attrib));
-		
+
+		_concreteAttributes.push_back(std::move(attrib));
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
+
 		return this;
 	}
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
 	{
 		auto attrib = std::make_unique<Attribute<T, std::unique_ptr<AttribT>>>(name, getter, setter);
 
-		_attributes.push_back(std::move(attrib));
+		_concreteAttributes.push_back(std::move(attrib));
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
 
 		return this;
 	}
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	ConstructableType<T>* ConstructableType<T>::addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
 	{
 		auto attrib = std::make_unique<Attribute<T, const AttribT&>>(name, getter, setter);
 
-		_attributes.push_back(std::move(attrib));
+		_concreteAttributes.push_back(std::move(attrib));
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
 
 		return this;
 	}

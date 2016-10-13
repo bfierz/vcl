@@ -92,6 +92,10 @@
 #		define thread_local __declspec(thread)
 #	endif /* _MSC_VER <= 1900 */
 
+// Enable constexpr on certain Microsoft compilers
+#	define VCL_CONSTEXPR_CPP11 constexpr
+#	define VCL_CONSTEXPR_CPP14
+
 #elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)
 #		define VCL_ABI_WINAPI
@@ -124,6 +128,9 @@
 #	if defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 #		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
+
+#	define VCL_CONSTEXPR_CPP11 constexpr
+#	define VCL_CONSTEXPR_CPP14 constexpr
 
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline

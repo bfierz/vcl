@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,67 +27,29 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard libary
-#include <cstring>
-#include <limits>
+// VCL
+#include <vcl/rtti/metatype.h>
 
-namespace Vcl { namespace Util
+class BaseObject
 {
-	// The implementation the following methods is based on:
-	// http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
+	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
 
-	VCL_STRONG_INLINE unsigned int calculateFNV(const char* str)
-	{
-		const size_t length = strlen(str) + 1;
-		unsigned int hash = 2166136261u;
+public:
+	BaseObject() = default;
+	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const BaseObject&) = delete;
+	virtual ~BaseObject() = default;
 
-		for (size_t i = 0; i < length; ++i)
-		{
-			hash ^= *str++;
-			hash *= 16777619u;
-		}
- 
-		return hash;
-	}
+	BaseObject& operator = (const BaseObject&) = delete;
 
-	template <unsigned int N, unsigned int I>
-	struct FnvHash
-	{
-		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
-		{
-			return (FnvHash<N, I-1>::hash(str) ^ str[I-1])*16777619u;
-		}
-	};
- 
-	template <unsigned int N>
-	struct FnvHash<N, 1>
-	{
-		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
-		{
-			return (2166136261u ^ str[0])*16777619u;
-		}
-	};
+public:
+	const std::string& name() const { return _name; }
+	void setName(const std::string& n) { _name = n; }
 
-	class StringHash
-	{ 
-	public:
-		template <size_t N>
-		VCL_STRONG_INLINE constexpr StringHash(const char (&str)[N])
-		: mHash(FnvHash<N, N>::hash(str))
-		{
-		}
- 
-		VCL_STRONG_INLINE StringHash(const gsl::cstring_span<> str)
-		: mHash(calculateFNV(str.data()))
-		{
-		}
+	int count() const { return _count; }
+	void setCount(int c) { _count = c; }
 
-		size_t hash() const
-		{
-			return mHash;
-		}
- 
-	private:
-		size_t mHash;
-	};
-}}
+private:
+	std::string _name{ "Initialized" };
+	int _count{ 0 };
+};

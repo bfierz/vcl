@@ -157,7 +157,7 @@ private:
 // Test classes
 class BaseObject
 {
-	VCL_DECLARE_METAOBJECT(BaseObject)
+	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
 
 public:
 	BaseObject() = default;
@@ -177,7 +177,7 @@ private:
 
 class AdditionalBase
 {
-	VCL_DECLARE_METAOBJECT(AdditionalBase)
+	VCL_DECLARE_ROOT_METAOBJECT(AdditionalBase)
 
 private:
 	std::string _additionalName{ "NoValue" };
@@ -224,24 +224,43 @@ private:
 	std::unique_ptr<BaseObject> _ownedObj;
 };
 
+
+VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Constructor<BaseObject>(),
+	Vcl::RTTI::Constructor<BaseObject, const char*>(Vcl::RTTI::Parameter<const char*>("Name"))
+VCL_RTTI_CTOR_TABLE_END(BaseObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName }
+VCL_RTTI_ATTR_TABLE_END(BaseObject)
+
 VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	type->addConstructor();
-	type->addConstructor(Parameter<const char*>("Name"));
-	type->addAttribute("Name", &BaseObject::name, &BaseObject::setName);
+	type->registerConstructors(BaseObject_constructor_bases);
+	type->registerAttributes(BaseObject_attribute_bases);
 }
 
 VCL_DEFINE_METAOBJECT(AdditionalBase)
 {
-
 }
+
+VCL_RTTI_SINGLE_BASE(DerivedObject, BaseObject)
+
+VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
+Vcl::RTTI::Constructor<DerivedObject>()
+VCL_RTTI_CTOR_TABLE_END(DerivedObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(DerivedObject)
+Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
+VCL_RTTI_ATTR_TABLE_END(DerivedObject)
 
 VCL_DEFINE_METAOBJECT(DerivedObject)
 {
-	type->addConstructor();
-	type->inherit<BaseObject>();
-	type->addAttribute("OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj);
+	type->registerBaseClasses(DerivedObject_parents);
+	type->registerConstructors(DerivedObject_constructor_bases);
+	type->registerAttributes(DerivedObject_attribute_bases);
 }
+
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -330,7 +349,7 @@ TEST(RttiTest, SimpleConstructableType)
 	using namespace Vcl::RTTI;
 
 	// Build the constructable type
-	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	DynamicConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
@@ -354,12 +373,12 @@ TEST(RttiTest, DerivedConstructableType)
 	using namespace Vcl::RTTI;
 
 	// Build the constructable type
-	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	DynamicConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
 
-	ConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
+	DynamicConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
 	type_d.inherit<BaseObject>();
 	type_d.inherit<AdditionalBase>();
 	type_d.addConstructor();
@@ -399,7 +418,7 @@ TEST(RttiTest, AttributeSimpleSetter)
 	BaseObject obj;
 
 	// Set an attribute
-	Attribute<BaseObject, std::string> attr{ "Name", &BaseObject::name, &BaseObject::setName };
+	Attribute<BaseObject, const std::string&> attr{ "Name", &BaseObject::name, &BaseObject::setName };
 	attr.set(&obj, std::string{ "String" });
 
 	// Expected output

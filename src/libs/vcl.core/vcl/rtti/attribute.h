@@ -33,6 +33,7 @@
 #include <string>
 
 // VCL
+#include <vcl/core/container/array.h>
 #include <vcl/core/3rdparty/any.hpp>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
@@ -42,25 +43,10 @@
 #include <vcl/rtti/serializer.h>
 
 #define VCL_RTTI_ATTR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _attributes) = std::make_tuple(
-#define VCL_RTTI_ATTR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _attribute_bases) = convertToAttributeBaseArray(VCL_PP_JOIN(Object, _attributes));
+#define VCL_RTTI_ATTR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _attribute_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::AttributeBase*>(VCL_PP_JOIN(Object, _attributes));
 
 namespace Vcl { namespace RTTI 
 {
-	namespace detail
-	{
-		template<typename... Args, size_t... Is>
-		VCL_STRONG_INLINE auto convertToAttributeBaseArrayImpl(const std::tuple<Args...>& attributes, std::index_sequence<Is...>)
-		{
-			return std::array<const Vcl::RTTI::AttributeBase*, sizeof...(Args)>{ (&(std::get<Is>(attributes)))... };
-		}
-	}
-
-	template<typename... Args>
-	VCL_STRONG_INLINE auto convertToAttributeBaseArray(const std::tuple<Args...>& attributes)
-	{
-		return detail::convertToAttributeBaseArrayImpl(attributes, std::index_sequence_for<Args...>{});
-	}
-
 	template<typename MetaType, typename T>
 	class Attribute : public AttributeBase
 	{
@@ -70,7 +56,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -87,7 +73,7 @@ namespace Vcl { namespace RTTI
 			return (obj.*_getter)();
 		}
 
-		void set(MetaType& obj, T val)
+		void set(MetaType& obj, T val) const
 		{
 			(obj.*_setter)(std::move(val));
 		}
@@ -122,7 +108,7 @@ namespace Vcl { namespace RTTI
 			DebugError("Not implemented.");
 		}
 
-		virtual void serialize(Serializer& ser, const void* object) override
+		virtual void serialize(Serializer& ser, const void* object) const override
 		{
 			T val = get(*static_cast<const MetaType*>(object));
 			std::string str = to_string(val);
@@ -130,7 +116,7 @@ namespace Vcl { namespace RTTI
 			ser.writeAttribute(name(), str);
 		}
 
-		virtual void deserialize(Deserializer& deser, void* object) override
+		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
 			Require(deser.hasAttribute(name()), "Attribute is available.");
 
@@ -156,7 +142,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -173,7 +159,7 @@ namespace Vcl { namespace RTTI
 			return (obj.*_getter)();
 		}
 
-		void set(MetaType& obj, const T& val)
+		void set(MetaType& obj, const T& val) const
 		{
 			(obj.*_setter)(std::move(val));
 		}
@@ -208,7 +194,7 @@ namespace Vcl { namespace RTTI
 			DebugError("Not implemented.");
 		}
 
-		virtual void serialize(Serializer& ser, const void* object) override
+		virtual void serialize(Serializer& ser, const void* object) const override
 		{
 			const auto& val = get(*static_cast<const MetaType*>(object));
 			std::string str = to_string(val);
@@ -216,7 +202,7 @@ namespace Vcl { namespace RTTI
 			ser.writeAttribute(name(), str);
 		}
 
-		virtual void deserialize(Deserializer& deser, void* object) override
+		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
 			Require(deser.hasAttribute(name()), "Attribute is available.");
 
@@ -241,7 +227,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -258,7 +244,7 @@ namespace Vcl { namespace RTTI
 			return (obj.*_getter)();
 		}
 
-		void set(MetaType& obj, AttrT val)
+		void set(MetaType& obj, AttrT val) const
 		{
 			(obj.*_setter)(std::move(val));
 		}
@@ -295,7 +281,7 @@ namespace Vcl { namespace RTTI
 			DebugError("Not implemented.");
 		}
 
-		virtual void serialize(Serializer& ser, const void* object) override
+		virtual void serialize(Serializer& ser, const void* object) const override
 		{
 			// Write attribute name
 			ser.writeAttribute(name(), "");
@@ -305,7 +291,7 @@ namespace Vcl { namespace RTTI
 			type->serialize(ser, object);
 		}
 
-		virtual void deserialize(Deserializer& deser, void* object) override
+		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
 			Require(deser.hasAttribute(name()), "Attribute is available.");
 

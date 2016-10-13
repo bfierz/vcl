@@ -29,38 +29,13 @@
 // C++ standard library
 #include <iostream>
 
-#include <array>
-#include <tuple>
-
 // VCL
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/metatype.h>
 #include <vcl/rtti/metatypeconstructor.inl>
 
 // Test classes
-class BaseObject
-{
-	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
-
-public:
-	BaseObject() = default;
-	BaseObject(const char* name) : _name(name) {}
-	BaseObject(const BaseObject&) = delete;
-	virtual ~BaseObject() = default;
-
-	BaseObject& operator = (const BaseObject&) = delete;
-
-public:
-	const std::string& name() const { return _name; }
-	void setName(const std::string& n) { _name = n; }
-
-	int count() const { return _count; }
-	void setCount(int c) { _count = c; }
-
-private:
-	std::string _name{ "Initialized" };
-	int _count{ 0 };
-};
+#include "baseobject.h"
 
 class AdditionalBase
 {
@@ -116,35 +91,42 @@ class ComplexDerivedObject : public DerivedObject, public AdditionalBase
 	VCL_DECLARE_METAOBJECT(ComplexDerivedObject)
 };
 
-VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
-	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName },
-	Vcl::RTTI::Attribute<BaseObject, int>{ "Count", &BaseObject::count, &BaseObject::setCount }
-VCL_RTTI_ATTR_TABLE_END(BaseObject)
-
-VCL_DEFINE_METAOBJECT(BaseObject)
-{
-	type->addConstructor();
-	type->addConstructor(Parameter<const char*>("Name"));
-
-	type->registerAttributes(BaseObject_attribute_bases);
-}
+VCL_RTTI_CTOR_TABLE_BEGIN(AdditionalBase)
+	Vcl::RTTI::Constructor<AdditionalBase>()
+VCL_RTTI_CTOR_TABLE_END(AdditionalBase)
 
 VCL_DEFINE_METAOBJECT(AdditionalBase)
 {
-	type->addConstructor();
+	type->registerConstructors(AdditionalBase_constructor_bases);
 }
+
+VCL_RTTI_SINGLE_BASE(DerivedObject, BaseObject)
+
+VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
+	Vcl::RTTI::Constructor<DerivedObject>()
+VCL_RTTI_CTOR_TABLE_END(DerivedObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(DerivedObject)
+	Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
+VCL_RTTI_ATTR_TABLE_END(DerivedObject)
 
 VCL_DEFINE_METAOBJECT(DerivedObject)
 {
-	type->addConstructor();
-	type->inherit<BaseObject>();
-	type->addAttribute("OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj);
+	type->registerBaseClasses(DerivedObject_parents);
+	type->registerConstructors(DerivedObject_constructor_bases);
+	type->registerAttributes(DerivedObject_attribute_bases);
 }
+
+VCL_RTTI_MULTIPLE_BASES(ComplexDerivedObject, DerivedObject, AdditionalBase)
+
+VCL_RTTI_CTOR_TABLE_BEGIN(ComplexDerivedObject)
+	Vcl::RTTI::Constructor<ComplexDerivedObject>()
+VCL_RTTI_CTOR_TABLE_END(ComplexDerivedObject)
 
 VCL_DEFINE_METAOBJECT(ComplexDerivedObject)
 {
-	type->addConstructor();
-	type->inherit<DerivedObject/*, AdditionalBase*/>();
+	type->registerBaseClasses(ComplexDerivedObject_parents);
+	type->registerConstructors(ComplexDerivedObject_constructor_bases);
 }
 
 int main(int, char**)
