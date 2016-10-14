@@ -244,7 +244,7 @@ VCL_DEFINE_METAOBJECT(AdditionalBase)
 {
 }
 
-VCL_RTTI_SINGLE_BASE(DerivedObject, BaseObject)
+VCL_RTTI_BASES(DerivedObject, BaseObject)
 
 VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
 Vcl::RTTI::Constructor<DerivedObject>()
