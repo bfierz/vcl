@@ -53,7 +53,7 @@ namespace Vcl { namespace RTTI
 	public:
 		template<size_t N>
 		Type(const char(&name)[N], size_t size, size_t alignment)
-		: Type(gsl::ensure_z(name), Vcl::Util::StringHash(name).hash(), size, alignment)
+		: Type({ name, N - 1 }, Vcl::Util::StringHash(name).hash(), size, alignment)
 		{
 		}
 

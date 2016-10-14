@@ -95,13 +95,13 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<int N>
-		constexpr ParameterMetaData(const char (&name)[N])
-		: _name(gsl::ensure_z(name))
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(const char (&name)[N])
+		: _name(name, N - 1)
 		{
 		}
 
-		constexpr ParameterMetaData(const ParameterMetaData& rhs) = default;
-		constexpr ParameterMetaData(ParameterMetaData&& rhs) = default;
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(const ParameterMetaData& rhs) = default;
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
 		gsl::cstring_span<> name() const { return _name; }
@@ -207,13 +207,10 @@ namespace Vcl { namespace RTTI
 	class ConstructorBase
 	{
 	protected:
-		constexpr ConstructorBase(int numParams)
+		VCL_CONSTEXPR_CPP11 ConstructorBase(int numParams)
 		: _numParams(numParams)
 		{
 		}
-
-	public:
-		virtual ~ConstructorBase() = default;
 
 	public:
 		//! Invoke the constructor without parameters
@@ -240,7 +237,7 @@ namespace Vcl { namespace RTTI
 		template<size_t N>
 		bool hasParam(const char(&name)[N])
 		{
-			return hasParam(gsl::ensure_z(name));
+			return hasParam(name, N - 1);
 		}
 
 		virtual bool hasParam(const gsl::cstring_span<> name) const = 0;
@@ -266,17 +263,17 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		void set(std::array<const ConstructorBase*, N>& constructors)
+		VCL_STRONG_INLINE void set(std::array<const ConstructorBase*, N>& constructors)
 		{
 			_constructors = constructors;
-			for (auto c : _constructors)
+			for (auto c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
 		}
-		void set(std::vector<std::unique_ptr<ConstructorBase>>& constructors)
+		VCL_STRONG_INLINE void set(std::vector<std::unique_ptr<ConstructorBase>>& constructors)
 		{
 			_constructors = { (const ConstructorBase**)constructors.data(), (std::ptrdiff_t) constructors.size() };
-			for (auto c : _constructors)
+			for (const auto& c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
 		}

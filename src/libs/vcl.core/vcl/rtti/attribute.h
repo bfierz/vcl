@@ -44,6 +44,7 @@
 
 #define VCL_RTTI_ATTR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _attributes) = std::make_tuple(
 #define VCL_RTTI_ATTR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _attribute_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::AttributeBase*>(VCL_PP_JOIN(Object, _attributes));
+#define VCL_RTTI_REGISTER_ATTRS(Object) type->registerAttributes(VCL_PP_JOIN(Object, _attribute_bases));
 
 namespace Vcl { namespace RTTI 
 {

@@ -29,8 +29,8 @@
 #include <vcl/rtti/metatypeconstructor.inl>
 
 VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
-	Vcl::RTTI::Constructor<BaseObject>(),
-	Vcl::RTTI::Constructor<BaseObject, const char*>(Vcl::RTTI::Parameter<const char*>("Name"))
+	Vcl::RTTI::Constructor<BaseObject>{},
+	Vcl::RTTI::Constructor<BaseObject, const char*>{ { "Name" } }
 VCL_RTTI_CTOR_TABLE_END(BaseObject)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
@@ -40,6 +40,6 @@ VCL_RTTI_ATTR_TABLE_END(BaseObject)
 
 VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	type->registerConstructors(BaseObject_constructor_bases);
-	type->registerAttributes(BaseObject_attribute_bases);
+	VCL_RTTI_REGISTER_CTORS(BaseObject);
+	VCL_RTTI_REGISTER_ATTRS(BaseObject);
 }

@@ -96,6 +96,9 @@
 #	define VCL_CONSTEXPR_CPP11 constexpr
 #	define VCL_CONSTEXPR_CPP14
 
+// STL support
+#	define VCL_STL_CHRONO
+
 #elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)
 #		define VCL_ABI_WINAPI
@@ -131,6 +134,11 @@
 
 #	define VCL_CONSTEXPR_CPP11 constexpr
 #	define VCL_CONSTEXPR_CPP14 constexpr
+
+// STL support
+//#	if __cplusplus >= 201103L
+#		define VCL_STL_CHRONO
+//#	endif
 
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline

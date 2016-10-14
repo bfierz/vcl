@@ -45,34 +45,41 @@ namespace Vcl { namespace Util
 #endif
 	void PreciseTimer::start()
 	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStartTime);
+#ifdef VCL_STL_CHRONO
+		_startTime = _clk.now();
+#elif defined VCL_ABI_WINAPI
+		QueryPerformanceCounter(&_startTime);
 #elif defined VCL_ABI_POSIX
-		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &mStartTime);
-#endif // VCL_ABI_WINAPI
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &_startTime);
+#endif // VCL_STL_CHRONO
 	}
 
 	void PreciseTimer::stop()
 	{
-#ifdef VCL_ABI_WINAPI
-		QueryPerformanceCounter(&mStopTime);
+#ifdef VCL_STL_CHRONO
+		_stopTime = _clk.now();
+#elif defined VCL_ABI_WINAPI
+		QueryPerformanceCounter(&_stopTime);
 #elif defined VCL_ABI_POSIX
-		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &mStopTime);
-#endif // VCL_ABI_WINAPI
+		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &_stopTime);
+#endif // VCL_STL_CHRONO
 	}
 
 	double PreciseTimer::interval(unsigned int nr_iterations) const
 	{
 		Require(nr_iterations > 0, "Number of iterations is at least 1.");
 
-#ifdef VCL_ABI_WINAPI
+#ifdef VCL_STL_CHRONO
+		auto diff = _stopTime - _startTime;
+		return std::chrono::duration<double, std::nano>(diff).count() / (double) nr_iterations;
+#elif defined VCL_ABI_WINAPI
 		LARGE_INTEGER freq;
 		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
 		
-		return ((double)(mStopTime.QuadPart - mStartTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
+		return ((double)(_stopTime.QuadPart - _startTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
 #elif defined VCL_ABI_POSIX
-		timespec thisdiff = diff(mStartTime, mStopTime);
+		timespec thisdiff = diff(_startTime, _stopTime);
 		return (double(size_t(1e9)*thisdiff.tv_sec) + double(thisdiff.tv_nsec)) / (double)nr_iterations;
-#endif // VCL_ABI_WINAPI
+#endif // VCL_STL_CHRONO
 	}
 }}

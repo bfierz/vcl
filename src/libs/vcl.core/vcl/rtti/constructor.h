@@ -48,6 +48,7 @@
 
 #define VCL_RTTI_CTOR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _constructors) = std::make_tuple(
 #define VCL_RTTI_CTOR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _constructor_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::ConstructorBase*>(VCL_PP_JOIN(Object, _constructors));
+#define VCL_RTTI_REGISTER_CTORS(Object) type->registerConstructors(VCL_PP_JOIN(Object, _constructor_bases));
 
 namespace Vcl { namespace RTTI
 {
@@ -79,8 +80,6 @@ namespace Vcl { namespace RTTI
 		, _parameters(std::make_tuple(std::forward<Parameter<Params>>(desc)...))
 		{
 		}
-
-		virtual ~Constructor() = default;
 
 	public:
 		T* call(void* location, Params... params) const
@@ -170,8 +169,6 @@ namespace Vcl { namespace RTTI
 		: ConstructorBase(NumParams)
 		{
 		}
-
-		virtual ~Constructor() = default;
 
 	public:
 		T* call(void* location)
