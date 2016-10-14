@@ -36,10 +36,7 @@
 #include <vcl/core/preprocessor.h>
 #include <vcl/rtti/metatypebase.h>
 
-#define VCL_RTTI_BASES_EXPAND_HELPER(name, n) , vcl_meta_type<name>()
-#define VCL_RTTI_BASES_EXPAND(b0, ...) vcl_meta_type<b0>() VCL_PP_VA_EXPAND_ARGS VCL_PP_PASS_VA(VCL_RTTI_BASES_EXPAND_HELPER, __VA_ARGS__)
-#define VCL_RTTI_MULTIPLE_BASES(Object, ...) auto VCL_PP_JOIN(Object, _parents) = std::make_array(VCL_RTTI_BASES_EXPAND VCL_PP_PASS_VA(__VA_ARGS__));
-#define VCL_RTTI_SINGLE_BASE(Object, base) auto VCL_PP_JOIN(Object, _parents) = std::make_array(vcl_meta_type<base>());
+#define VCL_RTTI_BASES(Object, ...) auto VCL_PP_JOIN(Object, _parents) = vcl_meta_types<__VA_ARGS__>();
 
 namespace Vcl { namespace RTTI 
 {

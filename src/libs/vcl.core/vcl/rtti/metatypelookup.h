@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ Standard Library
+#include <array>
+
 // VCL
 #include <vcl/rtti/metatype.h>
 
@@ -86,6 +89,12 @@ template<typename T>
 const Vcl::RTTI::Type* vcl_meta_type()
 {
 	return Vcl::RTTI::MetaTypeSingleton<T>::get();
+}
+
+template<typename... Types>
+auto vcl_meta_types()
+{
+	return std::array<const Vcl::RTTI::Type*, sizeof...(Types)>{ vcl_meta_type<Types>()... };
 }
 
 template<typename T>

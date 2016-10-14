@@ -32,6 +32,7 @@
 // VCL
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/metatype.h>
+#include <vcl/rtti/metatypelookup.h>
 #include <vcl/rtti/metatypeconstructor.inl>
 
 // Test classes
@@ -100,7 +101,7 @@ VCL_DEFINE_METAOBJECT(AdditionalBase)
 	type->registerConstructors(AdditionalBase_constructor_bases);
 }
 
-VCL_RTTI_SINGLE_BASE(DerivedObject, BaseObject)
+VCL_RTTI_BASES(DerivedObject, BaseObject)
 
 VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
 	Vcl::RTTI::Constructor<DerivedObject>()
@@ -117,7 +118,7 @@ VCL_DEFINE_METAOBJECT(DerivedObject)
 	type->registerAttributes(DerivedObject_attribute_bases);
 }
 
-VCL_RTTI_MULTIPLE_BASES(ComplexDerivedObject, DerivedObject, AdditionalBase)
+VCL_RTTI_BASES(ComplexDerivedObject, DerivedObject, AdditionalBase)
 
 VCL_RTTI_CTOR_TABLE_BEGIN(ComplexDerivedObject)
 	Vcl::RTTI::Constructor<ComplexDerivedObject>()
