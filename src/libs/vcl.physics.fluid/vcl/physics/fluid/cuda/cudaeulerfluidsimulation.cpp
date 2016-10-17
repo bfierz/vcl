@@ -120,20 +120,37 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Update the density field
 		// Move to update fields block
 		grid->setBorderZero(*queue, *density_curr, res);
+		grid->setBorderZero(*queue, *heat_curr, res);
 		{
 			const dim3 block_size(16, 4, 4);
 			dim3 grid_size(res_x / 16, res_y / 4, res_z / 4);
 
-			_updateDensity->run
-			(
-				*queue,
-				grid_size,
-				block_size,
-				0,
-				obstacles,
-				density_curr,
-				res
-			);
+			if (grid->heatDiffusion() > 0.0f)
+			{
+				_updateDensity->run
+				(
+					*queue,
+					grid_size,
+					block_size,
+					0,
+					obstacles,
+					heat_curr,
+					res
+				);
+			}
+			else
+			{
+				_updateDensity->run
+				(
+					*queue,
+					grid_size,
+					block_size,
+					0,
+					obstacles,
+					density_curr,
+					res
+				);
+			}
 		}
 
 		// Add vorticity 
