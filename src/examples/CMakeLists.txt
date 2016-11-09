@@ -1,4 +1,5 @@
 
+SUBDIRS(rtti)
 SUBDIRS(simd)
 
 IF(VCL_OPENGL_SUPPORT)

@@ -1,8 +1,8 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,46 +27,29 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard library
-#include <limits>
+// VCL
+#include <vcl/rtti/metatype.h>
 
-#ifdef VCL_STL_CHRONO
-#	include <chrono>
-#else
-	VCL_BEGIN_EXTERNAL_HEADERS
-#	ifdef VCL_ABI_WINAPI
-#		include <windows.h>
-#	elif defined(VCL_ABI_POSIX)
-#		include <inttypes.h>
-#		include <time.h>
-#	endif
-	VCL_END_EXTERNAL_HEADERS
-#endif // VCL_STL_CHRONO
-
-namespace Vcl { namespace Util
+class BaseObject
 {
-	class PreciseTimer
-	{
-	public:
-		void start();
-		void stop();
+	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
 
-		double interval(unsigned int nr_iterations = 1) const;
+public:
+	BaseObject() = default;
+	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const BaseObject&) = delete;
+	virtual ~BaseObject() = default;
 
-	private:
-#ifdef VCL_STL_CHRONO
-		//! High resolution clock
-		std::chrono::high_resolution_clock _clk;
+	BaseObject& operator = (const BaseObject&) = delete;
 
-		//! Time clock was started
-		std::chrono::high_resolution_clock::time_point _startTime;
+public:
+	const std::string& name() const { return _name; }
+	void setName(const std::string& n) { _name = n; }
 
-		//! Time clock was stopped
-		std::chrono::high_resolution_clock::time_point _stopTime;
-#elif defined(VCL_ABI_WINAPI)
-		LARGE_INTEGER _startTime, _stopTime;
-#elif defined(VCL_ABI_POSIX)
-		timespec _startTime, _stopTime;
-#endif // VCL_STL_CHRONO
-	};
-}}
+	int count() const { return _count; }
+	void setCount(int c) { _count = c; }
+
+private:
+	std::string _name{ "Initialized" };
+	int _count{ 0 };
+};

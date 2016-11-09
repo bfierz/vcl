@@ -45,8 +45,8 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<size_t N>
-		AttributeBase(const char (&name)[N])
-		: _name(name)
+		VCL_CONSTEXPR_CPP14 AttributeBase(const char (&name)[N])
+		: _name(name, N - 1)
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
 		}
@@ -58,8 +58,8 @@ namespace Vcl { namespace RTTI
 		virtual void get(void* object, void* param, void* result) const = 0;
 		virtual void get(void* object, const std::string& param, void* result) const = 0;
 
-		virtual void serialize(Serializer& ser, const void* object) = 0;
-		virtual void deserialize(Deserializer& ser, void* object) = 0;
+		virtual void serialize(Serializer& ser, const void* object) const = 0;
+		virtual void deserialize(Deserializer& ser, void* object) const = 0;
 
 	public:
 		gsl::cstring_span<> name() const { return _name; }

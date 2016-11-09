@@ -1,8 +1,8 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,51 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include "baseobject.h"
 
-// VCL configuration
-#include <vcl/config/global.h>
+// VCL
+#include <vcl/rtti/attribute.h>
+#include <vcl/rtti/metatypeconstructor.inl>
 
-// C++ standard library
-#include <limits>
+VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Constructor<BaseObject>{},
+	Vcl::RTTI::Constructor<BaseObject, const char*>{ { "Name" } }
+VCL_RTTI_CTOR_TABLE_END(BaseObject)
 
-#ifdef VCL_STL_CHRONO
-#	include <chrono>
-#else
-	VCL_BEGIN_EXTERNAL_HEADERS
-#	ifdef VCL_ABI_WINAPI
-#		include <windows.h>
-#	elif defined(VCL_ABI_POSIX)
-#		include <inttypes.h>
-#		include <time.h>
-#	endif
-	VCL_END_EXTERNAL_HEADERS
-#endif // VCL_STL_CHRONO
+VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName },
+	Vcl::RTTI::Attribute<BaseObject, int>{ "Count", &BaseObject::count, &BaseObject::setCount }
+VCL_RTTI_ATTR_TABLE_END(BaseObject)
 
-namespace Vcl { namespace Util
+VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	class PreciseTimer
-	{
-	public:
-		void start();
-		void stop();
-
-		double interval(unsigned int nr_iterations = 1) const;
-
-	private:
-#ifdef VCL_STL_CHRONO
-		//! High resolution clock
-		std::chrono::high_resolution_clock _clk;
-
-		//! Time clock was started
-		std::chrono::high_resolution_clock::time_point _startTime;
-
-		//! Time clock was stopped
-		std::chrono::high_resolution_clock::time_point _stopTime;
-#elif defined(VCL_ABI_WINAPI)
-		LARGE_INTEGER _startTime, _stopTime;
-#elif defined(VCL_ABI_POSIX)
-		timespec _startTime, _stopTime;
-#endif // VCL_STL_CHRONO
-	};
-}}
+	VCL_RTTI_REGISTER_CTORS(BaseObject);
+	VCL_RTTI_REGISTER_ATTRS(BaseObject);
+}
