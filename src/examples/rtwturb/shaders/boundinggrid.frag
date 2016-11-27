@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,40 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-#ifdef VCL_OPENGL_SUPPORT
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/texture.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace
 {
-	class Texture3D : public Texture
-	{
-	public:
-		Texture3D(const Texture3DDescription& desc, const TextureResource* init_data = nullptr);
-		virtual ~Texture3D();
+const char* frag_shader = R"glsl(
 
-	private:
-		void initialise(const TextureResource* init_data = nullptr);
+#version 430 core
+#extension GL_ARB_enhanced_layouts : enable
 
-	public:
-		virtual std::unique_ptr<Runtime::Texture> clone() const override;
+////////////////////////////////////////////////////////////////////////////////
+// Shader Input
+////////////////////////////////////////////////////////////////////////////////
+layout(location = 0) in VertexData
+{
+	vec3 Colour;
+} In;
 
-	public:
-		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { DebugError("Not implemented"); }
+////////////////////////////////////////////////////////////////////////////////
+// Shader Output
+////////////////////////////////////////////////////////////////////////////////
+layout(location = 0) out vec4 FragColour;
 
-	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) override;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
-		
-	public:
-		virtual void read(size_t size, void* data) const override;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+////////////////////////////////////////////////////////////////////////////////
+// Implementation
+////////////////////////////////////////////////////////////////////////////////
+void main(void)
+{
+	FragColour = vec4(In.Colour, 1);
+}
+)glsl";
+}

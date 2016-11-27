@@ -403,7 +403,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		int y = grid->resolution().y();
 		int z = grid->resolution().z();
 		Check(x * y * z >= 0, "Dimensions are positive.");
-		Check(_laplacian[0]->size() < x * y * z * sizeof(float), "Not enough memory allocated");
+		Check(_laplacian[0]->size() <= x * y * z * sizeof(float), "Not enough memory allocated");
 
 		// Fetch the internal solver buffers
 		auto& pressure   = *_pressure;
