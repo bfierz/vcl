@@ -169,7 +169,7 @@ namespace Vcl { namespace Util
 		/* Bound the support of the basis functions for this projection direction */
 		for (int i = 0; i < 3; i++)
 		{
-			support = 3.0f * abs(normal[i]) + 3.0f * sqrtf((1.0f - normal[i] * normal[i]) / 2.0f);
+			support = 3.0f * fabs(normal[i]) + 3.0f * sqrtf((1.0f - normal[i] * normal[i]) / 2.0f);
 			minimum[i] = (int)ceil(p[i] - support);
 			maximum[i] = (int)floor(p[i] + support);
 		}
