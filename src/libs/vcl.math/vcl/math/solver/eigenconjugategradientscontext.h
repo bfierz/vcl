@@ -57,7 +57,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	public:
 		virtual int size() const override
 		{
-			return _size;
+			return static_cast<int>(_size);
 		}
 
 		void setX(map_t* x)

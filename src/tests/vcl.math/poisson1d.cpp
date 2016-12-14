@@ -43,7 +43,7 @@ TEST(Poisson1D, SimpleJacobiNoBlockerIdentity)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	size_t nr_pts = createPoisson1DProblem(h, rhs, sol);
+	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol);
 
 	runPoissonTest<Jacobi, Poisson1DJacobiCtx<float>, unsigned int>(nr_pts, h, sol, rhs, sol, 1, 1e-5f);
 }
@@ -55,7 +55,7 @@ TEST(Poisson1D, SimpleJacobiNoBlocker)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	size_t nr_pts = createPoisson1DProblem(h, rhs, sol);
+	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol);
 
 	Eigen::VectorXf lhs; lhs.setZero(nr_pts);
 	runPoissonTest<Jacobi, Poisson1DJacobiCtx<float>, unsigned int>(nr_pts, h, lhs, rhs, sol, 500, 1e-3f);
@@ -67,7 +67,7 @@ TEST(Poisson1D, SimpleCgNoBlockerIdentity)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	size_t nr_pts = createPoisson1DProblem(h, rhs, sol);
+	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol);
 
 	runPoissonTest<ConjugateGradients, Poisson1DCgCtx<float>, unsigned int>(nr_pts, h, sol, rhs, sol, 1, 1e-5f);
 }
@@ -78,7 +78,7 @@ TEST(Poisson1D, SimpleCgNoBlocker)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	size_t nr_pts = createPoisson1DProblem(h, rhs, sol);
+	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol);
 
 	Eigen::VectorXf lhs; lhs.setZero(nr_pts);
 	runPoissonTest<ConjugateGradients, Poisson1DCgCtx<float>, unsigned int>(nr_pts, h, lhs, rhs, sol, nr_pts, 1e-3f);

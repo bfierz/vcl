@@ -139,7 +139,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 		//! Ends the solver and returns the residual
-		virtual void finish(double* residual) override {}
+		virtual void finish(double*) override {}
 
 	private:
 		//! Dimensions of the grid

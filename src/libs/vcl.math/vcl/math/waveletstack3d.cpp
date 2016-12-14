@@ -24,6 +24,9 @@
  */
 #include <vcl/math/waveletstack3d.h>
 
+// C++ standard library
+#include <cstring>
+
 namespace Vcl { namespace Mathematics
 {
 	////////////////////////////////////////////////////////////////////////

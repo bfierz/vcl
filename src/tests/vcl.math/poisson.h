@@ -36,10 +36,10 @@
 
 // Example with exact solution taken from
 // Burkardt - Jacobi Iterative Solution of Poisson's Equation in 1D
-inline size_t createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
 {
 	// Number of points
-	size_t nr_pts = 16;
+	unsigned int nr_pts = 16;
 
 	// Domain [0, 1]
 	h = 1.0f / static_cast<float>(nr_pts - 1);
@@ -57,12 +57,12 @@ inline size_t createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen::Vect
 	return nr_pts;
 }
 
-inline size_t createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
 {
 	using Vcl::Mathematics::pi;
 
 	// Number of points
-	size_t nr_pts = 16;
+	unsigned int nr_pts = 16;
 
 	// Domain [0, 1] x [0, 1]
 	h = 1.0f / static_cast<float>(nr_pts - 1);
@@ -84,12 +84,12 @@ inline size_t createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen::Vect
 	return nr_pts;
 }
 
-inline size_t createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
 {
 	using Vcl::Mathematics::pi;
 
 	// Number of points
-	size_t nr_pts = 16;
+	unsigned int nr_pts = 16;
 
 	// Domain [0, 1] x [0, 1] x [0, 1]
 	h = 1.0f / static_cast<float>(nr_pts - 1);

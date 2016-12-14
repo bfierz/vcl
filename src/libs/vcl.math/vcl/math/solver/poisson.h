@@ -35,7 +35,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	(
 		unsigned int dim,
 		Real h,
-		Real k,
+		Real a,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -43,7 +43,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	)
 	{
 		// Scaling of the stencil
-		const Real s = k / (h*h);
+		const Real s = a / (h*h);
 
 		Ac.setZero();
 		Ax_l.setZero();
@@ -82,7 +82,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	(
 		Eigen::Vector2ui dim,
 		Real h,
-		Real k,
+		Real a,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -92,7 +92,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	)
 	{
 		// Scaling of the stencil
-		const Real s = k / (h*h);
+		const Real s = a / (h*h);
 
 		Ac.setZero();
 		Ax_l.setZero();
@@ -151,7 +151,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	(
 		Eigen::Vector3ui dim,
 		Real h,
-		Real k,
+		Real a,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -163,7 +163,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	)
 	{
 		// Scaling of the stencil
-		const Real s = k / (h*h);
+		const Real s = a / (h*h);
 
 		Ac.setZero();
 		Ax_l.setZero();
