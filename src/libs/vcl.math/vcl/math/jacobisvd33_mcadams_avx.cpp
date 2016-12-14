@@ -102,7 +102,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_COMPILER_MSVC
 #	pragma warning(default: 4700)
 #	pragma runtime_checks("u", restore)
-#elif VCL_COMPILER_GNU
+#elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic pop
 #endif
 }}
