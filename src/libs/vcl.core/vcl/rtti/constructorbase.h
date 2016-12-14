@@ -95,30 +95,19 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<int N>
-		ParameterMetaData(const char (&name)[N])
-		: _name(name)
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(const char (&name)[N])
+		: _name(name, N - 1)
 		{
 		}
 
-		ParameterMetaData(const ParameterMetaData& rhs)
-		: _name(rhs._name)
-		{
-		}
-
-		ParameterMetaData(ParameterMetaData&& rhs)
-		{
-			std::swap(_name, rhs._name);
-		}
-
-		~ParameterMetaData()
-		{
-		}
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(const ParameterMetaData& rhs) = default;
+		VCL_CONSTEXPR_CPP11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
 		gsl::cstring_span<> name() const { return _name; }
 
 	private:
-		gsl::cstring_span<> _name;
+		const gsl::cstring_span<> _name;
 	};
 
 	class ParameterBase
@@ -159,7 +148,10 @@ namespace Vcl { namespace RTTI
 		}
 
 	private:
-		ParameterMetaData _metaData;
+		//! Meta data describing the parameter
+		const ParameterMetaData _metaData;
+
+		//! C++ RTTI object
 		const std::type_info* _type;
 	};
 
@@ -184,7 +176,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		Parameter(ParameterMetaData meta_data)
-			: ParameterBase(std::move(meta_data), &typeid(T*))
+		: ParameterBase(std::move(meta_data), &typeid(T*))
 		{
 		}
 
@@ -215,13 +207,10 @@ namespace Vcl { namespace RTTI
 	class ConstructorBase
 	{
 	protected:
-		ConstructorBase(int numParams)
+		VCL_CONSTEXPR_CPP11 ConstructorBase(int numParams)
 		: _numParams(numParams)
 		{
 		}
-
-	public:
-		virtual ~ConstructorBase() = default;
 
 	public:
 		//! Invoke the constructor without parameters
@@ -245,7 +234,13 @@ namespace Vcl { namespace RTTI
 		//! Query the parameters of this constructor
 		int numParams() const { return _numParams; }
 
-		virtual bool hasParam(const std::string& name) const = 0;
+		template<size_t N>
+		bool hasParam(const char(&name)[N])
+		{
+			return hasParam(name, N - 1);
+		}
+
+		virtual bool hasParam(const gsl::cstring_span<> name) const = 0;
 
 		virtual const ParameterBase& param(int idx) const = 0;
 		virtual const std::type_info* paramType(int idx) const = 0;
@@ -267,14 +262,20 @@ namespace Vcl { namespace RTTI
 		bool hasStandardConstructor() const { return _hasStandardConstructor;  }
 
 	public:
-		void add(std::unique_ptr<ConstructorBase> constr)
+		template<size_t N>
+		VCL_STRONG_INLINE void set(std::array<const ConstructorBase*, N>& constructors)
 		{
-			Require(implies(constr->numParams() == 0, _hasStandardConstructor == false), "Standard constructor is not set.");
-
-			if (constr->numParams() == 0)
-				_hasStandardConstructor = true;
-
-			_constructors.push_back(std::move(constr));
+			_constructors = constructors;
+			for (auto c : constructors)
+				if (c->numParams() == 0)
+					_hasStandardConstructor = true;
+		}
+		VCL_STRONG_INLINE void set(std::vector<std::unique_ptr<ConstructorBase>>& constructors)
+		{
+			_constructors = { (const ConstructorBase**)constructors.data(), (std::ptrdiff_t) constructors.size() };
+			for (const auto& c : constructors)
+				if (c->numParams() == 0)
+					_hasStandardConstructor = true;
 		}
 
 		void call(void* location) const
@@ -296,12 +297,14 @@ namespace Vcl { namespace RTTI
 		{
 			for (auto& constr : _constructors)
 			{
-				if (checkArgs<Args...>(constr.get()))
+				if (checkArgs<Args...>(constr))
 				{
 					constr->call(location, args...);
 					return;
 				}
 			}
+
+			throw std::runtime_error{ "No compatible ctor was not found." };
 		}
 
 	private:
@@ -335,7 +338,10 @@ namespace Vcl { namespace RTTI
 		}
 
 	private:
-		std::vector<std::unique_ptr<ConstructorBase>> _constructors;
+		//! List of registered ctor's
+		gsl::span<const ConstructorBase*> _constructors;
+
+		//! Indicate whether a standard ctor is available
 		bool _hasStandardConstructor{ false };
 	};
 }}

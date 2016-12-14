@@ -33,7 +33,10 @@
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/preprocessor.h>
 #include <vcl/rtti/metatypebase.h>
+
+#define VCL_RTTI_BASES(Object, ...) auto VCL_PP_JOIN(Object, _parents) = vcl_meta_types<__VA_ARGS__>();
 
 namespace Vcl { namespace RTTI 
 {
@@ -48,38 +51,72 @@ namespace Vcl { namespace RTTI
 		: Type(name, size, alignment)
 		{
 		}
+		ConstructableType(ConstructableType&& rhs) = default;
+
+	public:		
 		template<size_t N>
-		ConstructableType(const char(&name)[N], size_t hash, size_t size, size_t alignment)
-		: Type(name, hash, size, alignment)
+		void registerBaseClasses(std::array<const Type*, N>& bases)
 		{
+			_parents = bases;
 		}
-		ConstructableType(ConstructableType&& rhs)
-		: Type(std::move(rhs))
+
+		template<size_t N>
+		void registerConstructors(std::array<const ConstructorBase*, N>& constructors)
 		{
+			_constructors.set(constructors);
 		}
-		~ConstructableType() = default;
 
-	public:
-		template<typename Args>
-		ConstructableType<T>* inherit();
-		
-		ConstructableType<T>* addConstructor();
+		template<size_t N>
+		void registerAttributes(std::array<const AttributeBase*, N>& attributes)
+		{
+			_attributes = attributes;
+		}
 
-		template<typename... Args>
-		ConstructableType<T>* addConstructor(Parameter<Args>... descriptors);
-
-		template<size_t N, typename AttribT>
-		ConstructableType<T>* addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
-
-		template<size_t N, typename AttribT>
-		ConstructableType<T>* addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
-
-		template<size_t N, typename AttribT>
-		ConstructableType<T>* addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
-		
 		virtual void destruct(void* ptr) const override
 		{
 			static_cast<T*>(ptr)->~T();
 		}
+	};
+
+	template<typename T>
+	class DynamicConstructableType : public Type
+	{
+		using MetaType = T;
+
+	public:
+		template<size_t N>
+		DynamicConstructableType(const char(&name)[N], size_t size, size_t alignment)
+		: Type(name, size, alignment)
+		{
+		}
+		DynamicConstructableType(DynamicConstructableType&& rhs) = default;
+
+	public:
+		template<typename Args>
+		DynamicConstructableType<T>* inherit();
+
+		DynamicConstructableType<T>* addConstructor();
+		
+		template<typename... Args>
+		DynamicConstructableType<T>* addConstructor(Parameter<Args>... descriptors);
+
+		template<size_t N, typename AttribT>
+		DynamicConstructableType<T>* addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
+
+		template<size_t N, typename AttribT>
+		DynamicConstructableType<T>* addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
+
+		template<size_t N, typename AttribT>
+		DynamicConstructableType<T>* addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
+
+		virtual void destruct(void* ptr) const override
+		{
+			static_cast<T*>(ptr)->~T();
+		}
+
+	private:
+		std::vector<const Type*> _concreteParents;
+		std::vector<std::unique_ptr<ConstructorBase>> _concreteConstructors;
+		std::vector<std::unique_ptr<AttributeBase>> _concreteAttributes;
 	};
 }}

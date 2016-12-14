@@ -71,6 +71,13 @@ namespace Vcl
 	{
 		return std::stoi(value);
 	}
+
+	template<>
+	inline std::string to_string<int>(const int& value)
+	{
+		return std::to_string(value);
+	}
+
 	
 	template<>
 	inline Eigen::Vector2f from_string<Eigen::Vector2f>(const std::string& value)
