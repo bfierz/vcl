@@ -48,19 +48,14 @@ namespace Vcl { namespace RTTI
 		static void remove(const Type* meta);
 
 		/// Find an instance of a meta type object by name
-		static const Type* get(const char* name);
+		static const Type* get(const gsl::cstring_span<> name);
 
 	private:
 		static TypeMap& instance();
 	};
 }}
 
-inline const Vcl::RTTI::Type* vcl_meta_type(const char* name)
+inline const Vcl::RTTI::Type* vcl_meta_type_by_name(const gsl::cstring_span<> name)
 {
 	return Vcl::RTTI::TypeRegistry::get(name);
-}
-
-inline const Vcl::RTTI::Type* vcl_meta_type(const std::string& name)
-{
-	return Vcl::RTTI::TypeRegistry::get(name.c_str());
 }

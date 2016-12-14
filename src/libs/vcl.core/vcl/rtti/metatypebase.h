@@ -30,11 +30,13 @@
 // C++ standard library
 #include <vector>
 
+// GSL
+#include <span>
+#include <string_span>
+
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
-#include <span>
 #include <vcl/rtti/constructorbase.h>
-#include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
@@ -48,8 +50,23 @@ namespace Vcl { namespace RTTI
 	class Type
 	{
 	public:
-		Type(const char* name, size_t size, size_t alignment);
-		Type(const char* name, size_t hash, size_t size, size_t alignment);
+		template<size_t N>
+		Type(const char(&name)[N], size_t size, size_t alignment)
+		: Type(name, Vcl::Util::StringHash(name).hash(), size, alignment)
+		{
+		}
+
+		template<size_t N>
+		Type(const char(&name)[N], size_t hash, size_t size, size_t alignment)
+		: _name(name)
+		, _hash(hash)
+		, _size(size)
+		, _alignment(alignment)
+		, _version(1)
+		{
+			TypeRegistry::add(this);
+		}
+
 		Type(const Type&) = delete;
 		Type(Type&&);
 		virtual ~Type();
@@ -58,14 +75,14 @@ namespace Vcl { namespace RTTI
 		Type& operator= (const Type&) = delete;
 
 	public: // Properties
-		const char* name() const { return _name; }
+		gsl::cstring_span<> name() const { return _name; }
 		size_t hash() const { return _hash; }
 
 		size_t nrParents() const { return _parents.size(); }
 		const Type* const* parents() const { return _parents.data(); }
 
-		bool hasAttribute(const char* name) const;
-		const AttributeBase* attribute(const char* name) const;
+		bool hasAttribute(const gsl::cstring_span<> name) const;
+		const AttributeBase* attribute(const gsl::cstring_span<> name) const;
 
 		/*!
 		 * \brief Access the list of all attributes
@@ -103,7 +120,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable type name
-		const char* _name;
+		gsl::cstring_span<> _name;
 
 		//! Hash of the type name
 		size_t _hash;

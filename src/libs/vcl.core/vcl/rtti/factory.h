@@ -37,10 +37,10 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<typename... Args>
-		static void* create(const char* name, Args... args)
+		static void* create(const gsl::cstring_span<> name, Args... args)
 		{
 			// Get the meta type
-			auto type = vcl_meta_type(name);
+			auto type = vcl_meta_type_by_name(name);
 
 			// Type is available
 			if (!type)
