@@ -50,8 +50,8 @@ namespace Vcl { namespace Util
 		Eigen::Vector3f evaluate(const float p[3]) const;
 
 	public: // Access
-		const int size() const { return N; }
-		const void noiseData(const float** n1, const float** n2, const float** n3) const
+		int size() const { return N; }
+		void noiseData(const float** n1, const float** n2, const float** n3) const
 		{
 			*n1 = _noise1->getNoiseTileData();
 			*n2 = _noise2->getNoiseTileData();

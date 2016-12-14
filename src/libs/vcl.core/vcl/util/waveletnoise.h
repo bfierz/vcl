@@ -76,7 +76,7 @@ namespace Vcl { namespace Util
 
 	public: // Access
 		int getNoiseTileSize() const { return N; }
-		float* getNoiseTileData() const { return _noiseTileData.data(); }
+		const float* getNoiseTileData() const { return _noiseTileData.data(); }
 
 	private: // Helper methods
 		static void downsample(float* from, float* to, int n, int stride);
