@@ -49,7 +49,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks("u", off)
 #	pragma warning(disable: 4700)
-#elif VCL_COMPILER_GNU
+#elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
 #endif

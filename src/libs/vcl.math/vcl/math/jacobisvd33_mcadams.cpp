@@ -50,7 +50,7 @@ namespace Vcl { namespace Mathematics
 // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks( "u", off )
-#elif VCL_COMPILER_GNU
+#elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
