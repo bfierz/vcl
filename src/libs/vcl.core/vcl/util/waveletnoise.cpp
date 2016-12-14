@@ -25,7 +25,8 @@
 #define VCL_UTIL_WAVELETNOISE_INST
 #include <vcl/util/waveletnoise.h>
 
- // C++ standard libary
+ // C++ standard library
+#include <cmath>
 #include <random>
 
 namespace Vcl { namespace Util

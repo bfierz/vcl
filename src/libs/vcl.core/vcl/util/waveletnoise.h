@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// C++ standard libary
+// C++ standard library
 #include <vector>
 
 // VCL
@@ -75,8 +75,8 @@ namespace Vcl { namespace Util
 		float maxValue() const { return _max; }
 
 	public: // Access
-		const int getNoiseTileSize() const { return N; }
-		const float* getNoiseTileData() const { return _noiseTileData.data(); }
+		int getNoiseTileSize() const { return N; }
+		float* getNoiseTileData() const { return _noiseTileData.data(); }
 
 	private: // Helper methods
 		static void downsample(float* from, float* to, int n, int stride);
