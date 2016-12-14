@@ -30,9 +30,12 @@
 // C++ standard library
 #include <vector>
 
+// GSL
+#include <span>
+#include <string_span>
+
 // VCL
 #include <vcl/core/3rdparty/any.hpp>
-#include <span>
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
@@ -48,8 +51,14 @@ namespace Vcl { namespace RTTI
 	class Type
 	{
 	public:
-		Type(const char* name, size_t size, size_t alignment);
-		Type(const char* name, size_t hash, size_t size, size_t alignment);
+		template<size_t N>
+		Type(const char(&name)[N], size_t size, size_t alignment)
+		: Type({ name, N - 1 }, Vcl::Util::StringHash(name).hash(), size, alignment)
+		{
+		}
+
+		Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment);
+
 		Type(const Type&) = delete;
 		Type(Type&&);
 		virtual ~Type();
@@ -58,19 +67,19 @@ namespace Vcl { namespace RTTI
 		Type& operator= (const Type&) = delete;
 
 	public: // Properties
-		const char* name() const { return _name; }
+		gsl::cstring_span<> name() const { return _name; }
 		size_t hash() const { return _hash; }
 
 		size_t nrParents() const { return _parents.size(); }
 		const Type* const* parents() const { return _parents.data(); }
 
-		bool hasAttribute(const char* name) const;
-		const AttributeBase* attribute(const char* name) const;
+		bool hasAttribute(const gsl::cstring_span<> name) const;
+		const AttributeBase* attribute(const gsl::cstring_span<> name) const;
 
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		gsl::span<const std::unique_ptr<AttributeBase>> attributes() const { return _attributes; }
+		gsl::span<const AttributeBase*> attributes() const { return _attributes; }
 
 		const ConstructorSet& constructors() const { return _constructors; }
 
@@ -103,7 +112,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable type name
-		const char* _name;
+		gsl::cstring_span<> _name;
 
 		//! Hash of the type name
 		size_t _hash;
@@ -117,16 +126,17 @@ namespace Vcl { namespace RTTI
 		//! Version number
 		int _version;
 		
-	protected: // List of parent types
-		std::vector<const Type*> _parents;
+	protected:
+		//! List of base types of this type
+		gsl::span<const Type*> _parents;
 
-	protected: // List of constructors for this type
+		//! List of constructors for this type
 		ConstructorSet _constructors;
 
-	protected: // List of type attributes
-		std::vector<std::unique_ptr<AttributeBase>> _attributes;
+		//! List of type attributes
+		gsl::span<const AttributeBase*> _attributes;
 
-	protected: // List of general methods
-		std::vector<const void*> _methods;
+		//! List of general methods
+		gsl::span<const void*> _methods;
 	};
 }}

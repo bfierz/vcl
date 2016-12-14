@@ -29,15 +29,11 @@
 #include <vcl/rtti/attributebase.h>
 #include <vcl/rtti/metatyperegistry.h>
 #include <vcl/rtti/serializer.h>
+#include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
-	Type::Type(const char* name, size_t size, size_t alignment)
-	: Type(name, Vcl::Util::StringHash(name).hash(), size, alignment)
-	{
-	}
-
-	Type::Type(const char* name, size_t hash, size_t size, size_t alignment)
+	Type::Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment)
 	: _name(name)
 	, _hash(hash)
 	, _size(size)
@@ -46,19 +42,18 @@ namespace Vcl { namespace RTTI
 	{
 		TypeRegistry::add(this);
 	}
-	
+
 	Type::Type(Type&& rhs)
+	: _name{ rhs._name }
 	{
 		if (rhs.hash())
 			TypeRegistry::remove(&rhs);
 				
-		_name = rhs._name;
 		_hash = rhs._hash;
 		_size = rhs._size;
 		_alignment = rhs._alignment;
 		_version = rhs._version;
 		
-		rhs._name = 0;
 		rhs._hash = 0;
 		rhs._size = 0;
 		rhs._alignment = 0;
@@ -111,11 +106,11 @@ namespace Vcl { namespace RTTI
 		return false; // no match found
 	}
 
-	bool Type::hasAttribute(const char* name) const
+	bool Type::hasAttribute(const gsl::cstring_span<> name) const
 	{
 		size_t hash = Vcl::Util::StringHash(name).hash();
 
-		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (const std::unique_ptr<AttributeBase>& attrib)
+		auto attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash] (const AttributeBase* attrib)
 		{
 			return attrib->hash() == hash;
 		});
@@ -128,19 +123,19 @@ namespace Vcl { namespace RTTI
 			return false;
 	}
 
-	const AttributeBase* Type::attribute(const char* name) const
+	const AttributeBase* Type::attribute(const gsl::cstring_span<> name) const
 	{
 		Require(hasAttribute(name), "Attribute exists.");
 
 		size_t hash = Vcl::Util::StringHash(name).hash();
 
-		auto attribIt = std::find_if(begin(_attributes), end(_attributes), [hash] (const std::unique_ptr<AttributeBase>& attrib)
+		auto attribIt = std::find_if(_attributes.cbegin(), _attributes.cend(), [hash] (const AttributeBase* attrib)
 		{
 			return attrib->hash() == hash;
 		});
 		
-		if (attribIt != _attributes.end())
-			return attribIt->get();
+		if (attribIt != _attributes.cend())
+			return *attribIt;
 		else if (nrParents() > 0)
 			return parents()[0]->attribute(name);
 		else
@@ -170,7 +165,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		// Serialize each attribute
-		for (const auto& attr : _attributes)
+		for (const auto* attr : _attributes)
 		{
 			attr->serialize(ser, obj);
 		}

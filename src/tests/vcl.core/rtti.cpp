@@ -48,9 +48,9 @@ using json = nlohmann::json;
 class Serializer : public Vcl::RTTI::Serializer
 {
 public:
-	virtual void beginType(const char* name, int version) override
+	virtual void beginType(const gsl::cstring_span<> name, int version) override
 	{
-		_objects.emplace_back(_attrib, json{ {"Type", name },  { "Version", version } });
+		_objects.emplace_back(_attrib, json{ {"Type", name.data() },  { "Version", version } });
 	}
 
 	virtual void endType() override
@@ -68,15 +68,15 @@ public:
 		}
 	}
 
-	virtual void writeAttribute(const char* name, const std::string& value) override
+	virtual void writeAttribute(const gsl::cstring_span<> name, const gsl::cstring_span<> value) override
 	{
-		_attrib = name;
+		_attrib = name.data();
 		if (!_objects.empty())
 		{
-			_objects.back().second["Attributes"][name] = value;
+			_objects.back().second["Attributes"][name.data()] = value.data();
 		}
 
-		_attributes[name] = value;
+		_attributes[name.data()] = value.data();
 	}
 
 public:
@@ -102,10 +102,10 @@ private:
 	json _storage;
 
 	/// Stack of currently edited objects
-	std::vector<std::pair<const char*, json>> _objects;
+	std::vector<std::pair<const std::string, json>> _objects;
 
 	/// Current attribute
-	const char* _attrib{ "" };
+	std::string _attrib;
 };
 
 class Deserializer : public Vcl::RTTI::Deserializer
@@ -117,12 +117,12 @@ public:
 	}
 
 public:
-	virtual void beginType(const std::string& name) override
+	virtual void beginType(const gsl::cstring_span<> name) override
 	{
 		if (name.empty())
 			_object_stack.emplace_back(&_storage);
 		else
-			_object_stack.emplace_back(&(*_object_stack.back())["Attributes"][name]);
+			_object_stack.emplace_back(&(*_object_stack.back())["Attributes"][name.data()]);
 	}
 
 	virtual void endType() override
@@ -136,15 +136,15 @@ public:
 		return (*_object_stack.back())["Type"];
 	}
 
-	virtual bool hasAttribute(const std::string& name) override
+	virtual bool hasAttribute(const gsl::cstring_span<> name) override
 	{
 		auto& attribs = (*_object_stack.back())["Attributes"];
-		return attribs.find(name) != attribs.cend();
+		return attribs.find(name.data()) != attribs.cend();
 	}
 
-	virtual std::string readAttribute(const std::string& name) override
+	virtual std::string readAttribute(const gsl::cstring_span<> name) override
 	{
-		return (*_object_stack.back())["Attributes"][name];
+		return (*_object_stack.back())["Attributes"][name.data()];
 	}
 
 private:
@@ -157,7 +157,7 @@ private:
 // Test classes
 class BaseObject
 {
-	VCL_DECLARE_METAOBJECT(BaseObject)
+	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
 
 public:
 	BaseObject() = default;
@@ -177,7 +177,7 @@ private:
 
 class AdditionalBase
 {
-	VCL_DECLARE_METAOBJECT(AdditionalBase)
+	VCL_DECLARE_ROOT_METAOBJECT(AdditionalBase)
 
 private:
 	std::string _additionalName{ "NoValue" };
@@ -224,24 +224,43 @@ private:
 	std::unique_ptr<BaseObject> _ownedObj;
 };
 
+
+VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Constructor<BaseObject>(),
+	Vcl::RTTI::Constructor<BaseObject, const char*>(Vcl::RTTI::Parameter<const char*>("Name"))
+VCL_RTTI_CTOR_TABLE_END(BaseObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName }
+VCL_RTTI_ATTR_TABLE_END(BaseObject)
+
 VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	type->addConstructor();
-	type->addConstructor(Parameter<const char*>("Name"));
-	type->addAttribute("Name", &BaseObject::name, &BaseObject::setName);
+	type->registerConstructors(BaseObject_constructor_bases);
+	type->registerAttributes(BaseObject_attribute_bases);
 }
 
 VCL_DEFINE_METAOBJECT(AdditionalBase)
 {
-
 }
+
+VCL_RTTI_BASES(DerivedObject, BaseObject)
+
+VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
+Vcl::RTTI::Constructor<DerivedObject>()
+VCL_RTTI_CTOR_TABLE_END(DerivedObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(DerivedObject)
+Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
+VCL_RTTI_ATTR_TABLE_END(DerivedObject)
 
 VCL_DEFINE_METAOBJECT(DerivedObject)
 {
-	type->addConstructor();
-	type->inherit<BaseObject>();
-	type->addAttribute("OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj);
+	type->registerBaseClasses(DerivedObject_parents);
+	type->registerConstructors(DerivedObject_constructor_bases);
+	type->registerAttributes(DerivedObject_attribute_bases);
 }
+
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -330,7 +349,7 @@ TEST(RttiTest, SimpleConstructableType)
 	using namespace Vcl::RTTI;
 
 	// Build the constructable type
-	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	DynamicConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
@@ -354,12 +373,12 @@ TEST(RttiTest, DerivedConstructableType)
 	using namespace Vcl::RTTI;
 
 	// Build the constructable type
-	ConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
+	DynamicConstructableType<BaseObject> type{ "BaseObject", sizeof(BaseObject), alignof(BaseObject) };
 	type.addConstructor();
 	type.addConstructor(Parameter<const char*>("Name"));
 	type.addAttribute("Name", &BaseObject::name, &BaseObject::setName);
 
-	ConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
+	DynamicConstructableType<DerivedObject> type_d{ "DerivedObject", sizeof(DerivedObject), alignof(DerivedObject) };
 	type_d.inherit<BaseObject>();
 	type_d.inherit<AdditionalBase>();
 	type_d.addConstructor();
@@ -399,7 +418,7 @@ TEST(RttiTest, AttributeSimpleSetter)
 	BaseObject obj;
 
 	// Set an attribute
-	Attribute<BaseObject, std::string> attr{ "Name", &BaseObject::name, &BaseObject::setName };
+	Attribute<BaseObject, const std::string&> attr{ "Name", &BaseObject::name, &BaseObject::setName };
 	attr.set(&obj, std::string{ "String" });
 
 	// Expected output
@@ -457,7 +476,7 @@ TEST(RttiTest, SimpleObjectDeserialization)
 	::Deserializer loader(storage);
 	loader.beginType("");
 
-	void* obj_store = Factory::create(loader.readType().c_str());
+	void* obj_store = Factory::create(loader.readType());
 	BaseObject& obj = *reinterpret_cast<BaseObject*>(obj_store);
 
 	auto type = vcl_meta_type(obj);
@@ -517,7 +536,7 @@ TEST(RttiTest, ComplexObjectDeserialization)
 	::Deserializer loader(storage);
 
 	loader.beginType("");
-	void* obj_store = Factory::create(loader.readType().c_str());
+	void* obj_store = Factory::create(loader.readType());
 	DerivedObject& obj = *reinterpret_cast<DerivedObject*>(obj_store);
 
 	auto type = vcl_meta_type(obj);

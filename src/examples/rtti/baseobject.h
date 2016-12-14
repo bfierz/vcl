@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,30 +29,27 @@
 
 // VCL
 #include <vcl/rtti/metatype.h>
-#include <vcl/rtti/metatyperegistry.h>
 
-namespace Vcl { namespace RTTI
+class BaseObject
 {
-	class Factory
-	{
-	public:
-		template<typename... Args>
-		static void* create(const gsl::cstring_span<> name, Args... args)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type_by_name(name);
+	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
 
-			// Type is available
-			if (!type)
-				return nullptr;
+public:
+	BaseObject() = default;
+	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const BaseObject&) = delete;
+	virtual ~BaseObject() = default;
 
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
+	BaseObject& operator = (const BaseObject&) = delete;
 
-			// Call the default constructor
-			type->construct(inst, args...);
+public:
+	const std::string& name() const { return _name; }
+	void setName(const std::string& n) { _name = n; }
 
-			return inst;
-		}
-	};
-}}
+	int count() const { return _count; }
+	void setCount(int c) { _count = c; }
+
+private:
+	std::string _name{ "Initialized" };
+	int _count{ 0 };
+};

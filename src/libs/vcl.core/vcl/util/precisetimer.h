@@ -30,14 +30,18 @@
 // C++ standard library
 #include <limits>
 
-VCL_BEGIN_EXTERNAL_HEADERS
-#ifdef VCL_ABI_WINAPI
-#	include <windows.h>
-#elif defined(VCL_ABI_POSIX)
-#	include <inttypes.h>
-#	include <time.h>
-#endif // VCL_ABI_WINAPI
-VCL_END_EXTERNAL_HEADERS
+#ifdef VCL_STL_CHRONO
+#	include <chrono>
+#else
+	VCL_BEGIN_EXTERNAL_HEADERS
+#	ifdef VCL_ABI_WINAPI
+#		include <windows.h>
+#	elif defined(VCL_ABI_POSIX)
+#		include <inttypes.h>
+#		include <time.h>
+#	endif
+	VCL_END_EXTERNAL_HEADERS
+#endif // VCL_STL_CHRONO
 
 namespace Vcl { namespace Util
 {
@@ -50,12 +54,19 @@ namespace Vcl { namespace Util
 		double interval(unsigned int nr_iterations = 1) const;
 
 	private:
-#ifdef VCL_ABI_WINAPI
-		LARGE_INTEGER mStartTime, mStopTime;
-#elif defined(VCL_ABI_POSIX)
-		timespec mStartTime, mStopTime;
-#else
+#ifdef VCL_STL_CHRONO
+		//! High resolution clock
+		std::chrono::high_resolution_clock _clk;
 
-#endif /* VCL_ABI_WINAPI */
+		//! Time clock was started
+		std::chrono::high_resolution_clock::time_point _startTime;
+
+		//! Time clock was stopped
+		std::chrono::high_resolution_clock::time_point _stopTime;
+#elif defined(VCL_ABI_WINAPI)
+		LARGE_INTEGER _startTime, _stopTime;
+#elif defined(VCL_ABI_POSIX)
+		timespec _startTime, _stopTime;
+#endif // VCL_STL_CHRONO
 	};
 }}

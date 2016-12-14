@@ -36,7 +36,7 @@ namespace Vcl { namespace Util
 	// The implementation the following methods is based on:
 	// http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
 
-	VCL_STRONG_INLINE unsigned int calculateFNV(const char* str)
+	VCL_STRONG_INLINE VCL_CONSTEXPR_CPP14 unsigned int calculateFNV(const char* str)
 	{
 		const size_t length = strlen(str) + 1;
 		unsigned int hash = 2166136261u;
@@ -69,32 +69,26 @@ namespace Vcl { namespace Util
 	};
 
 	class StringHash
-	{
-	public:
-		struct DynamicConstCharString
-		{
-			VCL_STRONG_INLINE DynamicConstCharString(const char* str) : str(str) {}
-			const char* str;
-		};
- 
+	{ 
 	public:
 		template <size_t N>
-		VCL_STRONG_INLINE StringHash(const char (&str)[N])
-		: mHash(FnvHash<N, N>::hash(str))
+		VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 StringHash(const char (&str)[N])
+		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}
  
-		VCL_STRONG_INLINE StringHash(DynamicConstCharString str)	
-		: mHash(calculateFNV(str.str))
+		VCL_STRONG_INLINE StringHash(const gsl::cstring_span<> str)
+		: _hash(calculateFNV(str.data()))
 		{
 		}
 
 		size_t hash() const
 		{
-			return mHash;
+			return _hash;
 		}
  
 	private:
-		size_t mHash;
+		//! Computed hash value
+		size_t _hash;
 	};
 }}

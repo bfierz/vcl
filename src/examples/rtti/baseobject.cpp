@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,37 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
-// VCL configuration
-#include <vcl/config/global.h>
+#include "baseobject.h"
 
 // VCL
-#include <vcl/rtti/metatype.h>
-#include <vcl/rtti/metatyperegistry.h>
+#include <vcl/rtti/attribute.h>
+#include <vcl/rtti/metatypeconstructor.inl>
 
-namespace Vcl { namespace RTTI
+VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Constructor<BaseObject>{},
+	Vcl::RTTI::Constructor<BaseObject, const char*>{ { "Name" } }
+VCL_RTTI_CTOR_TABLE_END(BaseObject)
+
+VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
+	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName },
+	Vcl::RTTI::Attribute<BaseObject, int>{ "Count", &BaseObject::count, &BaseObject::setCount }
+VCL_RTTI_ATTR_TABLE_END(BaseObject)
+
+VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	class Factory
-	{
-	public:
-		template<typename... Args>
-		static void* create(const gsl::cstring_span<> name, Args... args)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type_by_name(name);
-
-			// Type is available
-			if (!type)
-				return nullptr;
-
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
-
-			// Call the default constructor
-			type->construct(inst, args...);
-
-			return inst;
-		}
-	};
-}}
+	VCL_RTTI_REGISTER_CTORS(BaseObject);
+	VCL_RTTI_REGISTER_ATTRS(BaseObject);
+}
