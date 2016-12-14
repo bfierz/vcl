@@ -52,7 +52,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		int iteration = 0;
 		int sub_iteration = 0;
 
-		while (iteration < dofs && iteration < _maxIterations)
+		while (iteration < _maxIterations)
 		{
 			// i = i + 1
 			iteration++;

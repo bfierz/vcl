@@ -135,6 +135,11 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		std::swap(_heat[0],     _heat[1]);
 	}
 
+	void CenterGrid::swapHeat()
+	{
+		std::swap(_heat[0], _heat[1]);
+	}
+
 	CenterGrid::ref_ptr<Compute::Buffer> CenterGrid::aquireIntermediateBuffer()
 	{
 		if (_freeTmpBuffers.size() > 0)

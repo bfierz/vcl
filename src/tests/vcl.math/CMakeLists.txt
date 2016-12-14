@@ -2,11 +2,15 @@ PROJECT(vcl_math_test)
 
 SET(VCL_TEST_SRC
 	eigen33.cpp
+	poisson1d.cpp
+	poisson2d.cpp
+	poisson3d.cpp
 	poldecomp33.cpp
 	qr33.cpp
 	svd33.cpp
 )
 SET(VCL_TEST_INC
+	poisson.h
 )
 
 SET(SOURCE

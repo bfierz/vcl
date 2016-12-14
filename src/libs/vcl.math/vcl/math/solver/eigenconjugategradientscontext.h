@@ -43,22 +43,15 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		using map_t = Eigen::Map<vector_t>;
 
 	public:
-		EigenCgBaseContext(map_t* x)
-		: _x(x)
-		, _size(0)
+		EigenCgBaseContext(size_t s)
+		: _size(s)
 		{
-			if (x)
+			if (s > 0)
 			{
-				_size = x->size();
-
 				_dir = vector_t::Zero(_size);
 				_q = vector_t::Zero(_size);
 				_res = vector_t::Zero(_size);
 			}
-		}
-
-		virtual ~EigenCgBaseContext()
-		{
 		}
 
 	public:
@@ -70,18 +63,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		void setX(map_t* x)
 		{
 			_x = x;
-			_size = (x) ? x->size() : 0;
-		}
-
-		virtual void resize(int size) override
-		{
-			if (_size != size)
-			{
-				_size = size;
-				_dir = vector_t::Zero(_size);
-				_q = vector_t::Zero(_size);
-				_res = vector_t::Zero(_size);
-			}
 		}
 
 	public:
@@ -140,7 +121,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 	protected: // Matrix to solve
-		map_t* _x;
+		map_t* _x{ nullptr };
 		size_t _size;
 
 	private:
@@ -165,10 +146,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		: EigenCgBaseContext(x)
 		, _M(A)
 		, _b(b)
-		{
-		}
-
-		virtual ~GenericEigenCgContext()
 		{
 		}
 

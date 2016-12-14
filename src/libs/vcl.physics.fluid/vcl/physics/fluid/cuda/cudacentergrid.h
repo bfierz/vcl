@@ -63,6 +63,7 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		virtual void resize(const Eigen::Vector3i& resolution) override;
 
 		virtual void swap() override;
+		virtual void swapHeat() override;
 
 	public:
 		bool hasNamedBuffer(const std::string& name) const;

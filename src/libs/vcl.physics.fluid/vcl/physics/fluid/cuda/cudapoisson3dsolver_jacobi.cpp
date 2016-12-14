@@ -100,6 +100,9 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		using Compute::Cuda::Buffer;
 		using Compute::Cuda::CommandQueue;
 
+		// Initialize the solver
+		_queue->copy(_pressure, _divergence);
+
 		// Fetch the internal solver buffers
 		auto& laplacian0 = static_cast<Buffer&>(*_laplacian[0]);
 		auto& laplacian1 = static_cast<Buffer&>(*_laplacian[1]);

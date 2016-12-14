@@ -169,7 +169,7 @@ __global__ void BuildLHS
 		// check to see if we're solving the heat equation instead
 		if (heat)
 		{
-			Ac[index] = heat_const * a_c;
+			Ac[index] = 1.0f + heat_const * a_c;
 			Ax[index] = heat_const * a_x;
 			Ay[index] = heat_const * a_y;
 			Az[index] = heat_const * a_z;

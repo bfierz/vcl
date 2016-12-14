@@ -50,8 +50,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 
 		_poissonSolver = std::make_unique<Cuda::CenterGrid3DPoissonSolver>(ctx, queue);
 		//_poissonSolver = std::make_unique<OpenMP::CenterGrid3DPoissonSolver>();
-		//_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
-		_advection = std::make_unique<MacCormackAdvection>(ctx);
+		_advection = std::make_unique<SemiLagrangeAdvection>(ctx);
+		//_advection = std::make_unique<MacCormackAdvection>(ctx);
 
 		// Load the module
 		_fluidModule = ctx->createModuleFromSource((int8_t*) EulerfluidSimulationCudaModule, EulerfluidSimulationCudaModuleSize*sizeof(uint32_t));
@@ -138,27 +138,24 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 					res
 				);
 			}
-			else
-			{
-				_updateDensity->run
-				(
-					*queue,
-					grid_size,
-					block_size,
-					0,
-					obstacles,
-					density_curr,
-					res
-				);
-			}
+			_updateDensity->run
+			(
+				*queue,
+				grid_size,
+				block_size,
+				0,
+				obstacles,
+				density_curr,
+				res
+			);
 		}
 
 		// Add vorticity 
 		if (grid->vorticityCoeff() > 0.0f)
 		{
 			auto& vort   = grid->vorticityMag();
-			auto& vort_x = grid->vorticity(1);
-			auto& vort_y = grid->vorticity(2);
+			auto& vort_x = grid->vorticity(0);
+			auto& vort_y = grid->vorticity(1);
 			auto& vort_z = grid->vorticity(2);
 
 			float invSpacing = 0.5f / grid->spacing();
@@ -230,9 +227,12 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		// Can be combined with top accumulate?
 		if (grid->heatDiffusion() > 0.0f)
 		{
-			grid->copyBorderX(*queue, *heat_prev, res);
-			grid->copyBorderY(*queue, *heat_prev, res);
-			grid->copyBorderZ(*queue, *heat_prev, res);
+			grid->copyBorderX(*queue, *heat_curr, res);
+			grid->copyBorderY(*queue, *heat_curr, res);
+			grid->copyBorderZ(*queue, *heat_curr, res);
+
+			// Swap heat_curr and heat_prev
+			grid->swapHeat();
 
 			const float heat_const = dt * grid->heatDiffusion() / (grid->spacing() * grid->spacing());
 
@@ -255,6 +255,8 @@ namespace Vcl { namespace Physics { namespace Fluid { namespace Cuda
 		(*_advection)(queue, dt0, grid, vel_curr_z, vel_prev_z);
 
 		// Move to external advection block
+		heat_curr = grid->heat(0);
+		heat_prev = grid->heat(1);
 		(*_advection)(queue, dt0, grid, heat_curr, heat_prev);
 		(*_advection)(queue, dt0, grid, density_curr, density_prev);
 

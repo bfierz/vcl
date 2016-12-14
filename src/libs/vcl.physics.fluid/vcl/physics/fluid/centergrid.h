@@ -99,6 +99,7 @@ namespace Vcl { namespace Physics { namespace Fluid
 		virtual void resize(const Eigen::Vector3i& resolution) = 0;
 
 		virtual void swap() = 0;
+		virtual void swapHeat() = 0;
 
 	private:
 		Eigen::Vector3i _resolution;
