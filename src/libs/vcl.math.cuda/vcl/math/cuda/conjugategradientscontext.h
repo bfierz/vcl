@@ -33,9 +33,9 @@
 #include <array>
 
 // VCL
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/context.h>
-#include <vcl/compute/module.h>
+#include <vcl/compute/cuda/buffer.h>
+#include <vcl/compute/cuda/context.h>
+#include <vcl/compute/cuda/module.h>
 #include <vcl/math/solver/conjugategradients.h>
 
 #ifdef VCL_CUDA_SUPPORT
@@ -44,7 +44,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	class ConjugateGradientsContext : public Vcl::Mathematics::Solver::ConjugateGradientsContext
 	{
 	public:
-		ConjugateGradientsContext(Core::ref_ptr<Compute::Context> ctx, Core::ref_ptr<Compute::CommandQueue> queue, int size);
+		ConjugateGradientsContext(ref_ptr<Compute::Context> ctx, ref_ptr<Compute::CommandQueue> queue, int size);
 		virtual ~ConjugateGradientsContext();
 
 	public:
@@ -54,11 +54,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		virtual void resize(int size) override;
 
-		virtual void setX(Core::ref_ptr<Compute::Buffer> x)
-		{
-			_devX = x;
-		}
-
+		virtual void setX(ref_ptr<Compute::Buffer> x);
 
 	public:
 		// d = r = b - A*x
@@ -86,31 +82,34 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Called after the last iteration. Returns d_r
 		virtual void finish(double* residual = nullptr) override;
 
+	protected:
+		ref_ptr<Compute::Context> context() { return _ownerCtx; }
+
 	private:
 		void init();
 		void destroy();
 
 	private:
 		// Device context
-		Core::ref_ptr<Compute::Context> _ownerCtx;
+		ref_ptr<Compute::Context> _ownerCtx;
 
 		//! Commandqueue the execution uses
-		Core::ref_ptr<Compute::CommandQueue> _queue;
+		ref_ptr<Compute::CommandQueue> _queue;
 
 	private:
 		// Module
-		Core::ref_ptr<Compute::Module> _reduceUpdateModule;
+		ref_ptr<Compute::Module> _reduceUpdateModule;
 
 		// Kernel performing the dot-product
-		Core::ref_ptr<Compute::Kernel> _reduceBeginKernel;
-		Core::ref_ptr<Compute::Kernel> _reduceContinueKernel;
-		Core::ref_ptr<Compute::Kernel> _updateKernel;
+		ref_ptr<Compute::Cuda::Kernel> _reduceBeginKernel;
+		ref_ptr<Compute::Cuda::Kernel> _reduceContinueKernel;
+		ref_ptr<Compute::Cuda::Kernel> _updateKernel;
 		
 	private: // Buffers for reduction
-		std::array<Core::ref_ptr<Compute::Buffer>, 2> _reduceBuffersR;
-		std::array<Core::ref_ptr<Compute::Buffer>, 2> _reduceBuffersG;
-		std::array<Core::ref_ptr<Compute::Buffer>, 2> _reduceBuffersB;
-		std::array<Core::ref_ptr<Compute::Buffer>, 2> _reduceBuffersA;
+		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersR;
+		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersG;
+		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersB;
+		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersA;
 		
 		float* _hostR;
 		float* _hostG;
@@ -121,17 +120,17 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		size_t _size;
 
 	protected:
-		Core::ref_ptr<Compute::Buffer> _devX;
-		Core::ref_ptr<Compute::Buffer> _devDirection;
-		Core::ref_ptr<Compute::Buffer> _devQ;
-		Core::ref_ptr<Compute::Buffer> _devResidual;
+		ref_ptr<Compute::Cuda::Buffer> _devX;
+		ref_ptr<Compute::Cuda::Buffer> _devDirection;
+		ref_ptr<Compute::Cuda::Buffer> _devQ;
+		ref_ptr<Compute::Cuda::Buffer> _devResidual;
 
 	protected:
 		//! Residual to reduce for the CG solver
-		Core::ref_ptr<Compute::Buffer> _cgResidual;
+		ref_ptr<Compute::Cuda::Buffer> _cgResidual;
 
 		//! Update direction for the CG solver
-		Core::ref_ptr<Compute::Buffer> _cgDirection;
+		ref_ptr<Compute::Cuda::Buffer> _cgDirection;
 	};
 }}}}
-#endif /* VCL_CUDA_SUPPORT */
+#endif // VCL_CUDA_SUPPORT

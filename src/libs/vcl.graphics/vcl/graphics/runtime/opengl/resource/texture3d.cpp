@@ -54,6 +54,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glDeleteTextures(1, &_glId);
 	}
 
+	std::unique_ptr<Runtime::Texture> Texture3D::clone() const
+	{
+		return std::make_unique<Texture3D>(*this);
+	}
+
 	void Texture3D::fill(SurfaceFormat fmt, const void* data)
 	{
 		ImageFormat gl_fmt = toImageFormat(fmt);
