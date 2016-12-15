@@ -50,7 +50,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		Poisson2DCgCtx(Eigen::Vector2ui dim)
-		: EigenCgBaseContext{ dim.x()*dim.y() }
+		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y() }
 		, _dim{ dim }
 		{
 		}
@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	public:
 		void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<map_t*> rhs)
 		{
-			setX(unknowns.get());
+			this->setX(unknowns.get());
 			_rhs = rhs;
 		}
 
@@ -102,7 +102,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			const auto& Ay_l = _laplacian[3];
 			const auto& Ay_r = _laplacian[4];
 
-			auto& unknowns = *_x;
+			auto& unknowns = *this->_x;
 			auto& rhs = *_rhs;
 
 			// r = (b - A x)
@@ -122,11 +122,11 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 					q = (Ac[index] != 0) ? (_scale*rhs[index] - q) : 0;
 
-					_res[index] = q;
+					this->_res[index] = q;
 				}
 			}
 
-			_dir = _res;
+			this->_dir = this->_res;
 		}
 
 		// q = A*d
@@ -141,7 +141,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			const auto& Ay_l = _laplacian[3];
 			const auto& Ay_r = _laplacian[4];
 
-			auto& d = _dir;
+			auto& d = this->_dir;
 
 			size_t index = X + 1;
 			for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
@@ -157,7 +157,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 					q = (Ac[index] != 0) ? q : 0;
 
-					_q[index] = q;
+					this->_q[index] = q;
 				}
 			}
 		}

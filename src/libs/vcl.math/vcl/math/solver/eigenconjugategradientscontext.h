@@ -111,7 +111,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// abs(beta * d_r);
 		virtual double computeError() override
 		{
-			return abs(_beta * _residualLength);
+			return fabs(_beta * _residualLength);
 		}
 			
 		virtual void finish(double* residual = nullptr) override
@@ -144,7 +144,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		GenericEigenCgContext(const matrix_t* A, const vector_t* b, vector_t* x)
-		: EigenCgBaseContext(x)
+		: EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>(x)
 		, _M(A)
 		, _b(b)
 		{
@@ -154,14 +154,14 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r = b - A*x
 		virtual void computeInitialResidual() override
 		{
-			_res = (*_b) - (*_M) * (*_x);
-			_dir = _res;
+			this->_res = (*_b) - (*_M) * (*this->_x);
+			this->_dir = this->_res;
 		}
 			
 		// q = A*d
 		virtual void computeQ() override
 		{
-			_q = (*_M) * _dir;
+			this->_q = (*_M) * this->_dir;
 		}
 
 	private: /* Matrix to solve */

@@ -134,7 +134,7 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 	Eigen::VectorXf err; err.setZero(sol.size());
 	for (Eigen::VectorXf::Index i = 0; i < sol.size(); i++)
 	{
-		err(i) = abs(lhs(i) - sol(i));
+		err(i) = fabs(lhs(i) - sol(i));
 	}
 
 	Eigen::VectorXf::Index max_err_idx;
