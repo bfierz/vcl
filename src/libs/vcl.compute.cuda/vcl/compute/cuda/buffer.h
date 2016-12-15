@@ -53,6 +53,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 			return _devicePtr;
 		}
 
+		CUdeviceptr devicePtr() const { return _devicePtr; }
+
 	private:
 		void allocate();
 		void free();
@@ -61,10 +63,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		//! Link to the owning CL context
 		Context* _ownerCtx{ nullptr };
 
-		//! CL memory object
+		//! Cuda memory object
 		CUdeviceptr _devicePtr{ 0 };
-
-		//! Pointer to a host shadow copy
-		void* _hostPtr{ nullptr };
 	};
 }}}

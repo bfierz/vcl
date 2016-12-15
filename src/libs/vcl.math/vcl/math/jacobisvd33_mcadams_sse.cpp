@@ -45,9 +45,13 @@
 
 namespace Vcl { namespace Mathematics
 {
+// Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
 #ifdef VCL_COMPILER_MSVC
-#	pragma runtime_checks("u", off)  // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#	pragma runtime_checks("u", off)
 #	pragma warning(disable: 4700)
+#elif defined VCL_COMPILER_GNU
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps)
 	{
@@ -98,6 +102,8 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_COMPILER_MSVC
 #	pragma warning(default: 4700)
 #	pragma runtime_checks("u", restore)
+#elif defined VCL_COMPILER_GNU
+#	pragma GCC diagnostic pop
 #endif
 }}
 #endif // defined(VCL_VECTORIZE_SSE)

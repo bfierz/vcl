@@ -1,0 +1,54 @@
+PROJECT(vcl_physics_fluid_test)
+
+SET(VCL_TEST_SRC
+	blockgrid.cu
+	grid.cu
+	grid.cpp
+	poissonsolver.cpp
+)
+SET(VCL_TEST_INC
+)
+
+SET(SOURCE
+	${VCL_TEST_SRC} ${VCL_TEST_INC}
+)
+
+# Access the include directories in order to compile the CUDA code
+GET_PROPERTY(CURR_INC_DIRS TARGET vcl_core_cuda PROPERTY INCLUDE_DIRECTORIES)
+GET_PROPERTY(CURR_INC_DIRS_2 TARGET vcl_physics_fluid PROPERTY INCLUDE_DIRECTORIES)
+LIST(APPEND CURR_INC_DIRS ${CURR_INC_DIRS_2})
+LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
+VCLCOMPILECU(
+	${PROJECT_SOURCE_DIR}/blockgrid.cu
+	"BlockCenterGridCudaModule"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS_0
+)
+VCLCOMPILECU(
+	${PROJECT_SOURCE_DIR}/grid.cu
+	"CenterGridCudaModule"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS_1
+)
+SET(COMPILEDKERNELS
+	${COMPILEDKERNELS_0}
+	${COMPILEDKERNELS_1}
+)
+
+SOURCE_GROUP(cuc FILES ${COMPILEDKERNELS})
+SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${VCL_TEST_INC})
+
+# Generate library
+ADD_EXECUTABLE(vcl_physics_fluid_test
+	${SOURCE}
+	${COMPILEDKERNELS}
+)
+
+SET_TARGET_PROPERTIES(vcl_physics_fluid_test PROPERTIES FOLDER tests)
+
+TARGET_LINK_LIBRARIES(vcl_physics_fluid_test
+	vcl_physics_fluid
+	gtest
+	gtest_main
+)

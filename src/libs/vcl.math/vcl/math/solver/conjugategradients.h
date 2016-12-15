@@ -38,9 +38,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		//! Size of the problem to be solved
 		virtual int size() const = 0;
 
-		//! Resize the internal data structures of the context
-		virtual void resize(int size) = 0;
-
 	public:
 		// d = r = b - A*x
 		virtual void computeInitialResidual() = 0;

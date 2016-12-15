@@ -38,8 +38,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
 	ConjugateGradientsContext::ConjugateGradientsContext
 	(
-		Core::ref_ptr<Compute::Context> ctx,
-		Core::ref_ptr<Compute::CommandQueue> queue,
+		ref_ptr<Compute::Context> ctx,
+		ref_ptr<Compute::CommandQueue> queue,
 		int size
 	)
 	: _ownerCtx(ctx)
@@ -52,9 +52,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_reduceUpdateModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(CGCtxCU), CGCtxCUSize * sizeof(uint32_t));
 
 		// Load kernels
-		_reduceBeginKernel    = _reduceUpdateModule->kernel("CGComputeReductionBegin");
-		_reduceContinueKernel = _reduceUpdateModule->kernel("CGComputeReductionContinue");
-		_updateKernel         = _reduceUpdateModule->kernel("CGUpdateVectorsEx");
+		_reduceBeginKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionBegin"));
+		_reduceContinueKernel = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionContinue"));
+		_updateKernel         = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGUpdateVectorsEx"));
 		
 		init();
 	}
@@ -74,19 +74,19 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		unsigned int gridSize = ceil<1 * 128>(_size) / (elemPerBlock);
 
 		// Create buffers
-		_devDirection = _ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float));
-		_devQ = _ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float));
-		_devResidual = _ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float));
+		_devDirection = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
+		_devQ = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
+		_devResidual = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
 
-		_reduceBuffersR[0] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersG[0] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersB[0] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersA[0] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
+		_reduceBuffersR[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersG[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersB[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersA[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
 
-		_reduceBuffersR[1] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersG[1] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersB[1] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
-		_reduceBuffersA[1] = _ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float));
+		_reduceBuffersR[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersG[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersB[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
+		_reduceBuffersA[1] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
 
 		// Initialise buffers
 		_queue->setZero(_devDirection);
@@ -149,6 +149,13 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			// Allocate new data
 			init();
 		}
+	}
+
+	void ConjugateGradientsContext::setX(ref_ptr<Compute::Buffer> x)
+	{
+		Require(dynamic_pointer_cast<Compute::Cuda::Buffer>(x), "x is CUDA buffer.");
+
+		_devX = static_pointer_cast<Compute::Cuda::Buffer>(x);
 	}
 
 	void ConjugateGradientsContext::reduceVectors()
@@ -245,7 +252,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void ConjugateGradientsContext::updateVectors()
 	{
-		Require((CUdeviceptr) _devX != 0, "Solution vector is set.");
+		Require(_devX, "Solution vector is set.");
 
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)

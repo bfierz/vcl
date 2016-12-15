@@ -34,7 +34,9 @@ namespace Vcl { namespace Compute { namespace Cuda
 	, _func(func)
 	{
 		Require(!name.empty(), "Name of CUDA function is valid.");
-		Require(func != nullptr, "Pointer to CUDA function is valid.")
+		Require(func != nullptr, "Pointer to CUDA function is valid.");
+
+		_paramMemory = std::make_unique<char[]>(1024);
 
 		VCL_CU_SAFE_CALL(cuFuncGetAttribute(&_nrMaxThreadsPerBlock, CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, _func));
 		VCL_CU_SAFE_CALL(cuFuncGetAttribute(&_staticSharedMemorySize, CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, _func));
@@ -78,7 +80,10 @@ namespace Vcl { namespace Compute { namespace Cuda
 			blockDim.x, blockDim.y, blockDim.z,
 			dynamicSharedMemory,
 			(CUstream) queue,
-			params, nullptr
+			nullptr, params
 		));
+#ifdef VCL_DEBUG
+		queue.sync();
+#endif
 	}
 }}}

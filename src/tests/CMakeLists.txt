@@ -16,6 +16,12 @@ IF(GLEW_FOUND AND VCL_OPENGL_SUPPORT)
 	SUBDIRS(vcl.graphics.opengl)
 ENDIF()
 
+# CUDA related tests
+IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	SUBDIRS(vcl.compute.cuda)
+	SUBDIRS(vcl.physics.fluid)
+ENDIF()
+
 # OpenCL related tests
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	SUBDIRS(vcl.compute.opencl)

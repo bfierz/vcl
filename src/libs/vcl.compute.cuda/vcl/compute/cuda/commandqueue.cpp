@@ -96,15 +96,15 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		if (pattern_size == 1)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD8Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint8_t*) pattern, dst.size(), _queue));
+			VCL_CU_SAFE_CALL(cuMemsetD8Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint8_t*) pattern, dst.size() / sizeof(uint8_t), _queue));
 		}
 		else if (pattern_size == 2)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD16Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint16_t*) pattern, dst.size(), _queue));
+			VCL_CU_SAFE_CALL(cuMemsetD16Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint16_t*) pattern, dst.size() / sizeof(uint16_t), _queue));
 		}
 		else if (pattern_size == 4)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD32Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint32_t*) pattern, dst.size(), _queue));
+			VCL_CU_SAFE_CALL(cuMemsetD32Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint32_t*) pattern, dst.size() / sizeof(uint32_t), _queue));
 		}
 	}
 }}}

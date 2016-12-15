@@ -38,9 +38,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		//! Size of the problem to be solved
 		virtual int size() const = 0;
 
-		//! Resize the internal data structures of the context
-		virtual void resize(int size) = 0;
-
 	public:
 		//  c = D^-1 b
 		// -C = I - D^-1 A
@@ -81,7 +78,11 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Maximum number of iterations
 		int _maxIterations = 0;
+
+		//! Number of iterations chunked together without checking for the residual error
 		int _chunkSize = 1;
+
+		//! Maximum allowed error
 		double _eps = std::numeric_limits<double>::epsilon();
 
 	private: // Meta results
