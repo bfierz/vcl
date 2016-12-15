@@ -22,69 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/math/solver/jacobi.h>
+#pragma once
 
-namespace Vcl { namespace Mathematics { namespace Solver
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
+
+// C++ standard libary
+#include <memory>
+
+// VCL
+#include <vcl/util/waveletnoise.h>
+
+namespace Vcl { namespace Util
 {
-	bool Jacobi::solve(JacobiContext* ctx, double* residual)
+	/*!
+	 *	Vector noise based on the SIGGRAPH 2007 paper by Bridson
+	 */
+	template<int N>
+	class VectorNoise
 	{
-		int dofs = ctx->size();
-		if (dofs == 0)
-			return false;
+	public:
+		VectorNoise();
+		~VectorNoise();
 
-		// A x = b
-		// -> A = D + R
-		// -> x^{n+1} = D^-1 (b - R x^{n})
+	public: // Evaluation
+		Eigen::Vector3f evaluate(const float p[3]) const;
 
-		// -> c = D^-1 b
-		// -> C = D^-1 R
-		//      = D^-1 (A - D)
-		//      = D^-1 A - I
-		//   -C = I - D^-1 A
-
-		// -> x^{n+1} = D^-1 b + (I - D^-1 A) x^{n}
-		// -> x^{n+1} = c + C x^{n}
-
-		//  c = D^-1 b
-		// -C = I - D^-1 A
-		ctx->precompute();
-
-		int iteration = 0;
-		int sub_iteration = 0;
-
-		while (iteration < _maxIterations)
+	public: // Access
+		int size() const { return N; }
+		void noiseData(const float** n1, const float** n2, const float** n3) const
 		{
-			// i = i + 1
-			iteration++;
-			sub_iteration++;
-
-			// x^{n+1} = c + C x^{n}
-			ctx->updateSolution();
-			
-			if (sub_iteration == _chunkSize)
-			{
-				if (_maxIterations == _chunkSize)
-					break;
-
-				// Check if the error is small enough
-				double err = ctx->computeError();
-				if (err < _eps)
-					break;
-
-				// Start a new iteration cycle
-				sub_iteration = 0;
-			}
+			*n1 = _noise1->getNoiseTileData();
+			*n2 = _noise2->getNoiseTileData();
+			*n3 = _noise3->getNoiseTileData();
 		}
 
-		// Finalize the CG
-		_iterations = iteration;
-		if (residual && _maxIterations == _chunkSize)
-		{
-			ctx->computeError();
-		}
+	private: // Member fields
+		std::unique_ptr<WaveletNoise<N>> _noise1, _noise2, _noise3;
+	};
+}}
 
-		ctx->finish(residual);
-
-		return true;
-	}
-}}}
+namespace Vcl { namespace Util
+{
+#ifndef VCL_UTIL_VECTORNOISE_INST
+	extern template class VectorNoise<32>;
+	extern template class VectorNoise<64>;
+	extern template class VectorNoise<128>;
+#endif // VCL_UTIL_VECTORNOISE_INST
+}}

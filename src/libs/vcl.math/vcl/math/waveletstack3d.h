@@ -22,69 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/math/solver/jacobi.h>
+#pragma once
 
-namespace Vcl { namespace Mathematics { namespace Solver
+// VCL configuration
+#include <vcl/config/global.h>
+
+// C++ standard library
+#include <cmath>
+#include <vector>
+
+namespace Vcl { namespace Mathematics
 {
-	bool Jacobi::solve(JacobiContext* ctx, double* residual)
+	/*!
+	 *	Wavlet stack implementation from "Kim, Thürey - Wavelet Turbulence for Fluid Simulation"
+	 */
+	class WaveletStack3D
 	{
-		int dofs = ctx->size();
-		if (dofs == 0)
-			return false;
+	public:
+		WaveletStack3D(int x_res, int y_res, int z_res);
+		~WaveletStack3D();
 
-		// A x = b
-		// -> A = D + R
-		// -> x^{n+1} = D^-1 (b - R x^{n})
+		void CreateStack(float* data, int levels);
+		void CreateSingleLayer(float* data);
 
-		// -> c = D^-1 b
-		// -> C = D^-1 R
-		//      = D^-1 (A - D)
-		//      = D^-1 A - I
-		//   -C = I - D^-1 A
+	public:
+		const std::vector<float*>& Stack() const { return mStack; }
 
-		// -> x^{n+1} = D^-1 b + (I - D^-1 A) x^{n}
-		// -> x^{n+1} = c + C x^{n}
+	private:
+		void DoubleSize(float*& input, int xRes, int yRes, int zRes);
+		void Decompose(
+			const float* input,
+			float*& lowFreq,
+			float*& highFreq,
+			float*& halfSize,
+			int xRes,
+			int yRes,
+			int zRes);
 
-		//  c = D^-1 b
-		// -C = I - D^-1 A
-		ctx->precompute();
+	private:
+		int mResX, mResY, mResZ;
 
-		int iteration = 0;
-		int sub_iteration = 0;
+		std::vector<float*> mStack;
+		std::vector<float*> mCoeff;
 
-		while (iteration < _maxIterations)
-		{
-			// i = i + 1
-			iteration++;
-			sub_iteration++;
-
-			// x^{n+1} = c + C x^{n}
-			ctx->updateSolution();
-			
-			if (sub_iteration == _chunkSize)
-			{
-				if (_maxIterations == _chunkSize)
-					break;
-
-				// Check if the error is small enough
-				double err = ctx->computeError();
-				if (err < _eps)
-					break;
-
-				// Start a new iteration cycle
-				sub_iteration = 0;
-			}
-		}
-
-		// Finalize the CG
-		_iterations = iteration;
-		if (residual && _maxIterations == _chunkSize)
-		{
-			ctx->computeError();
-		}
-
-		ctx->finish(residual);
-
-		return true;
-	}
-}}}
+		// Temporary buffers
+		float* mBufferInput;
+		float* mBufferLowFreq;
+		float* mBufferHighFreq;
+		float* mBufferHalfSize;
+	};
+}}
