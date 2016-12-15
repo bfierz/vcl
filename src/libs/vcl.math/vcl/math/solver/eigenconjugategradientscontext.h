@@ -140,7 +140,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	{
 	public:
 		using matrix_t = MatrixT;
-		using vector_t = EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>::vector_t;
+		using vector_t = typename EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>::vector_t;
 
 	public:
 		GenericEigenCgContext(const matrix_t* A, const vector_t* b, vector_t* x)
