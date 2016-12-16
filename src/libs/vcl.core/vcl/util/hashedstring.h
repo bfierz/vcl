@@ -31,6 +31,9 @@
 #include <cstring>
 #include <limits>
 
+// GSL
+#include <string_span>
+
 namespace Vcl { namespace Util
 {
 	// The implementation the following methods is based on:
@@ -71,13 +74,25 @@ namespace Vcl { namespace Util
 	class StringHash
 	{ 
 	public:
+		struct DynamicConstCharString
+		{
+			VCL_STRONG_INLINE DynamicConstCharString(const char* str) : str(str) {}
+			const char* str;
+		};
+
+	public:
 		template <size_t N>
 		VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 StringHash(const char (&str)[N])
 		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}
- 
-		VCL_STRONG_INLINE StringHash(const gsl::cstring_span<> str)
+		
+		VCL_STRONG_INLINE StringHash(DynamicConstCharString str)
+		: _hash(calculateFNV(str.str))
+		{
+		}
+
+		VCL_STRONG_INLINE StringHash(gsl::cstring_span<> str)
 		: _hash(calculateFNV(str.data()))
 		{
 		}

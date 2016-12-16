@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		using Runtime::OpenGL::ShaderProgramDescription;
 		using Runtime::OpenGL::ShaderProgram;
 
-		size_t kernelId = Util::StringHash{ source }.hash();
+		size_t kernelId = Util::StringHash(source).hash();
 		Shader kernel{ Runtime::ShaderType::ComputeShader, 0, source };
 
 		ShaderProgramDescription desc;

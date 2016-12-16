@@ -169,9 +169,9 @@ void simdAccumulateNormals
 		vector3_t p2p0 = p0 - p2; wfloat_t p2p0_l = p2p0.norm();
 
 		// Normalize the edges
-		p0p1 = select<float, Width, 3, 1>(p0p1_l > wfloat_t(1e-6f), p0p1.normalized(), vector3_t::Zero());
-		p1p2 = select<float, Width, 3, 1>(p1p2_l > wfloat_t(1e-6f), p1p2.normalized(), vector3_t::Zero());
-		p2p0 = select<float, Width, 3, 1>(p2p0_l > wfloat_t(1e-6f), p2p0.normalized(), vector3_t::Zero());
+		p0p1 = select<float, Width, 3, 1>(p0p1_l > wfloat_t(1e-6f), p0p1 / p0p1_l, vector3_t::Zero());
+		p1p2 = select<float, Width, 3, 1>(p1p2_l > wfloat_t(1e-6f), p1p2 / p1p2_l, vector3_t::Zero());
+		p2p0 = select<float, Width, 3, 1>(p2p0_l > wfloat_t(1e-6f), p2p0 / p2p0_l, vector3_t::Zero());
 
 		// Compute the angles
 		vector3_t angles;
@@ -341,7 +341,7 @@ void computeNormalsSIMD
 		load(n, normals.data() + i*Width);
 
 		// Compute
-		n.normalize();
+		n /= n.norm();
 
 		store(normals.data() + i*Width, n);
 	}
@@ -353,7 +353,7 @@ void computeNormalsSIMD
 		i++
 	)
 	{
-		normals[i].normalize();
+		normals[i] /= normals[i].norm();
 	}		
 
 #ifdef _OPENMP
@@ -372,7 +372,8 @@ void computeNormalsSIMD
 			vector3f_t b = gather<float, Width, 3, 1>(bitangents.data(), tf(j));
 
 			// Gram-Schmidt orthogonalize
-			vector3f_t tan = (t - n * n.dot(t)).normalized();
+			vector3f_t tan = (t - n * n.dot(t));
+			tan /= tan.norm();
 
 			// Calculate handedness
 			wfloat_t hand = select(n.cross(t).dot(b) < 0.0f, wfloat_t{ -1.0f }, wfloat_t{ 1.0f });
@@ -395,7 +396,8 @@ void computeNormalsSIMD
 			const auto& t = tangents[tf[j]];
 
 			// Gram-Schmidt orthogonalize
-			Eigen::Vector3f tan = (t - n * n.dot(t)).normalized();
+			Eigen::Vector3f tan = (t - n * n.dot(t));
+			tan /= tan.norm();
 
 			// Calculate handedness
 			float hand = (n.cross(t).dot(bitangents[tf[j]]) < 0.0f) ? -1.0f : 1.0f;
