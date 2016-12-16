@@ -73,7 +73,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 				if (foundDevices > 0)
 				{
 					auto result = std::find(compatibleDevices.begin(), compatibleDevices.end(), dev_id);
-					Check(result == compatibleDevices.end(), "Device is OpenGL compatible.");
+					Check(result != compatibleDevices.end(), "Device is OpenGL compatible.");
 
 					VCL_CU_SAFE_CALL(cuGLCtxCreate(&_context, flags, dev_id));
 				}
@@ -115,6 +115,16 @@ namespace Vcl { namespace Compute { namespace Cuda
 		VCL_CU_SAFE_CALL(cuCtxGetCurrent(&ctx));
 
 		return ctx == _context;
+	}
+
+	void Context::bind()
+	{
+		VCL_CU_SAFE_CALL(cuCtxSetCurrent(this->operator CUcontext()));
+	}
+
+	void Context::sync()
+	{
+		VCL_CU_SAFE_CALL(cuCtxSynchronize());
 	}
 
 	Context::ref_ptr<Compute::Module> Context::createModuleFromSource(const int8_t* source, size_t size)

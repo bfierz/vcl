@@ -45,6 +45,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void initialise(const TextureResource* init_data = nullptr);
 
 	public:
+		virtual std::unique_ptr<Runtime::Texture> clone() const override;
+
+	public:
 		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { DebugError("Not implemented"); }
 
 	public:

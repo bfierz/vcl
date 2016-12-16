@@ -281,3 +281,15 @@ namespace Vcl
 	}
 	using namespace Core;
 }
+
+namespace std
+{
+	template<typename T>
+	struct hash<Vcl::Core::ref_ptr<T>>
+	{
+		size_t operator()(const Vcl::Core::ref_ptr<T>& x) const
+		{
+			return hash<T*>()(x.get());
+		}
+	};
+}

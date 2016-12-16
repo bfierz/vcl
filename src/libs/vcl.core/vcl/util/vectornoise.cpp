@@ -22,69 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/math/solver/jacobi.h>
+#define VCL_UTIL_VECTORNOISE_INST
+#include <vcl/util/vectornoise.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
+namespace Vcl { namespace Util
 {
-	bool Jacobi::solve(JacobiContext* ctx, double* residual)
+	template<int N> VectorNoise<N>::VectorNoise()
 	{
-		int dofs = ctx->size();
-		if (dofs == 0)
-			return false;
-
-		// A x = b
-		// -> A = D + R
-		// -> x^{n+1} = D^-1 (b - R x^{n})
-
-		// -> c = D^-1 b
-		// -> C = D^-1 R
-		//      = D^-1 (A - D)
-		//      = D^-1 A - I
-		//   -C = I - D^-1 A
-
-		// -> x^{n+1} = D^-1 b + (I - D^-1 A) x^{n}
-		// -> x^{n+1} = c + C x^{n}
-
-		//  c = D^-1 b
-		// -C = I - D^-1 A
-		ctx->precompute();
-
-		int iteration = 0;
-		int sub_iteration = 0;
-
-		while (iteration < _maxIterations)
-		{
-			// i = i + 1
-			iteration++;
-			sub_iteration++;
-
-			// x^{n+1} = c + C x^{n}
-			ctx->updateSolution();
-			
-			if (sub_iteration == _chunkSize)
-			{
-				if (_maxIterations == _chunkSize)
-					break;
-
-				// Check if the error is small enough
-				double err = ctx->computeError();
-				if (err < _eps)
-					break;
-
-				// Start a new iteration cycle
-				sub_iteration = 0;
-			}
-		}
-
-		// Finalize the CG
-		_iterations = iteration;
-		if (residual && _maxIterations == _chunkSize)
-		{
-			ctx->computeError();
-		}
-
-		ctx->finish(residual);
-
-		return true;
+		_noise1 = std::make_unique<WaveletNoise<N>>();
+		_noise2 = std::make_unique<WaveletNoise<N>>();
+		_noise3 = std::make_unique<WaveletNoise<N>>();
 	}
-}}}
+
+	template<int N> VectorNoise<N>::~VectorNoise()
+	{
+	}
+
+	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const float p[3]) const
+	{
+		const float f1y = _noise1->dy(p);
+		const float f1z = _noise1->dz(p);
+
+		const float f2x = _noise2->dx(p);
+		const float f2z = _noise2->dz(p);
+
+		const float f3x = _noise3->dx(p);
+		const float f3y = _noise3->dy(p);
+
+		Eigen::Vector3f v;
+		v.x() = f3y - f2z;
+		v.y() = f1z - f3x;
+		v.z() = f2x - f1y;
+
+		return v;
+	}
+
+	template class VectorNoise<32>;
+	template class VectorNoise<64>;
+	template class VectorNoise<128>;
+}}

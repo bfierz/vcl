@@ -43,23 +43,20 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void Buffer::allocate()
 	{
-		// Allocate the required device memory
-		VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
-
-		// Allocate a host shadow copy if necessary
-		if (hostAccess() == BufferAccess::ReadWrite || hostAccess() == BufferAccess::Read)
+		if (hostAccess() == BufferAccess::Unified)
 		{
-			VCL_CU_SAFE_CALL(cuMemHostAlloc(&_hostPtr, size(), CU_MEMHOSTALLOC_PORTABLE));
+			// Allocate the required memory
+			VCL_CU_SAFE_CALL(cuMemAllocManaged(&_devicePtr, size(), CU_MEM_ATTACH_GLOBAL));
 		}
-		else if (hostAccess() == BufferAccess::Write)
+		else
 		{
-			VCL_CU_SAFE_CALL(cuMemHostAlloc(&_hostPtr, size(), CU_MEMHOSTALLOC_PORTABLE | CU_MEMHOSTALLOC_WRITECOMBINED));
+			// Allocate the required device memory
+			VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));
 		}
 	}
 
 	void Buffer::free()
 	{
-		VCL_CU_SAFE_CALL(cuMemFreeHost(_hostPtr));
 		VCL_CU_SAFE_CALL(cuMemFree(_devicePtr));
 	}
 

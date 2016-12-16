@@ -142,7 +142,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 		const char* separator = " ";
 		const char* terminator = "\0";
 		std::vector<char> cmd;
-		cmd.reserve(strlen(prg) + strlen(params) + 2);
+		cmd.reserve(strlen(prg) + (params ? strlen(params) : 0) + 2);
 
 		std::copy(prg, prg + strlen(prg), std::back_inserter(cmd));
 
@@ -202,7 +202,7 @@ int main(int argc, char* argv [])
 	namespace fs = boost::filesystem;
 #endif
 
-	cxxopts::Options options(argv[0], "clc - command line options");
+	cxxopts::Options options(argv[0], "cuc - command line options");
 
 	try
 	{
@@ -212,6 +212,8 @@ int main(int argc, char* argv [])
 			("m64", "Specify that this should be compiled in 64bit.")
 			("profile", "Target compute architectures (sm_20, sm_30, sm_35, sm_50, compute_20, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
 			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
+			("L,library-path", "Additional library directory (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
+			("l,library", "Additional library (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
 			("symbol", "Name of the symbol used for the compiled module", cxxopts::value<std::string>())
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
@@ -267,38 +269,73 @@ int main(int argc, char* argv [])
 	compiled_files.reserve(profiles.size());
 	for (auto& p : profiles)
 	{
-		std::stringstream cmd;
+		std::stringstream cmd_compile;
+		std::stringstream cmd_link;
+
+		// Force a compiler version
+		//cmd_compile << R"(--use-local-env --cl-version 2013 )";
 
 		if (options.count("include"))
 		{
 			for (auto& inc : options["include"].as<std::vector<std::string>>())
 			{
-				cmd << "-I \"" << inc << "\" ";
+				cmd_compile << "-I \"" << inc << "\" ";
 			}
 		}
 
-		cmd << "-gencode=arch=";
+		cmd_compile << "-gencode=arch=";
+		cmd_link << "-arch ";
 
 		// Generate the output filename for intermediate file
 		std::string tmp_file = tmp_file_base + "_";
+		std::string cc_file  = tmp_file_base + "_compiled_";
 
 		auto sm = p.find("sm");
 		if (sm != p.npos)
 		{
-			cmd << "compute" << p.substr(2, p.npos) << ",code=" << p;
-			cmd << " -cubin ";
+			cmd_compile << "compute" << p.substr(2, p.npos) << ",code=" << p;
+			cmd_compile << " -cubin ";
 			tmp_file += p + ".cubin";
+
+			cmd_link << p << " ";
+			cc_file  += p + ".cubin";
 		}
 		else
 		{
-			cmd << p << ",code=" << p;
-			cmd << " -ptx ";
+			cmd_compile << p << ",code=" << p;
+			cmd_compile << " -ptx ";
 			tmp_file += p + ".ptx";
-		}
-		compiled_files.emplace_back(p, tmp_file);
-		cmd << "-o \"" << tmp_file << "\" \"" << options["input-file"].as<std::string>() << "\"";
 
-		exec("nvcc.exe", cmd.str().c_str());
+			cmd_link << p << " ";
+			cc_file  += p + ".ptx";
+		}
+
+		// Link against CUDA libraries
+		if (options.count("library-path"))
+		{
+			for (auto& path : options["library-path"].as<std::vector<std::string>>())
+			{
+				cmd_link << "-L\"" << path << "\" ";
+			}
+		}
+		if (options.count("library"))
+		{
+			for (auto& lib : options["library"].as<std::vector<std::string>>())
+			{
+				cmd_link << "-l\"" << lib<< "\" ";
+			}
+		}
+		cmd_compile << "-dc -rdc=true ";
+
+		compiled_files.emplace_back(p, tmp_file);
+		cmd_compile << "-o \"" << cc_file << "\" \"" << options["input-file"].as<std::string>() << "\"";
+		cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
+
+		// Compile the code
+		exec("nvcc.exe", cmd_compile.str().c_str());
+
+		// Link the code
+		exec("nvlink.exe", cmd_link.str().c_str());
 	}
 
 	// Create a fat binary from the compiled files 
@@ -322,10 +359,7 @@ int main(int argc, char* argv [])
 
 	// We are compiling cuda
 	fatbin_cmdbuilder << R"(--cuda )";
-
-	// Add a hash
-	fatbin_cmdbuilder << R"(--key="xxxxxxxxxx" )";
-	
+		
 	// Add the orignal filename as identifier
 	fatbin_cmdbuilder << R"(--ident=")" << options["symbol"].as<std::string>() << R"(" )";
 

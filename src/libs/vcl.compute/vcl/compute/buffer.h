@@ -50,7 +50,10 @@ namespace Vcl { namespace Compute
 		Read = 0x2,
 
 		//! Resource has read and write access from host
-		ReadWrite = 0x3
+		ReadWrite = 0x3,
+
+		//! Resource access is managed by the system
+		Unified = 0x7
 	};
 
 	/*!

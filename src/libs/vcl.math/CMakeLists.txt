@@ -12,7 +12,15 @@ SET(VCL_MATH_MCADAMS_INC
 # VCL / MATH / SOLVER
 SET(VCL_MATH_SOLVER_INC
 	vcl/math/solver/conjugategradients.h
+	vcl/math/solver/eigenconjugategradientscontext.h
 	vcl/math/solver/jacobi.h
+	vcl/math/solver/poisson.h
+	vcl/math/solver/poisson1dsolver_cg.h
+	vcl/math/solver/poisson1dsolver_jacobi.h
+	vcl/math/solver/poisson2dsolver_cg.h
+	vcl/math/solver/poisson2dsolver_jacobi.h
+	vcl/math/solver/poisson3dsolver_cg.h
+	vcl/math/solver/poisson3dsolver_jacobi.h
 )
 SET(VCL_MATH_SOLVER_SRC
 	vcl/math/solver/conjugategradients.cpp
@@ -34,6 +42,7 @@ SET(VCL_MATH_INC
 	vcl/math/polardecomposition_impl.h
 	vcl/math/qr33.h
 	vcl/math/qr33_impl.h
+	vcl/math/waveletstack3d.h
 
 )
 SET(VCL_MATH_SRC
@@ -46,6 +55,7 @@ SET(VCL_MATH_SRC
 	vcl/math/jacobisvd33_twosided.cpp
 	vcl/math/polardecomposition.cpp
 	vcl/math/qr33.cpp
+	vcl/math/waveletstack3d.cpp
 )
 
 SOURCE_GROUP("McAdams" FILES ${VCL_MATH_MCADAMS_INC})
