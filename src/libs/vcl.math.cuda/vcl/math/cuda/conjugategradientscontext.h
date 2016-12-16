@@ -51,9 +51,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		virtual int size() const override;
 
 	public:
-
-		virtual void resize(int size) override;
-
 		virtual void setX(ref_ptr<Compute::Buffer> x);
 
 	public:

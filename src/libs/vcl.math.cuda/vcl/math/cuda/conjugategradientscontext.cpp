@@ -136,21 +136,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		return _size;
 	}
 
-	void ConjugateGradientsContext::resize(int size)
-	{
-		if (_size < size)
-		{
-			// Set the new sizes
-			_size = size;
-
-			// Free the old data
-			destroy();
-
-			// Allocate new data
-			init();
-		}
-	}
-
 	void ConjugateGradientsContext::setX(ref_ptr<Compute::Buffer> x)
 	{
 		Require(dynamic_pointer_cast<Compute::Cuda::Buffer>(x), "x is CUDA buffer.");
