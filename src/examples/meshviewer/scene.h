@@ -84,12 +84,16 @@ public:
 
 private:
 	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
+	void updateBoundingBox();
 
 private: // Engine
 	Vcl::Graphics::Runtime::GraphicsEngine* _engine{ nullptr };
 
-private: // Update data
+private: // Scene data
 	Vcl::Graphics::TrackballCameraController _cameraController;
+
+	/// Bounding box of the scene
+	Eigen::AlignedBox3f _sceneBoundingBox;
 	
 private: // Render data
 
