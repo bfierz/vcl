@@ -91,7 +91,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	}
 	void GBuffer::clear(float depth)
 	{
-		glClearBufferfi(GL_DEPTH, 0, depth, 0);
+		glClearBufferfv(GL_DEPTH, 0, &depth);
 	}
 	void GBuffer::clear(int stencil)
 	{
