@@ -251,8 +251,8 @@ void FboRenderer::render()
 		// Draw the object buffer
 		{
 			_idBuffer->bind(_engine.get());
-			_idBuffer->clear(0, Eigen::Vector4i{ 0, 0, 0, 0 });
-			_idBuffer->clear(0, 1);
+			_idBuffer->clear(0, Eigen::Vector4i{ -1, -1, 0, 0 });
+			_idBuffer->clear(1.0f);
 
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
