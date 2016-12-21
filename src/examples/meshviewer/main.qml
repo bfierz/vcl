@@ -110,28 +110,27 @@ ApplicationWindow
         id: renderer
         anchors.fill: parent
         anchors.margins: 10
-		
-		CheckBox
-		{
-			style: CheckBoxStyle
-			{
-				label: Text
-				{
-					color: "white"
-					text: "Wireframe"
-				}
-			}
-			checked: false
-
-			onClicked:
-			{
-				renderer.renderWireframe = checked
-			}
-		}
-
-
+				
 		MouseArea
 		{
+			CheckBox
+			{
+				style: CheckBoxStyle
+				{
+					label: Text
+					{
+						color: "white"
+						text: "Wireframe"
+					}
+				}
+				checked: false
+
+				onClicked:
+				{
+					renderer.renderWireframe = checked
+				}
+			}
+
 			anchors.fill: parent
 			acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 			onPressed:

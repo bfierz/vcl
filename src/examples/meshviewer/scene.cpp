@@ -62,21 +62,7 @@ Scene::~Scene()
 
 void Scene::update()
 {
-	auto volumes = entityManager()->get<MeshStatistics>();
-	if (!volumes->empty())
-	{
-		Eigen::AlignedBox3f bb;
-		volumes->forEach([&bb](Vcl::Components::EntityId id, const MeshStatistics* stats)
-		{
-			bb.extend(stats->boundingBox());
-		});
-
-		_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
-		_cameraController.setRotationCenter(bb.center());
-
-		_boundingBox = bb;
-	}
-
+	_boundingBox = _sceneBoundingBox;
 	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float) _camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
 
 	_modelMatrix = _cameraController.currObjectTransformation();
@@ -108,6 +94,9 @@ void Scene::createSurfaceSphere()
 	{
 		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
 	});
+
+	// Calculate the new scene bounding box
+	updateBoundingBox();
 }
 
 void Scene::createBar(int x, int y, int z)
@@ -169,6 +158,28 @@ void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	{
 		_entityManager.create<GPUVolumeMesh>(mesh_entity, mesh_component);
 	});
+
+	// Calculate the new scene bounding box
+	updateBoundingBox();
+}
+
+void Scene::updateBoundingBox()
+{
+	auto meshes = entityManager()->get<MeshStatistics>();
+	if (!meshes->empty())
+	{
+		Eigen::AlignedBox3f bb;
+		meshes->forEach([&bb](Vcl::Components::EntityId id, const MeshStatistics* stats)
+		{
+			bb.extend(stats->boundingBox());
+		});
+
+		_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
+		_cameraController.setRotationCenter(bb.center());
+
+		// Construct scene bounding box
+		_sceneBoundingBox = { bb.center().array() - 1.5f*bb.diagonal().norm(), bb.center().array() + 1.5f*bb.diagonal().norm() };
+	}
 }
 
 void Scene::startRotate(float ratio_x, float ratio_y)
