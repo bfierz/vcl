@@ -192,6 +192,8 @@ namespace Vcl
 #endif
 	}
 
+	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel);
+
 	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m128i v, int i)
 	{
 #if 1
