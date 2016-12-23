@@ -1,7 +1,5 @@
 PROJECT(vcl_geometry_test)
 
-SET(VCL_GTE_INCLUDE CACHE PATH "Include directory of GeometricToolsEngine")
-
 SET(VCL_TEST_SRC
 	distance.cpp
 	intersect.cpp

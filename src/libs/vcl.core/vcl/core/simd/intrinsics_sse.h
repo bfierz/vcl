@@ -192,7 +192,11 @@ namespace Vcl
 #endif
 	}
 
-	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel);
+#ifdef VCL_VECTORIZE_SSE4_1
+#	define _mmVCL_insert_ps _mm_insert_ps
+#else
+	__m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel);
+#endif
 
 	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m128i v, int i)
 	{
