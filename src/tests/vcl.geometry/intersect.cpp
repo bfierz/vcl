@@ -39,6 +39,55 @@
 // Google test
 #include <gtest/gtest.h>
 
+TEST(SlabMath, Intersection)
+{
+	using namespace Vcl::Mathematics;
+
+	float left = 0;
+	float right = 1;
+
+	float o[] = { -0.5f, 0.0f, 0.5f, 1.0f, 1.5f };
+	float d[] = { 0, 1 };
+	float inv_d[] = { 1 / d[0], 1 / d[1] };
+
+	float tmin[10], tmax[10];
+
+	for (int j = 0; j < 2; j++)
+	for (int i = 0; i < 5; i++)
+	{
+		float t1 = (left  - o[i]) * inv_d[j];
+		float t2 = (right - o[i]) * inv_d[j];
+
+		tmin[5*j + i] = min(min(t1, t2),  std::numeric_limits<float>::infinity());
+		tmax[5*j + i] = max(max(t1, t2), -std::numeric_limits<float>::infinity());
+	}
+
+	// No intersection
+	EXPECT_TRUE(std::isinf(tmin[0]));
+	EXPECT_TRUE(std::isinf(tmax[0]));
+	EXPECT_EQ(std::signbit(tmin[0]), std::signbit(tmax[0]));
+
+	// No intersection
+	EXPECT_TRUE(std::isinf(tmin[1]));
+	EXPECT_TRUE(std::isinf(tmax[1]));
+	EXPECT_EQ(std::signbit(tmin[1]), std::signbit(tmax[1]));
+
+	// Intersection
+	EXPECT_TRUE(std::isinf(tmin[2]));
+	EXPECT_TRUE(std::isinf(tmax[2]));
+	EXPECT_NE(std::signbit(tmin[2]), std::signbit(tmax[2]));
+
+	// Intersection
+	EXPECT_TRUE(std::isinf(tmin[3]));
+	EXPECT_TRUE(std::isinf(tmax[3]));
+	EXPECT_NE(std::signbit(tmin[3]), std::signbit(tmax[3]));
+
+	// No intersection
+	EXPECT_TRUE(std::isinf(tmin[4]));
+	EXPECT_TRUE(std::isinf(tmax[4]));
+	EXPECT_EQ(std::signbit(tmin[4]), std::signbit(tmax[4]));
+}
+
 template<typename Scalar, typename Func>
 void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func intersect, bool result)
 {
@@ -52,7 +101,8 @@ void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func 
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
 
-	EXPECT_EQ(result, all(intersect(b0, ray))) << "Intersection was missed. o:" << ray.origin() << ", d:" << ray.direction();
+	Eigen::IOFormat fmt(-1, 0, ", ", ", ", "", "", "[", "]");
+	EXPECT_EQ(result, all(intersect(b0, ray))) << "Intersection was missed. o: " << ray.origin().format(fmt) << ", d: " << ray.direction().format(fmt);
 }
 
 TEST(AxisAlignedBoxRayIntersection, ScalarBarnes)
@@ -111,7 +161,7 @@ TEST(AxisAlignedBoxRayIntersection, ScalarPharr)
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 {
-	using Vcl::Geometry::intersects;
+	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
 	using Vcl::all;
 
@@ -122,14 +172,14 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
-	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
+	ray3_t r{ { 1.0f, 1.0f, 0.0f }, { 0, 0, -1 } };
 
-	EXPECT_TRUE(all(intersects(b0, r))) << "Intersection was missed.";
+	EXPECT_TRUE(all(intersects_MaxMult(b0, r))) << "Intersection was missed.";
 }
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat4)
 {
-	using Vcl::Geometry::intersects;
+	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
 	using Vcl::all;
 
@@ -140,14 +190,14 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat4)
 	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
-	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
+	ray3_t r{ { 1.0f, 1.0f, 0.0f }, { 0, 0, -1 } };
 
-	EXPECT_TRUE(all(intersects(b0, r))) << "Intersection was missed.";
+	EXPECT_TRUE(all(intersects_MaxMult(b0, r))) << "Intersection was missed.";
 }
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat8)
 {
-	using Vcl::Geometry::intersects;
+	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
 	using Vcl::all;
 
@@ -158,14 +208,14 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat8)
 	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
-	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
+	ray3_t r{ { 1.0f, 1.0f, 0.0f }, { 0, 0, -1 } };
 
-	EXPECT_TRUE(all(intersects(b0, r))) << "Intersection was missed.";
+	EXPECT_TRUE(all(intersects_MaxMult(b0, r))) << "Intersection was missed.";
 }
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat16)
 {
-	using Vcl::Geometry::intersects;
+	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
 	using Vcl::all;
 
@@ -176,7 +226,7 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat16)
 	using ray3_t = Vcl::Geometry::Ray<real_t, 3>;
 
 	box3_t b0{ vec3_t{ 0, 0, 0 }, vec3_t{ 1, 1, 1 } };
-	ray3_t r{ { 2.0f, 2.0f, 0.0f }, { 0, 0, -1 } };
+	ray3_t r{ { 1.0f, 1.0f, 0.0f }, { 0, 0, -1 } };
 
-	EXPECT_TRUE(all(intersects(b0, r))) << "Intersection was missed.";
+	EXPECT_TRUE(all(intersects_MaxMult(b0, r))) << "Intersection was missed.";
 }

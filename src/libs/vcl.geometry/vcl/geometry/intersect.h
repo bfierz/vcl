@@ -52,19 +52,19 @@ namespace Vcl { namespace Geometry
 	{
 		using namespace Vcl::Mathematics;
 
-		float tmin = 0;
-		float tmax = std::numeric_limits<float>::infinity();
+		float tmin = -std::numeric_limits<float>::infinity();
+		float tmax =  std::numeric_limits<float>::infinity();
 
 		for (int i = 0; i < 3; ++i)
 		{
 			float t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
 			float t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
-			tmin = max(tmin, min(min(t1, t2), tmax));
-			tmax = min(tmax, max(max(t1, t2), tmin));
+			tmin = max(tmin, min(min(t1, t2),  std::numeric_limits<float>::infinity()));
+			tmax = min(tmax, max(max(t1, t2), -std::numeric_limits<float>::infinity()));
 		}
 
-		return tmax >= max(tmin, { 0.0f });
+		return tmax > max(tmin, { 0.0f });
 	}
 
 	template<typename Real, int Width>
@@ -81,11 +81,11 @@ namespace Vcl { namespace Geometry
 
 		for (int i = 0; i < 3; ++i)
 		{
-			Vcl::VectorScalar<Real, Width> t1 = (box.min()[i] - ray.origin()[i]) / ray.direction()[i];
-			Vcl::VectorScalar<Real, Width> t2 = (box.max()[i] - ray.origin()[i]) / ray.direction()[i];
+			Vcl::VectorScalar<Real, Width> t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
+			Vcl::VectorScalar<Real, Width> t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
-			tmin = max(tmin, min(min(t1, t2), tmax));
-			tmax = min(tmax, max(max(t1, t2), tmin));
+			tmin = max(tmin, min(min(t1, t2),  std::numeric_limits<float>::infinity()));
+			tmax = min(tmax, max(max(t1, t2), -std::numeric_limits<float>::infinity()));
 		}
 
 		return tmax > max(tmin, { 0.0f });
@@ -121,7 +121,7 @@ namespace Vcl { namespace Geometry
 		tmax = min(tzmax, min(tymax, min(txmax, tmax)));
 		tmax *= 1.00000024f;
 
-		return tmax >= max(tmin, { 0.0f });
+		return tmin <= tmax;
 	}
 	
 	template<typename Real, int Width>
