@@ -119,7 +119,11 @@
 #define VCL_PP_VA_EXPAND_ARGS_15(op, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15)			op(a1, 0) op(a2, 1) op(a3, 2) op(a4, 3) op(a5, 4) op(a6, 5) op(a7, 6) op(a8, 7) op(a9, 8) op(a10, 9) op(a11, 10) op(a12, 11) op(a13, 12) op(a14, 13) op(a15, 14)
 #define VCL_PP_VA_EXPAND_ARGS_16(op, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16)		op(a1, 0) op(a2, 1) op(a3, 2) op(a4, 3) op(a5, 4) op(a6, 5) op(a7, 6) op(a8, 7) op(a9, 8) op(a10, 9) op(a11, 10) op(a12, 11) op(a13, 12) op(a14, 13) op(a15, 14) op(a16, 15)
 
-#define VCL_PP_VA_EXPAND_ARGS(op, ...)		VCL_PP_JOIN_2(VCL_PP_VA_EXPAND_ARGS_, VCL_PP_VA_NUM_ARGS(__VA_ARGS__)) VCL_PP_PASS_VA(op, __VA_ARGS__)
+#ifdef VCL_COMPILER_MSVC
+#	define VCL_PP_VA_EXPAND_ARGS(op, ...) VCL_PP_JOIN_2(VCL_PP_VA_EXPAND_ARGS_, VCL_PP_VA_NUM_ARGS(__VA_ARGS__)) VCL_PP_PASS_VA(op, __VA_ARGS__)
+#else
+#	define VCL_PP_VA_EXPAND_ARGS(op, ...) VCL_PP_JOIN_2(VCL_PP_VA_EXPAND_ARGS_, VCL_PP_VA_NUM_ARGS(__VA_ARGS__)) (op, __VA_ARGS__)
+#endif
 
 
 /// Turns any legal C++ expression into nothing

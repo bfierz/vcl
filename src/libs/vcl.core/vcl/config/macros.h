@@ -76,9 +76,9 @@
 
 // VCL_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
 #ifdef VCL_COMPILER_MSVC
-# define VCL_PP_PASS_VA(...)	VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
+#	define VCL_PP_PASS_VA(...)	VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
 #else
-# define VCL_PP_PASS_VA(...)	( __VA_ARGS__ )
+#	define VCL_PP_PASS_VA(...)	( __VA_ARGS__ )
 #endif
 
 /*

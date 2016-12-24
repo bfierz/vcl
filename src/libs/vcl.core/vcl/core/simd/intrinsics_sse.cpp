@@ -183,7 +183,7 @@ namespace Vcl
 #ifndef VCL_VECTORIZE_SSE4_1
 	__m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel)
 	{
-		return ssp_insert_ps_SSE2(a, b, sel);
+		return ssp_insert_ps_REF(a, b, sel);
 	}
 #endif
 
