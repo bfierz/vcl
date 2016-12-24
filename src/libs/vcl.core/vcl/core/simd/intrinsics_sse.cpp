@@ -180,5 +180,12 @@ namespace Vcl
 #endif
 	}
 
+#ifndef VCL_VECTORIZE_SSE4_1
+	__m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel)
+	{
+		return ssp_insert_ps_REF(a, b, sel);
+	}
+#endif
+
 }
 #endif // defined(VCL_VECTORIZE_SSE)

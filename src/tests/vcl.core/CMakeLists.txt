@@ -3,6 +3,7 @@ PROJECT(vcl_core_test)
 SET(VCL_TEST_SRC
 	allocator.cpp
 	bitvector.cpp
+	flags.cpp
 	gather.cpp
 	interleavedarray.cpp
 	load.cpp

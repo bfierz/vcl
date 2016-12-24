@@ -39,7 +39,7 @@ namespace Vcl { namespace Util
 	// The implementation the following methods is based on:
 	// http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
 
-	VCL_STRONG_INLINE VCL_CONSTEXPR_CPP14 unsigned int calculateFNV(const char* str)
+	VCL_STRONG_INLINE unsigned int calculateFNV(const char* str)
 	{
 		const size_t length = strlen(str) + 1;
 		unsigned int hash = 2166136261u;

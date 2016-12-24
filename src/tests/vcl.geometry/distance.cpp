@@ -39,8 +39,8 @@
 #include <vcl/math/math.h>
 
 // Reference code
-#include <Mathematics/GteDistPointTriangle.h>
-#include <Mathematics/GteDistTriangle3Triangle3.h>
+#include "ref/GteDistPointTriangle.h"
+#include "ref/GteDistTriangle3Triangle3.h"
 
 #include "distance_ref.h"
 

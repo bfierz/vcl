@@ -36,10 +36,10 @@ namespace Vcl
 #if !defined VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex)
 	{
-		__m128 first = _mm_set_ss(base[_mm_extract_epi32(vindex, 0)]);
-		__m128 second = _mm_insert_ps(first, _mm_set_ss(base[_mm_extract_epi32(vindex, 1)]), 0x10);
-		__m128 third = _mm_insert_ps(second, _mm_set_ss(base[_mm_extract_epi32(vindex, 2)]), 0x20);
-		__m128 fourth = _mm_insert_ps(third, _mm_set_ss(base[_mm_extract_epi32(vindex, 3)]), 0x30);
+		__m128 first  =                          _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 0)]);
+		__m128 second = _mmVCL_insert_ps(first,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 1)]), 0x10);
+		__m128 third  = _mmVCL_insert_ps(second, _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 2)]), 0x20);
+		__m128 fourth = _mmVCL_insert_ps(third,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 3)]), 0x30);
 
 		return fourth;
 	}
