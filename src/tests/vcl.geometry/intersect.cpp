@@ -105,24 +105,6 @@ void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func 
 	EXPECT_EQ(result, all(intersect(b0, ray))) << "Intersection was missed. o: " << ray.origin().format(fmt) << ", d: " << ray.direction().format(fmt);
 }
 
-TEST(AxisAlignedBoxRayIntersection, ScalarBarnes)
-{
-	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f },{ 0, 0, 1 } };
-
-	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f,  0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f,  1.000001f },{ 0, 0, 1 } };
-
-	typedef bool (*Func) (const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
-	Func f = Vcl::Geometry::intersects;
-	testAxisAlignedIntersection(r0, f, true);
-	testAxisAlignedIntersection(r1, f, true);
-	testAxisAlignedIntersection(r2, f, true);
-	testAxisAlignedIntersection(r3, f, true);
-	testAxisAlignedIntersection(r4, f, false);
-}
-
 TEST(AxisAlignedBoxRayIntersection, ScalarIze)
 {
 	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f },{ 0, 0, 1 } };

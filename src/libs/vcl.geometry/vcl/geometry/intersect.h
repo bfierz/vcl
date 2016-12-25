@@ -40,11 +40,15 @@
 namespace Vcl { namespace Geometry
 {
 	/*!
+	 *	\brief Ray-AABB intersection
+	 *
 	 *	Implementation based on the summary in
 	 *	http://tavianator.com/fast-branchless-raybounding-box-intersections/
 	 *	http://tavianator.com/fast-branchless-raybounding-box-intersections-part-2-nans/
+	 *
+	 *	\note Rays aligned with the border of the bounding box produce only very inconsistent intersections
 	 */
-	bool intersects
+	bool intersects_Barnes
 	(
 		const Eigen::AlignedBox<float, 3>& box,
 		const Ray<float, 3>& ray
@@ -67,31 +71,9 @@ namespace Vcl { namespace Geometry
 		return tmax > max(tmin, { 0.0f });
 	}
 
-	template<typename Real, int Width>
-	Vcl::VectorScalar<bool, Width> intersects
-	(
-		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
-		const Ray<Vcl::VectorScalar<Real, Width>, 3>& ray
-	)
-	{
-		using namespace Vcl::Mathematics;
-
-		Vcl::VectorScalar<Real, Width> tmin = -std::numeric_limits<float>::infinity();
-		Vcl::VectorScalar<Real, Width> tmax =  std::numeric_limits<float>::infinity();
-
-		for (int i = 0; i < 3; ++i)
-		{
-			Vcl::VectorScalar<Real, Width> t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
-			Vcl::VectorScalar<Real, Width> t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
-
-			tmin = max(tmin, min(min(t1, t2),  std::numeric_limits<float>::infinity()));
-			tmax = min(tmax, max(max(t1, t2), -std::numeric_limits<float>::infinity()));
-		}
-
-		return tmax > max(tmin, { 0.0f });
-	}
-
 	/*!
+	 *	\brief Ray-AABB intersection
+	 *
 	 *	Implementation from
 	 *	https://www.solidangle.com/research/jcgt2013_robust_BVH-revised.pdf
 	 */
@@ -114,7 +96,8 @@ namespace Vcl { namespace Geometry
 		tzmin = (bounds[    r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
 		tzmax = (bounds[1 - r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
 
-		float tmin = -std::numeric_limits<float>::infinity();
+		// Disallow any intersection that lies behind the start point of the ray
+		float tmin = 0;
 		float tmax = std::numeric_limits<float>::infinity();
 
 		tmin = max(tzmin, max(tymin, max(txmin, tmin)));
@@ -144,14 +127,22 @@ namespace Vcl { namespace Geometry
 		tzmin = (select(r.signs().z() == 0, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
 		tzmax = (select(r.signs().z() == 1, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
 
-		real_t tmin = max(tzmin, max(tymin, max(txmin, tmin)));
-		real_t tmax = min(tzmax, min(tymax, min(txmax, tmax)));
+		// Disallow any intersection that lies behind the start point of the ray
+		real_t tmin = 0;
+		real_t tmax = std::numeric_limits<float>::infinity();
+
+		tmin = max(tzmin, max(tymin, max(txmin, tmin)));
+		tmax = min(tzmax, min(tymax, min(txmax, tmax)));
 		tmax *= 1.00000024f;
 
 		return tmin <= tmax;
 	}
-	
-	// Method from Pharr, Humphrey
+
+	/*!
+	*	\brief Ray-AABB intersection
+	*
+	*	Method from Pharr, Humphrey
+	*/
 	bool intersects_Pharr
 	(
 		const Eigen::AlignedBox<float, 3>& box,
