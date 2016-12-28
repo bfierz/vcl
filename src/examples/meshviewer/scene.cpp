@@ -39,6 +39,7 @@
 
 Scene::Scene(QObject* parent)
 : QObject(parent)
+, _entityAdapterModel(this)
 {
 	using namespace Vcl::Graphics;
 
@@ -49,11 +50,15 @@ Scene::Scene(QObject* parent)
 	_entityManager.registerComponent<GPUSurfaceMesh>();
 	_entityManager.registerComponent<GPUVolumeMesh>();
 	_entityManager.registerComponent<MeshStatistics>();
+	_entityManager.registerComponent<Vcl::Editor::Components::Transform>();
 
 	// Create a new camera
 	_cameraEntity = _entityManager.create();
 	_camera = _entityManager.create<Camera>(_cameraEntity, std::make_shared<OpenGL::MatrixFactory>());
 	_cameraController.setCamera(_camera);
+
+	// Add the camera to the UI
+	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Camera" });
 }
 Scene::~Scene()
 {
@@ -80,6 +85,9 @@ void Scene::createSurfaceSphere()
 	auto mesh_entity = _entityManager.create();
 	_meshes.push_back(mesh_entity);
 
+	// Make the mesh placable in space
+	_entityManager.create<Vcl::Editor::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
+
 	// Create the mesh
 	auto mesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
 
@@ -97,6 +105,9 @@ void Scene::createSurfaceSphere()
 
 	// Calculate the new scene bounding box
 	updateBoundingBox();
+
+	// Add the entity to the UI
+	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Sphere" });
 }
 
 void Scene::createBar(int x, int y, int z)
@@ -147,6 +158,9 @@ void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	auto mesh_entity = _entityManager.create();
 	_meshes.push_back(mesh_entity);
 
+	// Make the mesh placable in space
+	_entityManager.create<Vcl::Editor::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
+
 	// Create the mesh component
 	auto mesh_component = _entityManager.create<TetraMesh>(mesh_entity, std::move(*mesh));
 
@@ -195,3 +209,7 @@ void Scene::endRotate()
 	_cameraController.endRotate();
 }
 
+Editor::EntityAdapterModel* Scene::entityModel()
+{
+	return &_entityAdapterModel;
+}

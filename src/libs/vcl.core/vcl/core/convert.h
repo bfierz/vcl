@@ -77,7 +77,6 @@ namespace Vcl
 	{
 		return std::to_string(value);
 	}
-
 	
 	template<>
 	inline Eigen::Vector2f from_string<Eigen::Vector2f>(const std::string& value)
@@ -149,5 +148,86 @@ namespace Vcl
 		unsigned int v3 = std::stoul(value.substr(pos));
 
 		return Eigen::Vector4ui(v0, v1, v2, v3);
+	}
+
+	template<>
+	inline Eigen::Matrix3f from_string<Eigen::Matrix3f>(const std::string& value)
+	{
+		size_t pos = 0;
+		size_t next = 0;
+		float v00 = std::stof(value, &next);             pos += next;
+		float v10 = std::stof(value.substr(pos), &next); pos += next;
+		float v20 = std::stof(value.substr(pos), &next); pos += next;
+
+		float v01 = std::stof(value.substr(pos), &next); pos += next;
+		float v11 = std::stof(value.substr(pos), &next); pos += next;
+		float v21 = std::stof(value.substr(pos), &next); pos += next;
+
+		float v02 = std::stof(value.substr(pos), &next); pos += next;
+		float v12 = std::stof(value.substr(pos), &next); pos += next;
+		float v22 = std::stof(value.substr(pos));
+
+		Eigen::Matrix3f M;
+		M.col(0) << v00, v10, v20;
+		M.col(1) << v01, v11, v21;
+		M.col(2) << v02, v12, v22;
+
+		return M;
+	}
+
+	template<>
+	inline std::string to_string<Eigen::Matrix3f>(const Eigen::Matrix3f& value)
+	{
+		std::stringstream ss;
+
+		Eigen::IOFormat fmt{ -1, 0, ", ", "" };
+		ss << value.format(fmt);
+
+		return ss.str();
+	}
+
+	template<>
+	inline Eigen::Matrix4f from_string<Eigen::Matrix4f>(const std::string& value)
+	{
+		size_t pos = 0;
+		size_t next = 0;
+		float v00 = std::stof(value, &next);             pos += next;
+		float v10 = std::stof(value.substr(pos), &next); pos += next;
+		float v20 = std::stof(value.substr(pos), &next); pos += next;
+		float v30 = std::stof(value.substr(pos), &next); pos += next;
+
+		float v01 = std::stof(value.substr(pos), &next); pos += next;
+		float v11 = std::stof(value.substr(pos), &next); pos += next;
+		float v21 = std::stof(value.substr(pos), &next); pos += next;
+		float v31 = std::stof(value.substr(pos), &next); pos += next;
+
+		float v02 = std::stof(value.substr(pos), &next); pos += next;
+		float v12 = std::stof(value.substr(pos), &next); pos += next;
+		float v22 = std::stof(value.substr(pos), &next); pos += next;
+		float v32 = std::stof(value.substr(pos), &next); pos += next;
+
+		float v03 = std::stof(value.substr(pos), &next); pos += next;
+		float v13 = std::stof(value.substr(pos), &next); pos += next;
+		float v23 = std::stof(value.substr(pos), &next); pos += next;
+		float v33 = std::stof(value.substr(pos));
+
+		Eigen::Matrix4f M;
+		M.col(0) << v00, v10, v20, v30;
+		M.col(1) << v01, v11, v21, v31;
+		M.col(2) << v02, v12, v22, v32;
+		M.col(3) << v03, v13, v23, v33;
+
+		return M;
+	}
+
+	template<>
+	inline std::string to_string<Eigen::Matrix4f>(const Eigen::Matrix4f& value)
+	{
+		std::stringstream ss;
+
+		Eigen::IOFormat fmt{ -1, 0, ", ", "" };
+		ss << value.format(fmt);
+
+		return ss.str();
 	}
 }

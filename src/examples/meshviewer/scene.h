@@ -40,6 +40,10 @@
 #include "components/gpusurfacemesh.h"
 #include "components/gpuvolumemesh.h"
 #include "components/meshstatisticscomponent.h"
+#include "components/transform.h"
+
+#include "editor/componentadapter.h"
+#include "editor/entityadapter.h"
 
 /*!
  *	\note Combination of model and view-model
@@ -47,6 +51,8 @@
 class Scene : public QObject
 {
 	Q_OBJECT
+
+	Q_PROPERTY(Editor::EntityAdapterModel* entityModel READ entityModel NOTIFY entityModelChanged)
 
 public:
 	Scene(QObject* parent = 0);
@@ -82,6 +88,12 @@ public:
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
 
+public: // Editor support
+	Editor::EntityAdapterModel* entityModel();
+
+signals:
+	void entityModelChanged();
+
 private:
 	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
 	void updateBoundingBox();
@@ -106,7 +118,11 @@ private: // Render data
 	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 
 private: // Entities
+	//! Entity manager
 	Vcl::Components::EntityManager _entityManager;
+
+	//! QML exposure of scene entities
+	Editor::EntityAdapterModel _entityAdapterModel;
 
 private: // Camera entity
 	Vcl::Components::Entity _cameraEntity;

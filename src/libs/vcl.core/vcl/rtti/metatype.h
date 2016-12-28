@@ -94,6 +94,7 @@ namespace Vcl { namespace RTTI
 }}
 
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
+#define VCL_DECLARE_PLAIN_METAOBJECT public: const Vcl::RTTI::Type* metaType() const;
 #define VCL_DECLARE_ROOT_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const;
 #define VCL_DECLARE_METAOBJECT(name) public: const Vcl::RTTI::Type* metaType() const override;
 #define VCL_DEFINE_METAOBJECT(name) \

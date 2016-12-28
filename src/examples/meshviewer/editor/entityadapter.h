@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,59 +22,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
-
-// C++ standard library
 
 // Qt
-#include <QtGui/QGuiApplication>
-#include <QtQml/QQmlApplicationEngine>
-#include <QtQml/QQmlContext>
-#include <QtQuick/QQuickWindow>
+#include <QtCore/QObject>
+#include <QtCore/QAbstractListModel>
 
 // VCL
 
-#include "meshview.h"
-#include "scene.h"
-
-// Force the use of the NVIDIA GPU in an Optimius system
-extern "C"
+namespace Editor
 {
-	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
-}
-
-int main(int argc, char **argv)
-{
-	QGuiApplication app(argc, argv);
-
-	// Make types accessible in QML
-	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "MeshView");
-
-	// Configure the default OpenGL format
-	auto gl_fmt = QSurfaceFormat::defaultFormat();
-	gl_fmt.setProfile(QSurfaceFormat::CoreProfile);
-	gl_fmt.setVersion(4, 5);
-	gl_fmt.setOptions(QSurfaceFormat::DebugContext | QSurfaceFormat::ResetNotification);
-	QSurfaceFormat::setDefaultFormat(gl_fmt);
-
-	QQmlApplicationEngine engine;
-
-	Scene scene;
-	engine.rootContext()->setContextProperty("scene", &scene);
-
-	engine.load(QUrl("qrc:///main.qml"));
-
-	QObject *topLevel = engine.rootObjects().value(0);
-	QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
-	if (!window)
+	class EntityAdapter
 	{
-		qWarning("Error: Your root item has to be a Window.");
-		return -1;	
-	}
-	window->show();
+	public:
+		/*!
+		 *	\brief Construct a new entity with a name
+		 *	\param name Name of the entity
+		 */
+		EntityAdapter(const QString& name);
 
-	return app.exec();
+		QString name() const;
+		void setName(const QString& name);
+
+	private:
+		//! Name of the entity
+		QString _name;
+	};
+
+	class EntityAdapterModel : public QAbstractListModel
+	{
+		Q_OBJECT
+
+	public:
+		enum class Roles
+		{
+			Name = Qt::UserRole + 1,
+			Visibility
+		};
+
+		EntityAdapterModel(QObject* parent = nullptr);
+
+		void addEntity(const EntityAdapter& animal);
+
+		int rowCount(const QModelIndex & parent = QModelIndex()) const;
+
+		QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+	protected:
+		QHash<int, QByteArray> roleNames() const;
+
+	private:
+		QList<EntityAdapter> _entities;
+	};
 }

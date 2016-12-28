@@ -344,28 +344,51 @@ void FboRenderer::render()
 			glDrawArrays(GL_POINTS, 0, (GLsizei)points.size() / 3);
 		}*/
 
+		// Common components
+		auto transforms = scene->entityManager()->get<Vcl::Editor::Components::Transform>();
+
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())
 		{
-			surfaces->forEach([this, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
+			surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
 			{
-				renderTriMesh(mesh, _opaqueTriMeshPipelineState, M);
+				Eigen::Matrix4f T;
+				if (transforms->has(id))
+				{
+					T = M * (*transforms)(id)->get();
+				}
+				else
+				{
+					T = M;
+				}
+
+				renderTriMesh(mesh, _opaqueTriMeshPipelineState, T);
 			});
 		}
 
 		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 		if (!volumes->empty())
 		{
-			volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
+			volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
 			{
-				if (_renderWireframe)
+				Eigen::Matrix4f T;
+				if (transforms->has(id))
 				{
-					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, M);
-					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, M);
+					T = M * (*transforms)(id)->get();
 				}
 				else
 				{
-					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, M);
+					T = M;
+				}
+
+				if (_renderWireframe)
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, T);
+					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, T);
+				}
+				else
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, T);
 				}
 			});
 		}

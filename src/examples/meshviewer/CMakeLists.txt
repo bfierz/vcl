@@ -20,12 +20,23 @@ SET(COMPONENTS_INC
 	components/gpusurfacemesh.h
 	components/gpuvolumemesh.h
 	components/meshstatisticscomponent.h
+	components/transform.h
 )
 
 SET(COMPONENTS_SRC
 	components/gpusurfacemesh.cpp
 	components/gpuvolumemesh.cpp
 	components/meshstatisticscomponent.cpp
+	components/transform.cpp
+)
+
+SET(EDITOR_INC
+	editor/componentadapter.h
+	editor/entityadapter.h
+)
+SET(EDITOR_SRC
+	editor/componentadapter.cpp
+	editor/entityadapter.cpp
 )
 
 SET(UTIL_INC
@@ -49,6 +60,10 @@ SET(SRC
 
 SET(QML
 	main.qml
+
+	SceneView.qml
+
+	EntityListDelegate.qml
 
 	CreateBarDialog.qml
 	OpenMeshDialog.qml
@@ -97,11 +112,13 @@ SOURCE_GROUP("shaders\\framebuffer" FILES ${SHADERS_FRAMEBUFFER})
 SOURCE_GROUP("shaders" FILES ${SHADERS})
 
 SOURCE_GROUP("components" FILES ${COMPONENTS_SRC} ${COMPONENTS_INC})
+SOURCE_GROUP("editor" FILES ${EDITOR_SRC} ${EDITOR_INC})
 SOURCE_GROUP("utils" FILES ${UTIL_SRC} ${UTIL_INC})
 SOURCE_GROUP("" FILES ${SRC} ${INC})
 
 ADD_EXECUTABLE(meshviewer
 	${COMPONENTS_SRC} ${COMPONENTS_INC}
+	${EDITOR_SRC} ${EDITOR_INC}
 	${UTIL_SRC} ${UTIL_INC}
 	${SRC} ${INC}
 	${QML} ${RESOURCES}

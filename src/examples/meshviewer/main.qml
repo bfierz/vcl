@@ -27,6 +27,7 @@ import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.0
 import QtQuick.Window 2.1
 
 import MeshViewerRendering 1.0
@@ -105,63 +106,35 @@ ApplicationWindow
         }
     }
 
-	MeshView
+	SplitView
 	{
-        id: renderer
-        anchors.fill: parent
-        anchors.margins: 10
-				
-		MouseArea
+		anchors.fill: parent
+		orientation: Qt.Horizontal
+
+		SceneView
 		{
-			CheckBox
-			{
-				style: CheckBoxStyle
-				{
-					label: Text
-					{
-						color: "white"
-						text: "Wireframe"
-					}
-				}
-				checked: false
+			id: renderer
+			anchors.margins: 10
+            Layout.fillWidth: true
+		}
 
-				onClicked:
-				{
-					renderer.renderWireframe = checked
-				}
-			}
+		ListView
+		{
+			id: entityList
 
-			anchors.fill: parent
-			acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-			onPressed:
-			{
-				if (mouse.button & Qt.LeftButton)
-				{
-					parent.selectObject(mouse.x, mouse.y)
-				}
-				else if (mouse.button & Qt.MiddleButton)
-				{
-					scene.startRotate(mouse.x / width, mouse.y / height)
-				}
-			}
-			onReleased:
-			{
-				if (mouse.button & Qt.MiddleButton)
-				{
-					scene.endRotate()
-					renderer.update()
-				}
-			}
-			onPositionChanged:
-			{
-				scene.rotate(mouse.x / width, mouse.y / height)
-				renderer.update()
-			}
-			onWheel:
-			{
-			}
+			Layout.minimumWidth: 200
+			Layout.minimumHeight: 200
+            Layout.fillHeight: true
+			model: scene.entityModel
+			delegate: EntityListDelegate {}
+			highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+			focus: true
 		}
 	}
 
-	Component.onCompleted: { renderer.scene = scene }
+	Component.onCompleted:
+	{
+		renderer.scene = scene
+		entityList.model = scene.entityModel
+	}
 }

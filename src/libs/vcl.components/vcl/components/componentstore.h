@@ -83,6 +83,11 @@ namespace Vcl { namespace Components
 			return &_components.find(id)->second;
 		}
 
+		auto operator()(EntityId id) const -> const ComponentType*
+		{
+			return &_components.find(id)->second;
+		}
+
 		template<typename Func>
 		void forEach(Func&& f) const
 		{
@@ -127,6 +132,11 @@ namespace Vcl { namespace Components
 		}
 
 		auto operator()(EntityId id) -> std::pair<typename Store::iterator, typename Store::iterator>
+		{
+			return _components.equal_range(id);
+		}
+
+		auto operator()(EntityId id) const -> std::pair<typename Store::iterator, typename Store::iterator>
 		{
 			return _components.equal_range(id);
 		}
