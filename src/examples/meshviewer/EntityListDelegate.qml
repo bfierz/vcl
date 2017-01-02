@@ -30,7 +30,7 @@ Item
 {
 	property variant components: model.components
 
-	Text
+	Label
 	{
 		text: model.name;
 		font.pixelSize: 24

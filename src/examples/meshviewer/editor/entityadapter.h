@@ -56,7 +56,7 @@ namespace Editor
 		QString _name;
 
 		//! Entity
-		const Vcl::Components::Entity& _entity;
+		Vcl::Components::Entity _entity;
 
 		//! Components of the this entity
 		mutable QList<QObject*> _components;

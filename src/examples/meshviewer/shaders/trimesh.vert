@@ -26,18 +26,21 @@
 #extension GL_ARB_enhanced_layouts : enable
 
 // Data from input-assembler stage
-in ivec3 Index;
+in ivec3 Index0;
+in ivec3 Index1;
 in  vec4 Colour;
 
 layout(location = 0) out VertexData
 {
-	ivec3 Indices;
+	ivec3 Indices0;
+	ivec3 Indices1;
 } Out;
 
 void main()
 {
 	// Pass index data to next stage
-	Out.Indices = Index;
+	Out.Indices0 = Index0;
+	Out.Indices1 = Index1;
 
 	// Abuse the position output to pass the colour to the next stage
 	gl_Position = Colour;

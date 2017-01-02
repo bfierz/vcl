@@ -282,8 +282,8 @@ namespace Vcl { namespace Geometry
 	{
 		using face_t = std::array<unsigned int, 3>;
 
-		size_t nr_vertices = (stacks + 1) * (slices + 1);
-		size_t face_count = (stacks * slices) * 2;
+		size_t nr_vertices = (stacks - 1) * (slices + 1) + 2;
+		size_t face_count = ((stacks - 1) * slices) * 2;
 		size_t nr_indices = face_count * 3;
 
 		std::vector<Vector3f> positions{ nr_vertices };
@@ -296,7 +296,11 @@ namespace Vcl { namespace Geometry
 		float fslices = static_cast<float>(slices);
 		float pi = Mathematics::pi<float>();
 
-		for (unsigned int i = 0; i <= static_cast<unsigned int>(stacks); ++i)
+		positions[index].y() = center.y() + radius;
+		positions[index].z() = 0;
+		positions[index].x() = 0;
+		index++;
+		for (unsigned int i = 1; i < static_cast<unsigned int>(stacks); ++i)
 		{
 			float fi = static_cast<float>(i);
 			float rad_y = pi / 2.0f - fi / fstacks * pi;
@@ -310,12 +314,15 @@ namespace Vcl { namespace Geometry
 				float sin_xz = sin(rad_xz - pi);
 				float cos_xz = cos(rad_xz - pi);
 
-				positions[index].y() = center.x() + sin_y * radius;
-				positions[index].z() = center.y() + sin_xz * cos_y * radius;
-				positions[index].x() = center.z() + cos_xz * cos_y * radius;
+				positions[index].y() = center.y() + sin_y * radius;
+				positions[index].z() = center.z() + sin_xz * cos_y * radius;
+				positions[index].x() = center.x() + cos_xz * cos_y * radius;
 				++index;
 			}
 		}
+		positions[index].y() = center.y() - radius;
+		positions[index].z() = 0;
+		positions[index].x() = 0;
 		
 		// Create the normals
 		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
@@ -332,49 +339,45 @@ namespace Vcl { namespace Geometry
 			}
 		}
 
-		// Create the indices
+		// Create the indices:
+		// Deal with the first and the last stack seperately
+		unsigned int i0 = inverted ? 1 : 0;
+		unsigned int i1 = inverted ? 0 : 1;
 		index = 0;
-		if (inverted)
+		for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
 		{
-			for (unsigned int i = 0; i < static_cast<unsigned int>(stacks); ++i)
+			faces[index][0] = 0;
+			faces[index][1] = 1 + (j + i1) % slices;
+			faces[index][2] = 1 + (j + i0) % slices;
+			++index;
+		}
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(stacks) - 2; ++i)
+		{
+			unsigned int row0_base = 1 + (i + 0) * (static_cast<unsigned int>(slices) + 1);
+			unsigned int row1_base = 1 + (i + 1) * (static_cast<unsigned int>(slices) + 1);
+
+			for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
 			{
-				for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
-				{
-					unsigned int row0_base = i * (static_cast<unsigned int>(slices) + 1);
-					unsigned int row1_base = (i + 1) * (static_cast<unsigned int>(slices) + 1);
+				faces[index][0] = row0_base + (j + i0) % slices;
+				faces[index][1] = row0_base + (j + i1) % slices;
+				faces[index][2] = row1_base + (j +  0) % slices;
+				++index;
 
-					faces[index][0] = row0_base + (j);
-					faces[index][1] = row1_base + (j);
-					faces[index][2] = row0_base + (j + 1) % slices;
-					++index;
-
-					faces[index][0] = row1_base + (j);
-					faces[index][1] = row1_base + (j + 1) % slices;
-					faces[index][2] = row0_base + (j + 1) % slices;
-					++index;
-				}
+				faces[index][0] = row1_base + (j + i0) % slices;
+				faces[index][1] = row0_base + (j +  1) % slices;
+				faces[index][2] = row1_base + (j + i1) % slices;
+				++index;
 			}
 		}
-		else
+
+		unsigned int row0_base = nr_vertices - 1 - (static_cast<unsigned int>(slices) + 1);
+		for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
 		{
-			for (unsigned int i = 0; i < static_cast<unsigned int>(stacks); ++i)
-			{
-				for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
-				{
-					unsigned int row0_base = i * (static_cast<unsigned int>(slices) + 1);
-					unsigned int row1_base = (i + 1) * (static_cast<unsigned int>(slices) + 1);
-
-					faces[index][0] = row0_base + (j);
-					faces[index][1] = row0_base + (j + 1) % slices;
-					faces[index][2] = row1_base + (j);
-					++index;
-
-					faces[index][0] = row1_base + (j);
-					faces[index][1] = row0_base + (j + 1) % slices;
-					faces[index][2] = row1_base + (j + 1) % slices;
-					++index;
-				}
-			}
+			faces[index][0] = row0_base + (j + i0) % slices;
+			faces[index][1] = row0_base + (j + i1) % slices;
+			faces[index][2] = nr_vertices - 1;
+			++index;
 		}
 		
 		return std::make_unique<TriMesh>(positions, faces);

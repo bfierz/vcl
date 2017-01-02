@@ -11,7 +11,8 @@ layout(triangle_strip, max_vertices = 3) out;
 // Input data from last stage
 layout(location = 0) in VertexData
 {
-	ivec3 Indices;
+	ivec3 Indices0;
+	ivec3 Indices1;
 } In[1];
 
 // Output data
@@ -51,7 +52,7 @@ void main(void)
 	vec4 c0, c1, c2;
 	vec3 n;
 
-	ivec3 idx = In[0].Indices;
+	ivec3 idx = ivec3(In[0].Indices0.x, In[0].Indices0.z, In[0].Indices1.y);
 	if (UsePerVertexColour)
 	{
 		c0 = Colour[idx.x];

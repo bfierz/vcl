@@ -29,6 +29,7 @@
     
     <file>shaders/trimesh.vert</file>
     <file>shaders/trimesh.geom</file>
+    <file>shaders/trimesh_outline.geom</file>
     <file>shaders/tetramesh.vert</file>
     <file>shaders/tetramesh.geom</file>
     <file>shaders/tetramesh_sphere.geom</file>

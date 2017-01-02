@@ -44,6 +44,9 @@ public:
 	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
 
+	size_t indexStride() const { return _indexStride; }
+	size_t positionStride() const { return _positionStride; }
+
 private:
 	Vcl::Geometry::TriMesh* _triMesh;
 
@@ -55,4 +58,10 @@ private:
 
 	//! Volume-colour data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
+
+	//! Stride between two primitives
+	size_t _indexStride{ 0 };
+
+	//! Stride between two positions
+	size_t _positionStride{ 0 };
 };

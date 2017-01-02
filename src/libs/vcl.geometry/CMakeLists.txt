@@ -43,6 +43,8 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/trimesh.h
 	
 	vcl/geometry/marchingcubestables.h
+
+	vcl/geometry/meshoperations.h
 )
 SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distancePoint3Triangle3.cpp

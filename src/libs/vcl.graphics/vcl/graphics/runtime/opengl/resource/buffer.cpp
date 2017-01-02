@@ -117,7 +117,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glCreateBuffersVCL(1, &_glId);
 
 		// Allocate GPU memory
-		void* init_data_ptr = init_data ? init_data->Data : nullptr;
+		const void* init_data_ptr = init_data ? init_data->Data : nullptr;
 
 		glNamedBufferStorageVCL(_glId, desc.SizeInBytes, init_data_ptr, flags);
 		

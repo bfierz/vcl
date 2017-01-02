@@ -100,6 +100,7 @@ SET(SHADERS
 	
 	shaders/trimesh.vert
 	shaders/trimesh.geom
+	shaders/trimesh_outline.geom
 	shaders/tetramesh.vert
 	shaders/tetramesh.geom
 	shaders/tetramesh_sphere.geom

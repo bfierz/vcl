@@ -25,6 +25,7 @@
 #include "gpusurfacemesh.h"
 
 // VCL
+#include <vcl/geometry/meshoperations.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
 GPUSurfaceMesh::GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh)
@@ -33,26 +34,32 @@ GPUSurfaceMesh::GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh)
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
 
+	// Convert the triangle list to a triangle-adjacency list
+	const auto tri_adjs = convertToTriangleAdjacency<IndexDescriptionTrait<TriMesh>::VertexId>({ _triMesh->faces()->data(), _triMesh->nrFaces() });
+	_indexStride = sizeof(decltype(tri_adjs)::value_type);
+
 	// Create the index buffer
 	BufferDescription idxDesc;
 	idxDesc.Usage = ResourceUsage::Default;
-	idxDesc.SizeInBytes = _triMesh->nrFaces() * sizeof(IndexDescriptionTrait<TriMesh>::Face);
+	idxDesc.SizeInBytes = tri_adjs.size() * _indexStride;
 
 	BufferInitData idxData;
-	idxData.Data = _triMesh->faces()->data();
-	idxData.SizeInBytes = _triMesh->nrFaces() * sizeof(IndexDescriptionTrait<TriMesh>::Face);
+	idxData.Data = tri_adjs.data();
+	idxData.SizeInBytes = tri_adjs.size() * _indexStride;
 
 	_indices = std::make_unique<OpenGL::Buffer>(idxDesc, false, false, &idxData);
 
 	// Create the position buffer
+	_positionStride = sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+
 	BufferDescription posDesc;
 	posDesc.CPUAccess = ResourceAccess::Write;
 	posDesc.Usage = ResourceUsage::Default;
-	posDesc.SizeInBytes = _triMesh->nrVertices() * sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+	posDesc.SizeInBytes = _triMesh->nrVertices() * _positionStride;
 
 	BufferInitData posData;
 	posData.Data = _triMesh->vertices()->data();
-	posData.SizeInBytes = _triMesh->nrVertices() * sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+	posData.SizeInBytes = _triMesh->nrVertices() * _positionStride;
 
 	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
 

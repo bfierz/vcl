@@ -126,8 +126,9 @@ FboRenderer::FboRenderer()
 	
 	InputLayoutDescription opaqueTriLayout =
 	{
-		{ "Index",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 	
 	InputLayoutDescription opaqueTetraLayout =
@@ -145,6 +146,7 @@ FboRenderer::FboRenderer()
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
+	Shader opaqueTriOutlineGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh_outline.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
@@ -179,8 +181,10 @@ FboRenderer::FboRenderer()
 	PipelineStateDescription opaqueTriPSDesc;
 	opaqueTriPSDesc.InputLayout = opaqueTriLayout;
 	opaqueTriPSDesc.VertexShader = &opaqueTriVert;
-	opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
-	opaqueTriPSDesc.FragmentShader = &meshFrag;
+	opaqueTriPSDesc.GeometryShader = &opaqueTriOutlineGeom;
+	opaqueTriPSDesc.FragmentShader = &boxFrag;
+	//opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
+	//opaqueTriPSDesc.FragmentShader = &meshFrag;
 	_opaqueTriMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTriPSDesc);
 
 	PipelineStateDescription opaqueTetraPSDesc;
@@ -400,6 +404,11 @@ void FboRenderer::render()
 	update();
 }
 
+void FboRenderer::renderHandle(Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+
+}
+
 void FboRenderer::renderBoundingBox
 (
 	const Eigen::AlignedBox3f& bb,
@@ -438,8 +447,9 @@ void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Gr
 	ps->program().setBuffer("VertexPositions", mesh->positions());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
-	glBindVertexBuffer(1, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
+	glBindVertexBuffer(1, mesh->indices()->id(), mesh->indexStride() / 2, mesh->indexStride());
+	glBindVertexBuffer(2, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh
 	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrFaces());
