@@ -29,21 +29,20 @@
 #include <vcl/rtti/constructor.h>
 
 VCL_RTTI_CTOR_TABLE_BEGIN(Transform)
-	Vcl::RTTI::Constructor<Vcl::Editor::Components::Transform, Eigen::Matrix4f>(Vcl::RTTI::Parameter<Eigen::Matrix4f>("InitialTransform"))
+	Vcl::RTTI::Constructor<System::Components::Transform, Eigen::Matrix4f>(Vcl::RTTI::Parameter<Eigen::Matrix4f>("InitialTransform"))
 VCL_RTTI_CTOR_TABLE_END(Transform)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(Transform)
-	Vcl::RTTI::Attribute<Vcl::Editor::Components::Transform, const Eigen::Matrix3f&>{ "Rotation", &Vcl::Editor::Components::Transform::rotation, &Vcl::Editor::Components::Transform::setRotation }
+	Vcl::RTTI::Attribute<System::Components::Transform, const Eigen::Matrix3f&>{ "Rotation", &System::Components::Transform::rotation, &System::Components::Transform::setRotation }
 VCL_RTTI_ATTR_TABLE_END(Transform)
 
-VCL_DEFINE_METAOBJECT(Vcl::Editor::Components::Transform)
+VCL_DEFINE_METAOBJECT(System::Components::Transform)
 {
 	type->registerConstructors(Transform_constructor_bases);
 	type->registerAttributes(Transform_attribute_bases);
 }
 
-
-namespace Vcl { namespace Editor { namespace Components
+namespace System { namespace Components
 {
 	Transform::Transform(const Eigen::Matrix4f& initial)
 	: _transform(initial)
@@ -51,23 +50,23 @@ namespace Vcl { namespace Editor { namespace Components
 
 	}
 
-	const Matrix3f& Transform::rotation() const
+	const Eigen::Matrix3f& Transform::rotation() const
 	{
 		return _transform.block<3, 3>(0, 0);
 	}
 
-	void Transform::setRotation(const Matrix3f& rotation)
+	void Transform::setRotation(const Eigen::Matrix3f& rotation)
 	{
 		_transform.block<3, 3>(0, 0) = rotation;
 	}
 
-	const Vector3f& Transform::position() const
+	const Eigen::Vector3f& Transform::position() const
 	{
 		return _transform.block<3, 1>(0, 3);
 	}
 
-	void Transform::setPosition(const Vector3f& position)
+	void Transform::setPosition(const Eigen::Vector3f& position)
 	{
 		_transform.block<3, 1>(0, 3) = position;
 	}
-}}}
+}}

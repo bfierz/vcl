@@ -118,17 +118,41 @@ ApplicationWindow
             Layout.fillWidth: true
 		}
 
-		ListView
+		
+		SplitView
 		{
-			id: entityList
-
+			orientation: Qt.Vertical
+			Layout.fillHeight: true
 			Layout.minimumWidth: 200
-			Layout.minimumHeight: 200
-            Layout.fillHeight: true
-			model: scene.entityModel
-			delegate: EntityListDelegate {}
-			highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-			focus: true
+
+			ListView
+			{
+				id: entityList
+
+				Layout.minimumHeight: 200
+				Layout.fillWidth : true
+				model: scene.entityModel
+				delegate: EntityListDelegate {}
+				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+				focus: true
+
+				// Change the content of the component list when the current item changes
+				onCurrentItemChanged:
+				{
+					console.log("Completed: ", JSON.stringify(currentItem.components))
+					componentList.model = currentItem.components
+				}
+			}
+			ListView
+			{
+				id: componentList
+
+				Layout.minimumHeight: 200
+				Layout.fillWidth : true
+				delegate: ComponentListDelegate {}
+				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+				focus: true
+			}
 		}
 	}
 

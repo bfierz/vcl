@@ -26,11 +26,13 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 
-Component
+Item
 {
+	property variant components: model.components
+
 	Text
 	{
-		text: name;
+		text: model.name;
 		font.pixelSize: 24
 	}
 }

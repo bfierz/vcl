@@ -74,6 +74,7 @@ namespace Vcl { namespace RTTI
 
 		virtual void destruct(void* ptr) const override
 		{
+			VCL_UNREFERENCED_PARAMETER(ptr);
 			static_cast<T*>(ptr)->~T();
 		}
 	};

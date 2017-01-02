@@ -22,34 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
+import QtQuick 2.2
+import QtQuick.Controls 1.4
 
-// VCL
-#include <vcl/rtti/metatype.h>
-
-namespace System { namespace Components
+Component
 {
-	class Transform
+	Loader
 	{
-		VCL_DECLARE_PLAIN_METAOBJECT
-
-	public:
-		Transform(const Eigen::Matrix4f& initial);
-
-		const Eigen::Matrix4f& get() const { return _transform; }
-
-		const Eigen::Matrix3f& rotation() const;
-		void setRotation(const Eigen::Matrix3f& rotation);
-
-		const Eigen::Vector3f& position() const;
-		void setPosition(const Eigen::Vector3f& position);
-
-	private:
-		//! Rotation and transformation
-		Eigen::Matrix4f _transform{ Eigen::Matrix4f::Identity() };
-	};
-}}
+		source: switch (modelData.type)
+		{
+			case "TransformComponent": return "ui/components/TransformComponent.qml"
+		}
+	}
+}

@@ -14,7 +14,12 @@ FIND_PACKAGE(Qt5 COMPONENTS Core Gui OpenGL Qml Quick)
 
 # Do not automatically link Qt executables to qtmain target on Windows.
 # Uses console mode only. Not need to link against qtmain.lib.
-cmake_policy(SET CMP0020 OLD)
+CMAKE_POLICY(SET CMP0020 OLD)
+
+# Enable QML debugging
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  ADD_DEFINITIONS(/DQT_QML_DEBUG)
+ENDIF()
 
 SET(COMPONENTS_INC
 	components/gpusurfacemesh.h
@@ -62,11 +67,14 @@ SET(QML
 	main.qml
 
 	SceneView.qml
-
+	
+	ComponentListDelegate.qml
 	EntityListDelegate.qml
 
 	CreateBarDialog.qml
 	OpenMeshDialog.qml
+
+	ui/components/TransformComponent.qml
 )
 
 SET(SHADERS_DEBUG

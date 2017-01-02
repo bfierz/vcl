@@ -36,6 +36,7 @@
 
 // VCL
 #include <vcl/components/entity.h>
+#include <vcl/rtti/metatypelookup.h>
 
 namespace Vcl { namespace Components
 {
@@ -51,7 +52,23 @@ namespace Vcl { namespace Components
 	 */
 	class ComponentStoreBase
 	{
+	public:
+		ComponentStoreBase(const Vcl::RTTI::Type* type) : _type(type) {}
 
+		//! \returns the type of the components in this store
+		const Vcl::RTTI::Type* type() const { return _type; }
+
+		//! \returns true if the store is empty
+		virtual bool empty() const = 0;
+
+		//! \returns true if the entity as a component associated in this store
+		virtual bool has(EntityId id) const = 0;
+
+		virtual void store(EntityId id, std::vector<std::pair<void*, const Vcl::RTTI::Type*>>& components) const = 0;
+
+	private:
+		//! The type of the components in this store
+		const Vcl::RTTI::Type* _type;
 	};
 	
 	/*!
@@ -68,12 +85,14 @@ namespace Vcl { namespace Components
 		using ComponentType = T;
 
 	public:
-		bool empty() const
+		ComponentStore() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+
+		bool empty() const override
 		{
 			return _components.empty();
 		}
 
-		bool has(EntityId id) const
+		bool has(EntityId id) const override
 		{
 			return _components.find(id) != _components.end();
 		}
@@ -81,6 +100,15 @@ namespace Vcl { namespace Components
 		auto operator()(EntityId id) -> ComponentType*
 		{
 			return &_components.find(id)->second;
+		}
+
+		void store(EntityId id, std::vector<std::pair<void*, const Vcl::RTTI::Type*>>& components) const override
+		{
+			const auto comp = _components.find(id);
+			if (comp != _components.end())
+			{
+				components.emplace_back((void*)&comp->second, type());
+			}
 		}
 
 		auto operator()(EntityId id) const -> const ComponentType*
@@ -121,14 +149,25 @@ namespace Vcl { namespace Components
 		using Store = std::unordered_multimap<EntityId, ComponentType>;
 
 	public:
-		bool empty() const
+		MultiComponentStoreBase() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+
+		bool empty() const override
 		{
 			return _components.empty();
 		}
 
-		bool has(EntityId id) const
+		bool has(EntityId id) const override
 		{
 			return _components.find(id) != _components.end();
+		}
+
+		void store(EntityId id, std::vector<std::pair<void*, const Vcl::RTTI::Type*>>& components) const override
+		{
+			auto itr = (*this)(id);
+			for (auto it = itr.first; it != itr.second; ++it)
+			{
+				components.emplace_back((void*) &it->second, type());
+			}
 		}
 
 		auto operator()(EntityId id) -> std::pair<typename Store::iterator, typename Store::iterator>

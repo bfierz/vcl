@@ -93,6 +93,7 @@ public: // Editor support
 
 signals:
 	void entityModelChanged();
+	void componentModelChanged();
 
 private:
 	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
@@ -121,13 +122,15 @@ private: // Entities
 	//! Entity manager
 	Vcl::Components::EntityManager _entityManager;
 
-	//! QML exposure of scene entities
-	Editor::EntityAdapterModel _entityAdapterModel;
-
 private: // Camera entity
 	Vcl::Components::Entity _cameraEntity;
 	Vcl::Graphics::Camera* _camera;
 
 private: // Mesh entities
 	std::vector<Vcl::Components::Entity> _meshes;
+
+private: // Editor support
+
+	 //! QML exposure of scene entities
+	Editor::EntityAdapterModel _entityAdapterModel;
 };

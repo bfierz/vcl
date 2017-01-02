@@ -24,10 +24,15 @@
  */
 #include "entityadapter.h"
 
+#include "components/transform.h"
+
+#include "componentadapter.h"
+
 namespace Editor
 {
-	EntityAdapter::EntityAdapter(const QString& name)
+	EntityAdapter::EntityAdapter(const QString& name, const Vcl::Components::Entity& entity)
 	: _name(name)
+	, _entity(entity)
 	{
 	}
 
@@ -42,6 +47,24 @@ namespace Editor
 		{
 			_name = name;
 		}
+	}
+
+	QList<QObject*> EntityAdapter::components() const
+	{
+		if (_components.empty())
+		{
+			const auto& component_stores = _entity.manager()->uniqueComponents();
+			for (const auto& id_store : component_stores)
+			{
+				const auto* type = id_store.second->type();
+				if (type && type->isA(vcl_meta_type<System::Components::Transform>()))
+				{
+					_components << new TransformComponentAdapter();
+				}
+			}
+		}
+
+		return _components;
 	}
 
 	EntityAdapterModel::EntityAdapterModel(QObject* parent)
@@ -70,6 +93,8 @@ namespace Editor
 		const auto& entity = _entities[index.row()];
 		if (role == static_cast<int>(Roles::Name))
 			return entity.name();
+		else if (role == static_cast<int>(Roles::Components))
+			return QVariant::fromValue(entity.components());
 		else if (role == static_cast<int>(Roles::Visibility))
 			return true;
 		return QVariant();
@@ -79,6 +104,7 @@ namespace Editor
 	{
 		QHash<int, QByteArray> roles;
 		roles[static_cast<int>(Roles::Name)] = "name";
+		roles[static_cast<int>(Roles::Components)] = "components";
 		roles[static_cast<int>(Roles::Visibility)] = "visibility";
 		return roles;
 	}

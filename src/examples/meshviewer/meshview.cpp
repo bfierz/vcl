@@ -346,7 +346,7 @@ void FboRenderer::render()
 		}*/
 
 		// Common components
-		auto transforms = scene->entityManager()->get<Vcl::Editor::Components::Transform>();
+		auto transforms = scene->entityManager()->get<System::Components::Transform>();
 
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())

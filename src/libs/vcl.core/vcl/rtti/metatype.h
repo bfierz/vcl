@@ -40,9 +40,9 @@ namespace Vcl { namespace RTTI
 	class MetaTypeSingleton
 	{
 	public:
-		static const Type* get() { return &_metatype; }
+		static const Type* get() { return nullptr; }
 
-	private:
+	private: // Prototypes implemented by a concrete specialization
 		/*!
 		 *	\brief Initialize a new meta-type
 		 *	\param str Readable name of the meta-type
@@ -55,23 +55,7 @@ namespace Vcl { namespace RTTI
 		 *	\param type Meta-type to configure
 		 */
 		static void construct(ConstructableType<MetaType>* type);
-
-	private:
-		//! Instance of the meta-type
-		static ConstructableType<MetaType> _metatype;
 	};
-
-	template<typename MetaType>
-	template<int N>
-	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char(&str)[N])
-	{
-		ConstructableType<MetaType> type{ str, sizeof(MetaType), alignof(MetaType) };
-
-		// Build the content of the metatype
-		construct(&type);
-
-		return std::move(type);
-	}
 
 	// Template specializations matching different type variations
 	template <typename MetaType>

@@ -22,34 +22,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.3
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// VCL
-#include <vcl/rtti/metatype.h>
-
-namespace System { namespace Components
+ColumnLayout
 {
-	class Transform
+	Layout.fillWidth: true;
+
+	Label
 	{
-		VCL_DECLARE_PLAIN_METAOBJECT
+		text: modelData.name
+		font.pixelSize: 24
+	}
+	GridLayout {
+		Layout.fillWidth: true
+		rows: 1
+		columns: 5
+		flow: GridLayout.LeftToRight
+	
+		Label { Layout.rowSpan: 2; text: "Translation (x/y/z)" }
 
-	public:
-		Transform(const Eigen::Matrix4f& initial);
-
-		const Eigen::Matrix4f& get() const { return _transform; }
-
-		const Eigen::Matrix3f& rotation() const;
-		void setRotation(const Eigen::Matrix3f& rotation);
-
-		const Eigen::Vector3f& position() const;
-		void setPosition(const Eigen::Vector3f& position);
-
-	private:
-		//! Rotation and transformation
-		Eigen::Matrix4f _transform{ Eigen::Matrix4f::Identity() };
-	};
-}}
+		TextField { text: modelData.translation.x }
+		TextField { text: modelData.translation.y }
+		TextField { text: modelData.translation.z }
+	}
+}

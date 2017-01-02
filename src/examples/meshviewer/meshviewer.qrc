@@ -2,9 +2,11 @@
   <qresource>
     <file>main.qml</file>
     <file>SceneView.qml</file>
-    <file>EntityListDelegate.qml</file>    
+    <file>ComponentListDelegate.qml</file>
+    <file>EntityListDelegate.qml</file>
     <file>CreateBarDialog.qml</file>
     <file>OpenMeshDialog.qml</file>
+    <file>ui/components/TransformComponent.qml</file>
   </qresource>
 
   <qresource>

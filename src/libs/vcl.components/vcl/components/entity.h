@@ -181,7 +181,6 @@ namespace Vcl { namespace Components
 		friend class EntityManager;
 	public:
 		Entity() = default;
-		~Entity() = default;
 
 	private:
 		Entity(EntityManager* em, uint32_t idx, uint32_t gen)
@@ -191,6 +190,10 @@ namespace Vcl { namespace Components
 			Ensure(_manager, "Entity manager is set.");
 			Ensure(_id.isValid(), "Id is valid.");
 		}
+
+	public:
+		EntityManager* manager() const { return _manager; }
+		EntityId id() const { return _id; }
 
 	private:
 		//! Link to the manager this entity belongs to

@@ -28,38 +28,55 @@
 #include <vcl/config/global.h>
 
 // Qt
-#include <QtCore/QObject>
 #include <QtCore/QAbstractListModel>
+#include <QtCore/QObject>
+#include <QtCore/QMetaType>
+#include <QtGui/QVector3D>
 
 // VCL
+#include <vcl/components/entitymanager.h>
 
 namespace Editor
 {
-	class ComponentAdapter
+	class ComponentAdapter : public QObject
 	{
+		Q_OBJECT
+		Q_PROPERTY(QString type READ type)
+		Q_PROPERTY(QString name READ name)
+
 	public:
 		/*!
 		 *	\brief Construct a new component adapter with a name
 		 *	\param name Name of the component
 		 */
-		ComponentAdapter(const QString& name);
+		ComponentAdapter(const QString& type, const QString& name);
 
+		QString type() const;
 		QString name() const;
 
 	private:
+		//! Type of the entity
+		QString _type;
+
 		//! Name of the entity
 		QString _name;
 	};
 
-	template<typename T>
-	class NamedComponentAdapter : public ComponentAdapter
+	class TransformComponentAdapter : public ComponentAdapter
 	{
+		Q_OBJECT
+		Q_PROPERTY(QVector3D translation READ translation)
+
 	public:
-		//! Construct a new unnamed component adapter
-		NamedComponentAdapter()
-		: ComponentAdapter{ typeid(std::decay_t<T>).name() }
+		TransformComponentAdapter()
+		: ComponentAdapter("TransformComponent", "Transform")
 		{
 
+		}
+
+		QVector3D translation() const
+		{
+			return{ 1, 0, 0 };
 		}
 	};
 }

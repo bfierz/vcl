@@ -24,11 +24,19 @@
  */
 #include "componentadapter.h"
 
+#include "components/transform.h"
+
 namespace Editor
 {
-	ComponentAdapter::ComponentAdapter(const QString& name)
-	: _name(name)
+	ComponentAdapter::ComponentAdapter(const QString& type, const QString& name)
+	: _type(type)
+	, _name(name)
 	{
+	}
+
+	QString ComponentAdapter::type() const
+	{
+		return _type;
 	}
 
 	QString ComponentAdapter::name() const

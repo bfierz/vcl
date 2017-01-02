@@ -32,6 +32,7 @@
 #include <QtCore/QAbstractListModel>
 
 // VCL
+#include <vcl/components/entitymanager.h>
 
 namespace Editor
 {
@@ -41,15 +42,24 @@ namespace Editor
 		/*!
 		 *	\brief Construct a new entity with a name
 		 *	\param name Name of the entity
+		 *	\param entity Entity associated with this adapter
 		 */
-		EntityAdapter(const QString& name);
+		EntityAdapter(const QString& name, const Vcl::Components::Entity& entity);
 
 		QString name() const;
 		void setName(const QString& name);
 
+		QList<QObject*> components() const;
+
 	private:
 		//! Name of the entity
 		QString _name;
+
+		//! Entity
+		const Vcl::Components::Entity& _entity;
+
+		//! Components of the this entity
+		mutable QList<QObject*> _components;
 	};
 
 	class EntityAdapterModel : public QAbstractListModel
@@ -60,12 +70,13 @@ namespace Editor
 		enum class Roles
 		{
 			Name = Qt::UserRole + 1,
-			Visibility
+			Components,
+			Visibility,
 		};
 
 		EntityAdapterModel(QObject* parent = nullptr);
 
-		void addEntity(const EntityAdapter& animal);
+		void addEntity(const EntityAdapter& entity);
 
 		int rowCount(const QModelIndex & parent = QModelIndex()) const;
 

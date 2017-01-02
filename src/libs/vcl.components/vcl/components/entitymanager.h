@@ -171,6 +171,10 @@ namespace Vcl { namespace Components
 			return _generations.size();
 		}
 
+	public:
+		//! \returns the unique component-type store
+		const auto& uniqueComponents() const { return _components; }
+
 	private: // Entity management
 		//! List of allocated entity-entries. Its size gives the number of in total allocated entities.
 		std::vector<uint32_t> _generations;
