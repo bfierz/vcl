@@ -42,10 +42,12 @@ public:
 
 	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* normals()     const { return _normals.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
 
 	size_t indexStride() const { return _indexStride; }
 	size_t positionStride() const { return _positionStride; }
+	size_t normalStride() const { return _normalStride; }
 
 private:
 	Vcl::Geometry::TriMesh* _triMesh;
@@ -56,6 +58,9 @@ private:
 	//! Position data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _positions;
 
+	//! Normal data
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _normals;
+
 	//! Volume-colour data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
 
@@ -64,4 +69,7 @@ private:
 
 	//! Stride between two positions
 	size_t _positionStride{ 0 };
+
+	//! Stride between two normals
+	size_t _normalStride{ 0 };
 };

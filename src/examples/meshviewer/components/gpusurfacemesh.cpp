@@ -63,6 +63,21 @@ GPUSurfaceMesh::GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh)
 
 	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
 
+	// Create the normal buffer
+	auto normals = _triMesh->vertexProperty<Eigen::Vector3f>("Normals");
+	_normalStride = sizeof(Eigen::Vector3f);
+
+	BufferDescription normalDesc;
+	normalDesc.CPUAccess = ResourceAccess::Write;
+	normalDesc.Usage = ResourceUsage::Default;
+	normalDesc.SizeInBytes = normals->size() * _normalStride;
+
+	BufferInitData normalData;
+	normalData.Data = normals->data();
+	normalData.SizeInBytes = normals->size() * _normalStride;
+
+	_normals = std::make_unique<OpenGL::Buffer>(normalDesc, false, false, &normalData);
+
 	// Create the volume-colour buffer
 	auto colours = _triMesh->addFaceProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
 

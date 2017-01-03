@@ -24,16 +24,20 @@ out VertexData
 } Out;
 
 // Shader buffers
-struct Vertex
+struct Vector3f
 {
 	float x, y, z;
 };
 
 layout (std430, binding = 0) buffer VertexPositions
 { 
-	Vertex Position[];
+	Vector3f Position[];
 };
-layout (std430, binding = 1) buffer VertexColours
+layout (std430, binding = 1) buffer VertexNormals
+{ 
+	Vector3f Normal[];
+};
+layout (std430, binding = 2) buffer VertexColours
 { 
 	vec4 Colour[];
 };

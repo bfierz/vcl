@@ -146,7 +146,7 @@ FboRenderer::FboRenderer()
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
-	Shader opaqueTriOutlineGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh_outline.geom");
+	Shader outlineTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh_outline.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
@@ -157,6 +157,7 @@ FboRenderer::FboRenderer()
 
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/object.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
+	Shader outlineFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/outline.frag");
 
 	PipelineStateDescription boxPSDesc;
 	boxPSDesc.VertexShader = &boxVert;
@@ -181,11 +182,16 @@ FboRenderer::FboRenderer()
 	PipelineStateDescription opaqueTriPSDesc;
 	opaqueTriPSDesc.InputLayout = opaqueTriLayout;
 	opaqueTriPSDesc.VertexShader = &opaqueTriVert;
-	opaqueTriPSDesc.GeometryShader = &opaqueTriOutlineGeom;
-	opaqueTriPSDesc.FragmentShader = &boxFrag;
-	//opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
-	//opaqueTriPSDesc.FragmentShader = &meshFrag;
+	opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
+	opaqueTriPSDesc.FragmentShader = &meshFrag;
 	_opaqueTriMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTriPSDesc);
+
+	PipelineStateDescription outlineTriPSDesc;
+	outlineTriPSDesc.InputLayout = opaqueTriLayout;
+	outlineTriPSDesc.VertexShader = &opaqueTriVert;
+	outlineTriPSDesc.GeometryShader = &outlineTriGeom;
+	outlineTriPSDesc.FragmentShader = &outlineFrag;
+	_oulineTriMeshPS = Vcl::make_owner<PipelineState>(outlineTriPSDesc);
 
 	PipelineStateDescription opaqueTetraPSDesc;
 	opaqueTetraPSDesc.InputLayout = opaqueTetraLayout;
@@ -368,6 +374,7 @@ void FboRenderer::render()
 				}
 
 				renderTriMesh(mesh, _opaqueTriMeshPipelineState, T);
+				renderTriMesh(mesh, _oulineTriMeshPS, T);				
 			});
 		}
 
@@ -445,6 +452,7 @@ void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Gr
 
 	// Set the vertex positions
 	ps->program().setBuffer("VertexPositions", mesh->positions());
+	ps->program().setBuffer("VertexNormals", mesh->normals());
 
 	// Bind the buffers
 	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());

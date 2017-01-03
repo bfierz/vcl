@@ -22,63 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#version 430 core
+#extension GL_GOOGLE_include_directive : enable
+#extension GL_ARB_enhanced_layouts : enable
 
-import QtQuick 2.2
-import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
+#include "../framebuffer/simpleframebuffer.h"
 
-import MeshViewerRendering 1.0
+////////////////////////////////////////////////////////////////////////////////
+// Shader Input
+////////////////////////////////////////////////////////////////////////////////
+layout(location = 0) in VertexData
+{
+	vec3 Colour;
+} In;
 
-MeshView
-{				
-	MouseArea
-	{
-		CheckBox
-		{
-			style: CheckBoxStyle
-			{
-				label: Text
-				{
-					color: "white"
-					text: "Wireframe"
-				}
-			}
-			checked: false
-
-			onClicked:
-			{
-				renderer.renderWireframe = checked
-			}
-		}
-
-		anchors.fill: parent
-		acceptedButtons: Qt.LeftButton | Qt.RightButton
-		onPressed:
-		{
-			if (mouse.button & Qt.LeftButton)
-			{
-				parent.selectObject(mouse.x, mouse.y)
-			}
-			else if (mouse.button & Qt.RightButton)
-			{
-				scene.startRotate(mouse.x / width, mouse.y / height)
-			}
-		}
-		onReleased:
-		{
-			if (mouse.button & Qt.RightButton)
-			{
-				scene.endRotate()
-				renderer.update()
-			}
-		}
-		onPositionChanged:
-		{
-			scene.rotate(mouse.x / width, mouse.y / height)
-			renderer.update()
-		}
-		onWheel:
-		{
-		}
-	}
+////////////////////////////////////////////////////////////////////////////////
+// Implementation
+////////////////////////////////////////////////////////////////////////////////
+void main(void)
+{
+	writeFragmentColour(In.Colour);
 }

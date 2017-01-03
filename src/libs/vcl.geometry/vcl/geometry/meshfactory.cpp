@@ -287,7 +287,6 @@ namespace Vcl { namespace Geometry
 		size_t nr_indices = face_count * 3;
 
 		std::vector<Vector3f> positions{ nr_vertices };
-		std::vector<Vector3f> normals{ nr_vertices };
 		std::vector<face_t>   faces{ face_count };
 
 		// Create the positions
@@ -324,21 +323,6 @@ namespace Vcl { namespace Geometry
 		positions[index].z() = 0;
 		positions[index].x() = 0;
 		
-		// Create the normals
-		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
-		{
-			normals[i] = positions[i] - center;
-			normals[i].normalize();
-		}
-
-		if (inverted)
-		{
-			for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
-			{
-				normals[i] *= -1;
-			}
-		}
-
 		// Create the indices:
 		// Deal with the first and the last stack seperately
 		unsigned int i0 = inverted ? 1 : 0;
@@ -380,6 +364,16 @@ namespace Vcl { namespace Geometry
 			++index;
 		}
 		
-		return std::make_unique<TriMesh>(positions, faces);
+		auto mesh = std::make_unique<TriMesh>(positions, faces);
+		auto normals = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
+		
+		// Create the normals
+		float sign = inverted ? -1 : 1;
+		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
+		{
+			normals[i] = sign * (positions[i] - center).normalized();
+		}
+
+		return mesh;
 	}
 }}

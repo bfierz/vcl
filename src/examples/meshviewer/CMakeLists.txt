@@ -86,6 +86,8 @@ SET(SHADERS_DEBUG
 	shaders/debug/boundinggrid.geom
 
 	shaders/debug/staticcolour.frag
+	
+    shaders/debug/outline.frag
 )
 
 SET(SHADERS_FRAMEBUFFER

@@ -28,9 +28,9 @@
 
 #include "3DSceneBindings.h"
 
-// Convert input points to a set of max 3 line segments
+// Convert input points to a set of max 3 line segments represented as quads
 layout(points) in;
-layout(line_strip, max_vertices = 6) out;
+layout(triangle_strip, max_vertices = 12) out;
 
 // Input data from last stage
 layout(location = 0) in VertexData
@@ -46,16 +46,20 @@ out VertexData
 } Out;
 
 // Shader buffers
-struct Vertex
+struct Vector3f
 {
 	float x, y, z;
 };
 
 layout (std430, binding = 0) buffer VertexPositions
 { 
-	Vertex Position[];
+	Vector3f Position[];
 };
-layout (std430, binding = 1) buffer VertexColours
+layout (std430, binding = 1) buffer VertexNormals
+{ 
+	Vector3f Normal[];
+};
+layout (std430, binding = 2) buffer VertexColours
 { 
 	vec4 Colour[];
 };
@@ -72,11 +76,17 @@ bool isFrontFacing(vec4 p0, vec4 p1, vec4 p2)
     return 0 < (p0.x * p1.y - p1.x * p0.y) + (p1.x * p2.y - p2.x * p1.y) + (p2.x * p0.y - p0.x * p2.y);
 }
 
-void emitEdge(vec4 p0, vec4 p1)
+void emitEdge(vec4 p0, vec4 p1, vec2 n0, vec2 n1)
 {
+	// Compute the other points of the quad
+	vec4 p2 = vec4(p1.xy + 0.005*p1.z*n1, p1.zw);
+	vec4 p3 = vec4(p0.xy + 0.005*p0.z*n0, p0.zw);
+
 	// Assemble primitives
-	Out.Colour = vec3(1); gl_Position = p0; EmitVertex();
 	Out.Colour = vec3(1); gl_Position = p1; EmitVertex();
+	Out.Colour = vec3(1); gl_Position = p2; EmitVertex();
+	Out.Colour = vec3(1); gl_Position = p0; EmitVertex();
+	Out.Colour = vec3(1); gl_Position = p3; EmitVertex();
 	EndPrimitive();
 }
 
@@ -104,9 +114,13 @@ void main(void)
 	// Emit edges if main face is visible, and any other face is not
 	if (isFrontFacing(p0, p2, p4))
 	{
-        if (!isFrontFacing(p0, p1, p2)) emitEdge(p0, p2);
-        if (!isFrontFacing(p2, p3, p4)) emitEdge(p2, p4);
-        if (!isFrontFacing(p0, p4, p5)) emitEdge(p4, p0);
+		vec4 n0 = MVP * vec4(Normal[i0].x, Normal[i0].y, Normal[i0].z, 0);
+		vec4 n1 = MVP * vec4(Normal[i2].x, Normal[i2].y, Normal[i2].z, 0);
+		vec4 n2 = MVP * vec4(Normal[i4].x, Normal[i4].y, Normal[i4].z, 0);
+
+        if (!isFrontFacing(p0, p1, p2))	emitEdge(p0, p2, n0.xy, n1.xy);
+        if (!isFrontFacing(p2, p3, p4)) emitEdge(p2, p4, n1.xy, n2.xy);
+        if (!isFrontFacing(p0, p4, p5)) emitEdge(p4, p0, n2.xy, n0.xy);
 	}
 }
 	
