@@ -74,7 +74,7 @@ namespace Vcl { namespace Geometry
 		//! Position data of a single vertex
 		using Vertex = Eigen::Vector3f;
 
-		//! Index data of a single tetrahedron
+		//! Index data of a single triangle
 		using Face = std::array<VertexId, 3>;
 	};
 

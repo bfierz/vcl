@@ -24,9 +24,13 @@
  */
 #include <vcl/geometry/tetramesh.h>
 
+ // VCL
+#include <vcl/geometry/meshoperations.h>
+
 namespace Vcl { namespace Geometry
 {
 	TetraMesh::TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes)
+	: _surfaceData("SurfaceGroup")
 	{
 		volumeProperties().resizeProperties(volumes.size());
 		vertexProperties().resizeProperties(vertices.size());
@@ -47,11 +51,45 @@ namespace Vcl { namespace Geometry
 			};
 			_volumes[i] = v;
 		}
+
+		// Allocated buffer for the surface
+		_surfaceFaces = _surfaceData.add<SurfaceFace>("SurfaceFaces");
+	}
+
+	TetraMesh::TetraMesh(const TetraMesh& rhs)
+	: SimplexLevel3(rhs)
+	, SimplexLevel0(rhs)
+	, _surfaceData(rhs._surfaceData)
+	{
+		_surfaceFaces = _surfaceData.template property<SurfaceFace>("SurfaceFaces");
+	}
+
+	TetraMesh::TetraMesh(TetraMesh&& rhs)
+	: SimplexLevel3(rhs)
+	, SimplexLevel0(rhs)
+	, _surfaceData(std::move(rhs._surfaceData))
+	{
+		rhs._surfaceFaces = nullptr;
+		_surfaceFaces = _surfaceData.template property<SurfaceFace>("SurfaceFaces");
 	}
 
 	void TetraMesh::clear()
 	{
 		volumeProperties().clear();
 		vertexProperties().clear();
+
+		// Clear all the surface properties
+		_surfaceData.clear();
+	}
+
+	void TetraMesh::recomputeSurface()
+	{
+		auto surface = extractSurface<IndexDescriptionTrait<TetraMesh>::VertexId>({ volumes()->data(), nrVolumes() });
+		_surfaceData.resizeProperties(surface.size());
+
+		for (size_t i = 0; i < surface.size(); i++)
+		{
+			_surfaceFaces[i] = surface[i];
+		}
 	}
 }}

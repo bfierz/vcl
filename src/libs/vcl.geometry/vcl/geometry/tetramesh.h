@@ -56,6 +56,8 @@ namespace Vcl { namespace Geometry
 		VCL_CREATEID(VertexId, IndexType);	// Size: n0
 		VCL_CREATEID(VolumeId, IndexType);	// Size: n3
 
+		VCL_CREATEID(SurfaceFaceId, IndexType);
+
 	public: // Basic types
 		struct VertexMetaData
 		{
@@ -74,17 +76,23 @@ namespace Vcl { namespace Geometry
 		//! Position data of a single vertex
 		using Vertex = Eigen::Vector3f;
 
+		//! Index data of a single triangle
+		using SurfaceFace = std::array<VertexId, 3>;
+
 		//! Index data of a single tetrahedron
 		using Volume = std::array<VertexId, 4>;
 	};
 
 	class TetraMesh : public SimplexLevel3<TetraMesh>, public SimplexLevel0<TetraMesh>
 	{
+	public:
+		using SurfaceFaceId = IndexDescriptionTrait<TetraMesh>::SurfaceFaceId;
+		using SurfaceFace = IndexDescriptionTrait<TetraMesh>::SurfaceFace;
+
 	public: // Default constructors
 		TetraMesh() = default;
-		TetraMesh(const TetraMesh& rhs) = default;
-		TetraMesh(TetraMesh&& rhs) = default;
-		virtual ~TetraMesh() = default;
+		TetraMesh(const TetraMesh& rhs);
+		TetraMesh(TetraMesh&& rhs);
 
 	public:
 		TetraMesh& operator= (const TetraMesh& rhs) = default;
@@ -97,6 +105,17 @@ namespace Vcl { namespace Geometry
 		//! Clear the content of the mesh
 		void clear();
 
+		//! Add a new property to the vertex level
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TetraMesh>::VertexId> addVertexProperty
+		(
+			const std::string& name,
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VertexId>::reference init_value
+		)
+		{
+			return vertexProperties().add<T>(name, init_value);
+		}
+
 		//! Add a new property to the volume level
 		template<typename T>
 		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty
@@ -107,6 +126,39 @@ namespace Vcl { namespace Geometry
 		{
 			return volumeProperties().add<T>(name, init_value);
 		}
+
+	public: // Surface
+
+		//! \returns the number of surface elements
+		unsigned int nrSurfaceFaces() const { return static_cast<unsigned int>(_surfaceData.propertySize()); }
+
+		//! \returns the surface faces
+		ConstPropertyPtr<SurfaceFace, SurfaceFaceId> surfaceFaces() const { return _surfaceFaces; }
+
+		//! \returns a surface face
+		SurfaceFace surfaceFace(SurfaceFaceId id) const { return _surfaceFaces[id]; }
+
+		//! Add a new property to the surface level
+		template<typename T>
+		Property<T, SurfaceFaceId>* addSurfaceProperty
+		(
+			const std::string& name,
+			typename Property<T, SurfaceFaceId>::reference init_value
+		)
+		{
+			return _surfaceData.add<T>(name, init_value);
+		}
+
+		//! Rebuild the surface index
+		void recomputeSurface();
+
+	private: // Surface properties
+
+		//! Data associated with a surface
+		PropertyGroup<SurfaceFaceId> _surfaceData;
+
+		//! Surface indices data
+		PropertyPtr<SurfaceFace, SurfaceFaceId> _surfaceFaces;
 
 	private: // Embedders
 	};

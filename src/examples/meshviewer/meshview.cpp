@@ -374,7 +374,7 @@ void FboRenderer::render()
 				}
 
 				renderTriMesh(mesh, _opaqueTriMeshPipelineState, T);
-				renderTriMesh(mesh, _oulineTriMeshPS, T);				
+				renderTriMesh(mesh, _oulineTriMeshPS, T);
 			});
 		}
 
@@ -401,6 +401,7 @@ void FboRenderer::render()
 				else
 				{
 					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, T);
+					renderTriMesh(mesh, _oulineTriMeshPS, T);
 				}
 			});
 		}
@@ -463,6 +464,25 @@ void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Gr
 	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrFaces());
 }
 
+void FboRenderer::renderTriMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+	ps->program().setBuffer("VertexNormals", mesh->surfaceNormals());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->surfaceIndices()->id(), 0, mesh->surfaceIndexStride());
+	glBindVertexBuffer(1, mesh->surfaceIndices()->id(), mesh->surfaceIndexStride() / 2, mesh->surfaceIndexStride());
+	glBindVertexBuffer(2, mesh->surfaceColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrSurfaceFaces());
+}
 void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
 {
 	// Configure the state
@@ -474,7 +494,7 @@ void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 	ps->program().setBuffer("VertexPositions", mesh->positions());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
 	glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh

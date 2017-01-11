@@ -25,7 +25,26 @@
 #include "gpuvolumemesh.h"
 
 // VCL
+#include <vcl/geometry/meshoperations.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
+
+namespace
+{
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> createBuffer(const void* buffer, size_t nr_elements, size_t stride)
+	{
+		using namespace Vcl::Graphics::Runtime;
+
+		BufferDescription desc;
+		desc.Usage = ResourceUsage::Default;
+		desc.SizeInBytes = nr_elements * stride;
+
+		BufferInitData data;
+		data.Data = buffer;
+		data.SizeInBytes = nr_elements * stride;
+
+		return std::make_unique<Vcl::Graphics::Runtime::OpenGL::Buffer>(desc, false, false, &data);
+	}
+}
 
 GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
 : _tetraMesh(mesh)
@@ -33,42 +52,38 @@ GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
 
+	// Extract the surface of the tetra mesh
+	_tetraMesh->recomputeSurface();
+
 	// Create the index buffer
-	BufferDescription idxDesc;
-	idxDesc.Usage = ResourceUsage::Default;
-	idxDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
+	_indexStride = sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
+	_indices = createBuffer(_tetraMesh->volumes()->data(), _tetraMesh->nrVolumes(), _indexStride);
 
-	BufferInitData idxData;
-	idxData.Data = _tetraMesh->volumes()->data();
-	idxData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(IndexDescriptionTrait<TetraMesh>::Volume);
-
-	_indices = std::make_unique<OpenGL::Buffer>(idxDesc, false, false, &idxData);
-
+	// Create the index buffer for the surface
+	const auto tri_adjs = convertToTriangleAdjacency<IndexDescriptionTrait<TetraMesh>::VertexId>({ _tetraMesh->surfaceFaces()->data(), _tetraMesh->nrSurfaceFaces() });
+	_surfaceIndexStride = sizeof(decltype(tri_adjs)::value_type);
+	_surfaceIndices = createBuffer(tri_adjs.data(), tri_adjs.size(), _surfaceIndexStride);
+	
 	// Create the position buffer
-	BufferDescription posDesc;
-	posDesc.CPUAccess = ResourceAccess::Write;
-	posDesc.Usage = ResourceUsage::Default;
-	posDesc.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
-
-	BufferInitData posData;
-	posData.Data = _tetraMesh->vertices()->data();
-	posData.SizeInBytes = _tetraMesh->nrVertices() * sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
-
-	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
+	_positionStride = sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
+	_positions = createBuffer(_tetraMesh->vertices()->data(), _tetraMesh->nrVertices(), _positionStride);
 
 	// Create the volume-colour buffer
 	auto colours = _tetraMesh->addVolumeProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
+	_volumeColours = createBuffer(colours->data(), _tetraMesh->nrVolumes(), sizeof(Eigen::Vector4f));
 
-	BufferDescription colDesc;
-	colDesc.CPUAccess = ResourceAccess::Write;
-	colDesc.Usage = ResourceUsage::Default;
-	colDesc.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
+	// Create the surface normal buffer
+	auto face_normals = _tetraMesh->addVertexProperty<Eigen::Vector3f>("SurfaceNormals", Eigen::Vector3f{ 0.0f, 0.0f, 0.0f });
+	computeNormals<IndexDescriptionTrait<TetraMesh>::VertexId>(
+		{ _tetraMesh->surfaceFaces()->data(), _tetraMesh->nrSurfaceFaces() },
+		{ _tetraMesh->vertices()->data(), _tetraMesh->nrVertices() },
+		{ face_normals->data(), _tetraMesh->nrVertices() }
+	);
+	_surfaceNormals = createBuffer(face_normals->data(), face_normals->size(), sizeof(Eigen::Vector3f));
 
-	BufferInitData colData;
-	colData.Data = colours->data();
-	colData.SizeInBytes = _tetraMesh->nrVolumes() * sizeof(Eigen::Vector4f);
-
-	_volumeColours = std::make_unique<OpenGL::Buffer>(colDesc, false, false, &colData);
+	// Create the face-colour buffer
+	auto face_colours = _tetraMesh->addSurfaceProperty<Eigen::Vector4f>("Colour", Eigen::Vector4f{ 0.2f, 0.8f, 0.2f, 1 });
+	_surfaceColours = createBuffer(face_colours->data(), _tetraMesh->nrSurfaceFaces(), sizeof(Eigen::Vector4f));
 }
 
 GPUVolumeMesh::~GPUVolumeMesh()
