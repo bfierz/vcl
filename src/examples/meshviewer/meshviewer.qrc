@@ -37,6 +37,8 @@
     <file>shaders/tetramesh_wireframe.geom</file>
     <file>shaders/mesh.frag</file>
 
+    <file>shaders/objectid_trimesh.vert</file>
+    <file>shaders/objectid_trimesh.geom</file>
     <file>shaders/objectid_tetramesh.vert</file>
     <file>shaders/objectid_tetramesh.geom</file>
     <file>shaders/objectid.frag</file>

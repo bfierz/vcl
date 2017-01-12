@@ -147,6 +147,8 @@ FboRenderer::FboRenderer()
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
 	Shader outlineTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh_outline.geom");
+	Shader idTriVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_trimesh.vert");
+	Shader idTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_trimesh.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
@@ -171,6 +173,13 @@ FboRenderer::FboRenderer()
 	planePSDesc.GeometryShader = &planeGeom;
 	planePSDesc.FragmentShader = &meshFrag;
 	_planePipelineState = Vcl::make_owner<PipelineState>(planePSDesc);
+
+	PipelineStateDescription idTriPSDesc;
+	idTriPSDesc.InputLayout = opaqueTriLayout;
+	idTriPSDesc.VertexShader = &idTriVert;
+	idTriPSDesc.GeometryShader = &idTriGeom;
+	idTriPSDesc.FragmentShader = &idFrag;
+	_idTriMeshPipelineState = Vcl::make_owner<PipelineState>(idTriPSDesc);
 
 	PipelineStateDescription idTetraPSDesc;
 	idTetraPSDesc.InputLayout = opaqueTetraLayout;
@@ -258,20 +267,54 @@ void FboRenderer::render()
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
+		// Common components
+		auto transforms = scene->entityManager()->get<System::Components::Transform>();
+
 		// Draw the object buffer
 		{
 			_idBuffer->bind(_engine.get());
 			_idBuffer->clear(0, Eigen::Vector4i{ -1, -1, 0, 0 });
 			_idBuffer->clear(1.0f);
 
+			auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
+			if (!surfaces->empty())
+			{
+				surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
+				{
+					Eigen::Matrix4f T;
+					if (transforms->has(id))
+					{
+						T = M * (*transforms)(id)->get();
+					}
+					else
+					{
+						T = M;
+					}
+
+					_idTriMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
+
+					renderTriMesh(mesh, _idTriMeshPipelineState, T);
+				});
+			}
+
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
 			{
-				volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
+				volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
 				{
+					Eigen::Matrix4f T;
+					if (transforms->has(id))
+					{
+						T = M * (*transforms)(id)->get();
+					}
+					else
+					{
+						T = M;
+					}
+
 					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
 					
-					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, M);
+					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, T);
 				});
 			}
 
@@ -354,9 +397,6 @@ void FboRenderer::render()
 			// Render the mesh
 			glDrawArrays(GL_POINTS, 0, (GLsizei)points.size() / 3);
 		}*/
-
-		// Common components
-		auto transforms = scene->entityManager()->get<System::Components::Transform>();
 
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())

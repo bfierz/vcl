@@ -109,6 +109,8 @@ SET(SHADERS
 	shaders/tetramesh_wireframe.geom
 	shaders/mesh.frag
 	
+	shaders/objectid_trimesh.vert
+	shaders/objectid_trimesh.geom
 	shaders/objectid_tetramesh.vert
 	shaders/objectid_tetramesh.geom
 	shaders/objectid.frag

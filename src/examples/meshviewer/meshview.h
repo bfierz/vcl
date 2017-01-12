@@ -86,6 +86,7 @@ private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPointsPipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTriMeshPipelineState;
 
 private: // Render targets
 
