@@ -71,6 +71,7 @@ public:
 	Vcl::Graphics::Camera* camera() const { return _camera; }
 
 public slots :
+	void createSurfaceArrow();
 	void createSurfaceSphere();
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);
@@ -96,6 +97,7 @@ signals:
 	void componentModelChanged();
 
 private:
+	void initializeTriMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh);
 	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
 	void updateBoundingBox();
 
@@ -121,6 +123,9 @@ private: // Render data
 private: // Entities
 	//! Entity manager
 	Vcl::Components::EntityManager _entityManager;
+
+private: // Editor support
+	Vcl::Components::Entity _handleEntity;
 
 private: // Camera entity
 	Vcl::Components::Entity _cameraEntity;

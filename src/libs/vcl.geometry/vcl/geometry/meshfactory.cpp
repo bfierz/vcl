@@ -376,4 +376,150 @@ namespace Vcl { namespace Geometry
 
 		return mesh;
 	}
+
+	std::unique_ptr<TriMesh> TriMeshFactory::createArrow(float small_radius, float large_radius, float handle_length, float head_length, unsigned int slices)
+	{
+		using face_t = std::array<unsigned int, 3>;
+
+		const unsigned int nr_handle_vertices = 3 * slices + 1;
+		const unsigned int nr_handle_faces = 3 * slices;
+
+		const unsigned int nr_head_vertices = 3 * slices + 1;
+		const unsigned int nr_head_faces = 2 * slices;
+
+		const unsigned int nr_vertices = nr_handle_vertices + nr_head_vertices;
+		const unsigned int nr_indices = (nr_handle_faces + nr_head_faces) * 3;
+
+		const float fslices = static_cast<float>(slices);
+		const unsigned int stride = static_cast<unsigned int>(slices);
+
+		const float pi = static_cast<float>(M_PI);
+
+		std::vector<Vector3f> positions{ nr_vertices };
+		std::vector<Vector3f> normals{ nr_vertices };
+		std::vector<face_t>   faces{ nr_indices / 3 };
+
+		size_t index = 0;
+
+		/*
+		 *	Create the handle mPositions
+		 */
+		positions[index].setZero();
+		normals[index] = { 0, -1, 0 };
+		index++;
+		for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
+		{
+			float fj = static_cast<float>(j);
+			float rad_xz = fj / fslices * 2.0f * pi;
+			float sin_xz = sin(rad_xz - pi);
+			float cos_xz = cos(rad_xz - pi);
+
+			positions[index].x() = cos_xz * small_radius;
+			positions[index].y() = 0;
+			positions[index].z() = sin_xz * small_radius;
+			normals[index] = { 0, -1, 0 };
+
+			positions[index + stride].x() = cos_xz * small_radius;
+			positions[index + stride].y() = 0;
+			positions[index + stride].z() = sin_xz * small_radius;
+			normals[index + stride] = { cos_xz, 0, sin_xz };
+
+			positions[index + 2 * stride].x() = cos_xz * small_radius;
+			positions[index + 2 * stride].y() = handle_length;
+			positions[index + 2 * stride].z() = sin_xz * small_radius;
+			normals[index + 2 * stride] = { cos_xz, 0, sin_xz };
+
+			++index;
+		}
+
+		/*
+		 *	Create the head mPositions
+		 */
+		index += 2 * stride;
+		positions[index] = { 0, handle_length, 0 };
+		normals[index] = { 0, -1, 0 };
+		index++;
+		for (unsigned int j = 0; j < static_cast<unsigned int>(slices); ++j)
+		{
+			float fj = static_cast<float>(j);
+			float rad_xz = fj / fslices * 2.0f * pi;
+			float sin_xz = sin(rad_xz - pi);
+			float cos_xz = cos(rad_xz - pi);
+
+			positions[index].x() = cos_xz * large_radius;
+			positions[index].y() = handle_length;
+			positions[index].z() = sin_xz * large_radius;
+			normals[index] = Vector3f(0, -1, 0);
+
+			Vector3f normal(cos_xz, large_radius, sin_xz);
+			normal.normalize();
+
+			positions[index + stride].x() = cos_xz * large_radius;
+			positions[index + stride].y() = handle_length;
+			positions[index + stride].z() = sin_xz * large_radius;
+			normals[index + stride] = normal;
+
+			positions[index + 2 * stride].x() = 0;
+			positions[index + 2 * stride].y() = handle_length + head_length;
+			positions[index + 2 * stride].z() = 0;
+			normals[index + 2 * stride] = normal;
+
+			++index;
+		}
+
+		/*
+		 *	Create the handle mIndices
+		 */
+		index = 0;
+		for (unsigned int i = 0; i < slices; i++)
+		{
+			faces[index][0] = 0;
+			faces[index][1] = static_cast<uint32_t>(i + 1);
+			faces[index][2] = static_cast<uint32_t>((i + 1) % slices + 1);
+			index++;
+		}
+		uint32_t base_index = 1 + static_cast<uint32_t>(stride);
+		for (unsigned int i = 0; i < stride; i++)
+		{
+			faces[index][0] = base_index + i;
+			faces[index][1] = base_index + static_cast<uint32_t>(stride) + i;
+			faces[index][2] = base_index + static_cast<uint32_t>((i + 1) % slices);
+			index++;
+
+			faces[index][0] = base_index + static_cast<uint32_t>(stride) + i;
+			faces[index][1] = base_index + static_cast<uint32_t>(stride) + (i + 1) % static_cast<uint32_t>(slices);
+			faces[index][2] = base_index + static_cast<uint32_t>((i + 1) % slices);
+			index++;
+		}
+
+		/*
+		 *	Create the head mIndices
+		 */
+		base_index = static_cast<uint32_t>(nr_handle_vertices);
+		for (unsigned int i = 0; i < slices; i++)
+		{
+			faces[index][0] = base_index;
+			faces[index][1] = base_index + i + 1;
+			faces[index][2] = base_index + static_cast<uint32_t>((i + 1) % slices + 1);
+			index++;
+		}
+		base_index = nr_handle_vertices + 1 + stride;
+		for (unsigned int i = 0; i < stride; i++)
+		{
+			faces[index][0] = base_index + i;
+			faces[index][1] = base_index + static_cast<uint32_t>(stride) + i;
+			faces[index][2] = base_index + static_cast<uint32_t>((i + 1) % slices);
+			index++;
+		}
+
+		auto mesh = std::make_unique<TriMesh>(positions, faces);
+		auto normal_prop = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
+		
+		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
+		{
+			normal_prop[i] = normals[i];
+		}
+
+		return mesh;
+	}
 }}

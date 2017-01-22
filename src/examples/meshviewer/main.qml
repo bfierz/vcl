@@ -86,6 +86,15 @@ ApplicationWindow
 				title: "Triangle Mesh"
 				MenuItem
 				{
+					text: "Arrow"
+					onTriggered:
+					{
+						scene.createSurfaceArrow()
+						renderer.update()
+					}
+				}
+				MenuItem
+				{
 					text: "Sphere"
 					onTriggered:
 					{

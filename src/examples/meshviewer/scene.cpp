@@ -52,6 +52,9 @@ Scene::Scene(QObject* parent)
 	_entityManager.registerComponent<MeshStatistics>();
 	_entityManager.registerComponent<System::Components::Transform>();
 
+	// Create the editor specific entities
+	_handleEntity = _entityManager.create();
+
 	// Create a new camera
 	_cameraEntity = _entityManager.create();
 	_camera = _entityManager.create<Camera>(_cameraEntity, std::make_shared<OpenGL::MatrixFactory>());
@@ -78,39 +81,28 @@ void Scene::update()
 	_projMatrix = _camera->projection();
 }
 
+void Scene::createSurfaceArrow()
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating arrow mesh" << std::endl;
+
+	// Create the mesh
+	auto mesh = TriMeshFactory::createArrow(0.1f, 1.0f, 4.0f, 2.0f, 10);
+
+	initializeTriMesh(std::move(mesh));
+}
+
 void Scene::createSurfaceSphere()
 {
 	using namespace Vcl::Geometry;
 
 	std::cout << "Creating sphere mesh" << std::endl;
 
-	// Create a new entity
-	auto mesh_entity = _entityManager.create();
-	_meshes.push_back(mesh_entity);
-
-	// Make the mesh placable in space
-	_entityManager.create<System::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
-
 	// Create the mesh
 	auto mesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
 
-	// Create the mesh component
-	auto mesh_component = _entityManager.create<TriMesh>(mesh_entity, std::move(*mesh));
-
-	// Add the statistics information
-	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
-
-	// Create GPU buffers
-	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
-	{
-		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
-	});
-
-	// Calculate the new scene bounding box
-	updateBoundingBox();
-
-	// Add the entity to the UI
-	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Sphere", mesh_entity });
+	initializeTriMesh(std::move(mesh));
 }
 
 void Scene::createBar(int x, int y, int z)
@@ -151,6 +143,36 @@ void Scene::loadMesh(const QUrl& path)
 
 	auto mesh = deserialiser.fetch();
 	initializeTetraMesh(std::move(mesh));
+}
+
+void Scene::initializeTriMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
+{
+	using namespace Vcl::Geometry;
+
+	// Create a new entity
+	auto mesh_entity = _entityManager.create();
+	_meshes.push_back(mesh_entity);
+
+	// Make the mesh placable in space
+	_entityManager.create<System::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
+
+	// Create the mesh component
+	auto mesh_component = _entityManager.create<TriMesh>(mesh_entity, std::move(*mesh));
+
+	// Add the statistics information
+	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
+
+	// Create GPU buffers
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
+	{
+		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
+	});
+
+	// Calculate the new scene bounding box
+	updateBoundingBox();
+
+	// Add the entity to the UI
+	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Sphere", mesh_entity });
 }
 
 void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
