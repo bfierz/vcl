@@ -57,9 +57,10 @@ namespace Editor
 			for (const auto& id_store : component_stores)
 			{
 				const auto* type = id_store.second->type();
-				if (type && type->isA(vcl_meta_type<System::Components::Transform>()))
+				if (type && type->isA(vcl_meta_type<System::Components::Transform>()) && id_store.second->has(_entity.id()))
 				{
-					_components << new TransformComponentAdapter();
+					auto& store = *static_cast<Vcl::Components::ComponentStore<System::Components::Transform>*>(id_store.second.get());
+					_components << new TransformComponentAdapter(store(_entity.id()));
 				}
 			}
 		}
@@ -85,19 +86,25 @@ namespace Editor
 		return _entities.count();
 	}
 
-	QVariant EntityAdapterModel::data(const QModelIndex& index, int role) const
+	QVariant EntityAdapterModel::data(int index, int role) const
 	{
-		if (index.row() < 0 || index.row() >= _entities.count())
-			return QVariant();
-
-		const auto& entity = _entities[index.row()];
+		const auto& entity = _entities[index];
 		if (role == static_cast<int>(Roles::Name))
 			return entity.name();
 		else if (role == static_cast<int>(Roles::Components))
 			return QVariant::fromValue(entity.components());
 		else if (role == static_cast<int>(Roles::Visibility))
 			return true;
+
 		return QVariant();
+	}
+
+	QVariant EntityAdapterModel::data(const QModelIndex& index, int role) const
+	{
+		if (index.row() < 0 || index.row() >= _entities.count())
+			return QVariant();
+
+		return data(index.row(), role);
 	}
 
 	QHash<int, QByteArray> EntityAdapterModel::roleNames() const
@@ -107,5 +114,21 @@ namespace Editor
 		roles[static_cast<int>(Roles::Components)] = "components";
 		roles[static_cast<int>(Roles::Visibility)] = "visibility";
 		return roles;
+	}
+
+	QVariant EntityAdapterModel::get(int index)
+	{
+		if (index >= _entities.size() || index < 0)
+			return QVariant();
+		const auto& item = _entities.at(index);
+		QMap<QString, QVariant> itemData;
+		QHashIterator<int, QByteArray> hash_itr(roleNames());
+
+		while (hash_itr.hasNext())
+		{
+			hash_itr.next();
+			itemData.insert(hash_itr.value(), QVariant(data(index, hash_itr.key())));
+		}
+		return QVariant(itemData);
 	}
 }

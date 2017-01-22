@@ -34,8 +34,8 @@ import MeshViewerRendering 1.0
 
 ApplicationWindow
 {
-    width: 800
-    height: 800
+	width: 800
+	height: 800
 
 	OpenMeshDialog
 	{
@@ -63,24 +63,24 @@ ApplicationWindow
 
 	menuBar: MenuBar
 	{
-        Menu
+		Menu
 		{
-            title: "File"
-            MenuItem
+			title: "File"
+			MenuItem
 			{
 				text: "Open..."
 				onTriggered: { openMeshDialog.open() }
 			}
-            MenuItem
+			MenuItem
 			{
 				text: "Exit"
 				onTriggered: { Qt.quit() }
 			}
-        }
+		}
 
-        Menu
+		Menu
 		{
-            title: "Create"
+			title: "Create"
 			Menu
 			{
 				title: "Triangle Mesh"
@@ -103,8 +103,8 @@ ApplicationWindow
 					onTriggered: { createBarDialog.open() }
 				}
 			}
-        }
-    }
+		}
+	}
 
 	SplitView
 	{
@@ -115,7 +115,7 @@ ApplicationWindow
 		{
 			id: renderer
 			anchors.margins: 10
-            Layout.fillWidth: true
+			Layout.fillWidth: true
 		}
 
 		
@@ -139,19 +139,19 @@ ApplicationWindow
 				// Change the content of the component list when the current item changes
 				onCurrentItemChanged:
 				{
-					console.log("Completed: ", JSON.stringify(currentItem.components))
-					componentList.model = currentItem.components
+					//console.log("Completed: ", JSON.stringify(scene.entityModel.get(currentIndex).components))
+					componentList.model = scene.entityModel.get(currentIndex).components
 				}
 			}
-			ListView
+			Item
 			{
-				id: componentList
+				Repeater
+				{
+					id: componentList
 
-				Layout.minimumHeight: 200
-				Layout.fillWidth : true
-				delegate: ComponentListDelegate {}
-				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
-				focus: true
+					delegate: ComponentListDelegate {}
+					focus: true
+				}
 			}
 		}
 	}

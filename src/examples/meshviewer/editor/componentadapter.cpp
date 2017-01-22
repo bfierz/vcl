@@ -43,4 +43,27 @@ namespace Editor
 	{
 		return _name;
 	}
+
+	TransformComponentAdapter::TransformComponentAdapter(System::Components::Transform* comp)
+	: ComponentAdapter("TransformComponent", "Transform")
+	, _component(comp)
+	{
+
+	}
+
+	QVector3D TransformComponentAdapter::translation() const
+	{
+		Eigen::Vector3f t = _component->position();
+
+		return QVector3D{ t.x(), t.y(), t.z() };
+	}
+	void TransformComponentAdapter::setTranslation(QVector3D vec)
+	{
+		if (vec != translation())
+		{
+			_component->setPosition({ vec.x(), vec.y(), vec.z() });
+			translationChanged();
+		}
+	}
+
 }

@@ -26,13 +26,10 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 
-Component
+Loader
 {
-	Loader
+	source: switch (modelData.type)
 	{
-		source: switch (modelData.type)
-		{
-			case "TransformComponent": return "ui/components/TransformComponent.qml"
-		}
+		case "TransformComponent": return "ui/components/TransformComponent.qml"
 	}
 }

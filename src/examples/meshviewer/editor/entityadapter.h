@@ -82,8 +82,12 @@ namespace Editor
 
 		QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
+		//! Access a single item of the model
+		Q_INVOKABLE QVariant get(int index);
+
 	protected:
 		QHash<int, QByteArray> roleNames() const;
+		QVariant data(int index, int role) const;
 
 	private:
 		QList<EntityAdapter> _entities;

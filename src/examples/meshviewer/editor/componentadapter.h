@@ -36,13 +36,16 @@
 // VCL
 #include <vcl/components/entitymanager.h>
 
+// Editor
+#include <components/transform.h>
+
 namespace Editor
 {
 	class ComponentAdapter : public QObject
 	{
 		Q_OBJECT
-		Q_PROPERTY(QString type READ type)
-		Q_PROPERTY(QString name READ name)
+		Q_PROPERTY(QString type READ type NOTIFY typeChanged)
+		Q_PROPERTY(QString name READ name NOTIFY nameChanged)
 
 	public:
 		/*!
@@ -53,6 +56,10 @@ namespace Editor
 
 		QString type() const;
 		QString name() const;
+
+	signals:
+		void typeChanged();
+		void nameChanged();
 
 	private:
 		//! Type of the entity
@@ -65,18 +72,18 @@ namespace Editor
 	class TransformComponentAdapter : public ComponentAdapter
 	{
 		Q_OBJECT
-		Q_PROPERTY(QVector3D translation READ translation)
+		Q_PROPERTY(QVector3D translation READ translation WRITE setTranslation NOTIFY translationChanged)
 
 	public:
-		TransformComponentAdapter()
-		: ComponentAdapter("TransformComponent", "Transform")
-		{
+		TransformComponentAdapter(System::Components::Transform* comp);
 
-		}
+		QVector3D translation() const;
+		void setTranslation(QVector3D vec);
 
-		QVector3D translation() const
-		{
-			return{ 1, 0, 0 };
-		}
+	signals:
+		void translationChanged();
+
+	private:
+		System::Components::Transform* _component{ nullptr };
 	};
 }

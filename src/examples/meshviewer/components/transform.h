@@ -45,7 +45,7 @@ namespace System { namespace Components
 		const Eigen::Matrix3f& rotation() const;
 		void setRotation(const Eigen::Matrix3f& rotation);
 
-		const Eigen::Vector3f& position() const;
+		Eigen::Vector3f position() const;
 		void setPosition(const Eigen::Vector3f& position);
 
 	private:

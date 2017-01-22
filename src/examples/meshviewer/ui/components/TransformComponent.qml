@@ -22,28 +22,86 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import QtQuick 2.7
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.3
 
 ColumnLayout
 {
-	Layout.fillWidth: true;
-
+	//Component.onCompleted: console.log(implicitWidth)
+	
 	Label
 	{
+		id: transformLabelId
+	
+		anchors.top: parent.top
+		anchors.left: parent.left
+		anchors.right: parent.right
+
 		text: modelData.name
 		font.pixelSize: 24
-	}
-	GridLayout {
-		Layout.fillWidth: true
-		rows: 1
-		columns: 5
-		flow: GridLayout.LeftToRight
-	
-		Label { Layout.rowSpan: 2; text: "Translation (x/y/z)" }
 
-		TextField { text: modelData.translation.x }
-		TextField { text: modelData.translation.y }
-		TextField { text: modelData.translation.z }
+		Rectangle
+		{
+			anchors.left: parent.left
+			anchors.right: parent.right
+
+			color: "red"
+
+		}
+	}
+
+	RowLayout {
+
+		id: vec3dEditId	
+		Layout.minimumWidth: 300
+
+		// Capture vector property to display
+		property vector3d vec: modelData.translation
+
+		Label { id: lblId; text: "Position (x/y/z)" }
+
+		TextField {
+			id: xId
+			
+			Layout.minimumWidth: 80
+			Layout.fillWidth : true
+
+			text: parent.vec.x
+			validator: DoubleValidator{ decimals: 3; notation: DoubleValidator.StandardNotation }
+
+			onTextChanged: {
+				parent.vec.x = text
+				modelData.translation = parent.vec
+			}
+		}
+		TextField {
+			id: yId
+			
+			Layout.minimumWidth: 80
+			Layout.fillWidth : true
+
+			text: parent.vec.y
+			validator: DoubleValidator{ decimals: 3; notation: DoubleValidator.StandardNotation }
+			
+			onTextChanged: {
+				parent.vec.y = text
+				modelData.translation = parent.vec
+			}
+		}
+		TextField {
+			id: zId
+			
+			Layout.minimumWidth: 80
+			Layout.fillWidth : true
+
+			text: parent.vec.z
+			validator: DoubleValidator{ decimals: 3; notation: DoubleValidator.StandardNotation }
+			
+			onTextChanged: {
+				parent.vec.z = text
+				modelData.translation = parent.vec
+			}
+		}
 	}
 }

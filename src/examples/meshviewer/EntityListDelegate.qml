@@ -26,10 +26,8 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.4
 
-Item
+Component
 {
-	property variant components: model.components
-
 	Label
 	{
 		text: model.name;

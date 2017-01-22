@@ -60,7 +60,7 @@ namespace System { namespace Components
 		_transform.block<3, 3>(0, 0) = rotation;
 	}
 
-	const Eigen::Vector3f& Transform::position() const
+	Eigen::Vector3f Transform::position() const
 	{
 		return _transform.block<3, 1>(0, 3);
 	}
