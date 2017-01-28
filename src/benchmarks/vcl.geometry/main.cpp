@@ -236,7 +236,7 @@ void BM_Int_RayBox(benchmark::State& state)
 			vector3_t rorig = { 0, 0, 0 };
 			vector3_t rdir = ray_dir.at<real_t>(i);
 
-			benchmark::DoNotOptimize(intersects(box_t{ bmin, bmax }, ray_t{ rorig, rdir }));
+			benchmark::DoNotOptimize(intersects_MaxMult(box_t{ bmin, bmax }, ray_t{ rorig, rdir }));
 		}
 	}
 
