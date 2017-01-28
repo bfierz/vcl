@@ -31,6 +31,11 @@
 #include <stdarg.h>
 
 #ifdef VCL_CONTRACT
+
+VCL_BEGIN_EXTERNAL_HEADERS
+#	include <fmt/format.h>
+VCL_END_EXTERNAL_HEADERS
+
 namespace Vcl { namespace Assert
 {
 	enum class QueryAnswer
@@ -137,7 +142,7 @@ namespace Vcl { namespace Assert
 
 #endif
 	
-	bool handler(const char* title, const char* message, bool* b)
+	bool handleAssert(const char* title, const char* message, bool* b)
 	{
 		QueryAnswer result = queryUser(title, message);
 
@@ -159,13 +164,26 @@ namespace Vcl { namespace Assert
 		*b = false;
 		return false;
 	}
+
+
+	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const char* note, bool& ignore)
+	{
+		if (note)
+		{
+			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n %s \n", type, file, line, expr, description, note);
+			return handleAssert("Contract Violation", msgbuf.data(), &ignore);
+		}
+		else
+		{
+			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n", type, file, line, expr, description);
+			return handleAssert("Contract Violation", msgbuf.data(), &ignore);
+		}
+	}
+
+	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const std::string& note, bool& ignore)
+	{
+		return handleAssert(type, file, line, expr, description, note.c_str(), ignore);
+	}
 }}
 
-namespace fmt
-{
-	std::string format()
-	{
-		return "";
-	}
-}
 #endif
