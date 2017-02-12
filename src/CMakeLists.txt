@@ -4,6 +4,9 @@ PROJECT(VisualComputingLibrary)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+# Configure the VCL compilation environment
+INCLUDE(cmake/VCLConfig.cmake)
+
 # Configure all projects
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

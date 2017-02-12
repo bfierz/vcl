@@ -32,7 +32,7 @@
 #include <limits>
 
 // GSL
-#include <string_span>
+#include <gsl/string_span>
 
 namespace Vcl { namespace Util
 {

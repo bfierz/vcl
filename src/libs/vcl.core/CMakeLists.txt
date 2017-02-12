@@ -1,8 +1,5 @@
 PROJECT(vcl_core)
 
-# Configure the VCL compilation environment
-INCLUDE(config.cmake)
-
 # Write the configuration file
 CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_DIR}/vcl/config/config.h")
 

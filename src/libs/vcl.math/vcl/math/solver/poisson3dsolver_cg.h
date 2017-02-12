@@ -32,7 +32,7 @@
 #include <array>
 
 // GSL
-#include <gsl>
+#include <gsl/gsl>
 
 // VCL
 #include <vcl/math/solver/conjugategradients.h>
