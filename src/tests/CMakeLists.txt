@@ -12,8 +12,12 @@ SUBDIRS(vcl.math)
 SUBDIRS(vcl.components)
 
 # OpenGL related tests
-IF(GLEW_FOUND AND VCL_OPENGL_SUPPORT)
-	SUBDIRS(vcl.graphics.opengl)
+IF(VCL_OPENGL_SUPPORT)
+	FIND_PACKAGE(OpenGL REQUIRED)
+	FIND_PACKAGE(GLEW REQUIRED)
+	IF(GLEW_FOUND)
+		SUBDIRS(vcl.graphics.opengl)
+	ENDIF()
 ENDIF()
 
 # CUDA related tests
