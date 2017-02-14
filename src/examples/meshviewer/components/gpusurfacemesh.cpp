@@ -31,8 +31,15 @@
 GPUSurfaceMesh::GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh)
 : _triMesh(mesh)
 {
+	update();
+}
+
+void GPUSurfaceMesh::update()
+{
 	using namespace Vcl::Geometry;
 	using namespace Vcl::Graphics::Runtime;
+
+	_nrSurfaceElements = _triMesh->nrFaces();
 
 	// Convert the triangle list to a triangle-adjacency list
 	const auto tri_adjs = convertToTriangleAdjacency<IndexDescriptionTrait<TriMesh>::VertexId>({ _triMesh->faces()->data(), _triMesh->nrFaces() });

@@ -37,8 +37,10 @@ class GPUSurfaceMesh
 public:
 	GPUSurfaceMesh(Vcl::Geometry::TriMesh* mesh);
 
+	void update();
+
 public:
-	size_t nrFaces() const { return _triMesh->nrFaces(); }
+	size_t nrFaces() const { return _nrSurfaceElements; }
 
 	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
@@ -63,6 +65,9 @@ private:
 
 	//! Volume-colour data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
+
+	//! Number of faces of the surface
+	size_t _nrSurfaceElements{ 0 };
 
 	//! Stride between two primitives
 	size_t _indexStride{ 0 };
