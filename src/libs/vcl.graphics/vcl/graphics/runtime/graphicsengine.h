@@ -31,7 +31,7 @@
 #include <memory>
 
 // GSL
-#include <span>
+#include <gsl/span>
 
 // VCL
 #include <vcl/core/memory/smart_ptr.h>

@@ -31,6 +31,11 @@
 // C++ standard library
 #include <cmath>
 
+VCL_BEGIN_EXTERNAL_HEADERS
+#	include <fmt/format.h>
+#	include <fmt/ostream.h>
+VCL_END_EXTERNAL_HEADERS
+
 // VCL library
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>
@@ -210,7 +215,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
-		CheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-6))), "Off diagonal element is 0.", "Error: {}", Apq);
+		CheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
 #endif /* VCL_DEBUG */
 
 		M(p,q) = 0;

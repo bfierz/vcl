@@ -3,6 +3,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
 PROJECT(VisualComputingLibrary)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
+# Configure the VCL compilation environment
 INCLUDE(cmake/VCLConfig.cmake)
 
 # Configure all projects

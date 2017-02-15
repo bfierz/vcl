@@ -31,8 +31,8 @@
 #include <vector>
 
 // GSL
-#include <span>
-#include <string_span>
+#include <gsl/span>
+#include <gsl/string_span>
 
 // VCL
 #include <vcl/core/3rdparty/any.hpp>

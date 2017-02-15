@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 
 // GSL
-#include <string_span>
+#include <gsl/string_span>
 
 namespace Vcl { namespace RTTI
 {
