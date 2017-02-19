@@ -78,7 +78,7 @@ void main()
 	// Primitive 0: Along xy-plane
 	// Primitive 1: Along xz-plane
 	// Primitive 2: Along yz-plane
-	int primitiveID = gl_VertexID / 3;
+	int primitiveID = gl_VertexID / 6;
 
 	vec4 pos_vs  = ViewMatrix * ModelMatrix * vec4(0.4f * points[gl_VertexID], 1);
 	vec4 norm_vs = ViewMatrix * ModelMatrix * vec4(normals[primitiveID], 0);

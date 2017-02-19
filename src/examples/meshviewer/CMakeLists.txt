@@ -95,9 +95,11 @@ SET(SHADERS_DEBUG
 
 	shaders/debug/positionhandle_arrow.vert
 	shaders/debug/positionhandle_arrow.frag
+	shaders/debug/positionhandle_arrow_id.vert
 	
 	shaders/debug/positionhandle_square.vert
 	shaders/debug/positionhandle_square.frag
+	shaders/debug/positionhandle_square_id.vert
 )
 
 SET(SHADERS_FRAMEBUFFER

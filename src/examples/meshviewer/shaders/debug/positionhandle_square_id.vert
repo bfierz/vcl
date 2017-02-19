@@ -26,25 +26,60 @@
 #extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
 
-#include "../framebuffer/simpleframebuffer.h"
+#include "../3DSceneBindings.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// Shader Input
-////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in VertexData
+// Output data
+layout(location = 0) out VertexData
 {
-	vec4 Position;
-	vec3 Normal;
-	vec4 Colour;
-} In;
+	// ID of the primitive
+	flat int PrimitiveId;
+} Out;
 
-////////////////////////////////////////////////////////////////////////////////
-// Implementation
-////////////////////////////////////////////////////////////////////////////////
-void main(void)
+// Shader constants
+uniform mat4 ModelMatrix;
+
+vec3 points[] = 
 {
-	vec3 V = normalize(-In.Position.xyz);
-	vec3 N = normalize(In.Normal);
+	vec3(0, 0, 0),
+	vec3(1, 0, 0),
+	vec3(1, 1, 0),
 
-	writeFragmentColour(vec4(In.Colour.rgb * dot(N, V), In.Colour.a));
+	vec3(0, 0, 0),
+	vec3(1, 1, 0),
+	vec3(0, 1, 0),
+
+	vec3(0, 0, 0),
+	vec3(1, 0, 0),
+	vec3(1, 0, 1),
+
+	vec3(0, 0, 0),
+	vec3(1, 0, 1),
+	vec3(0, 0, 1),
+
+	vec3(0, 0, 0),
+	vec3(0, 1, 0),
+	vec3(0, 1, 1),
+
+	vec3(0, 0, 0),
+	vec3(0, 1, 1),
+	vec3(0, 0, 1),
+};
+
+void main()
+{
+	// Primitive 0: Along xy-plane
+	// Primitive 1: Along xz-plane
+	// Primitive 2: Along yz-plane
+	int primitiveID = gl_VertexID / 6;
+
+	// Pass index data to next stage
+	if (primitiveID == 0)
+		Out.PrimitiveId = 0x3;
+	else if (primitiveID == 1)
+		Out.PrimitiveId = 0x5;
+	else if (primitiveID == 2)
+		Out.PrimitiveId = 0x6;
+
+	vec4 pos_vs  = ViewMatrix * ModelMatrix * vec4(0.4f * points[gl_VertexID], 1);
+	gl_Position = ProjectionMatrix * pos_vs;
 }

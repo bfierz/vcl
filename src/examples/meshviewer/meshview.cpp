@@ -268,6 +268,8 @@ void FboRenderer::render()
 				});
 			}
 
+			_posManip->drawIds(_engine.get(), M);
+
 			// Queue a read-back
 			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
 			{

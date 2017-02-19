@@ -26,25 +26,54 @@
 #extension GL_GOOGLE_include_directive : enable
 #extension GL_ARB_enhanced_layouts : enable
 
-#include "../framebuffer/simpleframebuffer.h"
+#include "../3DSceneBindings.h"
 
-////////////////////////////////////////////////////////////////////////////////
-// Shader Input
-////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in VertexData
+// Data from input-assembler stage
+in vec3 Position;
+
+// Output data
+layout(location = 0) out VertexData
 {
-	vec4 Position;
-	vec3 Normal;
-	vec4 Colour;
-} In;
+	// ID of the primitive
+	flat int PrimitiveId;
 
-////////////////////////////////////////////////////////////////////////////////
-// Implementation
-////////////////////////////////////////////////////////////////////////////////
-void main(void)
+} Out;
+
+// Shader constants
+uniform mat4 ModelMatrix;
+
+// Arrow transformations
+uniform mat4 Transforms[] = 
 {
-	vec3 V = normalize(-In.Position.xyz);
-	vec3 N = normalize(In.Normal);
+	// Eigen::AngleAxisf(-pi / 2.0, Eigen::Vector3f::UnitZ())
+	mat4(0,-1, 0, 0,
+		 1, 0, 0, 0,
+		 0, 0, 1, 0,
+		 0, 0, 0, 1),
 
-	writeFragmentColour(vec4(In.Colour.rgb * dot(N, V), In.Colour.a));
+	// Identity
+	mat4(1, 0, 0, 0,
+		 0, 1, 0, 0,
+		 0, 0, 1, 0,
+		 0, 0, 0, 1),
+
+	// Eigen::AngleAxisf(pi / 2.0, Eigen::Vector3f::UnitX())
+	mat4(1, 0, 0, 0,
+		 0, 0, 1, 0,
+		 0,-1, 0, 0,
+		 0, 0, 0, 1),
+};
+
+void main()
+{
+	// Arrow is oriented along the y-axis, rearrange colour lookup order
+	// From: 0 -> y, 1 -> z, 2 -> x
+	// To: 0 -> x, 1 -> y, 2 -> z
+	int instance_idx = (gl_InstanceID + 1) % 3;
+
+	// Pass index data to next stage
+	Out.PrimitiveId = 1 << instance_idx;
+
+	vec4 pos_vs  = ViewMatrix * ModelMatrix * Transforms[instance_idx] * vec4(Position, 1);
+	gl_Position = ProjectionMatrix * pos_vs;
 }

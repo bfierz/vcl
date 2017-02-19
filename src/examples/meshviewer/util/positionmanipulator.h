@@ -43,9 +43,23 @@ namespace Vcl { namespace Editor { namespace Util
 		PositionManipulator();
 
 		//! Draw the handle
+		void drawIds(
+			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			const Eigen::Matrix4f& T
+		);
+
+		//! Draw the handle
 		void draw(
 			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
 			const Eigen::Matrix4f& T
+		);
+
+	private:
+		void draw(
+			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			const Eigen::Matrix4f& T,
+			ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
+			ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps
 		);
 
 	private:
@@ -54,6 +68,12 @@ namespace Vcl { namespace Editor { namespace Util
 
 		//! Pipeline state used for the transparent parts of the handle
 		owner_ptr<Vcl::Graphics::Runtime::PipelineState> _transparentPipelineState;
+
+		//! Pipeline state used for the opaque id parts of the handle
+		owner_ptr<Vcl::Graphics::Runtime::PipelineState> _opaqueIdPipelineState;
+
+		//! Pipeline state used for the transparent id parts of the handle
+		owner_ptr<Vcl::Graphics::Runtime::PipelineState> _transparentIdPipelineState;
 
 		//! Arrow face indices
 		std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _indices;

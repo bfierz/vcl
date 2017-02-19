@@ -92,6 +92,11 @@ namespace Vcl { namespace Editor { namespace Util
 		 Shader square_colour_vert = createShader(ShaderType::VertexShader,   ":/shaders/debug/positionhandle_square.vert");
 		 Shader square_colour_frag = createShader(ShaderType::FragmentShader, ":/shaders/debug/positionhandle_square.frag");
 
+		 Shader arrow_id_vert = createShader(ShaderType::VertexShader, ":/shaders/debug/positionhandle_arrow_id.vert");
+		 Shader square_id_vert = createShader(ShaderType::VertexShader, ":/shaders/debug/positionhandle_square_id.vert");
+
+		 Shader id_frag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
+
 		 PipelineStateDescription opaque_colour_psdesc;
 		 opaque_colour_psdesc.InputLayout = opaque_layout;
 		 opaque_colour_psdesc.VertexShader = &arrow_colour_vert;
@@ -105,6 +110,28 @@ namespace Vcl { namespace Editor { namespace Util
 		 transparent_colour_psdesc.Blend.RenderTarget[0].SrcBlend = Blend::SrcAlpha;
 		 transparent_colour_psdesc.Blend.RenderTarget[0].DestBlend = Blend::InvSrcAlpha;
 		 _transparentPipelineState = make_owner<PipelineState>(transparent_colour_psdesc);
+
+		 PipelineStateDescription opaque_id_psdesc;
+		 opaque_id_psdesc.InputLayout = opaque_layout;
+		 opaque_id_psdesc.VertexShader = &arrow_id_vert;
+		 opaque_id_psdesc.FragmentShader = &id_frag;
+		 _opaqueIdPipelineState = make_owner<PipelineState>(opaque_id_psdesc);
+
+		 PipelineStateDescription transaparent_id_psdesc;
+		 transaparent_id_psdesc.VertexShader = &square_id_vert;
+		 transaparent_id_psdesc.FragmentShader = &id_frag;
+		 _transparentIdPipelineState = make_owner<PipelineState>(transaparent_id_psdesc);
+	}
+
+	void PositionManipulator::drawIds(
+		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		const Eigen::Matrix4f& T
+	)
+	{
+		Require(_opaqueIdPipelineState, "Opaque pipeline state is initialized.");
+		Require(_transparentIdPipelineState, "Transparent pipeline state is initialized.");
+
+		draw(engine, T, _opaqueIdPipelineState, _transparentIdPipelineState);
 	}
 
 	void PositionManipulator::draw(
@@ -115,6 +142,19 @@ namespace Vcl { namespace Editor { namespace Util
 		Require(_opaquePipelineState, "Opaque pipeline state is initialized.");
 		Require(_transparentPipelineState, "Transparent pipeline state is initialized.");
 
+		draw(engine, T, _opaquePipelineState, _transparentPipelineState);
+	}
+
+	void PositionManipulator::draw(
+		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		const Eigen::Matrix4f& T,
+		ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
+		ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps
+	)
+	{
+		Require(opaque_ps, "Opaque pipeline state is initialized.");
+		Require(transparent_ps, "Transparent pipeline state is initialized.");
+
 		using BufferGL = Vcl::Graphics::Runtime::OpenGL::Buffer;
 		using PipelineStateGL = Vcl::Graphics::Runtime::OpenGL::PipelineState;
 
@@ -123,10 +163,10 @@ namespace Vcl { namespace Editor { namespace Util
 		////////////////////////////////////////////////////////////////////////
 
 		// Configure the layout
-		engine->setPipelineState(_opaquePipelineState);
+		engine->setPipelineState(opaque_ps);
 
 		// Set the shader constants
-		static_cast<PipelineStateGL*>(_opaquePipelineState.get())->program().setUniform("ModelMatrix", T);
+		static_cast<PipelineStateGL*>(opaque_ps.get())->program().setUniform("ModelMatrix", T);
 
 		// Bind the buffers
 		glBindVertexBuffer(0, static_cast<BufferGL*>(_positions.get())->id(), 0, _positionStride);
@@ -142,10 +182,10 @@ namespace Vcl { namespace Editor { namespace Util
 		////////////////////////////////////////////////////////////////////////
 
 		// Configure the layout
-		engine->setPipelineState(_transparentPipelineState);
+		engine->setPipelineState(transparent_ps);
 
 		// Set the shader constants
-		static_cast<PipelineStateGL*>(_transparentPipelineState.get())->program().setUniform("ModelMatrix", T);
+		static_cast<PipelineStateGL*>(transparent_ps.get())->program().setUniform("ModelMatrix", T);
 
 		// Render the mesh
 		glDrawArrays(GL_TRIANGLES, 0, 18);
