@@ -46,9 +46,13 @@ SET(EDITOR_SRC
 
 SET(UTIL_INC
 	util/frustumhelpers.h
+	util/positionmanipulator.h
+	util/shaderutils.h
 )
 SET(UTIL_SRC
 	util/frustumhelpers.cpp
+	util/positionmanipulator.cpp
+	util/shaderutils.cpp
 )
 
 
@@ -78,23 +82,29 @@ SET(QML
 )
 
 SET(SHADERS_DEBUG
-    shaders/debug/plane.vert
-    shaders/debug/plane.geom
-    shaders/debug/object.frag
+	shaders/debug/plane.vert
+	shaders/debug/plane.geom
+	shaders/debug/object.frag
 	
 	shaders/debug/boundinggrid.vert
 	shaders/debug/boundinggrid.geom
 
 	shaders/debug/staticcolour.frag
 	
-    shaders/debug/outline.frag
+	shaders/debug/outline.frag
+
+	shaders/debug/positionhandle_arrow.vert
+	shaders/debug/positionhandle_arrow.frag
+	
+	shaders/debug/positionhandle_square.vert
+	shaders/debug/positionhandle_square.frag
 )
 
 SET(SHADERS_FRAMEBUFFER
-    shaders/framebuffer/simpleframebuffer.h
-    shaders/framebuffer/simpleoitbuffer.h
+	shaders/framebuffer/simpleframebuffer.h
+	shaders/framebuffer/simpleoitbuffer.h
 )
-    
+	
 SET(SHADERS
 	shaders/UniformBuffer.h
 	shaders/MarchingCubes.h

@@ -44,6 +44,7 @@
 #include <vcl/graphics/runtime/dynamictexture.h>
 #include <vcl/graphics/runtime/framebuffer.h>
 
+#include "util/positionmanipulator.h"
 #include "scene.h"
 
 class MeshView;
@@ -60,7 +61,7 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
-	void renderHandle(Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+	void renderHandle(const Eigen::Matrix4f& M);
 	void renderBoundingBox(const Eigen::AlignedBox3f& bb, unsigned int resolution, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 	void renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 	void renderTriMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
@@ -104,6 +105,9 @@ private: // Support buffers
 
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
+
+private: // Helpers
+	std::unique_ptr<Vcl::Editor::Util::PositionManipulator> _posManip;
 };
 
 class MeshView : public QQuickFramebufferObject

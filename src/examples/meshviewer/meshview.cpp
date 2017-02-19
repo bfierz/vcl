@@ -25,8 +25,6 @@
 #include "meshview.h"
 
 // Qt
-#include <QtCore/QRegularExpression>
-#include <QtCore/QStringBuilder>
 #include <QtQuick/QQuickWindow>
 
 // VCL
@@ -44,61 +42,8 @@ namespace
 }
 
 #include "util/frustumhelpers.h"
+#include "util/shaderutils.h"
 #include "scene.h"
-
-namespace
-{
-	QString resolveShaderFile(QString full_path)
-	{
-		QRegularExpression dir_regex{ R"((.+/)(.+))" };
-		QRegularExpressionMatch match;
-		full_path.indexOf(dir_regex, 0, &match);
-		Check(match.hasMatch(), "Split is successfull.");
-
-		QString dir = match.captured(1);
-		QString path = match.captured(2);
-
-		QFile shader_file{ dir + path };
-		shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
-		Check(shader_file.isOpen(), "Shader file is open.");
-
-		// Resolve include files (only one level supported atm)
-		QString builder;
-		QTextStream textStream(&shader_file);
-
-		QRegularExpression inc_regex{ R"(#.*include.*[<"](.+)[">])" };
-		while (!textStream.atEnd())
-		{
-			auto curr_tok = textStream.readLine();
-
-			QRegularExpressionMatch match_inc;
-			if (curr_tok.indexOf(inc_regex, 0, &match_inc) >= 0 && match_inc.hasMatch())
-			{
-				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
-				builder = builder % included_file % "\n";
-			}
-			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
-			{
-				continue;
-			}
-			else
-			{
-				builder = builder % curr_tok % "\n";
-			}
-		}
-
-		shader_file.close();
-
-		return builder;
-	}
-
-	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path)
-	{
-		QString data = resolveShaderFile(path);
-
-		return{ type, 0, data.toUtf8().data() };
-	}
-}
 
 FboRenderer::FboRenderer()
 {
@@ -116,6 +61,8 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::ResourceUsage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
+
+	using Vcl::Editor::Util::createShader;
 
 	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
@@ -241,6 +188,9 @@ FboRenderer::FboRenderer()
 	planeData.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, false, false, &planeData);
+
+	// Initialize the position manipulator
+	_posManip = std::make_unique<Vcl::Editor::Util::PositionManipulator>();
 }
 
 void FboRenderer::render()
@@ -445,6 +395,9 @@ void FboRenderer::render()
 				}
 			});
 		}
+
+		// Render the mesh handle
+		renderHandle(M);
 	}
 
 	_engine->endFrame();
@@ -452,9 +405,9 @@ void FboRenderer::render()
 	update();
 }
 
-void FboRenderer::renderHandle(Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
 {
-
+	_posManip->draw(_engine.get(), M);
 }
 
 void FboRenderer::renderBoundingBox

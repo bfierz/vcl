@@ -21,6 +21,12 @@
     <file>shaders/debug/staticcolour.frag</file>
     <file>shaders/debug/outline.frag</file>
 
+    <file>shaders/debug/positionhandle_arrow.vert</file>
+    <file>shaders/debug/positionhandle_arrow.frag</file>
+
+    <file>shaders/debug/positionhandle_square.vert</file>
+    <file>shaders/debug/positionhandle_square.frag</file>
+    
     <file>shaders/framebuffer/simpleframebuffer.h</file>
     <file>shaders/framebuffer/simpleoitbuffer.h</file>
 
