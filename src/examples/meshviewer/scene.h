@@ -69,9 +69,11 @@ public:
 
 public:
 	Vcl::Graphics::Camera* camera() const { return _camera; }
+	Vcl::Components::EntityId positionHandle() const { return _handleEntity.id(); }
 
-public slots :
+public slots:
 	void createSurfaceArrow();
+	void createSurfaceTorus();
 	void createSurfaceSphere();
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);

@@ -26,6 +26,7 @@
 
 // VCL
 #include <vcl/geometry/tetrahedron.h>
+#include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
 {
@@ -516,6 +517,111 @@ namespace Vcl { namespace Geometry
 		auto normal_prop = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
 		
 		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
+		{
+			normal_prop[i] = normals[i];
+		}
+
+		return mesh;
+	}
+
+	std::unique_ptr<TriMesh> TriMeshFactory::createTorus(
+		float outer_radius,
+		float inner_radius,
+		unsigned int nr_radial_segments,
+		unsigned int nr_sides
+	)
+	{
+		// The Formula
+		// x = Cos(theta) * (radius + ringRadius * Cos(phi))
+		// y = Sin(theta) * (radius + ringRadius * Cos(phi))
+		// z = ringRadius * Sin(phi)
+
+		using Vcl::Mathematics::pi;
+		using Vcl::Mathematics::rad2deg;
+
+		// Default up direction
+		Eigen::Vector3f up{ 0, 1, 0 };
+
+		// Define the vertices
+		std::vector<Eigen::Vector3f> vertices((nr_radial_segments + 1) * (nr_sides + 1));
+		float two_pi = 2.0f * pi<float>();
+		for (unsigned int seg = 0; seg <= nr_radial_segments; seg++)
+		{
+			unsigned int curr_seg = (seg == nr_radial_segments) ? 0 : seg;
+
+			float t1 = (float) curr_seg / nr_radial_segments * two_pi;
+			Eigen::Vector3f r1{ cos(t1) * outer_radius, 0.0f, sin(t1) * outer_radius };
+
+			for (unsigned int side = 0; side <= nr_sides; side++)
+			{
+				unsigned int curr_side = (side == nr_sides) ? 0 : side;
+
+				float t2 = (float)curr_side / nr_sides * two_pi;
+				Eigen::Vector3f r2 = Eigen::AngleAxisf{ -t1, up } * Eigen::Vector3f(cos(t2) * inner_radius, sin(t2) * inner_radius, 0);
+				vertices[side + seg * (nr_sides + 1)] = r1 + r2;
+			}
+		}
+
+
+		// Define the normales
+		std::vector<Eigen::Vector3f> normals(vertices.size());
+		for (unsigned int seg = 0; seg <= nr_radial_segments; seg++)
+		{
+			unsigned int curr_seg = (seg == nr_radial_segments) ? 0 : seg;
+
+			float t1 = (float)curr_seg / nr_radial_segments * two_pi;
+			Eigen::Vector3f r1{ cos(t1) * outer_radius, 0.0f, sin(t1) * outer_radius };
+
+			for (unsigned int side = 0; side <= nr_sides; side++)
+			{
+				normals[side + seg * (nr_sides + 1)] = (vertices[side + seg * (nr_sides + 1)] - r1).normalized();
+			}
+		}
+
+		// Define UVs
+		std::vector<Eigen::Vector2f> uvs(vertices.size());
+		for (unsigned int seg = 0; seg <= nr_radial_segments; seg++)
+		{
+			for (unsigned int side = 0; side <= nr_sides; side++)
+			{
+				uvs[side + seg * (nr_sides + 1)] = { (float)seg / nr_radial_segments, (float)side / nr_sides };
+			}
+		}
+
+		// Define triangles
+		size_t nr_faces = vertices.size();
+		size_t nr_triangles = nr_faces * 2;
+
+		using face_t = std::array<unsigned int, 3>;
+		std::vector<face_t> triangles(nr_triangles);
+
+		uint32_t i = 0;
+		for (uint32_t seg = 0; seg <= nr_radial_segments; seg++)
+		{
+			for (uint32_t side = 0; side <= nr_sides - 1; side++)
+			{
+				uint32_t current = side + seg * (nr_sides + 1);
+				uint32_t next = side + (seg < (nr_radial_segments) ? (seg + 1) * (nr_sides + 1) : 0);
+
+				if (i < triangles.size() - 6)
+				{
+					triangles[i][0] = current;
+					triangles[i][1] = next + 1;
+					triangles[i][2] = next;
+					i++;
+
+					triangles[i][0] = current;
+					triangles[i][1] = current + 1;
+					triangles[i][2] = next + 1;
+					i++;
+				}
+			}
+		}
+
+		auto mesh = std::make_unique<TriMesh>(vertices, triangles);
+		auto normal_prop = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
+
+		for (unsigned int i = 0; i < static_cast<unsigned int>(vertices.size()); ++i)
 		{
 			normal_prop[i] = normals[i];
 		}

@@ -57,5 +57,12 @@ namespace Vcl { namespace Geometry
 		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
 
 		static std::unique_ptr<TriMesh> createArrow(float small_radius, float large_radius, float handle_length, float head_length, unsigned int slices);
+
+		static std::unique_ptr<TriMesh> createTorus(
+			float outer_radius,
+			float inner_radius,
+			unsigned int nr_radial_segments,
+			unsigned int nr_sides
+		);
 	};
 }}

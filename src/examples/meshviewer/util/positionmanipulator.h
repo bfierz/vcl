@@ -36,8 +36,35 @@
 
 namespace Vcl { namespace Editor { namespace Util
 {
+	enum class ManipulatorType
+	{
+		PositionManipulator,
+		RotationManipulator
+	};
+
 	class PositionManipulator
 	{
+		struct MeshBuffers
+		{
+			//! Face indices
+			std::unique_ptr<Vcl::Graphics::Runtime::Buffer> indices;
+
+			//! Position buffer
+			std::unique_ptr<Vcl::Graphics::Runtime::Buffer> positions;
+
+			//! Normal buffer
+			std::unique_ptr<Vcl::Graphics::Runtime::Buffer> normals;
+
+			//! Stride between two primitives
+			uint32_t indexStride{ 0 };
+
+			//! Stride between two positions
+			uint32_t positionStride{ 0 };
+
+			//! Stride between two normals
+			uint32_t normalStride{ 0 };
+		};
+
 	public:
 		//! Instantiate a new position handle
 		PositionManipulator();
@@ -45,6 +72,7 @@ namespace Vcl { namespace Editor { namespace Util
 		//! Draw the handle
 		void drawIds(
 			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			unsigned int id,
 			const Eigen::Matrix4f& T
 		);
 
@@ -75,22 +103,10 @@ namespace Vcl { namespace Editor { namespace Util
 		//! Pipeline state used for the transparent id parts of the handle
 		owner_ptr<Vcl::Graphics::Runtime::PipelineState> _transparentIdPipelineState;
 
-		//! Arrow face indices
-		std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _indices;
+		//! Arrow buffers
+		MeshBuffers _arrow;
 
-		//! Arrow position buffer
-		std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _positions;
-
-		//! Arrow normal buffer
-		std::unique_ptr<Vcl::Graphics::Runtime::Buffer> _normals;
-
-		//! Stride between two primitives
-		uint32_t _indexStride{ 0 };
-
-		//! Stride between two positions
-		uint32_t _positionStride{ 0 };
-
-		//! Stride between two normals
-		uint32_t _normalStride{ 0 };
+		//! Torus buffers
+		MeshBuffers _torus;
 	};
 }}}

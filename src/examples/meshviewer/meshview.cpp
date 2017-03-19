@@ -268,7 +268,8 @@ void FboRenderer::render()
 				});
 			}
 
-			_posManip->drawIds(_engine.get(), M);
+			const auto pos_handle_id = scene->positionHandle();
+			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M);
 
 			// Queue a read-back
 			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
@@ -560,13 +561,19 @@ void MeshView::selectObject(int x, int y)
 {
 	if (_idBuffer && _idBufferWidth > 0 && _idBufferHeight > 0)
 	{
-		// Convert index to GL coordinates
-		y = height() - y;
+		{
+			// Convert index to GL coordinates
+			y = height() - y;
 
-		uint32_t idx = y * _idBufferWidth + x;
-		auto ids = _idBuffer[idx];
+			uint32_t idx = y * _idBufferWidth + x;
+			auto ids = _idBuffer[idx];
 
-		std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+			std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+		}
+
+		// 
+		const auto* cam = scene()->camera();
+		cam->pickWorldSpace(x, y);
 	}
 }
 

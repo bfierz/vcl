@@ -95,6 +95,15 @@ ApplicationWindow
 				}
 				MenuItem
 				{
+					text: "Torus"
+					onTriggered:
+					{
+						scene.createSurfaceTorus()
+						renderer.update()
+					}
+				}
+				MenuItem
+				{
 					text: "Sphere"
 					onTriggered:
 					{

@@ -93,6 +93,18 @@ void Scene::createSurfaceArrow()
 	initializeTriMesh(std::move(mesh));
 }
 
+void Scene::createSurfaceTorus()
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating torus mesh" << std::endl;
+
+	// Create the mesh
+	auto mesh = TriMeshFactory::createTorus(0.75f, 0.25f, 10, 10);
+
+	initializeTriMesh(std::move(mesh));
+}
+
 void Scene::createSurfaceSphere()
 {
 	using namespace Vcl::Geometry;

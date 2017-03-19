@@ -64,22 +64,45 @@ namespace Vcl { namespace Editor { namespace Util
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 		using Vcl::Graphics::SurfaceFormat;
 
-		 auto mesh = TriMeshFactory::createArrow(0.05f, 0.1f, 0.8f, 0.2f, 10);
+		/////////////////////////////////////////////////////////////////////////
+		// Arrow used as translation handle
+		/////////////////////////////////////////////////////////////////////////
+		 auto arrow_mesh = TriMeshFactory::createArrow(0.05f, 0.1f, 0.8f, 0.2f, 10);
 
 		 // Create the index buffer
-		 _indexStride = sizeof(IndexDescriptionTrait<TriMesh>::Face);
-		 _indices = createBuffer(mesh->faces()->data(), mesh->nrFaces(), _indexStride);
+		 _arrow.indexStride = sizeof(IndexDescriptionTrait<TriMesh>::Face);
+		 _arrow.indices = createBuffer(arrow_mesh->faces()->data(), arrow_mesh->nrFaces(), _arrow.indexStride);
 
 		 // Create the position buffer
-		 _positionStride = sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
-		 _positions = createBuffer(mesh->vertices()->data(), mesh->nrVertices(), _positionStride);
+		 _arrow.positionStride = sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+		 _arrow.positions = createBuffer(arrow_mesh->vertices()->data(), arrow_mesh->nrVertices(), _arrow.positionStride);
 
 		 // Create the normal buffer
-		 auto normals = mesh->vertexProperty<Eigen::Vector3f>("Normals");
-		 _normalStride = sizeof(Eigen::Vector3f);
-		 _normals = createBuffer(normals->data(), normals->size(), _normalStride);
+		 auto arrow_normals = arrow_mesh->vertexProperty<Eigen::Vector3f>("Normals");
+		 _arrow.normalStride = sizeof(Eigen::Vector3f);
+		 _arrow.normals = createBuffer(arrow_normals->data(), arrow_normals->size(), _arrow.normalStride);
 
-		 // Data layout
+		 /////////////////////////////////////////////////////////////////////////
+		 // Torus used as rotation handles
+		 /////////////////////////////////////////////////////////////////////////
+		 auto torus_mesh = TriMeshFactory::createArrow(0.05f, 0.1f, 0.8f, 0.2f, 10);
+
+		 // Create the index buffer
+		 _torus.indexStride = sizeof(IndexDescriptionTrait<TriMesh>::Face);
+		 _torus.indices = createBuffer(torus_mesh->faces()->data(), torus_mesh->nrFaces(), _torus.indexStride);
+
+		 // Create the position buffer
+		 _torus.positionStride = sizeof(IndexDescriptionTrait<TriMesh>::Vertex);
+		 _torus.positions = createBuffer(torus_mesh->vertices()->data(), torus_mesh->nrVertices(), _torus.positionStride);
+
+		 // Create the normal buffer
+		 auto torus_normals = torus_mesh->vertexProperty<Eigen::Vector3f>("Normals");
+		 _torus.normalStride = sizeof(Eigen::Vector3f);
+		 _torus.normals = createBuffer(torus_normals->data(), torus_normals->size(), _torus.normalStride);
+
+		 /////////////////////////////////////////////////////////////////////////
+		 // Pipeline states
+		 /////////////////////////////////////////////////////////////////////////
 		 InputLayoutDescription opaque_layout =
 		 {
 			 { "Position",  SurfaceFormat::R32G32B32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
@@ -125,11 +148,17 @@ namespace Vcl { namespace Editor { namespace Util
 
 	void PositionManipulator::drawIds(
 		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		unsigned int id,
 		const Eigen::Matrix4f& T
 	)
 	{
 		Require(_opaqueIdPipelineState, "Opaque pipeline state is initialized.");
 		Require(_transparentIdPipelineState, "Transparent pipeline state is initialized.");
+
+		using PipelineStateGL = Vcl::Graphics::Runtime::OpenGL::PipelineState;
+
+		static_cast<PipelineStateGL*>(_opaqueIdPipelineState.get())->program().setUniform<int>("ObjectIdx", static_cast<int>(id));
+		static_cast<PipelineStateGL*>(_transparentIdPipelineState.get())->program().setUniform<int>("ObjectIdx", static_cast<int>(id));
 
 		draw(engine, T, _opaqueIdPipelineState, _transparentIdPipelineState);
 	}
@@ -169,13 +198,13 @@ namespace Vcl { namespace Editor { namespace Util
 		static_cast<PipelineStateGL*>(opaque_ps.get())->program().setUniform("ModelMatrix", T);
 
 		// Bind the buffers
-		glBindVertexBuffer(0, static_cast<BufferGL*>(_positions.get())->id(), 0, _positionStride);
-		glBindVertexBuffer(1, static_cast<BufferGL*>(_normals.get())->id(),   0, _normalStride);
+		glBindVertexBuffer(0, static_cast<BufferGL*>(_arrow.positions.get())->id(), 0, _arrow.positionStride);
+		glBindVertexBuffer(1, static_cast<BufferGL*>(_arrow.normals.get())->id(),   0, _arrow.normalStride);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<BufferGL*>(_indices.get())->id());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<BufferGL*>(_arrow.indices.get())->id());
 
 		// Render the mesh
-		glDrawElementsInstanced(GL_TRIANGLES, static_cast<uint32_t>(_indices->sizeInBytes()) / sizeof(uint32_t), GL_UNSIGNED_INT, nullptr, 3);
+		glDrawElementsInstanced(GL_TRIANGLES, static_cast<uint32_t>(_arrow.indices->sizeInBytes()) / sizeof(uint32_t), GL_UNSIGNED_INT, nullptr, 3);
 
 		////////////////////////////////////////////////////////////////////////
 		// Draw the squares
