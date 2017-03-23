@@ -74,13 +74,13 @@ namespace Vcl
 	}
 #endif
 
-	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, VectorScalar<int, 8>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex)
 	{
 		__m256i idx = static_cast<__m256i>(vindex);
 		return VectorScalar<float, 8>(gather(base, idx));
 	}
 
-	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, VectorScalar<int, 16>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
 	{
 		return VectorScalar<float, 16>
 		(
