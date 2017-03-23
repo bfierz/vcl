@@ -8,11 +8,12 @@ class VclReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = "vcl/2ea4dec@%s/%s" % (username, channel)
     generators = "cmake"
+    default_options = "vcl:fPIC=True"
 
     def build(self):
         cmake = CMake(self.settings)
         self.run('cmake %s %s' % (self.conanfile_directory, cmake.command_line))
+        self.run("cmake --build . %s" % cmake.build_config)
 
     def test(self):
-        return
-        # self.run(os.sep.join([".","bin", "test"]))
+        self.run(os.sep.join([".","bin", "test_vcl"]))

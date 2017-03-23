@@ -3,6 +3,7 @@
 
 int main(int argc, char** argv)
 {
-	std::cout << Vcl::createResourceHandleTag(nullptr) << std::endl;
+	auto handle_tag = Vcl::createResourceHandleTag(nullptr);
+	std::cout << "Success" << std::endl;
 	return 0;
 }

@@ -34,6 +34,7 @@ class VclConan(ConanFile):
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
             self.options.remove("fPIC")
+            self.options.remove("build_type")
 
     def build(self):
         vectorization_key = "VCL_VECTORIZE_" + str(self.options.vectorization) + ":BOOL"
@@ -50,8 +51,15 @@ class VclConan(ConanFile):
 
         cmake = CMake(self.settings)
         cmake.configure(self, source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
-        cmake.build(self, target="vcl_geometry")
-        cmake.build(self, target="vcl_math")
+
+        if cmake.is_multi_configuration:
+            self.run("cmake --build vcl_geometry --config Debug")
+            self.run("cmake --build vcl_math --config Debug")
+            self.run("cmake --build vcl_geometry --config Release")
+            self.run("cmake --build vcl_math --config Release")
+        else:
+            cmake.build(self, target="vcl_geometry")
+            cmake.build(self, target="vcl_math")
 
     def package(self):
         self.copy("*.a", dst="lib", src="lib")
