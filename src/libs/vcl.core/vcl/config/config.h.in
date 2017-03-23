@@ -30,12 +30,6 @@
  */
 #pragma once
 
-#cmakedefine VCL_COMPILER_MSVC
-#cmakedefine VCL_COMPILER_INTEL
-#cmakedefine VCL_COMPILER_GNU
-#cmakedefine VCL_COMPILER_CLANG
-#cmakedefine VCL_COMPILER_UNKNOWN
-
 #cmakedefine VCL_VECTORIZE_AVX2
 #cmakedefine VCL_VECTORIZE_AVX
 
