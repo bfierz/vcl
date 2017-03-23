@@ -48,7 +48,7 @@ namespace Vcl { namespace Geometry
 			{
 				for (unsigned int i = 0; i < xmax + 1; i++)
 				{
-					positions[SpatialToLinearIndex(i, j, k)] = Vector3f((float)i, (float)j, (float)k);
+					positions[SpatialToLinearIndex(i, j, k)] = Vector3f(static_cast<float>(i), static_cast<float>(j), static_cast<float>(k));
 				}
 			}
 		}
@@ -262,7 +262,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		// Fix the orientations of the elements
-		for (int i = 0; i < volumes.size(); i++)
+		for (size_t i = 0; i < volumes.size(); i++)
 		{
 			Vector3f p0 = positions[volumes[i][0]];
 			Vector3f p1 = positions[volumes[i][1]];
@@ -284,7 +284,6 @@ namespace Vcl { namespace Geometry
 
 		size_t nr_vertices = (stacks + 1) * (slices + 1);
 		size_t face_count = (stacks * slices) * 2;
-		size_t nr_indices = face_count * 3;
 
 		std::vector<Vector3f> positions{ nr_vertices };
 		std::vector<Vector3f> normals{ nr_vertices };

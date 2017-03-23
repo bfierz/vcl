@@ -79,7 +79,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				parser.readInt(&i2);
 				parser.readInt(&i3);
 
-				volume = { (unsigned) i0, (unsigned)i1, (unsigned)i2, (unsigned)i3 };
+				volume = { static_cast<unsigned>(i0), static_cast<unsigned>(i1), static_cast<unsigned>(i2), static_cast<unsigned>(i3) };
 				deserialiser->addVolume(volume);
 			}
 			else if (buffer == "l")
@@ -106,8 +106,8 @@ namespace Vcl { namespace Geometry { namespace IO
 		serialiser->begin();
 
 		// Element counts
-		int nr_nodes = serialiser->nrNodes();
-		int nr_cells = serialiser->nrVolumes();
+		unsigned int nr_nodes = serialiser->nrNodes();
+		unsigned int nr_cells = serialiser->nrVolumes();
 
 		// Write vertices
 		for (unsigned int i = 0; i < nr_nodes; ++i)
