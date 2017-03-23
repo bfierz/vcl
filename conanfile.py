@@ -7,8 +7,14 @@ class VclConan(ConanFile):
     version = "2ea4dec"
     generators = "cmake"
     settings = "os","compiler","build_type","arch"
-    options = { "vectorization": ["AVX", "AVX2", "SSE4_2", "SSE2" ] }
-    default_options = "vectorization=SSE2"
+    options = { 
+            "vectorization": ["AVX", "AVX2", "SSE4_2" ], 
+            "fPIC": [True, False]
+            }
+    default_options = \
+            "vectorization=AVX", \
+            "fPIC=False"
+
     requires = (("Eigen3/3.3.3@bschindler/testing"))
 
     exports = ["FindVcl.cmake"]
@@ -25,24 +31,34 @@ class VclConan(ConanFile):
                 conan_basic_setup()
                 set(VCL_EIGEN_DIR ${CONAN_EIGEN3_ROOT})''')
 
-    def build(self):
-        cmake = CMake(self.settings)
+    def config_options(self):
+        if self.settings.compiler == "Visual Studio":
+            self.options.remove("fPIC")
 
+    def build(self):
         vectorization_key = "VCL_VECTORIZE_" + str(self.options.vectorization) + ":BOOL"
-        cmake.configure(self, source_dir=self.conanfile_directory + "/src/", build_dir="./", 
-                defs={"VCL_BUILD_BENCHMARKS:BOOL":"off",
-                    "VCL_BUILD_TESTS:BOOL":"on",
-                    "VCL_BUILD_TOOLS:BOOL":"off",
-                    "VCL_BUILD_EXAMPLES:BOOL" : "off",
-                    vectorization_key : "on"}
-                )
-        cmake.build(self)
+
+        defs={"VCL_BUILD_BENCHMARKS:BOOL":"off",
+            "VCL_BUILD_TESTS:BOOL":"on",
+            "VCL_BUILD_TOOLS:BOOL":"off",
+            "VCL_BUILD_EXAMPLES:BOOL" : "off",
+            vectorization_key : "on"
+        }
+
+        if self.options.fPIC:
+            defs["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "on"
+
+        cmake = CMake(self.settings)
+        cmake.configure(self, source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
+        cmake.build(self, target="vcl_geometry")
+        cmake.build(self, target="vcl_math")
 
     def package(self):
-        self.copy("FindEigen3.cmake", ".", ".")
-        self.copy("*", dst="Eigen", src="eigen-eigen-67e894c6cd8f/Eigen")
-        self.copy("*", dst="unsupported", src="eigen-eigen-67e894c6cd8f/unsupported")
-        self.copy("*", dst="cmake", src="eigen-eigen-67e894c6cd8f/cmake")
+        self.copy("*.a", dst="lib", src="lib")
+        self.copy("*.h", dst="include", src="src/libs")
+        self.copy("config.h", dst="include/vcl.core/vcl/config", src="libs/vcl.core/vcl/config")
 
     def package_info(self):
-        self.cpp_info.includedirs = ['.']
+        self.cpp_info.includedirs = ['include/vcl.core', 'include/vcl.math', 'include/vcl.geometry']
+        self.cpp_info.libs = ['libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a']
+        self.cpp_info.libdirs = [ "lib" ]
