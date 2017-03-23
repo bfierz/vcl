@@ -6,7 +6,7 @@ username = os.getenv("CONAN_USERNAME", "bschindler")
 
 class VclReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "vcl/2ea4dec@%s/%s" % (username, channel)
+    requires = "vcl/master@%s/%s" % (username, channel)
     generators = "cmake"
     default_options = "vcl:fPIC=True"
 

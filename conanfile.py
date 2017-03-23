@@ -4,7 +4,7 @@ from conans.tools import download, unzip
 
 class VclConan(ConanFile):
     name = "vcl"
-    version = "2ea4dec"
+    version = "master"
     generators = "cmake"
     settings = "os","compiler","build_type","arch"
     options = { 
@@ -22,8 +22,6 @@ class VclConan(ConanFile):
     license="MIT"
     description="Visual Computing Library (VCL)"
     exports_sources = "src/*"
-
-    ZIP_FOLDER_NAME = "%s" % version
 
     def source(self):
         tools.replace_in_file("src/CMakeLists.txt", "PROJECT(VisualComputingLibrary)", '''PROJECT(VisualComputingLibrary)
