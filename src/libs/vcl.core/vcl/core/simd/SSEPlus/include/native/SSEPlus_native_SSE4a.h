@@ -56,7 +56,7 @@ SSP_FORCEINLINE unsigned short ssp_lzcnt16_SSE4A( unsigned short val )
 */ 
 SSP_FORCEINLINE unsigned int ssp_lzcnt_SSE4A( unsigned int val )
 {
-    return __lzcnt( val );
+    return SSP_LZCNT_32( val );
 }
 
 #ifdef SYS64
@@ -70,12 +70,12 @@ SSP_FORCEINLINE ssp_u64 ssp_lzcnt64_SSE4A( ssp_u64 val )
 /** \SSE4a{Native,__popcnt16} */ 
 SSP_FORCEINLINE unsigned short ssp_popcnt16_SSE4A( unsigned short val )
 {
-    return __popcnt16( val );
+    return SSP_POPCNT_16( val );
 }
 /** \SSE4a{Native,__popcnt} */ 
 SSP_FORCEINLINE unsigned int ssp_popcnt_SSE4A( unsigned int val )
 {
-    return __popcnt( val );
+    return SSP_POPCNT_32( val );
 }
 
 #ifdef SYS64

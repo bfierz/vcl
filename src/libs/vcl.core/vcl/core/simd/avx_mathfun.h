@@ -162,7 +162,7 @@ AVX2_INTOP_USING_SSE2(add_epi32)
  *	natural logarithm computed for 8 simultaneous float 
  *  return NaN for x <= 0
  */
-v8sf log256_ps(v8sf x)
+inline v8sf log256_ps(v8sf x)
 {
   v8si imm0;
   v8sf one = *(v8sf*)_ps256_1;

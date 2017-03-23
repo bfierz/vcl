@@ -46,14 +46,13 @@
 #define SSP_COMPILER_SUPPORTS_SSE4a
 #define SSP_COMPILER_SUPPORTS_SSE41
 #define SSP_COMPILER_SUPPORTS_SSE42
-#define SSP_COMPILER_SUPPORTS_SSE5
 #endif
 #endif
 
 #define SSP_FORCEINLINE                 __inline__
 #define SSP_INCLUDE_FILE_SSE3           <pmmintrin.h>           // SSE3
 #define SSP_INCLUDE_FILE_SSE4a          <ammintrin.h>           // All intrinsics, including SSE4a
-#define SSP_INCLUDE_FILE_SSE5           <bmmintrin.h>           // SSE5
+#define SSP_INCLUDE_FILE_SSE5           "SSEPlus_NoSSE5.h"      // SSE5
 #define SSP_INCLUDE_FILE_SSE4_1_SSE5    <mmintrin-common.h>     // Functions common to SSE4.1 and SSE5
 
 // CPUID
@@ -183,6 +182,9 @@
 #define SSP_CONST_SETZERO_64F() \
     SSP_CONST_SET1_64F( 0 )
 
+#define SSP_LZCNT_32( x)  __lzcnt(x)
+#define SSP_POPCNT_16( x ) __popcnt16((x))
+#define SSP_POPCNT_32( x ) __popcnt((x))
 #endif // SSP_MSVC
 
 
@@ -290,6 +292,10 @@
 
 #define SSP_CONST_SETZERO_64F() \
     SSP_CONST_SET1_64F( 0 )
+								  
+#define SSP_LZCNT_32( x ) __lzcnt32((x))
+#define SSP_POPCNT_16( x ) __builtin_popcount((x))
+#define SSP_POPCNT_32( x ) __builtin_popcount((x))
 
 #endif // SSP_GNUC
 #endif // __SSEPLUS_PLATFORM_H__
