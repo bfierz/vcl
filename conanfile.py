@@ -31,7 +31,7 @@ class VclConan(ConanFile):
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
             self.options.remove("fPIC")
-            self.options.remove("build_type")
+            self.settings.remove("build_type")
 
     def build(self):
         vectorization_key = "VCL_VECTORIZE_" + str(self.options.vectorization) + ":BOOL"
