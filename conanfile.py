@@ -17,7 +17,6 @@ class VclConan(ConanFile):
 
     requires = (("Eigen3/3.3.3@bschindler/testing"))
 
-    exports = ["FindVcl.cmake"]
     url="https://github.com/bfierz/vcl.git"
     license="MIT"
     description="Visual Computing Library (VCL)"
@@ -43,28 +42,33 @@ class VclConan(ConanFile):
             "VCL_BUILD_EXAMPLES:BOOL" : "off",
             vectorization_key : "on"
         }
-
-        if self.options.fPIC:
+        
+        if self.settings.os != "Windows" and self.options.fPIC:
             defs["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "on"
 
         cmake = CMake(self.settings)
         cmake.configure(self, source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
 
         if cmake.is_multi_configuration:
-            self.run("cmake --build vcl_geometry --config Debug")
-            self.run("cmake --build vcl_math --config Debug")
-            self.run("cmake --build vcl_geometry --config Release")
-            self.run("cmake --build vcl_math --config Release")
+            self.run("cmake --build . --target vcl_geometry --config Debug")
+            self.run("cmake --build . --target vcl_math --config Debug")
+            self.run("cmake --build . --target vcl_geometry --config Release")
+            self.run("cmake --build . --target vcl_math --config Release")
         else:
             cmake.build(self, target="vcl_geometry")
             cmake.build(self, target="vcl_math")
 
     def package(self):
         self.copy("*.a", dst="lib", src="lib")
+        self.copy("*.lib", dst="lib", src="lib")
         self.copy("*.h", dst="include", src="src/libs")
         self.copy("config.h", dst="include/vcl.core/vcl/config", src="libs/vcl.core/vcl/config")
 
     def package_info(self):
         self.cpp_info.includedirs = ['include/vcl.core', 'include/vcl.math', 'include/vcl.geometry']
-        self.cpp_info.libs = ['libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a']
+        if self.settings.os == "Windows":
+            self.cpp_info.debug.libs = ['vcl_core_d.lib', 'vcl_math_d.lib', 'vcl_geometry_d.lib']
+            self.cpp_info.release.libs = ['vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib']
+        else:
+            self.cpp_info.libs = ['libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a']
         self.cpp_info.libdirs = [ "lib" ]

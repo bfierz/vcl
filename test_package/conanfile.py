@@ -2,13 +2,16 @@ from conans import ConanFile, CMake
 import os
 
 channel = os.getenv("CONAN_CHANNEL", "testing")
-username = os.getenv("CONAN_USERNAME", "bschindler")
+username = os.getenv("CONAN_USERNAME", "bfierz")
 
 class VclReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     requires = "vcl/master@%s/%s" % (username, channel)
     generators = "cmake"
-    default_options = "vcl:fPIC=True"
+    
+    def configure(self):
+        if self.settings.os != "Windows":
+            self.options["vcl"].fPIC=True
 
     def build(self):
         cmake = CMake(self.settings)
