@@ -557,7 +557,7 @@ MeshView::MeshView(QQuickItem* parent)
 	setMirrorVertically(true);
 }
 
-void MeshView::selectObject(int x, int y)
+QPoint MeshView::selectObject(int x, int y)
 {
 	if (_idBuffer && _idBufferWidth > 0 && _idBufferHeight > 0)
 	{
@@ -568,13 +568,63 @@ void MeshView::selectObject(int x, int y)
 			uint32_t idx = y * _idBufferWidth + x;
 			auto ids = _idBuffer[idx];
 
-			std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+			return{ ids.x(), ids.y() };
 		}
-
-		// 
-		const auto* cam = scene()->camera();
-		cam->pickWorldSpace(x, y);
 	}
+
+	return{ -1, -1 };
+}
+
+void MeshView::beginDrag(int x, int y)
+{
+	// Find ray into the scene for the direction computation later
+	const auto* cam = scene()->camera();
+	const auto line = cam->pickViewSpace(x, y);
+	_curr_view_dir = line.direction();
+
+	_manip_translation = true;
+}
+
+void MeshView::dragObject(int x, int y)
+{
+	if (!_manip_translation)
+		return;
+
+	// Find ray into the scene and compute the direction based on the previous
+	// direction.
+	const auto* cam = scene()->camera();
+	const auto line = cam->pickViewSpace(x, y);
+	Eigen::Vector3f dir = line.direction() - _curr_view_dir;
+
+	// Remove the z-component to have the view-plane aligned vector
+	dir.z() = 0;
+	dir.normalize();
+
+	// Store for the next call
+	_curr_view_dir = line.direction();
+
+	// Compute the magnitude of the displacement:
+	// The angle of between the desired direction and the actual direction
+	// defines the speed.
+	Eigen::Matrix4f M = scene()->modelMatrix();
+	Eigen::Matrix4f V = scene()->viewMatrix();
+	Eigen::Vector3f x_dir = (V * M * Eigen::Vector4f(1, 0, 0, 0)).segment<3>(0, 3);
+
+	// Remove the z-component to have the view-plane aligned vector
+	x_dir.z() = 0;
+	x_dir.normalize();
+
+	// Compute the magnitude of the drag
+	const float mag = dir.dot(x_dir);
+
+	std::cout << "(x, y, z): " << mag << std::endl;
+
+	//std::cout << dir.x() << ", " << dir.y() << ", " << x_dir.x() << ", " << x_dir.y() << ", " << mag << std::endl;
+}
+
+void MeshView::endDrag()
+{
+	_manip_translation = false;
 }
 
 void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)

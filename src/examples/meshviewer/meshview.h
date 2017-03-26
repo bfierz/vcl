@@ -122,7 +122,11 @@ public:
 	MeshView(QQuickItem *parent = Q_NULLPTR);
 
 public:
-	Q_INVOKABLE void selectObject(int x, int y);
+	Q_INVOKABLE QPoint selectObject(int x, int y);
+
+	Q_INVOKABLE void beginDrag(int x, int y);
+	Q_INVOKABLE void dragObject(int x, int y);
+	Q_INVOKABLE void endDrag();
 
 public:
 	Scene* scene() const { return _scene; }
@@ -150,6 +154,8 @@ private:
 	Scene* _scene{ nullptr };
 	bool _renderWireframe{ false };
 
+private: // ID buffer
+
 	//! Store the on the host side
 	std::unique_ptr<Eigen::Vector2i[]> _idBuffer;
 
@@ -158,4 +164,11 @@ private:
 
 	//! ID buffer height
 	uint32_t _idBufferHeight{ 0 };
+
+private: // Position manipulator
+	
+	bool _manip_translation{ false };
+
+	Eigen::Vector3f _curr_view_dir;
+
 };

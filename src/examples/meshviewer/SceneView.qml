@@ -57,7 +57,13 @@ MeshView
 		{
 			if (mouse.button & Qt.LeftButton)
 			{
-				parent.selectObject(mouse.x, mouse.y)
+				var ids = parent.selectObject(mouse.x, mouse.y)
+				console.log("Object Id: ", ids.x, ", Primitive Id: ", ids.y)
+
+				if (ids.x == 0)
+				{
+					parent.beginDrag(mouse.x, mouse.y)
+				}
 			}
 			else if (mouse.button & Qt.RightButton)
 			{
@@ -66,7 +72,11 @@ MeshView
 		}
 		onReleased:
 		{
-			if (mouse.button & Qt.RightButton)
+			if (mouse.button & Qt.LeftButton)
+			{
+				parent.endDrag(mouse.x, mouse.y)
+			}
+			else if (mouse.button & Qt.RightButton)
 			{
 				scene.endRotate()
 				renderer.update()
@@ -74,8 +84,15 @@ MeshView
 		}
 		onPositionChanged:
 		{
-			scene.rotate(mouse.x / width, mouse.y / height)
-			renderer.update()
+			if (pressedButtons & Qt.LeftButton)
+			{
+				parent.dragObject(mouse.x, mouse.y)
+			}
+			else if (pressedButtons & Qt.RightButton)
+			{
+				scene.rotate(mouse.x / width, mouse.y / height)
+				renderer.update()
+			}
 		}
 		onWheel:
 		{
