@@ -4,3 +4,4 @@
 /build-*
 /build
 CMakeLists.txt.user
+test_package/build

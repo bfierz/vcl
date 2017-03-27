@@ -29,14 +29,14 @@
 #include <vcl/config/config.h>
 
 // Check library configuration
-#if defined _MSC_VER && !defined __clang__ && !defined VCL_COMPILER_MSVC
-#	error "VCL was not configured for MSVC"
-#elif defined __clang__ && !defined VCL_COMPILER_CLANG
-#	error "VCL was not configured for CLANG"
-#elif defined __GNUC__ && !defined VCL_COMPILER_GNU
-#	error "VCL was not configured for the GNU C++ compiler"
-#elif defined __INTEL_COMPILER && !defined VCL_COMPILER_ICL
-#	error "VCL was not configured for the Intel C++ compiler"
+#if defined _MSC_VER && !defined __clang__
+#	define VCL_COMPILER_MSVC
+#elif defined __clang__
+#	define VCL_COMPILER_CLANG
+#elif defined __GNUC__
+#	define VCL_COMPILER_GNU
+#elif defined __INTEL_COMPILER
+#	define VCL_COMPILER_ICL
 #endif
 
 #if defined (VCL_COMPILER_MSVC)
