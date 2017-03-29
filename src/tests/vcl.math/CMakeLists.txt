@@ -7,6 +7,7 @@ SET(VCL_TEST_SRC
 	poisson3d.cpp
 	poldecomp33.cpp
 	qr33.cpp
+	rotation33.cpp
 	svd33.cpp
 )
 SET(VCL_TEST_INC

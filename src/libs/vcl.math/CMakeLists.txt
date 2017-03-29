@@ -42,6 +42,8 @@ SET(VCL_MATH_INC
 	vcl/math/polardecomposition_impl.h
 	vcl/math/qr33.h
 	vcl/math/qr33_impl.h
+	vcl/math/rotation33_torque.h
+	vcl/math/rotation33_torque_impl.h
 	vcl/math/waveletstack3d.h
 
 )
@@ -55,6 +57,7 @@ SET(VCL_MATH_SRC
 	vcl/math/jacobisvd33_twosided.cpp
 	vcl/math/polardecomposition.cpp
 	vcl/math/qr33.cpp
+	vcl/math/rotation33_torque.cpp
 	vcl/math/waveletstack3d.cpp
 )
 
