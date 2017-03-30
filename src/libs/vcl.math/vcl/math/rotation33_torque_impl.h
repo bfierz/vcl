@@ -48,7 +48,8 @@ namespace Vcl { namespace Mathematics
 		const REAL one = static_cast<REAL>(1);
 
 		Eigen::Quaternion<REAL> q;
-		REAL t = sqrt(t + REAL(1.0));
+		REAL t = RR.trace();
+		t = sqrt(t + REAL(1.0));
 		q.w() = REAL(0.5)*t;
 		t = REAL(0.5) / t;
 		q.x() = (RR.coeff(2, 1) - RR.coeff(1, 2)) * t;
