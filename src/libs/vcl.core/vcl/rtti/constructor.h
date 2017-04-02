@@ -41,7 +41,7 @@
 
 // VCL
 #include <vcl/core/container/array.h>
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 #include <vcl/rtti/constructorbase.h>
@@ -55,17 +55,17 @@ namespace Vcl { namespace RTTI
 	template<typename T>
 	struct extract
 	{
-		static T get(const linb::any& value)
+		static T get(const std::any& value)
 		{
-			return linb::any_cast<T>(value);
+			return std::any_cast<T>(value);
 		}
 	};
 	template<typename T>
 	struct extract<std::shared_ptr<T>>
 	{
-		static std::shared_ptr<T> get(const linb::any& value)
+		static std::shared_ptr<T> get(const std::any& value)
 		{
-			return std::static_pointer_cast<T>(std::move(linb::any_cast<std::shared_ptr<void>>(value)));
+			return std::static_pointer_cast<T>(std::move(std::any_cast<std::shared_ptr<void>>(value)));
 		}
 	};
 
@@ -103,20 +103,20 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<std::any>&& params) const override
 		{
 			return callImplSeq(location, std::move(params), make_index_sequence<sizeof...(Params)>());
 		}
 
 	private:
 		template<size_t... S>
-		void* callImplSeq(void* location, std::vector<linb::any>&& params, index_sequence<S...>) const
+		void* callImplSeq(void* location, std::vector<std::any>&& params, index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename P, int I>
-		P getParam(const std::vector<linb::any>& params) const
+		P getParam(const std::vector<std::any>& params) const
 		{
 			return extract<P>::get(params.begin()[I]);
 		}
@@ -195,7 +195,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const override
+		virtual void* callImpl(void* location, std::vector<std::any>&& params) const override
 		{
 			Require(params.size() == 0, "No parameters supplied.");
 

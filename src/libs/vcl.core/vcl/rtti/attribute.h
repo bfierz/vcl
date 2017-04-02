@@ -34,7 +34,7 @@
 
 // VCL
 #include <vcl/core/container/array.h>
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
 #include <vcl/rtti/attributebase.h>
@@ -80,7 +80,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
@@ -166,7 +166,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
@@ -251,11 +251,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			Require(object, "Object is set.");
 
-			auto ptr = linb::any_cast<T*>(param);
+			auto ptr = std::any_cast<T*>(param);
 			(static_cast<MetaType*>(object)->*_setter)(std::unique_ptr<T>(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
@@ -357,7 +357,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			Require(object, "Object is set.");
 			//Require(param, "Value is set.");
@@ -429,7 +429,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			Require(object, "Object is set.");
 			//Require(param, "Value is set.");

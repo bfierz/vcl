@@ -32,7 +32,7 @@
 #include <vector>
 
 // VCL
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/preprocessor.h>
 #include <vcl/rtti/metatypebase.h>
 

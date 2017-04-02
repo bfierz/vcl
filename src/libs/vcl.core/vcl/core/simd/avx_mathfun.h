@@ -148,11 +148,19 @@ AVX2_INTOP_USING_SSE2(add_epi32)
 
 #else
 
-#define AVX2_BITOP_USING_AVX2(fn) _mmREF_##fn
+#define AVX2_BITOP_USING_AVX2(fn) \
+static inline v8si _mmREF_##fn(v8si x, int a) \
+{ \
+  return _mm256_##fn(x, a); \
+}
 AVX2_BITOP_USING_AVX2(slli_epi32)
 AVX2_BITOP_USING_AVX2(srli_epi32)
 
-#define AVX2_INTOP_USING_AVX2(fn) _mmREF_##fn
+#define AVX2_INTOP_USING_AVX2(fn) \
+static inline v8si _mmREF_##fn(v8si x, v8si y) \
+{ \
+  return _mm256_##fn(x, y); \
+}
 AVX2_INTOP_USING_AVX2(sub_epi32)
 AVX2_INTOP_USING_AVX2(add_epi32)
 
