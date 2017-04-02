@@ -2,6 +2,7 @@ language: cpp
 branches:
   only:
     - master
+    - feature/test-avx
 os: linux
 env:
   - compiler='g++-6' build_type='Debug'
