@@ -39,7 +39,7 @@ namespace Vcl
 		return _mm_i32gather_ps(base, vindex, 4);
 	}
 
-	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, VectorScalar<int, 4>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex)
 	{
 		__m128i idx = vindex.get(0);
 		__m128 val = gather(base, idx);
