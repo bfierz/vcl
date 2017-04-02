@@ -1,9 +1,22 @@
+sudo: required
+dist: trusty
 language: cpp
 branches:
   only:
     - master
     - feature/test-avx
 os: linux
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - boost-latest
+    packages:
+    - clang-3.9
+    - g++-6
+    - libboost-all-dev
+
+# Configuration matrix
 env:
   - compiler='g++-6' build_type='Debug' vec_sse2=on  vec_sse3=off vec_sse4_1=off vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Debug' vec_sse2=off vec_sse3=on  vec_sse4_1=off vec_sse4_2=off vec_avx=off
@@ -21,16 +34,10 @@ env:
   - compiler='clang++-3.7' build_type='Release' vec_sse2=off vec_sse3=on  vec_sse4_1=off vec_sse4_2=off vec_avx=off
   - compiler='clang++-3.7' build_type='Release' vec_sse2=off vec_sse3=off vec_sse4_1=on  vec_sse4_2=off vec_avx=off
   - compiler='clang++-3.7' build_type='Release' vec_sse2=off vec_sse3=off vec_sse4_1=off vec_sse4_2=on  vec_avx=off
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - boost-latest
-    packages:
-    - clang-3.7
-    - gcc-6
-    - g++-6
-    - libboost-all-dev
+
+before_install:
+    - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
+	
 install:
   - EIGEN_VERSION=3.3.1
   - EIGEN_HASH=f562a193118d
@@ -39,7 +46,11 @@ install:
 
   - wget --no-check-certificate https://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
   - tar -xzf cmake-3.3.1-Linux-x86_64.tar.gz
-  - export CXX=$compiler
+
+before_script:
+    - if [ "$compiler" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
+    - if [ "$compiler" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
+
 script:
   - mkdir $CXX && cd $CXX
   - ../cmake-3.3.1-Linux-x86_64/bin/cmake -DCMAKE_BUILD_TYPE=$build_type -DCMAKE_CXX_FLAGS="-Wall -Wextra -pedantic -Wno-parentheses" -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:bool=off -DVCL_VECTORIZE_SSE2:bool=$vec_sse2 -DVCL_VECTORIZE_SSE3:bool=$vec_sse3 -DVCL_VECTORIZE_SSE4_1:bool=$vec_sse4_1 -DVCL_VECTORIZE_SSE4_2:bool=$vec_sse4_2 -DVCL_VECTORIZE_AVX:bool=$vec_avx -DVCL_EIGEN_DIR:path=../eigen-eigen-${EIGEN_HASH}/ ../src
