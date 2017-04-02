@@ -22,6 +22,7 @@ SET(VCL_CORE_SRC
 	vcl/core/handle.cpp
 )
 SET(VCL_CORE_INC
+	vcl/core/any.h
 	vcl/core/contract.h
 	vcl/core/convert.h
 	vcl/core/flags.h

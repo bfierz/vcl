@@ -43,7 +43,7 @@
 #include <gsl/string_span>
 
 // VCL
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 
@@ -131,17 +131,17 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual linb::any pack(std::string value) const
+		virtual std::any pack(std::string value) const
 		{
 			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
 		}
-		virtual linb::any pack(void* link) const
+		virtual std::any pack(void* link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return nullptr;
 		}
-		virtual linb::any pack(std::shared_ptr<void> link) const
+		virtual std::any pack(std::shared_ptr<void> link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return std::shared_ptr<void>();
@@ -165,7 +165,7 @@ namespace Vcl { namespace RTTI
 		}
 	
 	public:
-		virtual linb::any pack(std::string value) const override
+		virtual std::any pack(std::string value) const override
 		{
 			return from_string<T>(value);
 		}
@@ -181,7 +181,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual linb::any pack(void* link) const override
+		virtual std::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -197,7 +197,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual linb::any pack(std::shared_ptr<void> link) const override
+		virtual std::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -222,10 +222,10 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			return callImpl(location, { linb::any(args)... });
+			return callImpl(location, { std::any(args)... });
 		}
 
-		void* call(void* location, std::vector<linb::any> args) const
+		void* call(void* location, std::vector<std::any> args) const
 		{
 			return callImpl(location, std::move(args));
 		}
@@ -246,7 +246,7 @@ namespace Vcl { namespace RTTI
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<linb::any>&& params) const = 0;
+		virtual void* callImpl(void* location, std::vector<std::any>&& params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor

@@ -90,14 +90,26 @@
 // Enable the thread_local-keyword
 #	if (_MSC_VER <= 1900)
 #		define thread_local __declspec(thread)
-#	endif /* _MSC_VER <= 1900 */
+#	endif // _MSC_VER <= 1900
 
 // Enable constexpr on certain Microsoft compilers
-#	define VCL_CONSTEXPR_CPP11 constexpr
-#	define VCL_CONSTEXPR_CPP14
+#	if (_MSC_VER < 1900)
+#		define VCL_CONSTEXPR_CPP11
+#		define VCL_CONSTEXPR_CPP14
+#	elif (_MSC_VER <= 1900)
+#		define VCL_CONSTEXPR_CPP11 constexpr
+#		define VCL_CONSTEXPR_CPP14
+#	elif (_MSC_VER <= 1910)
+#		define VCL_CONSTEXPR_CPP11 constexpr
+#		define VCL_CONSTEXPR_CPP14 constexpr
+#	endif
 
 // STL support
 #	define VCL_STL_CHRONO
+
+#	if (_MSC_VER >= 1910 && _MSVC_LANG > 201402)
+#		define VCL_STL_ANY
+#	endif
 
 #elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)

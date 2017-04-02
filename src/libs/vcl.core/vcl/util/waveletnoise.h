@@ -37,16 +37,16 @@
 namespace Vcl { namespace Util
 {
 	template<int N>
-	inline int fast_modulo(int x)
+	VCL_CONSTEXPR_CPP11 inline int fast_modulo(int x)
 	{
 		int m = x % N; 
 		return (m < 0) ? m + N : m;
 	}
 	
-	template<> inline int fast_modulo<128>(int x) { return x & 127; }
-	template<> inline int fast_modulo< 64>(int x) { return x &  63; }
-	template<> inline int fast_modulo< 32>(int x) { return x &  32; }
-	template<> inline int fast_modulo< 16>(int x) { return x &  15; }
+	template<> VCL_CONSTEXPR_CPP11 inline int fast_modulo<128>(int x) { return x & 127; }
+	template<> VCL_CONSTEXPR_CPP11 inline int fast_modulo< 64>(int x) { return x &  63; }
+	template<> VCL_CONSTEXPR_CPP11 inline int fast_modulo< 32>(int x) { return x &  32; }
+	template<> VCL_CONSTEXPR_CPP11 inline int fast_modulo< 16>(int x) { return x &  15; }
 
 	/*!
 	 *	Wavelet noise implementation by Robert L. Cook and Tony DeRose
