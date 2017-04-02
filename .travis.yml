@@ -1,6 +1,7 @@
 language: cpp
 
 dist: precise
+sudo: required
 
 branches:
   only:
