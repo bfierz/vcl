@@ -36,8 +36,8 @@ env:
   - compiler='clang++-3.7' build_type='Release' vec_sse2=off vec_sse3=off vec_sse4_1=off vec_sse4_2=on  vec_avx=off
 
 before_install:
-    - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
-	
+  - if [ "$TRAVIS_OS_NAME" = "linux"  ]; then sudo apt-get -qq update;    fi
+
 install:
   - EIGEN_VERSION=3.3.1
   - EIGEN_HASH=f562a193118d
@@ -48,8 +48,8 @@ install:
   - tar -xzf cmake-3.3.1-Linux-x86_64.tar.gz
 
 before_script:
-    - if [ "$compiler" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
-    - if [ "$compiler" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
+  - if [ "$compiler" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
+  - if [ "$compiler" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi
 
 script:
   - mkdir $CXX && cd $CXX
