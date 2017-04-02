@@ -53,6 +53,7 @@ namespace Vcl { namespace Mathematics
 #elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
+#	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps)
 	{

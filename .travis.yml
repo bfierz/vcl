@@ -9,12 +9,10 @@ env:
   - compiler='g++-6' build_type='Debug' vec_sse3=on  vec_sse4_1=off vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Debug' vec_sse3=off vec_sse4_1=on  vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Debug' vec_sse3=off vec_sse4_1=off vec_sse4_2=on  vec_avx=off
-  - compiler='g++-6' build_type='Debug' vec_sse3=off vec_sse4_1=off vec_sse4_2=off vec_avx=on
   - compiler='g++-6' build_type='Release' vec_sse3=off vec_sse4_1=off vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Release' vec_sse3=on  vec_sse4_1=off vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Release' vec_sse3=off vec_sse4_1=on  vec_sse4_2=off vec_avx=off
   - compiler='g++-6' build_type='Release' vec_sse3=off vec_sse4_1=off vec_sse4_2=on  vec_avx=off
-  - compiler='g++-6' build_type='Release' vec_sse3=off vec_sse4_1=off vec_sse4_2=off vec_avx=on
 addons:
   apt:
     sources:
