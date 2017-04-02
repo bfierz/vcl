@@ -1,20 +1,24 @@
+language: cpp
+
 sudo: required
 dist: trusty
-language: cpp
+
 branches:
   only:
     - master
     - feature/test-avx
 os: linux
+
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
-    - boost-latest
+      - ubuntu-toolchain-r-test
+      - llvm-toolchain-precise-3.9
+      - boost-latest
     packages:
-    - clang-3.9
-    - g++-6
-    - libboost-all-dev
+      - clang-3.9
+      - g++-6
+      - libboost-all-dev
 
 # Configuration matrix
 env:
