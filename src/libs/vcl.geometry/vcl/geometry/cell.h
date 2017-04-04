@@ -176,7 +176,7 @@ namespace Vcl { namespace Geometry
 		}
 
 	private:
-		static float dNi_zeta_1(int i, const NaturalCoordinates3& gauss_point)
+		static float dNi_zeta_1(int i, const NaturalCoordinates3&)
 		{
 			if (i == 0)
 				return 1;
@@ -186,7 +186,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 		
-		static float dNi_zeta_2(int i, const NaturalCoordinates3& gauss_point)
+		static float dNi_zeta_2(int i, const NaturalCoordinates3&)
 		{
 			if (i == 1)
 				return 1;
@@ -196,7 +196,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 
-		static float dNi_zeta_3(int i, const NaturalCoordinates3& gauss_point)
+		static float dNi_zeta_3(int i, const NaturalCoordinates3&)
 		{
 			if (i == 2)
 				return 1;
@@ -206,7 +206,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 		
-		static float dNi_zeta_1(int i, const NaturalCoordinates4& gauss_point)
+		static float dNi_zeta_1(int i, const NaturalCoordinates4&)
 		{
 			if (i == 0)
 				return 1;
@@ -214,7 +214,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 		
-		static float dNi_zeta_2(int i, const NaturalCoordinates4& gauss_point)
+		static float dNi_zeta_2(int i, const NaturalCoordinates4&)
 		{
 			if (i == 1)
 				return 1;
@@ -222,7 +222,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 
-		static float dNi_zeta_3(int i, const NaturalCoordinates4& gauss_point)
+		static float dNi_zeta_3(int i, const NaturalCoordinates4&)
 		{
 			if (i == 2)
 				return 1;
@@ -230,7 +230,7 @@ namespace Vcl { namespace Geometry
 				return 0;
 		}
 
-		static float dNi_zeta_4(int i, const NaturalCoordinates4& gauss_point)
+		static float dNi_zeta_4(int i, const NaturalCoordinates4&)
 		{
 			if (i == 3)
 				return 1;
