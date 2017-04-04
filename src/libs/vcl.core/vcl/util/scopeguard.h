@@ -47,7 +47,7 @@ namespace std
 	}
 //#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
 #elif defined(VCL_COMPILER_CLANG)
-	namespace details { extern "C" char * __cxa_get_globals(); }
+	//namespace details { extern "C" char * __cxa_get_globals(); }
 	inline int uncaught_exceptions() noexcept
 	{
 		// Tested on {clang 3.2,GCC 3.5.6,,GCC 4.1.2,GCC 4.4.6,GCC 4.4.7}x{x32,x64}
