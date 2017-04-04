@@ -47,7 +47,7 @@ namespace
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 	{
 		// Random number generator
-		std::mt19937_64 rng{ 5489Ui64 };
+		std::mt19937_64 rng{ 5489 };
 		std::uniform_real_distribution<float> d;
 
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
