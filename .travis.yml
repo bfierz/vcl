@@ -6,7 +6,6 @@ sudo: required
 branches:
   only:
     - master
-    - feature/test-avx
 os: linux
 
 addons:
