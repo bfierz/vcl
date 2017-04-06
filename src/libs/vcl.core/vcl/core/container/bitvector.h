@@ -79,7 +79,7 @@ namespace Vcl { namespace Core
 			reference& operator= (const reference& x) noexcept
 			{
 				*_dataPtr = *x._dataPtr;
-				_generationPtr = _generationPtr;
+				_generationPtr = x._generationPtr;
 
 				return *this;
 			}

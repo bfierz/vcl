@@ -28,10 +28,13 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <stddef.h>  // Required for size_t and ptrdiff_t and NULL
-#include <limits>    // Required for numeric_limits
-#include <new>       // Required for placement new and std::bad_alloc
-#include <stdexcept> // Required for std::length_error
+#ifndef VCL_COMPILER_MSVC
+#include <mm_malloc.h> // Required for _mm_malloc
+#endif
+#include <stddef.h>    // Required for size_t and ptrdiff_t and NULL
+#include <limits>      // Required for numeric_limits
+#include <new>         // Required for placement new and std::bad_alloc
+#include <stdexcept>   // Required for std::length_error
 
 // VCL
 #include <vcl/core/contract.h>

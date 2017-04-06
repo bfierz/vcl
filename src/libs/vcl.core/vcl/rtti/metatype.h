@@ -70,7 +70,7 @@ namespace Vcl { namespace RTTI
 		// Build the content of the metatype
 		construct(&type);
 
-		return std::move(type);
+		return type;
 	}
 
 	// Template specializations matching different type variations

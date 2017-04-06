@@ -143,17 +143,11 @@ namespace Vcl { namespace Geometry
 		, _defaultValue(rhs._defaultValue)
 		, _allocPolicy(nullptr)
 		{
-			// Check for instanciations
-#ifdef VCL_COMPILER_GNU
-			DebugError("Implementation is not verified yet.");
-#else
-			static_assert(false, "Implementation is not verified yet.");
-#endif // VCL_COMPILER_GNU
-
 			std::swap(_allocPolicy, rhs._allocPolicy);
 			std::swap(_data, rhs._data);
+			std::swap(_defaultValue, rhs._defaultValue);
 
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			Ensure(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
 		virtual ~Property()
@@ -288,7 +282,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		//! Clear the current content
-		virtual void clear()
+		virtual void clear() override
 		{
 			size_t count = size();
 			setSize(0);
@@ -298,7 +292,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		//! Resize the container.
-		virtual void resize(size_t count)
+		virtual void resize(size_t count) override
 		{
 			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 
@@ -347,7 +341,7 @@ namespace Vcl { namespace Geometry
 		
 		// Reserve additional memory without resizing the property. 
 		// This requires allocating a new block of new memory and copying the old elements.
-		virtual void reserve(size_t count)
+		virtual void reserve(size_t count) override
 		{
 			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 
