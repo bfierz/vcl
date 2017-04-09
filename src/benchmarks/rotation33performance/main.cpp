@@ -28,6 +28,7 @@
 
 // C++ standard library
 #include <iostream>
+#include <random>
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
@@ -43,6 +44,44 @@
 const size_t nr_problems = 8192;
 
 Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
+
+template<typename Scalar>
+void createProblems
+(
+	size_t nr_problems,
+	Scalar max_angle,
+	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* F
+)
+{
+	// Random number generator
+	std::mt19937_64 rng;
+	std::uniform_real_distribution<float> d;
+	std::uniform_real_distribution<float> a{ -max_angle, max_angle };
+
+	// Initialize data
+	for (int i = 0; i < (int)nr_problems; i++)
+	{
+		// Rest-state
+		Eigen::Matrix<Scalar, 3, 3> X0;
+		X0 << d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
+
+		// Rotation angle
+		Scalar angle = a(rng);
+
+		// Rotation axis
+		Eigen::Matrix<Scalar, 3, 1> rot_vec;
+		rot_vec << d(rng), d(rng), d(rng);
+		rot_vec.normalize();
+
+		// Rotation matrix
+		Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{ angle, rot_vec }.toRotationMatrix();
+
+		Eigen::Matrix<Scalar, 3, 3> X = Rot * X0;
+		F->template at<Scalar>(i) = X * X0.inverse();
+	}
+}
 
 void perfEigenSVD(benchmark::State& state)
 {
@@ -158,10 +197,7 @@ BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128);//->Arg(512)->Arg(8192
 int main(int argc, char** argv)
 {
 	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
-	{
-		F.at<float>(i).setRandom();
-	}
+	createProblems<float>(nr_problems, 90, &F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
