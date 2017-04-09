@@ -44,7 +44,7 @@ namespace Vcl { namespace Mathematics
 	template<typename REAL>
 	int Rotation(const Eigen::Matrix<REAL, 3, 3>& A, Eigen::Matrix<REAL, 3, 3>& RR)
 	{
-		const REAL eps = static_cast<REAL>(1e-9);
+		const REAL eps = static_cast<REAL>(1e-6);
 		const REAL one = static_cast<REAL>(1);
 
 		Eigen::Quaternion<REAL> q;
@@ -69,7 +69,7 @@ namespace Vcl { namespace Mathematics
 			if (all(w < eps))
 			{
 				RR = R;
-				return i;
+				return i + 1;
 			}
 
 			q = Eigen::Quaternion<REAL>(Eigen::AngleAxis<REAL>(w, (one / w) * omega)) * q;

@@ -43,6 +43,8 @@
 // Global data store for one time problem setup
 const size_t nr_problems = 8192;
 
+Vcl::Core::InterleavedArray<float, 3, 3, -1> F_30(nr_problems);
+Vcl::Core::InterleavedArray<float, 3, 3, -1> F_60(nr_problems);
 Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 
 template<typename Scalar>
@@ -64,8 +66,8 @@ void createProblems
 		// Rest-state
 		Eigen::Matrix<Scalar, 3, 3> X0;
 		X0 << d(rng), d(rng), d(rng),
-			d(rng), d(rng), d(rng),
-			d(rng), d(rng), d(rng);
+		      d(rng), d(rng), d(rng),
+		      d(rng), d(rng), d(rng);
 
 		// Rotation angle
 		Scalar angle = a(rng);
