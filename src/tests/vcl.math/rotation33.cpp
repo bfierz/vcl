@@ -28,6 +28,7 @@
 #include <vcl/config/eigen.h>
 
 // C++ standard library
+#include <memory>
 #include <random>
 
 // Include the relevant parts from the library
@@ -42,56 +43,42 @@
 namespace
 {
 	template<typename Scalar>
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
+	void createProblems
+	(
+		size_t nr_problems,
+		Scalar max_angle,
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* F,
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* R
+	)
 	{
 		// Random number generator
 		std::mt19937_64 rng;
 		std::uniform_real_distribution<float> d;
-
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-	
+		std::uniform_real_distribution<float> a{ -max_angle, max_angle };
+			
 		// Initialize data
 		for (int i = 0; i < (int) nr_problems; i++)
 		{
-			Eigen::Matrix<Scalar, 3, 3> rnd;
-			rnd << d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng);
-			F.template at<Scalar>(i) = rnd;
-		}
+			// Rest-state
+			Eigen::Matrix<Scalar, 3, 3> X0;
+			X0 << d(rng), d(rng), d(rng),
+				  d(rng), d(rng), d(rng),
+				  d(rng), d(rng), d(rng);
 
-		return std::move(F);
-	}
+			// Rotation angle
+			Scalar angle = a(rng);
 
-	template<typename Scalar>
-	void computeReferenceSolution
-	(
-		size_t nr_problems,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& R
-	)
-	{
-		// Compute reference using Eigen
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
-		{
-			Vcl::Matrix3f A = F.template at<Scalar>(i);
+			// Rotation axis
+			Eigen::Matrix<Scalar, 3, 1> rot_vec;
+			rot_vec << d(rng), d(rng), d(rng);
+			rot_vec.normalize();
 
-			Eigen::JacobiSVD<Eigen::Matrix<Scalar, 3, 3>> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
+			// Rotation matrix
+			Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{angle, rot_vec}.toRotationMatrix();
+			R->template at<Scalar>(i) = Rot;
 
-			// Adapted the polar decomposition from Eigen
-			Scalar x = (svd.matrixU() * svd.matrixV().transpose()).determinant();
-			Eigen::Matrix<Scalar, 3, 1> sv(svd.singularValues());
-
-			int index;
-			sv.minCoeff(&index);
-
-			Eigen::Matrix<Scalar, 3, 3> V(svd.matrixV());
-			if (x < 0)
-			{
-				V.col(index) *= -1.0f;
-			}
-
-			R.template at<Scalar>(i) = svd.matrixU() * V.transpose();
+			Eigen::Matrix<Scalar, 3, 3> X = Rot * X0;
+			F->template at<Scalar>(i) = X * X0.inverse();
 		}
 	}
 
@@ -141,7 +128,7 @@ namespace
 	}
 }
 template<typename WideScalar>
-void runRotationTest(float tol)
+void runRotationTest(float max_angle, float tol)
 {
 	using scalar_t = float;
 	using real_t = WideScalar;
@@ -149,11 +136,11 @@ void runRotationTest(float tol)
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
 
-	auto F = createProblems<scalar_t>(nr_problems);
-	computeReferenceSolution(nr_problems, F, refR);
+	createProblems<scalar_t>(nr_problems, max_angle * 3.14f / 180.0f, &F, &refR);
 
 	// Strides
 	size_t stride = nr_problems;
@@ -174,19 +161,62 @@ void runRotationTest(float tol)
 	checkSolution(nr_problems, tol, refR, resR);
 }
 
-TEST(Rotation33, RotationFloat)
+TEST(Rotation33, Rotation30Float)
 {
-	runRotationTest<float>(1e-1f);
+	runRotationTest<float>(30.0f, 2e-5f);
 }
-//TEST(Rotation33, RotationFloat4)
-//{
-//	runRotationTest<Vcl::float4>(5e-5f);
-//}
-//TEST(Rotation33, RotationFloat8)
-//{
-//	runRotationTest<Vcl::float8>(5e-5f);
-//}
-//TEST(Rotation33, RotationFloat16)
-//{
-//	runRotationTest<Vcl::float16>(5e-5f);
-//}
+TEST(Rotation33, Rotation60Float)
+{
+	runRotationTest<float>(60.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation90Float)
+{
+	runRotationTest<float>(90.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation120Float)
+{
+	runRotationTest<float>(120.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation180Float)
+{
+	runRotationTest<float>(180.0f, 2e-5f);
+}
+
+TEST(Rotation33, Rotation30Float4)
+{
+	runRotationTest<Vcl::float4>(30.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation60Float4)
+{
+	runRotationTest<Vcl::float4>(60.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation90Float4)
+{
+	runRotationTest<Vcl::float4>(90.0f, 2e-5f);
+}
+
+TEST(Rotation33, Rotation30Float8)
+{
+	runRotationTest<Vcl::float8>(30.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation60Float8)
+{
+	runRotationTest<Vcl::float8>(60.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation90Float8)
+{
+	runRotationTest<Vcl::float8>(90.0f, 2e-5f);
+}
+
+TEST(Rotation33, Rotation30Float16)
+{
+	runRotationTest<Vcl::float16>(30.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation60Float16)
+{
+	runRotationTest<Vcl::float16>(60.0f, 2e-5f);
+}
+TEST(Rotation33, Rotation90Float16)
+{
+	runRotationTest<Vcl::float16>(90.0f, 2e-5f);
+}

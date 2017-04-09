@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics
 		q.coeffs() *= one / q.norm();
 
 		unsigned int i = 0;
-		for (; i < 8; i++)
+		for (; i < 20; i++)
 		{
 			Eigen::Matrix<REAL, 3, 3> R = q.matrix();
 			Eigen::Matrix<REAL, 3, 1> omega = 
