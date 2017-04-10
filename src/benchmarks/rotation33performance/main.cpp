@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,8 +43,6 @@
 // Global data store for one time problem setup
 const size_t nr_problems = 8192;
 
-Vcl::Core::InterleavedArray<float, 3, 3, -1> F_30(nr_problems);
-Vcl::Core::InterleavedArray<float, 3, 3, -1> F_60(nr_problems);
 Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 
 template<typename Scalar>

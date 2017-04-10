@@ -18,17 +18,3 @@ TARGET_LINK_LIBRARIES(rotation33performance
 	benchmark
 	Shlwapi
 )
-
-IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
-	TARGET_LINK_LIBRARIES(rotation33performance
-		vcl_compute_cuda
-		vcl_math_cuda
-	)
-ENDIF()
-
-IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
-	TARGET_LINK_LIBRARIES(rotation33performance
-		vcl_compute_opencl
-		vcl_math_opencl
-	)
-ENDIF()
