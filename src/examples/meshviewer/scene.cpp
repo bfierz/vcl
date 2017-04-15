@@ -54,6 +54,7 @@ Scene::Scene(QObject* parent)
 
 	// Create the editor specific entities
 	_handleEntity = _entityManager.create();
+	_entityManager.create<System::Components::Transform>(_handleEntity, Eigen::Matrix4f::Identity());
 
 	// Create a new camera
 	_cameraEntity = _entityManager.create();

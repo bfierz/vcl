@@ -65,6 +65,7 @@ public:
 	void update();
 
 public:
+	Vcl::Components::EntityManager* entityManager() { return &_entityManager; }
 	const Vcl::Components::EntityManager* entityManager() const { return &_entityManager; }
 
 public:

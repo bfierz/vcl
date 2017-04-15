@@ -269,7 +269,8 @@ void FboRenderer::render()
 			}
 
 			const auto pos_handle_id = scene->positionHandle();
-			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M);
+			const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
+			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
 			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
@@ -403,6 +404,8 @@ void FboRenderer::render()
 		renderHandle(M);
 	}
 
+	// Render the ID map
+
 	_engine->endFrame();
 	_owner->window()->resetOpenGLState();
 	update();
@@ -410,7 +413,11 @@ void FboRenderer::render()
 
 void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
 {
-	_posManip->draw(_engine.get(), M);
+	auto scene = _owner->scene();
+	const auto pos_handle_id = scene->positionHandle();
+	const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
+
+	_posManip->draw(_engine.get(), M * curr_transform->get());
 }
 
 void FboRenderer::renderBoundingBox
@@ -575,30 +582,122 @@ QPoint MeshView::selectObject(int x, int y)
 	return{ -1, -1 };
 }
 
-void MeshView::beginDrag(int x, int y)
+namespace
 {
+	Eigen::Vector3f computePointForTranslationManipulation
+	(
+		const Vcl::Graphics::Camera& camera,
+		const Eigen::Matrix4f& transform,
+		int axis, int x, int y
+	)
+	{
+		// Find ray into the scene and compute the target location
+		const auto line = camera.pickViewSpace(x, y);
+
+		// Compute the transform in view-space
+		const Eigen::Matrix4f curr_trans_vs = camera.view() * transform;
+
+		// Compute the origin of the current transformation
+		const Eigen::Vector3f center = (curr_trans_vs * Eigen::Vector4f(0, 0, 0, 1)).segment<3>(0);
+
+		// Find the reference axis (axis or plane normal)
+		Eigen::Vector3f ref_axis = Eigen::Vector3f::Zero();
+		switch (axis)
+		{
+		case 1: // x-axis
+		case 6: // yz-plane
+			ref_axis = { 1, 0, 0 };
+			break;
+		case 2: // y-axis
+		case 5: // xz-plane
+			ref_axis = { 0, 1, 0 };
+			break;
+		case 4: // z-axis
+		case 3: // xy-plane
+			ref_axis = { 0, 0, 1 };
+			break;
+		}
+
+		if (axis == 1 ||
+			axis == 2 ||
+			axis == 4)
+			// Handle axis'
+		{
+			return Eigen::Vector3f::Zero();
+		}
+		else
+			// Handle planes
+		{
+			const Eigen::Vector3f N = curr_trans_vs.block<3, 3>(0, 0) * ref_axis;
+			const float d = N.dot(center);
+			const Eigen::Vector4f plane{ N.x(), N.y(), N.z(), d };
+			const Eigen::Vector3f intersect = Vcl::Util::intersectRayPlane(Eigen::Vector3f::Zero(), line.direction(), plane);
+
+			return intersect;
+		}
+
+	}
+}
+
+void MeshView::beginDrag(int axis, int x, int y)
+{
+	// Store the manipulated axis
+	_manip_axis_translation = axis;
+
 	// Find ray into the scene for the direction computation later
 	const auto* cam = scene()->camera();
 	const auto line = cam->pickViewSpace(x, y);
 	_curr_view_dir = line.direction();
 
-	_manip_translation = true;
+	// Store the inital transformatoin
+	auto handle = scene()->positionHandle();
+	const auto* curr_transform = scene()->entityManager()->get<System::Components::Transform>()->operator()(handle);
+	_manip_initial_transform = curr_transform->get();
+
+	// Use the initial offset to compute the displacement from here when moving the mouse
+	const auto new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, axis, x, y);
+
+	// Transform the new position from view space to world space
+	_manip_initial_offset = (cam->view().inverse() * Eigen::Vector4f{ new_pos.x(), new_pos.y(), new_pos.z(), 1 }).segment<3>(0);
+
+	const Eigen::Vector3f curr_pos = curr_transform->position();
+	std::cout << "Axis: " << axis << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
 }
 
 void MeshView::dragObject(int x, int y)
 {
-	if (!_manip_translation)
+	if (_manip_axis_translation == 0)
 		return;
+
+	/*Eigen::Vector4f ref_axis = Eigen::Vector4f::Zero();
+	switch (_manip_translation)
+	{
+	case 1: // x-axis
+	case 6: // yz-plane
+		ref_axis = { 1, 0, 0, 0 };
+		break;
+	case 2: // y-axis
+	case 5: // xz-plane
+		ref_axis = { 0, 1, 0, 0 };
+		break;
+	case 4: // z-axis
+	case 3: // xy-plane
+		ref_axis = { 0, 0, 1, 0 };
+		break;
+	}
 
 	// Find ray into the scene and compute the direction based on the previous
 	// direction.
 	const auto* cam = scene()->camera();
 	const auto line = cam->pickViewSpace(x, y);
-	Eigen::Vector3f dir = line.direction() - _curr_view_dir;
+	Eigen::Vector3f pick_dir = line.direction() - _curr_view_dir;
+
+	// Assuming that the user moves the mouse steadily the computed picking
+	// direction should be filtered here.
 
 	// Remove the z-component to have the view-plane aligned vector
-	dir.z() = 0;
-	dir.normalize();
+	pick_dir.z() = 0;
+	pick_dir.normalize();
 
 	// Store for the next call
 	_curr_view_dir = line.direction();
@@ -608,23 +707,81 @@ void MeshView::dragObject(int x, int y)
 	// defines the speed.
 	Eigen::Matrix4f M = scene()->modelMatrix();
 	Eigen::Matrix4f V = scene()->viewMatrix();
-	Eigen::Vector3f x_dir = (V * M * Eigen::Vector4f(1, 0, 0, 0)).segment<3>(0, 3);
-
-	// Remove the z-component to have the view-plane aligned vector
-	x_dir.z() = 0;
-	x_dir.normalize();
+	Eigen::Matrix4f MV = V * M;
 
 	// Compute the magnitude of the drag
-	const float mag = dir.dot(x_dir);
+	if (_manip_translation == 1 || 
+		_manip_translation == 2 ||
+		_manip_translation == 4)
+	{
+		Eigen::Vector3f ref_dir = (MV * ref_axis).segment<3>(0, 3);
 
-	std::cout << "(x, y, z): " << mag << std::endl;
+		// Remove the z-component to have the view-plane aligned vector
+		ref_dir.z() = 0;
+		ref_dir.normalize();
 
-	//std::cout << dir.x() << ", " << dir.y() << ", " << x_dir.x() << ", " << x_dir.y() << ", " << mag << std::endl;
+		const float mag = pick_dir.dot(ref_dir);
+
+		std::cout << "Axis: " << _manip_translation << ", mag: " << mag << std::endl;
+	}
+	else
+	{
+		Eigen::Vector4f ref_axis_a = Eigen::Vector4f::Zero();
+		Eigen::Vector4f ref_axis_b = Eigen::Vector4f::Zero();
+		switch (_manip_translation)
+		{
+		case 1: // x-axis
+		case 6: // yz-plane
+			ref_axis_a = { 0, 1, 0, 0 };
+			ref_axis_b = { 0, 0, 1, 0 };
+			break;
+		case 2: // y-axis
+		case 5: // xz-plane
+			ref_axis_a = { 1, 0, 0, 0 };
+			ref_axis_b = { 0, 0, 1, 0 };
+			break;
+		case 4: // z-axis
+		case 3: // xy-plane
+			ref_axis_a = { 1, 0, 0, 0 };
+			ref_axis_b = { 0, 1, 0, 0 };
+			break;
+		}
+		Eigen::Vector3f ref_dir_a = (MV * ref_axis_a).segment<3>(0, 3);
+		Eigen::Vector3f ref_dir_b = (MV * ref_axis_b).segment<3>(0, 3);
+
+		// Remove the z-component to have the view-plane aligned vector
+		ref_dir_a.z() = 0;
+		ref_dir_a.normalize();
+		ref_dir_b.z() = 0;
+		ref_dir_b.normalize();
+
+		const float mag_a = pick_dir.dot(ref_dir_a);
+		const float mag_b = pick_dir.dot(ref_dir_b);
+
+		std::cout << "Axis: " << _manip_translation << ", mag: " << mag_a << ", " << mag_b << std::endl;
+	}*/
+
+	// Find ray into the scene for the direction computation later
+	const auto* cam = scene()->camera();
+
+	// Compute the new position according to the mouse position
+	Eigen::Vector3f new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, _manip_axis_translation, x, y);
+
+	// Transform the new position from view space to world space
+	new_pos = (cam->view().inverse() * Eigen::Vector4f{ new_pos.x(), new_pos.y(), new_pos.z(), 1 }).segment<3>(0);
+
+	// Store the inital transformatoin
+	auto handle = scene()->positionHandle();
+	auto* curr_transform = scene()->entityManager()->get<System::Components::Transform>()->operator()(handle);
+	curr_transform->setPosition(new_pos - _manip_initial_offset);
+
+	const Eigen::Vector3f curr_pos = curr_transform->position();
+	std::cout << "Axis: " << _manip_axis_translation << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
 }
 
 void MeshView::endDrag()
 {
-	_manip_translation = false;
+	_manip_axis_translation = 0;
 }
 
 void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)

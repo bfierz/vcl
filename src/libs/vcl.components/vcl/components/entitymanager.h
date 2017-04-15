@@ -115,25 +115,25 @@ namespace Vcl { namespace Components
 		}
 
 		template<typename C>
-		const typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentStore<C>>::type*
+		typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentStore<C>>::type*
 			get() const
 		{
 			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
 
 			size_t hash = typeid(C).hash_code();
-			auto c = static_cast<const ComponentStore<C>*>(_components.find(hash)->second.get());
+			auto c = static_cast<ComponentStore<C>*>(_components.find(hash)->second.get());
 
 			return c;
 		}
 
 		template<typename C>
-		const typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentStoreBase<C>>::type*
+		typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentStoreBase<C>>::type*
 			get() const
 		{
 			Require(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 
 			size_t hash = typeid(C).hash_code();
-			auto c = static_cast<const MultiComponentStoreBase<C>*>(_multiComponents.find(hash)->second.get());
+			auto c = static_cast<MultiComponentStoreBase<C>*>(_multiComponents.find(hash)->second.get());
 
 			return c;
 		}

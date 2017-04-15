@@ -62,7 +62,7 @@ MeshView
 
 				if (ids.x == 0)
 				{
-					parent.beginDrag(mouse.x, mouse.y)
+					parent.beginDrag(ids.y, mouse.x, mouse.y)
 				}
 			}
 			else if (mouse.button & Qt.RightButton)
