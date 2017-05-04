@@ -84,7 +84,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case SurfaceFormat::R8_UINT             : gl_format = GL_R8UI; break;
 		case SurfaceFormat::R8_SNORM            : gl_format = GL_R8_SNORM; break;
 		case SurfaceFormat::R8_SINT             : gl_format = GL_R8I; break;
-		default: DebugError("Unsupported colour format.");
+		default: VclDebugError("Unsupported colour format.");
 		};
 
 		return gl_format;
@@ -143,7 +143,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case SurfaceFormat::R8_UINT:              image_format.Format = GL_RED_INTEGER;  image_format.Type = GL_UNSIGNED_BYTE;	break;
 		case SurfaceFormat::R8_SNORM:             image_format.Format = GL_RED;  image_format.Type = GL_BYTE;			break;
 		case SurfaceFormat::R8_SINT:              image_format.Format = GL_RED_INTEGER;  image_format.Type = GL_BYTE;			break;
-		default: DebugError("Unsupported colour format.");
+		default: VclDebugError("Unsupported colour format.");
 		}
 
 		return image_format;

@@ -58,7 +58,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 	void TetraMeshDeserialiser::addNode(const std::vector<float>& coordinates)
 	{
-		Require(coordinates.size() == 3, "Position in 3D space.");
+		VclRequire(coordinates.size() == 3, "Position in 3D space.");
 
 		_positions.emplace_back(coordinates[0], coordinates[1], coordinates[2]);
 	}
@@ -73,7 +73,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 	void TetraMeshDeserialiser::addVolume(const std::vector<unsigned int>& indices)
 	{
-		Require(indices.size() == 4, "Indices describe a tetrahedron.");
+		VclRequire(indices.size() == 4, "Indices describe a tetrahedron.");
 
 		std::array<unsigned int, 4> volume = {indices[0], indices[1], indices[2], indices[3]};
 		_volumes.push_back(volume);

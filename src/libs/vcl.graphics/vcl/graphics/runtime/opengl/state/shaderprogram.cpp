@@ -44,8 +44,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	ProgramAttributes::ProgramAttributes(GLuint program)
 	{
-		Require(program > 0 && glIsProgram(program), "Shader program is defined.");
-		Require(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
+		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
+		VclRequire(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
 
 		GLint nr_active_attributes = 0;
 		glGetProgramInterfaceiv(program, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &nr_active_attributes);
@@ -77,8 +77,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	ProgramOutput::ProgramOutput(GLuint program)
 	{
-		Require(program > 0 && glIsProgram(program), "Shader program is defined.");
-		Require(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
+		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
+		VclRequire(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
 
 		GLint nr_active_outputs = 0;
 		glGetProgramInterfaceiv(program, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &nr_active_outputs);
@@ -110,8 +110,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	ProgramUniforms::ProgramUniforms(GLuint program)
 	{
-		Require(program > 0 && glIsProgram(program), "Shader program is defined.");
-		Require(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
+		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
+		VclRequire(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
 
 		GLint nr_active_uniforms = 0;
 		glGetProgramInterfaceiv(program, GL_UNIFORM, GL_ACTIVE_RESOURCES, &nr_active_uniforms);
@@ -157,8 +157,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	ProgramUniformBlocks::ProgramUniformBlocks(GLuint program)
 	{
-		Require(program > 0 && glIsProgram(program), "Shader program is defined.");
-		Require(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
+		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
+		VclRequire(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
 
 		GLint nr_active_uniforms = 0;
 		glGetProgramInterfaceiv(program, GL_UNIFORM_BLOCK, GL_ACTIVE_RESOURCES, &nr_active_uniforms);
@@ -194,8 +194,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	ProgramBuffers::ProgramBuffers(GLuint program)
 	{
-		Require(program > 0 && glIsProgram(program), "Shader program is defined.");
-		Require(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
+		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
+		VclRequire(glewIsExtensionSupported("GL_ARB_program_interface_query"), "GL shader program interface is supported.");
 
 		GLint nr_active_uniforms = 0;
 		glGetProgramInterfaceiv(program, GL_SHADER_STORAGE_BLOCK, GL_ACTIVE_RESOURCES, &nr_active_uniforms);
@@ -352,7 +352,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VCL_TYPE_TO_ENUM(UnsignedIntImage2DMS,      GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,       "uimage2DMS")
 		VCL_TYPE_TO_ENUM(UnsignedIntImage2DMSArray, GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY, "uimage2DMSArray")
 
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_NONE;
@@ -472,7 +472,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VCL_ENUM_TO_TYPE(UnsignedIntImage2DMS,      GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,       "uimage2DMS")
 		VCL_ENUM_TO_TYPE(UnsignedIntImage2DMSArray, GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY, "uimage2DMSArray")
 
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return ProgramResourceType::Invalid;
@@ -593,7 +593,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VCL_ENUM_TO_NAME(UnsignedIntImage2DMS,      GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE,       "uimage2DMS")
 		VCL_ENUM_TO_NAME(UnsignedIntImage2DMSArray, GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY, "uimage2DMSArray")
 
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return "";
@@ -601,7 +601,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	ShaderProgram::ShaderProgram(const ShaderProgramDescription& desc)
 	{
-		Require
+		VclRequire
 		(
 			implies
 			(
@@ -610,8 +610,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			),
 			"Compute shader is not combined with graphics shaders."
 		);
-		Require(implies(desc.ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
-		Require(implies(!desc.ComputeShader, desc.VertexShader && desc.FragmentShader), "VertexShader and Fragment shader are set.");
+		VclRequire(implies(desc.ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
+		VclRequire(implies(!desc.ComputeShader, desc.VertexShader && desc.FragmentShader), "VertexShader and Fragment shader are set.");
 
 		// Create a program for the shader
 		_glId = glCreateProgram();
@@ -646,7 +646,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
 		if (linked == GL_FALSE)
 		{
-			AssertBlock
+			VclAssertBlock
 			{
 				printInfoLog();
 			}
@@ -692,12 +692,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Collect the uniforms of this program
 		_resources = std::make_unique<ProgramResources>(id());
 
-		Ensure(id() > 0, "Shader program is created");
+		VclEnsure(id() > 0, "Shader program is created");
 	}
 
 	void ShaderProgram::bind()
 	{
-		Require(id() > 0, "Shader program is created");
+		VclRequire(id() > 0, "Shader program is created");
 
 		glUseProgram(id());
 	}
@@ -733,7 +733,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			else if (name.find("gl_") != 0)
 			{
 				// Append to error output
-				DebugError("Attribute could not be matched.");
+				VclDebugError("Attribute could not be matched.");
 			}
 		}
 
@@ -749,7 +749,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Relink the program to enable the changed binding configuration
 		glLinkProgram(id());
 
-		AssertBlock
+		VclAssertBlock
 		{
 			// Check the input layout against the description
 			int idx = 0;
@@ -758,7 +758,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);
 
-				CheckEx(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
+				VclCheckEx(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
 			}
 
 			// Check the fragment output against the layout
@@ -766,7 +766,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			//{
 			//	for (unsigned int i = 0; i < mFragmentLayout->count(); i++)
 			//	{
-			//		Check(glGetFragDataLocation(mShaderProgramObject, mFragmentLayout->operator[](i).Name.c_str()) == (int) i, "Fragment output is bound correctly.");
+			//		VclCheck(glGetFragDataLocation(mShaderProgramObject, mFragmentLayout->operator[](i).Name.c_str()) == (int) i, "Fragment output is bound correctly.");
 			//	}
 			//}
 		}
@@ -809,90 +809,90 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::setUniform(const UniformHandle& handle, float value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform1f(id(), handle.Location, value);
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2f& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform2f(id(), handle.Location, value.x(), value.y());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3f& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform3f(id(), handle.Location, value.x(), value.y(), value.z());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4f& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform4f(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
 	}
 
 	void ShaderProgram::setUniform(const UniformHandle& handle, int value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform1i(id(), handle.Location, value);
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2i& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform2i(id(), handle.Location, value.x(), value.y());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3i& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform3i(id(), handle.Location, value.x(), value.y(), value.z());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4i& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform4i(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
 	}
 
 	void ShaderProgram::setUniform(const UniformHandle& handle, unsigned int value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform1ui(id(), handle.Location, value);
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector2ui& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform2ui(id(), handle.Location, value.x(), value.y());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector3ui& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform3ui(id(), handle.Location, value.x(), value.y(), value.z());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Vector4ui& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniform4ui(id(), handle.Location, value.x(), value.y(), value.z(), value.w());
 	}
 	void ShaderProgram::setUniform(const UniformHandle& handle, const Eigen::Matrix4f& value)
 	{
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		glProgramUniformMatrix4fv(id(), handle.Location, 1, GL_FALSE, value.data());
 	}
 
 	void ShaderProgram::setTexture(const UniformHandle& handle, const Runtime::Texture* tex, const Runtime::Sampler* sampler)
 	{
-		Require(dynamic_cast<const OpenGL::Texture*>(tex), "'img' is from the OpenGL backend");
-		Require(implies(sampler, dynamic_cast<const OpenGL::Sampler*>(sampler)), "'sampler' is from the OpenGL backend");
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(dynamic_cast<const OpenGL::Texture*>(tex), "'img' is from the OpenGL backend");
+		VclRequire(implies(sampler, dynamic_cast<const OpenGL::Sampler*>(sampler)), "'sampler' is from the OpenGL backend");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		if (handle.Location >= 0)
 		{
@@ -905,8 +905,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::setImage(const UniformHandle& handle, const Runtime::Texture* img, bool read, bool write)
 	{
-		Require(dynamic_cast<const OpenGL::Texture*>(img), "'img' is from the OpenGL backend");
-		Require(id() == handle.Program, "Handle belongs to this program");
+		VclRequire(dynamic_cast<const OpenGL::Texture*>(img), "'img' is from the OpenGL backend");
+		VclRequire(id() == handle.Program, "Handle belongs to this program");
 
 		if (handle.Location >= 0)
 		{
@@ -925,8 +925,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void ShaderProgram::setConstantBuffer(const char* name, const Runtime::Buffer* buf, size_t offset, size_t size)
 	{
-		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
-		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
+		VclRequire(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
+		VclRequire(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
 		const auto& uniforms = _resources->uniformBlocks();
 		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformBlockData& data)
@@ -941,15 +941,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_UNIFORM_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
 
-			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
+			VclEnsure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 
 	void ShaderProgram::setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset, size_t size)
 	{
-		Require(_resources, "Resources are defined.");
-		Require(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
-		Require(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
+		VclRequire(_resources, "Resources are defined.");
+		VclRequire(dynamic_cast<const OpenGL::Buffer*>(buf), "'buf' is from the OpenGL backend");
+		VclRequire(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
 		const auto& uniforms = _resources->buffers();
 		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const BufferBlockData& data)
@@ -964,7 +964,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
 
-			Ensure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
+			VclEnsure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 }}}}

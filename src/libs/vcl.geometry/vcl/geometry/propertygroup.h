@@ -129,7 +129,7 @@ namespace Vcl { namespace Geometry
 
 		void add(std::unique_ptr<PropertyBase> prop)
 		{
-			Require(_data.find(prop->name()) == _data.end(), "Property must not exist.");
+			VclRequire(_data.find(prop->name()) == _data.end(), "Property must not exist.");
 
 			if (_data.find(prop->name()) == _data.end())
 			{

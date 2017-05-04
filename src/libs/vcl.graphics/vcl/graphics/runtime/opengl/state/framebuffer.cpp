@@ -80,13 +80,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				}
 				else
 				{
-					DebugError("Combination supported.");
+					VclDebugError("Combination supported.");
 				}
 			
 				break;
 			}
 			default:
-				DebugError("Not implemented.");
+				VclDebugError("Not implemented.");
 			}
 		}
 		else
@@ -123,7 +123,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				}
 				else
 				{
-					DebugError("Not available in OpenGL");
+					VclDebugError("Not available in OpenGL");
 				}
 				
 				break;
@@ -146,18 +146,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				}
 				else
 				{
-					DebugError("Not available in OpenGL");
+					VclDebugError("Not available in OpenGL");
 				}
 			
 				break;
 			}
 			default:
-				DebugError("Not implemented.");
+				VclDebugError("Not implemented.");
 			}
 		}
 
 		// Post condition
-		Ensure(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclEnsure(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 	}
 
 	Framebuffer::~Framebuffer()
@@ -169,44 +169,44 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Framebuffer::bind()
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _glId);
 	}
 
 	void Framebuffer::clear(int idx, const Eigen::Vector4f& colour)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferfv(_glId, GL_COLOR, idx, colour.data());
 	}
 	void Framebuffer::clear(int idx, const Eigen::Vector4i& colour)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferiv(_glId, GL_COLOR, idx, colour.data());
 	}
 	void Framebuffer::clear(int idx, const Eigen::Vector4ui& colour)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferuiv(_glId, GL_COLOR, idx, colour.data());
 	}
 	void Framebuffer::clear(float depth, int stencil)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferfi(_glId, GL_DEPTH_STENCIL, 0, depth, stencil);
 	}
 	void Framebuffer::clear(float depth)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferfv(_glId, GL_DEPTH, 0, &depth);
 	}
 	void Framebuffer::clear(int stencil)
 	{
-		Require(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
+		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
 		glClearNamedFramebufferiv(_glId, GL_STENCIL, 0, &stencil);
 	}
@@ -221,36 +221,36 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			return true;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-			DebugError("[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-			DebugError("[ERROR] Framebuffer incomplete: No image is attached to FBO.");
+			VclDebugError("[ERROR] Framebuffer incomplete: No image is attached to FBO.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-			DebugError("[ERROR] Framebuffer incomplete: Draw buffer.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Draw buffer.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-			DebugError("[ERROR] Framebuffer incomplete: Read buffer.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Read buffer.");
 			return false;
 
 		case GL_FRAMEBUFFER_UNSUPPORTED:
-			DebugError("[ERROR] Unsupported by FBO implementation.");
+			VclDebugError("[ERROR] Unsupported by FBO implementation.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-			DebugError("[ERROR] Framebuffer incomplete: Multisample.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Multisample.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-			DebugError("[ERROR] Framebuffer incomplete: Layer target is NOT complete.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Layer target is NOT complete.");
 			return false;
 
 		case GL_FRAMEBUFFER_UNDEFINED:
 		default:
-			DebugError("[ERROR] Unknow error.");
+			VclDebugError("[ERROR] Unknow error.");
 			return false;
 		}
 	}

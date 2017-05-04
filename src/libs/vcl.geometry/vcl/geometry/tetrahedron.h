@@ -53,7 +53,7 @@ namespace Vcl { namespace Geometry
 	public:
 		const vector_t& operator[] (size_t idx) const
 		{
-			Require(idx < 4, "Id is in [0, 4[");
+			VclRequire(idx < 4, "Id is in [0, 4[");
 
 			return _data[idx];
 		}
@@ -100,7 +100,7 @@ namespace Vcl { namespace Geometry
 		{
 			real_t vol = computeSignedVolume();
 
-			Ensure(vol >= 0, "Volume is positive.");
+			VclEnsure(vol >= 0, "Volume is positive.");
 			return abs(vol);
 		}
 
@@ -117,11 +117,11 @@ namespace Vcl { namespace Geometry
 
 			real_t vol = -m.determinant() / (real_t) 6;
 		
-			AssertBlock
+			VclAssertBlock
 			{
 				real_t ref = (_data[3]- _data[0]).dot((_data[1]- _data[0]).cross((_data[2]- _data[0]))) / (real_t) 6;
 
-				Ensure(equal(vol, ref, (real_t) 1e-6), "Volumes are equal.");
+				VclEnsure(equal(vol, ref, (real_t) 1e-6), "Volumes are equal.");
 			}
 
 			return vol;
@@ -129,7 +129,7 @@ namespace Vcl { namespace Geometry
 
 		real_t computeHeight(unsigned int i) const
 		{
-			Require(i < 4, "Id is in [0, 4[");
+			VclRequire(i < 4, "Id is in [0, 4[");
 
 			vector_t pa = _data[0];
 			vector_t pb = _data[1];

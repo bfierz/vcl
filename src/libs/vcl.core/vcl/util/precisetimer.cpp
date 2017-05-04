@@ -67,7 +67,7 @@ namespace Vcl { namespace Util
 
 	double PreciseTimer::interval(unsigned int nr_iterations) const
 	{
-		Require(nr_iterations > 0, "Number of iterations is at least 1.");
+		VclRequire(nr_iterations > 0, "Number of iterations is at least 1.");
 
 #ifdef VCL_STL_CHRONO
 		auto diff = _stopTime - _startTime;

@@ -78,7 +78,7 @@ namespace Vcl { namespace Core
 		//! \returns the element with the highest priority
 		const T& top()
 		{
-			Require(_data.size() == _data.capacity(), "Set has reached the maximum limit.");
+			VclRequire(_data.size() == _data.capacity(), "Set has reached the maximum limit.");
 
 			return _data.front();
 		}

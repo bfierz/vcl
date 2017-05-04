@@ -155,7 +155,7 @@ namespace Vcl { namespace Graphics
 	template<typename Scalar>
 	const typename PerspectiveViewFrustum<Scalar>::vector3_t& PerspectiveViewFrustum<Scalar>::corner(unsigned int i) const
 	{
-		Require(i < 8, "Index is valid.");
+		VclRequire(i < 8, "Index is valid.");
 
 		return _corners[i];
 	}
@@ -165,9 +165,9 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		RequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", "Length: %f", _direction.norm());
-		RequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", "Length: %f", _up.norm());
-		RequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", "Length: %f", _right.norm());
+		VclRequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", "Length: %f", _direction.norm());
+		VclRequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", "Length: %f", _up.norm());
+		VclRequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", "Length: %f", _right.norm());
 			
 		real_t ratio = _x / _y;
 
@@ -345,7 +345,7 @@ namespace Vcl { namespace Graphics
 	template<typename Scalar>
 	const typename OrthographicViewFrustum<Scalar>::vector3_t& OrthographicViewFrustum<Scalar>::corner(unsigned int i) const
 	{
-		Require(i < 8, "Index is valid.");
+		VclRequire(i < 8, "Index is valid.");
 
 		return _corners[i];
 	}
@@ -355,7 +355,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 			
-		RequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
+		VclRequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
 
 		return factory.createLookAt(_position.template cast<float>(), _direction.template cast<float>(), _up.template cast<float>(), Handedness::RightHanded).template cast<Scalar>();
 	}
@@ -363,10 +363,10 @@ namespace Vcl { namespace Graphics
 	template<typename Scalar>
 	Eigen::Matrix<Scalar, 4, 4> OrthographicViewFrustum<Scalar>::computeProjectionMatrix(const MatrixFactory& factory) const
 	{		
-		Require(_x > 0, "Width is valid");
-		Require(_y > 0, "Height is valid");
-		Require(_near > 0, "Near plane is valid");
-		Require(_far > 0, "Far plane is valid");
+		VclRequire(_x > 0, "Width is valid");
+		VclRequire(_y > 0, "Height is valid");
+		VclRequire(_near > 0, "Near plane is valid");
+		VclRequire(_far > 0, "Far plane is valid");
 		
 		return factory.createOrtho((float) _x, (float) _y, (float) nearPlane(), (float) farPlane(), Handedness::RightHanded).cast<Scalar>();
 	}
@@ -400,7 +400,7 @@ namespace Vcl { namespace Graphics
 		{
 			real_t d = dir.dot(frustum.corner(i) - p[0]);
 			proj_points[i] = frustum.corner(i) - d * dir;
-			CheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", "d = %f", dir.dot(proj_points[i] - p[0]));
+			VclCheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", "d = %f", dir.dot(proj_points[i] - p[0]));
 		}
 
 		// Compute center of projected points
@@ -459,7 +459,7 @@ namespace Vcl { namespace Graphics
 		real_t dnc = -n[5].dot(t - p[5]) - bottom_to_top/2;
 		vector3_t nc = t + dnc * n[5];
 
-		AssertBlock
+		VclAssertBlock
 		{
 			vector3_t pos = nc + dir*near_to_far;
 			real_t d0 = n[0].dot(pos - p[0]);
@@ -472,17 +472,17 @@ namespace Vcl { namespace Graphics
 			real_t dm4 = n[4].dot(nc - p[4]);
 			real_t dm5 = n[5].dot(nc - p[5]);
 
-			Check(equal(abs(d0),   near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
-			Check(equal(abs(d1), 2*near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
+			VclCheck(equal(abs(d0),   near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
+			VclCheck(equal(abs(d1), 2*near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
 				
-			Check(equal(abs(dm0),           0, (Scalar) 1e-3), "Frustum depth is correct.");
-			Check(equal(abs(dm1), near_to_far, (Scalar) 1e-3), "Frustum depth is correct.");
-			Check(equal(abs(dm2), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
-			Check(equal(abs(dm3), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
-			Check(equal(abs(dm4), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
-			Check(equal(abs(dm5), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
+			VclCheck(equal(abs(dm0),           0, (Scalar) 1e-3), "Frustum depth is correct.");
+			VclCheck(equal(abs(dm1), near_to_far, (Scalar) 1e-3), "Frustum depth is correct.");
+			VclCheck(equal(abs(dm2), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
+			VclCheck(equal(abs(dm3), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
+			VclCheck(equal(abs(dm4), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
+			VclCheck(equal(abs(dm5), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
 
-			CheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", -dir.cross(n[5]).dot(n[3]));
+			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", -dir.cross(n[5]).dot(n[3]));
 		}
 
 		OrthographicViewFrustum<real_t> ortho
@@ -497,9 +497,9 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		Require(equal(_direction.squaredNorm(), 1, (Scalar) 1e-6), "Direction is unit length.");
-		Require(equal(_up.squaredNorm(), 1, (Scalar) 1e-6), "Up is unit length.");
-		Require(equal(_right.squaredNorm(), 1, (Scalar) 1e-6), "Right is unit length.");
+		VclRequire(equal(_direction.squaredNorm(), 1, (Scalar) 1e-6), "Direction is unit length.");
+		VclRequire(equal(_up.squaredNorm(), 1, (Scalar) 1e-6), "Up is unit length.");
+		VclRequire(equal(_right.squaredNorm(), 1, (Scalar) 1e-6), "Right is unit length.");
 			
 		real_t ratio = _x / _y;
 

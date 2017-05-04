@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		if (_source)
 		{
 			auto iter = std::find(_source->_connections.begin(), _source->_connections.end(), this);
-			Check(iter != _source->_connections.end(), "Current connection is valid");
+			VclCheck(iter != _source->_connections.end(), "Current connection is valid");
 			if (iter != _source->_connections.end())
 			{
 				_source->_connections.erase(iter);
@@ -89,8 +89,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int width, unsigned int height)
 	{
-		Require(implies(input, width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
-		Require(implies(input, height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
+		VclRequire(implies(input, width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(input, height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
 		
 		if (_source)
 			disconnect();
@@ -105,8 +105,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 	{
-		Require(implies(input, x + width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
-		Require(implies(input, y + height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
+		VclRequire(implies(input, x + width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(input, y + height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
 		
 		if (_source)
 			disconnect();
@@ -122,31 +122,31 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	const Runtime::Texture* InputSlot::resource() const
 	{
-		Require(_resource || _source, "Slot is connected to a resource.");
+		VclRequire(_resource || _source, "Slot is connected to a resource.");
 
 		return _source ? _source->resource() : _resource;
 	}
 	unsigned int InputSlot::x() const
 	{
-		Require(_resource || _source, "Slot is connected to a resource.");
+		VclRequire(_resource || _source, "Slot is connected to a resource.");
 
 		return _source ? _source->x() : _x;
 	}
 	unsigned int InputSlot::y() const
 	{
-		Require(_resource || _source, "Slot is connected to a resource.");
+		VclRequire(_resource || _source, "Slot is connected to a resource.");
 
 		return _source ? _source->y() : _y;
 	}
 	unsigned int InputSlot::width() const
 	{
-		Require(_resource || _source, "Slot is connected to a resource.");
+		VclRequire(_resource || _source, "Slot is connected to a resource.");
 
 		return _source ? _source->width() : _width;
 	}
 	unsigned int InputSlot::height() const
 	{
-		Require(_resource || _source, "Slot is connected to a resource.");
+		VclRequire(_resource || _source, "Slot is connected to a resource.");
 
 		return _source ? _source->height() : _height;
 	}
@@ -161,8 +161,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res, unsigned int width, unsigned int height)
 	{
-		Require(implies(res, width <= (unsigned int) res->width()), "'width' is in range.");
-		Require(implies(res, height <= (unsigned int) res->height()), "'width' is in range.");
+		VclRequire(implies(res, width <= (unsigned int) res->width()), "'width' is in range.");
+		VclRequire(implies(res, height <= (unsigned int) res->height()), "'width' is in range.");
 
 		_resource = res;
 		_width = width;
@@ -170,8 +170,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 	{
-		Require(implies(res, x + width <= (unsigned int) res->width()), "'x' + 'width' is in range.");
-		Require(implies(res, y + height <= (unsigned int) res->height()), "'y' + 'width' is in range.");
+		VclRequire(implies(res, x + width <= (unsigned int) res->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(res, y + height <= (unsigned int) res->height()), "'y' + 'width' is in range.");
 		
 		_resource = res;
 		_x = x;

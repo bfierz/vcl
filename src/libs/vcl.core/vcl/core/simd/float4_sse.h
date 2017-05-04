@@ -66,14 +66,14 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < 4, "Access is in range.");
+			VclRequire(0 <= idx && idx < 4, "Access is in range.");
 
 			return _mmVCL_extract_ps(get(0), idx);
 		}
 
 		VCL_STRONG_INLINE __m128 get(int i = 0) const
 		{
-			Require(0 == i, "Access is in range.");
+			VclRequire(0 == i, "Access is in range.");
 
 			return _data[i];
 		}

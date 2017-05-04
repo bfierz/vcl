@@ -85,9 +85,9 @@ namespace Vcl { namespace Geometry { namespace IO
 	class Serialiser
 	{
 	public: // Read mesh file
-		virtual void load(AbstractDeserialiser* deserialiser, const std::string& path) const { DebugError("Not implemented."); }
+		virtual void load(AbstractDeserialiser* deserialiser, const std::string& path) const { VclDebugError("Not implemented."); }
 
 	public: // Write mesh file
-		virtual void store(AbstractSerialiser* serialiser,    const std::string& path) const { DebugError("Not implemented."); }
+		virtual void store(AbstractSerialiser* serialiser,    const std::string& path) const { VclDebugError("Not implemented."); }
 	};
 }}}

@@ -41,18 +41,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	: _desc(desc)
 	{
 		// Check consistency
-		Require(implies(desc.IndependentBlendEnable, glewIsSupported("GL_ARB_draw_buffers_blend") && glewIsSupported("GL_EXT_draw_buffers2")), "Independent blending is supported.");
-		Require(implies(desc.LogicOpEnable, desc.RenderTarget[0].BlendEnable == false && desc.IndependentBlendEnable == false), "Either logic ops or blend ops are enabled.");
-		Require(implies(desc.RenderTarget[0].BlendEnable, desc.LogicOpEnable == false), "Either logic ops or blend ops are enabled.");
+		VclRequire(implies(desc.IndependentBlendEnable, glewIsSupported("GL_ARB_draw_buffers_blend") && glewIsSupported("GL_EXT_draw_buffers2")), "Independent blending is supported.");
+		VclRequire(implies(desc.LogicOpEnable, desc.RenderTarget[0].BlendEnable == false && desc.IndependentBlendEnable == false), "Either logic ops or blend ops are enabled.");
+		VclRequire(implies(desc.RenderTarget[0].BlendEnable, desc.LogicOpEnable == false), "Either logic ops or blend ops are enabled.");
 
-		Require(implies(desc.RenderTarget[0].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[1].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[2].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[3].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[4].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[5].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[6].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
-		Require(implies(desc.RenderTarget[7].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[0].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[1].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[2].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[3].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[4].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[5].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[6].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+		VclRequire(implies(desc.RenderTarget[7].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
 	}
 
 	bool BlendState::isIndependentBlendingSupported()
@@ -310,12 +310,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		if (desc().LogicOpEnable)
 		{
-			Check(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_TRUE, "Logic Op state is enabled.");
-			Check(GL::getEnum(GL_LOGIC_OP_MODE) == toGLenum(desc().LogicOp), "Logic Op mode is correct.");
+			VclCheck(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_TRUE, "Logic Op state is enabled.");
+			VclCheck(GL::getEnum(GL_LOGIC_OP_MODE) == toGLenum(desc().LogicOp), "Logic Op mode is correct.");
 		}
 		else
 		{
-			Check(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE, "Logic Op state is disabled.");
+			VclCheck(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE, "Logic Op state is disabled.");
 		}
 
 		if (desc().IndependentBlendEnable == false)
@@ -323,25 +323,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			const auto& rt = desc().RenderTarget[0];
 			if (rt.BlendEnable && desc().LogicOpEnable == false)
 			{
-				Check(glIsEnabled(GL_BLEND) == GL_TRUE, "Blend state is enabled.");
-				Check(GL::getEnum(GL_BLEND_SRC) == toGLenum(rt.SrcBlend), "Src blend is correct.");
-				Check(GL::getEnum(GL_BLEND_DST) == toGLenum(rt.DestBlend), "Dest blend is correct.");
-				Check(GL::getEnum(GL_BLEND_EQUATION_RGB) == toGLenum(rt.BlendOp), "Blend Equation is correct.");
+				VclCheck(glIsEnabled(GL_BLEND) == GL_TRUE, "Blend state is enabled.");
+				VclCheck(GL::getEnum(GL_BLEND_SRC) == toGLenum(rt.SrcBlend), "Src blend is correct.");
+				VclCheck(GL::getEnum(GL_BLEND_DST) == toGLenum(rt.DestBlend), "Dest blend is correct.");
+				VclCheck(GL::getEnum(GL_BLEND_EQUATION_RGB) == toGLenum(rt.BlendOp), "Blend Equation is correct.");
 			}
 			else
 			{
-				Check(glIsEnabled(GL_BLEND) == GL_FALSE, "Blend state is disabled.");
+				VclCheck(glIsEnabled(GL_BLEND) == GL_FALSE, "Blend state is disabled.");
 			}
 
 			// Check write mask
-			AssertBlock
+			VclAssertBlock
 			{
 				GLint values[4];
 				glGetIntegerv(GL_COLOR_WRITEMASK, values);
-				Check(values[0] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red)), "Red write mask is correct.");
-				Check(values[1] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green)), "Green write mask is correct.");
-				Check(values[2] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue)), "Blue write mask is correct.");
-				Check(values[3] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)), "Alpha write mask is correct.");
+				VclCheck(values[0] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red)), "Red write mask is correct.");
+				VclCheck(values[1] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green)), "Green write mask is correct.");
+				VclCheck(values[2] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue)), "Blue write mask is correct.");
+				VclCheck(values[3] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)), "Alpha write mask is correct.");
 			}
 		}
 		else
@@ -352,25 +352,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				if (rt.BlendEnable && desc().LogicOpEnable == false)
 				{
-					Check(glIsEnabledi(GL_BLEND, i) == GL_TRUE, "Blend state is enabled.");
-					Check(GL::getEnum(GL_BLEND_SRC, i) == toGLenum(desc().RenderTarget[i].SrcBlend), "Src blend is correct.");
-					Check(GL::getEnum(GL_BLEND_DST, i) == toGLenum(desc().RenderTarget[i].DestBlend), "Dest blend is correct.");
-					Check(GL::getEnum(GL_BLEND_EQUATION_RGB, i) == toGLenum(desc().RenderTarget[i].BlendOp), "Blend Equation is correct.");
+					VclCheck(glIsEnabledi(GL_BLEND, i) == GL_TRUE, "Blend state is enabled.");
+					VclCheck(GL::getEnum(GL_BLEND_SRC, i) == toGLenum(desc().RenderTarget[i].SrcBlend), "Src blend is correct.");
+					VclCheck(GL::getEnum(GL_BLEND_DST, i) == toGLenum(desc().RenderTarget[i].DestBlend), "Dest blend is correct.");
+					VclCheck(GL::getEnum(GL_BLEND_EQUATION_RGB, i) == toGLenum(desc().RenderTarget[i].BlendOp), "Blend Equation is correct.");
 				}
 				else
 				{
-					Check(glIsEnabledi(GL_BLEND, i) == GL_FALSE, "Blend state is disabled.");
+					VclCheck(glIsEnabledi(GL_BLEND, i) == GL_FALSE, "Blend state is disabled.");
 				}
 				
 				// Check write mask
-				AssertBlock
+				VclAssertBlock
 				{
 					GLint values[4];
 					glGetIntegeri_v(GL_COLOR_WRITEMASK, i, values);
-					Check(values[0] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Red)), "Red write mask is correct.");
-					Check(values[1] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Green)), "Green write mask is correct.");
-					Check(values[2] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Blue)), "Blue write mask is correct.");
-					Check(values[3] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)), "Alpha write mask is correct.");
+					VclCheck(values[0] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Red)), "Red write mask is correct.");
+					VclCheck(values[1] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Green)), "Green write mask is correct.");
+					VclCheck(values[2] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Blue)), "Blue write mask is correct.");
+					VclCheck(values[3] > 0 == (desc().RenderTarget[i].RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)), "Alpha write mask is correct.");
 				}
 			}
 		}
@@ -398,7 +398,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case LogicOperation::AndInverted : return GL_AND_INVERTED;
 		case LogicOperation::OrReverse   : return GL_OR_REVERSE;
 		case LogicOperation::OrInverted  : return GL_OR_INVERTED;
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_INVALID_ENUM;
@@ -430,7 +430,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case BlendOperation::HslColor      : return GL_HSL_COLOR_KHR;
 		case BlendOperation::HslLuminosity : return GL_HSL_LUMINOSITY_KHR;
 
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_INVALID_ENUM;
@@ -457,7 +457,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case Blend::InvSrc1Colour : return GL_ONE_MINUS_SRC1_COLOR;
 		case Blend::Src1Alpha     : return GL_SRC1_ALPHA;
 		case Blend::InvSrc1Alpha  : return GL_ONE_MINUS_SRC1_ALPHA;
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_INVALID_ENUM;

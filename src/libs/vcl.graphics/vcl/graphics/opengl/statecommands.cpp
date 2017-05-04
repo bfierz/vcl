@@ -129,7 +129,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case CommandType::CullFace:
 		case CommandType::FrontFace:
 		case CommandType::LogicOp:
-			Check(params.size() == 1, "Number params is valid.");
+			VclCheck(params.size() == 1, "Number params is valid.");
 
 			_commands.push_back((uint32_t) type);
 			_commands.push_back(*p);
@@ -141,7 +141,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case CommandType::BlendEquationi:
 		case CommandType::StencilMaskSeparate:
 		case CommandType::PolygonMode:
-			Check(params.size() == 2, "Number params is valid.");
+			VclCheck(params.size() == 2, "Number params is valid.");
 
 			_commands.push_back((uint32_t)type);
 			_commands.push_back(*p);
@@ -149,7 +149,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 			break;
 		case CommandType::BlendFunci:
-			Check(params.size() == 3, "Number params is valid.");
+			VclCheck(params.size() == 3, "Number params is valid.");
 
 			_commands.push_back((uint32_t)type);
 			_commands.push_back(*p);
@@ -160,7 +160,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case CommandType::BlendColor:
 		case CommandType::StencilOpSeparate:
 		case CommandType::ColorMask:
-			Check(params.size() == 4, "Number params is valid.");
+			VclCheck(params.size() == 4, "Number params is valid.");
 
 			_commands.push_back((uint32_t)type);
 			_commands.push_back(*p);
@@ -170,7 +170,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 			break;
 		case CommandType::ColorMaskIndexed:
-			Check(params.size() == 5, "Number params is valid.");
+			VclCheck(params.size() == 5, "Number params is valid.");
 
 			_commands.push_back((uint32_t)type);
 			_commands.push_back(*p);

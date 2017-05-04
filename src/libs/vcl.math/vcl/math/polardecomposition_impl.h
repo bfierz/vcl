@@ -62,10 +62,10 @@ namespace Vcl { namespace Mathematics
 
 		// Adapted the polar decomposition from Eigen
 		Scalar x = (U * V.transpose()).determinant();
-		CheckEx(all(equal(abs(x), Scalar(1), Scalar(NumericTrait<Scalar>::base_t(1e-5)))), "Determinant is -1 or 1.", fmt::format("Determinant: {}", x));
+		VclCheckEx(all(equal(abs(x), Scalar(1), Scalar(NumericTrait<Scalar>::base_t(1e-5)))), "Determinant is -1 or 1.", fmt::format("Determinant: {}", x));
 
 		// Assumes ordered singular values
-		CheckEx(all(abs(SV(2, 2)) <= abs(SV(1, 1)) && abs(SV(1, 1)) <= abs(SV(0, 0))), "Singular values are ordered", fmt::format("Singular values: {}, {}, {}", SV(0, 0), SV(1, 1), SV(2, 2)));
+		VclCheckEx(all(abs(SV(2, 2)) <= abs(SV(1, 1)) && abs(SV(1, 1)) <= abs(SV(0, 0))), "Singular values are ordered", fmt::format("Singular values: {}, {}, {}", SV(0, 0), SV(1, 1), SV(2, 2)));
 
 		// Fix smallest SV
 		Scalar sign = select(x < Scalar(0), Scalar(-1), Scalar(1));

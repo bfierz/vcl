@@ -66,10 +66,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	, _allowPersistentMapping(allowPersistentMapping)
 	, _allowCoherentMapping(allowCoherentMapping)
 	{
-		Require(implies(usage() == ResourceUsage::Immutable, cpuAccess().isAnySet() == false), "No CPU access requested for immutable buffer.");
-		Require(implies(usage() == ResourceUsage::Dynamic, cpuAccess().isSet(ResourceAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
-		Require(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
-		Require(implies(_allowCoherentMapping, _allowPersistentMapping), "A coherent buffer access is persistent.");
+		VclRequire(implies(usage() == ResourceUsage::Immutable, cpuAccess().isAnySet() == false), "No CPU access requested for immutable buffer.");
+		VclRequire(implies(usage() == ResourceUsage::Dynamic, cpuAccess().isSet(ResourceAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
+		VclRequire(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
+		VclRequire(implies(_allowCoherentMapping, _allowPersistentMapping), "A coherent buffer access is persistent.");
 
 		GLenum flags = GL_NONE;
 		switch (usage())
@@ -138,12 +138,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//	glNamedBufferData(_glId, desc.SizeInBytes, init_data_ptr, flags);
 		//}
 		
-		Ensure(_glId > 0, "GL buffer is created.");
+		VclEnsure(_glId > 0, "GL buffer is created.");
 	}
 
 	Buffer::~Buffer()
 	{
-		Require(_glId > 0, "GL buffer is created.");
+		VclRequire(_glId > 0, "GL buffer is created.");
 
 		if (_mappedAccess.isAnySet())
 		{
@@ -164,7 +164,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			_glId = 0;
 		}
 
-		Ensure(_glId == 0, "GL buffer is cleaned up.");
+		VclEnsure(_glId == 0, "GL buffer is cleaned up.");
 	}
 
 	BufferBindPoint Buffer::bind(GLenum target)
@@ -174,19 +174,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void* Buffer::map(size_t offset, size_t length, Flags<ResourceAccess> access, Flags<MapOptions> options)
 	{
-		Require(_glId > 0, "GL buffer is created.");
-		Require(!_mappedAccess.isAnySet(), "Buffer is not mapped");
-		Require(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, "GL memory is mappable");
-		Require(offset + length <= sizeInBytes(), "Map request lies in range");
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(!_mappedAccess.isAnySet(), "Buffer is not mapped");
+		VclRequire(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, "GL memory is mappable");
+		VclRequire(offset + length <= sizeInBytes(), "Map request lies in range");
 
-		Require(implies(options.isSet(MapOptions::CoherentWrite), _allowCoherentMapping && options.isSet(MapOptions::Persistent)), "Coherent access was configured upon creation");
-		Require(implies(options.isSet(MapOptions::Persistent), _allowPersistentMapping), "Persistent mapping was configured upon creation");
-		Require(implies(options.isSet(MapOptions::ExplicitFlush), access.isSet(ResourceAccess::Write)), "Explicit flush control only valid when mapped write");
-		Require(implies(options.isSet(MapOptions::InvalidateBuffer), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
-		Require(implies(options.isSet(MapOptions::InvalidateRange), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
+		VclRequire(implies(options.isSet(MapOptions::CoherentWrite), _allowCoherentMapping && options.isSet(MapOptions::Persistent)), "Coherent access was configured upon creation");
+		VclRequire(implies(options.isSet(MapOptions::Persistent), _allowPersistentMapping), "Persistent mapping was configured upon creation");
+		VclRequire(implies(options.isSet(MapOptions::ExplicitFlush), access.isSet(ResourceAccess::Write)), "Explicit flush control only valid when mapped write");
+		VclRequire(implies(options.isSet(MapOptions::InvalidateBuffer), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
+		VclRequire(implies(options.isSet(MapOptions::InvalidateRange), !access.isSet(ResourceAccess::Read)), "Invalidation is valid on write");
 
-		Require(implies(access.isSet(ResourceAccess::Read), cpuAccess().isSet(ResourceAccess::Read)), "Read access was requested at initialization");
-		Require(implies(access.isSet(ResourceAccess::Write), cpuAccess().isSet(ResourceAccess::Write)), "Write access was requested at initialization");
+		VclRequire(implies(access.isSet(ResourceAccess::Read), cpuAccess().isSet(ResourceAccess::Read)), "Read access was requested at initialization");
+		VclRequire(implies(access.isSet(ResourceAccess::Write), cpuAccess().isSet(ResourceAccess::Write)), "Write access was requested at initialization");
 
 		// Mapped pointer
 		void* mappedPtr = nullptr;
@@ -243,12 +243,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			_mappedSize = length;
 		}
 		
-		Ensure(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
-		AssertBlock
+		VclEnsure(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
+		VclAssertBlock
 		{
 			GLint64 min_align = 0;
 			glGetInteger64v(GL_MIN_MAP_BUFFER_ALIGNMENT, &min_align);
-			EnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", "Offset: {}, Minimum aligment: {}", offset, min_align);
+			VclEnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", "Offset: {}, Minimum aligment: {}", offset, min_align);
 		}
 
 		return mappedPtr;
@@ -256,9 +256,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Buffer::flushRange(size_t offset, size_t length)
 	{
-		Require(_glId > 0, "GL buffer is created.");
-		Require(_mappedAccess.isSet(ResourceAccess::Write) && _mappedOptions.isSet(MapOptions::ExplicitFlush), "Buffer is mapped with explicit flush");
-		Require(offset + length <= _mappedSize, "Flush request lies in mapped range");
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(_mappedAccess.isSet(ResourceAccess::Write) && _mappedOptions.isSet(MapOptions::ExplicitFlush), "Buffer is mapped with explicit flush");
+		VclRequire(offset + length <= _mappedSize, "Flush request lies in mapped range");
 
 		// If access is not using the coherency flag, we have to 
 		// make sure that we are still providing coherent memory access
@@ -267,8 +267,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Buffer::unmap()
 	{
-		Require(_glId > 0, "GL buffer is created.");
-		Require(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(implies(usage() == ResourceUsage::Dynamic || usage() == ResourceUsage::Staging, _mappedAccess.isAnySet()), "Buffer is mapped.");
 
 		// Mark buffer as unmapped
 		_mappedAccess.clear();
@@ -284,13 +284,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			throw gl_memory_error{ "Video memory was trashed" };
 		}
 		
-		Ensure(!_mappedAccess.isAnySet(), "Buffer is not mapped.");
+		VclEnsure(!_mappedAccess.isAnySet(), "Buffer is not mapped.");
 	}
 
 	void Buffer::copyTo(void* dst, size_t srcOffset, size_t dstOffset, size_t size) const
 	{
-		Require(_glId > 0, "GL buffer is created.");
-		Require(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
 
 		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
@@ -300,15 +300,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size) const
 	{
-		Require(_glId > 0, "GL buffer is created.");
-		Require(target.id() > 0, "GL buffer is created.");
-		Require(sizeInBytes() <= target.sizeInBytes(), "Size to copy is valid");
-		Require(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
-		Require(implies(size < std::numeric_limits<size_t>::max(), dstOffset + size <= target.sizeInBytes()), "Size to copy is valid");
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(target.id() > 0, "GL buffer is created.");
+		VclRequire(sizeInBytes() <= target.sizeInBytes(), "Size to copy is valid");
+		VclRequire(implies(size < std::numeric_limits<size_t>::max(), srcOffset + size <= sizeInBytes()), "Size to copy is valid");
+		VclRequire(implies(size < std::numeric_limits<size_t>::max(), dstOffset + size <= target.sizeInBytes()), "Size to copy is valid");
 
 		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
-		Check(dstOffset + size <= target.sizeInBytes(), "Size to copy is valid");
+		VclCheck(dstOffset + size <= target.sizeInBytes(), "Size to copy is valid");
 		
 		glCopyNamedBufferSubDataVCL(_glId, target.id(), srcOffset, dstOffset, size);
 	}

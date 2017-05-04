@@ -120,7 +120,7 @@ namespace Vcl { namespace Geometry
 		{
 			_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 32>>();
 			
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
 		//! Copy constructor
@@ -133,7 +133,7 @@ namespace Vcl { namespace Geometry
 			for (size_t i = 0; i < size(); i++)
 				_data[i] = rhs._data[i];
 			
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
 		//! Move constructor
@@ -147,7 +147,7 @@ namespace Vcl { namespace Geometry
 			std::swap(_data, rhs._data);
 			std::swap(_defaultValue, rhs._defaultValue);
 
-			Ensure(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclEnsure(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
 		virtual ~Property()
@@ -223,37 +223,37 @@ namespace Vcl { namespace Geometry
 		//! Access the i'th element. No range check is performed!
 		inline reference operator[](int idx)
 		{
-			Require(idx < static_cast<int>(size()), "Index in bounds.");
+			VclRequire(idx < static_cast<int>(size()), "Index in bounds.");
 			return _data[idx];
 		}
 
 		//! Const access to the i'th element. No range check is performed!
 		inline const_reference operator[](int idx) const
 		{
-			Require(idx < static_cast<int>(size()), "Index in bounds.");
+			VclRequire(idx < static_cast<int>(size()), "Index in bounds.");
 			return _data[idx];
 		}
 
 		//! Access the i'th element. No range check is performed!
 		inline reference operator[](index_type idx)
 		{
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
-			Require(idx.id() < size(), "Index in bounds.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(idx.id() < size(), "Index in bounds.");
 			return _data[idx.id()];
 		}
 
 		//! Const access to the i'th element. No range check is performed!
 		inline const_reference operator[](index_type idx) const
 		{
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
-			Require(idx.id() < size(), "Index in bounds.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(idx.id() < size(), "Index in bounds.");
 			return _data[idx.id()];
 		}
 
 	public:
 		index_type push_back(const_reference data)
 		{
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 
 			// Check if there is some allocated space left
 			if (size() < _allocated)
@@ -294,7 +294,7 @@ namespace Vcl { namespace Geometry
 		//! Resize the container.
 		virtual void resize(size_t count) override
 		{
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 
 			if (count == size())
 				return;
@@ -343,7 +343,7 @@ namespace Vcl { namespace Geometry
 		// This requires allocating a new block of new memory and copying the old elements.
 		virtual void reserve(size_t count) override
 		{
-			Require(size() <= _allocated, "Used size is smaller/equal to allocated size.");
+			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 
 			if (count > _allocated)
 			{

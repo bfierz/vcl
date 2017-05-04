@@ -67,7 +67,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
+			VclRequire(0 <= idx && idx < 8, "Access is in range.");
 
 			switch (idx % 4)
 			{
@@ -84,7 +84,7 @@ namespace Vcl
 
 		VCL_STRONG_INLINE float32x4_t get(int i) const
 		{
-			Require(0 <= i && i < 2, "Access is in range.");
+			VclRequire(0 <= i && i < 2, "Access is in range.");
 
 			return _data[i];
 		}

@@ -101,7 +101,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r + beta * d
 		void updateVectors()
 		{
-			Require(_x != nullptr, "Solution vector is set.");
+			VclRequire(_x != nullptr, "Solution vector is set.");
 
 			(*_x) += _alpha * _dir;
 			_res -= _alpha * _q;

@@ -52,7 +52,7 @@ namespace Vcl { namespace Components
 
 	void EntityManager::destroy(Entity e)
 	{
-		Require(e._manager == this, "Entity belongs the this system.");
+		VclRequire(e._manager == this, "Entity belongs the this system.");
 
 		uint32_t index = e._id.id();
 		_generations[index]++;

@@ -133,7 +133,7 @@ namespace Vcl { namespace RTTI
 		template<typename P>
 		const ParameterBase& getParamImpl(const std::tuple<P>& tuple, int idx) const
 		{
-			Require(idx == 0, "Tuple with one element has index 0.");
+			VclRequire(idx == 0, "Tuple with one element has index 0.");
 
 			VCL_UNREFERENCED_PARAMETER(idx);
 
@@ -197,7 +197,7 @@ namespace Vcl { namespace RTTI
 	protected:
 		virtual void* callImpl(void* location, std::vector<std::any>&& params) const override
 		{
-			Require(params.size() == 0, "No parameters supplied.");
+			VclRequire(params.size() == 0, "No parameters supplied.");
 
 			VCL_UNREFERENCED_PARAMETER(params);
 

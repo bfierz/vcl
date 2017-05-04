@@ -195,7 +195,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 	void Luminance::process(ImageProcessing::ImageProcessor* processor)
 	{
-		Require(nrInputSlots() == 1, "This kernel takes exactly one input image.");
+		VclRequire(nrInputSlots() == 1, "This kernel takes exactly one input image.");
 
 		if (nrOutputSlots() == 0)
 			return;

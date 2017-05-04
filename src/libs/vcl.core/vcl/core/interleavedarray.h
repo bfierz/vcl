@@ -74,9 +74,9 @@ namespace Vcl { namespace Core
 			static_assert(ROWS == DynamicStride || ROWS > 0, "Height of a data member is either dynamic or fixed sized.");
 			
 			// Initialisation checks
-			Require(rows > 0, "Number of rows is positive.");
-			Require(cols > 0, "Number of cols is positive.");
-			Require(stride == DynamicStride || stride >= 0, "Stride is Dynamic, 0 or greater 0");
+			VclRequire(rows > 0, "Number of rows is positive.");
+			VclRequire(cols > 0, "Number of cols is positive.");
+			VclRequire(stride == DynamicStride || stride >= 0, "Stride is Dynamic, 0 or greater 0");
 			
 			// Pad the requested size to the alignment
 			// Note: This is done in order to support optimaly sized vector operations
@@ -167,7 +167,7 @@ namespace Vcl { namespace Core
 				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
 			> StrideType;
 			
-			Require
+			VclRequire
 			(
 				implies(Stride == DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= mAllocated) && (mAllocated % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
 				"Output size and stride size are compatible."

@@ -32,6 +32,6 @@ namespace Vcl { namespace Compute
 	Kernel::Kernel(const std::string& name)
 	: _name(name)
 	{
-		Require(!name.empty(), "Name of function is valid.");
+		VclRequire(!name.empty(), "Name of function is valid.");
 	}
 }}

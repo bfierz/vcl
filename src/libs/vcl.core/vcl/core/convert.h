@@ -56,7 +56,7 @@ namespace Vcl
 		else if (value == "false" || value == "0")
 			return false;
 		
-		DebugError("value not recognized");
+		VclDebugError("value not recognized");
 		return false;
 	}
 
