@@ -47,11 +47,13 @@ SET(EDITOR_SRC
 SET(UTIL_INC
 	util/frustumhelpers.h
 	util/positionmanipulator.h
+	util/rendertargetdebugger.h
 	util/shaderutils.h
 )
 SET(UTIL_SRC
 	util/frustumhelpers.cpp
 	util/positionmanipulator.cpp
+	util/rendertargetdebugger.cpp
 	util/shaderutils.cpp
 )
 
@@ -88,6 +90,9 @@ SET(SHADERS_DEBUG
 	
 	shaders/debug/boundinggrid.vert
 	shaders/debug/boundinggrid.geom
+	
+	shaders/debug/renderttarget_present.vert
+	shaders/debug/renderttarget_present.frag
 
 	shaders/debug/staticcolour.frag
 	

@@ -191,6 +191,9 @@ FboRenderer::FboRenderer()
 
 	// Initialize the position manipulator
 	_posManip = std::make_unique<Vcl::Editor::Util::PositionManipulator>();
+
+	// Initialize the texture debugger
+	_rtDebugger = std::make_unique<Vcl::Editor::Util::RendertargetDebugger>();
 }
 
 void FboRenderer::render()
@@ -405,6 +408,10 @@ void FboRenderer::render()
 	}
 
 	// Render the ID map
+	if (true)
+	{
+		_rtDebugger->draw(_engine.get(), _idBuffer->renderTarget(0), { 0.75f, 0.75f, 0.2f, 0.2f });
+	}
 
 	_engine->endFrame();
 	_owner->window()->resetOpenGLState();

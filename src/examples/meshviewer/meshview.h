@@ -45,6 +45,7 @@
 #include <vcl/graphics/runtime/framebuffer.h>
 
 #include "util/positionmanipulator.h"
+#include "util/rendertargetdebugger.h"
 #include "scene.h"
 
 class MeshView;
@@ -108,6 +109,9 @@ private: // Static geometry
 
 private: // Helpers
 	std::unique_ptr<Vcl::Editor::Util::PositionManipulator> _posManip;
+
+	//! Debug helper to visualize textures
+	std::unique_ptr<Vcl::Editor::Util::RendertargetDebugger> _rtDebugger;
 };
 
 class MeshView : public QQuickFramebufferObject

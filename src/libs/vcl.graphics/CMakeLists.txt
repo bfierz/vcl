@@ -7,6 +7,7 @@ SET(VCL_CONFIG_INC
 
 # VCL / GRAPHICS / IMAGEPROCESSING / OPENGL
 SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC
+	vcl/graphics/imageprocessing/opengl/conversion.h
 	vcl/graphics/imageprocessing/opengl/GaussianBlur.h
 	vcl/graphics/imageprocessing/opengl/gaussian.h
 	vcl/graphics/imageprocessing/opengl/imageprocessor.h
@@ -15,6 +16,7 @@ SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC
 	vcl/graphics/imageprocessing/opengl/tonemap.h
 )
 SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC
+	vcl/graphics/imageprocessing/opengl/conversion.cpp
 	vcl/graphics/imageprocessing/opengl/gaussian.cpp
 	vcl/graphics/imageprocessing/opengl/imageprocessor.cpp
 	vcl/graphics/imageprocessing/opengl/luminance.cpp
@@ -24,6 +26,7 @@ SET(VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC
 
 # VCL / GRAPHICS / IMAGEPROCESSING
 SET(VCL_GRAPHICS_IMAGEPROCESSING_INC
+	vcl/graphics/imageprocessing/conversion.h
 	vcl/graphics/imageprocessing/gaussian.h
 	vcl/graphics/imageprocessing/imageprocessor.h
 	vcl/graphics/imageprocessing/link.h
@@ -33,6 +36,7 @@ SET(VCL_GRAPHICS_IMAGEPROCESSING_INC
 	vcl/graphics/imageprocessing/tonemap.h
 )
 SET(VCL_GRAPHICS_IMAGEPROCESSING_SRC
+	vcl/graphics/imageprocessing/conversion.cpp
 	vcl/graphics/imageprocessing/gaussian.cpp
 	vcl/graphics/imageprocessing/imageprocessor.cpp
 	vcl/graphics/imageprocessing/link.cpp
