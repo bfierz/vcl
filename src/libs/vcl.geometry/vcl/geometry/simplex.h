@@ -153,14 +153,14 @@ namespace Vcl { namespace Geometry
 		template<typename element_type, typename index_type>
 		element_type& access(Property<element_type, index_type>& storage, index_type id)
 		{
-			Require(id.id() < storage->size(), "Id is in Range.");
+			VclRequire(id.id() < storage->size(), "Id is in Range.");
 			return storage[id];
 		}
 
 		template<typename element_type, typename index_type>
 		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
 		{
-			Require(id.id() < storage->size(), "Id is in Range.");
+			VclRequire(id.id() < storage->size(), "Id is in Range.");
 			return storage[id];
 		}
 

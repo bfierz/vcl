@@ -38,8 +38,8 @@ namespace Vcl { namespace Graphics
 		Handedness handedness
 	) const
 	{
-		Require(Vcl::Mathematics::equal(direction.norm(), 1.f, 1e-4f), "Direction vector is normalized.");
-		Require(Vcl::Mathematics::equal(world_up.norm(),  1.f, 1e-4f), "Up vector is normalized.");
+		VclRequire(Vcl::Mathematics::equal(direction.norm(), 1.f, 1e-4f), "Direction vector is normalized.");
+		VclRequire(Vcl::Mathematics::equal(world_up.norm(),  1.f, 1e-4f), "Up vector is normalized.");
 
 		if (handedness == Handedness::RightHanded)
 		{
@@ -73,7 +73,7 @@ namespace Vcl { namespace Graphics
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Zero();
 		}
 	}
@@ -98,10 +98,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 
@@ -158,7 +158,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
@@ -182,10 +182,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 
@@ -242,7 +242,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
@@ -266,10 +266,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 }}}
@@ -293,10 +293,10 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 
@@ -353,7 +353,7 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
@@ -377,10 +377,10 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 
@@ -437,7 +437,7 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
@@ -461,10 +461,10 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		}
 		else
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
-		DebugError("Not implemented.");
+		VclDebugError("Not implemented.");
 		return Eigen::Matrix4f::Identity();
 	}
 }}}

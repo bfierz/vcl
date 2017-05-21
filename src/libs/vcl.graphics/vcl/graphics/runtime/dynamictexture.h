@@ -57,7 +57,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	public:
 		gsl::not_null<Texture*> operator[] (size_t idx) const
 		{
-			Require(idx < 3, "Index is in range.");
+			VclRequire(idx < 3, "Index is in range.");
 
 			return _textures[idx].get();
 		}

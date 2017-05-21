@@ -81,8 +81,8 @@ namespace Vcl { namespace Graphics
 	)
 	{
 		// Check all work-groups to be fully packed with data
-		Require(arrayLength % 4 == 0, "SCan works on multiles of 4");
-		Require(implies(arrayLength > MaxShortArraySize, arrayLength % MaxWorkgroupInclusiveScanSize == 0), "Only allow batches of full sizes.");
+		VclRequire(arrayLength % 4 == 0, "SCan works on multiles of 4");
+		VclRequire(implies(arrayLength > MaxShortArraySize, arrayLength % MaxWorkgroupInclusiveScanSize == 0), "Only allow batches of full sizes.");
 
 		if (arrayLength <= MaxShortArraySize)
 		{
@@ -104,13 +104,13 @@ namespace Vcl { namespace Graphics
 	)
 	{
 		// Check supported size range
-		Check((arrayLength >= MinShortArraySize) && (arrayLength <= MaxShortArraySize), "Array is within size");
+		VclCheck((arrayLength >= MinShortArraySize) && (arrayLength <= MaxShortArraySize), "Array is within size");
 
 		// Check total batch size limit
-		Check((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
+		VclCheck((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
 
 		// Check all work-groups to be fully packed with data
-		Check((batchSize * arrayLength) % 4 == 0, "All work-groups are fully packed");
+		VclCheck((batchSize * arrayLength) % 4 == 0, "All work-groups are fully packed");
 
 		return scanExclusiveLocal1
 		(
@@ -132,13 +132,13 @@ namespace Vcl { namespace Graphics
 		// Check power-of-two factorization
 		unsigned int log2L;
 		unsigned int factorizationRemainder = factorRadix2(log2L, arrayLength);
-		Check(factorizationRemainder == 1, "Is power of two");
+		VclCheck(factorizationRemainder == 1, "Is power of two");
 
 		// Check supported size range
-		Check((arrayLength >= MinLargeArraySize) && (arrayLength <= MaxLargeArraySize), "Array is within size");
+		VclCheck((arrayLength >= MinLargeArraySize) && (arrayLength <= MaxLargeArraySize), "Array is within size");
 
 		// Check total batch size limit
-		Check((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
+		VclCheck((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
 
 		scanExclusiveLocal1
 		(
@@ -175,7 +175,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::ceil;
 
-		Require(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
+		VclRequire(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
 
 		// Bind the program to the pipeline
 		_scanExclusiveLocal1Kernel->bind();
@@ -208,7 +208,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::ceil;
 
-		Require(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
+		VclRequire(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
 
 		// Bind the program to the pipeline
 		_scanExclusiveLocal2Kernel->bind();
@@ -236,7 +236,7 @@ namespace Vcl { namespace Graphics
 		unsigned int n
 	)
 	{
-		Require(_uniformUpdateKernel, "Kernel is loaded.");
+		VclRequire(_uniformUpdateKernel, "Kernel is loaded.");
 
 		// Bind the program to the pipeline
 		_uniformUpdateKernel->bind();

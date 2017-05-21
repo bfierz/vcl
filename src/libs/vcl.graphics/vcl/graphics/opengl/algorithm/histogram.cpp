@@ -45,7 +45,7 @@ namespace Vcl { namespace Graphics
 		using namespace Vcl::Graphics::Runtime;
 		using Vcl::Mathematics::ceil;
 
-		Require(nr_buckets < 2048, "Shared memory buckets are limited to 2048.");
+		VclRequire(nr_buckets < 2048, "Shared memory buckets are limited to 2048.");
 
 		unsigned int totalBlocks = ceil(_maxNrElements, LocalSize) / LocalSize;
 		BufferDescription desc =
@@ -90,7 +90,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::ceil;
 
-		Require(_partialHistogramKernel, "Kernel is loaded.");
+		VclRequire(_partialHistogramKernel, "Kernel is loaded.");
 
 		unsigned int totalBlocks = ceil(num_elements, LocalSize) / LocalSize;
 
@@ -120,7 +120,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::ceil;
 
-		Require(_partialHistogramKernel, "Kernel is loaded.");
+		VclRequire(_partialHistogramKernel, "Kernel is loaded.");
 
 		unsigned int num_partial_histograms = ceil(num_elements, LocalSize) / LocalSize;
 		unsigned int totalBlocks = ceil(num_buckets, LocalSize) / LocalSize;

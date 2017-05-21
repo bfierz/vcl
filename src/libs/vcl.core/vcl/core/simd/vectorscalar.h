@@ -65,14 +65,14 @@ namespace Vcl
 	public:
 		Scalar& operator[] (int idx)
 		{
-			Require(0 <= idx && idx < Width, "Access is in range.");
+			VclRequire(0 <= idx && idx < Width, "Access is in range.");
 
 			return mData[idx];
 		}
 
 		Scalar operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < Width, "Access is in range.");
+			VclRequire(0 <= idx && idx < Width, "Access is in range.");
 
 			return mData[idx];
 		}

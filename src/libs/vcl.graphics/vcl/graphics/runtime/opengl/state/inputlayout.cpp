@@ -139,15 +139,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void InputLayout::setup(const InputLayoutDescription& desc)
 	{
-		Require(_vaoID == 0, "No yet created.");
-		Require(glewIsSupported("GL_ARB_vertex_attrib_binding"), "Vertex attribute binding is supported.");
+		VclRequire(_vaoID == 0, "No yet created.");
+		VclRequire(glewIsSupported("GL_ARB_vertex_attrib_binding"), "Vertex attribute binding is supported.");
 
 		glCreateVertexArraysVCL(1, &_vaoID);
 
 		int idx = 0;
 		for (const auto& elem : desc)
 		{
-			Check(implies(elem.StreamType == VertexDataClassification::VertexDataPerInstance, elem.StepRate > 0 && elem.StepRate != -1), "Step rate is > 0 for per instance data.");
+			VclCheck(implies(elem.StreamType == VertexDataClassification::VertexDataPerInstance, elem.StepRate > 0 && elem.StepRate != -1), "Step rate is > 0 for per instance data.");
 
 			// GL relevant enumerations
 			auto rt = Vcl::Graphics::OpenGL::GL::toRenderType(elem.Format);

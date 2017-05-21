@@ -54,7 +54,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		typedef const AnyRenderType& (*DynamicRenderTypeGate)();
 
 	protected:
-		AnyRenderType(DynamicRenderTypeGate gate) : _gate(gate) { Ensure(_gate != nullptr, "gate not NULL"); }
+		AnyRenderType(DynamicRenderTypeGate gate) : _gate(gate) { VclEnsure(_gate != nullptr, "gate not NULL"); }
 
 	public:
 		virtual const GLenum componentType() const;
@@ -64,10 +64,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		virtual const bool isIntegral() const;
 
 		//virtual const bool isPixelType() const { return _gate().isPixelType(); }
-		//virtual const GLenum internalFormat() const { Require(isPixelType(), "type is color type"); return _gate().internalFormat(); }
-		//virtual const GLenum internalBaseFormat() const { Require(isPixelType(), "type is color type"); return _gate().internalBaseFormat(); }
-		//virtual const GLenum format() const { Require(isPixelType(), "type is color type"); return _gate().format(); }
-		//virtual const bool hasAlphaChannel() const { Require(isPixelType(), "type is color type"); return _gate().hasAlphaChannel(); }
+		//virtual const GLenum internalFormat() const { VclRequire(isPixelType(), "type is color type"); return _gate().internalFormat(); }
+		//virtual const GLenum internalBaseFormat() const { VclRequire(isPixelType(), "type is color type"); return _gate().internalBaseFormat(); }
+		//virtual const GLenum format() const { VclRequire(isPixelType(), "type is color type"); return _gate().format(); }
+		//virtual const bool hasAlphaChannel() const { VclRequire(isPixelType(), "type is color type"); return _gate().hasAlphaChannel(); }
 
 	private:
 		DynamicRenderTypeGate _gate;
@@ -98,10 +98,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		const bool isIntegral() const override { return TypeTrait::IsIntegral; }
 		
 		//const bool isPixelType() const override {return TypeTrait::IsPixelType; }
-		//const GLenum internalFormat() const override {Require(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalFormat:GL_NONE; }
-		//const GLenum internalBaseFormat() const override {Require(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalBaseFormat:GL_NONE; }
-		//const GLenum format() const override {Require(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::Format:GL_NONE; }
-		//const bool hasAlphaChannel() const override {Require(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::HasAlphaChannel:false; }
+		//const GLenum internalFormat() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalFormat:GL_NONE; }
+		//const GLenum internalBaseFormat() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalBaseFormat:GL_NONE; }
+		//const GLenum format() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::Format:GL_NONE; }
+		//const bool hasAlphaChannel() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::HasAlphaChannel:false; }
 	};
 
 #ifndef VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST

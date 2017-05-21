@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual std::unique_ptr<Runtime::Texture> clone() const override;
 
 	public:
-		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { DebugError("Not implemented"); }
+		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { VclDebugError("Not implemented"); }
 
 	public:
 		virtual void fill(SurfaceFormat fmt, const void* data) override;

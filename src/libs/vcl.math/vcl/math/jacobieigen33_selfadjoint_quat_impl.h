@@ -352,7 +352,7 @@ namespace Vcl { namespace Mathematics
 	template<typename Scalar, int p, int q>
 	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
-		Require(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+		VclRequire(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 		
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
@@ -364,7 +364,7 @@ namespace Vcl { namespace Mathematics
 			Scalar c = cs(0);
 			Scalar s = cs(1);
 
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, 0, s).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+			VclCheck(all(equal(Eigen::Quaternion<Scalar>(c, 0, 0, s).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
 		}
@@ -375,7 +375,7 @@ namespace Vcl { namespace Mathematics
 			Scalar c = cs(0);
 			Scalar s = cs(1);
 
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, 0, -s, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+			VclCheck(all(equal(Eigen::Quaternion<Scalar>(c, 0, -s, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
 		}
@@ -386,7 +386,7 @@ namespace Vcl { namespace Mathematics
 			Scalar c = cs(0);
 			Scalar s = cs(1);
 
-			Check(all(equal(Eigen::Quaternion<Scalar>(c, s, 0, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
+			VclCheck(all(equal(Eigen::Quaternion<Scalar>(c, s, 0, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 
 			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
 		}
@@ -395,7 +395,7 @@ namespace Vcl { namespace Mathematics
 	template<typename Scalar>
 	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, int p, int q, Eigen::Quaternion<Scalar>& Q)
 	{
-		Require(equal(Q.norm(), 1, 1e-6), "Quaternion is normalized.");
+		VclRequire(equal(Q.norm(), 1, 1e-6), "Quaternion is normalized.");
 
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
@@ -411,7 +411,7 @@ namespace Vcl { namespace Mathematics
 		
 		Q *= Eigen::Quaternion<Scalar>(c, v(0), v(1), v(2));
 
-		Ensure(epsEqual(Eigen::Quaternion<Scalar>(c, v(0), v(1), v(2)).norm(), 1, 1e-6), "Quaternion is normalized.");
+		VclEnsure(epsEqual(Eigen::Quaternion<Scalar>(c, v(0), v(1), v(2)).norm(), 1, 1e-6), "Quaternion is normalized.");
 	}
 	
 	/*

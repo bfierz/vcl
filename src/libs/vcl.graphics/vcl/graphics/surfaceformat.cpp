@@ -88,7 +88,7 @@ namespace Vcl { namespace Graphics
 		case SurfaceFormat::R8_SINT			    :
 			return 1;
 		default:
-			DebugError("Unknown format");
+			VclDebugError("Unknown format");
 			return 0;
 		}
 	}

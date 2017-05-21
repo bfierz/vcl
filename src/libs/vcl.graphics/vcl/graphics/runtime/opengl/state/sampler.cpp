@@ -64,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glSamplerParameteri(_glId, GL_TEXTURE_COMPARE_MODE, compare_mode);
 		glSamplerParameteri(_glId, GL_TEXTURE_COMPARE_FUNC, convert(desc.ComparisonFunc));
 
-		Ensure(_glId > 0, "Sampler is created.");
+		VclEnsure(_glId > 0, "Sampler is created.");
 	}
 
 	Sampler::~Sampler()
@@ -96,7 +96,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			case FilterType::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR_MIPMAP_NEAREST;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			case FilterType::ComparisonMinMagMipLinear           : min = GL_LINEAR_MIPMAP_LINEAR;   mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			default: { DebugError("Enumeration value is valid."); }
+			default: { VclDebugError("Enumeration value is valid."); }
 			}
 		}
 		else
@@ -121,7 +121,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			case FilterType::ComparisonMinMagLinearMipPoint      : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			case FilterType::ComparisonMinMagMipLinear           : min = GL_LINEAR;  mag = GL_LINEAR;  compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
-			default: { DebugError("Enumeration value is valid."); }
+			default: { VclDebugError("Enumeration value is valid."); }
 			}
 		}
 	}
@@ -136,8 +136,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case TextureAddressMode::Mirror    : return GL_MIRRORED_REPEAT;
 		case TextureAddressMode::Clamp     : return GL_CLAMP_TO_EDGE;
 		case TextureAddressMode::Border    : return GL_CLAMP_TO_BORDER;
-		case TextureAddressMode::MirrorOnce: { DebugError("Not supported."); break; }
-		default: { DebugError("Enumeration value is valid."); }
+		case TextureAddressMode::MirrorOnce: { VclDebugError("Not supported."); break; }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_NONE;
@@ -155,7 +155,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case ComparisonFunction::NotEqual    : return GL_NOTEQUAL;
 		case ComparisonFunction::GreaterEqual: return GL_GEQUAL;
 		case ComparisonFunction::Always      : return GL_ALWAYS;
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_NONE;

@@ -38,7 +38,7 @@ namespace Vcl { namespace Geometry { namespace IO
 	{
 		using namespace std;
 
-		Require(deserialiser != nullptr, "Deserialiser is given.");
+		VclRequire(deserialiser != nullptr, "Deserialiser is given.");
 
 		// Check for the file endings
 		string node_path;
@@ -58,11 +58,11 @@ namespace Vcl { namespace Geometry { namespace IO
 		ifstream fin_node(node_path.c_str());
 		ifstream fin_ele(ele_path.c_str());
 
-		Check(fin_node.is_open() && !fin_node.eof(), "File exists, is not locked and is not empty.");
+		VclCheck(fin_node.is_open() && !fin_node.eof(), "File exists, is not locked and is not empty.");
 		if (!fin_node.is_open() || fin_node.eof())
 			return;
 
-		Check(fin_ele.is_open() && !fin_ele.eof(), "File exists, is not locked and is not empty.");
+		VclCheck(fin_ele.is_open() && !fin_ele.eof(), "File exists, is not locked and is not empty.");
 		if (!fin_ele.is_open() || fin_ele.eof())
 			return;
 

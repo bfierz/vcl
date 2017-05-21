@@ -54,7 +54,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		std::set<Task*>& temporary
 	)
 	{
-		Require(temporary.find(task) == temporary.end(), "Graph is a DAG.");
+		VclRequire(temporary.find(task) == temporary.end(), "Graph is a DAG.");
 
 		if (permanent.find(task) != permanent.end())
 			return;

@@ -39,7 +39,7 @@ namespace Vcl { namespace Geometry { namespace IO
 	{
 		using namespace std;
 
-		Require(deserialiser != nullptr, "Deserialiser is given.");
+		VclRequire(deserialiser != nullptr, "Deserialiser is given.");
 
 		ifstream fin(path.c_str());
 		if (!fin.is_open() || fin.eof())
@@ -96,7 +96,7 @@ namespace Vcl { namespace Geometry { namespace IO
 	{
 		using namespace std;
 
-		Require(serialiser != nullptr, "Serialiser is given.");
+		VclRequire(serialiser != nullptr, "Serialiser is given.");
 
 		ofstream fout(path.c_str());
 		if (!fout.is_open())
