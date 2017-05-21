@@ -34,12 +34,14 @@
 // Include the relevant parts from the library
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
+#include <vcl/geometry/distance_ray3ray3.h>
 #include <vcl/geometry/distancePoint3Triangle3.h>
 #include <vcl/geometry/distanceTriangle3Triangle3.h>
 #include <vcl/math/math.h>
 
 // Reference code
 #include "ref/GteDistPointTriangle.h"
+#include "ref/GteDistRayRay.h"
 #include "ref/GteDistTriangle3Triangle3.h"
 
 #include "distance_ref.h"
@@ -217,5 +219,68 @@ TEST(TriangleTriangleDistance, Simple)
 	for (int i = 0; i < (int)problem_size; i++)
 	{
 		EXPECT_TRUE(equal(ref_shortest_dist.at<float>(i)[0], shortest_dist.at<float>(i)[0], 1e-4f)) << "Distance differ: " << i;
+	}
+}
+
+TEST(DistanceRayRay, Simple)
+{
+	using Vcl::Geometry::distance;
+	using Vcl::Geometry::Ray;
+	using Vcl::Geometry::Result;
+	using Vcl::Mathematics::equal;
+
+	//using real_t = Vcl::float16;
+	//using real_t = Vcl::float8;
+	//using real_t = Vcl::float4;
+	using real_t = float;
+
+	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
+
+	// Simple crossing, intersection
+	{
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { 0, -1, 0 },{ 0, 1, 0 } };
+
+		Result<real_t> result;
+		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 0.0f);
+
+		EXPECT_FLOAT_EQ(result.Parameter[0], 1.0f);
+		EXPECT_FLOAT_EQ(result.Parameter[1], 1.0f);
+	}
+
+	// Simple crossing, no intersection
+	{
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { 0, -1, 1 },{ 0, 1, 0 } };
+
+		Result<real_t> result;
+		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 1.0f);
+
+		EXPECT_FLOAT_EQ(result.Parameter[0], 1.0f);
+		EXPECT_FLOAT_EQ(result.Parameter[1], 1.0f);
+	}
+
+	// Parallel crossing, intersection
+	{
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { -1, 0, 0 },{ 1, 0, 0 } };
+
+		Result<real_t> result;
+		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 0.0f);
+
+		EXPECT_FLOAT_EQ(result.Parameter[0], 0.0f);
+		EXPECT_FLOAT_EQ(result.Parameter[1], 0.0f);
+	}
+
+	// Parallel crossing, no intersection
+	{
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { -1, 0, 1 },{ 1, 0, 0 } };
+
+		Result<real_t> result;
+		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 1.0f);
+
+		EXPECT_FLOAT_EQ(result.Parameter[0], 0.0f);
+		EXPECT_FLOAT_EQ(result.Parameter[1], 0.0f);
 	}
 }

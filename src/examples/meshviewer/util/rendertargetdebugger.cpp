@@ -69,6 +69,7 @@ namespace Vcl { namespace Editor { namespace Util
 	void RendertargetDebugger::draw(
 		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
 		const Vcl::Graphics::Runtime::Texture& texture,
+		const unsigned int max_value,
 		const Eigen::Vector4f& loc_size
 	)
 	{
@@ -86,6 +87,7 @@ namespace Vcl { namespace Editor { namespace Util
 		static_cast<PipelineStateGL*>(_presentationPipelineState.get())->program().setUniform("Viewport", loc_size);
 		const auto tex_handle = static_cast<PipelineStateGL*>(_presentationPipelineState.get())->program().uniform("inputTex");
 		static_cast<PipelineStateGL*>(_presentationPipelineState.get())->program().setTexture(tex_handle, &texture, _rtSampler.get());
+		static_cast<PipelineStateGL*>(_presentationPipelineState.get())->program().setUniform("normalization", static_cast<float>(max_value));
 
 		// Render the mesh
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

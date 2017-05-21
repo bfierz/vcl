@@ -44,7 +44,12 @@ out vec4 FragColour;
 ////////////////////////////////////////////////////////////////////////////////
 // Shader Constants
 ////////////////////////////////////////////////////////////////////////////////
+
+// Input texture
 uniform isampler2D inputTex;
+
+// Max value of the integer range
+uniform float normalization;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -52,5 +57,5 @@ uniform isampler2D inputTex;
 void main(void)
 {
 	int values = texture(inputTex, In.TexCoord).r;
-	FragColour = vec4(vec3(float(values + 1) / 10.0f), 1.0f);
+	FragColour = vec4(vec3(float(values + 1) / normalization), 1.0f);
 }

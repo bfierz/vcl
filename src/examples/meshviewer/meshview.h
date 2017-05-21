@@ -177,7 +177,4 @@ private: // Position manipulator
 	//! Initial transformation of manipulated object
 	Eigen::Matrix<float, 4, 4, Eigen::DontAlign> _manip_initial_transform;
 	Eigen::Matrix<float, 3, 1, Eigen::DontAlign> _manip_initial_offset;
-
-	Eigen::Vector3f _curr_view_dir;
-
 };

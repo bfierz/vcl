@@ -28,6 +28,7 @@
 #include <QtQuick/QQuickWindow>
 
 // VCL
+#include <vcl/geometry/distance_ray3ray3.h>
 #include <vcl/geometry/MarchingCubesTables.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
@@ -410,7 +411,7 @@ void FboRenderer::render()
 	// Render the ID map
 	if (true)
 	{
-		_rtDebugger->draw(_engine.get(), _idBuffer->renderTarget(0), { 0.75f, 0.75f, 0.2f, 0.2f });
+		_rtDebugger->draw(_engine.get(), _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
 	}
 
 	_engine->endFrame();
@@ -599,10 +600,10 @@ namespace
 	)
 	{
 		// Find ray into the scene and compute the target location
-		const auto line = camera.pickViewSpace(x, y);
+		const auto line = camera.pickWorldSpace(x, y);
 
 		// Compute the transform in view-space
-		const Eigen::Matrix4f curr_trans_vs = camera.view() * transform;
+		const Eigen::Matrix4f curr_trans_vs = transform;
 
 		// Compute the origin of the current transformation
 		const Eigen::Vector3f center = (curr_trans_vs * Eigen::Vector4f(0, 0, 0, 1)).segment<3>(0);
@@ -630,7 +631,16 @@ namespace
 			axis == 4)
 			// Handle axis'
 		{
-			return Eigen::Vector3f::Zero();
+			using namespace Vcl::Geometry;
+
+			// Transform the requested axis to the world space
+			const Ray<float, 3> disp_ray{ center, curr_trans_vs.block<3, 3>(0, 0) * ref_axis };
+			const Ray<float, 3> cam_ray{ line.origin(), line.direction() };
+
+			Result<float> result;
+			Vcl::Geometry::distance(disp_ray, cam_ray, &result);
+
+			return result.Point[0];
 		}
 		else
 			// Handle planes
@@ -638,11 +648,10 @@ namespace
 			const Eigen::Vector3f N = curr_trans_vs.block<3, 3>(0, 0) * ref_axis;
 			const float d = N.dot(center);
 			const Eigen::Vector4f plane{ N.x(), N.y(), N.z(), d };
-			const Eigen::Vector3f intersect = Vcl::Util::intersectRayPlane(Eigen::Vector3f::Zero(), line.direction(), plane);
+			const Eigen::Vector3f intersect = Vcl::Util::intersectRayPlane(line.origin(), line.direction(), plane);
 
 			return intersect;
 		}
-
 	}
 }
 
@@ -653,8 +662,6 @@ void MeshView::beginDrag(int axis, int x, int y)
 
 	// Find ray into the scene for the direction computation later
 	const auto* cam = scene()->camera();
-	const auto line = cam->pickViewSpace(x, y);
-	_curr_view_dir = line.direction();
 
 	// Store the inital transformatoin
 	auto handle = scene()->positionHandle();
@@ -665,7 +672,7 @@ void MeshView::beginDrag(int axis, int x, int y)
 	const auto new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, axis, x, y);
 
 	// Transform the new position from view space to world space
-	_manip_initial_offset = (cam->view().inverse() * Eigen::Vector4f{ new_pos.x(), new_pos.y(), new_pos.z(), 1 }).segment<3>(0);
+	_manip_initial_offset = new_pos - curr_transform->position();
 
 	const Eigen::Vector3f curr_pos = curr_transform->position();
 	std::cout << "Axis: " << axis << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
@@ -676,98 +683,6 @@ void MeshView::dragObject(int x, int y)
 	if (_manip_axis_translation == 0)
 		return;
 
-	/*Eigen::Vector4f ref_axis = Eigen::Vector4f::Zero();
-	switch (_manip_translation)
-	{
-	case 1: // x-axis
-	case 6: // yz-plane
-		ref_axis = { 1, 0, 0, 0 };
-		break;
-	case 2: // y-axis
-	case 5: // xz-plane
-		ref_axis = { 0, 1, 0, 0 };
-		break;
-	case 4: // z-axis
-	case 3: // xy-plane
-		ref_axis = { 0, 0, 1, 0 };
-		break;
-	}
-
-	// Find ray into the scene and compute the direction based on the previous
-	// direction.
-	const auto* cam = scene()->camera();
-	const auto line = cam->pickViewSpace(x, y);
-	Eigen::Vector3f pick_dir = line.direction() - _curr_view_dir;
-
-	// Assuming that the user moves the mouse steadily the computed picking
-	// direction should be filtered here.
-
-	// Remove the z-component to have the view-plane aligned vector
-	pick_dir.z() = 0;
-	pick_dir.normalize();
-
-	// Store for the next call
-	_curr_view_dir = line.direction();
-
-	// Compute the magnitude of the displacement:
-	// The angle of between the desired direction and the actual direction
-	// defines the speed.
-	Eigen::Matrix4f M = scene()->modelMatrix();
-	Eigen::Matrix4f V = scene()->viewMatrix();
-	Eigen::Matrix4f MV = V * M;
-
-	// Compute the magnitude of the drag
-	if (_manip_translation == 1 || 
-		_manip_translation == 2 ||
-		_manip_translation == 4)
-	{
-		Eigen::Vector3f ref_dir = (MV * ref_axis).segment<3>(0, 3);
-
-		// Remove the z-component to have the view-plane aligned vector
-		ref_dir.z() = 0;
-		ref_dir.normalize();
-
-		const float mag = pick_dir.dot(ref_dir);
-
-		std::cout << "Axis: " << _manip_translation << ", mag: " << mag << std::endl;
-	}
-	else
-	{
-		Eigen::Vector4f ref_axis_a = Eigen::Vector4f::Zero();
-		Eigen::Vector4f ref_axis_b = Eigen::Vector4f::Zero();
-		switch (_manip_translation)
-		{
-		case 1: // x-axis
-		case 6: // yz-plane
-			ref_axis_a = { 0, 1, 0, 0 };
-			ref_axis_b = { 0, 0, 1, 0 };
-			break;
-		case 2: // y-axis
-		case 5: // xz-plane
-			ref_axis_a = { 1, 0, 0, 0 };
-			ref_axis_b = { 0, 0, 1, 0 };
-			break;
-		case 4: // z-axis
-		case 3: // xy-plane
-			ref_axis_a = { 1, 0, 0, 0 };
-			ref_axis_b = { 0, 1, 0, 0 };
-			break;
-		}
-		Eigen::Vector3f ref_dir_a = (MV * ref_axis_a).segment<3>(0, 3);
-		Eigen::Vector3f ref_dir_b = (MV * ref_axis_b).segment<3>(0, 3);
-
-		// Remove the z-component to have the view-plane aligned vector
-		ref_dir_a.z() = 0;
-		ref_dir_a.normalize();
-		ref_dir_b.z() = 0;
-		ref_dir_b.normalize();
-
-		const float mag_a = pick_dir.dot(ref_dir_a);
-		const float mag_b = pick_dir.dot(ref_dir_b);
-
-		std::cout << "Axis: " << _manip_translation << ", mag: " << mag_a << ", " << mag_b << std::endl;
-	}*/
-
 	// Find ray into the scene for the direction computation later
 	const auto* cam = scene()->camera();
 
@@ -775,7 +690,7 @@ void MeshView::dragObject(int x, int y)
 	Eigen::Vector3f new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, _manip_axis_translation, x, y);
 
 	// Transform the new position from view space to world space
-	new_pos = (cam->view().inverse() * Eigen::Vector4f{ new_pos.x(), new_pos.y(), new_pos.z(), 1 }).segment<3>(0);
+	new_pos = Eigen::Vector3f{ new_pos.x(), new_pos.y(), new_pos.z() };
 
 	// Store the inital transformatoin
 	auto handle = scene()->positionHandle();
@@ -784,6 +699,9 @@ void MeshView::dragObject(int x, int y)
 
 	const Eigen::Vector3f curr_pos = curr_transform->position();
 	std::cout << "Axis: " << _manip_axis_translation << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
+
+	// Request update and resync of data
+	this->update();
 }
 
 void MeshView::endDrag()

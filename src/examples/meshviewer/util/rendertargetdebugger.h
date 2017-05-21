@@ -47,10 +47,12 @@ namespace Vcl { namespace Editor { namespace Util
 		//! Draw a texture to the current render target
 		//! \param engine Graphics engine to use
 		//! \param texture View on the texture to draw
+		//! \param max_value Maximum integer value in the texture
 		//! \param loc_size Location and size of output region
 		void draw(
 			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
 			const Vcl::Graphics::Runtime::Texture& texture,
+			const unsigned int max_value,
 			const Eigen::Vector4f& loc_size
 		);
 
