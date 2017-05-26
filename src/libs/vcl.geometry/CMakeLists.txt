@@ -21,7 +21,8 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/distancePoint3Triangle3.h
 	vcl/geometry/distanceTriangle3Triangle3.h
 	vcl/geometry/intersect.h
-
+	
+	vcl/geometry/circle.h
 	vcl/geometry/quad.h
 	vcl/geometry/ray.h
 	vcl/geometry/segment.h

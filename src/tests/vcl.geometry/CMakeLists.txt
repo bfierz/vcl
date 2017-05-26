@@ -1,6 +1,7 @@
 PROJECT(vcl_geometry_test)
 
 SET(VCL_TEST_SRC
+	circle.cpp
 	distance.cpp
 	intersect.cpp
 	tetramesh.cpp
