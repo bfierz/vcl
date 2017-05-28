@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <!-- Generic Id -->
+  <Type Name="Vcl::Geometry::GenericId&lt;*,*&gt;">      
+      <DisplayString>{_id}</DisplayString>
+  </Type>
+  
+</AutoVisualizer>

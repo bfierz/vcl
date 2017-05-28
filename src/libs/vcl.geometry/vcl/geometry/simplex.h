@@ -134,11 +134,11 @@ namespace Vcl { namespace Geometry
 		const Vertex& vertex(VertexId id) const { return element(id); }
 		      Vertex& vertex(VertexId id)       { return element(id); }
 
-		const Vertex& element(VertexId id) const { return static_cast<const Derived*>(this)->access(_vertices, id); }
-		      Vertex& element(VertexId id)       { return static_cast<      Derived*>(this)->access(_vertices, id); }
+		const Vertex& element(VertexId id) const { return this->access(*_vertices, id); }
+		      Vertex& element(VertexId id)       { return this->access(*_vertices, id); }
 			  
-		const VertexMetaData& metaData(VertexId id) const { return static_cast<const Derived*>(this)->access(_verticesMetaData, id); }
-		      VertexMetaData& metaData(VertexId id)       { return static_cast<      Derived*>(this)->access(_verticesMetaData, id); }
+		const VertexMetaData& metaData(VertexId id) const { return this->access(*_verticesMetaData, id); }
+		      VertexMetaData& metaData(VertexId id)       { return this->access(*_verticesMetaData, id); }
 			  
 		ConstPropertyPtr<Vertex, VertexId> vertices() const { return _vertices; }
 
@@ -153,14 +153,14 @@ namespace Vcl { namespace Geometry
 		template<typename element_type, typename index_type>
 		element_type& access(Property<element_type, index_type>& storage, index_type id)
 		{
-			VclRequire(id.id() < storage->size(), "Id is in Range.");
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
 			return storage[id];
 		}
 
 		template<typename element_type, typename index_type>
 		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
 		{
-			VclRequire(id.id() < storage->size(), "Id is in Range.");
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
 			return storage[id];
 		}
 
@@ -220,11 +220,11 @@ namespace Vcl { namespace Geometry
 		const Edge& edge(EdgeId id) const { return element(id); }
 		      Edge& edge(EdgeId id)       { return element(id); }
 
-		const Edge& element(EdgeId id) const { return static_cast<const Derived*>(this)->access(_edges, id); }
-		      Edge& element(EdgeId id)       { return static_cast<      Derived*>(this)->access(_edges, id); }
+		const Edge& element(EdgeId id) const { return this->access(*_edges, id); }
+		      Edge& element(EdgeId id)       { return this->access(*_edges, id); }
 			  
-		const EdgeMetaData& metaData(EdgeId id) const { return static_cast<const Derived*>(this)->access(_edgesMetaData, id); }
-		      EdgeMetaData& metaData(EdgeId id)       { return static_cast<      Derived*>(this)->access(_edgesMetaData, id); }
+		const EdgeMetaData& metaData(EdgeId id) const { return this->access(*_edgesMetaData, id); }
+		      EdgeMetaData& metaData(EdgeId id)       { return this->access(*_edgesMetaData, id); }
 			  
 		ConstPropertyPtr<Edge, EdgeId> edges() const { return _edges; }
 
@@ -234,6 +234,21 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		EdgeEnumerator edgeEnumerator() const { return{ this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges.size())) }; }
+
+	protected: // Element access
+		template<typename element_type, typename index_type>
+		element_type& access(Property<element_type, index_type>& storage, index_type id)
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
+
+		template<typename element_type, typename index_type>
+		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
 
 	protected: // Properties
 		
@@ -290,11 +305,11 @@ namespace Vcl { namespace Geometry
 		const Face& face(FaceId id) const { return element(id); }
 		      Face& face(FaceId id)       { return element(id); }
 
-		const Face& element(FaceId id) const { return static_cast<const Derived*>(this)->access(_faces, id); }
-		      Face& element(FaceId id)       { return static_cast<      Derived*>(this)->access(_faces, id); }
+		const Face& element(FaceId id) const { return this->access(*_faces, id); }
+		      Face& element(FaceId id)       { return this->access(*_faces, id); }
 			  
-		const FaceMetaData& metaData(FaceId id) const { return static_cast<const Derived*>(this)->access(_facesMetaData, id); }
-		      FaceMetaData& metaData(FaceId id)       { return static_cast<      Derived*>(this)->access(_facesMetaData, id); }
+		const FaceMetaData& metaData(FaceId id) const { return this->access(*_facesMetaData, id); }
+		      FaceMetaData& metaData(FaceId id)       { return this->access(*_facesMetaData, id); }
 			  
 		ConstPropertyPtr<Face, FaceId> faces() const { return _faces; }
 
@@ -304,6 +319,21 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		FaceEnumerator faceEnumerator() const { return{ this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces.size())) }; }
+
+	protected: // Element access
+		template<typename element_type, typename index_type>
+		element_type& access(Property<element_type, index_type>& storage, index_type id)
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
+
+		template<typename element_type, typename index_type>
+		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
 
 	protected: // Properties
 		
@@ -360,11 +390,11 @@ namespace Vcl { namespace Geometry
 		const Volume& volume(VolumeId id) const { return element(id); }
 		      Volume& volume(VolumeId id)       { return element(id); }
 
-		const Volume& element(VolumeId id) const { return static_cast<const Derived*>(this)->access(_volumes, id); }
-		      Volume& element(VolumeId id)       { return static_cast<      Derived*>(this)->access(_volumes, id); }
+		const Volume& element(VolumeId id) const { return this->access(*_volumes, id); }
+		      Volume& element(VolumeId id)       { return this->access(*_volumes, id); }
 			  
-		const VolumeMetaData& metaData(VolumeId id) const { return static_cast<const Derived*>(this)->access(_volumesMetaData, id); }
-		      VolumeMetaData& metaData(VolumeId id)       { return static_cast<      Derived*>(this)->access(_volumesMetaData, id); }
+		const VolumeMetaData& metaData(VolumeId id) const { return this->access(*_volumesMetaData, id); }
+		      VolumeMetaData& metaData(VolumeId id)       { return this->access(*_volumesMetaData, id); }
 			  
 		ConstPropertyPtr<Volume, VolumeId> volumes() const { return _volumes; }
 
@@ -374,6 +404,21 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		VolumeEnumerator volumeEnumerator() const { return{ this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes.size())) }; }
+
+	protected: // Element access
+		template<typename element_type, typename index_type>
+		element_type& access(Property<element_type, index_type>& storage, index_type id)
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
+
+		template<typename element_type, typename index_type>
+		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
+		{
+			VclRequire(id.id() < storage.size(), "Id is in Range.");
+			return storage[id];
+		}
 
 	protected: // Properties
 

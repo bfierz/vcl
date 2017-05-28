@@ -97,7 +97,7 @@ namespace Vcl { namespace Geometry
 		//! Clear the content of the mesh
 		void clear();
 
-		//! Add a new property to the volume level
+		//! Add a new property to the face level
 		template<typename T>
 		Property<T, IndexDescriptionTrait<TriMesh>::FaceId>* addFaceProperty
 		(

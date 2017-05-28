@@ -1,10 +1,15 @@
 PROJECT(vcl_geometry)
 
+# VCL / GEOMETRY / MSVC
+SET(VCL_GEOMETRY_DEBUG_MSVC_INC
+	vcl/geometry/debug/msvc/vcl.geometry.natvis
+)
+
 # VCL / GEOMETRY / IO
 SET(VCL_GEOMETRY_IO_INC
 	vcl/geometry/io/serialiser.h
 	
-	vcl/geometry/io/tetramesh_serialiser.h	
+	vcl/geometry/io/tetramesh_serialiser.h
 
 	vcl/geometry/io/serialiser_nvidia_tet_file.h
 	vcl/geometry/io/serialiser_tetgen.h
@@ -37,21 +42,25 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/propertygroup.h
 
 	vcl/geometry/meshfactory.h
-
+	
+	vcl/geometry/halfedgemesh.h
 	vcl/geometry/simplex.h
 	vcl/geometry/multiindextrimesh.h
 	vcl/geometry/tetramesh.h
 	vcl/geometry/trimesh.h
 	
 	vcl/geometry/marchingcubestables.h
+	
+	vcl/geometry/delaunay.h
 )
 SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distancePoint3Triangle3.cpp
 	vcl/geometry/distanceTriangle3Triangle3.cpp
 	vcl/geometry/intersect.cpp
 
-	vcl/geometry/meshfactory.cpp	
-
+	vcl/geometry/meshfactory.cpp
+	
+	vcl/geometry/halfedgemesh.cpp
 	vcl/geometry/multiindextrimesh.cpp
 	vcl/geometry/tetramesh.cpp
 	vcl/geometry/trimesh.cpp
@@ -59,10 +68,12 @@ SET(VCL_GEOMETRY_SRC
 	vcl/geometry/marchingcubestables.cpp
 )
 
+SOURCE_GROUP(debug\\msvc FILES ${VCL_GEOMETRY_DEBUG_MSVC_INC})
 SOURCE_GROUP("io" FILES ${VCL_GEOMETRY_IO_SRC} ${VCL_GEOMETRY_IO_INC})
 SOURCE_GROUP("" FILES ${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC})
 
 SET(SOURCE
+	${VCL_GEOMETRY_DEBUG_MSVC_INC}
 	${VCL_GEOMETRY_IO_SRC} ${VCL_GEOMETRY_IO_INC}
 	${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC}
 )

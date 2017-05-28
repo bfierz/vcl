@@ -114,7 +114,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename T>
-		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::reference init_value)
+		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::const_reference init_value)
 		{
 			if (_data.find(name) == _data.end())
 			{
