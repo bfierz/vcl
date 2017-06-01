@@ -2,8 +2,10 @@ PROJECT(vcl_geometry_test)
 
 SET(VCL_TEST_SRC
 	circle.cpp
+	delaunay.cpp
 	distance.cpp
 	halfedgemesh.cpp
+	halfedgetrimesh.cpp
 	intersect.cpp
 	tetramesh.cpp
 	

@@ -71,13 +71,13 @@ TEST(CircleTest, InOut)
 	Eigen::Vector2f p;
 
 	p = { -3, 1 };
-	EXPECT_EQ(-1, isInCircle(p0, p1, p2, p));
+	EXPECT_EQ(PointCircleClass::Inside, isInCircle(p0, p1, p2, p));
 	p = { 1.99f, 1 };
-	EXPECT_EQ(-1, isInCircle(p0, p1, p2, p));
+	EXPECT_EQ(PointCircleClass::Inside, isInCircle(p0, p1, p2, p));
 	p = { 2, 1 };
-	EXPECT_EQ(0, isInCircle(p0, p1, p2, p));
+	EXPECT_EQ(PointCircleClass::OnCircle, isInCircle(p0, p1, p2, p));
 	p = { 2.01f, 1 };
-	EXPECT_EQ(1, isInCircle(p0, p1, p2, p));
+	EXPECT_EQ(PointCircleClass::Outside, isInCircle(p0, p1, p2, p));
 	p = { 7, 1 };
-	EXPECT_EQ(1, isInCircle(p0, p1, p2, p));
+	EXPECT_EQ(PointCircleClass::Outside, isInCircle(p0, p1, p2, p));
 }

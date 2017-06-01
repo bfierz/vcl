@@ -83,6 +83,38 @@ namespace Vcl { namespace Geometry
 		return new_edge_id;
 	}
 
+	void HalfEdgeMesh::removeEdge(HalfEdgeId he_id)
+	{
+		removeEdge(halfEdge(he_id).Edge);
+	}
+
+	void HalfEdgeMesh::removeEdge(EdgeId edge_id)
+	{
+		auto& edge = this->edge(edge_id);
+		removeHalfEdge(edge.HalfEdge);
+		removeHalfEdge(halfEdge(edge.HalfEdge).Twin);
+
+		// Cleanup
+		edge.HalfEdge = {};
+	}
+
+	HalfEdgeMesh::EdgeId HalfEdgeMesh::findEdge(const std::array<VertexId, 2>& vertices)
+	{
+		HalfEdgeId start_he_id = vertex(vertices[0]).HalfEdge;
+		HalfEdgeId curr_he_id = start_he_id;
+		do
+		{
+			const auto& he = halfEdge(halfEdge(curr_he_id).Twin);
+			if (he.Vertex == vertices[1])
+			{
+				return he.Edge;
+			}
+			curr_he_id = he.Next;
+		} while (curr_he_id != start_he_id);
+
+		return{};
+	}
+
 	float HalfEdgeMesh::orientation(HalfEdgeId e)
 	{
 		const auto& he = _halfEdges[e];
@@ -138,6 +170,29 @@ namespace Vcl { namespace Geometry
 			// Update the existing half-edges
 			halfEdge(curr_he.Prev).Next = he_id;
 			curr_he.Prev = he.Twin;
+		}
+	}
+	
+	void HalfEdgeMesh::removeHalfEdge(HalfEdgeId he_id)
+	{
+		auto& he = halfEdge(he_id);
+		VertexId to_v_id = he.Vertex;
+		auto& from_v = vertex(to_v_id);
+
+		// The origin vertex of the half-edge is not connected to anything else
+		if ((from_v.HalfEdge == he_id) && (halfEdge(he.Prev).Twin == he_id))
+		{
+			from_v.HalfEdge = {};
+		}
+		else
+		{
+			// If the origin vertex points to this half-edge, reconnect it
+			if (from_v.HalfEdge == he_id)
+				from_v.HalfEdge = halfEdge(he.Prev).Twin;
+
+			// Remove the half-edge from the chain
+			halfEdge(halfEdge(he.Twin).Next).Prev = he.Prev;
+			halfEdge(he.Prev).Next = halfEdge(he.Twin).Next;
 		}
 	}
 }}

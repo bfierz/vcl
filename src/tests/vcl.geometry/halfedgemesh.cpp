@@ -47,6 +47,7 @@ TEST(HalfEdgeMeshTest, SimpleConstruction)
 	points.reserve(side*side);
 	std::set<std::array<HalfEdgeMesh::VertexId, 2>> edges;
 
+	HalfEdgeMesh::EdgeId edge_to_remove;
 	for (unsigned int y = 0; y < side; y++)
 	{
 		for (unsigned int x = 0; x < side; x++)
@@ -76,6 +77,9 @@ TEST(HalfEdgeMeshTest, SimpleConstruction)
 	for (const auto& e : edges)
 		mesh.addEdge(e);
 
+	// Remove a single edge
+	mesh.removeEdge(mesh.findEdge({ HalfEdgeMesh::VertexId{ 5 }, HalfEdgeMesh::VertexId{ 8 } }));
+
 	// Test one-ring
 	{
 		HalfEdgeMesh::VertexId center{ 5 };
@@ -85,7 +89,6 @@ TEST(HalfEdgeMeshTest, SimpleConstruction)
 			HalfEdgeMesh::VertexId{ 2 },
 			HalfEdgeMesh::VertexId{ 4 },
 			HalfEdgeMesh::VertexId{ 6 },
-			HalfEdgeMesh::VertexId{ 8 },
 			HalfEdgeMesh::VertexId{ 9 }
 		};
 		std::set<HalfEdgeMesh::VertexId> one_ring;

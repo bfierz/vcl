@@ -47,10 +47,10 @@
 
 namespace Vcl { namespace Geometry
 {
-	class HalfEdgeMesh;
+	class HalfEdgeTriMesh;
 
 	template<>
-	struct IndexDescriptionTrait<HalfEdgeMesh>
+	struct IndexDescriptionTrait<HalfEdgeTriMesh>
 	{
 	public: // Idx Type
 		using IndexType = unsigned int;
@@ -58,6 +58,7 @@ namespace Vcl { namespace Geometry
 	public: // IDs
 		VCL_CREATEID(VertexId, IndexType);   // Size: n0
 		VCL_CREATEID(EdgeId, IndexType);     // Size: n1
+		VCL_CREATEID(FaceId, IndexType);     // Size: n2
 
 		VCL_CREATEID(HalfEdgeId, IndexType); // Size: n2 * 3
 
@@ -71,6 +72,13 @@ namespace Vcl { namespace Geometry
 		};
 
 		struct EdgeMetaData
+		{
+			//bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
+
+			//Flags<ElementState> State;
+		};
+
+		struct FaceMetaData
 		{
 			//bool isValid() const { return State.isSet(ElementState::Deleted) == false; }
 
@@ -92,21 +100,11 @@ namespace Vcl { namespace Geometry
 		public:
 			HalfEdge() {}
 			HalfEdge(EdgeId e_id) : Edge(e_id) {}
-
 		public:
-			//! Vertex this half-edge is starting from
 			VertexId Vertex;
-
-			//! Twin of this half-edge
-			HalfEdgeId Twin;
-
-			//! Next half-edge in the polygon
+			HalfEdgeId Opposite;
 			HalfEdgeId Next;
 
-			//! Previous half-edge in the polygon
-			HalfEdgeId Prev;
-
-			// Edge connected this half-edge belongs to
 			EdgeId Edge;
 		};
 
@@ -116,35 +114,51 @@ namespace Vcl { namespace Geometry
 			Edge() {}
 			Edge(HalfEdgeId he_id) : HalfEdge(he_id) {}
 		public:
-			//! One of the half-edges linked to this edge
 			HalfEdgeId HalfEdge;
+		};
+
+		//! \brief Abstraction of a face
+		//! Storage is done in a way so that all three half-edges that make up
+		//! a face are stored together.
+		//! A half-edge is built from the starting vertex and the opposite half-edge.
+		//! Next and prev half-edge are found implicitly.
+		class Face
+		{
+		public:
+			Face() {}
+			Face(VertexId a, VertexId b, VertexId c)
+			: Vertices{ a, b, c }
+			{}
+		public:
+			//! Vertices of the face (also starting and denoting the half-edges)
+			std::array<VertexId, 3> Vertices;
+
+			//! Opposite half-edges 
+			std::array<HalfEdgeId, 3> OppositeHalfEdges;
+
+			//! Edges linked to the half-edges
+			//! Opposite half-edges 
+			std::array<EdgeId, 3> Edges;
 		};
 	};
 
-	class HalfEdgeMesh : public SimplexLevel1<HalfEdgeMesh>, public SimplexLevel0<HalfEdgeMesh>
+	class HalfEdgeTriMesh : public SimplexLevel2<HalfEdgeTriMesh>, public SimplexLevel1<HalfEdgeTriMesh>, public SimplexLevel0<HalfEdgeTriMesh>
 	{
 	public: 
-		using VertexId = IndexDescriptionTrait<HalfEdgeMesh>::VertexId;
-		using EdgeId = IndexDescriptionTrait<HalfEdgeMesh>::EdgeId;
-		using HalfEdgeId = IndexDescriptionTrait<HalfEdgeMesh>::HalfEdgeId;
-
-		using Vertex = IndexDescriptionTrait<HalfEdgeMesh>::Vertex;
-		using HalfEdge = IndexDescriptionTrait<HalfEdgeMesh>::HalfEdge;
-		using Edge = IndexDescriptionTrait<HalfEdgeMesh>::Edge;
+		using VertexId = VertexId;
 
 	public: // Default constructors
-		HalfEdgeMesh();
-		HalfEdgeMesh(const HalfEdgeMesh& rhs) = default;
-		HalfEdgeMesh(HalfEdgeMesh&& rhs) = default;
-		virtual ~HalfEdgeMesh() = default;
+		HalfEdgeTriMesh();
+		HalfEdgeTriMesh(const HalfEdgeTriMesh& rhs) = default;
+		HalfEdgeTriMesh(HalfEdgeTriMesh&& rhs) = default;
+		virtual ~HalfEdgeTriMesh() = default;
 
 	public:
-		HalfEdgeMesh& operator= (const HalfEdgeMesh& rhs) = default;
-		HalfEdgeMesh& operator= (HalfEdgeMesh&& rhs) = default;
+		HalfEdgeTriMesh& operator= (const HalfEdgeTriMesh& rhs) = default;
+		HalfEdgeTriMesh& operator= (HalfEdgeTriMesh&& rhs) = default;
 
-	public:
-		const HalfEdge& halfEdge(HalfEdgeId id) const { return _halfEdges[id]; }
-		      HalfEdge& halfEdge(HalfEdgeId id)       { return _halfEdges[id]; }
+	public: // Construct meshes from data
+		HalfEdgeTriMesh(const std::vector<Eigen::Vector3f>& vertices, const std::vector<std::array<IndexDescriptionTrait<HalfEdgeTriMesh>::IndexType, 3>>& faces);
 
 	public:
 		//! Clear the content of the mesh
@@ -152,26 +166,11 @@ namespace Vcl { namespace Geometry
 
 		//! Add vertices to the mesh
 		//! @param vertices Vertices to add to the mesh
-		void addVertices(gsl::span<const Eigen::Vector2f> vertices);
+		void addVertices(gsl::span<const Eigen::Vector3f> vertices);
 
 		//! Add face to the mesh
 		//! @param face Vertex indices denoting a face
-		//! @returns The id of the new edge
-		EdgeId addEdge(const std::array<VertexId, 2>& edge);
-
-		//! Remove an edge from the mesh
-		//! @paramd edge Edge to remove
-		void removeEdge(HalfEdgeId edge);
-
-		//! Remove an edge from the mesh
-		//! @paramd edge Edge to remove
-		void removeEdge(EdgeId edge);
-
-	public:
-		const Eigen::Vector2f& position(VertexId id) const { return _positions[id]; }
-
-		//! Find the containing two vertices
-		EdgeId findEdge(const std::array<VertexId, 2>& vertices);
+		void addFace(const std::array<IndexDescriptionTrait<HalfEdgeTriMesh>::IndexType, 3> face);
 
 	public:
 		//! Add a new property to the vertex level
@@ -179,37 +178,28 @@ namespace Vcl { namespace Geometry
 		Property<T, VertexId>* addVertexProperty
 		(
 			const std::string& name,
-			typename Property<T, VertexId>::const_reference init_value
+			typename Property<T, VertexId>::reference init_value
 		)
 		{
 			return vertexProperties().add<T>(name, init_value);
 		}
 
-		//! Add a new property to the vertex level
+		//! Add a new property to the face level
 		template<typename T>
-		Property<T, VertexId>* addEdgeProperty
+		Property<T, IndexDescriptionTrait<HalfEdgeTriMesh>::FaceId>* addFaceProperty
 		(
 			const std::string& name,
-			typename Property<T, VertexId>::const_reference init_value
+			typename Property<T, IndexDescriptionTrait<HalfEdgeTriMesh>::FaceId>::reference init_value
 		)
 		{
-			return edgeProperties().add<T>(name, init_value);
+			return faceProperties().add<T>(name, init_value);
 		}
 
-	private: // Helpers
-		float orientation(HalfEdgeId he);
-		void insertHalfEdge(HalfEdgeId he);
-		void removeHalfEdge(HalfEdgeId he);
+	private:
+		void buildIndex();
+		void connectHalfEdges();
 
-	private: // Index structure
-		//! Data associated with a half-edge
-		PropertyGroup<HalfEdgeId> _halfEdgeData;
-
-		//! Generic half-edge data
-		PropertyPtr<HalfEdge, HalfEdgeId> _halfEdges;
-
-	private: // Properties
-		//! Position data
-		PropertyPtr<Eigen::Vector2f, VertexId> _positions;
+	private:
+		PropertyPtr<Eigen::Vector3f, VertexId> _positions;
 	};
 }}

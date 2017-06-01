@@ -121,8 +121,13 @@ namespace Vcl { namespace Geometry
 		real_t _radius;
 	};
 
+	enum class PointCircleClass
+	{
+		Inside, Outside, OnCircle
+	};
+
 	template<typename Scalar, int Dim>
-	int isInCircle(const Eigen::Matrix<Scalar, Dim, 1>& p0, const Eigen::Matrix<Scalar, Dim, 1>& p1, const Eigen::Matrix<Scalar, Dim, 1>& p2, const Eigen::Matrix<Scalar, Dim, 1>& p)
+	PointCircleClass isInCircle(const Eigen::Matrix<Scalar, Dim, 1>& p0, const Eigen::Matrix<Scalar, Dim, 1>& p1, const Eigen::Matrix<Scalar, Dim, 1>& p2, const Eigen::Matrix<Scalar, Dim, 1>& p)
 	{
 		const Eigen::Matrix<Scalar, Dim, 1> p0p = p0 - p;
 		const Eigen::Matrix<Scalar, Dim, 1> p1p = p1 - p;
@@ -135,10 +140,10 @@ namespace Vcl { namespace Geometry
 
 		const Scalar det = -M.determinant();
 		if (det < 0)
-			return -1;
+			return PointCircleClass::Inside;
 		else if (det > 0)
-			return 1;
+			return PointCircleClass::Outside;
 		else
-			return 0;
+			return PointCircleClass::OnCircle;
 	}
 }}

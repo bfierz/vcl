@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,57 +22,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Geometry
+// C++ Standard Library
+#include <random>
+
+// Include the relevant parts from the library
+#include <vcl/geometry/delaunay.h>
+
+// Google test
+#include <gtest/gtest.h>
+
+// Tests the tetra mesh
+TEST(DelaunayTest, SimpleConstruction)
 {
-	template<typename Scalar, int Dim>
-	class Segment
-	{
-	public:
-		using real_t = Scalar;
-		using vector_t = Eigen::Matrix<Scalar, Dim, 1>;
+	using namespace Vcl::Geometry;
 
-	public:
-		Segment(const vector_t& a, const vector_t& b)
+	constexpr size_t side = 3;
+
+	std::vector<Eigen::Vector2f> points;
+	points.reserve(side*side);
+
+	for (size_t y = 0; y < side; y++)
+	{
+		for (size_t x = 0; x < side; x++)
 		{
-			_data[0] = a;
-			_data[1] = b;
+			points.emplace_back(x, y);
 		}
-
-	public:
-		const vector_t& operator[] (size_t idx) const
-		{
-			VclRequire(idx < 2, "Id is in [0, 2[");
-
-			return _data[idx];
-		}
-
-	private:
-		vector_t _data[2];
-	};
-
-	enum class PointSegmentClass
-	{
-		Left, Right, OnSegment
-	};
-
-	template<typename Scalar>
-	PointSegmentClass classify(const Segment<Scalar, 2>& seg, const Eigen::Matrix<Scalar, 2, 1>& pt)
-	{
-		const auto& seg_dir = seg[1] - seg[0];
-		const auto& seg_pt = pt - seg[0];
-
-		const Scalar det = seg_dir.x()*seg_pt.y() - seg_dir.y()*seg_pt.x();
-		if (det < 0)
-			return PointSegmentClass::Right;
-		else if (det > 0)
-			return PointSegmentClass::Left;
-		else
-			return PointSegmentClass::OnSegment;
 	}
-}}
+
+	// Randomize the points in order to test the sorting
+	std::random_device rd;
+	std::mt19937 g(rd());
+	std::shuffle(std::begin(points), std::end(points), g);
+
+	auto mesh = computeDelaunayTriangulation(points);
+	EXPECT_EQ(mesh.nrVertices(), side*side);
+}

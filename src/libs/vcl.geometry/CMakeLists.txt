@@ -44,6 +44,7 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/meshfactory.h
 	
 	vcl/geometry/halfedgemesh.h
+	vcl/geometry/halfedgetrimesh.h
 	vcl/geometry/simplex.h
 	vcl/geometry/multiindextrimesh.h
 	vcl/geometry/tetramesh.h
@@ -61,6 +62,7 @@ SET(VCL_GEOMETRY_SRC
 	vcl/geometry/meshfactory.cpp
 	
 	vcl/geometry/halfedgemesh.cpp
+	vcl/geometry/halfedgetrimesh.cpp
 	vcl/geometry/multiindextrimesh.cpp
 	vcl/geometry/tetramesh.cpp
 	vcl/geometry/trimesh.cpp
