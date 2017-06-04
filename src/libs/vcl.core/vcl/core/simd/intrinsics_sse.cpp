@@ -29,7 +29,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #define USE_SSE2
 #include <vcl/core/simd/sse_mathfun.h>
 
-#include "SSEPlus/include/SSEPlus.h"
+#include <SSEPlus/SSEPlus.h>
 
 VCL_END_EXTERNAL_HEADERS
 

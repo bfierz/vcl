@@ -186,6 +186,7 @@ TARGET_LINK_LIBRARIES(vcl_core
 	fmt-header-only
 	gsl
 	nlohmann_json
+	sseplus
 )
 
 # Setup installation
