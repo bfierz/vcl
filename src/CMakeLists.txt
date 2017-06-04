@@ -11,14 +11,16 @@ INCLUDE(cmake/VCLConfig.cmake)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+################################################################################
 # Add the externals
+################################################################################
+#INCLUDE(ExternalProject)
+
 SUBDIRS(externals/fmtlib)
-#SET_TARGET_PROPERTIES(fmt PROPERTIES FOLDER 3rd-party)
 SUBDIRS(externals/gsl)
 SET(GSL_TEST OFF CACHE BOOL "" FORCE)
 SUBDIRS(externals/sseplus)
 SET(SSEPLUS_TEST OFF CACHE BOOL "" FORCE)
-
 SUBDIRS(externals/json)
 SET(BuildTests OFF CACHE BOOL "" FORCE)
 

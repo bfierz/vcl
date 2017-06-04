@@ -8,9 +8,9 @@ The Visual Computing Library (VCL) started as a repository for algorithms and da
 Requirements
 ------------
 
-| Compiler / Library | Eigen | Google Test  |   |   |
-|--------------------|-------|--------------|---|---|
-| Visual Studio 2017 | 3.3.3 | 1.8.0        |   |   |
+| Compiler / Library | Eigen | Google Test  | Google Benchmark  |   |
+|--------------------|-------|--------------|-------------------|---|
+| Visual Studio 2017 | 3.3.3 | 1.8.0        | 1.1.0             |   |
 
 Shipped External Libraries
 --------------------------
