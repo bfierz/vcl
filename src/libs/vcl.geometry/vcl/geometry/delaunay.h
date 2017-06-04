@@ -376,24 +376,24 @@ namespace Vcl { namespace Geometry
 				delaunayMerge(ctx, left, right);
 			}
 			else if (points.size() == 3)
-				// Make a single triagle
+				// Make a single triangle
 			{
 				// Check triangle winding and force ccw
-				if (classify({points[0].first, points[2].first}, points[1].first) == PointSegmentClass::Left)
+				if (classify({points[0].first, points[1].first}, points[2].first) == PointSegmentClass::Left)
 				{
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[0].second, points[1].second }));
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[1].second, points[2].second }));
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[2].second, points[0].second }));
-					ctx.LeftMost  = ctx.Mesh->vertex(points[0].second).HalfEdge;
-					ctx.RightMost = ctx.Mesh->vertex(points[2].second).HalfEdge;
+					ctx.LeftMost  = ctx.Mesh->vertex(points[2].second).HalfEdge;
+					ctx.RightMost = ctx.Mesh->vertex(points[0].second).HalfEdge;
 				}
 				else
 				{
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[0].second, points[2].second }));
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[2].second, points[1].second }));
 					ctx.Edges.emplace_back(ctx.Mesh->addEdge({ points[1].second, points[0].second }));
-					ctx.LeftMost  = ctx.Mesh->vertex(points[0].second).HalfEdge;
-					ctx.RightMost = ctx.Mesh->vertex(points[2].second).HalfEdge;
+					ctx.LeftMost  = ctx.Mesh->vertex(points[2].second).HalfEdge;
+					ctx.RightMost = ctx.Mesh->vertex(points[0].second).HalfEdge;
 				}
 			}
 			else if (points.size() == 2)

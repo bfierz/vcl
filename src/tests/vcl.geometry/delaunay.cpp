@@ -36,8 +36,27 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the tetra mesh
-TEST(DelaunayTest, SimpleConstruction)
+TEST(DelaunayTest, SimpleExample)
+{
+	using namespace Vcl::Geometry;
+
+	std::vector<Eigen::Vector2f> points(10);
+	points[0] = { 0, 1 };
+	points[1] = { 1, 0 };
+	points[2] = { 1, 1 };
+	points[3] = { 1, 2 };
+	points[4] = { 2, 0 };
+	points[5] = { 3, 3 };
+	points[6] = { 4, 2 };
+	points[7] = { 5, 0 };
+	points[8] = { 5, 1 };
+	points[9] = { 5, 3 };
+
+	auto mesh = computeDelaunayTriangulation(points);
+	EXPECT_EQ(mesh.nrVertices(), 10);
+}
+
+TEST(DelaunayTest, GridConstruction)
 {
 	using namespace Vcl::Geometry;
 
