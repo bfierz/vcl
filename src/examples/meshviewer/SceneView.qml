@@ -51,6 +51,8 @@ MeshView
 			}
 		}
 
+		property var currentSceneEntity: Qt.point(0, 0)
+
 		anchors.fill: parent
 		acceptedButtons: Qt.LeftButton | Qt.RightButton
 		onPressed:
@@ -58,11 +60,14 @@ MeshView
 			if (mouse.button & Qt.LeftButton)
 			{
 				var ids = parent.selectObject(mouse.x, mouse.y)
-				console.log("Object Id: ", ids.x, ", Primitive Id: ", ids.y)
-
 				if (ids.x == 0)
 				{
 					parent.beginDrag(ids.y, mouse.x, mouse.y)
+				}
+				else
+				{
+					currentSceneEntity = ids;
+					console.log("Object Id: ", currentSceneEntity.x, ", Primitive Id: ", currentSceneEntity.y)
 				}
 			}
 			else if (mouse.button & Qt.RightButton)
@@ -74,7 +79,7 @@ MeshView
 		{
 			if (mouse.button & Qt.LeftButton)
 			{
-				parent.endDrag(mouse.x, mouse.y)
+				parent.endDrag()
 			}
 			else if (mouse.button & Qt.RightButton)
 			{
@@ -87,6 +92,8 @@ MeshView
 			if (pressedButtons & Qt.LeftButton)
 			{
 				parent.dragObject(mouse.x, mouse.y)
+				if (currentSceneEntity.x > 0)
+					parent.moveObjectToHandle(currentSceneEntity.x)
 			}
 			else if (pressedButtons & Qt.RightButton)
 			{

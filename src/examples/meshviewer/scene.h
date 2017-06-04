@@ -95,6 +95,8 @@ public:
 public: // Editor support
 	Editor::EntityAdapterModel* entityModel();
 
+	Vcl::Components::Entity sceneEntity(uint32_t id);
+
 signals:
 	void entityModelChanged();
 	void componentModelChanged();

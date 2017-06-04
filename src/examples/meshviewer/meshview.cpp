@@ -709,6 +709,23 @@ void MeshView::endDrag()
 	_manip_axis_translation = 0;
 }
 
+void MeshView::moveObjectToHandle(int object_id)
+{
+	if (object_id > 0)
+	{
+		auto* em = scene()->entityManager();
+		auto handle = scene()->positionHandle();
+		auto* handle_transform = em->get<System::Components::Transform>()->operator()(handle);
+
+		const auto e = scene()->sceneEntity(static_cast<uint32_t>(object_id));
+		if (e.id().isValid())
+		{
+			auto entity_transform = em->get<System::Components::Transform>()->operator()(e.id());
+			entity_transform->setPosition(handle_transform->position());
+		}
+	}
+}
+
 void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)
 {
 	if (_idBufferWidth != width || _idBufferHeight != height)

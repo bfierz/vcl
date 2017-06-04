@@ -251,3 +251,13 @@ Editor::EntityAdapterModel* Scene::entityModel()
 {
 	return &_entityAdapterModel;
 }
+
+Vcl::Components::Entity Scene::sceneEntity(uint32_t id)
+{
+	auto elem_itr = std::find_if(_meshes.begin(), _meshes.end(), [id](const Vcl::Components::Entity& e)
+	{
+		return e.id().id() == id;
+	});
+	
+	return elem_itr != _meshes.end() ? *elem_itr : Vcl::Components::Entity();
+}

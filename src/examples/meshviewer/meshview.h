@@ -131,6 +131,7 @@ public:
 	Q_INVOKABLE void beginDrag(int axis, int x, int y);
 	Q_INVOKABLE void dragObject(int x, int y);
 	Q_INVOKABLE void endDrag();
+	Q_INVOKABLE void moveObjectToHandle(int object_id);
 
 public:
 	Scene* scene() const { return _scene; }
