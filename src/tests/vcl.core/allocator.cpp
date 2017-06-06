@@ -78,6 +78,31 @@ TEST(AllocatorTest, StandardAllocInitObject)
 	EXPECT_EQ(5, v[13].x);
 }
 
+TEST(AllocatorTest, StandardAllocNoInitObject)
+{
+	using namespace Vcl::Core;
+
+	std::vector<int, Allocator<int, StandardAllocPolicy<int>, NoInitObjectTraits<int>>> v(10, { 4 });
+	for (auto& e : v) {
+		e = { 10 };
+	}
+	// Check explicit initialization
+	EXPECT_EQ(10, v[5]);
+
+	v.clear();
+	v.resize(10, { 4 });
+
+	// Check that copy constructor was used to initialized objects
+	EXPECT_NE(4, v[5]);
+
+	v.clear();
+	v.resize(10);
+
+	// Check that default constructor was used to initialized objects
+	EXPECT_NE(5, v[5]);
+}
+
+
 TEST(AllocatorTest, AlignedAllocInitObject)
 {
 	using namespace Vcl::Core;

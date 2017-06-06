@@ -24,17 +24,36 @@
  */
 #include <vcl/rtti/metatyperegistry.h>
 
+ // Foonathan Allocator library
+VCL_BEGIN_EXTERNAL_HEADERS
+#include <foonathan/memory/container.hpp>
+#include <foonathan/memory/memory_pool.hpp>
+#include <foonathan/memory/namespace_alias.hpp>
+#include <foonathan/memory/std_allocator.hpp>
+VCL_END_EXTERNAL_HEADERS
+
 // VCL
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
 {
-	TypeRegistry::TypeMap& TypeRegistry::instance()
-	{
-		// Since C++11 this initialization is thread-safe
-		static TypeMap types;
+	using TypeMap = std::unordered_map<size_t, const Type*, std::hash<size_t>,
+		std::equal_to<size_t>, memory::std_allocator<std::pair<const size_t, const Type*>, memory::memory_pool<>>>;
 
-		return types;
+	namespace
+	{
+		TypeMap& instance()
+		{
+			using namespace memory::literals;
+
+			// a memory pool RawAllocator
+			static memory::memory_pool<> pool{ memory::unordered_map_node_size<std::pair<const size_t, const Type*>>::value, 4_KiB };
+
+			// Since C++11 this initialization is thread-safe
+			static TypeMap types{ pool };
+
+			return types;
+		}
 	}
 
 	void TypeRegistry::add(const Type* meta)

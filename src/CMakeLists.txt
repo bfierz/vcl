@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ################################################################################
 # Configure Eigen3 submodule
 SET(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
-find_package(Eigen3 3.3 REQUIRED)
+find_package(Eigen3 3.3 QUIET)
 
 OPTION(BUILD_TESTING OFF)
 OPTION(BUILD_EXAMPLES OFF)
@@ -31,6 +31,10 @@ OPTION(FMT_USE_CPP11 ON)
 SUBDIRS(externals/fmtlib)
 
 SUBDIRS(externals/gsl)
+
+OPTION(FOONATHAN_MEMORY_BUILD_EXAMPLES OFF)
+OPTION(FOONATHAN_MEMORY_BUILD_TESTS OFF)
+SUBDIRS(externals/memory)
 
 OPTION(BuildTests OFF)
 SUBDIRS(externals/json)

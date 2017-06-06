@@ -256,7 +256,7 @@ namespace Vcl { namespace RTTI
 			VclRequire(object, "Object is set.");
 
 			auto ptr = std::any_cast<T*>(param);
-			(static_cast<MetaType*>(object)->*_setter)(std::unique_ptr<T>(ptr));
+			(static_cast<MetaType*>(object)->*_setter)(AttrT(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
@@ -302,7 +302,7 @@ namespace Vcl { namespace RTTI
 			// Read content of the attribute
 			auto type = vcl_meta_type_by_name(deser.readType());
 			auto store = (MetaType*) Factory::create(deser.readType());
-			auto val = std::unique_ptr<T>(store);
+			auto val = AttrT(store);
 
 			type->deserialize(deser, val.get());
 

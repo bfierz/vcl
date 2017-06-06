@@ -46,6 +46,7 @@
 #include <gsl/gsl>
 
 // VCL
+#include <vcl/core/container/array.h>
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
@@ -204,7 +205,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		//! Invoke the constructor without parameters
-		void* call(void* location)
+		void* call(void* location) const
 		{
 			return callImpl(location, {});
 		}
@@ -212,12 +213,13 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			return callImpl(location, { std::any(args)... });
+			auto any_args = std::make_array<std::any>(args...);
+			return callImpl(location, any_args);
 		}
 
-		void* call(void* location, std::vector<std::any> args) const
+		void* call(void* location, gsl::span<std::any> args) const
 		{
-			return callImpl(location, std::move(args));
+			return callImpl(location, args);
 		}
 
 	public:
@@ -236,7 +238,7 @@ namespace Vcl { namespace RTTI
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, std::vector<std::any>&& params) const = 0;
+		virtual void* callImpl(void* location, gsl::span<std::any> params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -260,7 +262,7 @@ namespace Vcl { namespace RTTI
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
 		}
-		VCL_STRONG_INLINE void set(std::vector<std::unique_ptr<ConstructorBase>>& constructors)
+		VCL_STRONG_INLINE void set(gsl::span<std::unique_ptr<ConstructorBase>> constructors)
 		{
 			_constructors = { (const ConstructorBase**)constructors.data(), (std::ptrdiff_t) constructors.size() };
 			for (const auto& c : constructors)

@@ -37,9 +37,6 @@ namespace Vcl { namespace RTTI
 {
 	class TypeRegistry
 	{
-	private:
-		typedef std::unordered_map<size_t, const Type*> TypeMap;
-
 	public:
 		/// Add a new meta type instance to the manager
 		static void add(const Type* meta);
@@ -49,9 +46,6 @@ namespace Vcl { namespace RTTI
 
 		/// Find an instance of a meta type object by name
 		static const Type* get(const gsl::cstring_span<> name);
-
-	private:
-		static TypeMap& instance();
 	};
 }}
 
