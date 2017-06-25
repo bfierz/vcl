@@ -45,7 +45,7 @@ namespace Vcl { namespace Geometry
 		Enumerator(const IndexT* mesh, ID start_id, ID end_id)
 		: _mesh(mesh), _startId(start_id), _endId(end_id)
 		{
-			while ((_startId < _endId) && (_mesh->element(_startId).isValid() == false))
+			while ((_startId < _endId) && (_mesh->metaData(_startId).isValid() == false))
 				_startId = ID(_startId.id() + 1);
 		}
 
@@ -65,7 +65,7 @@ namespace Vcl { namespace Geometry
 			Enumerator tmp(*this);
 			_startId = ID(_startId.id() + 1);
 
-			while ((_startId < _endId) && (_mesh->element(_startId).isValid() == false))
+			while ((_startId < _endId) && (_mesh->metaData(_startId).isValid() == false))
 				_startId = ID(_startId.id() + 1);
 
 			return tmp;
@@ -75,7 +75,7 @@ namespace Vcl { namespace Geometry
 		{
 			_startId = ID(_startId.id() + 1);
 
-			while ((_startId.id() < _endId.id()) && (_mesh->element(_startId).isValid() == false))
+			while ((_startId.id() < _endId.id()) && (_mesh->metaData(_startId).isValid() == false))
 				_startId = ID(_startId.id() + 1);
 
 			return *this;
@@ -147,18 +147,18 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<VertexId>& vertexProperties()       { return _vertexData; }
 
 	public: // Enumerators
-		VertexEnumerator vertexEnumerator() const { return{ this, VertexId(0), VertexId(static_cast<typename VertexId::IdType>(_vertices.size())) }; }
+		VertexEnumerator vertexEnumerator() const { return{ this, VertexId(0), VertexId(static_cast<typename VertexId::IdType>(_vertices->size())) }; }
 
-	protected: // Element access
+	public: // Element access
 		template<typename element_type, typename index_type>
-		element_type& access(Property<element_type, index_type>& storage, index_type id)
+		element_type& access(PropertyPtr<element_type, index_type>& storage, index_type id)
 		{
 			VclRequire(id.id() < storage->size(), "Id is in Range.");
 			return storage[id];
 		}
 
 		template<typename element_type, typename index_type>
-		const element_type& access(const Property<element_type, index_type>& storage, index_type id) const
+		const element_type& access(const PropertyPtr<element_type, index_type>& storage, index_type id) const
 		{
 			VclRequire(id.id() < storage->size(), "Id is in Range.");
 			return storage[id];
@@ -233,7 +233,7 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<EdgeId>& edgeProperties()       { return _edgeData; }
 
 	public: // Enumerators
-		EdgeEnumerator edgeEnumerator() const { return{ this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges.size())) }; }
+		EdgeEnumerator edgeEnumerator() const { return{ this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges->size())) }; }
 
 	protected: // Properties
 		
@@ -303,7 +303,7 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<FaceId>& faceProperties()       { return _faceData; }
 
 	public: // Enumerators
-		FaceEnumerator faceEnumerator() const { return{ this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces.size())) }; }
+		FaceEnumerator faceEnumerator() const { return{ this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces->size())) }; }
 
 	protected: // Properties
 		
@@ -373,7 +373,7 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<VolumeId>& volumeProperties()       { return _volumeData; }
 
 	public: // Enumerators
-		VolumeEnumerator volumeEnumerator() const { return{ this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes.size())) }; }
+		VolumeEnumerator volumeEnumerator() const { return{ this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes->size())) }; }
 
 	protected: // Properties
 
@@ -385,5 +385,151 @@ namespace Vcl { namespace Geometry
 
 		//! Volume meta data
 		PropertyPtr<VolumeMetaData, VolumeId> _volumesMetaData;
+	};
+
+	/*!
+	*	\brief Half-edge data access
+	*/
+	template<typename Derived>
+	class HalfSimplexLevel1
+	{
+	public: // IDs
+		using HalfEdgeId = typename IndexDescriptionTrait<Derived>::HalfEdgeId;
+
+	public: // Structures
+		using HalfEdge = typename IndexDescriptionTrait<Derived>::HalfEdge;
+		using HalfEdgeMetaData = typename IndexDescriptionTrait<Derived>::HalfEdgeMetaData;
+
+	public: // Iterator Types
+		using HalfEdgeEnumerator = Enumerator<HalfEdgeId, HalfEdge, HalfSimplexLevel1<Derived>>;
+
+	public:
+		HalfSimplexLevel1()
+		: _halfEdgeData("HalfEdgeGroup")
+		{
+			_halfEdges = _halfEdgeData.template add<HalfEdge>("HalfEdges");
+			_halfEdgesMetaData = _halfEdgeData.template add<HalfEdgeMetaData>("HalfEdgesMetaData");
+		}
+		HalfSimplexLevel1(const HalfSimplexLevel1& rhs)
+		: _halfEdgeData(rhs._halfEdgeData)
+		{
+			_halfEdges = _halfEdgeData.template property<HalfEdge>("HalfEdges");
+			_halfEdgesMetaData = _halfEdgeData.template property<HalfEdgeMetaData>("HalfEdgesMetaData");
+		}
+		HalfSimplexLevel1(HalfSimplexLevel1&& rhs)
+		: _halfEdgeData(std::move(rhs._halfEdgeData))
+		{
+			rhs._halfEdges = nullptr;
+			rhs._halfEdgesMetaData = nullptr;
+
+			_halfEdges = _halfEdgeData.template property<HalfEdge>("HalfEdges");
+			_halfEdgesMetaData = _halfEdgeData.template property<HalfEdgeMetaData>("HalfEdgesMetaData");
+		}
+		virtual ~HalfSimplexLevel1() = default;
+
+	public: // Properties
+		unsigned int nrHalfEdges() const { return static_cast<unsigned int>(_halfEdgeData.propertySize()); }
+
+		const HalfEdge& halfEdge(HalfEdgeId id) const { return element(id); }
+		HalfEdge& halfEdge(HalfEdgeId id) { return element(id); }
+
+		const HalfEdge& element(HalfEdgeId id) const { return static_cast<const Derived*>(this)->access(_halfEdges, id); }
+		HalfEdge& element(HalfEdgeId id) { return static_cast<      Derived*>(this)->access(_halfEdges, id); }
+
+		const HalfEdgeMetaData& metaData(HalfEdgeId id) const { return static_cast<const Derived*>(this)->access(_halfEdgesMetaData, id); }
+		HalfEdgeMetaData& metaData(HalfEdgeId id) { return static_cast<      Derived*>(this)->access(_halfEdgesMetaData, id); }
+
+		ConstPropertyPtr<HalfEdge, HalfEdgeId> halfEdges() const { return _halfEdges; }
+
+	protected:
+		const PropertyGroup<HalfEdgeId>& halfEdgeProperties() const { return _halfEdgeData; }
+		PropertyGroup<HalfEdgeId>& halfEdgeProperties() { return _halfEdgeData; }
+
+	public: // Enumerators
+		HalfEdgeEnumerator halfEdgeEnumerator() const { return{ this, HalfEdgeId(0), HalfEdgeId(static_cast<typename HalfEdgeId::IdType>(_halfEdges->size())) }; }
+
+	protected: // Properties
+
+		//! Data associated with a half-edge
+		PropertyGroup<HalfEdgeId> _halfEdgeData;
+
+		//! Generic half-edge data
+		PropertyPtr<HalfEdge, HalfEdgeId> _halfEdges;
+
+		//! Half-edge meta data
+		PropertyPtr<HalfEdgeMetaData, HalfEdgeId> _halfEdgesMetaData;
+	};
+
+	/*!
+	 *	\brief Half-face data access
+	 */
+	template<typename Derived>
+	class HalfSimplexLevel2
+	{
+	public: // IDs
+		using HalfFaceId = typename IndexDescriptionTrait<Derived>::HalfFaceId;
+
+	public: // Structures
+		using HalfFace = typename IndexDescriptionTrait<Derived>::HalfFace;
+		using HalfFaceMetaData = typename IndexDescriptionTrait<Derived>::HalfFaceMetaData;
+
+	public: // Iterator Types
+		using HalfFaceEnumerator = Enumerator<HalfFaceId, HalfFace, HalfSimplexLevel2<Derived>>;
+
+	public:
+		HalfSimplexLevel2()
+		: _halfFaceData("HalfFaceGroup")
+		{
+			_halfFaces = _halfFaceData.template add<HalfFace>("HalfFaces");
+			_halfFacesMetaData = _halfFaceData.template add<HalfFaceMetaData>("HalfFacesMetaData");
+		}
+		HalfSimplexLevel2(const HalfSimplexLevel2& rhs)
+		: _halfFaceData(rhs._halfFaceData)
+		{
+			_halfFaces = _halfFaceData.template property<HalfFace>("HalfFaces");
+			_halfFacesMetaData = _halfFaceData.template property<HalfFaceMetaData>("HalfFacesMetaData");
+		}
+		HalfSimplexLevel2(HalfSimplexLevel2&& rhs)
+		: _halfFaceData(std::move(rhs._halfFaceData))
+		{
+			rhs._halfFaces = nullptr;
+			rhs._halfFacesMetaData = nullptr;
+
+			_halfFaces = _halfFaceData.template property<HalfFace>("HalfFaces");
+			_halfFacesMetaData = _halfFaceData.template property<HalfFaceMetaData>("HalfFacesMetaData");
+		}
+		virtual ~HalfSimplexLevel2() = default;
+
+	public: // Properties
+		unsigned int nrHalfFaces() const { return static_cast<unsigned int>(_halfFaceData.propertySize()); }
+
+		const HalfFace& halfFace(HalfFaceId id) const { return element(id); }
+		      HalfFace& halfFace(HalfFaceId id)       { return element(id); }
+
+		const HalfFace& element(HalfFaceId id) const { return static_cast<const Derived*>(this)->access(_halfFaces, id); }
+		      HalfFace& element(HalfFaceId id)       { return static_cast<      Derived*>(this)->access(_halfFaces, id); }
+
+		const HalfFaceMetaData& metaData(HalfFaceId id) const { return static_cast<const Derived*>(this)->access(_halfFacesMetaData, id); }
+		      HalfFaceMetaData& metaData(HalfFaceId id)       { return static_cast<      Derived*>(this)->access(_halfFacesMetaData, id); }
+
+		ConstPropertyPtr<HalfFace, HalfFaceId> halfFaces() const { return _halfFaces; }
+
+	protected:
+		const PropertyGroup<HalfFaceId>& halfFaceProperties() const { return _halfFaceData; }
+		      PropertyGroup<HalfFaceId>& halfFaceProperties()       { return _halfFaceData; }
+
+	public: // Enumerators
+		HalfFaceEnumerator halfFaceEnumerator() const { return{ this, HalfFaceId(0), HalfFaceId(static_cast<typename HalfFaceId::IdType>(_halfFaces->size())) }; }
+
+	protected: // Properties
+
+		//! Data associated with a half-face
+		PropertyGroup<HalfFaceId> _halfFaceData;
+
+		//! Generic half-face data
+		PropertyPtr<HalfFace, HalfFaceId> _halfFaces;
+
+		//! Half-face meta data
+		PropertyPtr<HalfFaceMetaData, HalfFaceId> _halfFacesMetaData;
 	};
 }}

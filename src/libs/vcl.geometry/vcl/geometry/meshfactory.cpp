@@ -29,7 +29,7 @@
 
 namespace Vcl { namespace Geometry
 {
-	std::unique_ptr<TetraMesh> MeshFactory<TetraMesh>::createHomogenousCubes(unsigned int count_x, unsigned int count_y, unsigned int count_z)
+	auto createHomogenousCubesData(unsigned int count_x, unsigned int count_y, unsigned int count_z)
 	{
 		#define SpatialToLinearIndex(a, b, c) ((c) * (xmax + 1) * (ymax + 1) + (b) * (xmax + 1) + (a))
 
@@ -273,9 +273,21 @@ namespace Vcl { namespace Geometry
 				std::swap(volumes[i][2], volumes[i][3]);
 		}
 
-		return std::make_unique<TetraMesh>(positions, volumes);
-
 		#undef SpatialToLinearIndex
+
+		return std::make_pair(std::move(positions), std::move(volumes));
+	}
+
+	std::unique_ptr<HalfFaceTetraMesh> MeshFactory<HalfFaceTetraMesh>::createHomogenousCubes(unsigned int count_x, unsigned int count_y, unsigned int count_z)
+	{
+		auto data = createHomogenousCubesData(count_x, count_y, count_z);
+		return std::make_unique<HalfFaceTetraMesh>(data.first, data.second);
+	}
+	
+	std::unique_ptr<TetraMesh> MeshFactory<TetraMesh>::createHomogenousCubes(unsigned int count_x, unsigned int count_y, unsigned int count_z)
+	{
+		auto data = createHomogenousCubesData(count_x, count_y, count_z);
+		return std::make_unique<TetraMesh>(data.first, data.second);
 	}
 
 	std::unique_ptr<TriMesh> TriMeshFactory::createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted)

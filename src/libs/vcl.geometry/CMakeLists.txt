@@ -38,6 +38,9 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/meshfactory.h
 
 	vcl/geometry/simplex.h
+	
+	vcl/geometry/halffacetetramesh_id.inc
+	vcl/geometry/halffacetetramesh.h
 	vcl/geometry/multiindextrimesh.h
 	vcl/geometry/tetramesh.h
 	vcl/geometry/trimesh.h
@@ -50,7 +53,8 @@ SET(VCL_GEOMETRY_SRC
 	vcl/geometry/intersect.cpp
 
 	vcl/geometry/meshfactory.cpp	
-
+	
+	vcl/geometry/halffacetetramesh.cpp
 	vcl/geometry/multiindextrimesh.cpp
 	vcl/geometry/tetramesh.cpp
 	vcl/geometry/trimesh.cpp

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2014 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,49 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-// VCL
+// C++ Standard Library
+
+// Include the relevant parts from the library
+#include <vcl/geometry/meshfactory.h>
 #include <vcl/geometry/halffacetetramesh.h>
-#include <vcl/geometry/tetramesh.h>
-#include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry
+// Google test
+#include <gtest/gtest.h>
+
+// Tests the scalar gather function.
+TEST(HalfFaceTetraMeshTest, SimpleConstruction)
 {
-	template<typename Mesh>
-	class MeshFactory
+	using namespace Vcl::Geometry;
+
+	auto simple_cube = MeshFactory<HalfFaceTetraMesh>::createHomogenousCubes(1, 1, 1);
+	
+	unsigned int nr_connected_hf = 0;
+	unsigned int nr_unconnected_hf = 0;
+	for (auto hf_it = simple_cube->halfFaceEnumerator(); !hf_it.empty(); ++hf_it)
 	{
-	public:
-		static std::unique_ptr<Mesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		if (hf_it->Opposite.isValid())
+			nr_connected_hf++;
+		else
+			nr_unconnected_hf++;
+	}
 
-		static std::unique_ptr<Mesh> loadMesh(const std::string& path);
-	};
+	EXPECT_EQ(nr_connected_hf, 8);
+	EXPECT_EQ(nr_unconnected_hf, 12);
 
-	template<>
-	class MeshFactory<HalfFaceTetraMesh>
+	for (auto hf_it = simple_cube->halfFaceEnumerator(); !hf_it.empty(); ++hf_it)
 	{
-	public:
-		static std::unique_ptr<HalfFaceTetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		const auto op_hf = hf_it->Opposite;
+		if (op_hf.isValid())
+		{
+			auto verts    = simple_cube->verticesFromHalfFace(*hf_it);
+			auto op_verts = simple_cube->verticesFromHalfFace(op_hf);
 
-		static std::unique_ptr<HalfFaceTetraMesh> loadMesh(const std::string& path);
-	};
+			std::sort(verts.begin(), verts.end());
+			std::sort(op_verts.begin(), op_verts.end());
 
-	template<>
-	class MeshFactory<TetraMesh>
-	{
-	public:
-		static std::unique_ptr<TetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
-
-		static std::unique_ptr<TetraMesh> loadMesh(const std::string& path);
-	};
-
-	class TriMeshFactory
-	{
-	public:
-		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
-
-	};
-}}
+			EXPECT_EQ(verts, op_verts);
+		}
+	}
+}
