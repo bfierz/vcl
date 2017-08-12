@@ -164,6 +164,17 @@ namespace Vcl { namespace Geometry
 			return storage[id];
 		}
 
+	protected: // Element creation
+		//! Create a new vertex
+		//! @returns The id of the new vertex
+		VertexId addVertex()
+		{
+			const size_t curr_size = vertexProperties().propertySize();
+			vertexProperties().resizeProperties(curr_size + 1);
+
+			return VertexId(static_cast<VertexId::IdType>(curr_size));
+		}
+
 	protected: // Properties
 
 		//! Data associated with a vertex
@@ -234,6 +245,17 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		EdgeEnumerator edgeEnumerator() const { return{ this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges->size())) }; }
+		
+	protected: // Element creation
+		//! Create a new edge
+		//! @returns The id of the new edge
+		EdgeId addEdge()
+		{
+			const size_t curr_size = edgeProperties().propertySize();
+			edgeProperties().resizeProperties(curr_size + 1);
+
+			return EdgeId(static_cast<EdgeId::IdType>(curr_size));
+		}
 
 	protected: // Properties
 		
@@ -304,6 +326,17 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		FaceEnumerator faceEnumerator() const { return{ this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces->size())) }; }
+		
+	protected: // Element creation
+		//! Create a new face
+		//! @returns The id of the new face
+		FaceId addFace()
+		{
+			const size_t curr_size = faceProperties().propertySize();
+			faceProperties().resizeProperties(curr_size + 1);
+
+			return FaceId(static_cast<FaceId::IdType>(curr_size));
+		}
 
 	protected: // Properties
 		
@@ -374,6 +407,17 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		VolumeEnumerator volumeEnumerator() const { return{ this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes->size())) }; }
+		
+	protected: // Element creation
+		//! Create a new volume
+		//! @returns The id of the new volume
+		VolumeId addVolume()
+		{
+			const size_t curr_size = volumeProperties().propertySize();
+			volumeProperties().resizeProperties(curr_size + 1);
+
+			return VolumeId(static_cast<VolumeId::IdType>(curr_size));
+		}
 
 	protected: // Properties
 
@@ -447,6 +491,17 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		HalfEdgeEnumerator halfEdgeEnumerator() const { return{ this, HalfEdgeId(0), HalfEdgeId(static_cast<typename HalfEdgeId::IdType>(_halfEdges->size())) }; }
+		
+	protected: // Element creation
+		//! Create a new half-edge
+		//! @returns The id of the new half-edge
+		HalfEdgeId addHalfEdge()
+		{
+			const size_t curr_size = halfEdgeProperties().propertySize();
+			halfEdgeProperties().resizeProperties(curr_size + 1);
+
+			return HalfEdgeId(static_cast<HalfEdgeId::IdType>(curr_size));
+		}
 
 	protected: // Properties
 
@@ -520,6 +575,17 @@ namespace Vcl { namespace Geometry
 
 	public: // Enumerators
 		HalfFaceEnumerator halfFaceEnumerator() const { return{ this, HalfFaceId(0), HalfFaceId(static_cast<typename HalfFaceId::IdType>(_halfFaces->size())) }; }
+		
+	protected: // Element creation
+		//! Create a new half-face
+		//! @returns The id of the new half-face
+		HalfFaceId addHalfFace()
+		{
+			const size_t curr_size = halfFaceProperties().propertySize();
+			halfFaceProperties().resizeProperties(curr_size + 1);
+
+			return HalfFaceId(static_cast<HalfFaceId::IdType>(curr_size));
+		}
 
 	protected: // Properties
 

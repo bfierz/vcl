@@ -82,6 +82,36 @@ namespace Vcl { namespace Geometry
 			_positions[curr_size + i] = vertices[i];
 		}
 	}
+	
+	HalfFaceTetraMesh::VolumeId HalfFaceTetraMesh::addVolume(VertexId a, VertexId b, VertexId c, VertexId d)
+	{
+		VclRequire(halfFaces()->size() == volumes()->size() * 4, "Number of half-faces size matches number of volumes");
+		VclRequire(halfEdges()->size() == volumes()->size() * 12, "Number of half-edges size matches number of volumes");
+
+		VolumeVertices v_v = {a, b, c, d};
+		Volume v;
+		v.Vertices = v_v;
+		
+		VolumeId id = addVolume();
+		_volumes[id] = v;
+		if (_vertices[a.id()].HalfFace.isValid() == false) _vertices[a.id()].HalfFace = HalfFaceId((id.id() << 2) + 0);
+		if (_vertices[b.id()].HalfFace.isValid() == false) _vertices[b.id()].HalfFace = HalfFaceId((id.id() << 2) + 1);
+		if (_vertices[c.id()].HalfFace.isValid() == false) _vertices[c.id()].HalfFace = HalfFaceId((id.id() << 2) + 2);
+		if (_vertices[d.id()].HalfFace.isValid() == false) _vertices[d.id()].HalfFace = HalfFaceId((id.id() << 2) + 3);
+
+		// Store the half faces
+		halfFaceProperties().resizeProperties(volumes()->size() * 4);
+
+		// Store the half edges
+		halfEdgeProperties().resizeProperties(volumes()->size() * 12);
+
+		return id;
+	}
+
+	HalfFaceTetraMesh::VolumeId HalfFaceTetraMesh::addVolume(VertexId ids[4])
+	{
+		return addVolume(ids[0], ids[1], ids[2], ids[3]);
+	}
 
 	HalfFaceTetraMesh::HalfFaceId HalfFaceTetraMesh::vertexToHalfFace(VolumeId volume_id, VertexId id) const
 	{
@@ -357,7 +387,7 @@ namespace Vcl { namespace Geometry
 			// Consistency check. The adjacency map should by now only contain faces adjacent to one volume. Thus surface faces.
 			assert(_halfFaces[id.id()].Opposite.isValid() == false);
 
-			_surfaceFaces[id] = id;
+			_surfaceFaces.insert(id);
 		}
 
 		for (std::list<VolumeId>::iterator it = old_volumes.begin(); it != old_volumes.end(); ++it)
@@ -368,8 +398,8 @@ namespace Vcl { namespace Geometry
 
 	void HalfFaceTetraMesh::splitVolume(VolumeId vol_id, EdgeId edge_id, VertexId new_vertex_id, std::map<HalfFaceVertices, HalfFaceId>& loose_half_faces)
 	{
-		assert(vol_id.isValid());
-		assert((_volumes[vol_id.id()].state().isValid()) == false);
+		VclRequire(vol_id.isValid(), "Volume id is valid");
+		//VclRequire(_volumes[vol_id.id()].state().isValid() == false, "Volume state is valid");
 
 		// Get the vertices of the volume
 		VolumeVertices vertices = _volumes[vol_id.id()].Vertices;
@@ -397,8 +427,7 @@ namespace Vcl { namespace Geometry
 		new_volumes[1] = addVolume(new_volume_vertices_b);
 
 		// Create a new face between the split volumes
-		_faces.push_back(Face());
-		FaceId f_id = FaceId(static_cast<FaceId::IdType>(_faces.size()) - 1);
+		FaceId f_id = addFace();
 		Face& face = _faces[f_id.id()];
 
 		HalfFaceId hf_a = HalfFaceId(new_volumes[0].id() * 4 + index_in_volume[1]);
@@ -430,7 +459,7 @@ namespace Vcl { namespace Geometry
 				typedef std::map<HalfFaceVertices, HalfFaceId> face_map_t;
 
 				HalfFaceVertices v012 = verticesFromHalfFace(hf_id);
-				Vcl::Util::Sort(v012);
+				Vcl::Util::sort(v012);
 				face_map_t::key_type key = v012;
 
 				face_map_t::iterator item = loose_half_faces.find(key);
@@ -444,10 +473,9 @@ namespace Vcl { namespace Geometry
 				}
 				else
 				{
-					FaceId f_id = FaceId(static_cast<FaceId::IdType>(_faces.size()));
-					Face f;
-					f.HalfFace = hf_id;
-					_faces.push_back(f);
+					FaceId f_id = addFace();
+					Face& face = _faces[f_id.id()];
+					face.HalfFace = hf_id;
 
 					_halfFaces[hf_id.id()].Face = f_id;
 					loose_half_faces[key] = hf_id;
@@ -458,8 +486,8 @@ namespace Vcl { namespace Geometry
 
 	void HalfFaceTetraMesh::replaceHalfFace(HalfFaceId old_hf, HalfFaceId new_hf)
 	{
-		assert(old_hf.isValid());
-		assert(new_hf.isValid());
+		VclRequire(old_hf.isValid(), "Old id is valid");
+		VclRequire(new_hf.isValid(), "New id is valid");
 
 #ifdef DEBUG
 		// Sanity check
@@ -523,7 +551,7 @@ namespace Vcl { namespace Geometry
 		for (unsigned int i = 0; i < 12; i++)
 		{
 			HalfEdgeId he_id = HalfEdgeId(vol_id.id() * 12 + i);
-			_halfEdges[he_id.id()].state().setFlag(StateFlags::Deleted);
+			//_halfEdges[he_id.id()].state().setFlag(StateFlags::Deleted);
 		}
 
 		// Delete faces and the unused connections
@@ -532,7 +560,7 @@ namespace Vcl { namespace Geometry
 			HalfFaceId hf_id = HalfFaceId(vol_id.id() * 4 + i);
 			if (_halfFaces[hf_id.id()].Opposite.isValid() == false)
 			{
-				std::map<HalfFaceId, HalfFaceId>::iterator item = _surfaceFaces.find(hf_id);
+				auto item = _surfaceFaces.find(hf_id);
 				if (item != _surfaceFaces.end())
 					_surfaceFaces.erase(item);
 				/*else
@@ -540,16 +568,15 @@ namespace Vcl { namespace Geometry
 			}
 			else
 			{
-				_surfaceFaces[_halfFaces[hf_id.id()].Opposite] = _halfFaces[hf_id.id()].Opposite;
+				_surfaceFaces.insert(_halfFaces[hf_id.id()].Opposite);
 			}
 
-			_halfFaces[hf_id.id()].state().setFlag(StateFlags::Deleted);
+			//_halfFaces[hf_id.id()].state().setFlag(StateFlags::Deleted);
 			_halfFaces[hf_id.id()].Opposite = HalfFaceId();
 		}
 
 		// Delete the volume
-		_volumes[vol_id.id()].state().setFlag(StateFlags::Deleted);
-
+		//_volumes[vol_id.id()].state().setFlag(StateFlags::Deleted);
 	}
 
 	void HalfFaceTetraMesh::collapseEdge(EdgeId edge_id)
@@ -629,8 +656,8 @@ namespace Vcl { namespace Geometry
 
 	void HalfFaceTetraMesh::collapseVolume(VolumeId vol_id, EdgeId edge_id)
 	{
-		assert(vol_id.isValid());
-		assert(_volumes[vol_id.id()].state().isValid());
+		VclRequire(vol_id.isValid(), "Volume id is valid");
+		//VclRequire(_volumes[vol_id.id()].state().isValid(), "Volume is valid");
 
 		// Get the vertices of the volume
 		VolumeVertices vertices = _volumes[vol_id.id()].Vertices;
@@ -655,13 +682,13 @@ namespace Vcl { namespace Geometry
 		{
 			_halfFaces[_halfFaces[hf_b.id()].Opposite.id()].Opposite = HalfFaceId();
 			_surfaceFaces.erase(hf_a);
-			_surfaceFaces[opposite_hf_b] = opposite_hf_b;
+			_surfaceFaces.insert(opposite_hf_b);
 		}
 		else if (opposite_hf_a.isValid() && opposite_hf_b.isValid() == false)
 		{
 			_halfFaces[_halfFaces[hf_a.id()].Opposite.id()].Opposite = HalfFaceId();
 			_surfaceFaces.erase(hf_b);
-			_surfaceFaces[opposite_hf_a] = opposite_hf_a;
+			_surfaceFaces.insert(opposite_hf_a);
 		}
 	}
 

@@ -36,7 +36,6 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the scalar gather function.
 TEST(HalfFaceTetraMeshTest, SimpleConstruction)
 {
 	using namespace Vcl::Geometry;

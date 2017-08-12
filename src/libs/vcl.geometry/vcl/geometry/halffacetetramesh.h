@@ -199,8 +199,17 @@ namespace Vcl { namespace Geometry
 		void deleteVolume(VolumeId vol_id);
 
 	private: // Implementation
+
 		//! Add additional vertices to the mesh
 		void addVertices(gsl::span<const Eigen::Vector3f> vertices);
+
+		SimplexLevel3<HalfFaceTetraMesh>::addVolume;
+
+		//! Add a new volume
+		VolumeId addVolume(VertexId a, VertexId b, VertexId c, VertexId d);
+		
+		//! Add a new volume
+		VolumeId addVolume(VertexId ids[4]);
 
 		//! Build up the half-face index structure
 		void buildIndex();
