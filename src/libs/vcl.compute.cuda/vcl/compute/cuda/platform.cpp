@@ -43,7 +43,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	Platform* Platform::instance()
 	{
-		Check(_implementation != nullptr, "CUDA platorm is initialised.");
+		VclCheck(_implementation != nullptr, "CUDA platorm is initialised.");
 		return _implementation;
 	}
 
@@ -83,7 +83,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	const Device& Platform::device(int idx) const
 	{
-		Require(idx < _devices.size(), "idx is valid.");
+		VclRequire(idx < _devices.size(), "idx is valid.");
 
 		return _devices[idx];
 	}

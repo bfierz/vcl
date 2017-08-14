@@ -40,14 +40,14 @@ namespace Vcl { namespace Editor { namespace Util
 		QRegularExpression dir_regex{ R"((.+/)(.+))" };
 		QRegularExpressionMatch match;
 		full_path.indexOf(dir_regex, 0, &match);
-		Check(match.hasMatch(), "Split is successfull.");
+		VclCheck(match.hasMatch(), "Split is successfull.");
 
 		QString dir = match.captured(1);
 		QString path = match.captured(2);
 
 		QFile shader_file{ dir + path };
 		shader_file.open(QIODevice::ReadOnly | QIODevice::Text);
-		Check(shader_file.isOpen(), "Shader file is open.");
+		VclCheck(shader_file.isOpen(), "Shader file is open.");
 
 		// Resolve include files (only one level supported atm)
 		QString builder;

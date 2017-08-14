@@ -52,11 +52,11 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	void CommandQueue::copy(BufferView dst, ConstBufferView src)
 	{
-		Require(dynamic_cast<const Buffer*>(&src.owner()), "src is OpenCL buffer.");
-		Require(dynamic_cast<const Buffer*>(&dst.owner()), "dst is OpenCL buffer.");
-		Require(src.offset() % 4 == 0, "src offset is aligned.");
-		Require(dst.offset() % 4 == 0, "dst ffset is aligned.");
-		Require(dst.size() >= src.size(), "Sizes of views match");
+		VclRequire(dynamic_cast<const Buffer*>(&src.owner()), "src is OpenCL buffer.");
+		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "dst is OpenCL buffer.");
+		VclRequire(src.offset() % 4 == 0, "src offset is aligned.");
+		VclRequire(dst.offset() % 4 == 0, "dst ffset is aligned.");
+		VclRequire(dst.size() >= src.size(), "Sizes of views match");
 
 		auto& dstBuffer = static_cast<Buffer&>(dst.owner());
 		auto& srcBuffer = static_cast<const Buffer&>(src.owner());
@@ -80,8 +80,8 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	void CommandQueue::fill(BufferView dst, const void* pattern, size_t pattern_size)
 	{
-		Require(dynamic_cast<const Buffer*>(&dst.owner()), "Buffer is OpenCL buffer.");
-		Require(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
+		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "Buffer is OpenCL buffer.");
+		VclRequire(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
 
 		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 

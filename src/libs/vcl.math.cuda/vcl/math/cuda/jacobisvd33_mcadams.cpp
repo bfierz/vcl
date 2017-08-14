@@ -42,7 +42,7 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 	JacobiSVD33::JacobiSVD33(Core::ref_ptr<Compute::Context> ctx)
 	: _ownerCtx(ctx)
 	{
-		Require(ctx, "Context is valid.");
+		VclRequire(ctx, "Context is valid.");
 
 		_A = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
 		_U = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 			_svdKernel = _svdModule->kernel("JacobiSVD33McAdams");
 		}
 
-		Ensure(implies(_svdModule, _svdKernel), "SVD kernel is valid.");
+		VclEnsure(implies(_svdModule, _svdKernel), "SVD kernel is valid.");
 	}
 
 	void JacobiSVD33::operator()
@@ -70,9 +70,9 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		Vcl::Core::InterleavedArray<float, 3, 1, -1>& outS
 	)
 	{
-		Require(dynamic_cast<Compute::Cuda::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
-		Require(_svdKernel, "SVD kernel is loaded.");
-		Require(inA.size() % 16 == 0, "Size of input is multiple of 16.");
+		VclRequire(dynamic_cast<Compute::Cuda::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
+		VclRequire(_svdKernel, "SVD kernel is loaded.");
+		VclRequire(inA.size() % 16 == 0, "Size of input is multiple of 16.");
 
 		size_t numEntries = inA.size();
 

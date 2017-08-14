@@ -43,7 +43,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	Platform* Platform::instance()
 	{
-		Check(_implementation != nullptr, "OpenCL platorm is initialised.");
+		VclCheck(_implementation != nullptr, "OpenCL platorm is initialised.");
 		return _implementation;
 	}
 
@@ -157,7 +157,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	const Device& Platform::device(int idx) const
 	{
-		Require(idx < _devices.size(), "idx is valid.");
+		VclRequire(idx < _devices.size(), "idx is valid.");
 
 		return _devices[idx];
 	}

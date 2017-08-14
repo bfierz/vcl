@@ -152,8 +152,8 @@ namespace Vcl { namespace Editor { namespace Util
 		const Eigen::Matrix4f& T
 	)
 	{
-		Require(_opaqueIdPipelineState, "Opaque pipeline state is initialized.");
-		Require(_transparentIdPipelineState, "Transparent pipeline state is initialized.");
+		VclRequire(_opaqueIdPipelineState, "Opaque pipeline state is initialized.");
+		VclRequire(_transparentIdPipelineState, "Transparent pipeline state is initialized.");
 
 		using PipelineStateGL = Vcl::Graphics::Runtime::OpenGL::PipelineState;
 
@@ -168,8 +168,8 @@ namespace Vcl { namespace Editor { namespace Util
 		const Eigen::Matrix4f& T
 	)
 	{
-		Require(_opaquePipelineState, "Opaque pipeline state is initialized.");
-		Require(_transparentPipelineState, "Transparent pipeline state is initialized.");
+		VclRequire(_opaquePipelineState, "Opaque pipeline state is initialized.");
+		VclRequire(_transparentPipelineState, "Transparent pipeline state is initialized.");
 
 		draw(engine, T, _opaquePipelineState, _transparentPipelineState);
 	}
@@ -181,8 +181,8 @@ namespace Vcl { namespace Editor { namespace Util
 		ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps
 	)
 	{
-		Require(opaque_ps, "Opaque pipeline state is initialized.");
-		Require(transparent_ps, "Transparent pipeline state is initialized.");
+		VclRequire(opaque_ps, "Opaque pipeline state is initialized.");
+		VclRequire(transparent_ps, "Transparent pipeline state is initialized.");
 
 		using BufferGL = Vcl::Graphics::Runtime::OpenGL::Buffer;
 		using PipelineStateGL = Vcl::Graphics::Runtime::OpenGL::PipelineState;

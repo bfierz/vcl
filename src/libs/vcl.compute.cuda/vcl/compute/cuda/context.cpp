@@ -79,12 +79,12 @@ namespace Vcl { namespace Compute { namespace Cuda
 				}
 			}
 #else
-			DebugError("OpenGL support not compiled into the library.");
+			VclDebugError("OpenGL support not compiled into the library.");
 #endif // VCL_OPENGL_SUPPORT
 			break;
 		}
 		default:
-			DebugError("Unkown API binding.");
+			VclDebugError("Unkown API binding.");
 		};
 
 		// Default creation

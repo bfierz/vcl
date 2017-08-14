@@ -175,7 +175,7 @@ namespace Vcl { namespace Components
 			return _components.equal_range(id);
 		}
 
-		auto operator()(EntityId id) const -> std::pair<typename Store::iterator, typename Store::iterator>
+		auto operator()(EntityId id) const -> std::pair<typename Store::const_iterator, typename Store::const_iterator>
 		{
 			return _components.equal_range(id);
 		}

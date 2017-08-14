@@ -95,7 +95,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 
 	void RadixSort::radixSortBlocksKeysOnlyOCL(ref_ptr<Compute::Buffer> keys, unsigned int nbits, unsigned int startbit, unsigned int numElements)
 	{
-		Require(_radixSortBlocksKeysOnlyKernel, "Kernel is loaded.");
+		VclRequire(_radixSortBlocksKeysOnlyKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufKeys = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(keys);
@@ -123,7 +123,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 
 	void RadixSort::findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements)
 	{
-		Require(_findRadixOffsetsKernel, "Kernel is loaded.");
+		VclRequire(_findRadixOffsetsKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufTmpKeys = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_tmpKeys);
@@ -153,7 +153,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 #	define NUM_BANKS 16
 	void RadixSort::scanNaiveOCL(unsigned int numElements)
 	{
-		Require(_scanNaiveKernel, "Kernel is loaded.");
+		VclRequire(_scanNaiveKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufCounters = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_counters);
@@ -180,7 +180,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 
 	void RadixSort::reorderDataKeysOnlyOCL(ref_ptr<Compute::Buffer> keys, unsigned int startbit, unsigned int numElements)
 	{
-		Require(_reorderDataKeysOnlyKernel, "Kernel is loaded.");
+		VclRequire(_reorderDataKeysOnlyKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufKeys = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(keys);

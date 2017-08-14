@@ -59,9 +59,9 @@ namespace Vcl { namespace Geometry
 	template<typename VertexId>
 	size_t makeFaceHash(VertexId p0, VertexId p1, VertexId p2)
 	{
-		Require(p0.id() < (1 << 21), "Index p0 is 21-bit.");
-		Require(p1.id() < (1 << 21), "Index p1 is 21-bit.");
-		Require(p2.id() < (1 << 21), "Index p2 is 21-bit.");
+		VclRequire(p0.id() < (1 << 21), "Index p0 is 21-bit.");
+		VclRequire(p1.id() < (1 << 21), "Index p1 is 21-bit.");
+		VclRequire(p2.id() < (1 << 21), "Index p2 is 21-bit.");
 
 		auto f = std::make_array(p0, p1, p2);
 		std::sort(std::begin(f), std::end(f));

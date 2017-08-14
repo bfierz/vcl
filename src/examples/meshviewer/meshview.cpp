@@ -25,6 +25,7 @@
 #include "meshview.h"
 
 // Qt
+#include <QtCore/QRegularExpression>
 #include <QtQuick/QQuickWindow>
 
 // VCL
@@ -75,7 +76,7 @@ namespace
 			if (curr_tok.indexOf(inc_regex, 0, &match_inc) >= 0 && match_inc.hasMatch())
 			{
 				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
-				builder = builder % included_file % "\n";
+				builder = builder.append(included_file).append("\n");
 			}
 			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
 			{
@@ -83,7 +84,7 @@ namespace
 			}
 			else
 			{
-				builder = builder % curr_tok % "\n";
+				builder = builder.append(curr_tok).append("\n");
 			}
 		}
 

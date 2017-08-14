@@ -86,13 +86,13 @@ namespace Vcl { namespace Core { namespace OpenCL
 		// Check power-of-two factorization
 		unsigned int log2L;
 		unsigned int factorizationRemainder = factorRadix2(log2L, arrayLength);
-		Check(factorizationRemainder == 1, "Is power of two");
+		VclCheck(factorizationRemainder == 1, "Is power of two");
 
 		// Check supported size range
-		Check((arrayLength >= MinLargeArraySize) && (arrayLength <= MaxLargeArraySize), "Array is within size");
+		VclCheck((arrayLength >= MinLargeArraySize) && (arrayLength <= MaxLargeArraySize), "Array is within size");
 
 		// Check total batch size limit
-		Check((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
+		VclCheck((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
 
 		scanExclusiveLocal1
 		(
@@ -127,7 +127,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		unsigned int size
 	)
 	{
-		Require(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
+		VclRequire(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufDst = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(dst);
@@ -158,7 +158,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		unsigned int size
 	)
 	{
-		Require(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
+		VclRequire(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufBuf = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_workSpace);
@@ -191,7 +191,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		unsigned int n
 	)
 	{
-		Require(_uniformUpdateKernel, "Kernel is loaded.");
+		VclRequire(_uniformUpdateKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
 
 		auto bufDst = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(dst);
