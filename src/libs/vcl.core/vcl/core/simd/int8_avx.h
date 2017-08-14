@@ -58,7 +58,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE int operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
+			VclRequire(0 <= idx && idx < 8, "Access is in range.");
 
 			return _mmVCL_extract_epi32(mF8, idx);
 		}
@@ -72,6 +72,21 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mmVCL_add_epi32(mF8, rhs.mF8)); }
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator- (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mmVCL_sub_epi32(mF8, rhs.mF8)); }
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator* (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mmVCL_mullo_epi32(mF8, rhs.mF8)); }
+
+		VCL_STRONG_INLINE VectorScalar<int, 8>& operator+= (const VectorScalar<int, 8>& rhs) { 
+			mF8 = _mmVCL_add_epi32(mF8, rhs.mF8);
+			return *this;
+		}
+
+		VCL_STRONG_INLINE VectorScalar<int, 8>& operator-= (const VectorScalar<int, 8>& rhs) { 
+			mF8 = _mmVCL_sub_epi32(mF8, rhs.mF8);
+			return *this;
+		}
+
+		VCL_STRONG_INLINE VectorScalar<int, 8>& operator*= (const VectorScalar<int, 8>& rhs) { 
+			mF8 = _mmVCL_mullo_epi32(mF8, rhs.mF8);
+			return *this;
+		}
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> abs() const

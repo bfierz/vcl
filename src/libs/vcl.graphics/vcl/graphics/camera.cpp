@@ -94,7 +94,7 @@ namespace Vcl { namespace Graphics
 		}
 		else
 		{
-			DebugError("Invalid state");
+			VclDebugError("Invalid state");
 		}
 
 		return _target;
@@ -112,7 +112,7 @@ namespace Vcl { namespace Graphics
 		}
 		else
 		{
-			DebugError("Invalid state");
+			VclDebugError("Invalid state");
 		}
 		
 		return _direction;
@@ -155,7 +155,7 @@ namespace Vcl { namespace Graphics
 
 	void Camera::setZoom(float zoom)
 	{
-		Require(_zoom >= 1.0f, "Zoom greater equal to 1");
+		VclRequire(_zoom >= 1.0f, "Zoom greater equal to 1");
 
 		_changedProjection = true;
 
@@ -212,7 +212,7 @@ namespace Vcl { namespace Graphics
 		//_position = p;
 		//_changedView = true;
 
-		DebugError("To do.");
+		VclDebugError("To do.");
 
 		_view = view;
 	}

@@ -63,7 +63,7 @@ namespace Vcl { namespace Components
 		template<typename C>
 		void registerComponent()
 		{
-			Require(_components.find(typeid(C).hash_code()) == _components.end(), "Component type not registered.");
+			VclRequire(_components.find(typeid(C).hash_code()) == _components.end(), "Component type not registered.");
 
 			size_t hash = typeid(C).hash_code();
 			if (_components.find(hash) == _components.end())
@@ -71,13 +71,13 @@ namespace Vcl { namespace Components
 				_components[hash] = std::make_unique<ComponentStore<C>>();
 			}
 
-			Ensure(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			VclEnsure(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
 		}
 
 		template<typename C, typename Func>
 		void registerComponent(Func&& func)
 		{
-			Require(_multiComponents.find(typeid(C).hash_code()) == _multiComponents.end(), "Component type not registered.");
+			VclRequire(_multiComponents.find(typeid(C).hash_code()) == _multiComponents.end(), "Component type not registered.");
 
 			size_t hash = typeid(C).hash_code();
 			if (_multiComponents.find(hash) == _multiComponents.end())
@@ -85,15 +85,15 @@ namespace Vcl { namespace Components
 				_multiComponents[hash] = std::make_unique<MultiComponentStore<C, Func>>(std::forward<Func&&>(func));
 			}
 
-			Ensure(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
+			VclEnsure(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 		}
 
 		template<typename C, typename... Args>
 		typename std::enable_if<ComponentTraits<C>::IsUnique, C*>::type
 			create(Entity e, Args&&... args)
 		{
-			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
-			Require(e._manager == this, "Entity belongs the this system.");
+			VclRequire(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			VclRequire(e._manager == this, "Entity belongs the this system.");
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<ComponentStore<C>*>(_components[hash].get());
@@ -105,8 +105,8 @@ namespace Vcl { namespace Components
 		typename std::enable_if<!ComponentTraits<C>::IsUnique, C*>::type
 			create(Entity e, Args&&... args)
 		{
-			Require(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
-			Require(e._manager == this, "Entity belongs the this system.");
+			VclRequire(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
+			VclRequire(e._manager == this, "Entity belongs the this system.");
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<MultiComponentStoreBase<C>*>(_multiComponents[hash].get());
@@ -118,7 +118,7 @@ namespace Vcl { namespace Components
 		typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentStore<C>>::type*
 			get() const
 		{
-			Require(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
+			VclRequire(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<ComponentStore<C>*>(_components.find(hash)->second.get());
@@ -130,7 +130,7 @@ namespace Vcl { namespace Components
 		typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentStoreBase<C>>::type*
 			get() const
 		{
-			Require(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
+			VclRequire(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<MultiComponentStoreBase<C>*>(_multiComponents.find(hash)->second.get());
@@ -141,7 +141,7 @@ namespace Vcl { namespace Components
 		template<typename C>
 		bool has(Entity e)
 		{
-			Require(e._manager == this, "Entity belongs the this system.");
+			VclRequire(e._manager == this, "Entity belongs the this system.");
 
 			size_t hash = typeid(C).hash_code();
 			if (ComponentTraits<C>::IsUnique)

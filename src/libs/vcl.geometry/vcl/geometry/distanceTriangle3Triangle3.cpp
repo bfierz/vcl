@@ -29,9 +29,11 @@
 
 namespace Vcl { namespace Geometry
 {
-#define cross(p0, p1) (p0).cross(p1)
-#define dot(p0, p1) (p0).dot(p1)
 #define clamp(v, a, b) max((a), min((v), (b)))
+
+	template<typename T> auto inline dot(const T& p1, const T& p2) { return p1.dot(p2); }
+	template<typename T> auto inline cross(const T& p1, const T& p2) { return p1.cross(p2); }
+	
 
 	template<typename Real, int Width>
 	VectorScalar<bool, Width> project6
@@ -46,7 +48,6 @@ namespace Vcl { namespace Geometry
 	)
 	{
 		using RealVec = VectorScalar<Real, Width>;
-		using BoolVec = VectorScalar<bool, Width>;
 
 		RealVec P1 = dot(ax, p1);
 		RealVec P2 = dot(ax, p2);
@@ -75,7 +76,6 @@ namespace Vcl { namespace Geometry
 	)
 	{
 		using RealVec = VectorScalar<Real, Width>;
-		using BoolVec = VectorScalar<bool, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
 
 		RealVec3 awayDirection = iTri1Pt - iClosestPtToTri1;
@@ -246,7 +246,6 @@ namespace Vcl { namespace Geometry
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
 
 		RealVec3 Ap, Bp, Cp;
-		const RealVec3 edge[2] = { iTriA[1] - iTriA[0], iTriA[2] - iTriA[1] };
 
 		const RealVec A = trianglePointSquared(Ap, iTriA, iTriB[0]);
 		const RealVec B = trianglePointSquared(Bp, iTriA, iTriB[1]);
@@ -340,7 +339,6 @@ namespace Vcl { namespace Geometry
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &Q3
 	)
 	{
-		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
 		

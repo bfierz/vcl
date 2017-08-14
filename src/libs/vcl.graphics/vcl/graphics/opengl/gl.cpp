@@ -127,7 +127,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		//case SurfaceFormat::R8_UINT             : gl_format = GL_R8UI; break;
 		//case SurfaceFormat::R8_SNORM            : gl_format = GL_R8_SNORM; break;
 		//case SurfaceFormat::R8_SINT             : gl_format = GL_R8I; break;
-		default: DebugError("Unsupported colour format.");
+		default: VclDebugError("Unsupported colour format.");
 		};
 
 		return RenderType<void>();
@@ -145,32 +145,32 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return true;
 
 		case GL_INVALID_ENUM:
-			DebugError("Given when an enumeration parameter contains an enum that is not allowed for that function.");
+			VclDebugError("Given when an enumeration parameter contains an enum that is not allowed for that function.");
 			return false;
 		case GL_INVALID_VALUE:
-			DebugError("Given when a numerical parameter does not conform to the range requirements that the function places upon it.");
+			VclDebugError("Given when a numerical parameter does not conform to the range requirements that the function places upon it.");
 			return false;
 		case GL_INVALID_OPERATION:
-			DebugError("Given when the function in question cannot be executed because of state that has been set in the context.");
+			VclDebugError("Given when the function in question cannot be executed because of state that has been set in the context.");
 			return false;
 		case GL_STACK_OVERFLOW:
-			DebugError("Given when a stack pushing operation causes a stack to overflow the limit of that stack's size.");
+			VclDebugError("Given when a stack pushing operation causes a stack to overflow the limit of that stack's size.");
 			return false;
 		case GL_STACK_UNDERFLOW:
-			DebugError("Given when a stack popping operation is given when the stack is already at its lowest point.");
+			VclDebugError("Given when a stack popping operation is given when the stack is already at its lowest point.");
 			return false;
 		case GL_OUT_OF_MEMORY:
-			DebugError("Given when performing an operation that can allocate memory, when the memory in question cannot be allocated.");
+			VclDebugError("Given when performing an operation that can allocate memory, when the memory in question cannot be allocated.");
 			return false;
 		case GL_TABLE_TOO_LARGE:
-			DebugError("Given if the optional imaging subset (GL_ARB_imaging) is supported.");
+			VclDebugError("Given if the optional imaging subset (GL_ARB_imaging) is supported.");
 			return false;
 		case GL_INVALID_FRAMEBUFFER_OPERATION:
-			DebugError("Given if an operation on a framebuffer threw the error.");
+			VclDebugError("Given if an operation on a framebuffer threw the error.");
 			return false;
 
 		default:
-			DebugError("[ERROR] Unknow error.");
+			VclDebugError("[ERROR] Unknow error.");
 			return false;
 		}
 	}
@@ -185,36 +185,36 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return true;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-			DebugError("[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-			DebugError("[ERROR] Framebuffer incomplete: No image is attached to FBO.");
+			VclDebugError("[ERROR] Framebuffer incomplete: No image is attached to FBO.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-			DebugError("[ERROR] Framebuffer incomplete: Draw buffer.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Draw buffer.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-			DebugError("[ERROR] Framebuffer incomplete: Read buffer.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Read buffer.");
 			return false;
 
 		case GL_FRAMEBUFFER_UNSUPPORTED:
-			DebugError("[ERROR] Unsupported by FBO implementation.");
+			VclDebugError("[ERROR] Unsupported by FBO implementation.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-			DebugError("[ERROR] Framebuffer incomplete: Multisample.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Multisample.");
 			return false;
 
 		case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
-			DebugError("[ERROR] Framebuffer incomplete: Layer target is NOT complete.");
+			VclDebugError("[ERROR] Framebuffer incomplete: Layer target is NOT complete.");
 			return false;
 
 		case GL_FRAMEBUFFER_UNDEFINED:
 		default:
-			DebugError("[ERROR] Unknow error.");
+			VclDebugError("[ERROR] Unknow error.");
 			return false;
 		}
 	}

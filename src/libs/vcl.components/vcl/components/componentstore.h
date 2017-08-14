@@ -129,11 +129,11 @@ namespace Vcl { namespace Components
 		template<typename... Args>
 		auto create(EntityId id, Args... args) -> ComponentType*
 		{
-			Require(!has(id), "Component for entity does not exist.");
+			VclRequire(!has(id), "Component for entity does not exist.");
 
 			auto newElemIter = _components.emplace(id, std::forward<Args>(args)...);
 
-			Ensure(newElemIter.second, "Element was inserted.");
+			VclEnsure(newElemIter.second, "Element was inserted.");
 			return &newElemIter.first->second;
 		}
 
@@ -186,7 +186,7 @@ namespace Vcl { namespace Components
 		{
 			auto newElemIter = _components.emplace(id, std::forward<Args>(args)...);
 
-			Ensure(newElemIter != _components.end(), "Element was inserted.");
+			VclEnsure(newElemIter != _components.end(), "Element was inserted.");
 			return &newElemIter->second;
 		}
 

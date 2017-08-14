@@ -101,7 +101,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	ABuffer::ABuffer(const FramebufferDescription& desc)
 	: Framebuffer{ desc }
 	{
-		Require(desc.DepthBuffer.Format != SurfaceFormat::Unknown, "Depth-buffer is configured.");
+		VclRequire(desc.DepthBuffer.Format != SurfaceFormat::Unknown, "Depth-buffer is configured.");
 
 		// Allocate the head-buffer
 		BufferDescription headDesc;

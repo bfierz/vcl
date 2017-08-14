@@ -187,8 +187,8 @@ namespace Vcl { namespace Components
 		: _manager(em)
 		, _id(idx, gen)
 		{
-			Ensure(_manager, "Entity manager is set.");
-			Ensure(_id.isValid(), "Id is valid.");
+			VclEnsure(_manager, "Entity manager is set.");
+			VclEnsure(_id.isValid(), "Id is valid.");
 		}
 
 	public:

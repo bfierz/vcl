@@ -43,7 +43,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Shader::Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	: Runtime::Shader(type, tag)
 	{
-		Require(implies(type == ShaderType::ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
+		VclRequire(implies(type == ShaderType::ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
 
 		// Search for the version/extension block
 		const char* version_begin = strstr(source, "#version");
@@ -75,12 +75,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glShaderSource(_glId, table.size(), table.data(), sizes.data());
 		glCompileShader(_glId);
 
-		AssertBlock
+		VclAssertBlock
 		{
 			printInfoLog();
 		}
 
-		Ensure(_glId > 0 && glIsShader(_glId), "Shader is created");
+		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
 	Shader::Shader(Shader&& rhs)
@@ -105,7 +105,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case ShaderType::GeometryShader:   return GL_GEOMETRY_SHADER;
 		case ShaderType::FragmentShader:   return GL_FRAGMENT_SHADER;
 		case ShaderType::ComputeShader:    return GL_COMPUTE_SHADER;
-		default: { DebugError("Enumeration value is valid."); }
+		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_NONE;

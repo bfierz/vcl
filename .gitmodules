@@ -19,3 +19,9 @@
 [submodule "src/externals/json"]
 	path = src/externals/json
 	url = https://github.com/nlohmann/json
+[submodule "src/externals/sseplus"]
+	path = src/externals/sseplus
+	url = https://github.com/bfierz/sseplus.git
+[submodule "src/externals/eigen"]
+	path = src/externals/eigen
+	url = https://github.com/libigl/eigen.git

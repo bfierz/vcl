@@ -33,7 +33,7 @@ namespace Vcl { namespace Compute
 {
 	Context::ref_ptr<CommandQueue> Context::defaultQueue() const
 	{
-		Require(_queues.size() > 0, "At least one command queue exists.");
+		VclRequire(_queues.size() > 0, "At least one command queue exists.");
 
 		return _queues[0];
 	}

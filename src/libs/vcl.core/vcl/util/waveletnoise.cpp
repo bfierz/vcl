@@ -29,12 +29,15 @@
 #include <cmath>
 #include <random>
 
+// GSL
+#include <gsl/gsl>
+
 namespace Vcl { namespace Util
 {
 	template<int N> WaveletNoise<N>::WaveletNoise()
 	{
-		Require(N >= 0, "N >= 0");
-		Require(N % 2 == 0, "N is even");
+		static_assert(N >= 0, "N >= 0");
+		static_assert(N % 2 == 0, "N is even");
 
 		// ISO C++ randorm number generator
 		std::random_device rd;
@@ -369,7 +372,7 @@ namespace Vcl { namespace Util
 
 	template<int N> void WaveletNoise<N>::dxDyDz(const float p[3], float final[3][3]) const
 	{
-		const float* data = _noiseTileData.data();
+		gsl::span<const float> data{ _noiseTileData.data(), static_cast<ptrdiff_t>(_noiseTileData.size()) };
 
 		float w[3][3];
 		float dw[3][3];

@@ -57,8 +57,8 @@ namespace Vcl { namespace Core
 			: _dataPtr(ptr)
 			, _generationPtr(generation)
 			{
-				Require(ptr, "Pointer is valid.");
-				Require(generation, "Pointer is valid.");
+				VclRequire(ptr, "Pointer is valid.");
+				VclRequire(generation, "Pointer is valid.");
 			}
 
 		public:
@@ -79,7 +79,7 @@ namespace Vcl { namespace Core
 			reference& operator= (const reference& x) noexcept
 			{
 				*_dataPtr = *x._dataPtr;
-				_generationPtr = _generationPtr;
+				_generationPtr = x._generationPtr;
 
 				return *this;
 			}
@@ -124,14 +124,14 @@ namespace Vcl { namespace Core
 	public: // Element access
 		reference operator[] (size_type idx)
 		{
-			Require(idx < _bits.size(), "Index is valid");
+			VclRequire(idx < _bits.size(), "Index is valid");
 
 			return{ _bits.data() + idx, &_generation };
 		}
 
 		const reference operator[] (size_type idx) const
 		{
-			Require(idx < _bits.size(), "Index is valid");
+			VclRequire(idx < _bits.size(), "Index is valid");
 
 			return{ const_cast<uint16_t*>(_bits.data()) + idx, &_generation };
 		}
@@ -144,7 +144,7 @@ namespace Vcl { namespace Core
 
 		void assign(size_type n, bool val)
 		{
-			Require(n > 0, "Size is greater than zero.");
+			VclRequire(n > 0, "Size is greater than zero.");
 
 			// If the size is the same, try to increase the generation
 			if (n <= _bits.size() && val == false)
@@ -170,7 +170,7 @@ namespace Vcl { namespace Core
 
 		void setBit(size_type idx, bool val)
 		{
-			Require(idx < _bits.size(), "Index is valid");
+			VclRequire(idx < _bits.size(), "Index is valid");
 
 			_bits[idx] = val ? _generation : 0;
 		}

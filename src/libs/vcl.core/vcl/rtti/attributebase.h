@@ -31,7 +31,7 @@
 #include <gsl/string_span>
 
 // VCL
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/util/hashedstring.h>
 
@@ -52,7 +52,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const = 0;
+		virtual void set(void* object, const std::any& param) const = 0;
 		virtual void set(void* object, const std::string& param) const = 0;
 
 		virtual void get(void* object, void* param, void* result) const = 0;

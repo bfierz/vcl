@@ -75,59 +75,59 @@ namespace Vcl { namespace Assert
 	}
 
 	// Define wrappers around the contract method
-#	ifndef Check
-#		define Check(expr, description)              vcl_assert("Check",   (expr), description)
+#	ifndef VclCheck
+#		define VclCheck(expr, description)              vcl_assert("Check",   (expr), description)
 #	endif									     
-#	ifndef CheckEx							     
-#		define CheckEx(expr, description, note)   vcl_assert_ex("Check",   (expr), description, note)
+#	ifndef VclCheckEx							     
+#		define VclCheckEx(expr, description, note)   vcl_assert_ex("Check",   (expr), description, note)
 #	endif									     
-#	ifndef Require							     
-#		define Require(expr, description)            vcl_assert("Require", (expr), description)
+#	ifndef VclRequire							     
+#		define VclRequire(expr, description)            vcl_assert("Require", (expr), description)
 #	endif
-#	ifndef RequireEx
-#		define RequireEx(expr, description, note) vcl_assert_ex("Require", (expr), description, note)
+#	ifndef VclRequireEx
+#		define VclRequireEx(expr, description, note) vcl_assert_ex("Require", (expr), description, note)
 #	endif
-#	ifndef Ensure
-#		define Ensure(expr, description)             vcl_assert("Ensure",  (expr), description)
+#	ifndef VclEnsure
+#		define VclEnsure(expr, description)             vcl_assert("Ensure",  (expr), description)
 #	endif
-#	ifndef EnsureEx
-#		define EnsureEx(expr, description, note)  vcl_assert_ex("Ensure",  (expr), description, note)
+#	ifndef VclEnsureEx
+#		define VclEnsureEx(expr, description, note)  vcl_assert_ex("Ensure",  (expr), description, note)
 #	endif
-#	ifndef DebugError
-#		define DebugError(description)               vcl_assert("Error",   (VCL_EVAL_FALSE), description)
+#	ifndef VclDebugError
+#		define VclDebugError(description)               vcl_assert("Error",   (VCL_EVAL_FALSE), description)
 #	endif
-#	ifndef DebugErrorEx
-#		define DebugErrorEx(description, note)    vcl_assert_ex("Error",   (VCL_EVAL_FALSE), description, note)
+#	ifndef VclDebugErrorEx
+#		define VclDebugErrorEx(description, note)    vcl_assert_ex("Error",   (VCL_EVAL_FALSE), description, note)
 #	endif
-#	ifndef AssertBlock
-#		define AssertBlock if(VCL_EVAL_TRUE)
+#	ifndef VclAssertBlock
+#		define VclAssertBlock if(VCL_EVAL_TRUE)
 #	endif
 #else
-#	ifndef Check
-#		define Check(expr, description)
+#	ifndef VclCheck
+#		define VclCheck(expr, description)
 #	endif
-#	ifndef CheckEx
-#		define CheckEx(expr, description, note)
+#	ifndef VclCheckEx
+#		define VclCheckEx(expr, description, note)
 #	endif
-#	ifndef Require
-#		define Require(expr, description)
+#	ifndef VclRequire
+#		define VclRequire(expr, description)
 #	endif
-#	ifndef RequireEx
-#		define RequireEx(expr, description, note)
+#	ifndef VclRequireEx
+#		define VclRequireEx(expr, description, note)
 #	endif
-#	ifndef Ensure
-#		define Ensure(expr, description)
+#	ifndef VclEnsure
+#		define VclEnsure(expr, description)
 #	endif
-#	ifndef EnsureEx
-#		define EnsureEx(expr, description, note)
+#	ifndef VclEnsureEx
+#		define VclEnsureEx(expr, description, note)
 #	endif
-#	ifndef DebugError
-#		define DebugError(description)
+#	ifndef VclDebugError
+#		define VclDebugError(description)
 #	endif
-#	ifndef DebugErrorEx
-#		define DebugErrorEx(description, note)
+#	ifndef VclDebugErrorEx
+#		define VclDebugErrorEx(description, note)
 #	endif
-#	ifndef AssertBlock
-#		define AssertBlock if(VCL_EVAL_FALSE)
+#	ifndef VclAssertBlock
+#		define VclAssertBlock if(VCL_EVAL_FALSE)
 #	endif
 #endif

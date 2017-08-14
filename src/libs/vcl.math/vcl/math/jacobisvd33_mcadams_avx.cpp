@@ -52,6 +52,10 @@ namespace Vcl { namespace Mathematics
 #elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
+#	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#elif defined VCL_COMPILER_CLANG
+#	pragma clang diagnostic push
+#	pragma clang diagnostic ignored "-Wuninitialized"
 #endif
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps)
 	{
@@ -104,6 +108,8 @@ namespace Vcl { namespace Mathematics
 #	pragma runtime_checks("u", restore)
 #elif defined VCL_COMPILER_GNU
 #	pragma GCC diagnostic pop
+#elif defined VCL_COMPILER_CLANG
+#	pragma clang diagnostic pop
 #endif
 }}
 #endif // defined(VCL_VECTORIZE_AVX)

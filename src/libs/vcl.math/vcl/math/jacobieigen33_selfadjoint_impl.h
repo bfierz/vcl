@@ -178,9 +178,9 @@ namespace Vcl { namespace Mathematics
 	template<typename Real>
 	VCL_STRONG_INLINE void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q, int p, int q)
 	{
-		Require(0 <= p && p < 3, "p in [0,3)");
-		Require(0 <= q && q < 3, "q in [0,3)");
-		Require(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
+		VclRequire(0 <= p && p < 3, "p in [0,3)");
+		VclRequire(0 <= q && q < 3, "q in [0,3)");
+		VclRequire(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
 
 		auto cs = JacobiRotationAngle(R(p, p), R(p, q), R(q, q));
 		Real c = cs(0);
@@ -197,9 +197,9 @@ namespace Vcl { namespace Mathematics
 	template<typename REAL>
 	VCL_STRONG_INLINE void JacobiRotateOptimised(Eigen::Matrix<REAL, 3, 3>& M, Eigen::Matrix<REAL, 3, 3>& R, int p, int q)
 	{
-		Require(0 <= p && p < 3, "p in [0,3)");
-		Require(0 <= q && q < 3, "q in [0,3)");
-		Require(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
+		VclRequire(0 <= p && p < 3, "p in [0,3)");
+		VclRequire(0 <= q && q < 3, "q in [0,3)");
+		VclRequire(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
 		
 		// Rotates A through phi in pq-plane to set A(p, q) = 0.
 		// Rotation stored in R whose columns are eigenvectors of A
@@ -215,7 +215,7 @@ namespace Vcl { namespace Mathematics
 #ifdef VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
-		CheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
+		VclCheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
 #endif /* VCL_DEBUG */
 
 		M(p,q) = 0;

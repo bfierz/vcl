@@ -29,14 +29,14 @@
 #include <vcl/config/config.h>
 
 // Check library configuration
-#if defined _MSC_VER && !defined __clang__ && !defined VCL_COMPILER_MSVC
-#	error "VCL was not configured for MSVC"
-#elif defined __clang__ && !defined VCL_COMPILER_CLANG
-#	error "VCL was not configured for CLANG"
-#elif defined __GNUC__ && !defined VCL_COMPILER_GNU
-#	error "VCL was not configured for the GNU C++ compiler"
-#elif defined __INTEL_COMPILER && !defined VCL_COMPILER_ICL
-#	error "VCL was not configured for the Intel C++ compiler"
+#if defined _MSC_VER && !defined __clang__
+#	define VCL_COMPILER_MSVC
+#elif defined __clang__
+#	define VCL_COMPILER_CLANG
+#elif defined __GNUC__
+#	define VCL_COMPILER_GNU
+#elif defined __INTEL_COMPILER
+#	define VCL_COMPILER_ICL
 #endif
 
 #if defined (VCL_COMPILER_MSVC)
@@ -90,14 +90,26 @@
 // Enable the thread_local-keyword
 #	if (_MSC_VER <= 1900)
 #		define thread_local __declspec(thread)
-#	endif /* _MSC_VER <= 1900 */
+#	endif // _MSC_VER <= 1900
 
 // Enable constexpr on certain Microsoft compilers
-#	define VCL_CONSTEXPR_CPP11 constexpr
-#	define VCL_CONSTEXPR_CPP14
+#	if (_MSC_VER < 1900)
+#		define VCL_CONSTEXPR_CPP11
+#		define VCL_CONSTEXPR_CPP14
+#	elif (_MSC_VER <= 1900)
+#		define VCL_CONSTEXPR_CPP11 constexpr
+#		define VCL_CONSTEXPR_CPP14
+#	elif (_MSC_VER <= 1910)
+#		define VCL_CONSTEXPR_CPP11 constexpr
+#		define VCL_CONSTEXPR_CPP14 constexpr
+#	endif
 
 // STL support
 #	define VCL_STL_CHRONO
+
+#	if (_MSC_VER >= 1910 && _MSVC_LANG > 201402)
+#		define VCL_STL_ANY
+#	endif
 
 #elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if defined (_WIN32)

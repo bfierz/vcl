@@ -11,12 +11,16 @@ INCLUDE(cmake/VCLConfig.cmake)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
+################################################################################
 # Add the externals
+################################################################################
+#INCLUDE(ExternalProject)
+
 SUBDIRS(externals/fmtlib)
-#SET_TARGET_PROPERTIES(fmt PROPERTIES FOLDER 3rd-party)
 SUBDIRS(externals/gsl)
 SET(GSL_TEST OFF CACHE BOOL "" FORCE)
-
+SUBDIRS(externals/sseplus)
+SET(SSEPLUS_TEST OFF CACHE BOOL "" FORCE)
 SUBDIRS(externals/json)
 SET(BuildTests OFF CACHE BOOL "" FORCE)
 
@@ -47,15 +51,12 @@ ENDIF (VCL_BUILD_TOOLS)
 # Unit tests
 OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)
 IF (VCL_BUILD_TESTS)
-	SUBDIRS(externals/googletest)
+	SET_PROPERTY(DIRECTORY PROPERTY FOLDER 3rd-party)
 	SET(BUILD_GTEST ON CACHE BOOL "" FORCE)
 	SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-	
-	
-	#SET_TARGET_PROPERTIES(gtest PROPERTIES FOLDER 3rd-party)
-	#SET_TARGET_PROPERTIES(gtest_main PROPERTIES FOLDER 3rd-party)
-	#SET_TARGET_PROPERTIES(gmock PROPERTIES FOLDER 3rd-party)
-	#SET_TARGET_PROPERTIES(gmock_main PROPERTIES FOLDER 3rd-party)
+	SUBDIRS(externals/googletest)
 
+	SET_PROPERTY(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
 	SUBDIRS(tests)
+	
 ENDIF (VCL_BUILD_TESTS)

@@ -63,7 +63,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
-			Require(0 <= idx && idx < 8, "Access is in range.");
+			VclRequire(0 <= idx && idx < 8, "Access is in range.");
 
 			return _mmVCL_extract_ps(mF8, idx);
 		}

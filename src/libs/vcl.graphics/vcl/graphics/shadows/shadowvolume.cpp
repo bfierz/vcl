@@ -275,17 +275,17 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		RequireEx(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", "Angle: %f", mDirection.cross(mUp).dot(mRight));
+		VclRequireEx(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", "Angle: %f", mDirection.cross(mUp).dot(mRight));
 
 		return mFactory->createLookAt(mPosition, mDirection, mUp, Handedness::RightHanded);
 	}
 
 	Eigen::Matrix4f OrthographicShadowMapVolume::computeProjectionMatrix() const
 	{
-		Require(mWidth > 0, "Width is valid");
-		Require(mHeight > 0, "Height is valid");
-		Require(mNearPlane > 0, "Near plane is valid");
-		Require(mFarPlane > 0, "Far plane is valid");
+		VclRequire(mWidth > 0, "Width is valid");
+		VclRequire(mHeight > 0, "Height is valid");
+		VclRequire(mNearPlane > 0, "Near plane is valid");
+		VclRequire(mFarPlane > 0, "Far plane is valid");
 		
 		return mFactory->createOrtho(mWidth, mHeight, nearPlane(), farPlane(), Handedness::RightHanded);
 	}
@@ -312,7 +312,7 @@ namespace Vcl { namespace Graphics
 	, mSplits(nr_splits + 1)
 	, mLambda(lambda)
 	{
-		Require(nr_splits > 0, "At least 1 split is defined.");
+		VclRequire(nr_splits > 0, "At least 1 split is defined.");
 
 		// Allocate storage
 		mOrthoFrustums.resize(nr_splits);
@@ -331,7 +331,7 @@ namespace Vcl { namespace Graphics
 
 	void ParallelSplitOrthographicShadowMapVolume::update(const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum)
 	{
-		Check(frustum, "frustum pointer is set.");
+		VclCheck(frustum, "frustum pointer is set.");
 		if (frustum)
 		{
 			// Compute enclosing frustum
@@ -379,7 +379,7 @@ namespace Vcl { namespace Graphics
 
 	float ParallelSplitOrthographicShadowMapVolume::split(unsigned int idx) const
 	{
-		Require(idx < mSplits.size()-1, "Index is valid.");
+		VclRequire(idx < mSplits.size()-1, "Index is valid.");
 
 		return mSplits[idx+1];
 	}

@@ -125,7 +125,7 @@ namespace Vcl { namespace RTTI
 
 	const AttributeBase* Type::attribute(const gsl::cstring_span<> name) const
 	{
-		Require(hasAttribute(name), "Attribute exists.");
+		VclRequire(hasAttribute(name), "Attribute exists.");
 
 		size_t hash = Vcl::Util::StringHash(name).hash();
 

@@ -34,7 +34,7 @@
 
 // VCL
 #include <vcl/core/container/array.h>
-#include <vcl/core/3rdparty/any.hpp>
+#include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
 #include <vcl/rtti/attributebase.h>
@@ -80,15 +80,15 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
-			Require(_setter, "Setter is valid.");
+			VclRequire(_setter, "Setter is valid.");
 
 			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
 		}
@@ -97,7 +97,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 
 			//_getter()
 		}
@@ -106,7 +106,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
 		virtual void serialize(Serializer& ser, const void* object) const override
@@ -119,7 +119,7 @@ namespace Vcl { namespace RTTI
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			Require(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
 
 			set(object, deser.readAttribute(name()));
 		}
@@ -166,15 +166,15 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
-			Require(_setter, "Setter is valid.");
+			VclRequire(_setter, "Setter is valid.");
 
 			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
 		}
@@ -183,7 +183,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 
 			//_getter()
 		}
@@ -192,7 +192,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
 		virtual void serialize(Serializer& ser, const void* object) const override
@@ -205,7 +205,7 @@ namespace Vcl { namespace RTTI
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			Require(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
 
 			set(object, deser.readAttribute(name()));
 		}
@@ -251,11 +251,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
-			Require(object, "Object is set.");
+			VclRequire(object, "Object is set.");
 
-			auto ptr = linb::any_cast<T*>(param);
+			auto ptr = std::any_cast<T*>(param);
 			(static_cast<MetaType*>(object)->*_setter)(std::unique_ptr<T>(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
@@ -263,7 +263,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(param);
 
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
@@ -271,7 +271,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
@@ -279,7 +279,7 @@ namespace Vcl { namespace RTTI
 			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
 		virtual void serialize(Serializer& ser, const void* object) const override
@@ -294,7 +294,7 @@ namespace Vcl { namespace RTTI
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			Require(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
 
 			// Start reading a new object
 			deser.beginType(name());
@@ -357,10 +357,10 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
-			Require(object, "Object is set.");
-			//Require(param, "Value is set.");
+			VclRequire(object, "Object is set.");
+			//VclRequire(param, "Value is set.");
 
 			auto shared = boost::any_cast<AttrT>(&param);
 			if (shared)
@@ -376,15 +376,15 @@ namespace Vcl { namespace RTTI
 		virtual void set(void* object, const std::string& param) const override
 		{
 			// This method could be implemented by looking up an object in a data base
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
 	private:
@@ -429,10 +429,10 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const linb::any& param) const override
+		virtual void set(void* object, const std::any& param) const override
 		{
-			Require(object, "Object is set.");
-			//Require(param, "Value is set.");
+			VclRequire(object, "Object is set.");
+			//VclRequire(param, "Value is set.");
 
 			AttrT obj_ptr = boost::any_cast<T*>(param);
 
@@ -440,15 +440,15 @@ namespace Vcl { namespace RTTI
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, void* param, void* result) const override
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 		virtual void get(void* object, const std::string& param, void* result) const override
 		{
-			DebugError("Not implemented.");
+			VclDebugError("Not implemented.");
 		}
 
 	private:

@@ -292,9 +292,9 @@ namespace Vcl { namespace Mathematics
 	template<typename Real>
 	VCL_STRONG_INLINE void TwoSidedJacobiRotate(Eigen::Matrix<Real, 3, 3>& A, Eigen::Matrix<Real, 3, 3>& U, Eigen::Matrix<Real, 3, 3>& V, int p, int q, bool normalised)
 	{
-		Require(0 <= p && p < 3, "p in [0,3)");
-		Require(0 <= q && q < 3, "q in [0,3)");
-		Require(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
+		VclRequire(0 <= p && p < 3, "p in [0,3)");
+		VclRequire(0 <= q && q < 3, "q in [0,3)");
+		VclRequire(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
 		
 		// Rotates A through phi in pq-plane to set A(p, q) = 0 and A(q, p) = 0.
 		// Rotation stored in U and V whose columns are orthogonal matrices and U are the eigenvectors of A^T*A.
@@ -351,8 +351,8 @@ namespace Vcl { namespace Mathematics
 		Real Apq = A(p,p)*c1*s2 - A(q,p)*s1*s2 + A(p,q)*c1*c2 - A(q,q)*s1*c2;
 		Real Aqp = A(p,p)*kappa*s1*c2 + A(q,p)*kappa*c1*c2 - A(p,q)*kappa*s1*s2 - A(q,q)*kappa*c1*s2;
 
-		CheckEx(all(abs(Apq) < Real(NumericTrait<Real>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
-		CheckEx(all(abs(Aqp) < Real(NumericTrait<Real>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Aqp));
+		VclCheckEx(all(abs(Apq) < Real(NumericTrait<Real>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
+		VclCheckEx(all(abs(Aqp) < Real(NumericTrait<Real>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Aqp));
 #endif /* VCL_DEBUG */
 
 		A(p,q) = 0;

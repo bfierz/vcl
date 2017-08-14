@@ -33,14 +33,25 @@
 
 namespace Vcl { namespace Mathematics
 {
-	/*
+	/**
 	 *	Original implementation by:
 	 *		2011 - McAdams, Selle, Tamstorf, Teran, Sifakis - Computing the Singular Value Decomposition of 3 x 3 matrices with minimal branching and elementary floating point operations
 	 *	which is an extensive description of the method presented in
 	 *		SIGGRAPH - 2011 - McAdams, Zhu, Selle, Empey, Tamstorf, Teran, Sifakis - Efficient elasticity for character skinning with contact and collisions
+	 *
+	 * @brief Numerically approximates a variant of a Singular Value Decomposition A = U*S*V' 
+	 * In this variant U and V are rotation matrices without reflections, or equivalently, in the special orthogonal group SO(3)
+	 * S is a diagonal matrix with decreasingly ordered diagonal entries S(0,0) >= S(1,1) >= S(2,2), each of which can be negative
+	 * In contrast, the common SVD computes a U and V which are orthogonal, so can contain reflections, and the singular values along the diagonal of S are non-negative
+	 * @param A inputs the matrix to be decomposed. Outputs the diagonal of S on its diagonal entries. Non-diagonal entries of A are not specified at output
+	 * @param U contains the first rotation matrices of the decomposition
+	 * @param V contains the third rotation matrices of the decomposition
+	 * @param sweeps number of Jacobi sweeps to be executed for numerical approximation. 
+	 * 4 has empirically shown to be a good trade-off between speed and accuracy in the paper cited above, while 5 leads to a higher accuracy result around 1e-5 and 1e-6
+	 * @returns total number of Givens rotations applied during execution
 	 */
-#ifdef VCL_VECTORIZE_SSE
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps = 4);
+#ifdef VCL_VECTORIZE_SSE
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps = 4);
 #endif // defined(VCL_VECTORIZE_SSE)
 

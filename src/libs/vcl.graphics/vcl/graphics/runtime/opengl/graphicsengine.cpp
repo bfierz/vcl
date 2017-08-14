@@ -170,7 +170,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	StagingArea::StagingArea(Frame* frame)
 	: _frame(frame)
 	{
-		Require(frame, "Owner is set.");
+		VclRequire(frame, "Owner is set.");
 
 		BufferDescription desc;
 		desc.Usage = ResourceUsage::Staging;

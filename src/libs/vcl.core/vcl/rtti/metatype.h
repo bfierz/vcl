@@ -56,6 +56,18 @@ namespace Vcl { namespace RTTI
 		 */
 		static void construct(ConstructableType<MetaType>* type);
 	};
+  
+	template<typename MetaType>
+	template<int N>
+	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char(&str)[N])
+	{
+		ConstructableType<MetaType> type{ str, sizeof(MetaType), alignof(MetaType) };
+
+		// Build the content of the metatype
+		construct(&type);
+
+		return type;
+	}
 
 	// Template specializations matching different type variations
 	template <typename MetaType>

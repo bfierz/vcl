@@ -92,7 +92,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		const Runtime::Texture** sampled_inputs, Eigen::Vector4i* sampledInRanges, size_t nr_sampled_inputs
 	)
 	{
-		Require(nr_raw_inputs + nr_sampled_inputs <= 8, "Supports 8 input slots");
+		VclRequire(nr_raw_inputs + nr_sampled_inputs <= 8, "Supports 8 input slots");
 
 		// Early out
 		if (nr_outputs == 0)

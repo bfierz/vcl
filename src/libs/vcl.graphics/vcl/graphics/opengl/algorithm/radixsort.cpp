@@ -104,7 +104,7 @@ namespace Vcl { namespace Graphics
 
 	void RadixSort::radixSortBlocksKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int nbits, unsigned int startbit, unsigned int numElements)
 	{
-		Require(_radixSortBlocksKeysOnlyKernel, "Kernel is loaded.");
+		VclRequire(_radixSortBlocksKeysOnlyKernel, "Kernel is loaded.");
 
 		unsigned int totalBlocks = std::max<unsigned int>(numElements / 4 / LocalSize, 1);
 
@@ -127,7 +127,7 @@ namespace Vcl { namespace Graphics
 
 	void RadixSort::findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements)
 	{
-		Require(_findRadixOffsetsKernel, "Kernel is loaded.");
+		VclRequire(_findRadixOffsetsKernel, "Kernel is loaded.");
 
 		unsigned int totalBlocks = std::max<unsigned int>(numElements / 2 / LocalSize, 1);
 
@@ -151,7 +151,7 @@ namespace Vcl { namespace Graphics
 
 	void RadixSort::reorderDataKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int startbit, unsigned int numElements)
 	{
-		Require(_reorderDataKeysOnlyKernel, "Kernel is loaded.");
+		VclRequire(_reorderDataKeysOnlyKernel, "Kernel is loaded.");
 
 		unsigned int totalBlocks = std::max<unsigned int>(numElements / 2 / LocalSize, 1);
 
