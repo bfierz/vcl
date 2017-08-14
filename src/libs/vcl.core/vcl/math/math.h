@@ -273,4 +273,16 @@ namespace Vcl { namespace Mathematics
 	{
 		return (T) 3.14159265358979323846;
 	}
+
+	template<typename T>
+	constexpr T rad2deg()
+	{
+		return (T) 180 / pi<T>();
+	}
+
+	template<typename T>
+	constexpr T deg2rad()
+	{
+		return pi<T>() / (T)180;
+	}
 }}

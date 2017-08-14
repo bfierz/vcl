@@ -27,6 +27,10 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C-runtime
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 // VCL
 #include <vcl/geometry/tetramesh.h>
 #include <vcl/geometry/trimesh.h>
@@ -36,10 +40,6 @@ namespace Vcl { namespace Geometry
 	template<typename Mesh>
 	class MeshFactory
 	{
-	public:
-		static std::unique_ptr<Mesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
-
-		static std::unique_ptr<Mesh> loadMesh(const std::string& path);
 	};
 
 	template<>
@@ -56,5 +56,13 @@ namespace Vcl { namespace Geometry
 	public:
 		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
 
+		static std::unique_ptr<TriMesh> createArrow(float small_radius, float large_radius, float handle_length, float head_length, unsigned int slices);
+
+		static std::unique_ptr<TriMesh> createTorus(
+			float outer_radius,
+			float inner_radius,
+			unsigned int nr_radial_segments,
+			unsigned int nr_sides
+		);
 	};
 }}

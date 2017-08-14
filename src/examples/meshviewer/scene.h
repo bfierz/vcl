@@ -40,6 +40,10 @@
 #include "components/gpusurfacemesh.h"
 #include "components/gpuvolumemesh.h"
 #include "components/meshstatisticscomponent.h"
+#include "components/transform.h"
+
+#include "editor/componentadapter.h"
+#include "editor/entityadapter.h"
 
 /*!
  *	\note Combination of model and view-model
@@ -47,6 +51,8 @@
 class Scene : public QObject
 {
 	Q_OBJECT
+
+	Q_PROPERTY(Editor::EntityAdapterModel* entityModel READ entityModel NOTIFY entityModelChanged)
 
 public:
 	Scene(QObject* parent = 0);
@@ -59,12 +65,16 @@ public:
 	void update();
 
 public:
+	Vcl::Components::EntityManager* entityManager() { return &_entityManager; }
 	const Vcl::Components::EntityManager* entityManager() const { return &_entityManager; }
 
 public:
 	Vcl::Graphics::Camera* camera() const { return _camera; }
+	Vcl::Components::EntityId positionHandle() const { return _handleEntity.id(); }
 
-public slots :
+public slots:
+	void createSurfaceArrow();
+	void createSurfaceTorus();
 	void createSurfaceSphere();
 	void createBar(int x, int y, int z);
 	void loadMesh(const QUrl& path);
@@ -82,7 +92,17 @@ public:
 	const Eigen::Matrix4f& viewMatrix() const { return _viewMatrix; }
 	const Eigen::Matrix4f& projMatrix() const { return _projMatrix; }
 
+public: // Editor support
+	Editor::EntityAdapterModel* entityModel();
+
+	Vcl::Components::Entity sceneEntity(uint32_t id);
+
+signals:
+	void entityModelChanged();
+	void componentModelChanged();
+
 private:
+	void initializeTriMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh);
 	void initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh);
 	void updateBoundingBox();
 
@@ -106,7 +126,11 @@ private: // Render data
 	Eigen::Matrix4f _projMatrix = Eigen::Matrix4f::Identity();
 
 private: // Entities
+	//! Entity manager
 	Vcl::Components::EntityManager _entityManager;
+
+private: // Editor support
+	Vcl::Components::Entity _handleEntity;
 
 private: // Camera entity
 	Vcl::Components::Entity _cameraEntity;
@@ -114,4 +138,9 @@ private: // Camera entity
 
 private: // Mesh entities
 	std::vector<Vcl::Components::Entity> _meshes;
+
+private: // Editor support
+
+	 //! QML exposure of scene entities
+	Editor::EntityAdapterModel _entityAdapterModel;
 };

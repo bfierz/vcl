@@ -60,6 +60,12 @@ namespace Vcl { namespace Geometry
 		const vector_t& invDirection() const { return _invDir; }
 		const Eigen::Matrix<int_t, Dim, 1>& signs() const { return _signs; }
 
+	public:
+		vector_t operator() (Scalar t) const
+		{
+			return _ray.pointAt(t);
+		}
+
 	private:
 		//! Encapsulated ray object
 		Eigen::ParametrizedLine<Scalar, Dim> _ray;

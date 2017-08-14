@@ -18,6 +18,7 @@ SET(VCL_GEOMETRY_IO_SRC
 
 # VCL / GEOMETRY
 SET(VCL_GEOMETRY_INC
+	vcl/geometry/distance_ray3ray3.h
 	vcl/geometry/distancePoint3Triangle3.h
 	vcl/geometry/distanceTriangle3Triangle3.h
 	vcl/geometry/intersect.h
@@ -43,8 +44,11 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/trimesh.h
 	
 	vcl/geometry/marchingcubestables.h
+
+	vcl/geometry/meshoperations.h
 )
 SET(VCL_GEOMETRY_SRC
+	vcl/geometry/distance_ray3ray3.cpp
 	vcl/geometry/distancePoint3Triangle3.cpp
 	vcl/geometry/distanceTriangle3Triangle3.cpp
 	vcl/geometry/intersect.cpp

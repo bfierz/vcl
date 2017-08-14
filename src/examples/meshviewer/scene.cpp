@@ -39,6 +39,7 @@
 
 Scene::Scene(QObject* parent)
 : QObject(parent)
+, _entityAdapterModel(this)
 {
 	using namespace Vcl::Graphics;
 
@@ -49,11 +50,22 @@ Scene::Scene(QObject* parent)
 	_entityManager.registerComponent<GPUSurfaceMesh>();
 	_entityManager.registerComponent<GPUVolumeMesh>();
 	_entityManager.registerComponent<MeshStatistics>();
+	_entityManager.registerComponent<System::Components::Transform>();
+
+	// Create the editor specific entities
+	_handleEntity = _entityManager.create();
+	_entityManager.create<System::Components::Transform>(_handleEntity, Eigen::Matrix4f::Identity());
 
 	// Create a new camera
 	_cameraEntity = _entityManager.create();
 	_camera = _entityManager.create<Camera>(_cameraEntity, std::make_shared<OpenGL::MatrixFactory>());
 	_cameraController.setCamera(_camera);
+
+	// Make the camera placeable in the scene
+	_entityManager.create<System::Components::Transform>(_cameraEntity, Eigen::Matrix4f::Identity());
+
+	// Add the camera to the UI
+	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Camera", _cameraEntity });
 }
 Scene::~Scene()
 {
@@ -70,33 +82,40 @@ void Scene::update()
 	_projMatrix = _camera->projection();
 }
 
+void Scene::createSurfaceArrow()
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating arrow mesh" << std::endl;
+
+	// Create the mesh
+	auto mesh = TriMeshFactory::createArrow(0.1f, 1.0f, 4.0f, 2.0f, 10);
+
+	initializeTriMesh(std::move(mesh));
+}
+
+void Scene::createSurfaceTorus()
+{
+	using namespace Vcl::Geometry;
+
+	std::cout << "Creating torus mesh" << std::endl;
+
+	// Create the mesh
+	auto mesh = TriMeshFactory::createTorus(0.75f, 0.25f, 10, 10);
+
+	initializeTriMesh(std::move(mesh));
+}
+
 void Scene::createSurfaceSphere()
 {
 	using namespace Vcl::Geometry;
 
 	std::cout << "Creating sphere mesh" << std::endl;
 
-	// Create a new entity
-	auto mesh_entity = _entityManager.create();
-	_meshes.push_back(mesh_entity);
-
 	// Create the mesh
 	auto mesh = TriMeshFactory::createSphere({ 0, 0, 0 }, 1, 10, 10, false);
 
-	// Create the mesh component
-	auto mesh_component = _entityManager.create<TriMesh>(mesh_entity, std::move(*mesh));
-
-	// Add the statistics information
-	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
-
-	// Create GPU buffers
-	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
-	{
-		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
-	});
-
-	// Calculate the new scene bounding box
-	updateBoundingBox();
+	initializeTriMesh(std::move(mesh));
 }
 
 void Scene::createBar(int x, int y, int z)
@@ -139,6 +158,36 @@ void Scene::loadMesh(const QUrl& path)
 	initializeTetraMesh(std::move(mesh));
 }
 
+void Scene::initializeTriMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
+{
+	using namespace Vcl::Geometry;
+
+	// Create a new entity
+	auto mesh_entity = _entityManager.create();
+	_meshes.push_back(mesh_entity);
+
+	// Make the mesh placable in space
+	_entityManager.create<System::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
+
+	// Create the mesh component
+	auto mesh_component = _entityManager.create<TriMesh>(mesh_entity, std::move(*mesh));
+
+	// Add the statistics information
+	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
+
+	// Create GPU buffers
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
+	{
+		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
+	});
+
+	// Calculate the new scene bounding box
+	updateBoundingBox();
+
+	// Add the entity to the UI
+	_entityAdapterModel.addEntity(Editor::EntityAdapter{ "Sphere", mesh_entity });
+}
+
 void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 {
 	using namespace Vcl::Geometry;
@@ -146,6 +195,9 @@ void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	// Create a new entity
 	auto mesh_entity = _entityManager.create();
 	_meshes.push_back(mesh_entity);
+
+	// Make the mesh placable in space
+	_entityManager.create<System::Components::Transform>(mesh_entity, Eigen::Matrix4f::Identity());
 
 	// Create the mesh component
 	auto mesh_component = _entityManager.create<TetraMesh>(mesh_entity, std::move(*mesh));
@@ -195,3 +247,17 @@ void Scene::endRotate()
 	_cameraController.endRotate();
 }
 
+Editor::EntityAdapterModel* Scene::entityModel()
+{
+	return &_entityAdapterModel;
+}
+
+Vcl::Components::Entity Scene::sceneEntity(uint32_t id)
+{
+	auto elem_itr = std::find_if(_meshes.begin(), _meshes.end(), [id](const Vcl::Components::Entity& e)
+	{
+		return e.id().id() == id;
+	});
+	
+	return elem_itr != _meshes.end() ? *elem_itr : Vcl::Components::Entity();
+}

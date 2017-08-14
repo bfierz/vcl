@@ -39,11 +39,20 @@ public:
 	~GPUVolumeMesh();
 
 public:
+	size_t nrSurfaceFaces() const { return _tetraMesh->nrSurfaceFaces(); }
 	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
 
 	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
+
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceIndices()       const { return _surfaceIndices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceNormals()       const { return _surfaceNormals.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceColours()       const { return _surfaceColours.get(); }
+
+	size_t indexStride() const { return _indexStride; }
+	size_t surfaceIndexStride() const { return _surfaceIndexStride; }
+	size_t positionStride() const { return _positionStride; }
 
 private:
 	Vcl::Geometry::TetraMesh* _tetraMesh;
@@ -51,9 +60,26 @@ private:
 	//! Index structure
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _indices;
 
+	//! Surface index structure
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _surfaceIndices;
+
 	//! Position data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _positions;
 
 	//! Volume-colour data
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _volumeColours;
+
+	//! Surface normal data
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _surfaceNormals;
+
+	//! Surface colour data
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _surfaceColours;
+	//! Stride between two tetrahedra
+	size_t _indexStride{ 0 };
+
+	//! Stride between two surface elements
+	size_t _surfaceIndexStride{ 0 };
+
+	//! Stride between two positions
+	size_t _positionStride{ 0 };
 };

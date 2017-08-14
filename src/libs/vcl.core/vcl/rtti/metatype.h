@@ -40,9 +40,9 @@ namespace Vcl { namespace RTTI
 	class MetaTypeSingleton
 	{
 	public:
-		static const Type* get() { return &_metatype; }
+		static const Type* get() { return nullptr; }
 
-	private:
+	private: // Prototypes implemented by a concrete specialization
 		/*!
 		 *	\brief Initialize a new meta-type
 		 *	\param str Readable name of the meta-type
@@ -55,12 +55,8 @@ namespace Vcl { namespace RTTI
 		 *	\param type Meta-type to configure
 		 */
 		static void construct(ConstructableType<MetaType>* type);
-
-	private:
-		//! Instance of the meta-type
-		static ConstructableType<MetaType> _metatype;
 	};
-
+  
 	template<typename MetaType>
 	template<int N>
 	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char(&str)[N])
@@ -94,6 +90,7 @@ namespace Vcl { namespace RTTI
 }}
 
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
+#define VCL_DECLARE_PLAIN_METAOBJECT public: const Vcl::RTTI::Type* metaType() const;
 #define VCL_DECLARE_ROOT_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const;
 #define VCL_DECLARE_METAOBJECT(name) public: const Vcl::RTTI::Type* metaType() const override;
 #define VCL_DEFINE_METAOBJECT(name) \

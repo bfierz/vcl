@@ -81,7 +81,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	struct BufferInitData
 	{
 		//! Pointer to a buffer containing the initial data
-		void* Data;
+		const void* Data;
 
 		//! Size of the data buffer
 		size_t SizeInBytes;

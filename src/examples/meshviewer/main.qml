@@ -27,14 +27,15 @@ import QtQuick 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.0
 import QtQuick.Window 2.1
 
 import MeshViewerRendering 1.0
 
 ApplicationWindow
 {
-    width: 800
-    height: 800
+	width: 800
+	height: 800
 
 	OpenMeshDialog
 	{
@@ -62,27 +63,45 @@ ApplicationWindow
 
 	menuBar: MenuBar
 	{
-        Menu
+		Menu
 		{
-            title: "File"
-            MenuItem
+			title: "File"
+			MenuItem
 			{
 				text: "Open..."
 				onTriggered: { openMeshDialog.open() }
 			}
-            MenuItem
+			MenuItem
 			{
 				text: "Exit"
 				onTriggered: { Qt.quit() }
 			}
-        }
+		}
 
-        Menu
+		Menu
 		{
-            title: "Create"
+			title: "Create"
 			Menu
 			{
 				title: "Triangle Mesh"
+				MenuItem
+				{
+					text: "Arrow"
+					onTriggered:
+					{
+						scene.createSurfaceArrow()
+						renderer.update()
+					}
+				}
+				MenuItem
+				{
+					text: "Torus"
+					onTriggered:
+					{
+						scene.createSurfaceTorus()
+						renderer.update()
+					}
+				}
 				MenuItem
 				{
 					text: "Sphere"
@@ -102,66 +121,62 @@ ApplicationWindow
 					onTriggered: { createBarDialog.open() }
 				}
 			}
-        }
-    }
+		}
+	}
 
-	MeshView
+	SplitView
 	{
-        id: renderer
-        anchors.fill: parent
-        anchors.margins: 10
-				
-		MouseArea
+		anchors.fill: parent
+		orientation: Qt.Horizontal
+
+		SceneView
 		{
-			CheckBox
-			{
-				style: CheckBoxStyle
-				{
-					label: Text
-					{
-						color: "white"
-						text: "Wireframe"
-					}
-				}
-				checked: false
+			id: renderer
+			anchors.margins: 10
+			Layout.fillWidth: true
+		}
 
-				onClicked:
-				{
-					renderer.renderWireframe = checked
-				}
-			}
+		
+		SplitView
+		{
+			orientation: Qt.Vertical
+			Layout.fillHeight: true
+			Layout.minimumWidth: 200
 
-			anchors.fill: parent
-			acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-			onPressed:
+			ListView
 			{
-				if (mouse.button & Qt.LeftButton)
+				id: entityList
+
+				Layout.minimumHeight: 200
+				Layout.fillWidth : true
+				model: scene.entityModel
+				delegate: EntityListDelegate {}
+				highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
+				focus: true
+
+				// Change the content of the component list when the current item changes
+				onCurrentItemChanged:
 				{
-					parent.selectObject(mouse.x, mouse.y)
-				}
-				else if (mouse.button & Qt.MiddleButton)
-				{
-					scene.startRotate(mouse.x / width, mouse.y / height)
-				}
-			}
-			onReleased:
-			{
-				if (mouse.button & Qt.MiddleButton)
-				{
-					scene.endRotate()
-					renderer.update()
+					//console.log("Completed: ", JSON.stringify(scene.entityModel.get(currentIndex).components))
+					componentList.model = scene.entityModel.get(currentIndex).components
 				}
 			}
-			onPositionChanged:
+			Item
 			{
-				scene.rotate(mouse.x / width, mouse.y / height)
-				renderer.update()
-			}
-			onWheel:
-			{
+				Repeater
+				{
+					id: componentList
+
+					delegate: ComponentListDelegate {}
+					focus: true
+				}
 			}
 		}
 	}
 
-	Component.onCompleted: { renderer.scene = scene }
+	Component.onCompleted:
+	{
+		renderer.scene = scene
+		entityList.model = scene.entityModel
+	}
 }

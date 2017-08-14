@@ -44,6 +44,8 @@
 #include <vcl/graphics/runtime/dynamictexture.h>
 #include <vcl/graphics/runtime/framebuffer.h>
 
+#include "util/positionmanipulator.h"
+#include "util/rendertargetdebugger.h"
 #include "scene.h"
 
 class MeshView;
@@ -60,8 +62,10 @@ public:
 	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
 private:
+	void renderHandle(const Eigen::Matrix4f& M);
 	void renderBoundingBox(const Eigen::AlignedBox3f& bb, unsigned int resolution, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 	void renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
+	void renderTriMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 	void renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 
 private:
@@ -77,12 +81,14 @@ private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _planePipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTriMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _oulineTriMeshPS;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshWirePipelineState;
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _opaqueTetraMeshPointsPipelineState;
 
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTetraMeshPipelineState;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTriMeshPipelineState;
 
 private: // Render targets
 
@@ -100,6 +106,12 @@ private: // Support buffers
 
 private: // Static geometry
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> _planeBuffer;
+
+private: // Helpers
+	std::unique_ptr<Vcl::Editor::Util::PositionManipulator> _posManip;
+
+	//! Debug helper to visualize textures
+	std::unique_ptr<Vcl::Editor::Util::RendertargetDebugger> _rtDebugger;
 };
 
 class MeshView : public QQuickFramebufferObject
@@ -114,7 +126,12 @@ public:
 	MeshView(QQuickItem *parent = Q_NULLPTR);
 
 public:
-	Q_INVOKABLE void selectObject(int x, int y);
+	Q_INVOKABLE QPoint selectObject(int x, int y);
+
+	Q_INVOKABLE void beginDrag(int axis, int x, int y);
+	Q_INVOKABLE void dragObject(int x, int y);
+	Q_INVOKABLE void endDrag();
+	Q_INVOKABLE void moveObjectToHandle(int object_id);
 
 public:
 	Scene* scene() const { return _scene; }
@@ -142,6 +159,8 @@ private:
 	Scene* _scene{ nullptr };
 	bool _renderWireframe{ false };
 
+private: // ID buffer
+
 	//! Store the on the host side
 	std::unique_ptr<Eigen::Vector2i[]> _idBuffer;
 
@@ -150,4 +169,13 @@ private:
 
 	//! ID buffer height
 	uint32_t _idBufferHeight{ 0 };
+
+private: // Position manipulator
+	
+	//! Axis/plane that is currently manipulated
+	int _manip_axis_translation{ 0 };
+
+	//! Initial transformation of manipulated object
+	Eigen::Matrix<float, 4, 4, Eigen::DontAlign> _manip_initial_transform;
+	Eigen::Matrix<float, 3, 1, Eigen::DontAlign> _manip_initial_offset;
 };

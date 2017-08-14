@@ -74,7 +74,7 @@ namespace Vcl { namespace Geometry
 		//! Position data of a single vertex
 		using Vertex = Eigen::Vector3f;
 
-		//! Index data of a single tetrahedron
+		//! Index data of a single triangle
 		using Face = std::array<VertexId, 3>;
 	};
 
@@ -97,15 +97,40 @@ namespace Vcl { namespace Geometry
 		//! Clear the content of the mesh
 		void clear();
 
-		//! Add a new property to the volume level
+		//! Add a new property to the vertex level
 		template<typename T>
-		Property<T, IndexDescriptionTrait<TriMesh>::FaceId>* addFaceProperty
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty
+		(
+			const std::string& name,
+			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::reference init_value
+		)
+		{
+			return vertexProperties().add<T>(name, init_value);
+		}
+
+		//! Add a new property to the face level
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty
 		(
 			const std::string& name,
 			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::reference init_value
 		)
 		{
 			return faceProperties().add<T>(name, init_value);
+		}
+
+		//! Access generic vertex properties
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> vertexProperty(const std::string& name)
+		{
+			return vertexProperties().property<T>(name);
+		}
+
+		//! Access generic face properties
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> faceProperty(const std::string& name)
+		{
+			return faceProperties().property<T>(name);
 		}
 	};
 }}

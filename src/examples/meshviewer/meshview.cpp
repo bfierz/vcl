@@ -25,11 +25,10 @@
 #include "meshview.h"
 
 // Qt
-#include <QtCore/QRegularExpression>
-#include <QtCore/QStringBuilder>
 #include <QtQuick/QQuickWindow>
 
 // VCL
+#include <vcl/geometry/distance_ray3ray3.h>
 #include <vcl/geometry/MarchingCubesTables.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
@@ -44,6 +43,7 @@ namespace
 }
 
 #include "util/frustumhelpers.h"
+#include "util/shaderutils.h"
 #include "scene.h"
 
 namespace
@@ -117,6 +117,8 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
+	using Vcl::Editor::Util::createShader;
+
 	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
 	InputLayoutDescription planeLayout =
@@ -126,8 +128,9 @@ FboRenderer::FboRenderer()
 	
 	InputLayoutDescription opaqueTriLayout =
 	{
-		{ "Index",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0, VertexDataClassification::VertexDataPerObject, 0 },
 	};
 	
 	InputLayoutDescription opaqueTetraLayout =
@@ -145,6 +148,9 @@ FboRenderer::FboRenderer()
 
 	Shader opaqueTriVert = createShader(ShaderType::VertexShader, ":/shaders/trimesh.vert");
 	Shader opaqueTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh.geom");
+	Shader outlineTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/trimesh_outline.geom");
+	Shader idTriVert = createShader(ShaderType::VertexShader, ":/shaders/objectid_trimesh.vert");
+	Shader idTriGeom = createShader(ShaderType::GeometryShader, ":/shaders/objectid_trimesh.geom");
 
 	Shader opaqueTetraVert = createShader(ShaderType::VertexShader, ":/shaders/tetramesh.vert");
 	Shader opaqueTetraGeom = createShader(ShaderType::GeometryShader, ":/shaders/tetramesh.geom");
@@ -155,6 +161,7 @@ FboRenderer::FboRenderer()
 
 	Shader meshFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/object.frag");
 	Shader idFrag = createShader(ShaderType::FragmentShader, ":/shaders/objectid.frag");
+	Shader outlineFrag = createShader(ShaderType::FragmentShader, ":/shaders/debug/outline.frag");
 
 	PipelineStateDescription boxPSDesc;
 	boxPSDesc.VertexShader = &boxVert;
@@ -169,6 +176,13 @@ FboRenderer::FboRenderer()
 	planePSDesc.FragmentShader = &meshFrag;
 	_planePipelineState = Vcl::make_owner<PipelineState>(planePSDesc);
 
+	PipelineStateDescription idTriPSDesc;
+	idTriPSDesc.InputLayout = opaqueTriLayout;
+	idTriPSDesc.VertexShader = &idTriVert;
+	idTriPSDesc.GeometryShader = &idTriGeom;
+	idTriPSDesc.FragmentShader = &idFrag;
+	_idTriMeshPipelineState = Vcl::make_owner<PipelineState>(idTriPSDesc);
+
 	PipelineStateDescription idTetraPSDesc;
 	idTetraPSDesc.InputLayout = opaqueTetraLayout;
 	idTetraPSDesc.VertexShader = &idTetraVert;
@@ -182,6 +196,13 @@ FboRenderer::FboRenderer()
 	opaqueTriPSDesc.GeometryShader = &opaqueTriGeom;
 	opaqueTriPSDesc.FragmentShader = &meshFrag;
 	_opaqueTriMeshPipelineState = Vcl::make_owner<PipelineState>(opaqueTriPSDesc);
+
+	PipelineStateDescription outlineTriPSDesc;
+	outlineTriPSDesc.InputLayout = opaqueTriLayout;
+	outlineTriPSDesc.VertexShader = &opaqueTriVert;
+	outlineTriPSDesc.GeometryShader = &outlineTriGeom;
+	outlineTriPSDesc.FragmentShader = &outlineFrag;
+	_oulineTriMeshPS = Vcl::make_owner<PipelineState>(outlineTriPSDesc);
 
 	PipelineStateDescription opaqueTetraPSDesc;
 	opaqueTetraPSDesc.InputLayout = opaqueTetraLayout;
@@ -222,6 +243,12 @@ FboRenderer::FboRenderer()
 	planeData.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, false, false, &planeData);
+
+	// Initialize the position manipulator
+	_posManip = std::make_unique<Vcl::Editor::Util::PositionManipulator>();
+
+	// Initialize the texture debugger
+	_rtDebugger = std::make_unique<Vcl::Editor::Util::RendertargetDebugger>();
 }
 
 void FboRenderer::render()
@@ -248,27 +275,66 @@ void FboRenderer::render()
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
+		// Common components
+		auto transforms = scene->entityManager()->get<System::Components::Transform>();
+
 		// Draw the object buffer
 		{
 			_idBuffer->bind(_engine.get());
 			_idBuffer->clear(0, Eigen::Vector4i{ -1, -1, 0, 0 });
 			_idBuffer->clear(1.0f);
 
+			auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
+			if (!surfaces->empty())
+			{
+				surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
+				{
+					Eigen::Matrix4f T;
+					if (transforms->has(id))
+					{
+						T = M * (*transforms)(id)->get();
+					}
+					else
+					{
+						T = M;
+					}
+
+					_idTriMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
+
+					renderTriMesh(mesh, _idTriMeshPipelineState, T);
+				});
+			}
+
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
 			{
-				volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
+				volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
 				{
+					Eigen::Matrix4f T;
+					if (transforms->has(id))
+					{
+						T = M * (*transforms)(id)->get();
+					}
+					else
+					{
+						T = M;
+					}
+
 					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
 					
-					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, M);
+					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, T);
 				});
 			}
+
+			const auto pos_handle_id = scene->positionHandle();
+			const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
+			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
 			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
 			{
-				std::memcpy(_idBufferHost.get(), view.data(), view.size());
+				if (_idBuffer->width()*_idBuffer->height()*sizeof(Eigen::Vector2i) == view.size())
+					std::memcpy(_idBufferHost.get(), view.data(), view.size());
 			});
 		}
 
@@ -347,33 +413,73 @@ void FboRenderer::render()
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())
 		{
-			surfaces->forEach([this, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
+			surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
 			{
-				renderTriMesh(mesh, _opaqueTriMeshPipelineState, M);
+				Eigen::Matrix4f T;
+				if (transforms->has(id))
+				{
+					T = M * (*transforms)(id)->get();
+				}
+				else
+				{
+					T = M;
+				}
+
+				renderTriMesh(mesh, _opaqueTriMeshPipelineState, T);
+				renderTriMesh(mesh, _oulineTriMeshPS, T);
 			});
 		}
 
 		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 		if (!volumes->empty())
 		{
-			volumes->forEach([this, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
+			volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
 			{
-				if (_renderWireframe)
+				Eigen::Matrix4f T;
+				if (transforms->has(id))
 				{
-					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, M);
-					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, M);
+					T = M * (*transforms)(id)->get();
 				}
 				else
 				{
-					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, M);
+					T = M;
+				}
+
+				if (_renderWireframe)
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, T);
+					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, T);
+				}
+				else
+				{
+					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, T);
+					renderTriMesh(mesh, _oulineTriMeshPS, T);
 				}
 			});
 		}
+
+		// Render the mesh handle
+		renderHandle(M);
+	}
+
+	// Render the ID map
+	if (true)
+	{
+		_rtDebugger->draw(_engine.get(), _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
 	}
 
 	_engine->endFrame();
 	_owner->window()->resetOpenGLState();
 	update();
+}
+
+void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
+{
+	auto scene = _owner->scene();
+	const auto pos_handle_id = scene->positionHandle();
+	const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
+
+	_posManip->draw(_engine.get(), M * curr_transform->get());
 }
 
 void FboRenderer::renderBoundingBox
@@ -412,15 +518,36 @@ void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Gr
 
 	// Set the vertex positions
 	ps->program().setBuffer("VertexPositions", mesh->positions());
+	ps->program().setBuffer("VertexNormals", mesh->normals());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector3i));
-	glBindVertexBuffer(1, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
+	glBindVertexBuffer(1, mesh->indices()->id(), mesh->indexStride() / 2, mesh->indexStride());
+	glBindVertexBuffer(2, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh
 	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrFaces());
 }
 
+void FboRenderer::renderTriMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
+{
+	// Configure the state
+	_engine->setPipelineState(ps);
+
+	ps->program().setUniform("ModelMatrix", M);
+
+	// Set the vertex positions
+	ps->program().setBuffer("VertexPositions", mesh->positions());
+	ps->program().setBuffer("VertexNormals", mesh->surfaceNormals());
+
+	// Bind the buffers
+	glBindVertexBuffer(0, mesh->surfaceIndices()->id(), 0, mesh->surfaceIndexStride());
+	glBindVertexBuffer(1, mesh->surfaceIndices()->id(), mesh->surfaceIndexStride() / 2, mesh->surfaceIndexStride());
+	glBindVertexBuffer(2, mesh->surfaceColours()->id(), 0, sizeof(Eigen::Vector4f));
+
+	// Render the mesh
+	glDrawArrays(GL_POINTS, 0, (GLsizei)mesh->nrSurfaceFaces());
+}
 void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M)
 {
 	// Configure the state
@@ -432,7 +559,7 @@ void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 	ps->program().setBuffer("VertexPositions", mesh->positions());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, sizeof(Eigen::Vector4i));
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
 	glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh
@@ -499,17 +626,157 @@ MeshView::MeshView(QQuickItem* parent)
 	setMirrorVertically(true);
 }
 
-void MeshView::selectObject(int x, int y)
+QPoint MeshView::selectObject(int x, int y)
 {
 	if (_idBuffer && _idBufferWidth > 0 && _idBufferHeight > 0)
 	{
-		// Convert index to GL coordinates
-		y = height() - y;
+		{
+			// Convert index to GL coordinates
+			y = height() - y;
 
-		uint32_t idx = y * _idBufferWidth + x;
-		auto ids = _idBuffer[idx];
+			uint32_t idx = y * _idBufferWidth + x;
+			auto ids = _idBuffer[idx];
 
-		std::cout << "Object Id: " << ids.x() << ", Primitive Id: " << ids.y() << std::endl;
+			return{ ids.x(), ids.y() };
+		}
+	}
+
+	return{ -1, -1 };
+}
+
+namespace
+{
+	Eigen::Vector3f computePointForTranslationManipulation
+	(
+		const Vcl::Graphics::Camera& camera,
+		const Eigen::Matrix4f& transform,
+		int axis, int x, int y
+	)
+	{
+		// Find ray into the scene and compute the target location
+		const auto line = camera.pickWorldSpace(x, y);
+
+		// Compute the transform in view-space
+		const Eigen::Matrix4f curr_trans_vs = transform;
+
+		// Compute the origin of the current transformation
+		const Eigen::Vector3f center = (curr_trans_vs * Eigen::Vector4f(0, 0, 0, 1)).segment<3>(0);
+
+		// Find the reference axis (axis or plane normal)
+		Eigen::Vector3f ref_axis = Eigen::Vector3f::Zero();
+		switch (axis)
+		{
+		case 1: // x-axis
+		case 6: // yz-plane
+			ref_axis = { 1, 0, 0 };
+			break;
+		case 2: // y-axis
+		case 5: // xz-plane
+			ref_axis = { 0, 1, 0 };
+			break;
+		case 4: // z-axis
+		case 3: // xy-plane
+			ref_axis = { 0, 0, 1 };
+			break;
+		}
+
+		if (axis == 1 ||
+			axis == 2 ||
+			axis == 4)
+			// Handle axis'
+		{
+			using namespace Vcl::Geometry;
+
+			// Transform the requested axis to the world space
+			const Ray<float, 3> disp_ray{ center, curr_trans_vs.block<3, 3>(0, 0) * ref_axis };
+			const Ray<float, 3> cam_ray{ line.origin(), line.direction() };
+
+			Result<float> result;
+			Vcl::Geometry::distance(disp_ray, cam_ray, &result);
+
+			return result.Point[0];
+		}
+		else
+			// Handle planes
+		{
+			const Eigen::Vector3f N = curr_trans_vs.block<3, 3>(0, 0) * ref_axis;
+			const float d = N.dot(center);
+			const Eigen::Vector4f plane{ N.x(), N.y(), N.z(), d };
+			const Eigen::Vector3f intersect = Vcl::Util::intersectRayPlane(line.origin(), line.direction(), plane);
+
+			return intersect;
+		}
+	}
+}
+
+void MeshView::beginDrag(int axis, int x, int y)
+{
+	// Store the manipulated axis
+	_manip_axis_translation = axis;
+
+	// Find ray into the scene for the direction computation later
+	const auto* cam = scene()->camera();
+
+	// Store the inital transformatoin
+	auto handle = scene()->positionHandle();
+	const auto* curr_transform = scene()->entityManager()->get<System::Components::Transform>()->operator()(handle);
+	_manip_initial_transform = curr_transform->get();
+
+	// Use the initial offset to compute the displacement from here when moving the mouse
+	const auto new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, axis, x, y);
+
+	// Transform the new position from view space to world space
+	_manip_initial_offset = new_pos - curr_transform->position();
+
+	const Eigen::Vector3f curr_pos = curr_transform->position();
+	std::cout << "Axis: " << axis << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
+}
+
+void MeshView::dragObject(int x, int y)
+{
+	if (_manip_axis_translation == 0)
+		return;
+
+	// Find ray into the scene for the direction computation later
+	const auto* cam = scene()->camera();
+
+	// Compute the new position according to the mouse position
+	Eigen::Vector3f new_pos = computePointForTranslationManipulation(*cam, _manip_initial_transform, _manip_axis_translation, x, y);
+
+	// Transform the new position from view space to world space
+	new_pos = Eigen::Vector3f{ new_pos.x(), new_pos.y(), new_pos.z() };
+
+	// Store the inital transformatoin
+	auto handle = scene()->positionHandle();
+	auto* curr_transform = scene()->entityManager()->get<System::Components::Transform>()->operator()(handle);
+	curr_transform->setPosition(new_pos - _manip_initial_offset);
+
+	const Eigen::Vector3f curr_pos = curr_transform->position();
+	std::cout << "Axis: " << _manip_axis_translation << ", center: " << curr_pos.x() << ", " << curr_pos.y() << ", " << curr_pos.z() << std::endl;
+
+	// Request update and resync of data
+	this->update();
+}
+
+void MeshView::endDrag()
+{
+	_manip_axis_translation = 0;
+}
+
+void MeshView::moveObjectToHandle(int object_id)
+{
+	if (object_id > 0)
+	{
+		auto* em = scene()->entityManager();
+		auto handle = scene()->positionHandle();
+		auto* handle_transform = em->get<System::Components::Transform>()->operator()(handle);
+
+		const auto e = scene()->sceneEntity(static_cast<uint32_t>(object_id));
+		if (e.id().isValid())
+		{
+			auto entity_transform = em->get<System::Components::Transform>()->operator()(e.id());
+			entity_transform->setPosition(handle_transform->position());
+		}
 	}
 }
 

@@ -1,8 +1,12 @@
 <RCC>
   <qresource>
     <file>main.qml</file>
+    <file>SceneView.qml</file>
+    <file>ComponentListDelegate.qml</file>
+    <file>EntityListDelegate.qml</file>
     <file>CreateBarDialog.qml</file>
     <file>OpenMeshDialog.qml</file>
+    <file>ui/components/TransformComponent.qml</file>
   </qresource>
 
   <qresource>
@@ -13,9 +17,21 @@
 
     <file>shaders/debug/boundinggrid.vert</file>
     <file>shaders/debug/boundinggrid.geom</file>
-    
-    <file>shaders/debug/staticcolour.frag</file>
 
+    <file>shaders/debug/renderttarget_present.vert</file>
+    <file>shaders/debug/renderttarget_present.frag</file>
+
+    <file>shaders/debug/staticcolour.frag</file>
+    <file>shaders/debug/outline.frag</file>
+
+    <file>shaders/debug/positionhandle_arrow.vert</file>
+    <file>shaders/debug/positionhandle_arrow.frag</file>
+    <file>shaders/debug/positionhandle_arrow_id.vert</file>
+
+    <file>shaders/debug/positionhandle_square.vert</file>
+    <file>shaders/debug/positionhandle_square.frag</file>
+    <file>shaders/debug/positionhandle_square_id.vert</file>
+    
     <file>shaders/framebuffer/simpleframebuffer.h</file>
     <file>shaders/framebuffer/simpleoitbuffer.h</file>
 
@@ -25,12 +41,15 @@
     
     <file>shaders/trimesh.vert</file>
     <file>shaders/trimesh.geom</file>
+    <file>shaders/trimesh_outline.geom</file>
     <file>shaders/tetramesh.vert</file>
     <file>shaders/tetramesh.geom</file>
     <file>shaders/tetramesh_sphere.geom</file>
     <file>shaders/tetramesh_wireframe.geom</file>
     <file>shaders/mesh.frag</file>
 
+    <file>shaders/objectid_trimesh.vert</file>
+    <file>shaders/objectid_trimesh.geom</file>
     <file>shaders/objectid_tetramesh.vert</file>
     <file>shaders/objectid_tetramesh.geom</file>
     <file>shaders/objectid.frag</file>
