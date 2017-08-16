@@ -34,6 +34,7 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #	include <fmt/format.h>
+#	include <fmt/printf.h>
 VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl { namespace Assert

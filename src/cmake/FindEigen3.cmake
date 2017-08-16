@@ -19,7 +19,10 @@
 # Copyright (c) 2006, 2007 Montel Laurent, <montel@kde.org>
 # Copyright (c) 2008, 2009 Gael Guennebaud, <g.gael@free.fr>
 # Copyright (c) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+# Copyright (c) 2017 Basil Fierz <basil.fierz@hotmail.com>
 # Redistribution and use is allowed according to the terms of the 2-clause BSD license.
+
+project(Eigen3 CXX)
 
 if(NOT Eigen3_FIND_VERSION)
   if(NOT Eigen3_FIND_VERSION_MAJOR)
@@ -95,3 +98,22 @@ else (EIGEN3_INCLUDE_DIR)
 
 endif(EIGEN3_INCLUDE_DIR)
 
+if (EIGEN3_INCLUDE_DIR)
+
+  # create a header only target
+  add_library(Eigen3 INTERFACE)
+
+  # add include folders to the library and targets that consume it
+  target_include_directories(Eigen3 INTERFACE
+    $<BUILD_INTERFACE:
+  	  ${EIGEN3_INCLUDE_DIR}
+  	  ${EIGEN3_INCLUDE_DIR}/unsupported
+    >
+  )
+  
+  # add natvis file to the library so it will automatically be loaded into Visual Studio
+  target_sources(Eigen3 INTERFACE 
+    ${EIGEN3_INCLUDE_DIR}/debug/msvc/eigen.natvis
+  )
+  
+endif(EIGEN3_INCLUDE_DIR)

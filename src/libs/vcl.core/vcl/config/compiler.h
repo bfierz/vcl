@@ -99,7 +99,7 @@
 #	elif (_MSC_VER <= 1900)
 #		define VCL_CONSTEXPR_CPP11 constexpr
 #		define VCL_CONSTEXPR_CPP14
-#	elif (_MSC_VER <= 1910)
+#	elif (_MSC_VER >= 1910)
 #		define VCL_CONSTEXPR_CPP11 constexpr
 #		define VCL_CONSTEXPR_CPP14 constexpr
 #	endif
@@ -234,7 +234,9 @@
 
 // Implement missing standard function
 #if defined (VCL_COMPILER_MSVC)
-		
+
+#include <CppCoreCheck/Warnings.h>
+
 // Support for fmin/fmax with low overhead
 #	if (_MSC_VER < 1800)
 namespace std

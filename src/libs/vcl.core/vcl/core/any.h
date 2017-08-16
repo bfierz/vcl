@@ -30,7 +30,9 @@
 #ifdef VCL_STL_ANY
 #	include <any>
 #else
+VCL_BEGIN_EXTERNAL_HEADERS
 #	include <vcl/core/3rdparty/any.hpp>
+VCL_END_EXTERNAL_HEADERS
 
 namespace std
 {

@@ -13,7 +13,12 @@ ELSE()
 	SET(VCL_COMPILER_UNKNOWN ON)
 ENDIF()
 
-# Define C++ standard
+# Define C++ standard, minimum requirement is C++11
+# As MSVC is really able to define the minimum level, software needs
+# to implement per feature detection anyway
+#SET(VCL_ENABLE_CXX_14 CACHE BOOL "Enable C++ 14")
+#SET(VCL_ENABLE_CXX_17 CACHE BOOL "Enable C++ 17")
+
 SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -31,12 +36,6 @@ MESSAGE(STATUS "Running on ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 # Enable Visual Studio solution folders
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-FIND_PACKAGE(Eigen3 3.3 REQUIRED)
-IF(EIGEN3_FOUND)
-	INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
-	INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR}/unsupported)
-ENDIF()
-
 # Control OpenMP support
 SET(VCL_OPENMP_SUPPORT CACHE BOOL "Enable OpenMP support")
 FIND_PACKAGE(OpenMP)
@@ -47,14 +46,27 @@ IF(OPENMP_FOUND AND VCL_OPENMP_SUPPORT)
 ENDIF()
 
 # Define vectorisation
-SET(VCL_VECTORIZE_SSE2 CACHE BOOL "Enable SSE 2 instruction set")
-SET(VCL_VECTORIZE_SSE3 CACHE BOOL "Enable SSE 3 instruction set")
-SET(VCL_VECTORIZE_SSSE3 CACHE BOOL "Enable SSEE 3 instruction set")
-SET(VCL_VECTORIZE_SSE4_1 CACHE BOOL "Enable SSE 4.1 instruction set")
-SET(VCL_VECTORIZE_SSE4_2 CACHE BOOL "Enable SSE 4.2 instruction set")
-SET(VCL_VECTORIZE_AVX CACHE BOOL "Enable AVX instruction set")
-SET(VCL_VECTORIZE_AVX2 CACHE BOOL "Enable AVX 2 instruction set")
-SET(VCL_VECTORIZE_NEON CACHE BOOL "Enable NEON instruction set")
+SET(VCL_VECTORIZE "SSE 4.1" CACHE STRING "Vectorization instruction set")
+SET_PROPERTY(CACHE VCL_VECTORIZE PROPERTY STRINGS "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "NEON")
+
+IF (VCL_VECTORIZE STREQUAL "SSE 2")
+	SET(VCL_VECTORIZE_SSE2 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "SSE 3")
+	SET(VCL_VECTORIZE_SSE3 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "SSSE 3")
+	SET(VCL_VECTORIZE_SSSE3 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "SSE 4.1")
+	SET(VCL_VECTORIZE_SSE4_1 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "SSE 4.2")
+	SET(VCL_VECTORIZE_SSE4_2 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "AVX")
+	SET(VCL_VECTORIZE_AVX TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "AVX 2")
+	SET(VCL_VECTORIZE_AVX2 TRUE)
+ELSEIF(VCL_VECTORIZE STREQUAL "NEON")
+	SET(VCL_VECTORIZE_NEON TRUE)
+ENDIF()
+MESSAGE(STATUS "Compiling for ${VCL_VECTORIZE}")
 
 # Set whether contracts should be used
 SET(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
@@ -94,13 +106,14 @@ ENDIF(VCL_COMPILER_MSVC)
 IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
 
 	# Configure all configuration
+	# * Enable all warnings
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	IF(VCL_COMPILER_CLANG)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-attributes")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes")
 	ENDIF() 
-
+	
 	IF(VCL_VECTORIZE_AVX2)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
@@ -124,3 +137,37 @@ IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	ENDIF()
 ENDIF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
+
+# Function enabling the Core guideline checker from Visual Studio
+FUNCTION(enable_vs_guideline_checker target)
+    SET_TARGET_PROPERTIES(${target} PROPERTIES
+        VS_GLOBAL_EnableCppCoreCheck true
+        VS_GLOBAL_CodeAnalysisRuleSet CppCoreCheckRules.ruleset
+        VS_GLOBAL_RunCodeAnalysis true)
+ENDFUNCTION()
+
+# Support for clang-tidy
+FIND_PROGRAM(
+	CLANG_TIDY_EXE
+	NAMES "clang-tidy"
+	DOC "Path to clang-tidy executable"
+)
+IF(NOT CLANG_TIDY_EXE)
+	MESSAGE(STATUS "clang-tidy not found.")
+ELSE()
+	MESSAGE(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+	SET(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
+ENDIF()
+
+FUNCTION(enable_clang_tidy target)
+	IF (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
+		MESSAGE(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
+	ENDIF()
+
+	IF(CLANG_TIDY_EXE)
+		SET_TARGET_PROPERTIES(
+			${target} PROPERTIES
+			CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+		)
+	ENDIF()
+ENDFUNCTION()

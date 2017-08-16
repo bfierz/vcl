@@ -106,7 +106,7 @@ namespace Vcl { namespace RTTI
 		{                                                                     \
 			ConstructableType<name> type{ str, sizeof(name), alignof(name) }; \
 			construct(&type);                                                 \
-			return std::move(type);                                           \
+			return type;                                                      \
 		}                                                                     \
 		static void construct(ConstructableType<name>* type);                 \
 	private:                                                                  \

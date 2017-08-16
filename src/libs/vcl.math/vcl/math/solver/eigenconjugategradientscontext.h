@@ -66,17 +66,11 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 	public:
-		// d = r = b - A*x
-		virtual void computeInitialResidual() =0;
-			
-		// q = A*d
-		virtual void computeQ() =0;
-			
 		// d_r = dot(r, r)
 		// d_g = dot(d, q)
 		// d_b = dot(r, q)
 		// d_a = dot(q, q)
-		void reduceVectors()
+		virtual void reduceVectors() override
 		{
 			real_t d_r = _res.squaredNorm();
 			real_t d_g = _dir.dot(_q);
@@ -99,7 +93,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// x = x + alpha * d
 		// r = r - alpha * q
 		// d = r + beta * d
-		void updateVectors()
+		virtual void updateVectors() override
 		{
 			VclRequire(_x != nullptr, "Solution vector is set.");
 

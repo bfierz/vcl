@@ -32,6 +32,12 @@
 // GSL
 #include <gsl/gsl>
 
+// Disable the core-guideline checker until this file is refactored
+#ifdef VCL_COMPILER_MSVC
+#	pragma warning(push, 1)
+#	pragma warning(disable: ALL_CPPCORECHECK_WARNINGS)
+#endif
+
 namespace Vcl { namespace Util
 {
 	template<int N> WaveletNoise<N>::WaveletNoise()
@@ -557,3 +563,6 @@ namespace Vcl { namespace Util
 	template class WaveletNoise<64>;
 	template class WaveletNoise<128>;
 }}
+#ifdef VCL_COMPILER_MSVC
+#	pragma warning(pop)
+#endif

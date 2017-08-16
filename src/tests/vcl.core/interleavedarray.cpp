@@ -31,12 +31,13 @@
 #include <random>
 #include <vector>
 
-
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 template<int ROWS, int COLS>
 void consecutiveLayoutTest(size_t size)

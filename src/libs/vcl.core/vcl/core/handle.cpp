@@ -32,8 +32,8 @@ namespace Vcl
 	uint32_t createResourceHandleTag(void* owner)
 	{
 		// Generate a new resource tag
-		auto now = std::chrono::steady_clock::now();
-		size_t tagId = (size_t) now.time_since_epoch().count() ^ (size_t) owner;
+		const auto now = std::chrono::steady_clock::now();
+		size_t tagId = static_cast<size_t>(now.time_since_epoch().count()) ^ reinterpret_cast<size_t>(owner);
 
 #if defined VCL_ARCH_X64
 		return static_cast<uint32_t>(tagId) ^ static_cast<uint32_t>(tagId >> 32);

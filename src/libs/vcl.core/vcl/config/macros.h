@@ -105,14 +105,21 @@
 #	define VCL_NO_SWITCH_DEFAULT
 #endif // VCL_COMPILER_MSVC
 
-
-#ifdef VCL_COMPILER_MSVC
-#	define VCL_BEGIN_EXTERNAL_HEADERS __pragma(warning(push, 1))
+#if defined(VCL_COMPILER_MSVC)
+#	define VCL_BEGIN_EXTERNAL_HEADERS \
+		__pragma(warning(push, 1)) \
+		__pragma(warning(disable: ALL_CPPCORECHECK_WARNINGS))
 #	define VCL_END_EXTERNAL_HEADERS __pragma(warning(pop))
+#elif defined(VCL_COMPILER_CLANG)
+#	define VCL_BEGIN_EXTERNAL_HEADERS \
+    _Pragma("clang diagnostic push") \
+    _Pragma("clang diagnostic ignored \"-Wunused-parameter\"")
+#	define VCL_END_EXTERNAL_HEADERS \
+    _Pragma("clang diagnostic pop")
 #else
 #	define VCL_BEGIN_EXTERNAL_HEADERS
 #	define VCL_END_EXTERNAL_HEADERS
-#endif // VCL_COMPILER_MSVC
+#endif
 
 // Logic functions
 #define implies(a,b) (!(a) || (b))
