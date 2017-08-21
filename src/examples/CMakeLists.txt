@@ -1,4 +1,8 @@
 
+# Configure the VCL libraries
+INCLUDE(../cmake/VCLCudaSupport.cmake)
+INCLUDE(../cmake/VCLOpenCLSupport.cmake)
+
 SUBDIRS(rtti)
 SUBDIRS(simd)
 

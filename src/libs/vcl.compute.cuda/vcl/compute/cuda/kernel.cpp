@@ -33,8 +33,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 	: Compute::Kernel(name)
 	, _func(func)
 	{
-		Require(!name.empty(), "Name of CUDA function is valid.");
-		Require(func != nullptr, "Pointer to CUDA function is valid.");
+		VclRequire(!name.empty(), "Name of CUDA function is valid.");
+		VclRequire(func != nullptr, "Pointer to CUDA function is valid.");
 
 		_paramMemory = std::make_unique<char[]>(1024);
 

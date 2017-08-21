@@ -1,4 +1,8 @@
 
+# Configure the VCL libraries
+INCLUDE(../cmake/VCLCudaSupport.cmake)
+INCLUDE(../cmake/VCLOpenCLSupport.cmake)
+
 # Control code coverage measurement
 SET(VCL_CODE_COVERAGE CACHE BOOL "Enable code coverage measurement")
 

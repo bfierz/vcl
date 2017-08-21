@@ -49,11 +49,11 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void CommandQueue::copy(BufferView dst, ConstBufferView src)
 	{
-		Require(dynamic_cast<const Buffer*>(&src.owner()), "src is CUDA buffer.");
-		Require(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
-		Require(src.offset() % 4 == 0, "src offset is aligned.");
-		Require(dst.offset() % 4 == 0, "dst ffset is aligned.");
-		Require(dst.size() >= src.size(), "Sizes of views match");
+		VclRequire(dynamic_cast<const Buffer*>(&src.owner()), "src is CUDA buffer.");
+		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
+		VclRequire(src.offset() % 4 == 0, "src offset is aligned.");
+		VclRequire(dst.offset() % 4 == 0, "dst ffset is aligned.");
+		VclRequire(dst.size() >= src.size(), "Sizes of views match");
 
 		auto& dstBuffer = static_cast<Buffer&>(dst.owner());
 		auto& srcBuffer = static_cast<const Buffer&>(src.owner());
@@ -63,8 +63,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void CommandQueue::read(void* dst, ConstBufferView src, bool blocking)
 	{
-		Require(dynamic_cast<const Buffer*>(&src.owner()), "src is CUDA buffer.");
-		Require(src.offset() % 4 == 0, "Offset is aligned.");
+		VclRequire(dynamic_cast<const Buffer*>(&src.owner()), "src is CUDA buffer.");
+		VclRequire(src.offset() % 4 == 0, "Offset is aligned.");
 
 		auto& cuBuffer = static_cast<const Buffer&>(src.owner());
 
@@ -76,8 +76,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void CommandQueue::write(BufferView dst, void* src, bool blocking)
 	{
-		Require(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
-		Require(dst.offset() % 4 == 0, "Offset is aligned.");
+		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
+		VclRequire(dst.offset() % 4 == 0, "Offset is aligned.");
 
 		auto& cuBuffer = static_cast<Buffer&>(dst.owner());
 
@@ -89,8 +89,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void CommandQueue::fill(BufferView dst, const void* pattern, size_t pattern_size)
 	{
-		Require(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
-		Require(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
+		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
+		VclRequire(pattern_size == 1 || pattern_size == 2 || pattern_size == 4, "Valid pattern size.");
 
 		auto& cuBuffer = static_cast<Buffer&>(dst.owner());
 

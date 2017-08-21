@@ -393,7 +393,7 @@ namespace Vcl { namespace Geometry
 		const float fslices = static_cast<float>(slices);
 		const unsigned int stride = static_cast<unsigned int>(slices);
 
-		const float pi = static_cast<float>(M_PI);
+		const float pi = Mathematics::pi<float>();
 
 		std::vector<Vector3f> positions{ nr_vertices };
 		std::vector<Vector3f> normals{ nr_vertices };
@@ -402,7 +402,7 @@ namespace Vcl { namespace Geometry
 		size_t index = 0;
 
 		/*
-		 *	Create the handle mPositions
+		 *	Create the handle positions
 		 */
 		positions[index].setZero();
 		normals[index] = { 0, -1, 0 };
@@ -433,7 +433,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		/*
-		 *	Create the head mPositions
+		 *	Create the head positions
 		 */
 		index += 2 * stride;
 		positions[index] = { 0, handle_length, 0 };

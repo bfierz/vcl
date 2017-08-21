@@ -138,7 +138,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void ConjugateGradientsContext::setX(ref_ptr<Compute::Buffer> x)
 	{
-		Require(dynamic_pointer_cast<Compute::Cuda::Buffer>(x), "x is CUDA buffer.");
+		VclRequire(dynamic_pointer_cast<Compute::Cuda::Buffer>(x), "x is CUDA buffer.");
 
 		_devX = static_pointer_cast<Compute::Cuda::Buffer>(x);
 	}
@@ -237,7 +237,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void ConjugateGradientsContext::updateVectors()
 	{
-		Require(_devX, "Solution vector is set.");
+		VclRequire(_devX, "Solution vector is set.");
 
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
