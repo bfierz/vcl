@@ -35,11 +35,13 @@
 #include <random>
 #include <vector>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
 
 // JSON library
 #include <json.hpp>
+VCL_END_EXTERNAL_HEADERS
 
 // For convenience
 using json = nlohmann::json;

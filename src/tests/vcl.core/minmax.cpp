@@ -33,8 +33,10 @@
 #include <cmath>
 #include <sstream>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 template<class T>
 const T& min(const T& a, const T& b)

@@ -107,6 +107,17 @@ namespace Vcl { namespace Geometry
 		{
 			return vertexProperties().add<T>(name, init_value);
 		}
+		
+		//! Add a new property to the vertex level
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty
+		(
+			const std::string& name,
+			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::rvalue_reference init_value
+		)
+		{
+			return vertexProperties().add<T>(name, std::move(init_value));
+		}
 
 		//! Add a new property to the face level
 		template<typename T>
@@ -117,6 +128,17 @@ namespace Vcl { namespace Geometry
 		)
 		{
 			return faceProperties().add<T>(name, init_value);
+		}
+		
+		//! Add a new property to the face level
+		template<typename T>
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty
+		(
+			const std::string& name,
+			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::rvalue_reference init_value
+		)
+		{
+			return faceProperties().add<T>(name, std::move(init_value));
 		}
 
 		//! Access generic vertex properties

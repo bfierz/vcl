@@ -29,8 +29,10 @@
 // Include the relevant parts from the library
 #include <vcl/core/flags.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 VCL_DECLARE_FLAGS(CarFeatures, Brackes, Engine, Seats)
 

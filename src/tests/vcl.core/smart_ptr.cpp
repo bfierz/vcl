@@ -29,10 +29,10 @@
 // Include the relevant parts from the library
 #include <vcl/core/memory/smart_ptr.h>
 
-// C++ standard library
-
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 TEST(OwnerPtrTest, Simple)
 {

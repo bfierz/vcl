@@ -35,7 +35,7 @@
 #include <vector>
 
 // GSL
-#include <GSL/span>
+#include <gsl/span>
 
 // VCL
 #include <vcl/core/container/array.h>

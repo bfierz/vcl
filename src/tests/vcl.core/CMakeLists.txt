@@ -35,3 +35,6 @@ TARGET_LINK_LIBRARIES(vcl_core_test
 	gtest
 	gtest_main
 )
+
+# Enable static code analysis
+ENABLE_VS_GUIDELINE_CHECKER(vcl_core_test)

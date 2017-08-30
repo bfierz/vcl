@@ -1,10 +1,16 @@
 PROJECT(vcl_core)
 
+# Find dependencies
+FIND_PACKAGE(Eigen3 3.3 REQUIRED)
+
 # Write the configuration file
 CONFIGURE_FILE("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_DIR}/vcl/config/config.h")
 
 # Summarize configuration
 MESSAGE(STATUS "Writing configuration file")
+
+# Generate library
+ADD_LIBRARY(vcl_core STATIC "")
 
 # VCL / CONFIG
 SET(VCL_CONFIG_INC
@@ -100,7 +106,6 @@ SET(VCL_CORE_SIMD_INC
 
 # VCL / DEBUG / MSVC
 SET(VCL_DEBUG_MSVC_INC
-	vcl/debug/msvc/eigen.natvis
 	vcl/debug/msvc/qt5.natvis
 )
 
@@ -173,21 +178,48 @@ SET(SOURCE
 	${VCL_UTIL_SRC} ${VCL_UTIL_INC}
 )
 
-# Generate library
-ADD_LIBRARY(vcl_core STATIC ${SOURCE})
+TARGET_SOURCES(vcl_core PRIVATE ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_core PROPERTIES FOLDER libs)
 SET_TARGET_PROPERTIES(vcl_core PROPERTIES DEBUG_POSTFIX _d)
+
 TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Now make sure that we find the config.h file
-TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${PROJECT_BINARY_DIR})
+# Now make sure that the config.h file is found during development
+TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC
+    $<BUILD_INTERFACE:
+        ${PROJECT_BINARY_DIR}
+    >
+)
+
+FUNCTION( prepend_current_dir SOURCE_FILES )
+  FOREACH( SOURCE_FILE ${${SOURCE_FILES}} )
+    SET( MODIFIED ${MODIFIED} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE} )
+  ENDFOREACH()
+  SET( ${SOURCE_FILES} ${MODIFIED} PARENT_SCOPE )
+ENDFUNCTION()
+
+# Export all the natvis files so they will automatically be loaded into Visual Studio
+prepend_current_dir(VCL_DEBUG_MSVC_INC)
+target_sources(vcl_core INTERFACE 
+	${VCL_DEBUG_MSVC_INC}
+)
 
 TARGET_LINK_LIBRARIES(vcl_core
+	Eigen3
 	fmt-header-only
 	GSL
 	nlohmann_json
-	sseplus
 )
+
+# Enable static code analysis
+OPTION(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking")
+IF (VCL_ENABLE_CORE_GUIDELINE_CHECKER)
+	ENABLE_VS_GUIDELINE_CHECKER(vcl_core)
+ENDIF()
+OPTION(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy")
+IF (VCL_ENABLE_CLANG_TIDY)
+	ENABLE_CLANG_TIDY(vcl_core)
+ENDIF()
 
 # Setup installation
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)

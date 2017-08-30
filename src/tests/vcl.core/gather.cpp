@@ -31,8 +31,10 @@
 #include <vcl/core/simd/memory.h>
 #include <vcl/core/simd/vectorscalar.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Tests the scalar gather function.
 TEST(GatherTest, Scalar)

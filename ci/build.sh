@@ -5,7 +5,7 @@ make -f ./tests/vcl.components/Makefile
 make -f ./tests/vcl.geometry/Makefile
 make -f ./tests/vcl.math/Makefile
 
-if [ "$build_type" = "Debug" ]; then
+if [ "$compiler" = "g++-6"] && [ "$build_type" = "Debug" ]; then
   make -f ./tests/Makefile vcl_core_coverage
   make -f ./tests/Makefile vcl_components_coverage
   make -f ./tests/Makefile vcl_geometry_coverage

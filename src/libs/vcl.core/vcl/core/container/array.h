@@ -27,14 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
-#	include <experimental/array>
-#endif
 #include <array>
 #include <tuple>
 #include <type_traits>
 
-#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+#if (defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)) && __has_include(<experimental/array>)
+#	include <experimental/array>
 namespace std
 {
 	using std::experimental::make_array;
@@ -44,6 +42,10 @@ namespace std
 // http://en.cppreference.com/w/cpp/experimental/make_array
 namespace std
 {
+#if defined(VCL_COMPILER_CLANG)
+	template<class T> struct negation : integral_constant<bool, !static_cast<bool>(T::value)>{};
+#endif
+
 	namespace details
 	{
 		template<class> struct is_ref_wrapper : std::false_type {};
@@ -55,8 +57,10 @@ namespace std
 		template <class D, class...> struct return_type_helper { using type = D; };
 		template <class... Types>
 		struct return_type_helper<void, Types...> : std::common_type<Types...> {
+#if !defined(VCL_COMPILER_CLANG)
 			static_assert(std::conjunction_v<not_ref_wrapper<Types>...>,
 				"Types cannot contain reference_wrappers when D is void");
+#endif
 		};
 
 		template <class D, class... Types>

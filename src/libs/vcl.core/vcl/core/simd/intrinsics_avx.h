@@ -107,14 +107,14 @@ namespace Vcl
 
 	VCL_STRONG_INLINE __m256 _mmVCL_rcp_ps(__m256 v)
 	{
-		__m256 nr = _mm256_rcp_ps(v);
-		__m256 muls = _mm256_mul_ps(_mm256_mul_ps(nr, nr), v);
-		__m256 dbl = _mm256_add_ps(nr, nr);
+		const __m256 nr = _mm256_rcp_ps(v);
+		const __m256 muls = _mm256_mul_ps(_mm256_mul_ps(nr, nr), v);
+		const __m256 dbl = _mm256_add_ps(nr, nr);
 
 		// Filter out zero input to ensure 
-		__m256 mask = _mm256_cmpeq_ps(v, _mm256_setzero_ps());
-		__m256 filtered = _mm256_andnot_ps(mask, muls);
-		__m256 result = _mm256_sub_ps(dbl, filtered);
+		const __m256 mask = _mm256_cmpeq_ps(v, _mm256_setzero_ps());
+		const __m256 filtered = _mm256_andnot_ps(mask, muls);
+		const __m256 result = _mm256_sub_ps(dbl, filtered);
 
 		return result;
 	}
@@ -124,14 +124,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_add_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_add_epi32(x0, y0);
-		__m128i z1 = _mm_add_epi32(x1, y1);
+		const __m128i z0 = _mm_add_epi32(x0, y0);
+		const __m128i z1 = _mm_add_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -141,14 +141,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_sub_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_sub_epi32(x0, y0);
-		__m128i z1 = _mm_sub_epi32(x1, y1);
+		const __m128i z0 = _mm_sub_epi32(x0, y0);
+		const __m128i z1 = _mm_sub_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -158,14 +158,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_mullo_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_mullo_epi32(x0, y0);
-		__m128i z1 = _mm_mullo_epi32(x1, y1);
+		const __m128i z0 = _mm_mullo_epi32(x0, y0);
+		const __m128i z1 = _mm_mullo_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -176,14 +176,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_add_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_max_epi32(x0, y0);
-		__m128i z1 = _mm_max_epi32(x1, y1);
+		const __m128i z0 = _mm_max_epi32(x0, y0);
+		const __m128i z1 = _mm_max_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -194,11 +194,11 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_abs_epi32(x);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm_abs_epi32(x0);
-		__m128i y1 = _mm_abs_epi32(x1);
+		const __m128i y0 = _mm_abs_epi32(x0);
+		const __m128i y1 = _mm_abs_epi32(x1);
 
 		return _mm256_set_m128i(y1, y0);
 #endif
@@ -209,14 +209,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpeq_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmpeq_epi32(x0, y0);
-		__m128i z1 = _mm_cmpeq_epi32(x1, y1);
+		const __m128i z0 = _mm_cmpeq_epi32(x0, y0);
+		const __m128i z1 = _mm_cmpeq_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -226,14 +226,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpneq_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmpneq_epi32(x0, y0);
-		__m128i z1 = _mm_cmpneq_epi32(x1, y1);
+		const __m128i z0 = _mm_cmpneq_epi32(x0, y0);
+		const __m128i z1 = _mm_cmpneq_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -243,14 +243,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmplt_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmplt_epi32(x0, y0);
-		__m128i z1 = _mm_cmplt_epi32(x1, y1);
+		const __m128i z0 = _mm_cmplt_epi32(x0, y0);
+		const __m128i z1 = _mm_cmplt_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -260,14 +260,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmple_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmple_epi32(x0, y0);
-		__m128i z1 = _mm_cmple_epi32(x1, y1);
+		const __m128i z0 = _mm_cmple_epi32(x0, y0);
+		const __m128i z1 = _mm_cmple_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -277,14 +277,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpgt_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmpgt_epi32(x0, y0);
-		__m128i z1 = _mm_cmpgt_epi32(x1, y1);
+		const __m128i z0 = _mm_cmpgt_epi32(x0, y0);
+		const __m128i z1 = _mm_cmpgt_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -294,14 +294,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpge_epi32(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_cmpge_epi32(x0, y0);
-		__m128i z1 = _mm_cmpge_epi32(x1, y1);
+		const __m128i z0 = _mm_cmpge_epi32(x0, y0);
+		const __m128i z1 = _mm_cmpge_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -312,14 +312,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_and_si256(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_and_si128(x0, y0);
-		__m128i z1 = _mm_and_si128(x1, y1);
+		const __m128i z0 = _mm_and_si128(x0, y0);
+		const __m128i z1 = _mm_and_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -329,14 +329,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_andnot_si256(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_andnot_si128(x0, y0);
-		__m128i z1 = _mm_andnot_si128(x1, y1);
+		const __m128i z0 = _mm_andnot_si128(x0, y0);
+		const __m128i z1 = _mm_andnot_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -346,14 +346,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_or_si256(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_or_si128(x0, y0);
-		__m128i z1 = _mm_or_si128(x1, y1);
+		const __m128i z0 = _mm_or_si128(x0, y0);
+		const __m128i z1 = _mm_or_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -363,14 +363,14 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_AVX2
 		return _mm256_xor_si256(x, y);
 #else
-		__m128i x0 = _mm256_extractf128_si256(x, 0);
-		__m128i x1 = _mm256_extractf128_si256(x, 1);
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
-		__m128i y0 = _mm256_extractf128_si256(y, 0);
-		__m128i y1 = _mm256_extractf128_si256(y, 1);
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
 
-		__m128i z0 = _mm_xor_si128(x0, y0);
-		__m128i z1 = _mm_xor_si128(x1, y1);
+		const __m128i z0 = _mm_xor_si128(x0, y0);
+		const __m128i z1 = _mm_xor_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
@@ -378,7 +378,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m256 v)
 	{
-		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		const __m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
 		__m256 redux = _mm256_min_ps(v, hilo);
 		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
 		redux = _mm256_min_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
@@ -388,7 +388,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m256 v)
 	{
-		__m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
+		const __m256 hilo = _mm256_permute2f128_ps(v, v, 0x81);
 		__m256 redux = _mm256_max_ps(v, hilo);
 		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
 		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));

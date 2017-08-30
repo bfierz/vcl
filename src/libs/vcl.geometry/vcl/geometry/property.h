@@ -443,11 +443,13 @@ namespace Vcl { namespace Geometry
 
 	public:
 		ConstPropertyPtr() : _property(nullptr) {}
+
 		ConstPropertyPtr(const PropertyPtr<value_type, index_type>& other) { _property = other.ptr(); }
 		ConstPropertyPtr(const ConstPropertyPtr<value_type, index_type>& other) { _property = other.ptr(); }
-		ConstPropertyPtr(const PropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
-		ConstPropertyPtr(const ConstPropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
-		ConstPropertyPtr(Property<value_type, index_type>* p) : _property(p) {}
+
+		ConstPropertyPtr(PropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
+		ConstPropertyPtr(ConstPropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
+
 		ConstPropertyPtr(const Property<value_type, index_type>* p) : _property(p) {}
 
 		ConstPropertyPtr& operator= (Property<value_type, index_type>* p)
@@ -456,6 +458,8 @@ namespace Vcl { namespace Geometry
 		}
 	public:
 		operator const Property<value_type, index_type>* () const { return _property; }
+		
+		const Property<value_type, index_type>* ptr() const { return _property; }
 
 	public:
 		typename Property<value_type, index_type>::const_reference operator[](int idx) const

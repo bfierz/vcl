@@ -81,8 +81,8 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_mullo_epi32(a, b);
 #else
-		__m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
-		__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
+		const __m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
+		const __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
 		return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0))); /* shuffle results to [63..0] and pack */
 #endif
 	}
@@ -90,10 +90,10 @@ namespace Vcl
 	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
 	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v)
 	{
-		__m128 nr = _mm_rsqrt_ps(v);
-		__m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
-		__m128 beta = _mm_mul_ps(_mm_set1_ps(0.5f), nr);
-		__m128 gamma = _mm_sub_ps(_mm_set1_ps(3.0f), muls);
+		const __m128 nr = _mm_rsqrt_ps(v);
+		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
+		const __m128 beta = _mm_mul_ps(_mm_set1_ps(0.5f), nr);
+		const __m128 gamma = _mm_sub_ps(_mm_set1_ps(3.0f), muls);
 
 		return _mm_mul_ps(beta, gamma);
 	}
@@ -101,35 +101,35 @@ namespace Vcl
 	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
 	VCL_STRONG_INLINE __m128 _mmVCL_rcp_ps(__m128 v)
 	{
-		__m128 nr = _mm_rcp_ps(v);
-		__m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
-		__m128 dbl = _mm_add_ps(nr, nr);
+		const __m128 nr = _mm_rcp_ps(v);
+		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
+		const __m128 dbl = _mm_add_ps(nr, nr);
 
 		// Filter out zero input to ensure 
-		__m128 mask = _mm_cmpeq_ps(v, _mm_setzero_ps());
-		__m128 filtered = _mm_andnot_ps(mask, muls);
-		__m128 result = _mm_sub_ps(dbl, filtered);
+		const __m128 mask = _mm_cmpeq_ps(v, _mm_setzero_ps());
+		const __m128 filtered = _mm_andnot_ps(mask, muls);
+		const __m128 result = _mm_sub_ps(dbl, filtered);
 
 		return result;
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m128 v)
 	{
-		__m128 data = v;             /* [0, 1, 2, 3] */
-		__m128 low = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
-		__m128 low_accum = _mm_min_ps(low, data); /* [0|2, 1|3, 2|2, 3|3] */
-		__m128 elem1 = _mm_shuffle_ps(low_accum, low_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
-		__m128 accum = _mm_min_ss(low_accum, elem1);
+		const __m128 data = v;             /* [0, 1, 2, 3] */
+		const __m128 low = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
+		const __m128 low_accum = _mm_min_ps(low, data); /* [0|2, 1|3, 2|2, 3|3] */
+		const __m128 elem1 = _mm_shuffle_ps(low_accum, low_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
+		const __m128 accum = _mm_min_ss(low_accum, elem1);
 		return _mm_cvtss_f32(accum);
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m128 v)
 	{
-		__m128 data = v;             /* [0, 1, 2, 3] */
-		__m128 high = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
-		__m128 high_accum = _mm_max_ps(high, data); /* [0|2, 1|3, 2|2, 3|3] */
-		__m128 elem1 = _mm_shuffle_ps(high_accum, high_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
-		__m128 accum = _mm_max_ss(high_accum, elem1);
+		const __m128 data = v;             /* [0, 1, 2, 3] */
+		const __m128 high = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
+		const __m128 high_accum = _mm_max_ps(high, data); /* [0|2, 1|3, 2|2, 3|3] */
+		const __m128 elem1 = _mm_shuffle_ps(high_accum, high_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
+		const __m128 accum = _mm_max_ss(high_accum, elem1);
 		return _mm_cvtss_f32(accum);
 	}
 
@@ -195,7 +195,33 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_SSE4_1
 #	define _mmVCL_insert_ps _mm_insert_ps
 #else
-	__m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel);
+	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel)
+	{
+		typedef union
+		{
+			__m128 x;
+			float a[4];
+		} F32;
+
+		float tmp;
+		int count_d, zmask;
+
+		F32 A,B;
+		A.x = a;
+		B.x = b;
+
+		tmp     = B.a[(sel & 0xC0)>>6]; // 0xC0 = sel[7:6]
+		count_d = (sel & 0x30)>>4;      // 0x30 = sel[5:4]
+		zmask   = sel & 0x0F;           // 0x0F = sel[3:0]
+
+		A.a[count_d] = tmp;
+
+		A.a[0] = (zmask & 0x1) ? 0 : A.a[0];
+		A.a[1] = (zmask & 0x2) ? 0 : A.a[1];
+		A.a[2] = (zmask & 0x4) ? 0 : A.a[2];
+		A.a[3] = (zmask & 0x8) ? 0 : A.a[3];
+		return A.x;
+	}
 #endif
 
 	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m128i v, int i)

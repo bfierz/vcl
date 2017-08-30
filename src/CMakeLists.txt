@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.5.0)
 
 PROJECT(VisualComputingLibrary)
 
@@ -14,13 +14,11 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 ################################################################################
 # Add the externals
 ################################################################################
-#INCLUDE(ExternalProject)
+# Configure Eigen3 submodule
+SET(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
 
 SUBDIRS(externals/fmtlib)
 SUBDIRS(externals/gsl)
-SET(GSL_TEST OFF CACHE BOOL "" FORCE)
-SUBDIRS(externals/sseplus)
-SET(SSEPLUS_TEST OFF CACHE BOOL "" FORCE)
 SUBDIRS(externals/json)
 SET(BuildTests OFF CACHE BOOL "" FORCE)
 

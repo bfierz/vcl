@@ -33,8 +33,10 @@
 #include <scoped_allocator>
 #include <vector>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 struct SimpleObject
 {

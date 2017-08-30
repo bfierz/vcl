@@ -29,15 +29,21 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #define USE_SSE2
 #include <vcl/core/simd/sse_mathfun.h>
 
-#include <SSEPlus/SSEPlus.h>
-
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
-{
+{	
+	__m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask)   // Bitwise (mask ? a : b) 
+	{
+		a = _mm_and_si128   ( a,    mask );                                 // clear a where mask = 0
+		b = _mm_andnot_si128( mask, b    );                                 // clear b where mask = 1
+		a = _mm_or_si128    ( a,    b    );                                 // a = a OR b                         
+		return a; 
+	}
+
 	__m128 _mm_sin_ps(__m128 v)
 	{
 		return sin_ps(v);
@@ -72,7 +78,7 @@ namespace Vcl
 		float4 x{ v };
 
 		// Absolute error <= 6.7e-5
-		float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
+		const float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
 
 		x = x.abs();
 
@@ -96,7 +102,7 @@ namespace Vcl
 
 		float4 x{ v };
 
-		float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
+		const float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
 
 		x = abs(x);
 		float4 ret = -0.0187293f;
@@ -168,24 +174,23 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_SSSE3
 		return _mm_abs_epi32(a);
 #else
-		return ssp_abs_epi32_SSE2(a);
+    __m128i mask = _mm_cmplt_epi32( a, _mm_setzero_si128() ); // FFFF   where a < 0
+    a    = _mm_xor_si128 ( a, mask );                         // Invert where a < 0
+    mask = _mm_srli_epi32( mask, 31 );                        // 0001   where a < 0
+    a = _mm_add_epi32( a, mask );                             // Add 1  where a < 0
+	return a;
 #endif
 	}
+
 	__m128i _mmVCL_max_epi32(__m128i a, __m128i b)
 	{
 #ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_max_epi32(a, b);
 #else
-		return ssp_max_epi32_SSE2(a, b);
+    __m128i mask  = _mm_cmpgt_epi32( a, b );                            // FFFFFFFF where a > b
+    a = _mm_logical_bitwise_select( a, b, mask );
+    return a;
 #endif
 	}
-
-#ifndef VCL_VECTORIZE_SSE4_1
-	__m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel)
-	{
-		return ssp_insert_ps_REF(a, b, sel);
-	}
-#endif
-
 }
 #endif // defined(VCL_VECTORIZE_SSE)
