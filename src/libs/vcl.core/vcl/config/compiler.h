@@ -235,8 +235,6 @@
 // Implement missing standard function
 #if defined (VCL_COMPILER_MSVC)
 
-#include <CppCoreCheck/Warnings.h>
-
 // Support for fmin/fmax with low overhead
 #	if (_MSC_VER < 1800)
 namespace std

@@ -106,9 +106,17 @@
 #endif // VCL_COMPILER_MSVC
 
 #if defined(VCL_COMPILER_MSVC)
-#	define VCL_BEGIN_EXTERNAL_HEADERS \
-		__pragma(warning(push, 1)) \
-		__pragma(warning(disable: ALL_CPPCORECHECK_WARNINGS))
+
+#	if defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
+#		include <CppCoreCheck/Warnings.h>
+#		define VCL_BEGIN_EXTERNAL_HEADERS \
+			__pragma(warning(push, 1)) \
+			__pragma(warning(disable: ALL_CPPCORECHECK_WARNINGS))
+#	else
+
+#		define VCL_BEGIN_EXTERNAL_HEADERS \
+			__pragma(warning(push, 1))
+#	endif
 #	define VCL_END_EXTERNAL_HEADERS __pragma(warning(pop))
 #elif defined(VCL_COMPILER_CLANG)
 #	define VCL_BEGIN_EXTERNAL_HEADERS \
