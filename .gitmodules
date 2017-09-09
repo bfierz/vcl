@@ -22,3 +22,6 @@
 [submodule "src/externals/eigen"]
 	path = src/externals/eigen
 	url = https://github.com/libigl/eigen.git
+[submodule "src/externals/vcl.hid"]
+	path = src/externals/vcl.hid
+	url = https://github.com/bfierz/vcl.hid

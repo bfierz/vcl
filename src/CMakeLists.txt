@@ -22,6 +22,8 @@ SUBDIRS(externals/gsl)
 SUBDIRS(externals/json)
 SET(BuildTests OFF CACHE BOOL "" FORCE)
 
+SUBDIRS(externals/vcl.hid)
+
 # The libraries
 SUBDIRS(libs)
 

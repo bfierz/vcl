@@ -160,6 +160,7 @@ TARGET_LINK_LIBRARIES(meshviewer
 	vcl_components
 	vcl_geometry
 	vcl_graphics
+	vcl.hid
 	Qt5::Core
 	Qt5::Gui
 	Qt5::OpenGL
