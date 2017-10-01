@@ -37,7 +37,7 @@ environment:
 
 branches:
   only:
-    - feature/appveyor-integration
+    - master
 
 configuration:
   - Debug
