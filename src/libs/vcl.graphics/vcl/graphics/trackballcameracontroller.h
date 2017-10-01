@@ -43,7 +43,7 @@ namespace Vcl { namespace Graphics
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	public:
-		const Eigen::Matrix4f currObjectTransformation() const { return _objCurrTransformation; }
+		Eigen::Matrix4f objectTransformation() const override { return _objCurrTransformation; }
 
 	public: // Rotation controls
 		void startRotate(float ratio_x, float ratio_y);
@@ -51,7 +51,7 @@ namespace Vcl { namespace Graphics
 		void endRotate();
 
 	public: // Object camera mode
-		void setRotationCenter(const Eigen::Vector3f& center);
+		void setRotationCenter(const Eigen::Vector3f& center) override;
 
 	public:
 		void move(float x, float y, float z);

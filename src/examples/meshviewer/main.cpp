@@ -37,6 +37,7 @@
 
 // VCL
 
+#include "editor/spacemousecontroller.h"
 #include "meshview.h"
 #include "scene.h"
 
@@ -52,6 +53,7 @@ int main(int argc, char **argv)
 
 	// Make types accessible in QML
 	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "MeshView");
+	qmlRegisterSingletonType<Editor::SpaceMouseController>("MeshViewerRendering", 1, 0, "SpaceMouseController", &Editor::SpaceMouseController::instance);
 
 	// Configure the default OpenGL format
 	auto gl_fmt = QSurfaceFormat::defaultFormat();

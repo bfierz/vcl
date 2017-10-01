@@ -34,6 +34,7 @@ import MeshViewerRendering 1.0
 
 ApplicationWindow
 {
+	id: mainWindow
 	width: 800
 	height: 800
 
@@ -178,5 +179,16 @@ ApplicationWindow
 	{
 		renderer.scene = scene
 		entityList.model = scene.entityModel
+
+		SpaceMouseController.attachTo(scene)
+	}
+
+	Connections
+	{
+		target: SpaceMouseController
+		onSpaceMouseMoved:
+		{
+			renderer.update()
+		}
 	}
 }

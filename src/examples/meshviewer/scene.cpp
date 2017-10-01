@@ -59,7 +59,6 @@ Scene::Scene(QObject* parent)
 	// Create a new camera
 	_cameraEntity = _entityManager.create();
 	_camera = _entityManager.create<Camera>(_cameraEntity, std::make_shared<OpenGL::MatrixFactory>());
-	_cameraController.setCamera(_camera);
 
 	// Make the camera placeable in the scene
 	_entityManager.create<System::Components::Transform>(_cameraEntity, Eigen::Matrix4f::Identity());
@@ -77,7 +76,11 @@ void Scene::update()
 	_boundingBox = _sceneBoundingBox;
 	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float) _camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
 
-	_modelMatrix = _cameraController.currObjectTransformation();
+	if (_cameraController)
+		_modelMatrix = _cameraController->objectTransformation();
+	else
+		_modelMatrix.setIdentity();
+
 	_viewMatrix = _camera->view();
 	_projMatrix = _camera->projection();
 }
@@ -227,7 +230,8 @@ void Scene::updateBoundingBox()
 		});
 
 		_camera->encloseInFrustum(bb.center(), { 0, 0, 1 }, bb.diagonal().norm());
-		_cameraController.setRotationCenter(bb.center());
+		if (_cameraController)
+			_cameraController->setRotationCenter(bb.center());
 
 		// Construct scene bounding box
 		_sceneBoundingBox = { bb.center().array() - 1.5f*bb.diagonal().norm(), bb.center().array() + 1.5f*bb.diagonal().norm() };
@@ -236,16 +240,24 @@ void Scene::updateBoundingBox()
 
 void Scene::startRotate(float ratio_x, float ratio_y)
 {
-	_cameraController.startRotate(ratio_x, ratio_y);
+	//_cameraController.startRotate(ratio_x, ratio_y);
 }
 void Scene::rotate(float ratio_x, float ratio_y)
 {
-	_cameraController.rotate(ratio_x, ratio_y);
+	//_cameraController.rotate(ratio_x, ratio_y);
 }
 void Scene::endRotate()
 {
-	_cameraController.endRotate();
+	//_cameraController.endRotate();
 }
+
+void Scene::setCameraController(Vcl::Graphics::CameraController* controller)
+{
+	_cameraController = controller;
+	if (_cameraController)
+		_cameraController->setCamera(_camera);
+}
+
 
 Editor::EntityAdapterModel* Scene::entityModel()
 {

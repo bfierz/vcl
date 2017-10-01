@@ -38,10 +38,12 @@ SET(COMPONENTS_SRC
 SET(EDITOR_INC
 	editor/componentadapter.h
 	editor/entityadapter.h
+	editor/spacemousecontroller.h
 )
 SET(EDITOR_SRC
 	editor/componentadapter.cpp
 	editor/entityadapter.cpp
+	editor/spacemousecontroller.cpp
 )
 
 SET(UTIL_INC

@@ -53,15 +53,19 @@ namespace Vcl { namespace Graphics
 
 		const Camera* camera() const { return _camera; }
 		void setCamera(Camera* camera) { _camera = camera; }
+		
+	public:
+		virtual void setRotationCenter(const Eigen::Vector3f& center) = 0;
+		virtual Eigen::Matrix4f objectTransformation() const = 0;
 
 	protected:
 		Camera* camera() { return _camera; }
 
 	private:
-		//! Camera mode
-		CameraMode _mode{ CameraMode::Object };
-
 		//! Camera that is controlled
 		Camera* _camera{ nullptr };
+
+		//! Camera mode
+		CameraMode _mode{ CameraMode::Object };
 	};
 }}

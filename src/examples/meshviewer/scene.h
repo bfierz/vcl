@@ -60,6 +60,7 @@ public:
 
 public:
 	void setEngine(Vcl::Graphics::Runtime::GraphicsEngine* engine) { _engine = engine; }
+	void setCameraController(Vcl::Graphics::CameraController* controller);
 
 public:
 	void update();
@@ -110,7 +111,7 @@ private: // Engine
 	Vcl::Graphics::Runtime::GraphicsEngine* _engine{ nullptr };
 
 private: // Scene data
-	Vcl::Graphics::TrackballCameraController _cameraController;
+	Vcl::Graphics::CameraController* _cameraController{ nullptr };
 
 	/// Bounding box of the scene
 	Eigen::AlignedBox3f _sceneBoundingBox;
