@@ -1,0 +1,80 @@
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2014 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# 
+version: "{build}"
+
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+
+platform: 
+  - Win32
+#  - x64
+
+environment:
+  MSVC_DEFAULT_OPTIONS: ON
+
+branches:
+  only:
+    - feature/appveyor-integration
+
+configuration:
+  - Debug
+#  - Release
+
+environment:
+  matrix:
+    - vec_type: "SSE 2"
+    - vec_type: "SSE 3"
+    - vec_type: "SSE 4.1"
+    - vec_type: "SSE 4.2"
+    - vec_type: "AVX"
+
+init:
+  - cmd: cmake --version
+  - cmd: msbuild /version
+
+clone_folder: C:\projects\vcl
+
+install:
+  - cmd: git submodule update --init --recursive
+
+before_build:
+  - cmd: cd C:\projects\vcl
+  - cmd: md build
+  - cmd: cd build
+  - cmd: if "%platform%"=="Win32" if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015
+  - cmd: if "%platform%"=="x64"   if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" set CMAKE_GENERATOR_NAME=Visual Studio 14 2015 Win64
+  - cmd: if "%platform%"=="Win32" if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
+  - cmd: if "%platform%"=="x64"   if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ../src
+  
+build:
+  project: C:\projects\vcl\build\tests\vcl.core\vcl_core_test.sln
+  parallel: true
+  verbosity: quiet
+
+test_script:
+  - cmd: cd C:\projects\vcl\build\bin\%configuration%
+  - cmd: vcl_core_test.exe
