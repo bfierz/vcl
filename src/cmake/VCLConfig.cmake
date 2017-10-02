@@ -22,7 +22,7 @@ ENDIF()
 SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Determine platform architexture
+# Determine platform architecture
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	SET(VCL_ADDRESS_SIZE "64")
 ELSE()
