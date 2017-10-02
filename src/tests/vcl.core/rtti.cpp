@@ -89,7 +89,7 @@ public:
 			return _attributes.find(name)->second;
 		}
 
-		return "";
+		return _empty;
 	}
 
 	void print()
@@ -108,6 +108,9 @@ private:
 
 	/// Current attribute
 	std::string _attrib;
+
+	/// Empty string
+	std::string _empty;
 };
 
 class Deserializer : public Vcl::RTTI::Deserializer
