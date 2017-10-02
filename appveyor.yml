@@ -32,9 +32,6 @@ platform:
   - Win32
   - x64
 
-environment:
-  MSVC_DEFAULT_OPTIONS: ON
-
 branches:
   only:
     - master
@@ -44,6 +41,8 @@ configuration:
   - Release
 
 environment:
+  MSVC_DEFAULT_OPTIONS: ON
+  
   matrix:
     - vec_type: "SSE 2"
     - vec_type: "SSE 3"
