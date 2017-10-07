@@ -35,17 +35,20 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the shader compilation
+// Additional shaders
+#include "quad.vert.spv.h"
+#include "quad.frag.spv.h"
 
+// Tests the shader compilation
 const char* QuadVS =
 R"(
-#version 430 core
+#version 440 core
 
-in vec2 Position;
-in vec3 Colour;
-in mat4 Scale;
+layout(location = 0) in vec2 Position;
+layout(location = 1) in vec3 Colour;
+layout(location = 2) in mat4 Scale;
 
-out PerVertexData
+layout(location = 0) out PerVertexData
 {
 	vec3 Colour;
 } Out;
@@ -74,16 +77,16 @@ void main()
 
 const char* QuadFS =
 R"(
-#version 400 core
+#version 440 core
 
-in PerVertexData
+layout(location = 0) in PerVertexData
 {
 	vec3 Colour;
 } In;
 
-uniform float alpha = 0.7f;
+layout(location = 0) uniform float alpha = 0.7f;
 
-out vec4 Colour;
+layout(location = 0) out vec4 Colour;
 
 void main()
 {	
@@ -93,7 +96,7 @@ void main()
 
 const char* SimpleCS =
 R"(
-#version 430 core
+#version 440 core
 
 // Kernel output
 layout(rgba8) uniform image2D output0;
@@ -149,9 +152,44 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	// Create the input definition
 	InputLayoutDescription in = 
 	{
-		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
 		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
+	};
+
+	// Create the program descriptor
+	OpenGL::ShaderProgramDescription desc;
+	desc.InputLayout = in;
+	desc.VertexShader = &vs;
+	desc.FragmentShader = &fs;
+
+	// Create the shader program
+	OpenGL::ShaderProgram prog{ desc };
+
+	// Verify the result
+	GLint linked = 0, valid = 0;
+	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
+	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
+
+	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
+	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+}
+
+TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	// Compile the shader stages
+	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadSpirvVS);
+	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadSpirvFS);
+
+	// Create the input definition
+	InputLayoutDescription in = 
+	{
+		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
 	};
 
 	// Create the program descriptor
