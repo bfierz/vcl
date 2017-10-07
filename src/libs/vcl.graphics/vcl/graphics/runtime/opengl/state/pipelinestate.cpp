@@ -30,7 +30,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	: _inputLayout(desc.InputLayout)
 	, _blendState(desc.Blend)
 	//, _depthStencilState(desc.DepthStencil)
-	//, _rasterizerState(desc.Rasterizer)
+	, _rasterizerState(desc.Rasterizer)
 	{
 		ShaderProgramDescription shader_desc;
 		shader_desc.InputLayout = desc.InputLayout;
@@ -50,5 +50,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Bind the input description
 		_inputLayout.bind();
+
+		// Bind the rasterizer configueration
+		_rasterizerState.bind();
+
+		// Bind the blending configuration
+		_blendState.bind();
 	}
 }}}}

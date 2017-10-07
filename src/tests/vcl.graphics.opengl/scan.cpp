@@ -47,7 +47,7 @@ void ExecuteScanTest(unsigned int size)
 
 	Runtime::BufferDescription desc =
 	{
-		sizeof(unsigned int) * numbers.size(),
+		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size()),
 		Runtime::ResourceUsage::Staging,
 		Runtime::ResourceAccess::Read | Runtime::ResourceAccess::Write
 	};
@@ -55,7 +55,7 @@ void ExecuteScanTest(unsigned int size)
 	Runtime::BufferInitData data =
 	{
 		numbers.data(),
-		sizeof(unsigned int) * numbers.size()
+		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size())
 	};
 
 	auto input = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);

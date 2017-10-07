@@ -45,26 +45,26 @@ namespace Vcl { namespace Graphics
 
 		BufferDescription desc_large =
 		{
-			maxElements * sizeof(unsigned int),
+			maxElements * static_cast<unsigned int>(sizeof(unsigned int)),
 			ResourceUsage::Default,
 			{}
 		};
 		BufferDescription desc_small =
 		{
-			32 * numBlocks * sizeof(unsigned int),
+			32 * numBlocks * static_cast<unsigned int>(sizeof(unsigned int)),
 			ResourceUsage::Default,
 			{}
 		};
 		
-		_tmpKeys      = make_owner<OpenGL::Buffer>(desc_large);
-		_counters     = make_owner<OpenGL::Buffer>(desc_small);
-		_countersSum  = make_owner<OpenGL::Buffer>(desc_small);
-		_blockOffsets = make_owner<OpenGL::Buffer>(desc_small);
+		_tmpKeys      = make_owner<Runtime::OpenGL::Buffer>(desc_large);
+		_counters     = make_owner<Runtime::OpenGL::Buffer>(desc_small);
+		_countersSum  = make_owner<Runtime::OpenGL::Buffer>(desc_small);
+		_blockOffsets = make_owner<Runtime::OpenGL::Buffer>(desc_small);
 
 		// Load the sorting kernels
-		_radixSortBlocksKeysOnlyKernel = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define radixSortBlocksKeysOnly\n", module_scan });
-		_findRadixOffsetsKernel        = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define findRadixOffsets\n", module_scan });
-		_reorderDataKeysOnlyKernel     = OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
+		_radixSortBlocksKeysOnlyKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define radixSortBlocksKeysOnly\n", module_scan });
+		_findRadixOffsetsKernel        = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define findRadixOffsets\n", module_scan });
+		_reorderDataKeysOnlyKernel     = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
 	}
 
 	void RadixSort::operator()

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,38 +26,33 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// C++ standard library
-#include <initializer_list>
-
-// GSL
-#include <gsl/gsl>
-
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class Shader : public Runtime::Shader, public Resource
+	enum class FillMode
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			gsl::span<const uint8_t> binary_data,
-			gsl::span<const unsigned int> spec_indices = {},
-			gsl::span<const unsigned int> spec_values = {});
-		Shader(Shader&& rhs);
-		virtual ~Shader();
-
-		static bool isSpirvSupported();
-		static GLenum toGLenum(ShaderType type);
-
-	private:
-		void printInfoLog() const;
+		Wireframe = 2,
+		Solid     = 3 
 	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+
+	enum class CullMode
+	{
+		None  = 1,
+		Front = 2,
+		Back  = 3 
+	};
+
+	struct RasterizerDescription
+	{
+		FillMode FillMode{ FillMode::Solid };
+		CullMode CullMode{ CullMode::Back };
+		bool     FrontCounterClockwise{ true };
+		int      DepthBias{ 0 };
+		float    SlopeScaledDepthBias{ 0.0f };
+		float    DepthBiasClamp{ 0.0f };
+		bool     DepthClipEnable{ true };
+		bool     ScissorEnable{ false };
+		bool     MultisampleEnable{ false };
+		bool     AntialiasedLineEnable{ false };
+	};
+}}}

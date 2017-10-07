@@ -30,6 +30,9 @@
 // C++ standard library
 #include <iostream>
 
+// GSL
+#include <gsl/gsl>
+
 // NanoGUI
 #include <nanogui/label.h>
 #include <nanogui/layout.h>
@@ -39,14 +42,18 @@
 #include <nanogui/window.h>
 
 // VCL
+#include <vcl/graphics/opengl/glsl/uniformbuffer.h>
+#include <vcl/graphics/opengl/context.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
+#include <vcl/graphics/runtime/opengl/graphicsengine.h>
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
 
-#include "shaders/boundinggrid.vert"
-#include "shaders/boundinggrid.geom"
-#include "shaders/boundinggrid.frag"
+#include "shaders/boundinggrid.h"
+#include "boundinggrid.vert.spv.h"
+#include "boundinggrid.geom.spv.h"
+#include "boundinggrid.frag.spv.h"
 
 // Force the use of the NVIDIA GPU in an Optimus system
 extern "C"
@@ -71,14 +78,14 @@ public:
 		using Vcl::Graphics::Camera;
 		using Vcl::Graphics::SurfaceFormat;
 
-		// Initialize glew
-		glewExperimental = GL_TRUE;
-		GLenum err = glewInit();
-		if (GLEW_OK != err)
-		{
-			/* Problem: glewInit failed, something is seriously wrong. */
-			std::cout << "Error: GLEW: " << glewGetErrorString(err) << std::endl;
-		}
+		// Initialize the graphics engine
+		Vcl::Graphics::OpenGL::Context::initExtensions();
+		Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
+		_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
+
+		// Check availability of features
+		if (!Shader::isSpirvSupported())
+			throw std::runtime_error("SPIR-V is not supported.");
 
 		Window *window = new Window(this, "Grid parameters");
 		window->setPosition(Vector2i(15, 15));
@@ -111,9 +118,9 @@ public:
 		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
 		_cameraController->setCamera(_camera.get());
 
-		Shader boxVert{ ShaderType::VertexShader,   0, vert_shader };
-		Shader boxGeom{ ShaderType::GeometryShader, 0, geom_shader };
-		Shader boxFrag{ ShaderType::FragmentShader, 0, frag_shader };
+		Shader boxVert{ ShaderType::VertexShader,   0, BoundingGridVert };
+		Shader boxGeom{ ShaderType::GeometryShader, 0, BoundingGridGeom };
+		Shader boxFrag{ ShaderType::FragmentShader, 0, BoundingGridFrag };
 		PipelineStateDescription boxPSDesc;
 		boxPSDesc.VertexShader = &boxVert;
 		boxPSDesc.GeometryShader = &boxGeom;
@@ -151,45 +158,65 @@ public:
 public:
 	void drawContents() override
 	{
-		glClearColor(0, 0, 0, 1);
-		glClearDepth(1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		_engine->beginFrame();
+
+		_engine->clear(0, Eigen::Vector4f{0.0f, 0.0f, 0.0f, 1.0f});
+		_engine->clear(1.0f);
 
 		Eigen::Matrix4f vp = _camera->projection() * _camera->view();
 		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
 		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
-		renderBoundingBox(bb, _gridResolution, _boxPipelineState.get(), m, vp);
+		renderBoundingBox(_engine.get(), bb, _gridResolution, _boxPipelineState, m, vp);
+
+		_engine->endFrame();
 	}
 
 private:
 	void renderBoundingBox
 	(
+		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> cmd_queue,
 		const Eigen::AlignedBox3f& bb,
 		unsigned int resolution,
-		Vcl::Graphics::Runtime::OpenGL::PipelineState* ps,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::PipelineState> ps,
 		const Eigen::Matrix4f& M,
 		const Eigen::Matrix4f& VP
 	)
 	{
 		// Configure the layout
-		ps->bind();
+		cmd_queue->setPipelineState(ps);
 
 		// View on the scene
-		ps->program().setUniform("ModelMatrix", M);
-		ps->program().setUniform("ViewProjectionMatrix", VP);
+		auto cbuf_transform = cmd_queue->requestPerFrameConstantBuffer<TransformData>();
+		cbuf_transform->ModelMatrix = M;
+		cbuf_transform->ViewProjectionMatrix = VP;
+		
+		cmd_queue->setConstantBuffer(0, cbuf_transform);
 
 		// Compute the grid paramters
 		float maxSize = bb.diagonal().maxCoeff();
 		Eigen::Vector3f origin = bb.center() - 0.5f * maxSize * Eigen::Vector3f::Ones().eval();
 
-		ps->program().setUniform("Origin", origin);
-		ps->program().setUniform("StepSize", maxSize / (float)resolution);
-		ps->program().setUniform("Resolution", (float)resolution);
+		auto cbuf_config = cmd_queue->requestPerFrameConstantBuffer<BoundingGridConfig>();
+		cbuf_config->Axis[0] = { 1, 0, 0 };
+		cbuf_config->Axis[1] = { 0, 1, 0 };
+		cbuf_config->Axis[2] = { 0, 0, 1 };
+		cbuf_config->Colours[0] = { 1, 0, 0 };
+		cbuf_config->Colours[1] = { 0, 1, 0 };
+		cbuf_config->Colours[2] = { 0, 0, 1 };
+		cbuf_config->Origin = origin;
+		cbuf_config->StepSize = maxSize / (float)resolution;
+		cbuf_config->Resolution = (float)resolution;
 
+		cmd_queue->setConstantBuffer(1, cbuf_config);
+		
 		// Render the grid
 		// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
-		glDrawArraysInstanced(GL_LINES_ADJACENCY, 0, 12, resolution + 1);
+		cmd_queue->setPrimitiveType(Vcl::Graphics::Runtime::PrimitiveType::LinelistAdj);
+		cmd_queue->draw(12, 0, resolution + 1, 0);
 	}
+
+private:
+	std::unique_ptr<Vcl::Graphics::Runtime::GraphicsEngine> _engine;
 
 private:
 	std::unique_ptr<Vcl::Graphics::TrackballCameraController> _cameraController;

@@ -49,7 +49,7 @@ void ExecuteRadixSortTest(unsigned int size)
 
 	Runtime::BufferDescription desc =
 	{
-		num_keys * sizeof(int),
+		num_keys * static_cast<unsigned int>(sizeof(int)),
 		Runtime::ResourceUsage::Staging,
 		Runtime::ResourceAccess::Read | Runtime::ResourceAccess::Write
 	};
@@ -57,7 +57,7 @@ void ExecuteRadixSortTest(unsigned int size)
 	Runtime::BufferInitData data =
 	{
 		numbers.data(),
-		num_keys * sizeof(int)
+		num_keys * static_cast<unsigned int>(sizeof(int))
 	};
 
 	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);

@@ -31,6 +31,7 @@
 // VCL
 #include <vcl/geometry/distance_ray3ray3.h>
 #include <vcl/geometry/MarchingCubesTables.h>
+#include <vcl/graphics/opengl/context.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
@@ -119,6 +120,11 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::SurfaceFormat;
 
 	using Vcl::Editor::Util::createShader;
+
+	Vcl::Graphics::OpenGL::Context::initExtensions();
+#ifdef VCL_DEBUG
+	Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
+#endif
 
 	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
@@ -267,12 +273,11 @@ void FboRenderer::render()
 		Eigen::Matrix4f V = scene->viewMatrix();
 		Eigen::Matrix4f P = scene->projMatrix();
 		
-		auto cbuffer_cam = _engine->requestPerFrameConstantBuffer(sizeof(PerFrameCameraData));
-		auto cbuffer_cam_ptr = reinterpret_cast<PerFrameCameraData*>(cbuffer_cam.data());
-		cbuffer_cam_ptr->Viewport = Eigen::Vector4f{ 0, 0, (float)_owner->width(), (float)_owner->height() };
-		cbuffer_cam_ptr->Frustum = scene->frustum();
-		cbuffer_cam_ptr->ViewMatrix = V;
-		cbuffer_cam_ptr->ProjectionMatrix = P;
+		auto cbuffer_cam = _engine->requestPerFrameConstantBuffer<PerFrameCameraData>();
+		cbuffer_cam->Viewport = Eigen::Vector4f{ 0, 0, (float)_owner->width(), (float)_owner->height() };
+		cbuffer_cam->Frustum = scene->frustum();
+		cbuffer_cam->ViewMatrix = V;
+		cbuffer_cam->ProjectionMatrix = P;
 
 		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
 
@@ -332,7 +337,7 @@ void FboRenderer::render()
 			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
-			_engine->queueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
+			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
 			{
 				if (_idBuffer->width()*_idBuffer->height()*sizeof(Eigen::Vector2i) == view.size())
 					std::memcpy(_idBufferHost.get(), view.data(), view.size());
@@ -340,11 +345,11 @@ void FboRenderer::render()
 		}
 
 		// Reset the render target
+		_engine->setRenderTargets({}, nullptr);
 		this->framebufferObject()->bind();
 
-		glClearColor(0, 0, 0, 1);
-		glClearDepth(1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		_engine->clear(0, Eigen::Vector4f{ 0, 0, 0, 1 });
+		_engine->clear(1.0f);
 
 		// Draw the bounding grid
 		{
@@ -366,7 +371,8 @@ void FboRenderer::render()
 			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
 		
 			// Render the mesh
-			glDrawArrays(GL_POINTS, 0, 1);
+			_engine->setPrimitiveType(Vcl::Graphics::Runtime::PrimitiveType::Pointlist);
+			_engine->draw(1, 0);
 		}
 		/*{
 			std::vector<Eigen::Vector3f> points;
@@ -602,7 +608,7 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 	id_fbo_desc.NrRenderTargets = 1;
 	id_fbo_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
 	id_fbo_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(id_fbo_desc);
+	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(_engine.get(), id_fbo_desc);
 
 	// Create the host version
 	_idBufferHost = std::make_unique<Eigen::Vector2i[]>(_idBuffer->width() * _idBuffer->height());
@@ -613,7 +619,7 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 	abuffer_desc.NrRenderTargets = 1;
 	abuffer_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
 	abuffer_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(abuffer_desc);
+	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(_engine.get(), abuffer_desc);
 
 	QOpenGLFramebufferObjectFormat format;
 	format.setAttachment(QOpenGLFramebufferObject::Depth);

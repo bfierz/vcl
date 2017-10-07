@@ -29,104 +29,16 @@
 #include <iostream>
 
 // VCL
+#include <vcl/graphics/opengl/drawcmds.h>
 #include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
+#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/math/ceil.h>
 
 namespace
 {
-	void VCL_CALLBACK OpenGLDebugMessageCallback
-	(
-		GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar* message,
-		const void* user_param
-	)
-	{
-		VCL_UNREFERENCED_PARAMETER(length);
-		VCL_UNREFERENCED_PARAMETER(user_param);
-
-		std::cout << "Source: ";
-		switch (source)
-		{
-		case GL_DEBUG_SOURCE_API:
-			std::cout << "API";
-			break;
-		case GL_DEBUG_SOURCE_SHADER_COMPILER:
-			std::cout << "Shader Compiler";
-			break;
-		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-			std::cout << "Window System";
-			break;
-		case GL_DEBUG_SOURCE_THIRD_PARTY:
-			std::cout << "Third Party";
-			break;
-		case GL_DEBUG_SOURCE_APPLICATION:
-			std::cout << "Application";
-			break;
-		case GL_DEBUG_SOURCE_OTHER:
-			std::cout << "Other";
-			break;
-		}
-
-		std::cout << ", Type: ";
-		switch (type)
-		{
-		case GL_DEBUG_TYPE_ERROR:
-			std::cout << "Error";
-			break;
-		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-			std::cout << "Deprecated Behavior";
-			break;
-		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-			std::cout << "Undefined Behavior";
-			break;
-		case GL_DEBUG_TYPE_PERFORMANCE:
-			std::cout << "Performance";
-			break;
-		case GL_DEBUG_TYPE_PORTABILITY:
-			std::cout << "Portability";
-			break;
-		case GL_DEBUG_TYPE_OTHER:
-			std::cout << "Other";
-			break;
-		case GL_DEBUG_TYPE_MARKER:
-			std::cout << "Marker";
-			break;
-		case GL_DEBUG_TYPE_PUSH_GROUP:
-			std::cout << "Push Group";
-			break;
-		case GL_DEBUG_TYPE_POP_GROUP:
-			std::cout << "Pop Group";
-			break;
-		}
-
-		std::cout << ", Severity: ";
-		switch (severity)
-		{
-		case GL_DEBUG_SEVERITY_HIGH:
-			std::cout << "High";
-			break;
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			std::cout << "Medium";
-			break;
-		case GL_DEBUG_SEVERITY_LOW:
-			std::cout << "Low";
-			break;
-		case GL_DEBUG_SEVERITY_NOTIFICATION:
-			std::cout << "Notification";
-			break;
-		}
-
-		std::cout << ", ID: " << id;
-		std::cout << ", Message: " << message << std::endl;
-	}
-
 	unsigned int calculateFNV(gsl::span<char> str)
 	{
 		unsigned int hash = 2166136261u;
@@ -139,6 +51,38 @@ namespace
 
 		return hash;
 	}
+	
+	GLenum toGLenum(Vcl::Graphics::Runtime::PrimitiveType topology)
+	{
+		using Vcl::Graphics::Runtime::PrimitiveType;
+
+		switch (topology)
+		{
+		case PrimitiveType::Undefined:
+			return GL_INVALID_ENUM;
+		case PrimitiveType::Pointlist:
+			return GL_POINTS;
+		case PrimitiveType::Linelist:
+			return GL_LINES;
+		case PrimitiveType::Linestrip:
+			return GL_LINE_STRIP;
+		case PrimitiveType::Trianglelist:
+			return GL_TRIANGLES;
+		case PrimitiveType::Trianglestrip:
+			return GL_TRIANGLE_STRIP;
+		case PrimitiveType::LinelistAdj:
+			return GL_LINES_ADJACENCY;
+		case PrimitiveType::LinestripAdj:
+			return GL_LINE_STRIP_ADJACENCY;
+		case PrimitiveType::TrianglelistAdj:
+			return GL_TRIANGLES_ADJACENCY;
+		case PrimitiveType::TrianglestripAdj:
+			return GL_TRIANGLE_STRIP_ADJACENCY;
+		case PrimitiveType::Patch:
+			return GL_PATCHES;
+		default: { VclDebugError("Enumeration value is valid."); return GL_INVALID_ENUM; }
+		}
+	}	
 
 }
 
@@ -297,7 +241,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_linearMemoryBuffer->unmap();
 		_constantBuffer->unmap();
 	}
-
+	
 	void Frame::setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
 	{
 		// Calculate the hash for the set of textures
@@ -325,7 +269,46 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			}
 			auto depth = depth_target;
 			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
-			new_entry.first->second.bind();
+			_currentFramebuffer = &new_entry.first->second;
+			_currentFramebuffer->bind();
+		}
+	}
+
+	void Frame::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	{
+		if ((colour_targets.size() == 0 || !colour_targets[0]) && !depth_target)
+		{
+			_currentFramebuffer = nullptr;
+			return;
+		}
+
+		// Calculate the hash for the set of textures
+		std::array<void*, 9> ptrs;
+		ptrs[0] = depth_target.get();
+		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		{
+			ptrs[i + 1] = colour_targets[i].get();
+		}
+
+		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+
+		// Find the FBO in the cache
+		auto cache_entry = _fbos.find(hash);
+		if (cache_entry != _fbos.end())
+		{
+			cache_entry->second.bind();
+		}
+		else
+		{
+			const Runtime::Texture* colours[8];
+			for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+			{
+				colours[i] = colour_targets[i].get();
+			}
+			auto depth = depth_target.get();
+			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
+			_currentFramebuffer = &new_entry.first->second;
+			_currentFramebuffer->bind();
 		}
 	}
 
@@ -338,46 +321,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		using Vcl::Graphics::OpenGL::GL;
 
-		// Initialize glew
-		glewExperimental = GL_TRUE;
-		GLenum err = glewInit();
-		if (GLEW_OK != err)
-		{
-			/* Problem: glewInit failed, something is seriously wrong. */
-			std::cout << "Error: GLEW: " << glewGetErrorString(err) << std::endl;
-		}
-
-		std::cout << "Status: Using OpenGL:   " << glGetString(GL_VERSION) << std::endl;
-		std::cout << "Status:       Vendor:   " << glGetString(GL_VENDOR) << std::endl;
-		std::cout << "Status:       Renderer: " << glGetString(GL_RENDERER) << std::endl;
-		std::cout << "Status:       Profile:  " << GL::getProfileInfo() << std::endl;
-		std::cout << "Status:       Shading:  " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-		std::cout << "Status: Using GLEW:     " << glewGetString(GLEW_VERSION) << std::endl;
-
-		// Control V-Sync
-		//wglSwapIntervalEXT(0);
-
-		// Enable the synchronous debug output
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
-		// Disable debug severity: notification
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-
-		// Disable specific messages
-		GLuint perf_messages_ids[] =
-		{
-			131154, // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering
-		//	131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
-		};
-		glDebugMessageControl
-		(
-			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE,
-			sizeof(perf_messages_ids) / sizeof(GLuint), perf_messages_ids, GL_FALSE
-		);
-
-		// Register debug callback
-		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
-
 		// Read the device dependent constant
 		_cbufferAlignment = GL::getInteger(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
@@ -387,12 +330,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// 3. which the GPU is processing
 		_frames.resize(_numConcurrentFrames);
 	}
+	
+	owner_ptr<Runtime::Texture> GraphicsEngine::createResource(const Texture2DDescription& desc)
+	{
+		return make_owner<OpenGL::Texture2D>(desc);
+	}
+	
+	owner_ptr<Runtime::Buffer> GraphicsEngine::createResource(const BufferDescription& desc)
+	{
+		return make_owner<OpenGL::Buffer>(desc);
+	}
 
 	void GraphicsEngine::beginFrame()
 	{
-		// Increment the frame counter to indicate the start of the next frame
-		incrFrameCounter();
-
 		// Fetch the frame we want to use for the current rendering frame
 		_currentFrame = &_frames[currentFrame() % _numConcurrentFrames];
 
@@ -411,14 +361,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Reset the staging area to use it again for the new frame
-		_currentFrame->readBackBuffer()->transfer();
-
-		// Execute the callbacks of the read-back requests
-		for (auto& callback : _readBackCallbacks)
-		{
-			callback.second(callback.first);
-		}
-		_readBackCallbacks.clear();
+		_currentFrame->executeReadbackRequests();
 
 		// Map the per frame constant buffer
 		_currentFrame->mapBuffers();
@@ -454,6 +397,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Flush the OpenGL command pipeline to ensure command processing before the
 		// UI command list is build
 		glFlush();
+		
+		// Increment the frame counter to indicate the start of the next frame
+		incrFrameCounter();
 	}
 
 	BufferView GraphicsEngine::requestPerFrameConstantBuffer(size_t size)
@@ -478,34 +424,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return view;
 	}
 
-	ref_ptr<DynamicTexture<3>> GraphicsEngine::allocatePersistentTexture(std::unique_ptr<Runtime::Texture> source)
+	void GraphicsEngine::enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
 	{
-		std::array<std::unique_ptr<Runtime::Texture>, 3> textures;
-		textures[0] = std::move(source);
-		for (size_t i = 1; i < textures.size(); i++)
-		{
-			textures[i] = textures[0]->clone();
-		}
-
-		_persistentTextures.emplace_back(make_owner<DynamicTexture<3>>(std::move(textures)));
-		return _persistentTextures.back();
-	}
-
-	void GraphicsEngine::deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex)
-	{
-
-	}
-
-	void GraphicsEngine::queueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
-	{
-		// Fetch the staging area
-		auto staging_area = _currentFrame->readBackBuffer();
-
-		// Queue the copy command
-		auto memory_range = staging_area->copyFrom(tex);
-
-		// Queue the callback
-		_readBackCallbacks.emplace_back(memory_range, std::move(callback));
+		_currentFrame->enqueueReadback(tex, std::move(callback));
 	}
 
 	void GraphicsEngine::enqueueCommand(std::function<void(void)> cmd)
@@ -515,89 +436,40 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_genericCmds.emplace_back(std::move(cmd));
 	}
 
-	void GraphicsEngine::resetRenderTargets()
+	void GraphicsEngine::setRenderTargets(gsl::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
 	{
-
-	}
-
-	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
-	{
-		// Index of the current frame
-		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
-
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[curr_frame_idx];
-
 		// Set the render targets for the current frame
-		Runtime::Texture* colours[8];
+		ref_ptr<Runtime::Texture> colours[8];
 		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
 		{
-			colours[i] = colour_targets[i].get();
+			colours[i] = colour_targets[i];
 		}
 
-		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth_target.get());
-	}
-
-	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
-	{
-		// Index of the current frame
-		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
-
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[curr_frame_idx];
-
-		// Set the render targets for the current frame
-		Runtime::Texture* colours[8];
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
-		{
-			colours[i] = (*colour_targets[i])[curr_frame_idx];
-		}
-
-		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth_target.get());
-	}
-
-	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
-	{
-		// Index of the current frame
-		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
-
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[curr_frame_idx];
-
-		// Set the render targets for the current frame
-		Runtime::Texture* colours[8];
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
-		{
-			colours[i] = colour_targets[i].get();
-		}
-		auto depth = (*depth_target)[curr_frame_idx];
-
-		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth);
-	}
-
-	void GraphicsEngine::setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target)
-	{
-		// Index of the current frame
-		int curr_frame_idx = currentFrame() % _numConcurrentFrames;
-
-		// Fetch the frame we are using for the current rendering frame
-		auto& curr_frame = _frames[curr_frame_idx];
-
-		// Set the render targets for the current frame
-		Runtime::Texture* colours[8];
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
-		{
-			colours[i] = (*colour_targets[i])[curr_frame_idx];
-		}
-		auto depth = (*depth_target)[curr_frame_idx];
-
-		curr_frame.setRenderTargets({ colours, colours + colour_targets.size() }, depth);
+		_currentFrame->setRenderTargets({ colours, colours + colour_targets.size() }, depth_target);
 	}
 
 	void GraphicsEngine::setConstantBuffer(int idx, BufferView view)
-	{	
+	{
 		auto& buffer = static_cast<const OpenGL::Buffer&>(view.owner());
 		glBindBufferRange(GL_UNIFORM_BUFFER, idx, buffer.id(), view.offset(), view.size());
+	}
+	
+	void GraphicsEngine::setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride)
+	{
+		auto& gl_buffer = static_cast<const OpenGL::Buffer&>(buffer);
+		glBindVertexBuffer(idx, gl_buffer.id(), offset, stride);
+	}
+	
+	void GraphicsEngine::setTexture(int idx, const Runtime::Texture& texture)
+	{
+		auto& gl_texture = static_cast<const OpenGL::Texture&>(texture);
+	
+		GLuint tex_id = gl_texture.id();
+		glBindTextures(idx, 1, &tex_id);
+	}
+
+	void GraphicsEngine::setTextures(int idx, gsl::span<const ref_ptr<Runtime::Texture>> textures)
+	{
 	}
 
 	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
@@ -606,4 +478,109 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		gl_state->bind();
 	}
+	
+	void GraphicsEngine::pushConstants(void* data, size_t size)
+	{
+		VclRequire(size <= 128, "Push-constants less than 128 bytes");
+
+		auto buffer = requestPerFrameConstantBuffer(size);
+		memcpy(buffer.data(), data, size);
+
+		setConstantBuffer(_pushConstantBufferIndex, buffer);
+	}
+	
+	void GraphicsEngine::clear(int idx, const Eigen::Vector4f& colour)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(idx, colour);
+		}
+		else
+		{
+			glClearBufferfv(GL_COLOR, idx, colour.data());
+		}
+	}
+	void GraphicsEngine::clear(int idx, const Eigen::Vector4i& colour)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(idx, colour);
+		}
+		else
+		{
+			glClearBufferiv(GL_COLOR, idx, colour.data());
+		}
+	}
+	void GraphicsEngine::clear(int idx, const Eigen::Vector4ui& colour)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(idx, colour);
+		}
+		else
+		{
+			glClearBufferuiv(GL_COLOR, idx, colour.data());
+		}
+	}
+	void GraphicsEngine::clear(float depth, int stencil)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(depth, stencil);
+		}
+		else
+		{
+			glClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
+		}
+	}
+	void GraphicsEngine::clear(float depth)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(depth);
+		}
+		else
+		{
+			glClearBufferfv(GL_DEPTH, 0, &depth);
+		}
+	}
+	void GraphicsEngine::clear(int stencil)
+	{
+		if (_currentFrame->currentFramebuffer())
+		{
+			_currentFrame->currentFramebuffer()->clear(stencil);
+		}
+		else
+		{
+			glClearBufferiv(GL_STENCIL, 0, &stencil);
+		}
+	}
+	
+	void GraphicsEngine::setPrimitiveType(PrimitiveType type, int nr_vertices)
+	{	
+		_currentPrimitiveType = type;
+		_currentNrPatchVertices = nr_vertices;
+
+		if (_currentPrimitiveType == PrimitiveType::Patch)
+		{
+			glPatchParameteri(GL_PATCH_VERTICES, _currentNrPatchVertices);
+		}
+	}
+	
+	void GraphicsEngine::draw(int count, int first, int instance_count, int base_instance)
+	{
+		GLenum mode = toGLenum(_currentPrimitiveType);
+		//Graphics::OpenGL::DrawCommand cmd{ count, instance_count, first, base_instance };
+		//glDrawArraysIndirect(mode, &cmd);
+		glDrawArraysInstancedBaseInstance(mode, first, count, instance_count, base_instance);
+	}
+
+	void GraphicsEngine::drawIndexed(int count, int first_index, int instance_count, int base_vertex, int base_instance)
+	{
+		GLenum mode = toGLenum(_currentPrimitiveType);
+		//Graphics::OpenGL::DrawIndexedCommand cmd{ count, first_index, instance_count, base_vertex, base_instance };
+		//glDrawElementsIndirect(mode, GL_UNSIGNED_INT, &cmd);
+		glDrawElementsInstancedBaseInstance(mode, count, GL_UNSIGNED_INT, nullptr, instance_count, base_instance);
+	}
+
 }}}}

@@ -26,8 +26,12 @@
 
 // C++ standard library
 
+// FMT
+#include <fmt/format.h>
+
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/opengl/gl.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -38,6 +42,9 @@
 #		define glUnmapNamedBufferVCL glUnmapNamedBuffer
 #		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRange
 #		define glCopyNamedBufferSubDataVCL glCopyNamedBufferSubData
+#		define glClearNamedBufferDataVCL glClearNamedBufferData
+#		define glClearNamedBufferSubDataVCL glClearNamedBufferSubData
+#		define glGetNamedBufferSubDataVCL glGetNamedBufferSubData
 #	elif defined(VCL_GL_EXT_direct_state_access)
 #		define glCreateBuffersVCL glGenBuffers
 #		define glNamedBufferStorageVCL glNamedBufferStorageEXT
@@ -45,6 +52,9 @@
 #		define glUnmapNamedBufferVCL glUnmapNamedBufferEXT
 #		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRangeEXT
 #		define glCopyNamedBufferSubDataVCL glNamedCopyBufferSubDataEXT
+#		define glClearNamedBufferDataVCL glClearNamedBufferDataEXT
+#		define glClearNamedBufferSubDataVCL glClearNamedBufferSubDataEXT
+#		define glGetNamedBufferSubDataVCL glGetNamedBufferSubDataEXT
 #	endif
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -248,7 +258,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			GLint64 min_align = 0;
 			glGetInteger64v(GL_MIN_MAP_BUFFER_ALIGNMENT, &min_align);
-			VclEnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", "Offset: {}, Minimum aligment: {}", offset, min_align);
+			VclEnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", fmt::format("Offset: {}, Minimum aligment: {}", offset, min_align));
 		}
 
 		return mappedPtr;
@@ -287,6 +297,36 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclEnsure(!_mappedAccess.isAnySet(), "Buffer is not mapped.");
 	}
 
+	void Buffer::clear()
+	{
+		VclRequire(_glId > 0, "GL buffer is created.");
+
+		glClearNamedBufferDataVCL(_glId, GL_R8I, GL_RED, GL_BYTE, nullptr);
+	}
+	
+	void Buffer::clear(const Graphics::OpenGL::AnyRenderType& rt, void* data)
+	{
+		VclRequire(_glId > 0, "GL buffer is created.");
+
+		glClearNamedBufferDataVCL(_glId, rt.internalFormat(), rt.format(), rt.componentType(), data);
+	}
+	
+	void Buffer::clear(size_t offset, size_t size)
+	{
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
+		
+		glClearNamedBufferSubDataVCL(_glId, GL_R8I, offset, size, GL_RED, GL_BYTE, nullptr);
+	}
+
+	void Buffer::clear(size_t offset, size_t size, const Graphics::OpenGL::AnyRenderType& rt, void* data)
+	{
+		VclRequire(_glId > 0, "GL buffer is created.");
+		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
+		
+		glClearNamedBufferSubDataVCL(_glId, rt.internalFormat(), offset, size, rt.format(), rt.componentType(), data);
+	}
+
 	void Buffer::copyTo(void* dst, size_t srcOffset, size_t dstOffset, size_t size) const
 	{
 		VclRequire(_glId > 0, "GL buffer is created.");
@@ -295,7 +335,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
 
-		glGetNamedBufferSubData(_glId, srcOffset, size, (char*) dst + dstOffset);
+		glGetNamedBufferSubDataVCL(_glId, srcOffset, size, (char*) dst + dstOffset);
 	}
 
 	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size) const

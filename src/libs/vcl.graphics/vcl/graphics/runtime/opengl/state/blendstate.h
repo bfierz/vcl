@@ -32,7 +32,7 @@
 #include <array>
 
 // VCL
-#include <vcl/graphics/opengl/statecommands.h>
+#include <vcl/graphics/opengl/commandstream.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
 
 #ifdef VCL_OPENGL_SUPPORT
@@ -59,7 +59,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		/*!
 		 * \brief Append the state changes to the state command buffer
 		 */
-		void record(Graphics::OpenGL::StateCommands& states);
+		void record(Graphics::OpenGL::CommandStream& states);
 
 	public:
 		bool isValid() const;

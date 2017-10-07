@@ -25,6 +25,7 @@
 #include <vcl/graphics/shadows/shadowvolume.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
+// FMT
 #	include <fmt/format.h>
 VCL_END_EXTERNAL_HEADERS
 

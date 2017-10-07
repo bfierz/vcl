@@ -33,6 +33,7 @@
 
 // VCL
 #include <vcl/core/flags.h>
+#include <vcl/graphics/opengl/type_traits.h>
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
@@ -90,11 +91,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Buffer(const BufferDescription& desc, bool allowPersistentMapping = false, bool allowCoherentMapping = false, const BufferInitData* init_data = nullptr);
 		virtual ~Buffer();
 
-	public:
 		//! Bind the buffer to the GL pipeline
 		BufferBindPoint bind(GLenum target);
 
-	public:
 		void* map(size_t offset, size_t length, Flags<ResourceAccess> access = ResourceAccess::Write, Flags<MapOptions> options = {});
 		void unmap();
 
@@ -102,10 +101,32 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 * \param offset Offset to the beginning of the currently mapped range
 		 */
 		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
+		
+		//! Clear the contents of the buffer
+		void clear();
 
-	public:
+		//! Set the contents of the buffer to a value
+		//! \param rt Type of the input data
+		//! \param data Input data
+		void clear(const Graphics::OpenGL::AnyRenderType& rt, void* data);
+		
+		//! Clear the contents of the buffer
+		void clear(size_t offset, size_t size);
+
+		//! Clear a portion of the buffer
+		//! \param offset Offset into the buffer
+		//! \param size Size of the area to clear
+		//! \param rt Type of the input data
+		//! \param data Input data
+		void clear(size_t offset, size_t size, const Graphics::OpenGL::AnyRenderType& rt, void* data);
+
+		//! \defgroup Data copy methods
+		//! \{
+
 		void copyTo(void* dst, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
 		void copyTo(Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
+
+		//! \}
 
 	private:
 		//! Buffer can be mapped persistently

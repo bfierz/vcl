@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +26,44 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/opengl.h>
 
-// C++ standard library
-#include <memory>
+#ifdef VCL_OPENGL_SUPPORT
 
-// GSL
-#include <gsl/gsl>
-
-// VCL
-#include <vcl/core/memory/smart_ptr.h>
-#include <vcl/graphics/runtime/resource/texture.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime
+namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	/*!
-	 *	\brief Holds a several of the same of textures for parallel rendering
-	 *
-	 *	Each frame that is rendered needs its own version of a texture in order
-	 *	to prevent implicit CPU-GPU sync points or data race-conditions.
-	 */
-	template<int N>
-	class DynamicTexture
+	struct DrawCommand
 	{
-	public:
-		DynamicTexture(std::array<std::unique_ptr<Texture>, N> source)
-		{
-			_textures = std::move(source);
-		}
+		DrawCommand(int count, int inst_count, int first, int base_inst)
+		: Count(static_cast<uint32_t>(count))
+		, InstanceCount(static_cast<uint32_t>(inst_count))
+		, First(static_cast<uint32_t>(first))
+		, BaseInstance(static_cast<uint32_t>(base_inst))
+		{}
 
-	public:
-		gsl::not_null<Texture*> operator[] (size_t idx) const
-		{
-			VclRequire(idx < 3, "Index is in range.");
-
-			return _textures[idx].get();
-		}
-
-	private:
-		std::array<std::unique_ptr<Texture>, N> _textures;
+		uint32_t Count;
+		uint32_t InstanceCount;
+		uint32_t First;
+		uint32_t BaseInstance;
 	};
+
+	struct DrawIndexedCommand
+	{
+		DrawIndexedCommand(int count, int inst_count, int first_index, int base_vertex, int base_inst)
+		: Count(static_cast<uint32_t>(count))
+		, InstanceCount(static_cast<uint32_t>(inst_count))
+		, FirstIndex(static_cast<uint32_t>(first_index))
+		, BaseVertex(static_cast<uint32_t>(base_vertex))
+		, BaseInstance(static_cast<uint32_t>(base_inst))
+		{}
+
+		uint32_t Count;
+		uint32_t InstanceCount;
+		uint32_t FirstIndex;
+		uint32_t BaseVertex;
+		uint32_t BaseInstance;
+	};
+
 }}}
+
+#endif // VCL_OPENGL_SUPPORT

@@ -41,6 +41,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait
 	{
 		using Type = T;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
@@ -57,17 +59,17 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		AnyRenderType(DynamicRenderTypeGate gate) : _gate(gate) { VclEnsure(_gate != nullptr, "gate not NULL"); }
 
 	public:
-		virtual const GLenum componentType() const;
-		virtual const GLint size() const;
-		virtual const GLint componentSize() const;
-		virtual const GLint nrComponents() const;
-		virtual const bool isIntegral() const;
+		virtual GLenum internalFormat() const;
+		virtual GLenum format() const;
+		virtual GLenum componentType() const;
+		virtual GLint size() const;
+		virtual GLint componentSize() const;
+		virtual GLint nrComponents() const;
+		virtual bool isIntegral() const;
 
-		//virtual const bool isPixelType() const { return _gate().isPixelType(); }
-		//virtual const GLenum internalFormat() const { VclRequire(isPixelType(), "type is color type"); return _gate().internalFormat(); }
-		//virtual const GLenum internalBaseFormat() const { VclRequire(isPixelType(), "type is color type"); return _gate().internalBaseFormat(); }
-		//virtual const GLenum format() const { VclRequire(isPixelType(), "type is color type"); return _gate().format(); }
-		//virtual const bool hasAlphaChannel() const { VclRequire(isPixelType(), "type is color type"); return _gate().hasAlphaChannel(); }
+		//virtual bool isPixelType() const { return _gate().isPixelType(); }
+		//virtual GLenum internalBaseFormat() const { VclRequire(isPixelType(), "type is color type"); return _gate().internalBaseFormat(); }
+		//virtual bool hasAlphaChannel() const { VclRequire(isPixelType(), "type is color type"); return _gate().hasAlphaChannel(); }
 
 	private:
 		DynamicRenderTypeGate _gate;
@@ -90,17 +92,17 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 	public:
 		RenderType() : AnyRenderType(&DynamicRenderType<T>::warp) {}
-
-		const GLenum componentType() const override { return TypeTrait::ComponentType; }
-		const GLint size() const override { return TypeTrait::Size; }
-		const GLint componentSize() const override { return TypeTrait::ComponentSize; }
-		const GLint nrComponents() const override { return TypeTrait::NrComponents; }
-		const bool isIntegral() const override { return TypeTrait::IsIntegral; }
+		
+		GLenum internalFormat() const override { return TypeTrait::InternalFormat; }
+		GLenum format() const override { return TypeTrait::Format; }
+		GLenum componentType() const override { return TypeTrait::ComponentType; }
+		GLint size() const override { return TypeTrait::Size; }
+		GLint componentSize() const override { return TypeTrait::ComponentSize; }
+		GLint nrComponents() const override { return TypeTrait::NrComponents; }
+		bool isIntegral() const override { return TypeTrait::IsIntegral; }
 		
 		//const bool isPixelType() const override {return TypeTrait::IsPixelType; }
-		//const GLenum internalFormat() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalFormat:GL_NONE; }
 		//const GLenum internalBaseFormat() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::InternalBaseFormat:GL_NONE; }
-		//const GLenum format() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::Format:GL_NONE; }
 		//const bool hasAlphaChannel() const override {VclRequire(isPixelType(), "type is pixel/color type"); return TypeTrait::IsPixelType?TypeTrait::HasAlphaChannel:false; }
 	};
 
@@ -116,6 +118,6 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	extern template struct RenderTypeTrait<Eigen::Vector2i>;
 	extern template struct RenderTypeTrait<Eigen::Vector3i>;
 	extern template struct RenderTypeTrait<Eigen::Vector4i>;
-#endif /* VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST */
+#endif // VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST
 }}}
 #endif // VCL_OPENGL_SUPPORT

@@ -29,6 +29,7 @@
 // C++ Standard Library
 
 // Include the relevant parts from the library
+#include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
 // Google test
@@ -42,7 +43,7 @@ TEST(OpenGL, CreateBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Default,
+		ResourceUsage::Staging,
 		{}
 	};
 
@@ -50,6 +51,72 @@ TEST(OpenGL, CreateBuffer)
 
 	// Verify the result
 	EXPECT_TRUE(buf.id() != 0) << "Buffer not created.";
+}
+
+TEST(OpenGL, ClearBuffer)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Define the buffer
+	BufferDescription desc =
+	{
+		1024,
+		ResourceUsage::Staging,
+		{}
+	};
+	
+	std::vector<int> read_back(1024 / sizeof(int), 0xDEADC0DE);
+	BufferInitData data =
+	{
+		read_back.data(),
+		1024
+	};
+
+	OpenGL::Buffer buf(desc, false, false, &data);
+	buf.clear();
+
+	buf.copyTo(read_back.data(), 0, 0, 1024);
+	
+	// Verify the result
+	bool equal = true;
+	int fault = 0;
+	for (int i : read_back) {
+		equal = equal && (i == 0);
+		if (i != 0)
+			fault = i;
+	}
+	EXPECT_TRUE(equal) << "Buffer not cleared: " << std::hex << "0x" << fault;
+}
+
+TEST(OpenGL, DISABLED_SetBufferValue)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Define the buffer
+	BufferDescription desc =
+	{
+		1024,
+		ResourceUsage::Default,
+		{}
+	};
+
+	OpenGL::Buffer buf(desc);
+
+	int ref_data = 0xDEADC0DE;
+	buf.clear(0, 1024, Vcl::Graphics::OpenGL::RenderType<int>{}, &ref_data);
+
+	std::vector<int> read_back(1024 / sizeof(int));
+	buf.copyTo(read_back.data(), 0, 0, 1024);
+
+	// Verify the result
+	bool equal = true;
+	int fault = 0;
+	for (int i : read_back) {
+		equal = equal && (i == ref_data);
+		if (i != ref_data)
+			fault = i;
+	}
+	EXPECT_TRUE(equal) << "Buffer not set. Ref: 0x" << std::hex << ref_data << ", actual: 0x" << fault;
 }
 
 TEST(OpenGL, CheckBufferInit)

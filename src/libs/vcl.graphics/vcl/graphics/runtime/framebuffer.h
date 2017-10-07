@@ -31,6 +31,7 @@
 #include <array>
 
 // GSL
+#include <gsl/gsl>
 
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
@@ -94,7 +95,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class GBuffer : public Framebuffer
 	{
 	public:
-		GBuffer(const FramebufferDescription& desc);
+		GBuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc);
 
 	public:
 		void bind(GraphicsEngine* engine) override;
@@ -108,6 +109,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		const Vcl::Graphics::Runtime::Texture& renderTarget(size_t idx) { return *_renderTargets[idx]; }
 
 	private:
+		//! Engine to which the GBuffer is currently bound
+		GraphicsEngine* _engine{ nullptr };
+
 		//! Depth target
 		owner_ptr<Vcl::Graphics::Runtime::Texture> _depthTarget;
 
@@ -118,7 +122,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class ABuffer : public Framebuffer
 	{
 	public:
-		ABuffer(const FramebufferDescription& desc);
+		ABuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc);
 
 	public:
 		void bind(GraphicsEngine* engine) override;

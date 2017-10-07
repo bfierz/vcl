@@ -35,6 +35,15 @@ SUBDIRS(externals/gsl)
 OPTION(BuildTests OFF)
 SUBDIRS(externals/json)
 
+FIND_PACKAGE(EGL QUIET)
+IF(EGL_FOUND)
+	ADD_LIBRARY(egl UNKNOWN IMPORTED)
+	SET_PROPERTY(TARGET egl PROPERTY TARGET_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}")
+	SET_PROPERTY(TARGET egl PROPERTY IMPORTED_LOCATION "${EGL_LIBRARY}")
+ELSE()
+	SUBDIRS(externals/EGL/EGL)
+ENDIF()
+
 ################################################################################
 # The libraries
 ################################################################################

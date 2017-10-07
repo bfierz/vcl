@@ -41,7 +41,6 @@
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
-#include <vcl/graphics/runtime/dynamictexture.h>
 #include <vcl/graphics/runtime/framebuffer.h>
 
 #include "util/positionmanipulator.h"

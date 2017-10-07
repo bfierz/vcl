@@ -30,6 +30,20 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2darray.h>
 #include <vcl/graphics/runtime/opengl/resource/texture3d.h>
 
+#ifdef VCL_OPENGL_SUPPORT
+
+#	if defined(VCL_GL_ARB_direct_state_access)
+#		define glCreateFramebuffersVCL glCreateFramebuffers
+#		define glNamedFramebufferDrawBuffersVCL glNamedFramebufferDrawBuffers
+#		define glNamedFramebufferTextureVCL glNamedFramebufferTexture
+#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayer
+#	elif defined(VCL_GL_EXT_direct_state_access)
+#		define glCreateFramebuffersVCL glGenFramebuffers
+#		define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
+#		define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
+#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
+#	endif
+
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	Framebuffer::Framebuffer
@@ -39,16 +53,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	)
 	: _depthTarget{ depthTarget }
 	{
-		_colourTargets.assign(nullptr);
+		_colourTargets.fill(nullptr);
 
 		// Create a framebuffer
-		glCreateFramebuffers(1, &_glId);
+		glCreateFramebuffersVCL(1, &_glId);
 
 		// Activate the necessary numbers of draw buffers
 		std::vector<GLenum> colourAttachements(maxNrRenderTargets);
 		for (unsigned int i = 0; i < static_cast<unsigned int>(colourAttachements.size()); i++)
 			colourAttachements[i] = GL_COLOR_ATTACHMENT0 + i;
-		glNamedFramebufferDrawBuffers(_glId, maxNrRenderTargets, colourAttachements.data());
+		glNamedFramebufferDrawBuffersVCL(_glId, maxNrRenderTargets, colourAttachements.data());
 
 		// Bind the render targets
 		if (depthTarget)
@@ -61,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				GLenum depth_attachment_type = toDepthStencilAttachment(depth_fmt);
 				
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2D&>(*depthTarget);
-				glNamedFramebufferTexture(_glId, depth_attachment_type, tex.id(), 0);
+				glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), 0);
 				break;
 			}
 			case TextureType::Texture2DArray:
@@ -72,11 +86,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2DArray&>(*depthTarget);
 				if (tex.firstLayer() == 0 && tex.layers() > 1)
 				{
-					glNamedFramebufferTexture(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel());
+					glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel());
 				}
 				else if (tex.firstLayer() == 0 && tex.layers() == 1)
 				{
-					glNamedFramebufferTextureLayer(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel(), tex.firstLayer());
+					glNamedFramebufferTextureLayerVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel(), tex.firstLayer());
 				}
 				else
 				{
@@ -91,7 +105,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		else
 		{
-			glNamedFramebufferTexture(_glId, GL_DEPTH_ATTACHMENT, 0, 0);
+			glNamedFramebufferTextureVCL(_glId, GL_DEPTH_ATTACHMENT, 0, 0);
 		}
 		
 		for (size_t v = 0; v < nrColourTargets; v++)
@@ -104,7 +118,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			case TextureType::Texture2D:
 			{
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2D&>(*view);
-				glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), view->firstMipMapLevel());
+				glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), view->firstMipMapLevel());
 				break;
 			}
 			case TextureType::Texture2DArray:
@@ -115,11 +129,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				
 				if (first == 0 && size == tex.layers())
 				{
-					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
+					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
 				}
 				else if (size == 1)
 				{
-					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
+					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
 				}
 				else
 				{
@@ -138,11 +152,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				if (first == 0 && size >= tex.depth())
 				{
-					glNamedFramebufferTexture(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
+					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
 				}
 				else if (size == 1)
 				{
-					glNamedFramebufferTextureLayer(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
+					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
 				}
 				else
 				{
@@ -178,7 +192,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		VclRequire(checkGLFramebufferStatus(_glId), "Framebuffer object is complete.");
 
-		glClearNamedFramebufferfv(_glId, GL_COLOR, idx, colour.data());
+		// Const-cast the parameters, due to GLEW API bug
+		glClearNamedFramebufferfv(_glId, GL_COLOR, idx, const_cast<float*>(colour.data()));
 	}
 	void Framebuffer::clear(int idx, const Eigen::Vector4i& colour)
 	{
@@ -274,3 +289,4 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 }}}}
+#endif // VCL_OPENGL_SUPPORT

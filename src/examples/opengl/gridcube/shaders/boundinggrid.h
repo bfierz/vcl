@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,49 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#version 430 core
-#extension GL_ARB_enhanced_layouts : enable
+#ifndef GLSL_BOUNDINGGRID_H
+#define GLSL_BOUNDINGGRID_H
+
+#include <vcl/graphics/opengl/glsl/uniformbuffer.h>
 
 ////////////////////////////////////////////////////////////////////////////////
-// Shader Configuration
+// Shader constants
 ////////////////////////////////////////////////////////////////////////////////
-layout(lines_adjacency) in;
-layout(invocations = 4) in;
-layout(line_strip, max_vertices = 2) out;
-
-////////////////////////////////////////////////////////////////////////////////
-// Shader Input
-////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) in VertexData
+UNIFORM_BUFFER(0) TransformData
 {
-	vec3 Colour;
-} In[4];
+	// Transform to world space
+	mat4 ModelMatrix;
 
-////////////////////////////////////////////////////////////////////////////////
-// Shader Output
-////////////////////////////////////////////////////////////////////////////////
-layout(location = 0) out VertexData
+	// Transform from world to normalized device coordinates
+	mat4 ViewProjectionMatrix;
+};
+
+UNIFORM_BUFFER(1) BoundingGridConfig
 {
-	vec3 Colour;
-} Out;
+	// Axis' in model space
+	vec3 Axis[3];
 
-////////////////////////////////////////////////////////////////////////////////
-// Implementation
-////////////////////////////////////////////////////////////////////////////////
-void emitLine(int a, int b)
-{
-	Out.Colour = In[a].Colour;
-	gl_Position = gl_in[a].gl_Position;
-	EmitVertex();
+	// Colours of the box faces
+	vec3 Colours[3];
 
-	Out.Colour = In[a].Colour;
-	gl_Position = gl_in[b].gl_Position;
-	EmitVertex();
+	// Root position
+	vec3_u Origin;
 
-	EndPrimitive();
-}
+	// Size of a single cell
+	float StepSize;
 
-void main(void)
-{
-	emitLine(gl_InvocationID, (gl_InvocationID + 1) % 4);
-}
+	// Number of cells per size
+	float Resolution;
+};
+
+#endif // GLSL_BOUNDINGGRID_H

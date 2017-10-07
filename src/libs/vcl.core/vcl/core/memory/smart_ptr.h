@@ -93,8 +93,23 @@ namespace Vcl
 			owner_ptr(U* ptr)
 			: _ptr(ptr)
 			{
+#ifdef VCL_USE_CONTRACTS
 				_cnt = std::make_shared<Detail::ref_cnt>();
 				_cnt->setValid();
+#endif
+			}
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			owner_ptr(std::unique_ptr<U> ptr)
+			: _ptr(ptr.release())
+			{
+#ifdef VCL_USE_CONTRACTS
+				_cnt = std::make_shared<Detail::ref_cnt>();
+				_cnt->setValid();
+#endif
 			}
 			owner_ptr(const owner_ptr&) = delete;
 		
@@ -107,21 +122,27 @@ namespace Vcl
 			{
 				_ptr = rhs._ptr;
 				rhs._ptr = nullptr;
-
+				
+#ifdef VCL_USE_CONTRACTS
 				std::swap(_cnt, rhs._cnt);
+#endif
 			}
 
 			~owner_ptr()
 			{
+#ifdef VCL_USE_CONTRACTS
 				if (_cnt)
 					_cnt->setInvalid();
+#endif
 				_ptr = nullptr;
 			}
 
 			void reset(T* ptr = nullptr)
 			{
+#ifdef VCL_USE_CONTRACTS
 				_cnt = std::make_shared<Detail::ref_cnt>();
 				_cnt->setValid();
+#endif
 				_ptr = ptr;
 			}
 
@@ -141,16 +162,21 @@ namespace Vcl
 			}
 
 			T* get() const { return _ptr; }
-
-		public: // Access
+			
+#ifdef VCL_USE_CONTRACTS
 			long use_count() const
 			{
 				return _cnt.use_count() - 1;
 			}
+#endif
 
 		private:
 			T* _ptr{ nullptr };
+
+#ifdef VCL_USE_CONTRACTS
+			//! Marker supporting checking if the owner still exists
 			std::shared_ptr<Detail::ref_cnt> _cnt;
+#endif
 		};
 
 		template<typename T>
@@ -169,8 +195,25 @@ namespace Vcl
 			>
 			ref_ptr(const owner_ptr<U>& ptr)
 			: _ptr(ptr.get())
+#ifdef VCL_USE_CONTRACTS
 			, _cnt(ptr._cnt)
+#endif
 			{
+			}
+			
+			//! Constructor overload supporting std::unique_ptr
+			template
+			<
+				typename U,
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
+			>
+			ref_ptr(const std::unique_ptr<U>& ptr)
+			: _ptr(ptr.get())
+			{
+#ifdef VCL_USE_CONTRACTS
+				_cnt = std::make_shared<Detail::ref_cnt>();
+				_cnt->setValid();
+#endif
 			}
 
 			template
@@ -180,7 +223,9 @@ namespace Vcl
 			>
 			ref_ptr(const ref_ptr<U>& ptr)
 			: _ptr(ptr.get())
+#ifdef VCL_USE_CONTRACTS
 			, _cnt(ptr._cnt)
+#endif
 			{
 			}
 			
@@ -191,7 +236,9 @@ namespace Vcl
 				if (casted)
 				{
 					_ptr = casted;
+#ifdef VCL_USE_CONTRACTS
 					_cnt = ptr._cnt;
+#endif
 				}
 			}
 			
@@ -202,7 +249,9 @@ namespace Vcl
 				if (casted)
 				{
 					_ptr = casted;
+#ifdef VCL_USE_CONTRACTS
 					_cnt = ptr._cnt;
+#endif
 				}
 			}
 
@@ -213,7 +262,9 @@ namespace Vcl
 				if (casted)
 				{
 					_ptr = casted;
+#ifdef VCL_USE_CONTRACTS
 					_cnt = ptr._cnt;
+#endif
 				}
 			}
 			~ref_ptr()
@@ -223,19 +274,27 @@ namespace Vcl
 
 			void reset()
 			{
+#ifdef VCL_USE_CONTRACTS
 				_cnt.reset();
+#endif
 				_ptr = nullptr;
 			}
 
 			void reset(const owner_ptr<T>& ptr)
 			{
+#ifdef VCL_USE_CONTRACTS
 				_cnt = ptr._cnt;
+#endif
 				_ptr = ptr.get();
 			}
 
 			operator bool() const
 			{
+#ifdef VCL_USE_CONTRACTS
 				return _ptr && _cnt;
+#else
+				return _ptr != nullptr;
+#endif
 			}
 
 			T& operator*() const
@@ -252,7 +311,11 @@ namespace Vcl
 
 		private:
 			T* _ptr{ nullptr };
+			
+#ifdef VCL_USE_CONTRACTS
+			//! Marker supporting checking if the owner still exists
 			std::shared_ptr<Detail::ref_cnt> _cnt;
+#endif
 		};
 
 		template<typename T, typename... Args>
@@ -262,15 +325,33 @@ namespace Vcl
 		}
 
 		template<typename T, typename U>
+		ref_ptr<T> static_pointer_cast(const owner_ptr<U>& ptr)
+		{
+			return{ ref_ptr<U>(ptr), Detail::StaticTag{} };
+		}
+		
+		template<typename T, typename U>
 		ref_ptr<T> static_pointer_cast(const ref_ptr<U>& ptr)
 		{
 			return{ ptr, Detail::StaticTag{} };
 		}
 
 		template<typename T, typename U>
+		ref_ptr<T> dynamic_pointer_cast(const owner_ptr<U>& ptr)
+		{
+			return{ ref_ptr<U>(ptr), Detail::DynamicTag{} };
+		}
+
+		template<typename T, typename U>
 		ref_ptr<T> dynamic_pointer_cast(const ref_ptr<U>& ptr)
 		{
 			return{ ptr, Detail::DynamicTag{} };
+		}
+		
+		template<typename T, typename U>
+		ref_ptr<T> const_pointer_cast(const owner_ptr<U>& ptr)
+		{
+			return{ ref_ptr<U>(ptr), Detail::ConstTag{} };
 		}
 
 		template<typename T, typename U>
