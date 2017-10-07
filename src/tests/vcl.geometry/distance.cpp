@@ -32,6 +32,7 @@
 #include <vector>
 
 // Include the relevant parts from the library
+#include <vcl/core/memory/allocator.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 #include <vcl/geometry/distance_ray3ray3.h>
@@ -72,6 +73,8 @@ TEST(PointTriangleDistance, Simple)
 
 	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
 
+	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t>>>;
+
 	// Reference triangle
 	Eigen::Vector3f ref_a{ 1, 0, 0 };
 	Eigen::Vector3f ref_b{ 0, 1, 0 };
@@ -90,13 +93,13 @@ TEST(PointTriangleDistance, Simple)
 	size_t width = sizeof(real_t) / sizeof(float);
 
 	// Results
-	std::vector<float>  d0(nr_problems);
-	std::vector<real_t> d1(nr_problems / width);
+	std::vector<float> d0(nr_problems);
+	WideVector         d1(nr_problems / width);
 
-	std::vector<float>  s0(nr_problems);
-	std::vector<real_t> s1(nr_problems / width);
-	std::vector<float>  t0(nr_problems);
-	std::vector<real_t> t1(nr_problems / width);
+	std::vector<float> s0(nr_problems);
+	WideVector         s1(nr_problems / width);
+	std::vector<float> t0(nr_problems);
+	WideVector         t1(nr_problems / width);
 
 	// Initialize data
 	for (int i = 0; i < (int) nr_problems; i++)

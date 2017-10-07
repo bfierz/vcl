@@ -38,6 +38,10 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
+#if defined(VCL_COMPILER_MSVC)
+#pragma push
+#pragma float_control(precise, on)
+#endif
 template<class T>
 const T& min(const T& a, const T& b)
 {
@@ -49,6 +53,9 @@ const T& max(const T& a, const T& b)
 {
 	return (a > b) ? a : b;
 }
+#if defined(VCL_COMPILER_MSVC)
+#pragma pop
+#endif
 
 TEST(MinMax, NanSafeMinMax)
 {
