@@ -34,7 +34,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 	: Compute::CommandQueue()
 	, _ownerCtx(owner)
 	{
-		VCL_CU_SAFE_CALL(cuStreamCreate(&_queue, 0));
+		VCL_CU_SAFE_CALL(cuStreamCreate(&_queue, CU_STREAM_NON_BLOCKING));
 	}
 
 	CommandQueue::~CommandQueue()

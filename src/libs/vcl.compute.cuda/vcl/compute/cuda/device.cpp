@@ -73,6 +73,10 @@ namespace Vcl { namespace Compute { namespace Cuda
 		int nrAsyncEngines = 0;
 		VCL_CU_SAFE_CALL(cuDeviceGetAttribute(&nrAsyncEngines, CU_DEVICE_ATTRIBUTE_ASYNC_ENGINE_COUNT, dev));
 		_nrAsyncEngines = nrAsyncEngines;
+		
+		int canRunConcurrentKernels = 0;
+		VCL_CU_SAFE_CALL(cuDeviceGetAttribute(&canRunConcurrentKernels, CU_DEVICE_ATTRIBUTE_CONCURRENT_KERNELS, dev));
+		_canRunConcurrentKernels = canRunConcurrentKernels != 0;
 	}
 
 	bool Device::supports(Feature f) const

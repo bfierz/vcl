@@ -89,5 +89,8 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		//! Number of asynchronous engines
 		uint32_t _nrAsyncEngines{ 0 };
+		
+		//! Indicate if the device can run kernels concurrently
+		bool _canRunConcurrentKernels{ false };
 	};
 }}}

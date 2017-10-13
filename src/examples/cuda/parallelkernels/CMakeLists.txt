@@ -1,0 +1,32 @@
+PROJECT(parallelkernels_cuda)
+
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCUDA.cmake)
+
+SET(SRC
+	main.cpp
+)
+
+SET(KERNELS_CU
+	vectoradd.cu
+)
+# Access the include directories in order to compile the CUDA code
+GET_PROPERTY(CURR_INC_DIRS_0 TARGET vcl_core_cuda PROPERTY INCLUDE_DIRECTORIES)
+LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
+
+VCLCOMPILECU(
+	${PROJECT_SOURCE_DIR}/vectoradd.cu
+	"vectoradd"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS_0
+)
+SET(COMPILEDKERNELS ${COMPILEDKERNELS_0})
+
+SOURCE_GROUP("cuc" FILES ${COMPILEDKERNELS})
+SOURCE_GROUP("" FILES ${SRC} ${KERNELS})
+
+ADD_EXECUTABLE(parallelkernels_cuda ${SRC} ${KERNELS} ${COMPILEDKERNELS})
+SET_TARGET_PROPERTIES(parallelkernels_cuda PROPERTIES FOLDER examples/cuda)
+
+TARGET_LINK_LIBRARIES(parallelkernels_cuda
+	vcl_compute_cuda
+)
