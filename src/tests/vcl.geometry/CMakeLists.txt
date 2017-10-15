@@ -3,6 +3,7 @@ PROJECT(vcl_geometry_test)
 SET(VCL_TEST_SRC
 	distance.cpp
 	intersect.cpp
+	obb.cpp
 	tetramesh.cpp
 	
 	liver_766.cpp
