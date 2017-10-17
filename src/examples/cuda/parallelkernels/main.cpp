@@ -38,8 +38,16 @@
 #include <vcl/compute/cuda/platform.h>
 #include <vcl/math/math.h>
 
-extern uint32_t vectoradd[];
-extern size_t vectoraddSize;
+void vectoradd
+(
+	cudaStream_t stream, 
+	int grid_size,
+	int block_size,
+	int problem_size,
+	const float* vecA,
+	const float* vecB,
+	float* vecC
+);
 
 int main(int argc, char* argv[])
 {
@@ -48,7 +56,7 @@ int main(int argc, char* argv[])
 	using Vcl::Core::dynamic_pointer_cast;
 	using Vcl::Core::static_pointer_cast;
 
-	const size_t problem_size = 1024*1024;
+	const size_t problem_size = 128;
 
 	Platform::initialise();
 
@@ -57,9 +65,6 @@ int main(int argc, char* argv[])
 		auto& dev = Platform::instance()->device(d);
 		Context ctx{ dev };
 		
-		auto mod = ctx.createModuleFromSource((const int8_t*) vectoradd, vectoraddSize * sizeof(uint32_t));
-		auto kernel = dynamic_pointer_cast<Kernel>(mod->kernel("vectoradd"));
-
 		ref_ptr<CommandQueue> queue[] = {
 			dynamic_pointer_cast<CommandQueue>(ctx.defaultQueue()),
 			dynamic_pointer_cast<CommandQueue>(ctx.createCommandQueue()) };
@@ -82,8 +87,8 @@ int main(int argc, char* argv[])
 		
 		for (size_t i = 0; i < 2; i++)
 		{
-			kernel->run(*queue[i], (int)problem_size / 32, 32, 0, (int)problem_size, mem0[i], mem1[i], mem2[i]);
-			kernel->run(*queue[i], (int)problem_size / 32, 32, 0, (int)problem_size, mem0[i], mem1[i], mem2[i]);
+			vectoradd(*queue[i], (int)problem_size, 32, (int)problem_size, (float*) mem0[i]->devicePtr(), (float*) mem1[i]->devicePtr(), (float*) mem2[i]->devicePtr());
+			vectoradd(*queue[i], (int)problem_size, 32, (int)problem_size, (float*) mem0[i]->devicePtr(), (float*) mem1[i]->devicePtr(), (float*) mem2[i]->devicePtr());
 		}
 		
 		for (size_t i = 0; i < 2; i++)
@@ -91,16 +96,16 @@ int main(int argc, char* argv[])
 			queue[i]->read(result[i].data(), static_pointer_cast<const Vcl::Compute::Buffer>(mem2[i]));
 			queue[i]->sync();
 		}
-		//for (auto f : result[0])
-		//{
-		//	std::cout << (Vcl::Mathematics::equal(f, 3, 1e-5f) ? '.' : 'F');
-		//}
-		//std::cout << std::endl;
-		//for (auto f : result[1])
-		//{
-		//	std::cout << (Vcl::Mathematics::equal(f, 3, 1e-5f) ? '.' : 'F');
-		//}
-		//std::cout << std::endl;
+		for (auto f : result[0])
+		{
+			std::cout << (Vcl::Mathematics::equal(f, 300000, 1e-5f) ? '.' : 'F');
+		}
+		std::cout << std::endl;
+		for (auto f : result[1])
+		{
+			std::cout << (Vcl::Mathematics::equal(f, 300000, 1e-5f) ? '.' : 'F');
+		}
+		std::cout << std::endl;
 	}
 
 	Platform::dispose();

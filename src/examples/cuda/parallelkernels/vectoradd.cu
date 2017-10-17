@@ -23,7 +23,6 @@
  * SOFTWARE.
  */
 
-extern "C"
 __global__ void vectoradd
 (
 	int size,
@@ -36,5 +35,21 @@ __global__ void vectoradd
 	if (idx >= size)
 		return;
 	
-	vecC[idx] = vecA[idx] + vecB[idx];
+	vecC[idx] = 0;
+	for (int i = 0; i < 100000; i++)
+		atomicAdd(&vecC[idx], vecA[idx] + vecB[idx]);
+}
+
+void vectoradd
+(
+	cudaStream_t stream, 
+	int grid_size,
+	int block_size,
+	int problem_size,
+	const float* vecA,
+	const float* vecB,
+	float* vecC
+)
+{
+	vectoradd<<<grid_size / block_size, block_size, 0, stream>>>(problem_size, vecA, vecB, vecC);
 }

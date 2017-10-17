@@ -1,32 +1,32 @@
-PROJECT(parallelkernels_cuda)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+project(parallelkernels_cuda LANGUAGES CXX CUDA)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCUDA.cmake)
+# Define the project's target
+add_executable(parallelkernels_cuda "")
 
-SET(SRC
+# Place the target into a specific solution folder
+set_target_properties(parallelkernels_cuda PROPERTIES FOLDER examples/cuda)
+
+# Enable C++11 for CUDA
+target_compile_features(parallelkernels_cuda PUBLIC cxx_std_11)
+
+# Use separate compilation and linking for CUDA
+set_target_properties(parallelkernels_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+# Define the compilation targets
+string(APPEND CMAKE_CUDA_FLAGS " -gencode arch=compute_30,code=sm_30")
+string(APPEND CMAKE_CUDA_FLAGS " -gencode arch=compute_50,code=compute_50")
+string(APPEND CMAKE_CUDA_FLAGS " -gencode arch=compute_60,code=compute_60")
+
+# Define the source
+set(SRC
 	main.cpp
-)
-
-SET(KERNELS_CU
 	vectoradd.cu
 )
-# Access the include directories in order to compile the CUDA code
-GET_PROPERTY(CURR_INC_DIRS_0 TARGET vcl_core_cuda PROPERTY INCLUDE_DIRECTORIES)
-LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
+source_group("" FILES ${SRC})
+target_sources(parallelkernels_cuda PRIVATE ${SRC})
 
-VCLCOMPILECU(
-	${PROJECT_SOURCE_DIR}/vectoradd.cu
-	"vectoradd"
-	"${CURR_INC_DIRS}"
-	COMPILEDKERNELS_0
-)
-SET(COMPILEDKERNELS ${COMPILEDKERNELS_0})
-
-SOURCE_GROUP("cuc" FILES ${COMPILEDKERNELS})
-SOURCE_GROUP("" FILES ${SRC} ${KERNELS})
-
-ADD_EXECUTABLE(parallelkernels_cuda ${SRC} ${KERNELS} ${COMPILEDKERNELS})
-SET_TARGET_PROPERTIES(parallelkernels_cuda PROPERTIES FOLDER examples/cuda)
-
-TARGET_LINK_LIBRARIES(parallelkernels_cuda
+# Link dependent libraries
+target_link_libraries(parallelkernels_cuda
 	vcl_compute_cuda
 )
