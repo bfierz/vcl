@@ -38,6 +38,11 @@
 #include <vcl/compute/cuda/module.h>
 #include <vcl/math/solver/conjugategradients.h>
 
+// Select the reduction method
+#define VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS 1
+#define VCL_MATH_CG_CUDA_SHUFFLE 0
+#define VCL_MATH_CG_CUDA_BASIC 0
+
 #ifdef VCL_CUDA_SUPPORT
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
@@ -83,10 +88,13 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		ref_ptr<Compute::Context> context() { return _ownerCtx; }
 
 	private:
+		//! Allocate internal memory structures
 		void init();
+		
+		//! Free internal memory structures
 		void destroy();
 
-	private:
+	protected:
 		// Device context
 		ref_ptr<Compute::Context> _ownerCtx;
 
@@ -97,12 +105,17 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		// Module
 		ref_ptr<Compute::Module> _reduceUpdateModule;
 
-		// Kernel performing the dot-product
-		ref_ptr<Compute::Cuda::Kernel> _reduceBeginKernel;
-		ref_ptr<Compute::Cuda::Kernel> _reduceContinueKernel;
+		//! Kernel used in the vector update step
 		ref_ptr<Compute::Cuda::Kernel> _updateKernel;
 		
-	private: // Buffers for reduction
+	protected: // Kernel performing the dot-product
+#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
+		ref_ptr<Compute::Cuda::Kernel> _reduceKernel;
+#elif VCL_MATH_CG_CUDA_SHUFFLE || VCL_MATH_CG_CUDA_BASIC
+		ref_ptr<Compute::Cuda::Kernel> _reduceBeginKernel;
+		ref_ptr<Compute::Cuda::Kernel> _reduceContinueKernel;
+#endif
+
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersR;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersG;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersB;
@@ -113,8 +126,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		float* _hostB;
 		float* _hostA;
 
-	private: /* Problem configuration */
-		size_t _size;
+	private: // Problem configuration
+		unsigned int _size;
 
 	protected:
 		ref_ptr<Compute::Cuda::Buffer> _devX;
