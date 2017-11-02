@@ -40,8 +40,9 @@
 #include <vcl/core/contract.h>
 
 /*!
- *	Picking up an idea formulated in:
- *	http://www.codeproject.com/Articles/4795/C-Standard-Allocator-An-Introduction-and-Implement
+ * Picking up an idea formulated in:
+ * http://www.codeproject.com/Articles/4795/C-Standard-Allocator-An-Introduction-and-Implement
+ * http://jrruethe.github.io/blog/2015/11/22/allocators/
  */
 namespace Vcl { namespace Core
 {
