@@ -16,8 +16,13 @@ TARGET_LINK_LIBRARIES(svd33performance
 	vcl_core
 	vcl_math
 	benchmark
-	Shlwapi
 )
+
+IF(WIN32)
+    TARGET_LINK_LIBRARIES(svd33performance
+        Shlwapi
+    )
+ENDIF()
 
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	TARGET_LINK_LIBRARIES(svd33performance
