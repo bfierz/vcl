@@ -33,6 +33,9 @@
 // C++ standard library
 #include <initializer_list>
 
+// GSL
+#include <gsl/gsl>
+
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
@@ -43,6 +46,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 	public:
 		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
+		Shader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data);
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 

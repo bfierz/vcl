@@ -24,6 +24,10 @@
  */
 #include <vcl/graphics/shadows/shadowvolume.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
+#	include <fmt/format.h>
+VCL_END_EXTERNAL_HEADERS
+
 // VCL
 #include <vcl/graphics/shadows/shadowmap.h>
 #include <vcl/math/math.h>
@@ -275,7 +279,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		VclRequireEx(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", "Angle: %f", mDirection.cross(mUp).dot(mRight));
+		VclRequireEx(equal(mDirection.cross(mUp).dot(mRight), 1, 1e-4f), "Frame is orthogonal.", fmt::format("Angle: %f", mDirection.cross(mUp).dot(mRight)));
 
 		return mFactory->createLookAt(mPosition, mDirection, mUp, Handedness::RightHanded);
 	}

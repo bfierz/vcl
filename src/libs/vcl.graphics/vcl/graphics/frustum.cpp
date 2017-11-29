@@ -24,8 +24,13 @@
  */
 #include <vcl/graphics/frustum.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Eigen library
-#include <Eigen/Eigenvalues>
+#	include <Eigen/Eigenvalues>
+
+// Fmt library
+#	include <fmt/format.h>
+VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/core/contract.h>
@@ -41,7 +46,7 @@ namespace Vcl { namespace Graphics
 {
 	template<typename Scalar>
 	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum()
-	: PerspectiveViewFrustum(0, 0, (float) (M_PI / 4.0), 0.01, 100, {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0})
+	: PerspectiveViewFrustum(0, 0, static_cast<Scalar>(M_PI / 4.0), static_cast<Scalar>(0.01), 100, {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0})
 	{
 	}
 
@@ -61,7 +66,7 @@ namespace Vcl { namespace Graphics
 	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum(const Vcl::Graphics::Camera* cam)
 	: PerspectiveViewFrustum
 	  (
-		cam->viewportWidth(), cam->viewportHeight(), cam->fieldOfView(), cam->nearPlane(), cam->farPlane(),
+		static_cast<Scalar>(cam->viewportWidth()), static_cast<Scalar>(cam->viewportHeight()), cam->fieldOfView(), cam->nearPlane(), cam->farPlane(),
 		cam->position().cast<Scalar>(),
 		cam->direction().cast<Scalar>(),
 		cam->direction().cross(cam->up().cross(cam->direction()).normalized()).normalized().cast<Scalar>(),
@@ -165,9 +170,9 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		VclRequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", "Length: %f", _direction.norm());
-		VclRequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", "Length: %f", _up.norm());
-		VclRequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", "Length: %f", _right.norm());
+		VclRequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", fmt::format("Length: %f", _direction.norm()));
+		VclRequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", fmt::format("Length: %f", _up.norm()));
+		VclRequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", fmt::format("Length: %f", _right.norm()));
 			
 		real_t ratio = _x / _y;
 
@@ -237,7 +242,7 @@ namespace Vcl { namespace Graphics
 	OrthographicViewFrustum<Scalar>::OrthographicViewFrustum()
 	: _x(0)
 	, _y(0)
-	, _near(0.01)
+	, _near(static_cast<Scalar>(0.01))
 	, _far(100)
 	, _position(0, 0, 0)
 	, _direction(0, 0, 1)
@@ -355,7 +360,7 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 			
-		VclRequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", _direction.cross(_up).dot(_right));
+		VclRequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", _direction.cross(_up).dot(_right)));
 
 		return factory.createLookAt(_position.template cast<float>(), _direction.template cast<float>(), _up.template cast<float>(), Handedness::RightHanded).template cast<Scalar>();
 	}
@@ -400,7 +405,7 @@ namespace Vcl { namespace Graphics
 		{
 			real_t d = dir.dot(frustum.corner(i) - p[0]);
 			proj_points[i] = frustum.corner(i) - d * dir;
-			VclCheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", "d = %f", dir.dot(proj_points[i] - p[0]));
+			VclCheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", fmt::format("d = %f", dir.dot(proj_points[i] - p[0])));
 		}
 
 		// Compute center of projected points
@@ -482,7 +487,7 @@ namespace Vcl { namespace Graphics
 			VclCheck(equal(abs(dm4), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
 			VclCheck(equal(abs(dm5), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
 
-			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", "Angle: %f", -dir.cross(n[5]).dot(n[3]));
+			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", -dir.cross(n[5]).dot(n[3])));
 		}
 
 		OrthographicViewFrustum<real_t> ortho
@@ -500,8 +505,6 @@ namespace Vcl { namespace Graphics
 		VclRequire(equal(_direction.squaredNorm(), 1, (Scalar) 1e-6), "Direction is unit length.");
 		VclRequire(equal(_up.squaredNorm(), 1, (Scalar) 1e-6), "Up is unit length.");
 		VclRequire(equal(_right.squaredNorm(), 1, (Scalar) 1e-6), "Right is unit length.");
-			
-		real_t ratio = _x / _y;
 
 		real_t height = _y;
 		real_t width  = _x;

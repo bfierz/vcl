@@ -27,6 +27,10 @@
 // C++ standard library
 #include <vector>
 
+VCL_BEGIN_EXTERNAL_HEADERS
+#	include <fmt/format.h>
+VCL_END_EXTERNAL_HEADERS
+
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
@@ -758,7 +762,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);
 
-				VclCheckEx(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", "Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc);
+				VclCheckEx(implies(glGetAttribLocation(_glId, name.c_str()) >= 0, glGetAttribLocation(_glId, name.c_str()) == loc), "Input layout element is bound correctly", fmt::format("Attribute: {}; GL location: {}; input location: {}", name, glGetAttribLocation(_glId, name.c_str()), loc));
 			}
 
 			// Check the fragment output against the layout
@@ -941,7 +945,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_UNIFORM_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
 
-			VclEnsure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
+			VclEnsure(static_cast<int>(buffer->id()) == Graphics::OpenGL::GL::getInteger(GL_UNIFORM_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 
@@ -964,7 +968,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			auto buffer = static_cast<const OpenGL::Buffer*>(buf);
 			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, handle->ResourceLocation, buffer->id(), offset, size);
 
-			VclEnsure(buffer->id() == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
+			VclEnsure(static_cast<int>(buffer->id()) == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
 	}
 }}}}

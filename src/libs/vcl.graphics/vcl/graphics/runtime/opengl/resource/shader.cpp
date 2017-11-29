@@ -83,6 +83,28 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
+	Shader::Shader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data)
+	: Runtime::Shader(type, tag)
+	{
+		VclRequire(GLEW_ARB_gl_spirv, "SPIR-V is supported.");
+
+		// Create the shader object
+		_glId = glCreateShader(toGLenum(type));
+
+		// Load the pre-compiled shader
+		glShaderBinary(1, &_glId, GL_SHADER_BINARY_FORMAT_SPIR_V, binary_data.data(), binary_data.size());
+
+		// Specialize the shader to determine its final behaviour
+		glSpecializeShaderARB(_glId, "main", 0, nullptr, nullptr);
+
+		VclAssertBlock
+		{
+			printInfoLog();
+		}
+
+		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
+	}
+
 	Shader::Shader(Shader&& rhs)
 	: Resource(std::move(rhs))
 	, Runtime::Shader(rhs)
