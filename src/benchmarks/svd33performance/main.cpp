@@ -367,8 +367,8 @@ void perfEigenSVD(benchmark::State& state)
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
-
-	while (state.KeepRunning())
+	
+	for (auto _ : state)
 	{
 		for (int i = 0; i < state.range_x(); ++i)
 		{
@@ -406,8 +406,8 @@ void perfTwoSidedSVD(benchmark::State& state)
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-
-	while (state.KeepRunning())
+	
+	for (auto _ : state)
 	{
 		for (size_t i = 0; i < state.range_x() / width; i++)
 		{
@@ -448,8 +448,8 @@ void perfJacobiSVDQR(benchmark::State& state)
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-
-	while (state.KeepRunning())
+	
+	for (auto _ : state)
 	{
 		for (size_t i = 0; i < state.range_x() / width; i++)
 		{
@@ -491,7 +491,7 @@ void perfMcAdamsSVD(benchmark::State& state)
 
 	size_t width = sizeof(real_t) / sizeof(float);
 
-	while (state.KeepRunning())
+	for (auto _ : state)
 	{
 		for (size_t i = 0; i < state.range_x() / width; i++)
 		{
