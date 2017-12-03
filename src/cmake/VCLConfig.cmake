@@ -2,7 +2,7 @@
 MESSAGE(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
 
 IF(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-	SET(VCL_COMPILER_INTEL ON)
+	SET(VCL_COMPILER_ICC ON)
 ELSEIF(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
 	SET(VCL_COMPILER_GNU ON)
 ELSEIF(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
@@ -14,11 +14,8 @@ ELSE()
 ENDIF()
 
 # Define C++ standard, minimum requirement is C++11
-# As MSVC is really able to define the minimum level, software needs
-# to implement per feature detection anyway
-#SET(VCL_ENABLE_CXX_14 CACHE BOOL "Enable C++ 14")
-#SET(VCL_ENABLE_CXX_17 CACHE BOOL "Enable C++ 17")
-
+# As MSVC is not able to define the minimum level, software needs
+# to implement per feature detection
 SET(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -103,16 +100,16 @@ IF(VCL_COMPILER_MSVC)
 ENDIF(VCL_COMPILER_MSVC)
 
 # Configure GCC and CLANG
-IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
+IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 
 	# Configure all configuration
 	# * Enable all warnings
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	IF(VCL_COMPILER_CLANG)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-attributes")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes")
-	ENDIF() 
+		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-attributes -D__STRICT_ANSI__")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes -D__STRICT_ANSI__")
+	ENDIF()
 	
 	IF(VCL_VECTORIZE_AVX2)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
@@ -136,7 +133,7 @@ IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 	ENDIF()
-ENDIF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG)
+ENDIF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 
 # Function enabling the Core guideline checker from Visual Studio
 FUNCTION(enable_vs_guideline_checker target)

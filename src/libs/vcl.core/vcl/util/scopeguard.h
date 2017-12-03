@@ -47,17 +47,17 @@ namespace std
 		return *(static_cast<unsigned*>(static_cast<void*>(details::_getptd() + (sizeof(void*) == 8 ? 0x100 : 0x90)))); // x32 offset - 0x90 , x64 - 0x100
 	}
 }
-#elif defined(VCL_COMPILER_CLANG) && __clang_major__ == 3 && __clang_minor__ < 7
+#elif (defined(__GLIBCXX__) && _GLIBCXX_RELEASE < 7)
 namespace std
 {
-	namespace details { extern "C" char * __cxa_get_globals(); }
+	namespace details { extern "C" char * __cxa_get_globals() noexcept; }
 	inline int uncaught_exceptions() noexcept
 	{
 		// Tested on {clang 3.2,GCC 3.5.6,,GCC 4.1.2,GCC 4.4.6,GCC 4.4.7}x{x32,x64}
 		return *(static_cast<unsigned*>(static_cast<void*>(details::__cxa_get_globals() + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
 	}
 }
-#elif defined(VCL_COMPILER_CLANG) && __cplusplus < 201703L
+#elif defined(__GLIBCXX__)
 #	include <cxxabi.h>
 namespace std
 {

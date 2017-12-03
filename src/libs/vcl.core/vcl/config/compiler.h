@@ -29,55 +29,106 @@
 #include <vcl/config/config.h>
 
 // Check library configuration
-#if defined _MSC_VER && !defined __clang__
+#if defined __ICC || defined __ICL
+#	define VCL_COMPILER_ICC
+#   if (__INTEL_COMPILER < 1700)
+#       warning "Minimum supported version is ICC 17. Good luck."
+#   endif
+#elif defined _MSC_VER && !defined __clang__
 #	define VCL_COMPILER_MSVC
+#   if (_MSC_VER < 1800)
+#       warning "Minimum supported version is MSVC 2013. Good luck."
+#   endif
 #elif defined __clang__
 #	define VCL_COMPILER_CLANG
+#   if (__clang_major__ < 3) || (__clang_major__ == 3 && __clang_minor__ < 4) 
+#       warning "Minimum supported version is MSVC 2013. Good luck."
+#   endif
 #elif defined __GNUC__
 #	define VCL_COMPILER_GNU
-#elif defined __INTEL_COMPILER
-#	define VCL_COMPILER_ICL
+#   if (__GNUC__ < 5)
+#       warning "Minimum supported version is GCC 5. Good luck."
+#   endif
 #endif
 
-#if defined (VCL_COMPILER_MSVC)
-#	if defined (_WIN32)
+// Identify system ABI
+#if defined VCL_COMPILER_ICC \
+ || defined VCL_COMPILER_MSVC \
+ || defined VCL_COMPILER_CLANG \
+ || defined VCL_COMPILER_GNU
+#	if defined(_WIN32)
 #		define VCL_ABI_WINAPI
-#		if defined (_WIN64)
+#		if defined(_WIN64)
 #			define VCL_ABI_WIN64
 #		else
 #			define VCL_ABI_WIN32
 #		endif // _WIN64
 #	endif // _WIN32
-#	if (defined(_M_IX86))
-#		define VCL_ARCH_X86
-#	endif // _M_IX86
 
-#	if (defined(_M_X64))
+#	if defined(__unix) && __unix == 1
+#		define VCL_ABI_POSIX
+#	endif // __unix
+#endif
+
+// Identify CPU instruction set
+#if defined VCL_COMPILER_ICC
+
+// The Intel compiler only supports Intel64 and x86 instruction sets
+#	if defined _M_X64 || defined __x86_64 || defined __x86_64__
 #		define VCL_ARCH_X64
-#	endif // _M_X64
+#	else
+#		define VCL_ARCH_X86
+#	endif
 
-#	if (defined(_M_ARM))
+#elif defined VCL_COMPILER_MSVC
+#	if defined _M_IX86
+#		define VCL_ARCH_X86
+#	endif
+
+#	if defined _M_X64
+#		define VCL_ARCH_X64
+#	endif
+
+#	if defined _M_ARM
 #		define VCL_ARCH_ARM
-#	endif // _M_ARM
+#	endif
 
-// Inlining
+#elif defined VCL_COMPILER_GNU || defined VCL_COMPILER_CLANG
+#	if defined __i686__
+#		define VCL_ARCH_X86
+#	endif
+
+#	if defined __x86_64
+#		define VCL_ARCH_X64
+#	endif
+#endif
+
+// Identify supported compiler features
+#if defined VCL_COMPILER_MSVC
+
+// Force inline
 #	define VCL_STRONG_INLINE __forceinline
 
+// Enter the debugger
 #	define VCL_DEBUG_BREAK __debugbreak()
 
-#	define VCL_ALIGN(alignment) __declspec(align(alignment))
-
 #	define VCL_CALLBACK __stdcall
+
+// Support for type alignment
+#	if (_MSC_VER <= 1800)
+#       define alignas(x) __declspec(align(alignment))
+#	endif // _MSC_VER <= 1800
+#	define VCL_ALIGN(alignment) alignas(alignment)
 
 // Support for the alignment operator
 #	if (_MSC_VER <= 1800)
 #		include <xkeycheck.h>
 #		if defined alignof
 #			undef alignof
-#		endif /* alignof */
+#		endif // alignof
 //#		define alignof(x) __alignof(decltype(*static_cast<std::remove_reference<std::remove_pointer<(x)>::type>::type*>(0)))
 #		define alignof(x) __alignof(x)
-#	endif /* _MSC_VER <= 1800 */
+#	endif // _MSC_VER <= 1800
 
 // Enable the noexcept-keyword
 #	if (_MSC_VER <= 1800)
@@ -112,22 +163,6 @@
 #	endif
 
 #elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
-#	if defined (_WIN32)
-#		define VCL_ABI_WINAPI
-#		if defined (_WIN64)
-#			define VCL_ABI_WIN64
-#		else
-#			define VCL_ABI_WIN32
-#		endif /* _WIN64 */
-#	elif __unix == 1
-#		define VCL_ABI_POSIX
-#	endif /* _WIN32 */
-#	if (defined(__i686__))
-#		define VCL_ARCH_X86
-#	endif /* _M_IX86 */
-#	if (defined(__x86_64))
-#		define VCL_ARCH_X64
-#	endif /* _M_X64 */
 
 // Inlining
 #	define VCL_STRONG_INLINE inline
@@ -151,6 +186,31 @@
 //#	if __cplusplus >= 201103L
 #		define VCL_STL_CHRONO
 //#	endif
+
+// Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
+# if defined(VCL_COMPILER_CLANG)
+#   if __STDC_VERSION__ >= 201112L || __cplusplus >= 201103L
+#       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) || __has_feature(modules)
+            typedef struct {
+            long long __clang_max_align_nonce1
+                __attribute__((__aligned__(__alignof__(long long))));
+            long double __clang_max_align_nonce2
+                __attribute__((__aligned__(__alignof__(long double))));
+            } max_align_t;
+#       endif
+#   endif
+#endif
+
+#elif defined (VCL_COMPILER_ICC)
+
+#	define VCL_STRONG_INLINE __forceinline
+#	define VCL_CONSTEXPR_CPP11 constexpr
+#	define VCL_CONSTEXPR_CPP14 constexpr
+
+#	define VCL_DEBUG_BREAK
+#	define VCL_ALIGN(x)
+#	define VCL_CALLBACK
+#	define VCL_NOEXCEPT_PARAM(param)
 
 #else // No compiler found
 #	define VCL_STRONG_INLINE inline

@@ -10,6 +10,14 @@ The Visual Computing Library (VCL) started as a repository for algorithms and da
 Requirements
 ------------
 
+Assumes C++14 cabaple compiler with some compatibility for older MSVC versions.
+
+C++ feature matrices:
+MSVC: https://msdn.microsoft.com/en-us/library/hh567368.aspx
+Intel: https://software.intel.com/en-us/articles/c14-features-supported-by-intel-c-compiler
+Clang: https://clang.llvm.org/cxx_status.html
+GCC: https://gcc.gnu.org/projects/cxx-status.html
+
 | Compiler / Library | Eigen | Google Test  | Google Benchmark  |   |
 |--------------------|-------|--------------|-------------------|---|
 | Visual Studio 2017 | 3.3.3 | 1.8.0        | 1.1.0             |   |
