@@ -27,16 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-#ifdef VCL_STL_ANY
-#	include <any>
-#else
-VCL_BEGIN_EXTERNAL_HEADERS
-#	include <vcl/core/3rdparty/any.hpp>
-VCL_END_EXTERNAL_HEADERS
+// Abseil
+#include <absl/types/any.h>
 
 namespace std
 {
-	using linb::any;
-	using linb::any_cast;
+	using absl::any;
+	using absl::any_cast;
 }
-#endif
+

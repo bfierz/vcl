@@ -39,6 +39,9 @@
 #include <vector>
 #include <utility>
 
+// Abseil
+#include <absl/utility/utility.h>
+
 // GSL
 #include <gsl/gsl>
 
@@ -48,13 +51,7 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace RTTI
-{
-	template <std::size_t...> struct index_sequence {};
-	template <std::size_t N, std::size_t... Is>
-	struct make_index_sequence : make_index_sequence<N - 1, N - 1, Is...> {};
-	template <std::size_t... Is>
-	struct make_index_sequence<0u, Is...> : index_sequence<Is...> { using type = index_sequence<Is...>; };
-
+{/*
 	template<bool B> struct is_true
 	{
 		typedef std::false_type type;
@@ -65,7 +62,7 @@ namespace Vcl { namespace RTTI
 		typedef std::true_type type;
 		static const std::true_type::value_type value = std::true_type::value;
 	};
-
+*/
 	template < typename T, typename... Ts >
 	auto& head(std::tuple<T, Ts...> t)
 	{
@@ -73,7 +70,7 @@ namespace Vcl { namespace RTTI
 	}
 
 	template < std::size_t... Ns, typename... Ts >
-	auto tail_impl(index_sequence<Ns...>, const std::tuple<Ts...>& t)
+	auto tail_impl(absl::index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
 		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
@@ -81,8 +78,7 @@ namespace Vcl { namespace RTTI
 	template < typename... Ts >
 	auto tail(const std::tuple<Ts...>& t)
 	{
-		//return tail_impl(std::make_index_sequence<sizeof...(Ts)-1u>(), t);
-		return tail_impl(make_index_sequence<sizeof...(Ts)-1u>(), t);
+		return tail_impl(absl::make_index_sequence<sizeof...(Ts)-1u>(), t);
 	}
 
 	class ParameterMetaData
@@ -308,11 +304,11 @@ namespace Vcl { namespace RTTI
 			if (sizeof...(Args) != constr->numParams())
 				return false;
 
-			return checkArgsImpl<Args...>(constr, make_index_sequence<sizeof...(Args)>());
+			return checkArgsImpl<Args...>(constr, absl::make_index_sequence<sizeof...(Args)>());
 		}
 
 		template<typename... Args, size_t... S>
-		bool checkArgsImpl(const ConstructorBase* constr, index_sequence<S...>) const
+		bool checkArgsImpl(const ConstructorBase* constr, absl::index_sequence<S...>) const
 		{
 			std::array<bool, sizeof...(Args)> results{ { checkArg<Args, S>(constr)... } };
 

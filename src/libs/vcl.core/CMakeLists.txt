@@ -207,6 +207,8 @@ target_sources(vcl_core INTERFACE
 )
 
 TARGET_LINK_LIBRARIES(vcl_core
+	absl::any
+	absl::bad_any_cast
 	Eigen3
 	fmt-header-only
 	GSL

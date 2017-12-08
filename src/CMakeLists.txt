@@ -17,6 +17,11 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 # Configure Eigen3 submodule
 SET(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
 
+SET(BUILD_TESTING OFF)
+SET(BUILD_EXAMPLES OFF)
+SUBDIRS(externals/cctz)
+
+SUBDIRS(externals/abseil)
 SUBDIRS(externals/fmtlib)
 SUBDIRS(externals/gsl)
 SUBDIRS(externals/json)
@@ -49,7 +54,6 @@ ENDIF (VCL_BUILD_TOOLS)
 # Unit tests
 OPTION(VCL_BUILD_TESTS "Build the unit tests" OFF)
 IF (VCL_BUILD_TESTS)
-	SET_PROPERTY(DIRECTORY PROPERTY FOLDER 3rd-party)
 	SET(BUILD_GTEST ON CACHE BOOL "" FORCE)
 	SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 	SUBDIRS(externals/googletest)

@@ -182,8 +182,8 @@
 // constexpr
 #if defined (VCL_COMPILER_MSVC)
 #	if (_MSC_VER < 1900)
-#		define VCL_CPP_CONSTEXPR_11 0
-#		define VCL_CPP_CONSTEXPR_14 0
+#		define VCL_HAS_CPP_CONSTEXPR_11 0
+#		define VCL_HAS_CPP_CONSTEXPR_14 0
 #		define VCL_CPP_CONSTEXPR_11
 #		define VCL_CPP_CONSTEXPR_14
 #	elif (_MSC_VER <= 1900)
@@ -251,14 +251,6 @@
 #	if __cplusplus >= 201103L
 #		define VCL_STL_CHRONO
 #	endif
-#endif
-
-// any
-#if defined (VCL_COMPILER_MSVC)
-#	if (_MSC_VER >= 1910 && _MSVC_LANG > 201402)
-#		define VCL_STL_ANY
-#	endif
-#else defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
