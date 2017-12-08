@@ -31,7 +31,7 @@
 #include <tuple>
 #include <type_traits>
 
-#if ((defined(VCL_COMPILER_CLANG) && (__clang_major__ > 3) || (__clang_major__ == 3 && __clang_minor__ > 4)) || defined(VCL_COMPILER_GNU)) && __has_include(<experimental/array>)
+#if (defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)) && __has_include(<experimental/array>)
 #	include <experimental/array>
 namespace std
 {
@@ -69,7 +69,7 @@ namespace std
 	}
 
 	template<class D = void, class... Types>
-	VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 details::return_type<D, Types...> make_array(Types&&... t)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 details::return_type<D, Types...> make_array(Types&&... t)
 	{
 		return{ std::forward<Types>(t)... };
 	}
@@ -82,14 +82,14 @@ namespace Vcl { namespace Core
 	namespace detail
 	{
 		template<typename T, typename... Args, size_t... Is>
-		VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 auto make_array_from_tuple_helper(const std::tuple<Args...>& attributes, std::index_sequence<Is...>)
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 auto make_array_from_tuple_helper(const std::tuple<Args...>& attributes, std::index_sequence<Is...>)
 		{
 			return std::array<T, sizeof...(Args)>{ (&(std::get<Is>(attributes)))... };
 		}
 	}
 
 	template<typename T, typename... Args>
-	VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 auto make_array_from_tuple(const std::tuple<Args...>& attributes)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 auto make_array_from_tuple(const std::tuple<Args...>& attributes)
 	{
 		return detail::make_array_from_tuple_helper<T>(attributes, std::index_sequence_for<Args...>{});
 	}

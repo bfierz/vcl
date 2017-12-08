@@ -312,10 +312,10 @@ namespace Vcl
 		VCL_STRONG_INLINE void set(float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
 			                       float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15)
 		{
-			float VCL_ALIGN(16) d0[4] = { s00, s01, s02, s03 };
-			float VCL_ALIGN(16) d1[4] = { s04, s05, s06, s07 };
-			float VCL_ALIGN(16) d2[4] = { s08, s09, s10, s11 };
-			float VCL_ALIGN(16) d3[4] = { s12, s13, s14, s15 };
+			float alignas(16) d0[4] = { s00, s01, s02, s03 };
+			float alignas(16) d1[4] = { s04, s05, s06, s07 };
+			float alignas(16) d2[4] = { s08, s09, s10, s11 };
+			float alignas(16) d3[4] = { s12, s13, s14, s15 };
 			mF4[0] = vld1q_f32(d0);
 			mF4[1] = vld1q_f32(d1);
 			mF4[2] = vld1q_f32(d2);
@@ -334,7 +334,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
-		float VCL_ALIGN(16) vars[16];
+		float alignas(16) vars[16];
 		vst1q_f32(vars +  0, rhs.mF4[0]);
 		vst1q_f32(vars +  4, rhs.mF4[1]);
 		vst1q_f32(vars +  8, rhs.mF4[2]);

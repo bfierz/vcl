@@ -125,7 +125,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE int vmovemaskq_f32(float32x4_t a)
 	{
-		static const uint32_t VCL_ALIGN(16) data[4] = { 1, 2, 4, 8 };
+		static const uint32_t alignas(16) data[4] = { 1, 2, 4, 8 };
 		static const uint32x4_t movemask = vld1q_u32(data);
 		static const uint32x4_t highbit = vdupq_n_u32(0x80000000);
 

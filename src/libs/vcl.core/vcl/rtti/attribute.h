@@ -57,7 +57,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -143,7 +143,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -228,7 +228,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		VCL_CONSTEXPR_CPP14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)

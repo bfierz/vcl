@@ -40,7 +40,7 @@
 #include <utility>
 
 // GSL
-#include <gsl/string_span>
+#include <gsl/gsl>
 
 // VCL
 #include <vcl/core/any.h>
@@ -73,12 +73,6 @@ namespace Vcl { namespace RTTI
 	}
 
 	template < std::size_t... Ns, typename... Ts >
-	auto tail_impl(std::index_sequence<Ns...>, const std::tuple<Ts...>& t)
-	{
-		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
-	}
-
-	template < std::size_t... Ns, typename... Ts >
 	auto tail_impl(index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
 		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
@@ -95,13 +89,13 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<int N>
-		VCL_CONSTEXPR_CPP11 ParameterMetaData(const char (&name)[N])
+		VCL_CPP_CONSTEXPR_11 ParameterMetaData(const char (&name)[N])
 		: _name(name, N - 1)
 		{
 		}
 
-		VCL_CONSTEXPR_CPP11 ParameterMetaData(const ParameterMetaData& rhs) = default;
-		VCL_CONSTEXPR_CPP11 ParameterMetaData(ParameterMetaData&& rhs) = default;
+		VCL_CPP_CONSTEXPR_11 ParameterMetaData(const ParameterMetaData& rhs) = default;
+		VCL_CPP_CONSTEXPR_11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
 		gsl::cstring_span<> name() const { return _name; }
@@ -207,7 +201,7 @@ namespace Vcl { namespace RTTI
 	class ConstructorBase
 	{
 	protected:
-		VCL_CONSTEXPR_CPP11 ConstructorBase(int numParams)
+		VCL_CPP_CONSTEXPR_11 ConstructorBase(int numParams)
 		: _numParams(numParams)
 		{
 		}

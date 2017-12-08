@@ -36,7 +36,7 @@ namespace Vcl
 #if defined VCL_VECTORIZE_NEON
 	VCL_STRONG_INLINE float32x4_t gather(float const* base, uint32x4_t vindex)
 	{
-		float VCL_ALIGN(16) data[4] =
+		float alignas(16) data[4] =
 		{
 			base[vindex.n128_i32[0]],
 			base[vindex.n128_i32[1]],

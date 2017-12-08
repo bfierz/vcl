@@ -269,19 +269,19 @@ namespace Vcl { namespace Mathematics
 	}
 
 	template<typename T>
-	constexpr T pi()
+	VCL_CPP_CONSTEXPR_11 T pi()
 	{
 		return (T) 3.14159265358979323846;
 	}
 
 	template<typename T>
-	constexpr T rad2deg()
+	VCL_CPP_CONSTEXPR_11 T rad2deg()
 	{
 		return (T) 180 / pi<T>();
 	}
 
 	template<typename T>
-	constexpr T deg2rad()
+	VCL_CPP_CONSTEXPR_11 T deg2rad()
 	{
 		return pi<T>() / (T)180;
 	}

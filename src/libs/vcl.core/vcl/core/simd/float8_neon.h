@@ -244,8 +244,8 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
 		{
-			float VCL_ALIGN(16) d0[4] = { s0, s1, s2, s3 };
-			float VCL_ALIGN(16) d1[4] = { s4, s5, s6, s7 };
+			float alignas(16) d0[4] = { s0, s1, s2, s3 };
+			float alignas(16) d1[4] = { s4, s5, s6, s7 };
 			_data[0] = vld1q_f32(d0);
 			_data[1] = vld1q_f32(d1);
 		}
@@ -260,7 +260,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
 	{
-		float VCL_ALIGN(16) vars[8];
+		float alignas(16) vars[8];
 		vst1q_f32(vars + 0, rhs.get(0));
 		vst1q_f32(vars + 4, rhs.get(1));
 		
