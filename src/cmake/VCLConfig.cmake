@@ -1,170 +1,196 @@
-# Determine the compiler vendor
-MESSAGE(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2014 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-IF(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-	SET(VCL_COMPILER_ICC ON)
-ELSEIF(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-	SET(VCL_COMPILER_GNU ON)
-ELSEIF(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-	SET(VCL_COMPILER_CLANG ON)
-ELSEIF(MSVC)
-	SET(VCL_COMPILER_MSVC ON)
-ELSE()
-	SET(VCL_COMPILER_UNKNOWN ON)
-ENDIF()
+# Configure the compiler options for a VCL target
+function(vcl_configure tgt)
 
-# Define C++ standard, minimum requirement is C++11
-# As MSVC is not able to define the minimum level, software needs
-# to implement per feature detection
-SET(CMAKE_CXX_STANDARD 14)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+	# Determine the compiler vendor
+	message(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
 
-# Determine platform architecture
-IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	SET(VCL_ADDRESS_SIZE "64")
-ELSE()
-	SET(VCL_ADDRESS_SIZE "32")
-ENDIF()
-MESSAGE(STATUS "Compiling for ${VCL_ADDRESS_SIZE}bit machine")
+	if(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
+		set(VCL_COMPILER_ICC ON)
+	elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+		set(VCL_COMPILER_GNU ON)
+	elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+		set(VCL_COMPILER_CLANG ON)
+	elseif(MSVC)
+		set(VCL_COMPILER_MSVC ON)
+	else()
+		set(VCL_COMPILER_UNKNOWN ON)
+	endif()
 
-# Determine the underlying OS
-MESSAGE(STATUS "Running on ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
+	# Define C++ standard, minimum requirement is C++14
+	# As MSVC is not able to define the minimum level, software needs
+	# to implement per feature detection
+	set_target_properties(${tgt} PROPERTIES
+		CXX_STANDARD 14
+		CXX_STANDARD_REQUIRED YES
+		CXX_EXTENSIONS NO
+	)
 
-# Enable Visual Studio solution folders
-SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+	# Determine platform architecture
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		set(VCL_ADDRESS_SIZE "64")
+	else()
+		set(VCL_ADDRESS_SIZE "32")
+	endif()
+	message(STATUS "Compiling for ${VCL_ADDRESS_SIZE}bit machine")
 
-# Control OpenMP support
-SET(VCL_OPENMP_SUPPORT CACHE BOOL "Enable OpenMP support")
-FIND_PACKAGE(OpenMP)
-IF(OPENMP_FOUND AND VCL_OPENMP_SUPPORT)
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-ENDIF()
+	# Determine the underlying OS
+	message(STATUS "Running on ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 
-# Define vectorisation
-SET(VCL_VECTORIZE "SSE 4.1" CACHE STRING "Vectorization instruction set")
-SET_PROPERTY(CACHE VCL_VECTORIZE PROPERTY STRINGS "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "NEON")
+	# Enable Visual Studio solution folders
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-IF (VCL_VECTORIZE STREQUAL "SSE 2")
-	SET(VCL_VECTORIZE_SSE2 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "SSE 3")
-	SET(VCL_VECTORIZE_SSE3 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "SSSE 3")
-	SET(VCL_VECTORIZE_SSSE3 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "SSE 4.1")
-	SET(VCL_VECTORIZE_SSE4_1 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "SSE 4.2")
-	SET(VCL_VECTORIZE_SSE4_2 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "AVX")
-	SET(VCL_VECTORIZE_AVX TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "AVX 2")
-	SET(VCL_VECTORIZE_AVX2 TRUE)
-ELSEIF(VCL_VECTORIZE STREQUAL "NEON")
-	SET(VCL_VECTORIZE_NEON TRUE)
-ENDIF()
-MESSAGE(STATUS "Compiling for ${VCL_VECTORIZE}")
+	# Control OpenMP support
+	set(VCL_OPENMP_SUPPORT CACHE BOOL "Enable OpenMP support" PARENT_SCOPE)
+	if(VCL_OPENMP_SUPPORT)
+		find_package(OpenMP)
+		if(OPENMP_FOUND)
+			target_compile_options(${tgt} PUBLIC ${OpenMP_CXX_FLAGS})
+		endif()
+	endif()
 
-# Set whether contracts should be used
-SET(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
+	# Define vectorisation
+	set(VCL_VECTORIZE "SSE 4.1" CACHE STRING "Vectorization instruction set")
+	set_property(CACHE VCL_VECTORIZE PROPERTY STRINGS "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "NEON")
 
-# Configure MSVC compiler
-IF(VCL_COMPILER_MSVC)
-	# Configure release configuration
-	SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /GS- /fp:fast")
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GS- /fp:fast")
+	if(VCL_VECTORIZE STREQUAL "SSE 2")
+		set(VCL_VECTORIZE_SSE2 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_SSE2 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "SSE 3")
+		set(VCL_VECTORIZE_SSE3 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_SSE3 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "SSSE 3")
+		set(VCL_VECTORIZE_SSSE3 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_SSSE3 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "SSE 4.1")
+		set(VCL_VECTORIZE_SSE4_1 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_SSE4_1 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "SSE 4.2")
+		set(VCL_VECTORIZE_SSE4_2 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_SSE4_2 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "AVX")
+		set(VCL_VECTORIZE_AVX TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_AVX TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "AVX 2")
+		set(VCL_VECTORIZE_AVX2 TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_AVX2 TRUE)
+	elseif(VCL_VECTORIZE STREQUAL "NEON")
+		set(VCL_VECTORIZE_NEON TRUE PARENT_SCOPE)
+		set(VCL_VECTORIZE_NEON TRUE)
+	endif()
+	message(STATUS "Compiling for ${VCL_VECTORIZE}")
+
+	# Set whether contracts should be used
+	set(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
+
+	# Configure MSVC compiler
+	if(VCL_COMPILER_MSVC)
+		# Configure release configuration
+		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS- /fp:fast>")
 	
-	# Configure all configuration
-	# * Enable all warnings
-	# * Exceptions
-	# * RTTI
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4 /EHsc /GR")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /EHsc /GR")
+		# Configure all configuration
+		# * Enable all warnings
+		# * Exceptions
+		# * RTTI
+		target_compile_options(${tgt} PUBLIC "/EHsc /GR")
+		target_compile_options(${tgt} PRIVATE "/W4")
 	
-	# Make AVX available
-	IF(VCL_VECTORIZE_AVX2)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX2")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
-	ELSEIF(VCL_VECTORIZE_AVX)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:AVX")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
-	ELSEIF(VCL_VECTORIZE_SSE2 AND VCL_ADDRESS_SIZE EQUAL "32")
-		# All x64 bit machine come with SSE2, thus it's defined as default
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:SSE2")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
-	ELSEIF(VCL_VECTORIZE_NEON)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /arch:VFPv4")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:VFPv4")
-	ENDIF()
+		# Make AVX available
+		if(VCL_VECTORIZE_AVX2)
+			target_compile_options(${tgt} PUBLIC "/arch:AVX2")
+		elseif(VCL_VECTORIZE_AVX)
+			target_compile_options(${tgt} PUBLIC "/arch:AVX")
+		elseif(VCL_VECTORIZE_SSE2 AND VCL_ADDRESS_SIZE EQUAL "32")
+			# All x64 bit machine come with SSE2, thus it's defined as default
+			target_compile_options(${tgt} PUBLIC "/arch:SSE2")
+		elseif(VCL_VECTORIZE_NEON)
+			target_compile_options(${tgt} PUBLIC "/arch:VFPv4")
+		endif()
 
-ENDIF(VCL_COMPILER_MSVC)
+	endif(VCL_COMPILER_MSVC)
 
-# Configure GCC and CLANG
-IF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
+	# Configure GCC and CLANG
+	if(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 
-	# Configure all configuration
-	# * Enable all warnings
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-	IF(VCL_COMPILER_CLANG)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-ignored-attributes -D__STRICT_ANSI__")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-attributes -D__STRICT_ANSI__")
-	ENDIF()
+		# Configure all configuration
+		# * Enable all warnings
+		target_compile_options(${tgt} PUBLIC "-Wall")
+		if(VCL_COMPILER_CLANG)
+			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes -D__STRICT_ANSI__")
+		endif()
 	
-	IF(VCL_VECTORIZE_AVX2)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-	ELSEIF(VCL_VECTORIZE_AVX)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
-	ELSEIF(VCL_VECTORIZE_SSE4_2)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.2")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.2")
-	ELSEIF(VCL_VECTORIZE_SSE4_1)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
-	ELSEIF(VCL_VECTORIZE_SSSE3)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msss3")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mssse3")
-	ELSEIF(VCL_VECTORIZE_SSE3)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
-	ELSEIF(VCL_VECTORIZE_SSE2)
-		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
-	ENDIF()
-ENDIF(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
+		if(VCL_VECTORIZE_AVX2)
+			target_compile_options(${tgt} PUBLIC "-mavx2")
+		elseif(VCL_VECTORIZE_AVX)
+			target_compile_options(${tgt} PUBLIC "-mavx")
+		elseif(VCL_VECTORIZE_SSE4_2)
+			target_compile_options(${tgt} PUBLIC "-msse4.2")
+		elseif(VCL_VECTORIZE_SSE4_1)
+			target_compile_options(${tgt} PUBLIC "-msse4.1")
+		elseif(VCL_VECTORIZE_SSSE3)
+			target_compile_options(${tgt} PUBLIC "-mssse3")
+		elseif(VCL_VECTORIZE_SSE3)
+			target_compile_options(${tgt} PUBLIC "-msse3")
+		elseif(VCL_VECTORIZE_SSE2)
+			target_compile_options(${tgt} PUBLIC "-msse2")
+		endif()
+	endif(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
+endfunction()
 
 # Function enabling the Core guideline checker from Visual Studio
-FUNCTION(enable_vs_guideline_checker target)
-    SET_TARGET_PROPERTIES(${target} PROPERTIES
-        VS_GLOBAL_EnableCppCoreCheck true
-        VS_GLOBAL_CodeAnalysisRuleSet CppCoreCheckRules.ruleset
-        VS_GLOBAL_RunCodeAnalysis true)
-ENDFUNCTION()
+function(enable_vs_guideline_checker target)
+	set_target_properties(${target} PROPERTIES
+		VS_GLOBAL_EnableCppCoreCheck true
+		VS_GLOBAL_CodeAnalysisRuleSet CppCoreCheckRules.ruleset
+		VS_GLOBAL_RunCodeAnalysis true)
+endfunction()
 
 # Support for clang-tidy
-FIND_PROGRAM(
+find_program(
 	CLANG_TIDY_EXE
 	NAMES "clang-tidy"
 	DOC "Path to clang-tidy executable"
 )
-IF(NOT CLANG_TIDY_EXE)
-	MESSAGE(STATUS "clang-tidy not found.")
-ELSE()
-	MESSAGE(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-	SET(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
-ENDIF()
+if(NOT CLANG_TIDY_EXE)
+	message(STATUS "clang-tidy not found.")
+else()
+	message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+	set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
+endif()
 
-FUNCTION(enable_clang_tidy target)
-	IF (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
-		MESSAGE(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
-	ENDIF()
+function(enable_clang_tidy target)
+	if (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
+		message(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
+	endif()
 
-	IF(CLANG_TIDY_EXE)
-		SET_TARGET_PROPERTIES(
+	if(CLANG_TIDY_EXE)
+		set_target_properties(
 			${target} PROPERTIES
 			CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
 		)
-	ENDIF()
-ENDFUNCTION()
+	endif()
+endfunction()

@@ -1,5 +1,10 @@
 PROJECT(vcl_core_test)
 
+# Check dependency requirements
+check_target(nlohmann_json)
+check_target(gtest)
+check_target(gtest_main)
+
 SET(VCL_TEST_SRC
 	allocator.cpp
 	bitvector.cpp
@@ -32,6 +37,7 @@ SET_TARGET_PROPERTIES(vcl_core_test PROPERTIES FOLDER tests)
 
 TARGET_LINK_LIBRARIES(vcl_core_test
 	vcl_core
+	nlohmann_json
 	gtest
 	gtest_main
 )

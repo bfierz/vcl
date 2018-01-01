@@ -4,9 +4,6 @@ PROJECT(VisualComputingLibrary)
 
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-# Configure the VCL compilation environment
-INCLUDE(cmake/VCLConfig.cmake)
-
 # Configure all projects
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -16,18 +13,25 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 ################################################################################
 # Configure Eigen3 submodule
 SET(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
+find_package(Eigen3 3.3 REQUIRED)
 
 SET(BUILD_TESTING OFF)
 SET(BUILD_EXAMPLES OFF)
 SUBDIRS(externals/cctz)
-
 SUBDIRS(externals/abseil)
-SUBDIRS(externals/fmtlib)
-SUBDIRS(externals/gsl)
-SUBDIRS(externals/json)
-SET(BuildTests OFF CACHE BOOL "" FORCE)
 
+SET(FMT_TEST OFF)
+SET(FMT_USE_CPP11 ON)
+SUBDIRS(externals/fmtlib)
+
+SUBDIRS(externals/gsl)
+
+SET(BuildTests OFF)
+SUBDIRS(externals/json)
+
+################################################################################
 # The libraries
+################################################################################
 SUBDIRS(libs)
 
 # Benchmarks
