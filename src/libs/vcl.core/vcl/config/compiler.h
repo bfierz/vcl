@@ -24,7 +24,11 @@
  */ 
 #pragma once
 
+// C++ standard library
 #include <type_traits>
+
+// C runtime
+#include <cstddef>
 
 #include <vcl/config/config.h>
 
@@ -136,7 +140,7 @@
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
 #if defined(VCL_COMPILER_CLANG)
 #   if __STDC_VERSION__ >= 201112L || __cplusplus >= 201103L
-#       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) || __has_feature(modules)
+#       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T)
             typedef struct {
             long long __clang_max_align_nonce1
                 __attribute__((__aligned__(__alignof__(long long))));
@@ -176,7 +180,7 @@
 
 #		define alignas(x) __declspec(align(x))
 #	endif // _MSC_VER
-#else defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
+#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #endif
 
 // constexpr
@@ -247,7 +251,7 @@
 #	if _MSC_VER >= 1700
 #		define VCL_STL_CHRONO
 #	endif
-#else defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
+#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
 #	if __cplusplus >= 201103L
 #		define VCL_STL_CHRONO
 #	endif

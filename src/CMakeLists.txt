@@ -11,11 +11,8 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 # Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
-set_target_properties(${tgt} PROPERTIES
-	CXX_STANDARD 14
-	CXX_STANDARD_REQUIRED YES
-	CXX_EXTENSIONS NO
-)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
 # Add the externals
