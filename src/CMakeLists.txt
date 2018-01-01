@@ -15,18 +15,18 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
 find_package(Eigen3 3.3 REQUIRED)
 
-SET(BUILD_TESTING OFF)
-SET(BUILD_EXAMPLES OFF)
+OPTION(BUILD_TESTING OFF)
+OPTION(BUILD_EXAMPLES OFF)
 SUBDIRS(externals/cctz)
 SUBDIRS(externals/abseil)
 
-SET(FMT_TEST OFF)
-SET(FMT_USE_CPP11 ON)
+OPTION(FMT_TEST OFF)
+OPTION(FMT_USE_CPP11 ON)
 SUBDIRS(externals/fmtlib)
 
 SUBDIRS(externals/gsl)
 
-SET(BuildTests OFF)
+OPTION(BuildTests OFF)
 SUBDIRS(externals/json)
 
 ################################################################################
@@ -37,8 +37,8 @@ SUBDIRS(libs)
 # Benchmarks
 OPTION(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
 IF (VCL_BUILD_BENCHMARKS)
+	OPTION(BENCHMARK_ENABLE_TESTING OFF)
 	SUBDIRS(externals/gbenchmark)
-	SET(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 	#SET_TARGET_PROPERTIES(benchmark PROPERTIES FOLDER 3rd-party)
 	SUBDIRS(benchmarks)
 ENDIF (VCL_BUILD_BENCHMARKS)
