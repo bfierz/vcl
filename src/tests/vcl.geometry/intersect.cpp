@@ -28,6 +28,7 @@
 #include <vcl/config/eigen.h>
 
 // C++ Standard Library
+#include <array>
 #include <random>
 #include <vector>
 
@@ -39,6 +40,15 @@
 // Google test
 #include <gtest/gtest.h>
 
+void prepare(std::array<float, 5>& o, std::array<float, 2>& d)
+{
+	float src_o[] = { -0.5f, 0.0f, 0.5f, 1.0f, 1.5f };
+	float src_d[] = { 0, 1 };
+
+	std::copy(std::begin(src_o), std::end(src_o), o.begin());
+	std::copy(std::begin(src_d), std::end(src_d), d.begin());
+}
+
 TEST(SlabMath, Intersection)
 {
 	using namespace Vcl::Mathematics;
@@ -46,8 +56,9 @@ TEST(SlabMath, Intersection)
 	float left = 0;
 	float right = 1;
 
-	float o[] = { -0.5f, 0.0f, 0.5f, 1.0f, 1.5f };
-	float d[] = { 0, 1 };
+	std::array<float, 5> o;
+	std::array<float, 2> d;
+	prepare(o, d);
 	float inv_d[] = { 1 / d[0], 1 / d[1] };
 
 	float tmin[10], tmax[10];
