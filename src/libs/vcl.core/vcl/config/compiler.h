@@ -45,7 +45,7 @@
 // MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
 // MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
 // MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
-// MSVC++ 14.1 _MSC_VER == 1910 (Visual Studio 2017)
+// MSVC++ 14.1 _MSC_VER == 191x (Visual Studio 2017)
 #   if (_MSC_VER < 1900)
 #       warning "Minimum supported version is MSVC 2015. Good luck."
 #   endif
@@ -141,12 +141,12 @@
 #if defined(VCL_COMPILER_CLANG)
 #   if __STDC_VERSION__ >= 201112L || __cplusplus >= 201103L
 #       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T)
-            typedef struct {
-            long long __clang_max_align_nonce1
-                __attribute__((__aligned__(__alignof__(long long))));
-            long double __clang_max_align_nonce2
-                __attribute__((__aligned__(__alignof__(long double))));
-            } max_align_t;
+			typedef struct {
+			long long __clang_max_align_nonce1
+				__attribute__((__aligned__(__alignof__(long long))));
+			long double __clang_max_align_nonce2
+				__attribute__((__aligned__(__alignof__(long double))));
+			} max_align_t;
 #       endif
 #   endif
 #endif
@@ -195,7 +195,7 @@
 #		define VCL_HAS_CPP_CONSTEXPR_14 0
 #		define VCL_CPP_CONSTEXPR_11 constexpr
 #		define VCL_CPP_CONSTEXPR_14
-#	elif (_MSC_VER <= 1910)
+#	elif (_MSC_VER > 1900)
 #		define VCL_HAS_CPP_CONSTEXPR_11 1
 #		define VCL_HAS_CPP_CONSTEXPR_14 1
 #		define VCL_CPP_CONSTEXPR_11 constexpr

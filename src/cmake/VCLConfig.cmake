@@ -110,13 +110,13 @@ function(vcl_configure tgt)
 	# Configure MSVC compiler
 	if(VCL_COMPILER_MSVC)
 		# Configure release configuration
-		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS- /fp:fast>")
+		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->" "$<$<CONFIG:RELEASE>:/fp:fast>")
 	
 		# Configure all configuration
 		# * Enable all warnings
 		# * Exceptions
 		# * RTTI
-		target_compile_options(${tgt} PUBLIC "/EHsc /GR")
+		target_compile_options(${tgt} PUBLIC "/EHsc" "/GR")
 		target_compile_options(${tgt} PRIVATE "/W4")
 	
 		# Make AVX available
@@ -140,7 +140,7 @@ function(vcl_configure tgt)
 		# * Enable all warnings
 		target_compile_options(${tgt} PUBLIC "-Wall")
 		if(VCL_COMPILER_CLANG)
-			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes -D__STRICT_ANSI__")
+			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes" "-D__STRICT_ANSI__")
 		endif()
 	
 		if(VCL_VECTORIZE_AVX2)

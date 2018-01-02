@@ -108,7 +108,6 @@ TEST(PointTriangleDistance, Simple)
 		points.at<float>(i) = ref_points[i];
 	}
 
-	gte::DCPPoint3Triangle3<float> gteDist;
 	for (int i = 0; i < (int) nr_problems; i++)
 	{
 		Eigen::Vector3f p = ref_points[i];
