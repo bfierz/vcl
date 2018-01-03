@@ -1,6 +1,15 @@
 [submodule "src/externals/gsl"]
 	path = src/externals/gsl
-	url = https://github.com/bfierz/GSL
+	url = https://github.com/Microsoft/GSL
+[submodule "src/externals/eigen"]
+	path = src/externals/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
+[submodule "src/externals/abseil"]
+	path = src/externals/abseil
+	url = https://github.com/bfierz/abseil-cpp.git
+[submodule "src/externals/cctz"]
+	path = src/externals/cctz
+	url = https://github.com/google/cctz.git
 [submodule "src/externals/memory"]
 	path = src/externals/memory
 	url = https://github.com/foonathan/memory
@@ -19,12 +28,3 @@
 [submodule "src/externals/json"]
 	path = src/externals/json
 	url = https://github.com/nlohmann/json
-[submodule "src/externals/eigen"]
-	path = src/externals/eigen
-	url = https://github.com/libigl/eigen.git
-[submodule "src/externals/abseil"]
-	path = src/externals/abseil
-	url = https://github.com/bfierz/abseil-cpp.git
-[submodule "src/externals/cctz"]
-	path = src/externals/cctz
-	url = https://github.com/google/cctz.git
