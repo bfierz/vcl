@@ -4,7 +4,7 @@ from conans.tools import download, unzip
 
 class VclConan(ConanFile):
     name = "vcl"
-    version = "master"
+    version = "2018.01"
     generators = "cmake"
     settings = "os","compiler","build_type","arch"
     options = { 
@@ -26,7 +26,7 @@ class VclConan(ConanFile):
         tools.replace_in_file("src/CMakeLists.txt", "PROJECT(VisualComputingLibrary)", '''PROJECT(VisualComputingLibrary)
                 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
                 conan_basic_setup()
-                set(VCL_EIGEN_DIR ${CONAN_EIGEN3_ROOT})''')
+                set(EIGEN3_INCLUDE_DIR ${CONAN_EIGEN3_ROOT})''')
 
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
@@ -35,20 +35,20 @@ class VclConan(ConanFile):
             self.settings.compiler["Visual Studio"].remove("runtime")
 
     def build(self):
-        vectorization_key = "VCL_VECTORIZE_" + str(self.options.vectorization) + ":BOOL"
+        vectorization_key = "VCL_VECTORIZE"
 
         defs={"VCL_BUILD_BENCHMARKS:BOOL":"off",
             "VCL_BUILD_TESTS:BOOL":"on",
             "VCL_BUILD_TOOLS:BOOL":"off",
             "VCL_BUILD_EXAMPLES:BOOL" : "off",
-            vectorization_key : "on"
+            vectorization_key : str(self.options.vectorization)
         }
         
         if self.settings.os != "Windows" and self.options.fPIC:
             defs["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "on"
 
-        cmake = CMake(self.settings)
-        cmake.configure(self, source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
+        cmake = CMake(self)
+        cmake.configure(source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
 
         if cmake.is_multi_configuration:
             self.run("cmake --build . --target vcl_geometry --config Debug")
