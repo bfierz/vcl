@@ -3,7 +3,7 @@
 	url = https://github.com/Microsoft/GSL
 [submodule "src/externals/eigen"]
 	path = src/externals/eigen
-	url = https://github.com/eigenteam/eigen-git-mirror.git
+	url = https://github.com/bfierz/eigen-git-mirror.git
 [submodule "src/externals/abseil"]
 	path = src/externals/abseil
 	url = https://github.com/bfierz/abseil-cpp.git
@@ -12,7 +12,7 @@
 	url = https://github.com/google/cctz.git
 [submodule "src/externals/memory"]
 	path = src/externals/memory
-	url = https://github.com/foonathan/memory
+	url = https://github.com/bfierz/memory
 [submodule "src/externals/fmtlib"]
 	path = src/externals/fmtlib
 	url = https://github.com/fmtlib/fmt/
