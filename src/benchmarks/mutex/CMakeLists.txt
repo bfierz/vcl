@@ -4,6 +4,7 @@ PROJECT(mutexperformance)
 MESSAGE(STATUS "Configuring 'mutexperformance'")
 
 # Boost dependency
+SET(Boost_USE_STATIC_LIBS ON)
 FIND_PACKAGE(Boost 1.55 COMPONENTS chrono date_time system thread REQUIRED)
 MESSAGE(STATUS "* Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARY_DIRS}")

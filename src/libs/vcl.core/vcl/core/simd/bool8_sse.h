@@ -93,7 +93,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b)
 	{
-		//int VCL_ALIGN(16) vars[8];
+		//int alignas(16) vars[8];
 		//_mm_store_ps((float*) vars + 0, b.mF4[0]);
 		//_mm_store_ps((float*) vars + 4, b.mF4[1]);
 		//
@@ -108,7 +108,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 8>& b)
 	{
-		//int VCL_ALIGN(16) vars[8];
+		//int alignas(16) vars[8];
 		//_mm_store_ps((float*) vars + 0, b.mF4[0]);
 		//_mm_store_ps((float*) vars + 4, b.mF4[1]);
 		//

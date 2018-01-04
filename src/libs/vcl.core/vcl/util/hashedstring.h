@@ -32,7 +32,7 @@
 #include <limits>
 
 // GSL
-#include <gsl/string_span>
+#include <gsl/gsl>
 
 namespace Vcl { namespace Util
 {
@@ -82,7 +82,7 @@ namespace Vcl { namespace Util
 
 	public:
 		template <size_t N>
-		VCL_STRONG_INLINE VCL_CONSTEXPR_CPP11 StringHash(const char (&str)[N])
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 StringHash(const char (&str)[N])
 		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}

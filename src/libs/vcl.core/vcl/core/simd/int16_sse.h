@@ -260,7 +260,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
 	{
-		int VCL_ALIGN(16) vars[16];
+		alignas(16) int vars[16];
 		_mm_store_si128((__m128i*) (vars +  0), rhs.mF4[0]);
 		_mm_store_si128((__m128i*) (vars +  4), rhs.mF4[1]);
 		_mm_store_si128((__m128i*) (vars +  8), rhs.mF4[2]);

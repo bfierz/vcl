@@ -158,7 +158,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs)
 	{
-		int VCL_ALIGN(32) vars[8];
+		alignas(32) int vars[8];
 		_mm256_store_si256((__m256i*) (vars + 0), rhs.mF8);
 
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]

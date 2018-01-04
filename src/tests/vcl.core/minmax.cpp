@@ -39,8 +39,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 #if defined(VCL_COMPILER_MSVC)
-#pragma push
-#pragma float_control(precise, on)
+#pragma float_control(precise, on, push)
 #endif
 template<class T>
 const T& min(const T& a, const T& b)
@@ -54,7 +53,7 @@ const T& max(const T& a, const T& b)
 	return (a > b) ? a : b;
 }
 #if defined(VCL_COMPILER_MSVC)
-#pragma pop
+#pragma float_control(pop)
 #endif
 
 TEST(MinMax, NanSafeMinMax)

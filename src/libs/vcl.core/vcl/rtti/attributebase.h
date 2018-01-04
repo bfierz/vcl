@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 
 // GSL
-#include <gsl/string_span>
+#include <gsl/gsl>
 
 // VCL
 #include <vcl/core/any.h>
@@ -45,7 +45,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<size_t N>
-		VCL_CONSTEXPR_CPP14 AttributeBase(const char (&name)[N])
+		VCL_CPP_CONSTEXPR_14 AttributeBase(const char (&name)[N])
 		: _name(name, N - 1)
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
