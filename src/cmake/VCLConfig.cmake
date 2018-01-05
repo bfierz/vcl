@@ -65,7 +65,7 @@ function(vcl_configure tgt)
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 	# Control OpenMP support
-	set(VCL_OPENMP_SUPPORT CACHE BOOL "Enable OpenMP support" PARENT_SCOPE)
+	option(VCL_OPENMP_SUPPORT "Enable OpenMP support")
 	if(VCL_OPENMP_SUPPORT)
 		find_package(OpenMP)
 		if(OPENMP_FOUND)
