@@ -1,14 +1,14 @@
 project(vcl_core)
 
-# Check dependency requirements
-check_target(absl::any)
-check_target(absl::bad_any_cast)
-check_target(Eigen3)
-check_target(fmt-header-only)
-check_target(GSL)
-
 # Configure the VCL compilation environment
 include(${CMAKE_SOURCE_DIR}/cmake/VCLConfig.cmake)
+
+# Check dependency requirements
+vcl_check_target(absl::any)
+vcl_check_target(absl::bad_any_cast)
+vcl_check_target(Eigen3)
+vcl_check_target(fmt-header-only)
+vcl_check_target(GSL)
 
 # Generate library
 add_library(vcl_core STATIC "")
