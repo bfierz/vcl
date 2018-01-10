@@ -1,7 +1,7 @@
 project(vcl_core)
 
 # Configure the VCL compilation environment
-include(${CMAKE_SOURCE_DIR}/cmake/VCLConfig.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 
 # Check dependency requirements
 vcl_check_target(absl::any)
