@@ -78,8 +78,8 @@ namespace Vcl { namespace IO
 			};
 
 			// Create image
-			Header header = {19778, sizeof(Colour)*width*height , 0, 0, 54};
-			Info   info   = {sizeof(Info), width, height, 1, sizeof(Colour)*8, 0, ( sizeof(Colour) *(width*height) ), 1, 1, 0, 0};
+			Header header = {19778, static_cast<int>(sizeof(Colour)*width*height), 0, 0, 54};
+			Info   info   = {sizeof(Info), width, height, 1, sizeof(Colour)*8, 0, static_cast<int>(sizeof(Colour) * width * height), 1, 1, 0, 0};
 
 			fstream img;
 			img.open(filename, ios::out|ios::binary);

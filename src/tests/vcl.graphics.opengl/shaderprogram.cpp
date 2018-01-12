@@ -146,8 +146,8 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	using namespace Vcl::Graphics;
 
 	// Compile the shader stages
-	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
-	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadFS);
+	Runtime::OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
+	Runtime::OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadFS);
 
 	// Create the input definition
 	InputLayoutDescription in = 
@@ -158,13 +158,13 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	};
 
 	// Create the program descriptor
-	OpenGL::ShaderProgramDescription desc;
+	Runtime::OpenGL::ShaderProgramDescription desc;
 	desc.InputLayout = in;
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
 
 	// Create the shader program
-	OpenGL::ShaderProgram prog{ desc };
+	Runtime::OpenGL::ShaderProgram prog{ desc };
 
 	// Verify the result
 	GLint linked = 0, valid = 0;
@@ -181,8 +181,8 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	using namespace Vcl::Graphics;
 
 	// Compile the shader stages
-	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadSpirvVS);
-	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadSpirvFS);
+	Runtime::OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadSpirvVS);
+	Runtime::OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadSpirvFS);
 
 	// Create the input definition
 	InputLayoutDescription in = 
@@ -193,13 +193,13 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	};
 
 	// Create the program descriptor
-	OpenGL::ShaderProgramDescription desc;
+	Runtime::OpenGL::ShaderProgramDescription desc;
 	desc.InputLayout = in;
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
 
 	// Create the shader program
-	OpenGL::ShaderProgram prog{ desc };
+	Runtime::OpenGL::ShaderProgram prog{ desc };
 
 	// Verify the result
 	GLint linked = 0, valid = 0;
@@ -216,14 +216,14 @@ TEST(OpenGL, BuildSimpleComputeShaderProgram)
 	using namespace Vcl::Graphics;
 
 	// Compile the shader
-	OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+	Runtime::OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
 
 	// Create the program descriptor
-	OpenGL::ShaderProgramDescription desc;
+	Runtime::OpenGL::ShaderProgramDescription desc;
 	desc.ComputeShader = &cs;
 
 	// Create the shader program
-	OpenGL::ShaderProgram prog{ desc };
+	Runtime::OpenGL::ShaderProgram prog{ desc };
 
 	// Verify the result
 	GLint linked = 0, valid = 0;
@@ -240,14 +240,14 @@ TEST(OpenGL, RunSimpleComputeShaderProgram)
 	using namespace Vcl::Graphics;
 
 	// Compile the shader
-	OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+	Runtime::OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
 
 	// Create the program descriptor
-	OpenGL::ShaderProgramDescription desc;
+	Runtime::OpenGL::ShaderProgramDescription desc;
 	desc.ComputeShader = &cs;
 
 	// Create the shader program
-	OpenGL::ShaderProgram prog{ desc };
+	Runtime::OpenGL::ShaderProgram prog{ desc };
 
 	// Create an output image
 	Texture2DDescription desc2d;
@@ -256,7 +256,7 @@ TEST(OpenGL, RunSimpleComputeShaderProgram)
 	desc2d.Width = 256;
 	desc2d.Height = 256;
 	desc2d.MipLevels = 1;
-	OpenGL::Texture2D output{ desc2d };
+	Runtime::OpenGL::Texture2D output{ desc2d };
 
 	// Bind the program to the pipeline
 	prog.bind();

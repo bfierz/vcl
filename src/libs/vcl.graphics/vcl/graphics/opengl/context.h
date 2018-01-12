@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,63 +28,69 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-// C++ standard library
-#include <vector>
-
 // VCL
 
 #ifdef VCL_OPENGL_SUPPORT
 
+// EGL
+#include <EGL/egl.h>
+#undef Success
+
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	enum class CommandType
+	enum class ContextType
 	{
-		Enable,
-		Disable,
-		Enablei,
-		Disablei,
-		LogicOp,
-		BlendFunc,
-		BlendEquation,
-		BlendFunci,
-		BlendEquationi,
-		BlendColor,
-		ColorMask,
-		ColorMaskIndexed,
-		DepthMask,
-		DepthFunc,
-		StencilOpSeparate,
-		StencilMaskSeparate,
-		CullFace,
-		FrontFace,
-		PolygonMode,
-		PolygonOffsetClamp,
-		PolygonOffset
+		Core,
+		Compatibility
 	};
 
-	class StateCommands
+	struct ContextDesc
+	{
+		int MajorVersion{ 3 };
+		int MinorVersion{ 0 };
+		ContextType Type{ ContextType::Compatibility };
+		bool Debug{ false };
+	};
+
+	class Context final
 	{
 	public:
-		template<typename... Args>
-		void emplace(CommandType type, Args&&... args)
-		{
-			addTokens(type, { toToken(args)... });
-		}
+		//! Access the context type
+		//! \returns The context type ('Core', 'Compatibility', 'Invalid')
+		static const char* profileType();
+		
+		//! Initialize the OpenGL extension function pointers
+		static void initExtensions();
+
+		//! Enable the OpenGL debug message extension
+		static void setupDebugMessaging();
 
 	public:
-		void bind();
-		void unbind();
+		Context(EGLDisplay display, EGLSurface surface, const ContextDesc& desc = {});
+		~Context();
+
+		//! Make the context the thread's current context
+		//! \returns True, if the operation was successful
+		bool makeCurrent();
 
 	private:
-		uint32_t toToken(int arg);
-		uint32_t toToken(float arg);
-		uint32_t toToken(GLenum arg);
-		float toFloat(uint32_t tok);
-		void addTokens(CommandType type, std::initializer_list<uint32_t> params);
+		//! Associated EGL display
+		EGLDisplay _display;
 
-	private:
-		std::vector<uint32_t> _commands;
+		//! EGL surface
+		EGLSurface _surface;
+
+		//! EGL context
+		EGLContext _context;
+
+		//! Context description
+		ContextDesc _desc;
+
+		//! Allocated display
+		bool _allocated_display{ false };
+		
+		//! Allocated surface
+		bool _allocated_surface{ false };
 	};
 }}}
-
 #endif // VCL_OPENGL_SUPPORT

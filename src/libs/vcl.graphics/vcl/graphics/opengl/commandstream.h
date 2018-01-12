@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,36 +28,78 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // C++ standard library
-#include <initializer_list>
-
-// GSL
-#include <gsl/gsl>
+#include <vector>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+#ifdef VCL_OPENGL_SUPPORT
+
+namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	enum class CommandType
+	{
+		Enable,
+		Disable,
+		Enablei,
+		Disablei,
+		LogicOp,
+		BlendFunc,
+		BlendEquation,
+		BlendFunci,
+		BlendEquationi,
+		BlendColor,
+		ColorMask,
+		ColorMaskIndexed,
+		DepthMask,
+		DepthFunc,
+		StencilOpSeparate,
+		StencilMaskSeparate,
+		CullFace,
+		FrontFace,
+		PolygonMode,
+		PolygonOffsetClamp,
+		PolygonOffset,
+
+		PatchParameteri,
+		DrawArraysInstancedBaseInstance,
+		DrawElementsInstancedBaseInstance,
+
+		BindVertexBuffers,
+	};
+
+	struct BindVertexBuffersConfig
+	{
+		GLuint   First;
+		GLsizei  Count;
+		GLuint   Buffers[16];
+		GLintptr Offsets[16];
+		GLsizei  Strides[16];
+	};
+
+	class CommandStream
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			gsl::span<const uint8_t> binary_data,
-			gsl::span<const unsigned int> spec_indices = {},
-			gsl::span<const unsigned int> spec_values = {});
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		template<typename... Args>
+		void emplace(CommandType type, Args&&... args)
+		{
+			addTokens(type, { toToken(args)... });
+		}
 
-		static bool isSpirvSupported();
-		static GLenum toGLenum(ShaderType type);
+		void emplace(CommandType type, const BindVertexBuffersConfig& config);
+
+		void bind();
 
 	private:
-		void printInfoLog() const;
+		uint32_t toToken(int arg);
+		uint32_t toToken(float arg);
+		uint32_t toToken(GLenum arg);
+		float toFloat(uint32_t tok);
+		void addTokens(CommandType type, std::initializer_list<uint32_t> params);
+
+	private:
+		std::vector<uint32_t> _commands;
 	};
-}}}}
+}}}
+
 #endif // VCL_OPENGL_SUPPORT

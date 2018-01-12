@@ -28,3 +28,6 @@
 [submodule "src/externals/json"]
 	path = src/externals/json
 	url = https://github.com/nlohmann/json
+[submodule "src/externals/EGL"]
+	path = src/externals/EGL
+	url = https://github.com/bfierz/EGL

@@ -25,7 +25,6 @@
 #include <vcl/graphics/runtime/framebuffer.h>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
@@ -35,7 +34,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	}
 
-	GBuffer::GBuffer(const FramebufferDescription& desc)
+	GBuffer::GBuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc)
 	: Framebuffer{ desc }
 	{
 		// Create the depth buffer
@@ -46,7 +45,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		depth_desc.ArraySize = 1;
 		depth_desc.Format = desc.DepthBuffer.Format;
 
-		_depthTarget = make_owner<OpenGL::Texture2D>(depth_desc);
+		_depthTarget = engine->createResource(depth_desc);
 
 		// Create the render targets
 		for (unsigned int i = 0; i < desc.NrRenderTargets; i++)
@@ -58,7 +57,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 			tex_desc.ArraySize = 1;
 			tex_desc.Format = desc.RenderTargets[i].Format;
 
-			_renderTargets[i] = make_owner<OpenGL::Texture2D>(tex_desc);
+			_renderTargets[i] = engine->createResource(tex_desc);
 		}
 	}
 
@@ -70,35 +69,34 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		gsl::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
 		engine->setRenderTargets(rt, _depthTarget);
+		_engine = engine;
 	}
 	void GBuffer::clear(int idx, const Eigen::Vector4f& colour)
 	{
-		//_renderTargets[idx]->clear(SurfaceFormat::R32G32B32A32_FLOAT, &colour);
-		glClearBufferfv(GL_COLOR, 0, colour.data());
+		_engine->clear(idx, colour);
 	}
 	void GBuffer::clear(int idx, const Eigen::Vector4i& colour)
 	{
-		//_renderTargets[idx]->clear(SurfaceFormat::R32G32B32A32_SINT, &colour);
-		glClearBufferiv(GL_COLOR, 0, colour.data());
+		_engine->clear(idx, colour);
 	}
 	void GBuffer::clear(int idx, const Eigen::Vector4ui& colour)
 	{
-
+		_engine->clear(idx, colour);
 	}
 	void GBuffer::clear(float depth, int stencil)
 	{
-
+		_engine->clear(depth, stencil);
 	}
 	void GBuffer::clear(float depth)
 	{
-		glClearBufferfv(GL_DEPTH, 0, &depth);
+		_engine->clear(depth);
 	}
 	void GBuffer::clear(int stencil)
 	{
-
+		_engine->clear(stencil);
 	}
 
-	ABuffer::ABuffer(const FramebufferDescription& desc)
+	ABuffer::ABuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc)
 	: Framebuffer{ desc }
 	{
 		VclRequire(desc.DepthBuffer.Format != SurfaceFormat::Unknown, "Depth-buffer is configured.");
@@ -108,14 +106,14 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		headDesc.Usage = ResourceUsage::Default;
 		headDesc.SizeInBytes = (2 + desc.Width * desc.Height) * sizeof(uint32_t);
 
-		_headBuffer = make_owner<OpenGL::Buffer>(headDesc);
+		_headBuffer = engine->createResource(headDesc);
 
 		// Allocate the fragment pool
 		BufferDescription poolDesc;
 		poolDesc.Usage = ResourceUsage::Default;
 		poolDesc.SizeInBytes = (1 + desc.Width * desc.Height) * 8 * (2 * sizeof(uint32_t));
 
-		_headBuffer = make_owner<OpenGL::Buffer>(poolDesc);
+		_headBuffer = engine->createResource(poolDesc);
 
 	}
 

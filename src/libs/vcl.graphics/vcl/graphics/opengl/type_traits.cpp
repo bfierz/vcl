@@ -29,22 +29,28 @@
 
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	const GLenum AnyRenderType::componentType() const { return _gate().componentType(); }
-	const GLint AnyRenderType::size() const { return _gate().size(); }
-	const GLint AnyRenderType::componentSize() const { return _gate().componentSize(); }
-	const GLint AnyRenderType::nrComponents() const { return _gate().nrComponents(); }
-	const bool AnyRenderType::isIntegral() const { return _gate().isIntegral(); }
+	GLenum AnyRenderType::internalFormat() const  { return _gate().internalFormat(); }
+	GLenum AnyRenderType::format() const  { return _gate().format(); }
+	GLenum AnyRenderType::componentType() const { return _gate().componentType(); }
+	GLint AnyRenderType::size() const { return _gate().size(); }
+	GLint AnyRenderType::componentSize() const { return _gate().componentSize(); }
+	GLint AnyRenderType::nrComponents() const { return _gate().nrComponents(); }
+	bool AnyRenderType::isIntegral() const { return _gate().isIntegral(); }
 
 	template<>
 	struct RenderTypeTrait<void>
 	{
 		typedef void Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<void>::InternalFormat = GL_NONE;
+	const GLenum RenderTypeTrait<void>::Format = GL_NONE;
 	const GLenum RenderTypeTrait<void>::ComponentType = GL_NONE;
 	const GLint  RenderTypeTrait<void>::ComponentSize = 1;
 	const GLint  RenderTypeTrait<void>::NrComponents = 1;
@@ -55,12 +61,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<float>
 	{
 		typedef float Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<float>::InternalFormat = GL_R32F;
+	const GLenum RenderTypeTrait<float>::Format = GL_RED;
 	const GLenum RenderTypeTrait<float>::ComponentType = GL_FLOAT;
 	const GLint  RenderTypeTrait<float>::ComponentSize = sizeof(float);
 	const GLint  RenderTypeTrait<float>::NrComponents = 1;
@@ -71,12 +81,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector2f>
 	{
 		typedef Eigen::Vector2f Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector2f>::InternalFormat = GL_RG32F;
+	const GLenum RenderTypeTrait<Eigen::Vector2f>::Format = GL_RG;
 	const GLenum RenderTypeTrait<Eigen::Vector2f>::ComponentType = GL_FLOAT;
 	const GLint  RenderTypeTrait<Eigen::Vector2f>::ComponentSize = sizeof(Eigen::Vector2f::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector2f>::NrComponents = 2;
@@ -87,12 +101,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector3f>
 	{
 		typedef Eigen::Vector3f Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector3f>::InternalFormat = GL_RGB32F;
+	const GLenum RenderTypeTrait<Eigen::Vector3f>::Format = GL_RGB;
 	const GLenum RenderTypeTrait<Eigen::Vector3f>::ComponentType = GL_FLOAT;
 	const GLint  RenderTypeTrait<Eigen::Vector3f>::ComponentSize = sizeof(Eigen::Vector3f::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector3f>::NrComponents = 3;
@@ -103,12 +121,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector4f>
 	{
 		typedef Eigen::Vector4f Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector4f>::InternalFormat = GL_RGBA32F;
+	const GLenum RenderTypeTrait<Eigen::Vector4f>::Format = GL_RGBA;
 	const GLenum RenderTypeTrait<Eigen::Vector4f>::ComponentType = GL_FLOAT;
 	const GLint  RenderTypeTrait<Eigen::Vector4f>::ComponentSize = sizeof(Eigen::Vector4f::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector4f>::NrComponents = 4;
@@ -119,12 +141,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<int>
 	{
 		typedef int Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<int>::InternalFormat = GL_R32I;
+	const GLenum RenderTypeTrait<int>::Format = GL_RED;
 	const GLenum RenderTypeTrait<int>::ComponentType = GL_INT;
 	const GLint  RenderTypeTrait<int>::ComponentSize = sizeof(int);
 	const GLint  RenderTypeTrait<int>::NrComponents = 1;
@@ -135,12 +161,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector2i>
 	{
 		typedef Eigen::Vector2i Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector2i>::InternalFormat = GL_RG32I;
+	const GLenum RenderTypeTrait<Eigen::Vector2i>::Format = GL_RG;
 	const GLenum RenderTypeTrait<Eigen::Vector2i>::ComponentType = GL_INT;
 	const GLint  RenderTypeTrait<Eigen::Vector2i>::ComponentSize = sizeof(Eigen::Vector2i::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector2i>::NrComponents = 2;
@@ -151,12 +181,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector3i>
 	{
 		typedef Eigen::Vector3i Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector3i>::InternalFormat = GL_RGB32I;
+	const GLenum RenderTypeTrait<Eigen::Vector3i>::Format = GL_RGB;
 	const GLenum RenderTypeTrait<Eigen::Vector3i>::ComponentType = GL_INT;
 	const GLint  RenderTypeTrait<Eigen::Vector3i>::ComponentSize = sizeof(Eigen::Vector3i::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector3i>::NrComponents = 3;
@@ -167,12 +201,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	struct RenderTypeTrait<Eigen::Vector4i>
 	{
 		typedef Eigen::Vector4i Type;
+		static const GLenum InternalFormat;
+		static const GLenum Format;
 		static const GLenum ComponentType;
 		static const GLint ComponentSize;
 		static const GLint NrComponents;
 		static const GLint Size;
 		static const bool IsIntegral;
 	};
+	const GLenum RenderTypeTrait<Eigen::Vector4i>::InternalFormat = GL_RGBA32I;
+	const GLenum RenderTypeTrait<Eigen::Vector4i>::Format = GL_RGBA;
 	const GLenum RenderTypeTrait<Eigen::Vector4i>::ComponentType = GL_INT;
 	const GLint  RenderTypeTrait<Eigen::Vector4i>::ComponentSize = sizeof(Eigen::Vector4i::Scalar);
 	const GLint  RenderTypeTrait<Eigen::Vector4i>::NrComponents = 4;

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,36 +28,48 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-// C++ standard library
-#include <initializer_list>
-
-// GSL
-#include <gsl/gsl>
-
 // VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/opengl/commandstream.h>
+#include <vcl/graphics/runtime/state/rasterizerstate.h>
 
+#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Shader : public Runtime::Shader, public Resource
+	/*!
+	 *	\brief OpenGL abstraction of the rasterization related pipeline states
+	 */
+	class RasterizerState
 	{
 	public:
-		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			gsl::span<const uint8_t> binary_data,
-			gsl::span<const unsigned int> spec_indices = {},
-			gsl::span<const unsigned int> spec_values = {});
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		RasterizerState(const RasterizerDescription& desc);
+		
+	public:
+		const RasterizerDescription& desc() const { return _desc; }
 
-		static bool isSpirvSupported();
-		static GLenum toGLenum(ShaderType type);
+	public:
+		/*!
+		 * \brief Bind the rasterization configuration
+		 */
+		void bind();
+
+		/*!
+		 * \brief Append the state changes to the state command buffer
+		 */
+		void record(Graphics::OpenGL::CommandStream& states);
+
+	public:
+		bool isValid() const;
+
+	private: // Debug
+		bool check() const;
+
+	public:
+		static GLenum toGLenum(CullMode op);
+		static GLenum toGLenum(FillMode op);
 
 	private:
-		void printInfoLog() const;
+		//! Description of the rasterization state
+		RasterizerDescription _desc;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

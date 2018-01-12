@@ -157,7 +157,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	void BlendState::record(Graphics::OpenGL::StateCommands& states)
+	void BlendState::record(Graphics::OpenGL::CommandStream& states)
 	{
 		// Alpha to coverage
 		if (desc().AlphaToCoverageEnable)

@@ -34,7 +34,7 @@
 #include <vcl/graphics/runtime/opengl/state/blendstate.h>
 //#include <vcl/graphics/runtime/opengl/state/depthstencilstate.h>
 #include <vcl/graphics/runtime/opengl/state/inputlayout.h>
-//#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
+#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
@@ -61,6 +61,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		BlendState _blendState;
 		//DepthStencilState _depthStencilState;
-		//RasterizerState _rasterizerState;
+		RasterizerState _rasterizerState;
 	};
 }}}}

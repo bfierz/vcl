@@ -34,6 +34,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
+#ifdef VCL_USE_CONTRACTS
 TEST(OwnerPtrTest, Simple)
 {
 	using namespace Vcl::Core;
@@ -68,3 +69,4 @@ TEST(OwnerPtrTest, Simple)
 		EXPECT_TRUE(ref);
 	}
 }
+#endif

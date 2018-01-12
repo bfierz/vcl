@@ -49,6 +49,26 @@ TEST(OpenGL, ConfigureLogicOp)
 	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
 }
 
+TEST(OpenGL, ConfigureLogicOpCmds)
+{
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	BlendDescription desc;
+	desc.LogicOpEnable = true;
+	desc.LogicOp = LogicOperation::Clear;
+
+	BlendState state{ desc };
+
+	// Command queue to test
+	Vcl::Graphics::OpenGL::CommandStream cmds;
+	state.record(cmds);
+
+	cmds.bind();
+	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+}
+
 TEST(OpenGL, IndependentBlending)
 {
 	using namespace Vcl::Graphics::Runtime::OpenGL;

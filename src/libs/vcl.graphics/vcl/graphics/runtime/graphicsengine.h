@@ -36,11 +36,26 @@
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
+#include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
-#include <vcl/graphics/runtime/dynamictexture.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
+	enum class PrimitiveType
+	{
+		Undefined = 0,
+		Pointlist = 1,
+		Linelist = 2,
+		Linestrip = 3,
+		Trianglelist = 4,
+		Trianglestrip = 5,
+		LinelistAdj = 10,
+		LinestripAdj = 11,
+		TrianglelistAdj = 12,
+		TrianglestripAdj = 13,
+		Patch = 14
+	};
+
 	class BufferView
 	{
 	public:
@@ -79,16 +94,49 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		void* _data{ nullptr };
 	};
 
+	template<typename T>
+	class ConstantBufferView
+	{
+	public:
+		ConstantBufferView(BufferView&& view) : _view(std::move(view)) {}
+		operator const BufferView&() const { return _view; }
+		T* operator->() { return reinterpret_cast<T*>(_view.data()); }
+
+	private:
+		BufferView _view;
+	};
+
 	class GraphicsEngine
 	{
+	public:
+		virtual ~GraphicsEngine() = default;
+
+	public:
+		//! \defgroup ResourceAllocation Resource allocation
+		//! \{
+		virtual owner_ptr<Texture> createResource(const Texture2DDescription& desc) =0;
+		virtual owner_ptr<Buffer> createResource(const BufferDescription& desc) =0;
+		//! \}
+
 	public:
 		//! Begin a new frame
 		virtual void beginFrame() = 0;
 
 		//! End the current frame
 		virtual void endFrame() = 0;
+		
+		//! Query the current frame index
+		//! \returns The index of the current frame
+		uint64_t currentFrame() const { return _currentFrame; }
 
-	public: // Resource allocation
+	public: // Dynamic resource allocation
+
+		//! Request a new constant buffer for per frame data
+		template<typename T>
+		ConstantBufferView<T> requestPerFrameConstantBuffer()
+		{
+			return ConstantBufferView<T>(requestPerFrameConstantBuffer(sizeof(T)));
+		}
 
 		//! Request a new constant buffer for per frame data
 		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
@@ -96,34 +144,50 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Request linear device memory for per frame data
 		virtual BufferView requestPerFrameLinearMemory(size_t size) = 0;
 
-		//! Convertes a regular texture to a new dynamic texture with memory for each of the parallel frames
-		virtual ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Texture> tex) = 0;
-
-		//! Mark a persistent texture for removal
-		virtual void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) = 0;
-
-		//! Enque a read-back command which will be executed next frame
-		virtual void queueReadback(const Texture& tex, std::function<void(const BufferView&)> callback) = 0;
+		//! Enque a read-back command which will be executed at beginning of the frame where the data is ready
+		virtual void enqueueReadback(const Texture& tex, std::function<void(const BufferView&)> callback) = 0;
 
 		//! Enque a generic command which will be executed next frame
 		virtual void enqueueCommand(std::function<void(void)>) = 0;
 
 	public: // Resource management
-		virtual void resetRenderTargets() = 0;
+		void setRenderTargets(std::initializer_list<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target)
+		{
+			setRenderTargets(gsl::span<const ref_ptr<Texture>>(colour_targets.begin(), colour_targets.size()), depth_target);
+		}
 
-		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
-		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Texture> depth_target) = 0;
-		virtual void setRenderTargets(gsl::span<ref_ptr<Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
-		virtual void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) = 0;
+		virtual void setRenderTargets(gsl::span<const ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;
+		virtual void setVertexBuffer(int idx, const Buffer& buffer, int offset, int stride) = 0;
+		virtual void setTexture(int idx, const Runtime::Texture& texture) = 0;
+		virtual void setTextures(int idx, gsl::span<const ref_ptr<Texture>> textures) = 0;
+		
+		virtual void pushConstants(void* data, size_t size) = 0;
+
+	public:
+		//! \defgroup FramebufferCommands Framebuffer commands
+		//! \{
+		virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
+		virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
+		virtual void clear(int idx, const Eigen::Vector4ui& colour) = 0;
+		virtual void clear(float depth, int stencil) = 0;
+		virtual void clear(float depth) = 0;
+		virtual void clear(int stencil) = 0;
+		//! \}
 
 	public: // Command buffer operations
 		//! Set a new pipeline state
 		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
+		
+		//! \defgroup DrawCommannds Draw commands
+		//! \{
+		virtual void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) = 0;
+		virtual void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) = 0;
+		virtual void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) = 0;
+		//! \}
 
 	protected:
-		uint64_t currentFrame() const { return _currentFrame; }
 		void incrFrameCounter() { _currentFrame++; }
 
 	private:

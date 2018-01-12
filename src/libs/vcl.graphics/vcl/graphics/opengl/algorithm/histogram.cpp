@@ -50,20 +50,20 @@ namespace Vcl { namespace Graphics
 		unsigned int totalBlocks = ceil(_maxNrElements, LocalSize) / LocalSize;
 		BufferDescription desc =
 		{
-			totalBlocks * nr_buckets * sizeof(unsigned int),
+			totalBlocks * nr_buckets * static_cast<unsigned int>(sizeof(unsigned int)),
 			ResourceUsage::Default,
 			ResourceAccess::Read
 		};
 		
-		_partialHistograms = make_owner<OpenGL::Buffer>(desc);
+		_partialHistograms = make_owner<Runtime::OpenGL::Buffer>(desc);
 
 		// Define the number of buckets for the shader
 		auto partials = fmt::format("#define partialHistograms\n#define NUM_BUCKETS {}", nr_buckets);
 		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}", nr_buckets);
 
 		// Load the kernels
-		_partialHistogramKernel         = OpenGL::createComputeKernel(module, { partials.c_str() });
-		_collectPartialHistogramsKernel = OpenGL::createComputeKernel(module, { collect.c_str()  });
+		_partialHistogramKernel         = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });
+		_collectPartialHistogramsKernel = Runtime::OpenGL::createComputeKernel(module, { collect.c_str()  });
 	}
 
 	void Histogram::operator()

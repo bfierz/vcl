@@ -41,7 +41,7 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 
 	// Random number generator
 	std::mt19937 rnd;
-	std::uniform_int<unsigned int> dist{ 0, buckets - 1 };
+	std::uniform_int_distribution<unsigned int> dist{ 0, buckets - 1 };
 
 	Histogram hist{ size, buckets };
 
@@ -56,7 +56,7 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 
 	Runtime::BufferDescription desc =
 	{
-		sizeof(unsigned int) * numbers.size(),
+		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size()),
 		Runtime::ResourceUsage::Staging,
 		Runtime::ResourceAccess::Write
 	};
@@ -64,12 +64,12 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 	Runtime::BufferInitData data =
 	{
 		numbers.data(),
-		sizeof(unsigned int) * numbers.size()
+		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size())
 	};
 
 	Runtime::BufferDescription out_desc =
 	{
-		sizeof(unsigned int) * buckets,
+		static_cast<unsigned int>(sizeof(unsigned int)) * buckets,
 		Runtime::ResourceUsage::Staging,
 		Runtime::ResourceAccess::Read
 	};

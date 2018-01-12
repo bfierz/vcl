@@ -117,9 +117,31 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ref_ptr<Buffer> linearMemoryBuffer() const { return _linearMemoryBuffer; }
 		void* mappedLinearMemoryBuffer() const { return _mappedLinearMemory; }
 
-		StagingArea* readBackBuffer() { return &_readBackStage; }
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
+		{
+			// Enqueue the copy command
+			auto memory_range = _readBackStage.copyFrom(tex);
 
+			// Enqueue the callback
+			_readBackCallbacks.emplace_back(memory_range, std::move(callback));
+		}
+
+		void executeReadbackRequests()
+		{
+			// Execute the GPU->CPU memory transfers
+			_readBackStage.transfer();
+
+			// Execute the callbacks of the read-back requests
+			for (auto& callback : _readBackCallbacks)
+			{
+				callback.second(callback.first);
+			}
+			_readBackCallbacks.clear();
+		}
+		
+		OpenGL::Framebuffer* currentFramebuffer() { return _currentFramebuffer; }
 		void setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target);
+		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target);
 
 		void queueBufferForDeletion(owner_ptr<Buffer> buffer);
 
@@ -143,8 +165,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! Framebuffer cache
 		std::unordered_map<size_t, OpenGL::Framebuffer> _fbos;
 
+		//! Currently bound framebuffer
+		OpenGL::Framebuffer* _currentFramebuffer{ nullptr };
+
 		//! Staging area for data read-back
 		StagingArea _readBackStage;
+		
+		//! Read-back requests
+		std::vector<std::pair<BufferView, std::function<void(const BufferView&)>>> _readBackCallbacks;
 
 		//! Queue buffers for deletion
 		std::vector<owner_ptr<Buffer>> _bufferRecycleQueue;
@@ -155,29 +183,46 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		GraphicsEngine();
 
-	public:
+	public:		
+		owner_ptr<Runtime::Texture> createResource(const Texture2DDescription& desc) override;
+		owner_ptr<Runtime::Buffer> createResource(const BufferDescription& desc) override;
+		
 		void beginFrame() override;
 		void endFrame() override;
 		
+		using Runtime::GraphicsEngine::requestPerFrameConstantBuffer;
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 		BufferView requestPerFrameLinearMemory(size_t size) override;
 
-		ref_ptr<DynamicTexture<3>> allocatePersistentTexture(std::unique_ptr<Runtime::Texture> tex) override;
-		void deletePersistentTexture(ref_ptr<DynamicTexture<3>> tex) override;
-
-		void queueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback) override;
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback) override;
 
 		void enqueueCommand(std::function<void(void)>) override;
 
-		void resetRenderTargets() override;
+		// Expose method from parent class
+		using Runtime::GraphicsEngine::setRenderTargets;
 
-		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
-		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
-		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
-		void setRenderTargets(gsl::span<ref_ptr<DynamicTexture<3>>> colour_targets, ref_ptr<DynamicTexture<3>> depth_target) override;
+		void setRenderTargets(gsl::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		
 		void setConstantBuffer(int idx, BufferView buffer) override;
+		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
+		void setTexture(int idx, const Runtime::Texture& texture) override;
+		void setTextures(int idx, gsl::span<const ref_ptr<Runtime::Texture>> textures) override;
 
 		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
+
+		//! Set per draw-call shader parameters
+		void pushConstants(void* data, size_t size) override;
+		
+		void clear(int idx, const Eigen::Vector4f& colour) override;
+		void clear(int idx, const Eigen::Vector4i& colour) override;
+		void clear(int idx, const Eigen::Vector4ui& colour) override;
+		void clear(float depth, int stencil) override;
+		void clear(float depth) override;
+		void clear(int stencil) override;
+		
+		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) override;
+		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) override;
+		void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) override;
 
 	private:
 		//! Number of parallel frames
@@ -194,6 +239,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Current offset into the linear memory buffer
 		size_t _linearBufferOffset{ 0 };
+		
+		//! \brief Buffer index used for push constants
+		//! Uses the first available buffer as there is not upper limit
+		const int _pushConstantBufferIndex{ 0 };
 
 	private: // Command management
 
@@ -203,15 +252,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! List of generic commands executed at frame start
 		std::vector<std::function<void(void)>> _genericCmds;
 
-	private: // Resource held by the engine
-
-		//! Dynamic textures
-		std::vector<owner_ptr<DynamicTexture<3>>> _persistentTextures;
-
 	private: // Tracking state
 		Frame* _currentFrame{ nullptr };
+		
+		//! The current primitive type to draw
+		PrimitiveType _currentPrimitiveType;
 
-		// Read-back requests
-		std::vector<std::pair<BufferView, std::function<void(const BufferView&)>>> _readBackCallbacks;
+		//! Number of vertices, if a patch is to be drawn
+		int _currentNrPatchVertices;
+
 	};
 }}}}

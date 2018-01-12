@@ -22,12 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-namespace
-{
-const char* vert_shader = R"glsl(
-
 #version 430 core
 #extension GL_ARB_enhanced_layouts : enable
+
+#include "boundinggrid.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Shader Output
@@ -36,39 +34,6 @@ layout(location = 0) out VertexData
 {
 	vec3 Colour;
 } Out;
-
-////////////////////////////////////////////////////////////////////////////////
-// Shader constants
-////////////////////////////////////////////////////////////////////////////////
-
-// Transform to world space
-uniform mat4 ModelMatrix;
-uniform mat4 ViewProjectionMatrix;
-
-// Axis' in model space
-uniform vec3 Axis[3] =
-{
-	vec3(1, 0, 0),
-	vec3(0, 1, 0),
-	vec3(0, 0, 1)
-};
-
-// Colours of the box faces
-uniform vec3 Colours[3] =
-{
-	vec3(1, 0, 0),
-	vec3(0, 1, 0),
-	vec3(0, 0, 1)
-};
-
-// Root position
-uniform vec3 Origin = vec3(-2, -2, -2);
-
-// Size of a single cell
-uniform float StepSize = 2.0f;
-
-// Number of cells per size
-uniform float Resolution = 10;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -120,6 +85,4 @@ void main()
 
 	// Transform the point to view space
 	gl_Position = ViewProjectionMatrix * ModelMatrix * vec4(pos, 1);
-}
-)glsl";
 }

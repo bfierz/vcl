@@ -29,6 +29,7 @@
 #include <vector>
 
 // C runtime
+#include <cmath>
 #include <cstring>
 
 // GSL
@@ -83,10 +84,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
-	Shader::Shader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data)
+	Shader::Shader
+	(
+		ShaderType type, int tag,
+		gsl::span<const uint8_t> binary_data,
+		gsl::span<const unsigned int> spec_indices,
+		gsl::span<const unsigned int> spec_values
+	)
 	: Runtime::Shader(type, tag)
 	{
 		VclRequire(GLEW_ARB_gl_spirv, "SPIR-V is supported.");
+		VclRequire(spec_indices.size() == spec_values.size(), "Specialization constants buffer have same size.");
 
 		// Create the shader object
 		_glId = glCreateShader(toGLenum(type));
@@ -95,7 +103,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glShaderBinary(1, &_glId, GL_SHADER_BINARY_FORMAT_SPIR_V, binary_data.data(), binary_data.size());
 
 		// Specialize the shader to determine its final behaviour
-		glSpecializeShaderARB(_glId, "main", 0, nullptr, nullptr);
+		glSpecializeShaderARB(_glId, "main", spec_indices.size(), spec_indices.data(), spec_values.data());
+		
+		GLint specialization_success = 0;
+		glGetShaderiv(_glId, GL_COMPILE_STATUS, &specialization_success);
 
 		VclAssertBlock
 		{
@@ -115,6 +126,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		if (_glId)
 			glDeleteShader(_glId);
+	}
+	
+	bool Shader::isSpirvSupported()
+	{
+		return glewIsSupported("GL_ARB_gl_spirv") && glewIsSupported("GL_ARB_spirv_extensions");
 	}
 
 	GLenum Shader::toGLenum(ShaderType type)

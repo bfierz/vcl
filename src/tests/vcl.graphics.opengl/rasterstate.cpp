@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2017 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,42 +22,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+// C++ Standard Library
 
-// C++ standard library
-#include <initializer_list>
+// Include the relevant parts from the library
+#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
 
-// GSL
-#include <gsl/gsl>
+// Google test
+#include <gtest/gtest.h>
 
-// VCL
-#include <vcl/graphics/runtime/opengl/resource/resource.h>
-#include <vcl/graphics/runtime/resource/shader.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+TEST(OpenGL, ConfigureCullMode)
 {
-	class Shader : public Runtime::Shader, public Resource
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	RasterizerDescription desc;
+	desc.CullMode = CullMode::Front;
+
+	RasterizerState state{ desc };
+	state.bind();
+	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+}
+
+TEST(OpenGL, ConfigureFillMode)
+{
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
 	{
-	public:
-		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			gsl::span<const uint8_t> binary_data,
-			gsl::span<const unsigned int> spec_indices = {},
-			gsl::span<const unsigned int> spec_values = {});
-		Shader(Shader&& rhs);
-		virtual ~Shader();
+		RasterizerDescription desc;
+		desc.FillMode = FillMode::Wireframe;
 
-		static bool isSpirvSupported();
-		static GLenum toGLenum(ShaderType type);
+		RasterizerState state{ desc };
+		state.bind();
+		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+	}
+	
+	{
+		RasterizerDescription desc;
+		desc.FillMode = FillMode::Solid;
 
-	private:
-		void printInfoLog() const;
-	};
-}}}}
-#endif // VCL_OPENGL_SUPPORT
+		RasterizerState state{ desc };
+		state.bind();
+		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+	}
+}

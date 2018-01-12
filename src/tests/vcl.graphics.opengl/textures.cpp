@@ -45,7 +45,7 @@ TEST(OpenGL, InitEmptyTexture2D)
 	desc2d.Width = 32;
 	desc2d.Height = 32;
 	desc2d.MipLevels = 1;
-	OpenGL::Texture2D tex{ desc2d };
+	Runtime::OpenGL::Texture2D tex{ desc2d };
 
 	// Verify the result
 	int w, h;

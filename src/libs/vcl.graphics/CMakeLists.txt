@@ -56,15 +56,23 @@ FILE(GLOB VCL_GRAPHICS_OPENGL_ALGORITHM_SRC
 	vcl/graphics/opengl/algorithm/*.comp
 )
 
+# VCL / GRAPHICS / OPENGL / GLSL
+SET(VCL_GRAPHICS_OPENGL_GLSL_INC
+	vcl/graphics/opengl/glsl/uniformbuffer.h
+)
+
 # VCL / GRAPHICS / OPENGL
 SET(VCL_GRAPHICS_OPENGL_INC
+	vcl/graphics/opengl/commandstream.h
+	vcl/graphics/opengl/context.h
+	vcl/graphics/opengl/drawcmds.h
 	vcl/graphics/opengl/gl.h
-	vcl/graphics/opengl/statecommands.h
 	vcl/graphics/opengl/type_traits.h
 )
 SET(VCL_GRAPHICS_OPENGL_SRC
+	vcl/graphics/opengl/commandstream.cpp
+	vcl/graphics/opengl/context.cpp
 	vcl/graphics/opengl/gl.cpp
-	vcl/graphics/opengl/statecommands.cpp
 	vcl/graphics/opengl/type_traits.cpp
 )
 
@@ -101,6 +109,7 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
 	vcl/graphics/runtime/opengl/state/framebuffer.h
 	vcl/graphics/runtime/opengl/state/inputlayout.h
 	vcl/graphics/runtime/opengl/state/pipelinestate.h
+	vcl/graphics/runtime/opengl/state/rasterizerstate.h
 	vcl/graphics/runtime/opengl/state/sampler.h
 	vcl/graphics/runtime/opengl/state/shaderprogram.h
 )
@@ -109,6 +118,7 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
 	vcl/graphics/runtime/opengl/state/framebuffer.cpp
 	vcl/graphics/runtime/opengl/state/inputlayout.cpp
 	vcl/graphics/runtime/opengl/state/pipelinestate.cpp
+	vcl/graphics/runtime/opengl/state/rasterizerstate.cpp
 	vcl/graphics/runtime/opengl/state/sampler.cpp
 	vcl/graphics/runtime/opengl/state/shaderprogram.cpp
 )
@@ -138,6 +148,7 @@ SET(VCL_GRAPHICS_RUNTIME_STATE_INC
 	vcl/graphics/runtime/state/blendstate.h
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h
+	vcl/graphics/runtime/state/rasterizerstate.h
 	vcl/graphics/runtime/state/sampler.h
 )
 SET(VCL_GRAPHICS_RUNTIME_STATE_SRC
@@ -146,7 +157,6 @@ SET(VCL_GRAPHICS_RUNTIME_STATE_SRC
 
 # VCL / GRAPHICS / RUNTIME
 SET(VCL_GRAPHICS_RUNTIME_INC
-	vcl/graphics/runtime/dynamictexture.h
 	vcl/graphics/runtime/framebuffer.h
 	vcl/graphics/runtime/graphicsengine.h
 )
@@ -188,6 +198,7 @@ SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})
 SOURCE_GROUP("imageprocessing\\opengl" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC})
 SOURCE_GROUP("imageprocessing" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_INC})
 SOURCE_GROUP("opengl\\algorithm" FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_SRC} ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC})
+SOURCE_GROUP("opengl\\glsl" FILES ${VCL_GRAPHICS_OPENGL_GLSL_INC})
 SOURCE_GROUP("opengl" FILES ${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC})
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
@@ -215,6 +226,7 @@ SET(OPENGL_SOURCE
 	${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC}
 	
 	${VCL_GRAPHICS_OPENGL_ALGORITHM_SRC} ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC}
+	${VCL_GRAPHICS_OPENGL_GLSL_INC}
 	${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC}
 	
 	${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC}
@@ -234,9 +246,13 @@ ENDIF()
 
 IF(VCL_OPENGL_SUPPORT)
 	FIND_PACKAGE(OpenGL REQUIRED)
+	TARGET_LINK_LIBRARIES(vcl_graphics ${OPENGL_gl_LIBRARY})
+
 	FIND_PACKAGE(GLEW REQUIRED)
 	IF(GLEW_FOUND)
 		TARGET_COMPILE_DEFINITIONS(vcl_graphics PUBLIC VCL_OPENGL_SUPPORT)
+		TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${GLEW_INCLUDE_DIR})
+		TARGET_LINK_LIBRARIES(vcl_graphics ${GLEW_LIBRARY})
 	ENDIF()
 ENDIF()
 
@@ -244,10 +260,11 @@ SET_TARGET_PROPERTIES(vcl_graphics PROPERTIES FOLDER libs)
 if(WIN32)
 	SET_TARGET_PROPERTIES(vcl_graphics PROPERTIES DEBUG_POSTFIX _d)
 endif()
-TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${GLEW_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(vcl_graphics
 	vcl_core
+	egl
 	${GLEW_LIBRARY}
 	${OPENGL_gl_LIBRARY}
 )
@@ -256,6 +273,7 @@ TARGET_LINK_LIBRARIES(vcl_graphics
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
 INSTALL(FILES ${VCL_GRAPHICS_IMAGEPROCESSING_INC} DESTINATION include/vcl/graphics/imageprocessing)
 INSTALL(FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC} DESTINATION include/vcl/graphics/opengl/algorithm)
+INSTALL(FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC} DESTINATION include/vcl/graphics/opengl/glsl)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC} DESTINATION include/vcl/graphics/runtime/resource)
 INSTALL(FILES ${VCL_GRAPHICS_RUNTIME_STATE_INC} DESTINATION include/vcl/graphics/runtime/state)
 INSTALL(FILES ${VCL_GRAPHICS_SHADOWS_INC} DESTINATION include/vcl/graphics/shadows)

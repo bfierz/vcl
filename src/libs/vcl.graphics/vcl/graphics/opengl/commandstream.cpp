@@ -22,7 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/opengl/statecommands.h>
+#include <vcl/graphics/opengl/commandstream.h>
+
+// C++ standard library
+#include <iterator>
 
 // VCL
 #include <vcl/core/contract.h>
@@ -31,7 +34,7 @@
 
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
-	void StateCommands::bind()
+	void CommandStream::bind()
 	{
 		for (auto tok = _commands.begin(); tok != _commands.end(); ++tok)
 		{
@@ -106,16 +109,21 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			case CommandType::PolygonOffset:
 				//glPolygonOffset();
 				break;
+			case CommandType::PatchParameteri:
+				glPatchParameteri((GLenum) *++tok, (GLint) *++tok);
+				break;
+			case CommandType::DrawArraysInstancedBaseInstance:
+				glDrawArraysInstancedBaseInstance((GLenum) *++tok,
+					(GLint) *++tok, (GLsizei) *++tok, (GLsizei) *++tok, (GLuint) *++tok);
+			case CommandType::DrawElementsInstancedBaseInstance:
+				glDrawElementsInstancedBaseInstance((GLenum) *++tok,
+					(GLsizei) *++tok, (GLenum) *++tok, (const void*) *++tok, (GLsizei) *++tok, (GLuint) *++tok);
+				break;
 			}
 		}
 	}
 
-	void StateCommands::unbind()
-	{
-
-	}
-
-	void StateCommands::addTokens(CommandType type, std::initializer_list<uint32_t> params)
+	void CommandStream::addTokens(CommandType type, std::initializer_list<uint32_t> params)
 	{
 		auto p = params.begin();
 
@@ -129,6 +137,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case CommandType::CullFace:
 		case CommandType::FrontFace:
 		case CommandType::LogicOp:
+		case CommandType::PatchParameteri:
 			VclCheck(params.size() == 1, "Number params is valid.");
 
 			_commands.push_back((uint32_t) type);
@@ -170,6 +179,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 			break;
 		case CommandType::ColorMaskIndexed:
+		case CommandType::DrawArraysInstancedBaseInstance:
 			VclCheck(params.size() == 5, "Number params is valid.");
 
 			_commands.push_back((uint32_t)type);
@@ -178,7 +188,17 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			_commands.push_back(*++p);
 			_commands.push_back(*++p);
 			_commands.push_back(*++p);
+			break;
+		case CommandType::DrawElementsInstancedBaseInstance:
+			VclCheck(params.size() == 6, "Number params is valid.");
 
+			_commands.push_back((uint32_t)type);
+			_commands.push_back(*p);
+			_commands.push_back(*++p);
+			_commands.push_back(*++p);
+			_commands.push_back(*++p);
+			_commands.push_back(*++p);
+			_commands.push_back(*++p);
 			break;
 		case CommandType::PolygonOffsetClamp:
 			//glPolygonOffsetClampEXT();
@@ -189,19 +209,25 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 	}
 
-	uint32_t StateCommands::toToken(int arg)
+	void CommandStream::emplace(CommandType type, const BindVertexBuffersConfig& config)
+	{
+		auto stream = reinterpret_cast<const uint32_t*>(&config);
+		std::copy(stream, stream + sizeof(config) / sizeof(uint32_t), std::back_inserter(_commands));
+	}
+
+	uint32_t CommandStream::toToken(int arg)
 	{
 		return (uint32_t)arg;
 	}
-	uint32_t StateCommands::toToken(float arg)
+	uint32_t CommandStream::toToken(float arg)
 	{
 		return *(uint32_t*) &arg;
 	}
-	uint32_t StateCommands::toToken(GLenum arg)
+	uint32_t CommandStream::toToken(GLenum arg)
 	{
 		return (uint32_t)arg;
 	}
-	float StateCommands::toFloat(uint32_t tok)
+	float CommandStream::toFloat(uint32_t tok)
 	{
 		return *(float*) &tok;
 	}
