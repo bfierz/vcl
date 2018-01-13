@@ -14,6 +14,12 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# For clang on Windows globally ignore unused commandline arguments
+if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-command-line-argument -Wno-error=deprecated-declarations")
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+
 ################################################################################
 # Add the externals
 ################################################################################

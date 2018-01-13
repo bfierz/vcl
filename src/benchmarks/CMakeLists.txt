@@ -1,6 +1,9 @@
 
-# Performance benchmarks for mutexes
-SUBDIRS(mutex)
+# For clang on Windows globally ignore unused commandline arguments
+if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" AND NOT WIN32)
+	# Performance benchmarks for mutexes
+	SUBDIRS(mutex)
+endif()
 
 # Performance benchmarks for 3x3 Eigen deompositions
 SUBDIRS(eigen33performance)
