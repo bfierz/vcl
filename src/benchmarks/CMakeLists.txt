@@ -20,5 +20,8 @@ SUBDIRS(rotation33performance)
 # Correctness benchmarks for 3x3 rotation computation
 SUBDIRS(rotation33correctness)
 
+# Benchmark collection for Vcl Core
+SUBDIRS(vcl.core)
+
 # Benchmark collection for Vcl Geometry
 SUBDIRS(vcl.geometry)

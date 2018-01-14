@@ -43,13 +43,14 @@
  * Picking up an idea formulated in:
  * http://www.codeproject.com/Articles/4795/C-Standard-Allocator-An-Introduction-and-Implement
  * http://jrruethe.github.io/blog/2015/11/22/allocators/
+ * http://upcoder.com/5/zero-initialisation-for-classes
  */
 namespace Vcl { namespace Core
 {
 	template<typename T>
 	class ObjectTraits
 	{
-	public: /* Typedefs */
+	public: // Typedefs
 		typedef T value_type;
 		typedef value_type* pointer;
 
@@ -89,6 +90,54 @@ namespace Vcl { namespace Core
 		void destroy(U* p)
 		{
 			p->~U();
+		}
+	};
+	
+	//! Object trait avoiding initialization of objects
+	template<typename T>
+	class NoInitObjectTraits
+	{
+	public: // Typedefs
+		typedef T value_type;
+		typedef value_type* pointer;
+
+	public:
+		//! Convert an NoInitObjectTraits<T> to NoInitObjectTraits<U>
+		template<typename U>
+		struct rebind
+		{
+			typedef NoInitObjectTraits<U> other;
+		};
+
+	public:
+		//! Default constructor
+		explicit NoInitObjectTraits() {}
+
+		//! Destructor
+		~NoInitObjectTraits() {}
+
+		template <typename U>
+		explicit NoInitObjectTraits(NoInitObjectTraits<U> const&) {}
+
+		//! Compute address of an object
+		T* address(T& r) { return std::addressof(r); }
+
+		//! Compute address of an object
+		T const* address(T const& r) { return std::addressof(r); }
+
+		//! Call constructor of p of type U
+		template<typename U, typename... Args>
+		void construct(U* p, Args&&... args)
+		{
+			// Omit the '()' to avoid initialization of the objects
+			::new(static_cast<void*>(p)) U;
+		}
+
+		//! Provide the object destruction interface
+		//! As no initialiation happed, no destruction is performed
+		template<typename U>
+		void destroy(U* p)
+		{
 		}
 	};
 

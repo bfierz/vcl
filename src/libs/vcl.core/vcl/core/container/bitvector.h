@@ -40,10 +40,12 @@ namespace Vcl { namespace Core
 	 *	Picking up an idea formulated in:
 	 *	http://upcoder.com/9/fast-resettable-flag-vector/
 	 */
+	template<template<class> typename AllocatorT = std::allocator>
 	class BitVector
 	{
 	public:
-		using size_type = std::vector<uint16_t>::size_type;
+		using allocator_t = AllocatorT<uint16_t>;
+		using container_t = std::vector<uint16_t, allocator_t>;
 
 	public:
 		class reference
@@ -102,34 +104,35 @@ namespace Vcl { namespace Core
 		};
 
 	public:
-		explicit BitVector(/*const allocator_type& alloc = allocator_type()*/)
+		explicit BitVector(const allocator_t& alloc = allocator_t())
 		: _generation(1)
+		, _bits(alloc)
 		{
 
 		}
 
-		explicit BitVector(size_type n)
+		explicit BitVector(size_t n)
 		: _generation(1)
-		, _bits(n)
+		, _bits(n, alloc)
 		{
 		}
 
-		BitVector(size_type n, bool val/*, const allocator_type& alloc = allocator_type()*/)
+		BitVector(size_t n, bool val, const allocator_t& alloc = allocator_t())
 		: _generation(1)
-		, _bits(n, val)
+		, _bits(n, val, alloc)
 		{
 
 		}
 
 	public: // Element access
-		reference operator[] (size_type idx)
+		reference operator[] (size_t idx)
 		{
 			VclRequire(idx < _bits.size(), "Index is valid");
 
 			return{ _bits.data() + idx, &_generation };
 		}
 
-		const reference operator[] (size_type idx) const
+		const reference operator[] (size_t idx) const
 		{
 			VclRequire(idx < _bits.size(), "Index is valid");
 
@@ -142,7 +145,7 @@ namespace Vcl { namespace Core
 			_bits.clear();
 		}
 
-		void assign(size_type n, bool val)
+		void assign(size_t n, bool val)
 		{
 			VclRequire(n > 0, "Size is greater than zero.");
 
@@ -168,7 +171,7 @@ namespace Vcl { namespace Core
 			}
 		}
 
-		void setBit(size_type idx, bool val)
+		void setBit(size_t idx, bool val)
 		{
 			VclRequire(idx < _bits.size(), "Index is valid");
 
@@ -181,7 +184,7 @@ namespace Vcl { namespace Core
 		}
 
 	public: // Capacity
-		size_type size() const noexcept
+		size_t size() const noexcept
 		{
 			return _bits.size();
 		}
@@ -196,6 +199,6 @@ namespace Vcl { namespace Core
 		uint16_t _generation;
 
 		//! Bits. Each short represents a single bit.
-		std::vector<uint16_t> _bits;
+		container_t _bits;
 	};
 }}

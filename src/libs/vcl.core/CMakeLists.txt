@@ -219,6 +219,7 @@ target_link_libraries(vcl_core
 	absl::bad_any_cast
 	Eigen3
 	fmt-header-only
+	foonathan_memory
 	GSL
 )
 
