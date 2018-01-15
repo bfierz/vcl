@@ -208,4 +208,41 @@ __device__ inline float2 lut1D(const float2* field, float t, int size)
 						s0 * f0.y + s1 * f1.y );
 }
 
-#endif /* VCL_COMPUTE_CUDA_MATH_CU */
+__device__ inline
+float4 warpReduceSum(float4 val)
+{
+	for (int offset = warpSize/2; offset > 0; offset /= 2) 
+	{
+		val.x += __shfl_down(val.x, offset);
+		val.y += __shfl_down(val.y, offset);
+		val.z += __shfl_down(val.z, offset);
+		val.w += __shfl_down(val.w, offset);
+	}
+	return val;
+}
+
+__device__ inline
+float4 blockReduceSum(float4 val)
+{
+	// Shared mem for 32 partial sums
+	static __shared__ float4 shared[32];
+	int lane = threadIdx.x % warpSize;
+	int wid = threadIdx.x / warpSize;
+
+	// Each warp performs partial reduction
+	val = warpReduceSum(val);
+	if (lane == 0)
+		shared[wid] = val;
+	__syncthreads();
+
+	// Read from shared memory only if that warp existed
+	val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : make_float4(0, 0, 0, 0);
+
+	// Final reduce within first warp
+	if (wid == 0)
+		val = warpReduceSum(val);
+
+	return val;
+}
+
+#endif // VCL_COMPUTE_CUDA_MATH_CU

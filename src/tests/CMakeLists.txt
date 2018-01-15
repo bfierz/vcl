@@ -49,6 +49,7 @@ ENDIF()
 # CUDA related tests
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.compute.cuda)
+	SUBDIRS(vcl.math.cuda)
 ENDIF()
 
 # OpenCL related tests

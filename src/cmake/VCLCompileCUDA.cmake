@@ -28,6 +28,11 @@ SET(VCL_CUC_DIR CACHE PATH "Directory of cuc")
 
 FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 
+	IF (CUDA_VERSION_MAJOR LESS 8)
+		MESSAGE(ERROR "Require at least CUDA 8")
+		return()
+	ENDIF()
+
 	FOREACH(dir ${include_paths})
 		LIST(APPEND include_dir_param -I "\"${dir}\"")
 	ENDFOREACH()
@@ -48,20 +53,22 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)	
 
 	# Load old environment if necessary
-	#SET(VCVARS "")
-	#IF (MSVC_VERSION EQUAL 1900)
-	#	IF (CMAKE_CL_64)
-	#		SET(VCVARS "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd" "/Release" "/x64")
-	#	ELSE(CMAKE_CL_64)
-	#		SET(VCVARS "C:\\Program Files\\Microsoft SDKs\\Windows\\v7.1\\Bin\\SetEnv.cmd" "/Release" "/x86")
-	#	ENDIF(CMAKE_CL_64)
-	#ENDIF (MSVC_VERSION EQUAL 1900)
+	SET(VCVARS "")
+	IF (CUDA_VERSION_MAJOR EQUAL 8)
+		IF (MSVC_VERSION GREATER 1900)
+			IF (CMAKE_CL_64)
+				SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat")
+			ELSE()
+				SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat")
+			ENDIF()
+		ENDIF ()
+	ENDIF()
 
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
 
-		#COMMAND ${VCVARS}
-		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_50 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
+		COMMAND ${VCVARS}
+		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)

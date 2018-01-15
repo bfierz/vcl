@@ -52,8 +52,15 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_reduceUpdateModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(CGCtxCU), CGCtxCUSize * sizeof(uint32_t));
 
 		// Load kernels
+#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
+		_reduceKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleAtomics"));
+#elif VCL_MATH_CG_CUDA_SHUFFLE
+		_reduceBeginKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleBegin"));
+		_reduceContinueKernel = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleContinue"));
+#elif VCL_MATH_CG_CUDA_BASIC
 		_reduceBeginKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionBegin"));
 		_reduceContinueKernel = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionContinue"));
+#endif
 		_updateKernel         = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGUpdateVectorsEx"));
 		
 		init();
@@ -66,18 +73,23 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void ConjugateGradientsContext::init()
 	{
+#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
+		const unsigned int gridSize = 1;
+#else
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
-		unsigned int blockSize = 128;
-		unsigned int elemPerThread = 1;
-		unsigned int elemPerBlock = elemPerThread * blockSize;
-		unsigned int gridSize = ceil<1 * 128>(_size) / (elemPerBlock);
+		// Process 4 vector entries per thread
+		const unsigned int blockSize = 128;
+		const unsigned int elemPerThread = 4;
+		const unsigned int elemPerBlock = elemPerThread * blockSize;
+		const unsigned int gridSize = ceil(_size, elemPerBlock) / elemPerBlock;
+#endif
 
 		// Create buffers
 		_devDirection = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
 		_devQ = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
 		_devResidual = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, _size*sizeof(float)));
-
+		
 		_reduceBuffersR[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
 		_reduceBuffersG[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
 		_reduceBuffersB[0] = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, gridSize*sizeof(float)));
@@ -92,7 +104,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_queue->setZero(_devDirection);
 		_queue->setZero(_devQ);
 		_queue->setZero(_devResidual);
-
+		
 		_queue->setZero(_reduceBuffersR[0]);
 		_queue->setZero(_reduceBuffersG[0]);
 		_queue->setZero(_reduceBuffersB[0]);
@@ -115,7 +127,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_ownerCtx->release(_devDirection);
 		_ownerCtx->release(_devQ);
 		_ownerCtx->release(_devResidual);
-
+		
 		_ownerCtx->release(_reduceBuffersR[0]);
 		_ownerCtx->release(_reduceBuffersG[0]);
 		_ownerCtx->release(_reduceBuffersB[0]);
@@ -145,20 +157,49 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void ConjugateGradientsContext::reduceVectors()
 	{
+		// Reduction kernels used in this method are based on
+		// https://devblogs.nvidia.com/parallelforall/faster-parallel-reductions-kepler/
+
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
-		unsigned int blockSize = 128;
-		unsigned int elemPerThread = 4;
-		unsigned int elemPerBlock = elemPerThread * blockSize;
-		unsigned int gridSize = ceil<4 * 128>(_size) / (elemPerBlock);
-
+		// Process 4 vector entries per thread
+		const unsigned int blockSize = 128;
+		const unsigned int elemPerThread = 4;
+		const unsigned int elemPerBlock = elemPerThread * blockSize;
+		const unsigned int gridSize = ceil(_size, elemPerBlock) / elemPerBlock;		
+#if VCL_MATH_CG_CUDA_SHUFFLE
+		const unsigned int dynamicSharedMemory = 0;
+#elif VCL_MATH_CG_CUDA_BASIC
+		const unsigned int dynamicSharedMemory = elemPerBlock * sizeof(float);
+#endif
 		// Initialise the reduction
-		Core::static_pointer_cast<Compute::Cuda::Kernel>(_reduceBeginKernel)->run
+#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
+		_reduceKernel->run
 		(
-			*Core::static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			gridSize,
 			blockSize,
-			4 * blockSize * sizeof(float),
+			0,
+			
+			// Kernel parameters
+			_size,
+			_devResidual,
+			_devDirection,
+			_devQ,
+			_reduceBuffersR[0],
+			_reduceBuffersG[0],
+			_reduceBuffersB[0],
+			_reduceBuffersA[0]
+		);
+#elif VCL_MATH_CG_CUDA_SHUFFLE || VCL_MATH_CG_CUDA_BASIC
+		_reduceBeginKernel->run
+		(
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+			gridSize,
+			blockSize,
+			dynamicSharedMemory,
+			
+			// Kernel parameters
 			_size,
 			_devResidual,
 			_devDirection,
@@ -169,23 +210,29 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			_reduceBuffersA[0]
 		);
 		
-		// Reduce the array to a scalar
-		unsigned int n = _size / elemPerBlock;
-		while (n > 1)
+		// Reduce the array of partial results to a scalar.
+		// The initial reduction step produced 'gridSize' number of
+		// partial results.
+		unsigned int nrPartialResults = gridSize;
+		while (nrPartialResults > 1)
 		{
-			Core::static_pointer_cast<Compute::Cuda::Kernel>(_reduceBeginKernel)->run
+			unsigned int currGridSize = ceil(nrPartialResults, elemPerBlock) / elemPerBlock;
+			_reduceContinueKernel->run
 			(
-				*Core::static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
-				std::max(n / elemPerBlock, (unsigned int) 1),
+				*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+				currGridSize,
 				blockSize,
-				4 * blockSize * sizeof(float),
-				n,
+				dynamicSharedMemory,
+				
+				// Kernel parameters
+				nrPartialResults,
 				_reduceBuffersR[0], _reduceBuffersG[0], _reduceBuffersB[0], _reduceBuffersA[0],
 				_reduceBuffersR[1], _reduceBuffersG[1], _reduceBuffersB[1], _reduceBuffersA[1]
 			);
 
-			// Update next loop
-			n = n / elemPerBlock;
+			// Update next loop.
+			// Each block produced an output element.
+			nrPartialResults = currGridSize;
 	
 			// Swap output to input
 			std::swap(_reduceBuffersR[0], _reduceBuffersR[1]);
@@ -193,46 +240,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			std::swap(_reduceBuffersB[0], _reduceBuffersB[1]);
 			std::swap(_reduceBuffersA[0], _reduceBuffersA[1]);
 		}
-
-
-		// Compare against CPU implementation
-		//std::vector<float> r(mSize, 0.0f);
-		//std::vector<float> d(mSize, 0.0f);
-		//std::vector<float> q(mSize, 0.0f);
-		//
-		//std::vector<float> d_r(gridSize, 0.0f);
-		//std::vector<float> d_g(gridSize, 0.0f);
-		//std::vector<float> d_b(gridSize, 0.0f);
-		//std::vector<float> d_a(gridSize, 0.0f);
-		//
-		//cuMemcpyDtoH(r.data(), mDevResidual, r.size() * sizeof(float));
-		//cuMemcpyDtoH(d.data(), mDevDirection, d.size() * sizeof(float));
-		//cuMemcpyDtoH(q.data(), mDevQ, q.size() * sizeof(float));
-		//
-		//cuMemcpyDtoH(d_r.data(), mDevReduceBuffersR[0], d_r.size()*sizeof(float));
-		//cuMemcpyDtoH(d_g.data(), mDevReduceBuffersG[0], d_g.size()*sizeof(float));
-		//cuMemcpyDtoH(d_b.data(), mDevReduceBuffersB[0], d_b.size()*sizeof(float));
-		//cuMemcpyDtoH(d_a.data(), mDevReduceBuffersA[0], d_a.size()*sizeof(float));
-		//
-		//float l1_r = 0;
-		//float l1_g = 0;
-		//float l1_b = 0;
-		//float l1_a = 0;
-		//for (size_t i = 0; i < mSize; i++)
-		//{
-		//	l1_r += r[i] * r[i];
-		//	l1_g += d[i] * q[i];
-		//	l1_b += r[i] * q[i];
-		//	l1_a += q[i] * q[i];
-		//}
-		//
-		//std::cout
-		//	<< "L1: "
-		//	<< l1_r - d_r[0] << ", "
-		//	<< l1_g - d_g[0] << ", "
-		//	<< l1_b - d_b[0] << ", "
-		//	<< l1_a - d_a[0] << ", "
-		//	<< std::endl;
+#endif
 	}
 
 	void ConjugateGradientsContext::updateVectors()
@@ -241,15 +249,15 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
-		unsigned int blockSize = 256;
-		unsigned int elemPerThread = 4;
-		unsigned int elemPerBlock = elemPerThread * blockSize;
-		unsigned int gridSize = ceil<4*256>(_size) / (elemPerBlock);
+		const unsigned int blockSize = 256;
+		const unsigned int elemPerThread = 4;
+		const unsigned int elemPerBlock = elemPerThread * blockSize;
+		const unsigned int gridSize = ceil(_size, elemPerBlock) / elemPerBlock;
 
 		// Update the vectors
-		Core::static_pointer_cast<Compute::Cuda::Kernel>(_updateKernel)->run
+		static_pointer_cast<Compute::Cuda::Kernel>(_updateKernel)->run
 		(
-			*Core::static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			gridSize,
 			blockSize,
 			0,
@@ -284,4 +292,4 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			*residual = *_hostR;
 	}
 }}}}
-#endif /* VCL_CUDA_SUPPORT */
+#endif // VCL_CUDA_SUPPORT
