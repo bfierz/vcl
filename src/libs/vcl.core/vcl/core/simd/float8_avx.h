@@ -39,7 +39,7 @@
 namespace Vcl
 {
 	template<>
-	class VectorScalar<float, 8>
+	class alignas(32) VectorScalar<float, 8>
 	{
 	public:
 		VCL_STRONG_INLINE VectorScalar() = default;

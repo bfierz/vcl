@@ -104,7 +104,7 @@
 #	endif
 
 #elif defined VCL_COMPILER_GNU || defined VCL_COMPILER_CLANG
-#	if defined __i686__
+#	if defined __i386__ || defined __i686__
 #		define VCL_ARCH_X86
 #	endif
 

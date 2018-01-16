@@ -73,7 +73,7 @@ TEST(PointTriangleDistance, Simple)
 
 	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
 
-	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t>>>;
+	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t, 32>>>;
 
 	// Reference triangle
 	Eigen::Vector3f ref_a{ 1, 0, 0 };
