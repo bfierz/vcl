@@ -43,6 +43,10 @@
 #	define NOMINMAX
 #endif // NOMINMAX
 
+#if defined(VCL_COMPILER_MSVC) || (defined(VCL_COMPILER_ICC) && defined(VCL_ABI_WINAPI))
+#	define VCL_PREPROCESSOR_MICROSOFT
+#endif
+
 #define VCL_UNREFERENCED_PARAMETER(param) ((void) param)
 
 #define VCL_SAFE_DELETE(ptr) if (ptr != NULL) { delete(ptr); ptr = NULL; }
@@ -63,7 +67,7 @@
 // VCL_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
 // unfortunately, VS 2010 (up to at least 2015) still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
 // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details
-#ifdef VCL_COMPILER_MSVC
+#ifdef VCL_PREPROCESSOR_MICROSOFT
 #	define VCL_PP_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
 #	define VCL_PP_VA_NUM_ARGS_REVERSE_SEQUENCE   10, 9, 8, 7, 6, 5, 4, 3, 2, 1
 #	define VCL_PP_LEFT_PARENTHESIS (
@@ -75,7 +79,7 @@
 #endif
 
 // VCL_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
-#ifdef VCL_COMPILER_MSVC
+#ifdef VCL_PREPROCESSOR_MICROSOFT
 #	define VCL_PP_PASS_VA(...)	VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
 #else
 #	define VCL_PP_PASS_VA(...)	( __VA_ARGS__ )
@@ -84,7 +88,7 @@
 /*
  *	Compiler specific macros
  */
-#ifdef VCL_COMPILER_MSVC
+#ifdef VCL_PREPROCESSOR_MICROSOFT
 #	define __VCL_CONFIG_MACROS_STR2__(x) #x
 #	define __VCL_CONFIG_MACROS_STR1__(x) __VCL_CONFIG_MACROS_STR2__(x)
 #	define __VCL_CONFIG_MACROS_LOC_WARNING__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__)") : warning Vcl: "
@@ -103,7 +107,7 @@
 #	define VCL_MESSAGE(msg)
 
 #	define VCL_NO_SWITCH_DEFAULT
-#endif // VCL_COMPILER_MSVC
+#endif // VCL_PREPROCESSOR_MICROSOFT
 
 #if defined(VCL_COMPILER_MSVC)
 
