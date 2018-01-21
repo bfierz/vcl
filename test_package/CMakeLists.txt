@@ -4,10 +4,6 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-option(FOONATHAN_MEMORY_BUILD_EXAMPLES OFF)
-option(FOONATHAN_MEMORY_BUILD_TESTS OFF)
-subdirs(../src/externals/memory)
-
 option(BuildTests OFF)
 subdirs(../src/externals/json)
 
@@ -28,8 +24,6 @@ add_executable(test_vcl
 	../src/tests/vcl.core/smart_ptr.cpp)
 
 target_link_libraries(test_vcl
-	CONAN_PKG::Abseil
-	foonathan_memory
 	nlohmann_json
 )
 

@@ -15,8 +15,7 @@ class VclConan(ConanFile):
             "vectorization=AVX", \
             "fPIC=False"
 
-    requires = "Abseil/20171101@bincrafters/stable", \
-               "Eigen3/3.3.3@bschindler/testing", \
+    requires = "eigen/3.3.4@conan/stable", \
                "fmt/4.1.0@bincrafters/stable", \
                "gsl_microsoft/20180102@bincrafters/stable"
 
@@ -66,12 +65,13 @@ class VclConan(ConanFile):
         self.copy("*.h", dst="include", src="src/libs")
         self.copy("*.inl", dst="include", src="src/libs")
         self.copy("config.h", dst="include/vcl.core/vcl/config", src="libs/vcl.core/vcl/config")
+        self.copy("*.h", dst="include", src="src/externals/abseil")
 
     def package_info(self):
         self.cpp_info.includedirs = ['include/vcl.core', 'include/vcl.math', 'include/vcl.geometry']
         if self.settings.os == "Windows":
-            self.cpp_info.debug.libs = ['vcl_core_d.lib', 'vcl_math_d.lib', 'vcl_geometry_d.lib']
-            self.cpp_info.release.libs = ['vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib']
+            self.cpp_info.debug.libs = ['absl_anyd.lib', 'absl_bad_any_castd.lib', 'absl_based.lib', 'absl_dynamic_annotationsd.lib', 'absl_spinlock_waitd.lib', 'absl_utilityd.lib', 'vcl_core_d.lib', 'vcl_math_d.lib', 'vcl_geometry_d.lib']
+            self.cpp_info.release.libs = ['absl_any.lib', 'absl_bad_any_cast.lib', 'absl_base.lib', 'absl_dynamic_annotations.lib', 'absl_spinlock_wait.lib', 'absl_utility.lib', 'vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib']
         else:
-            self.cpp_info.libs = ['libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a']
+            self.cpp_info.libs = ['absl_any.a', 'absl_bad_any_cast.a', 'absl_base.a', 'absl_dynamic_annotations.a', 'absl_spinlock_wait.a', 'absl_utility.a', 'libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a']
         self.cpp_info.libdirs = [ "lib" ]

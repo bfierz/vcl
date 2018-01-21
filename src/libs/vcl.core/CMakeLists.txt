@@ -217,7 +217,6 @@ target_link_libraries(vcl_core
 	${absl}
 	Eigen3
 	fmt-header-only
-	foonathan_memory
 	GSL
 )
 
