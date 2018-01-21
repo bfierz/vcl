@@ -15,7 +15,10 @@ class VclConan(ConanFile):
             "vectorization=AVX", \
             "fPIC=False"
 
-    requires = (("Eigen3/3.3.3@bschindler/testing"))
+    requires = "Abseil/20171101@bincrafters/stable", \
+               "Eigen3/3.3.3@bschindler/testing", \
+               "fmt/4.1.0@bincrafters/stable", \
+               "gsl_microsoft/20180102@bincrafters/stable"
 
     url="https://github.com/bfierz/vcl.git"
     license="MIT"
@@ -23,10 +26,7 @@ class VclConan(ConanFile):
     exports_sources = "src/*"
 
     def source(self):
-        tools.replace_in_file("src/CMakeLists.txt", "PROJECT(VisualComputingLibrary)", '''PROJECT(VisualComputingLibrary)
-                include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-                conan_basic_setup()
-                set(EIGEN3_INCLUDE_DIR ${CONAN_EIGEN3_ROOT})''')
+        pass
 
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
@@ -37,7 +37,8 @@ class VclConan(ConanFile):
     def build(self):
         vectorization_key = "VCL_VECTORIZE"
 
-        defs={"VCL_BUILD_BENCHMARKS:BOOL":"off",
+        defs={"VCL_USE_CONAN:BOOL":"on",
+            "VCL_BUILD_BENCHMARKS:BOOL":"off",
             "VCL_BUILD_TESTS:BOOL":"on",
             "VCL_BUILD_TOOLS:BOOL":"off",
             "VCL_BUILD_EXAMPLES:BOOL" : "off",
@@ -48,7 +49,7 @@ class VclConan(ConanFile):
             defs["CMAKE_POSITION_INDEPENDENT_CODE:BOOL"] = "on"
 
         cmake = CMake(self)
-        cmake.configure(source_dir=self.conanfile_directory + "/src/", build_dir="./", defs=defs)
+        cmake.configure(source_dir=self.source_folder + "/src/", build_dir="./", defs=defs)
 
         if cmake.is_multi_configuration:
             self.run("cmake --build . --target vcl_geometry --config Debug")
@@ -63,6 +64,7 @@ class VclConan(ConanFile):
         self.copy("*.a", dst="lib", src="lib")
         self.copy("*.lib", dst="lib", src="lib")
         self.copy("*.h", dst="include", src="src/libs")
+        self.copy("*.inl", dst="include", src="src/libs")
         self.copy("config.h", dst="include/vcl.core/vcl/config", src="libs/vcl.core/vcl/config")
 
     def package_info(self):

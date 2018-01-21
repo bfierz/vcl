@@ -6,7 +6,7 @@ username = os.getenv("CONAN_USERNAME", "bfierz")
 
 class VclReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "vcl/2018.01@%s/%s" % (username, channel)
+    requires = "gtest/1.8.0@bincrafters/stable"
     generators = "cmake"
     
     def configure(self):
@@ -15,7 +15,7 @@ class VclReuseConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
-        self.run('cmake %s %s' % (self.conanfile_directory, cmake.command_line))
+        self.run('cmake %s %s' % (self.source_folder, cmake.command_line))
         self.run("cmake --build . %s" % cmake.build_config)
 
     def test(self):

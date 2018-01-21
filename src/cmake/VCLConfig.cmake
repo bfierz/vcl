@@ -196,10 +196,10 @@ function(enable_clang_tidy target)
 endfunction()
 
 
-function(vcl_check_target my_target)
-
-  if(NOT TARGET ${my_target})
-    message(FATAL_ERROR " VCL: compiling vcl requires a ${my_target} CMake target in your project")
-  endif(NOT TARGET ${my_target})
-
+function(vcl_check_target targets)
+	foreach (tgt ${targets})
+		if(NOT TARGET ${tgt})
+			message(FATAL_ERROR " VCL: compiling vcl requires a ${tgt} CMake target in your project")
+		endif(NOT TARGET ${tgt})
+	endforeach()
 endfunction()

@@ -4,8 +4,7 @@ project(vcl_core)
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 
 # Check dependency requirements
-vcl_check_target(absl::any)
-vcl_check_target(absl::bad_any_cast)
+vcl_check_target("${absl}")
 vcl_check_target(Eigen3)
 vcl_check_target(fmt-header-only)
 vcl_check_target(GSL)
@@ -215,8 +214,7 @@ target_sources(vcl_core INTERFACE
 )
 
 target_link_libraries(vcl_core
-	absl::any
-	absl::bad_any_cast
+	${absl}
 	Eigen3
 	fmt-header-only
 	foonathan_memory
