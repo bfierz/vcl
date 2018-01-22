@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#ifndef VCL_COMPILER_MSVC
+#ifndef VCL_ABI_WINAPI
 #include <mm_malloc.h> // Required for _mm_malloc
 #endif
 #include <stddef.h>    // Required for size_t and ptrdiff_t and NULL
