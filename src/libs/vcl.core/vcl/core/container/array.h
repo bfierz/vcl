@@ -58,10 +58,8 @@ namespace std
 		template <class D, class...> struct return_type_helper { using type = D; };
 		template <class... Types>
 		struct return_type_helper<void, Types...> : std::common_type<Types...> {
-#if !defined(VCL_COMPILER_CLANG) && !defined(VCL_COMPILER_ICC)
-			static_assert(std::conjunction_v<not_ref_wrapper<Types>...>,
+			static_assert(absl::conjunction<not_ref_wrapper<Types>...>::value,
 				"Types cannot contain reference_wrappers when D is void");
-#endif
 		};
 
 		template <class D, class... Types>
