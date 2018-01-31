@@ -39,7 +39,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
-		Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
 	)
 	{
 		// Scaling of the stencil
@@ -49,31 +49,31 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Ax_l.setZero();
 		Ax_r.setZero();
 
-		for (typename Eigen::Vector2ui::Scalar i = 1; i < dim - 1; i++)
+		for (unsigned int i = 0; i < dim; i++)
 		{
 			// Initialize write-back data
 			float a_c   = 0;
 			float a_x_l = 0;
 			float a_x_r = 0;
 
-			const typename Eigen::Vector2ui::Scalar index = i;
+			const unsigned int index = i;
 			if (!skip[index])
 			{
-				if (i < (dim - 1) && !skip[index + 1])
+				if (i < (dim - 1))
 				{
-					a_c   -= 1;
-					a_x_r  = 1;
+					a_c   -= s;
+					a_x_r  = s;
 				}
-				if (i > 0 && !skip[index - 1])
+				if (i > 0)
 				{
-					a_c   -= 1;
-					a_x_l  = 1;
+					a_c   -= s;
+					a_x_l  = s;
 				}
 			}
 
-			Ac  [index] = s * a_c;
-			Ax_l[index] = s * a_x_l;
-			Ax_r[index] = s * a_x_r;
+			Ac  [index] = a_c;
+			Ax_l[index] = a_x_l;
+			Ax_r[index] = a_x_r;
 		}
 	}
 
@@ -88,7 +88,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_r,
-		Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
 	)
 	{
 		// Scaling of the stencil
@@ -100,9 +100,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Ay_l.setZero();
 		Ay_r.setZero();
 
-		for (typename Eigen::Vector2ui::Scalar j = 1; j < dim.y() - 1; j++)
+		for (typename Eigen::Vector2ui::Scalar j = 0; j < dim.y(); j++)
 		{
-			for (typename Eigen::Vector2ui::Scalar i = 1; i < dim.x() - 1; i++)
+			for (typename Eigen::Vector2ui::Scalar i = 0; i < dim.x(); i++)
 			{
 				// Initialize write-back data
 				float a_c   = 0;
@@ -114,34 +114,34 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				const typename Eigen::Vector2ui::Scalar index = j * dim.x() + i;
 				if (!skip[index])
 				{
-					if (i < (dim.x() - 1) && !skip[index + 1])
+					if (i < (dim.x() - 1))
 					{
-						a_c  -= 1;
-						a_x_r = 1;
+						a_c  -= s;
+						a_x_r = s;
 					}
-					if (i > 0 && !skip[index - 1])
+					if (i > 0)
 					{
-						a_c  -= 1;
-						a_x_l = 1;
+						a_c  -= s;
+						a_x_l = s;
 					}
 
-					if (j < (dim.y() - 1) && !skip[index + dim.x()])
+					if (j < (dim.y() - 1))
 					{
-						a_c  -= 1;
-						a_y_r = 1;
+						a_c  -= s;
+						a_y_r = s;
 					}
-					if (j > 0 && !skip[index - dim.x()])
+					if (j > 0)
 					{
-						a_c  -= 1;
-						a_y_l = 1;
+						a_c  -= s;
+						a_y_l = s;
 					}
 				}
 
-				Ac  [index] = s * a_c;
-				Ax_l[index] = s * a_x_l;
-				Ax_r[index] = s * a_x_r;
-				Ay_l[index] = s * a_y_l;
-				Ay_r[index] = s * a_y_r;
+				Ac  [index] = a_c;
+				Ax_l[index] = a_x_l;
+				Ax_r[index] = a_x_r;
+				Ay_l[index] = a_y_l;
+				Ay_r[index] = a_y_r;
 			}
 		}
 	}
@@ -159,7 +159,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_r,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Az_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Az_r,
-		Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
 	)
 	{
 		// Scaling of the stencil
@@ -175,11 +175,11 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		const typename Eigen::Vector2ui::Scalar slab = dim.x()*dim.y();
 
-		for (typename Eigen::Vector2ui::Scalar k = 1; k < dim.z() - 1; k++)
+		for (typename Eigen::Vector2ui::Scalar k = 0; k < dim.z(); k++)
 		{
-			for (typename Eigen::Vector2ui::Scalar j = 1; j < dim.y() - 1; j++)
+			for (typename Eigen::Vector2ui::Scalar j = 0; j < dim.y(); j++)
 			{
-				for (typename Eigen::Vector2ui::Scalar i = 1; i < dim.x() - 1; i++)
+				for (typename Eigen::Vector2ui::Scalar i = 0; i < dim.x(); i++)
 				{
 					// Initialize write-back data
 					float a_c   = 0;
@@ -193,47 +193,47 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					const typename Eigen::Vector2ui::Scalar index = k * slab + j * dim.x() + i;
 					if (!skip[index])
 					{
-						if (i < (dim.x() - 1) && !skip[index + 1])
+						if (i < (dim.x() - 1))
 						{
-							a_c  -= 1;
-							a_x_r = 1;
+							a_c  -= s;
+							a_x_r = s;
 						}
-						if (i > 0 && !skip[index - 1])
+						if (i > 0)
 						{
-							a_c  -= 1;
-							a_x_l = 1;
-						}
-
-						if (j < (dim.y() - 1) && !skip[index + dim.x()])
-						{
-							a_c  -= 1;
-							a_y_r = 1;
-						}
-						if (j > 0 && !skip[index - dim.x()])
-						{
-							a_c  -= 1;
-							a_y_l = 1;
+							a_c  -= s;
+							a_x_l = s;
 						}
 
-						if (k < (dim.z() - 1) && !skip[index + slab])
+						if (j < (dim.y() - 1))
 						{
-							a_c  -= 1;
-							a_z_r = 1;
+							a_c  -= s;
+							a_y_r = s;
 						}
-						if (k > 0 && !skip[index - slab])
+						if (j > 0)
 						{
-							a_c  -= 1;
-							a_z_l = 1;
+							a_c  -= s;
+							a_y_l = s;
+						}
+
+						if (k < (dim.z() - 1))
+						{
+							a_c  -= s;
+							a_z_r = s;
+						}
+						if (k > 0)
+						{
+							a_c  -= s;
+							a_z_l = s;
 						}
 					}
 
-					Ac  [index] = s * a_c;
-					Ax_l[index] = s * a_x_l;
-					Ax_r[index] = s * a_x_r;
-					Ay_l[index] = s * a_y_l;
-					Ay_r[index] = s * a_y_r;
-					Az_l[index] = s * a_z_l;
-					Az_r[index] = s * a_z_r;
+					Ac  [index] = a_c;
+					Ax_l[index] = a_x_l;
+					Ax_r[index] = a_x_r;
+					Ay_l[index] = a_y_l;
+					Ay_r[index] = a_y_r;
+					Az_l[index] = a_z_l;
+					Az_r[index] = a_z_r;
 				}
 			}
 		}

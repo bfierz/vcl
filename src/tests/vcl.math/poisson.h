@@ -29,17 +29,145 @@
 #include <vcl/config/eigen.h>
 
 // VCL
+#include <vcl/math/solver/jacobi.h>
 #include <vcl/math/math.h>
 
 // Google test
 #include <gtest/gtest.h>
 
+inline Eigen::MatrixXf createStencilMatrix1D(unsigned int size, std::vector<unsigned char>& boundary)
+{
+	Eigen::MatrixXf stencil;
+	stencil.setZero(size, size);
+	for (Eigen::MatrixXf::Index i = 0; i < static_cast<Eigen::MatrixXf::Index>(size); i++)
+	{
+		if (!boundary[i])
+		{
+			if (i < (size - 1))
+			{
+				stencil(i, i) -= 1;
+				stencil(i, i + 1) = 1;
+			}
+			if (i > 0)
+			{
+				stencil(i, i) -= 1;
+				stencil(i, i - 1) = 1;
+			}
+		}
+		else
+		{
+			stencil(i, i) = 1;
+		}
+	}
+
+	return stencil;
+}
+
+class GenericJacobiCtx : public Vcl::Mathematics::Solver::JacobiContext
+{
+	using real_t = float;
+	using matrix_t = Eigen::Matrix<real_t, Eigen::Dynamic, Eigen::Dynamic>;
+	using vector_t = Eigen::Matrix<real_t, Eigen::Dynamic, 1>;
+	using map_t = Eigen::Map<vector_t>;
+
+public:
+	GenericJacobiCtx(unsigned int size)
+	: _size(size)
+	{
+		_next.setZero(size);
+	}
+
+	void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<map_t*> rhs)
+	{
+		_unknowns = unknowns;
+		_rhs = rhs;
+	}
+
+	void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+	{
+		std::vector<unsigned char> boundary(skip.data(), skip.data() + skip.size());
+
+		const real_t s = k / (h*h);
+		_M = s*createStencilMatrix1D(_size, boundary);
+
+		_D = (1.0f / (_M.diagonal()).array()).matrix().asDiagonal();
+		for (int i = 0; i < skip.size(); i++)
+		{
+			if (skip[i] != 0)
+				_D(i, i) = 0;
+		}
+
+		_R = _M;
+		_R.diagonal().setZero();
+	}
+
+	virtual int size() const override
+	{
+		return _size;
+	}
+
+	virtual void precompute() override
+	{
+		_error = 0;
+	}
+
+	// A x = b
+	// -> A = D + R
+	// -> x^{n+1} = D^-1 (b - R x^{n})
+	virtual void updateSolution() override
+	{
+		auto& unknowns = *_unknowns;
+		auto& rhs = *_rhs;
+
+		// x^{n+1} = D^-1 (b - R x^{n})
+		_next = _D * (rhs - _R * unknowns);
+		for (int i = 0; i < unknowns.size(); i++)
+		{
+			if (_D(i, i) != 0)
+				unknowns(i) = _next(i);
+		}
+
+		auto e = rhs - _M * unknowns;
+		_error = e.squaredNorm();
+	}
+
+	//
+	virtual double computeError() override
+	{
+		return sqrt(_error) / size();
+	}
+
+	//! Ends the solver and returns the residual
+	virtual void finish(double*) override {}
+
+private:
+	//! Dimensions of the grid
+	unsigned int _size;
+
+	//! Current error
+	float _error{ 0 };
+
+	//! Laplacian matrix
+	matrix_t _M;
+	matrix_t _D;
+	matrix_t _R;
+
+	//! Left-hand side 
+	map_t* _unknowns;
+
+	//! Right-hand side
+	map_t* _rhs;
+
+	//! Temporary buffer for the updated solution
+	vector_t _next;
+};
+
 // Example with exact solution taken from
 // Burkardt - Jacobi Iterative Solution of Poisson's Equation in 1D
-inline unsigned int createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol, std::vector<unsigned char>& boundary)
 {
 	// Number of points
-	unsigned int nr_pts = 16;
+	unsigned int nr_pts = 33;
 
 	// Domain [0, 1]
 	h = 1.0f / static_cast<float>(nr_pts - 1);
@@ -54,10 +182,20 @@ inline unsigned int createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 		sol(i) =  x * (x - 1) * exp(x);
 	}
 
+	// Configure boundary condition
+	boundary.assign(nr_pts, 0);
+	boundary[0] = 1;
+	boundary[nr_pts - 1] = 1;
+
+	rhs(0) = 0;
+	sol(0) = 0;
+	rhs(nr_pts - 1) = 0;
+	sol(nr_pts - 1) = 0;
+
 	return nr_pts;
 }
 
-inline unsigned int createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol, std::vector<unsigned char>& boundary)
 {
 	using Vcl::Mathematics::pi;
 
@@ -70,26 +208,30 @@ inline unsigned int createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	// Right-hand side and exact solution of the poisson problem
 	rhs.setZero(nr_pts*nr_pts);
 	sol.setZero(nr_pts*nr_pts);
+	boundary.assign(nr_pts*nr_pts, 0);
 	for (Eigen::VectorXf::Index j = 0; j < static_cast<Eigen::VectorXf::Index>(nr_pts); j++)
 	{
 		for (Eigen::VectorXf::Index i = 0; i < static_cast<Eigen::VectorXf::Index>(nr_pts); i++)
 		{
 			float x = 0 + i * h;
 			float y = 0 + j * h;
-			rhs(j*nr_pts + i) = 8*3.14159f*3.14159f * sin(2*3.14159f * x) * sin(2*3.14159f * y);
-			sol(j*nr_pts + i) = sin(2 * 3.14159f * x) * sin(2 * 3.14159f * y);
+			sol(j*nr_pts + i) = sin(pi<float>()*x)*sin(pi<float>()*y);
+			rhs(j*nr_pts + i) = 2*pi<float>()*pi<float>()*sin(pi<float>()*x)*sin(pi<float>()*y);
+
+			if (i == 0 || i == nr_pts - 1 || j == 0 || j == nr_pts - 1)
+				boundary[j*nr_pts + i] = 1;
 		}
 	}
 
 	return nr_pts;
 }
 
-inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol)
+inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen::VectorXf& sol, std::vector<unsigned char>& boundary)
 {
 	using Vcl::Mathematics::pi;
 
 	// Number of points
-	unsigned int nr_pts = 16;
+	unsigned int nr_pts = 8;
 
 	// Domain [0, 1] x [0, 1] x [0, 1]
 	h = 1.0f / static_cast<float>(nr_pts - 1);
@@ -97,6 +239,7 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	// Right-hand side and exact solution of the poisson problem
 	rhs.setZero(nr_pts*nr_pts*nr_pts);
 	sol.setZero(nr_pts*nr_pts*nr_pts);
+	boundary.assign(nr_pts*nr_pts*nr_pts, 0);
 	for (Eigen::VectorXf::Index k = 0; k < static_cast<Eigen::VectorXf::Index>(nr_pts); k++)
 	{
 		for (Eigen::VectorXf::Index j = 0; j < static_cast<Eigen::VectorXf::Index>(nr_pts); j++)
@@ -106,23 +249,27 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 				float x = 0 + i * h;
 				float y = 0 + j * h;
 				float z = 0 + k * h;
-				rhs(k*nr_pts*nr_pts + j*nr_pts + i) = 16 * 3.14159f*3.14159f*3.14159f * sin(2 * 3.14159f * x) * sin(2 * 3.14159f * y) * sin(2 * 3.14159f * z);
-				sol(k*nr_pts*nr_pts + j*nr_pts + i) = sin(2 * 3.14159f * x) * sin(2 * 3.14159f * y) * sin(2 * 3.14159f * z);
+				sol(k*nr_pts*nr_pts + j*nr_pts + i) = sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
+				rhs(k*nr_pts*nr_pts + j*nr_pts + i) = 3*pi<float>()*pi<float>()*sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
+
+				if (i == 0 || i == nr_pts - 1 || j == 0 || j == nr_pts - 1 || k == 0 || k == nr_pts - 1)
+					boundary[k*nr_pts*nr_pts + j*nr_pts + i] = 1;
 			}
 		}
 	}
 
 	return nr_pts;
 }
+
 template<typename Solver, typename Ctx, typename Dim>
-void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs, const Eigen::VectorXf& sol, int max_iters, float eps)
+void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs, const Eigen::VectorXf& sol, const std::vector<unsigned char>& skip, int max_iters, float eps)
 {
 	Eigen::Map<Eigen::VectorXf> x(lhs.data(), lhs.size());
 	Eigen::Map<Eigen::VectorXf> y(rhs.data(), rhs.size());
-	std::vector<unsigned char> invalid_cells(rhs.size(), 0);
+	Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> boundary(skip.data(), (int64_t)skip.size());
 
 	Ctx ctx{ dim };
-	ctx.updatePoissonStencil(h, -1, { invalid_cells.data(), (int64_t)invalid_cells.size() });
+	ctx.updatePoissonStencil(h, -1, boundary);
 	ctx.setData(&x, &y);
 
 	// Execute the poisson solver

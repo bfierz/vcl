@@ -62,7 +62,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_rhs = rhs;
 		}
 
-		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
 			auto& Ac   = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
@@ -91,12 +91,12 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// r = (b - A x)
 			//          ---
 			//           q
-			size_t index = 1;
-			for (size_t sx = 1; sx < X - 1; sx++, index++)
+			size_t index = 0;
+			for (size_t sx = 0; sx < X; sx++, index++)
 			{
 				float q_c = unknowns[index    ] * Ac  [index];
-				float q_l = unknowns[index - 1] * Ax_l[index];
-				float q_r = unknowns[index + 1] * Ax_r[index];
+				float q_l = (index > 0)     ? unknowns[index - 1] * Ax_l[index] : 0;
+				float q_r = (index < X - 1) ? unknowns[index + 1] * Ax_r[index] : 0;
 
 				float q = q_c + q_l + q_r;
 				q = (Ac[index] != 0) ? (rhs[index] - q) : 0;
@@ -118,13 +118,15 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			auto& d = this->_dir;
 
-			size_t index = 1;
-			for (size_t sx = 1; sx < X - 1; sx++, index++)
+			size_t index = 0;
+			for (size_t sx = 0; sx < X; sx++, index++)
 			{
-				float q =
-					d[index    ] * Ac  [index] +
-					d[index - 1] * Ax_l[index] +
-					d[index + 1] * Ax_r[index];
+				float q = 0;
+					q += d[index    ] * Ac  [index];
+				if (index > 0)
+					q += d[index - 1] * Ax_l[index];
+				if (index < X - 1)
+					q += d[index + 1] * Ax_r[index];
 
 				q = (Ac[index] != 0) ? q : 0;
 

@@ -62,7 +62,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_rhs = rhs;
 		}
 
-		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
 			auto& Ac = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
@@ -116,21 +116,27 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// r = (b - A x)
 			//          ---
 			//           q
-			size_t index = X*Y + X + 1;
-			for (size_t sz = 1; sz < Z - 1; sz++, index += 2 * X)
+			size_t index = 0;
+			for (size_t sz = 0; sz < Z; sz++)
 			{
-				for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
+				for (size_t sy = 0; sy < Y; sy++)
 				{
-					for (size_t sx = 1; sx < X - 1; sx++, index++)
+					for (size_t sx = 0; sx < X; sx++, index++)
 					{
-						float q =
-							unknowns[index      ] * Ac[index] +
-							unknowns[index - 1  ] * Ax_l[index] +
-							unknowns[index + 1  ] * Ax_r[index] +
-							unknowns[index - X  ] * Ay_l[index] +
-							unknowns[index + X  ] * Ay_r[index] +
-							unknowns[index - X*Y] * Az_l[index] +
-							unknowns[index + X*Y] * Az_r[index];
+						float q = 0;
+							q += unknowns[index      ] * Ac[index];
+						if (sx > 0)
+							q += unknowns[index - 1  ] * Ax_l[index];
+						if (sx < X - 1)
+							q += unknowns[index + 1  ] * Ax_r[index];
+						if (sy > 0)
+							q += unknowns[index - X  ] * Ay_l[index];
+						if (sy < Y - 1)
+							q += unknowns[index + X  ] * Ay_r[index];
+						if (sz > 0)
+							q += unknowns[index - X*Y] * Az_l[index];
+						if (sz < Z - 1)
+							q += unknowns[index + X*Y] * Az_r[index];
 
 						q = (Ac[index] != 0) ? (_scale * rhs[index] - q) : 0;
 
@@ -159,21 +165,27 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			auto& d = this->_dir;
 
-			size_t index = X*Y + X + 1;
-			for (size_t sz = 1; sz < Z - 1; sz++, index += 2 * X)
+			size_t index = 0;
+			for (size_t sz = 0; sz < Z; sz++)
 			{
-				for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
+				for (size_t sy = 0; sy < Y; sy++)
 				{
-					for (size_t sx = 1; sx < X - 1; sx++, index++)
+					for (size_t sx = 0; sx < X; sx++, index++)
 					{
-						float q =
-							d[index      ] * Ac[index] +
-							d[index - 1  ] * Ax_l[index] +
-							d[index + 1  ] * Ax_r[index] +
-							d[index - X  ] * Ay_l[index] +
-							d[index + X  ] * Ay_r[index] +
-							d[index - X*Y] * Az_l[index] +
-							d[index + X*Y] * Az_r[index];
+						float q = 0;
+							q += d[index      ] * Ac[index];
+						if (sx > 0)
+							q += d[index - 1  ] * Ax_l[index];
+						if (sx < X - 1)
+							q += d[index + 1  ] * Ax_r[index];
+						if (sy > 0)
+							q += d[index - X  ] * Ay_l[index];
+						if (sy < Y - 1)
+							q += d[index + X  ] * Ay_r[index];
+						if (sz > 0)
+							q += d[index - X*Y] * Az_l[index];
+						if (sz < Z - 1)
+							q += d[index + X*Y] * Az_r[index];
 
 						q = (Ac[index] != 0) ? q : 0;
 

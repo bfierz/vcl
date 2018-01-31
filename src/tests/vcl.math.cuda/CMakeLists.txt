@@ -1,9 +1,11 @@
 PROJECT(vcl_math_cuda_test)
 
 SET(VCL_TEST_SRC
+	poisson3d.cpp
 	redux.cpp
 )
 SET(VCL_TEST_INC
+	poisson.h
 )
 
 SET(SOURCE

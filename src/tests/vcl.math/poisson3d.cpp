@@ -46,9 +46,11 @@ TEST(Poisson3D, SimpleJacobiNoBlockerIdentity)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol);
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	runPoissonTest<Jacobi, Poisson3DJacobiCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, sol, rhs, sol, 1, 1e-5f);
+	Eigen::VectorXf lhs = sol;
+	runPoissonTest<Jacobi, Poisson3DJacobiCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 1, 2e-3f);
 }
 
 TEST(Poisson3D, SimpleJacobiNoBlocker)
@@ -57,10 +59,11 @@ TEST(Poisson3D, SimpleJacobiNoBlocker)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol);
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(nr_pts*nr_pts*nr_pts);
-	runPoissonTest<Jacobi, Poisson3DJacobiCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, 100, 1e+1f);
+	Eigen::VectorXf lhs; lhs.setZero(sol.size());
+	runPoissonTest<Jacobi, Poisson3DJacobiCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 1000, 2e-2f);
 }
 
 TEST(Poisson3D, SimpleCgNoBlockerIdentity)
@@ -69,9 +72,11 @@ TEST(Poisson3D, SimpleCgNoBlockerIdentity)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol);
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, sol, rhs, sol, 1, 1e-5f);
+	Eigen::VectorXf lhs = sol;
+	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 1, 2e-2f);
 }
 
 TEST(Poisson3D, SimpleCgNoBlocker)
@@ -80,8 +85,9 @@ TEST(Poisson3D, SimpleCgNoBlocker)
 
 	float h;
 	Eigen::VectorXf rhs, sol;
-	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol);
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs = rhs;
-	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, nr_pts*nr_pts*nr_pts, 1e+1f);
+	Eigen::VectorXf lhs; lhs.setZero(sol.size());
+	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, nr_pts*nr_pts*nr_pts, 2e-2f);
 }

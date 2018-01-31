@@ -61,7 +61,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_rhs = rhs;
 		}
 
-		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
 			auto& Ac   = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
@@ -84,7 +84,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		//
 		virtual void precompute() override
 		{
-			*_unknowns = *_rhs;
 			_error = 0;
 		}
 
@@ -108,15 +107,17 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// x^{n+1} = D^-1 (b - R x^{n})
 			//                -------------
 			//                      q
-			size_t index = 1;
-			for (size_t sx = 1; sx < X - 1; sx++, index++)
+			size_t index = 0;
+			for (size_t sx = 0; sx < X; sx++, index++)
 			{
-				float q =
-					unknowns[index - 1] * Ax_l[index] +
-					unknowns[index + 1] * Ax_r[index];
+				float q = 0;
+				if (index > 0)
+					q += unknowns[index - 1] * Ax_l[index];
+				if (index < X - 1)
+					q += unknowns[index + 1] * Ax_r[index];
 
 				float n = (rhs[index] - q) / Ac[index];
-				n = (Ac[index] != 0) ? n : 0;
+				n = (Ac[index] != 0) ? n : unknowns[index];
 
 				_next[index] = n;
 
