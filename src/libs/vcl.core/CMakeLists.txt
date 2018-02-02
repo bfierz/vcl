@@ -183,7 +183,7 @@ TARGET_INCLUDE_DIRECTORIES(vcl_core PUBLIC ${PROJECT_BINARY_DIR})
 
 TARGET_LINK_LIBRARIES(vcl_core
 	fmt-header-only
-	gsl
+	GSL
 	nlohmann_json
 )
 
