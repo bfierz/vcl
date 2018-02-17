@@ -104,7 +104,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	{
 	public:
 		//! Constructor
-		CommandQueue(VkQueue queue);
+		CommandQueue(gsl::not_null<Context*> context, unsigned int family_index);
 
 		//! Destructor
 		~CommandQueue();
@@ -113,6 +113,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		inline operator VkQueue() const
 		{
 			return _queue;
+		}
+
+		unsigned int family() const
+		{
+			return _family_index;
 		}
 
 	public:
@@ -134,5 +139,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	private:
 		//! Vulkan device queue
 		VkQueue _queue;
+
+		//! Queue family index
+		unsigned int _family_index;
 	};
 }}}

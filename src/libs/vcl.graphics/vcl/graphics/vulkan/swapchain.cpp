@@ -37,22 +37,7 @@
 
 namespace Vcl { namespace Graphics { namespace Vulkan
 {
-	template<typename Func>
-	Func getInstanceProc(VkInstance inst, const char* name)
-	{
-		return reinterpret_cast<Func>(vkGetInstanceProcAddr(inst, name));
-	}
-
-	template<typename Func>
-	Func getDeviceProc(VkDevice dev, const char* name)
-	{
-		return reinterpret_cast<Func>(vkGetDeviceProcAddr(dev, name));
-	}
-
-#define VCL_VK_GET_INSTANCE_PROC(instance, name) name = getInstanceProc<PFN_##name>(instance, #name)
-#define VCL_VK_GET_DEVICE_PROC(device, name) name = getDeviceProc<PFN_##name>(device, #name)
-
-	Surface::Surface(VkInstance instance, VkPhysicalDevice device, VkSurfaceKHR surface)
+	Surface::Surface(VkInstance instance, VkPhysicalDevice device, unsigned int queue_family_index, VkSurfaceKHR surface)
 	: _instance(instance)
 	, _device(device)
 	, _surface(surface)
@@ -63,6 +48,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VCL_VK_GET_INSTANCE_PROC(instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
 		VCL_VK_GET_INSTANCE_PROC(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
 		VCL_VK_GET_INSTANCE_PROC(instance, vkGetPhysicalDeviceSurfacePresentModesKHR);
+
+		// Check if surface supports output
+		VkBool32 supported;
+		res = vkGetPhysicalDeviceSurfaceSupportKHR(device, queue_family_index, surface, &supported);
+		VclCheck(res == VK_SUCCESS, "Surface support is queried.");
 
 		// Get list of supported surface formats
 		uint32_t nr_formats;
@@ -98,11 +88,24 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	Surface::~Surface()
 	{
+		_backbuffer.reset();
+		_swapChain.reset();
+
 		if (_surface)
 			vkDestroySurfaceKHR(_instance, _surface, nullptr);
 	}
 
-	SwapChain::SwapChain(Context* context, VkCommandBuffer cmd_buffer, const SwapChainDescription& desc)
+	void Surface::setSwapChain(std::unique_ptr<SwapChain> swap_chain)
+	{
+		_swapChain = std::move(swap_chain);
+	}
+
+	void Surface::setBackbuffer(std::unique_ptr<Backbuffer> buffer)
+	{
+		_backbuffer = std::move(buffer);
+	}
+
+	SwapChain::SwapChain(gsl::not_null<Context*> context, VkCommandBuffer cmd_buffer, const SwapChainDescription& desc)
 	: _context(context)
 	, _desc(desc)
 	{
@@ -132,6 +135,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		sc_create_info.oldSwapchain = nullptr;//oldSwapchain;
 		sc_create_info.clipped = true;
 		sc_create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		sc_create_info.flags = 0;
 
 		res = vkCreateSwapchainKHR(*context, &sc_create_info, nullptr, &_swapchain);
 		VclCheck(res == VK_SUCCESS, "Swap chain was created.");
@@ -228,11 +232,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VclCheck(res == VK_SUCCESS, "Queue present was submitted successfully.");
 	}
 
-	Backbuffer::Backbuffer(SwapChain* swapchain, VkRenderPass pass, VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format)
+	Backbuffer::Backbuffer(SwapChain* swapchain, VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format)
 	: _swapchain(swapchain)
 	{
 		createDepthBuffer(cmd_buffer, width, height, depth_format);
-		createFramebuffers(pass, width, height);
+		//createFramebuffers(pass, width, height);
 	}
 
 	Backbuffer::~Backbuffer()
@@ -242,32 +246,32 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		vkFreeMemory(*_swapchain->context(), _depthBufferMemory, nullptr);
 	}
 
-	void Backbuffer::createFramebuffers(VkRenderPass pass, uint32_t width, uint32_t height)
-	{
-		VkImageView attachments[2];
-
-		// Depth/Stencil attachment is the same for all frame buffers
-		attachments[1] = _depthBufferView;
-
-		VkFramebufferCreateInfo frameBufferCreateInfo = {};
-		frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		frameBufferCreateInfo.pNext = nullptr;
-		frameBufferCreateInfo.renderPass = pass;
-		frameBufferCreateInfo.attachmentCount = 2;
-		frameBufferCreateInfo.pAttachments = attachments;
-		frameBufferCreateInfo.width = width;
-		frameBufferCreateInfo.height = height;
-		frameBufferCreateInfo.layers = 1;
-
-		// Create frame buffers for every swap chain image
-		_framebuffers.resize(_swapchain->nrImages());
-		for (uint32_t i = 0; i < _framebuffers.size(); i++)
-		{
-			attachments[0] = _swapchain->view(i);
-			VkResult res = vkCreateFramebuffer(*_swapchain->context(), &frameBufferCreateInfo, nullptr, &_framebuffers[i]);
-			VclCheckEx(res == VK_SUCCESS, "Framebuffer was created.", fmt::format("Framebuffer: {}", i));
-		}
-	}
+	//void Backbuffer::createFramebuffers(VkRenderPass pass, uint32_t width, uint32_t height)
+	//{
+	//	VkImageView attachments[2];
+	//
+	//	// Depth/Stencil attachment is the same for all frame buffers
+	//	attachments[1] = _depthBufferView;
+	//
+	//	VkFramebufferCreateInfo frameBufferCreateInfo = {};
+	//	frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	//	frameBufferCreateInfo.pNext = nullptr;
+	//	frameBufferCreateInfo.renderPass = pass;
+	//	frameBufferCreateInfo.attachmentCount = 2;
+	//	frameBufferCreateInfo.pAttachments = attachments;
+	//	frameBufferCreateInfo.width = width;
+	//	frameBufferCreateInfo.height = height;
+	//	frameBufferCreateInfo.layers = 1;
+	//
+	//	// Create frame buffers for every swap chain image
+	//	_framebuffers.resize(_swapchain->nrImages());
+	//	for (uint32_t i = 0; i < _framebuffers.size(); i++)
+	//	{
+	//		attachments[0] = _swapchain->view(i);
+	//		VkResult res = vkCreateFramebuffer(*_swapchain->context(), &frameBufferCreateInfo, nullptr, &_framebuffers[i]);
+	//		VclCheckEx(res == VK_SUCCESS, "Framebuffer was created.", fmt::format("Framebuffer: {}", i));
+	//	}
+	//}
 
 	void Backbuffer::createDepthBuffer(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format)
 	{
@@ -331,5 +335,39 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		
 		res = vkCreateImageView(*_swapchain->context(), &view, nullptr, &_depthBufferView);
 		VclCheck(res == VK_SUCCESS, "Image memory allocated.");
+	}
+	std::unique_ptr<Surface> createBasicSurface(Platform& platform, Context& context, CommandQueue& queue, const BasicSurfaceDescription& desc)
+	{
+		// Create the render surface
+		auto surface = std::make_unique<Surface>(platform, *context.device(), 0, desc.Surface);
+
+		// Allocate a command buffer to submit the image buffer creation
+		CommandBuffer cmd_buffer{ context, context.commandPool(0, CommandBufferType::Default) };
+		cmd_buffer.begin();
+
+		// Create a swap-chain for the surface
+		SwapChainDescription sc_desc;
+		sc_desc.Surface = *surface;
+		sc_desc.NumberOfImages = desc.NumberOfImages;
+		sc_desc.ColourFormat = desc.ColourFormat;
+		sc_desc.ColourSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+		sc_desc.Width = desc.Width;
+		sc_desc.Height = desc.Height;
+		sc_desc.PresentMode = VK_PRESENT_MODE_FIFO_KHR;
+		sc_desc.PreTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+
+		auto swapchain = std::make_unique<SwapChain>(&context, cmd_buffer, sc_desc);
+		surface->setSwapChain(std::move(swapchain));
+
+		// Create a back-buffer object for the surface
+		auto backbuffer = std::make_unique<Backbuffer>(surface->swapChain(), cmd_buffer, desc.Width, desc.Height, desc.DepthFormat);
+		surface->setBackbuffer(std::move(backbuffer));
+
+		// Submit the image create to the driver
+		cmd_buffer.end();
+		queue.submit(cmd_buffer);
+		queue.waitIdle();
+
+		return surface;
 	}
 }}}

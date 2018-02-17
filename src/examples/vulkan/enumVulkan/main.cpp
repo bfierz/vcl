@@ -155,7 +155,6 @@ void buildCommandBuffers(Vcl::Graphics::Vulkan::Backbuffer* bb, VkCommandPool cm
 	}
 }
 
-
 class GlfwInstance
 {
 public:
@@ -189,6 +188,9 @@ public:
 
 	//! \returns the required vulkan extensions
 	gsl::span<const char*> vulkanExtensions() const { return _vulkanExtensions; }
+
+public:
+	void createSurface();
 
 private:
 	static void errorCallback(int error, const char* description)
@@ -225,9 +227,7 @@ int main(int argc, char* argv[])
 	auto platform = std::make_unique<Platform>(glfw.vulkanExtensions());
 	auto& device = platform->device(0);
 	auto context = device.createContext(context_extensions);
-	CommandQueue queue{ context->queue(0) };
-	CommandBuffer setup_buffer{ *context, context->commandPool(0, CommandBufferType::Default) };
-	CommandBuffer post_present{ *context, context->commandPool(0, CommandBufferType::Default) };
+	CommandQueue queue{ context.get(), 0 };
 
 	// Create a window
 	auto window = glfwCreateWindow(1280, 720, "Vulkan Demo", nullptr, nullptr);
@@ -243,32 +243,21 @@ int main(int argc, char* argv[])
 	VkSurfaceKHR surface_ctx;
 	glfwCreateWindowSurface(*platform, window, nullptr, &surface_ctx);
 
-	// Create a swap-chain
-	Surface surface{ *platform, device, surface_ctx };
-
-	SwapChainDescription desc;
-	desc.Surface = surface;
+	Vcl::Graphics::Vulkan::BasicSurfaceDescription desc;
+	desc.Surface = surface_ctx;
 	desc.NumberOfImages = 4;
 	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
-	desc.ColourSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
+	desc.DepthFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
 	desc.Width = 1280;
 	desc.Height = 720;
-	desc.PresentMode = VK_PRESENT_MODE_FIFO_KHR;
-	desc.PreTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	auto surface = createBasicSurface(*platform, *context, queue, desc);
 
 	VkRenderPass render_pass = createDefaultRenderPass(*context, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT);
 
-	setup_buffer.begin();
-	SwapChain swapchain{ context.get(), setup_buffer, desc };
-	Backbuffer framebuffer{ &swapchain, render_pass, setup_buffer, 1280, 720, VK_FORMAT_D32_SFLOAT_S8_UINT };
-	setup_buffer.end();
-	queue.submit(setup_buffer);
-	queue.waitIdle();
-	
 	// End: Setup surface and swap-chain
 
 	// Begin: Scene setup
-
+	/*
 	// Setup buffers
 	Vcl::Graphics::Runtime::BufferDescription staging_buffer_desc;
 	staging_buffer_desc.CPUAccess = Vcl::Graphics::Runtime::ResourceAccess::Write | Vcl::Graphics::Runtime::ResourceAccess::Read;
@@ -320,10 +309,13 @@ int main(int argc, char* argv[])
 	// Build command buffers
 	std::vector<Vcl::Graphics::Vulkan::CommandBuffer> cmds;
 	buildCommandBuffers(&framebuffer, context->commandPool(0, CommandBufferType::Default), render_pass, 1280, 720, cmds);
-
+	*/
 	// End: Scene setup
 
+	return 0;
+
 	// Enter the event-loop
+	CommandBuffer post_present{ *context, context->commandPool(0, CommandBufferType::Default) };
 	Semaphore presentComplete{ context.get() };
 	Semaphore renderComplete{ context.get() };
 	while (!glfwWindowShouldClose(window))
@@ -334,13 +326,13 @@ int main(int argc, char* argv[])
 
 		// Render the scene
 		uint32_t curr_buf;
-		err = swapchain.acquireNextImage(presentComplete, &curr_buf);
+		err = surface->swapChain()->acquireNextImage(presentComplete, &curr_buf);
 		if (err != VK_SUCCESS)
 			continue;
 		
 		// Put post present barrier into command buffer
 		post_present.begin();
-		post_present.returnFromPresent(framebuffer.swapChain()->image(curr_buf));
+		post_present.returnFromPresent(surface->swapChain()->image(curr_buf));
 		post_present.end();
 
 		// Submit to the queue
@@ -348,17 +340,17 @@ int main(int argc, char* argv[])
 		queue.waitIdle();
 
 		// Submit to the graphics queue
-		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		VkSemaphore s0 = presentComplete;
-		VkSemaphore s1 = renderComplete;
-		VkCommandBuffer b0 = cmds[curr_buf];
-		queue.submit({ &b0, 1 }, &pipelineStages, { &s0, 1 }, { &s1, 1 });
+		//VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		//VkSemaphore s0 = presentComplete;
+		//VkSemaphore s1 = renderComplete;
+		//VkCommandBuffer b0 = cmds[curr_buf];
+		//queue.submit({ &b0, 1 }, &pipelineStages, { &s0, 1 }, { &s1, 1 });
 
 		// Present the current buffer to the swap chain
 		// We pass the signal semaphore from the submit info
 		// to ensure that the image is not rendered until
 		// all commands have been submitted
-		swapchain.queuePresent(queue, curr_buf, renderComplete);
+		surface->swapChain()->queuePresent(queue, curr_buf, renderComplete);
 	}
 
 	return 0;

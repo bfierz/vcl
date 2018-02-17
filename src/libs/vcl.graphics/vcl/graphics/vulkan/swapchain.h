@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -38,46 +39,13 @@
 #include <gsl/gsl>
 
 // VCL
+#include <vcl/graphics/vulkan/commands.h>
 #include <vcl/graphics/vulkan/context.h>
+#include <vcl/graphics/vulkan/device.h>
+#include <vcl/graphics/vulkan/platform.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan
 {
-	class Surface final
-	{
-	public:
-		/*!
-		 *	\brief Constructor
-		 *
-		 *	\param surface Vulkan surface for which this swap-chain should be used
-		 */
-		Surface(VkInstance instance, VkPhysicalDevice device, VkSurfaceKHR surface);
-
-		//! Destructor
-		~Surface();
-
-		//! Convert to Vulkan ID
-		inline operator VkSurfaceKHR() const
-		{
-			return _surface;
-		}
-
-	private:
-		//! Owner instance
-		VkInstance _instance{ nullptr };
-		
-		//! Owner physical device
-		VkPhysicalDevice _device{ nullptr };
-		
-		//! Surface of this swap chain
-		VkSurfaceKHR _surface{ nullptr };
-
-	private:
-		PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR{ nullptr };
-		PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR{ nullptr };
-		PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR{ nullptr };
-		PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR{ nullptr };
-	};
-
 	struct SwapChainDescription
 	{
 		//! Handle to the surface used
@@ -109,7 +77,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	{
 	public:
 		//! Constructor
-		SwapChain(Context* context, VkCommandBuffer cmd_buffer, const SwapChainDescription& desc);
+		SwapChain(gsl::not_null<Context*> context, VkCommandBuffer cmd_buffer, const SwapChainDescription& desc);
 
 		//! Destructor
 		~SwapChain();
@@ -167,7 +135,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	class Backbuffer final
 	{
 	public:
-		Backbuffer(SwapChain* swapchain, VkRenderPass pass, VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format);
+		Backbuffer(SwapChain* swapchain, VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format);
 		~Backbuffer();
 
 	public:
@@ -178,7 +146,6 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkFramebuffer framebuffer(uint32_t idx) { return _framebuffers[idx]; }
 
 	private:
-		void createFramebuffers(VkRenderPass pass, uint32_t width, uint32_t height);
 		void createDepthBuffer(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format);
 
 	private:
@@ -200,4 +167,83 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkImageView _depthBufferView;
 	};
 
+	class Surface final
+	{
+	public:
+		/*!
+		*	\brief Constructor
+		*
+		*	\param surface Vulkan surface for which this swap-chain should be used
+		*/
+		Surface(VkInstance instance, VkPhysicalDevice device, unsigned int queue_family_index, VkSurfaceKHR surface);
+
+		//! Destructor
+		~Surface();
+
+		//! Convert to Vulkan ID
+		inline operator VkSurfaceKHR() const
+		{
+			return _surface;
+		}
+
+		//! Access the swap chain
+		const SwapChain* swapChain() const { return _swapChain.get(); }
+
+		//! Access the swap chain
+		SwapChain* swapChain() { return _swapChain.get(); }
+
+		//! Set the swap-chain
+		void setSwapChain(std::unique_ptr<SwapChain> swap_chain);
+
+		//! Access the default back-buffer
+		const Backbuffer* backbuffer() const { return _backbuffer.get(); }
+
+		//! Set the default back-buffer
+		void setBackbuffer(std::unique_ptr<Backbuffer> buffer);
+
+	private:
+		//! Owner instance
+		VkInstance _instance{ nullptr };
+
+		//! Owner physical device
+		VkPhysicalDevice _device{ nullptr };
+
+		//! Surface of this swap chain
+		VkSurfaceKHR _surface{ nullptr };
+
+		//! Swap-chain used to render to the surface
+		std::unique_ptr<SwapChain> _swapChain;
+
+		//! Default back-buffer
+		std::unique_ptr<Backbuffer> _backbuffer;
+
+	private:
+		PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR{ nullptr };
+		PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR{ nullptr };
+		PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR{ nullptr };
+		PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR{ nullptr };
+	};
+
+	struct BasicSurfaceDescription
+	{
+		//! Handle to the surface used
+		VkSurfaceKHR Surface;
+
+		//! Number of images
+		uint32_t NumberOfImages;
+
+		//! Select colour format
+		VkFormat ColourFormat;
+
+		//! Depth-format
+		VkFormat DepthFormat;
+
+		//! Requested width
+		uint32_t Width;
+
+		//! Requested height
+		uint32_t Height;
+	};
+
+	std::unique_ptr<Surface> createBasicSurface(Platform& platform, Context& context, CommandQueue& queue, const BasicSurfaceDescription& desc);
 }}}

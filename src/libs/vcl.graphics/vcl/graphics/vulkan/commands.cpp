@@ -59,6 +59,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		info.commandPool = pool;
 		info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		info.commandBufferCount = 1;
+		info.pNext = nullptr;
 
 		VkResult res = vkAllocateCommandBuffers(device, &info, &_cmdBuffer);
 		VclCheck(res == VK_SUCCESS, "Command buffer was created.");
@@ -168,8 +169,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		vkCmdSetViewport(_cmdBuffer, first, viewports.size(), viewports.data());
 	}
 
-	CommandQueue::CommandQueue(VkQueue queue)
-	: _queue(queue)
+	CommandQueue::CommandQueue(gsl::not_null<Context*> context, unsigned int family_index)
+	: _queue(context->queue(family_index))
+	, _family_index(family_index)
 	{
 
 	}

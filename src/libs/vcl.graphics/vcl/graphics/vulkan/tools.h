@@ -39,6 +39,21 @@
 
 namespace Vcl { namespace Graphics { namespace Vulkan
 {
+	template<typename Func>
+	Func getInstanceProc(VkInstance inst, const char* name)
+	{
+		return reinterpret_cast<Func>(vkGetInstanceProcAddr(inst, name));
+	}
+
+	template<typename Func>
+	Func getDeviceProc(VkDevice dev, const char* name)
+	{
+		return reinterpret_cast<Func>(vkGetDeviceProcAddr(dev, name));
+	}
+
+#define VCL_VK_GET_INSTANCE_PROC(instance, name) name = getInstanceProc<PFN_##name>(instance, #name)
+#define VCL_VK_GET_DEVICE_PROC(device, name) name = getDeviceProc<PFN_##name>(device, #name)
+
 	// Taken from https://github.com/SaschaWillems/Vulkan/blob/master/base/vulkantools.cpp
 	// Create an image memory barrier for changing the layout of
 	// an image and put it into an active command buffer
@@ -50,7 +65,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkImageAspectFlags aspectMask,
 		VkImageLayout oldImageLayout,
 		VkImageLayout newImageLayout,
-		VkImageSubresourceRange subresourceRange
+		VkImageSubresourceRange subresourceRange,
+		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
 	)
 	{
 		// Create an image barrier object
@@ -144,15 +161,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		}
 
-		// Put barrier on top
-		VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
 		// Put barrier inside setup command buffer
 		vkCmdPipelineBarrier(
 			cmdbuffer,
-			srcStageFlags,
-			destStageFlags,
+			srcStageMask,
+			dstStageMask,
 			0,
 			0, nullptr,
 			0, nullptr,
@@ -167,7 +180,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkImage image,
 		VkImageAspectFlags aspectMask,
 		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout
+		VkImageLayout newImageLayout,
+		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT
 	)
 	{
 		VkImageSubresourceRange subresourceRange = {};
@@ -175,7 +190,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		subresourceRange.baseMipLevel = 0;
 		subresourceRange.levelCount = 1;
 		subresourceRange.layerCount = 1;
-		setImageLayout(cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange);
+		setImageLayout(cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange, srcStageMask, dstStageMask);
 	}
 
 	inline VkRenderPass createDefaultRenderPass(VkDevice device, VkFormat color_format, VkFormat depth_format)
@@ -189,6 +204,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[0].flags = 0;
 
 		attachments[1].format = depth_format;
 		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
@@ -198,6 +214,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].flags = 0;
 
 		VkAttachmentReference colorReference = {};
 		colorReference.attachment = 0;
