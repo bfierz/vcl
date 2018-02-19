@@ -34,7 +34,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 {
-	Shader::Shader(VkDevice device, ShaderType type, int tag, const char* source, size_t size)
+	Shader::Shader(VkDevice device, ShaderType type, int tag, gsl::span<const uint8_t> data)
 	: Runtime::Shader(type, tag)
 	, _device(device)
 	{
@@ -42,8 +42,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 		info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		info.pNext = nullptr;
 
-		info.codeSize = size;
-		info.pCode = reinterpret_cast<const uint32_t*>(source);
+		info.codeSize = data.size_bytes();
+		info.pCode = reinterpret_cast<const uint32_t*>(data.data());
 		info.flags = 0;
 
 

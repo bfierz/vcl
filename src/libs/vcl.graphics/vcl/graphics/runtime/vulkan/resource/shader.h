@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// GSL
+#include <gsl/gsl>
+
 #ifdef VCL_VULKAN_SUPPORT
 
 // Vulkan
@@ -40,7 +43,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 	class Shader : public Runtime::Shader
 	{
 	public:
-		Shader(VkDevice device, ShaderType type, int tag, const char* source, size_t size);
+		Shader(VkDevice device, ShaderType type, int tag, gsl::span<const uint8_t> data);
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 

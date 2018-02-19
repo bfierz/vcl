@@ -1,8 +1,8 @@
-/*
+﻿/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2016 Basil Fierz
+ * Copyright (c) 2015 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,11 +28,8 @@
 
 // C++ Standard Library
 
-// Vulkan API
-#include <vulkan/vulkan.h>
-
 // Include the relevant parts from the library
-#include <vcl/graphics/vulkan/commands.h>
+#include <vcl/graphics/runtime/vulkan/resource/shader.h>
 #include <vcl/graphics/vulkan/context.h>
 #include <vcl/graphics/vulkan/device.h>
 #include <vcl/graphics/vulkan/platform.h>
@@ -40,49 +37,15 @@
 // Google test
 #include <gtest/gtest.h>
 
-// Tests the vulkan initialization
-TEST(Vulkan, InitPlatformNoExtensions)
+// Additional shaders
+#include "quad.vert.spv.h"
+#include "quad.frag.spv.h"
+
+TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 {
+	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics::Vulkan;
-
-	// Initialize the Vulkan platform
-	auto platform = std::make_unique<Platform>();
-	VkInstance inst = *platform;
-
-	// Verify the result
-	EXPECT_TRUE(inst != nullptr) << "Platform not created.";
-
-	for (int i = 0; i < platform->nrDevices(); i++)
-	{
-		auto& dev = platform->device(i);
-
-		EXPECT_FALSE(dev.name().empty()) << "Physical device name is not valid.";
-	}
-}
-
-// Tests the vulkan initialization
-TEST(Vulkan, InitDevicesForAllPhysicalDevicesWithoutExtensions)
-{
-	using namespace Vcl::Graphics::Vulkan;
-
-	// Initialize the Vulkan platform
-	auto platform = std::make_unique<Platform>();
-
-	// Create a context for each device
-	for (int i = 0; i < platform->nrDevices(); i++)
-	{
-		auto& dev = platform->device(i);
-		auto ctx = dev.createContext();
-		VkDevice ptr = *ctx;
-
-		EXPECT_TRUE(ptr != nullptr) << "Vulkan device is not created.";
-	}
-}
-
-// Tests command queue allocation on a simple device
-TEST(Vulkan, CommandQueueOnSimpleDevice)
-{
-	using namespace Vcl::Graphics::Vulkan;
+	using namespace Vcl::Graphics;
 
 	// Initialize the Vulkan platform
 	auto platform = std::make_unique<Platform>();
@@ -93,8 +56,10 @@ TEST(Vulkan, CommandQueueOnSimpleDevice)
 	auto& dev = platform->device(0);
 	auto context = dev.createContext();
 
-	CommandQueue queue{ context.get(), 0 };
-	VkQueue gk_queue = queue;
+	// Compile the shader stages
+	Runtime::Vulkan::Shader vs(*context, ShaderType::VertexShader, 0, QuadSpirvVS);
+	Runtime::Vulkan::Shader fs(*context, ShaderType::FragmentShader, 0, QuadSpirvFS);
 
-	EXPECT_TRUE(gk_queue != nullptr) << "Vulkan command queue is not created.";
+	EXPECT_TRUE(vs.getCreateInfo().module != 0);
+	EXPECT_TRUE(fs.getCreateInfo().module != 0);
 }

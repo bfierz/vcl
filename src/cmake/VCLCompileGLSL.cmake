@@ -27,7 +27,7 @@
 set(VCL_GLSLC_PATH CACHE FILEPATH "Path to glslc")
 set(VCL_BIN2C_PATH CACHE FILEPATH "Path to VCL bin2c")
 
-function(VclCompileGLSL file_to_compile symbol include_paths compiled_files)
+function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled_files)
 
 	foreach(dir ${include_paths})
 		list(APPEND include_dir_param -I "\"${dir}\"")
@@ -47,7 +47,7 @@ function(VclCompileGLSL file_to_compile symbol include_paths compiled_files)
 			${output_cpp_file}
 
 		COMMAND
-			"${VCL_GLSLC_PATH}" --target-env=opengl ${include_dir_param} -o ${tmp_file} ${file_to_compile}
+			"${VCL_GLSLC_PATH}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
 			
 		COMMAND
 			"${VCL_BIN2C_PATH}" --group 1 --symbol "${symbol}Data" -o ${output_cpp_file} ${tmp_file}

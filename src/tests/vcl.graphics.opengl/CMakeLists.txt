@@ -39,12 +39,14 @@ list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 vclcompileglsl(
 	${PROJECT_SOURCE_DIR}/quad.vert
+	"opengl"
 	"QuadSpirvVS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_0
 )
 vclcompileglsl(
 	${PROJECT_SOURCE_DIR}/quad.frag
+	"opengl"
 	"QuadSpirvFS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_1
