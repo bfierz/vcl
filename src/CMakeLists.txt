@@ -64,9 +64,9 @@ else()
 	find_package(Eigen3 3.3 QUIET)
 endif()
 
-#if (VCL_USE_CONAN)
-#	set(absl "CONAN_PKG::Abseil")
-#else()
+if (VCL_USE_CONAN)
+	set(absl "CONAN_PKG::abseil")
+else()
 	option(BUILD_TESTING OFF)
 	option(BUILD_EXAMPLES OFF)
 	subdirs(externals/cctz)
@@ -76,7 +76,7 @@ endif()
 		absl::any
 		absl::bad_any_cast
 	)
-#endif()
+endif()
 
 if (VCL_USE_CONAN)
 	vcl_copy_conan_target(fmt-header-only CONAN_PKG::fmt)
