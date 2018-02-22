@@ -96,6 +96,16 @@ ELSE()
 	add_subdirectory(externals/EGL/EGL)
 ENDIF()
 
+if (NOT vcl_ext_glew)
+	find_package(GLEW QUIET)
+	if(GLEW_FOUND)
+		add_library(vcl_ext_glew_tgt UNKNOWN IMPORTED)
+		set_property(TARGET vcl_ext_glew_tgt PROPERTY TARGET_INCLUDE_DIRECTORIES "${GLEW_INCLUDE_DIR}")
+		set_property(TARGET vcl_ext_glew_tgt PROPERTY IMPORTED_LOCATION "${GLEW_LIBRARY}")
+	endif()
+	set(vcl_ext_glew "vcl_ext_glew_tgt")
+endif()
+
 ################################################################################
 # The libraries
 ################################################################################

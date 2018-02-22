@@ -41,9 +41,9 @@ int main(int argc, char **argv)
 	Vcl::Graphics::OpenGL::ContextDesc ctx_desc;
 	ctx_desc.MajorVersion = 4;
 	ctx_desc.MinorVersion = 3;
-	ctx_desc.Type = Vcl::Graphics::OpenGL::ContextType::Core;
+	ctx_desc.Type = Vcl::Graphics::OpenGL::ContextType::Compatibility;
 	ctx_desc.Debug = true;
-	Vcl::Graphics::OpenGL::Context ctx(nullptr, nullptr, ctx_desc);
+	Vcl::Graphics::OpenGL::Context ctx(ctx_desc);
 
 	// Run the tests
 	::testing::InitGoogleTest(&argc, argv);

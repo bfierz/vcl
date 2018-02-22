@@ -31,10 +31,13 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+#if defined VCL_OPENGL_SUPPORT
 
 // OpenGL
 #include <GL/glew.h>
+#	ifdef VCL_ABI_WINAPI
+#		include <GL/wglew.h>
+#	endif
 
 namespace
 {
@@ -143,6 +146,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return "Invalid";
 	}
 
+#	if defined VCL_EGL_SUPPORT
+	Context::Context(const ContextDesc& desc)
+		: Context(nullptr, nullptr, desc)
+	{
+	}
+
 	Context::Context(EGLDisplay display, EGLSurface surface, const ContextDesc& desc)
 	: _desc(desc)
 	{
@@ -229,6 +238,134 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		return eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
 	}
 
+#	else
+
+	// Based on OpenGL example:
+	// https://www.opengl.org/wiki/Creating_an_OpenGL_Context_%28WGL%29
+	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+	{
+		switch (message)
+		{
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		return 0;
+	}
+
+	Context::Context(const ContextDesc& desc)
+	: _desc(desc)
+	{
+		// Create a hidden OpenGL window (message only window)
+		WNDCLASS wc = { 0 };
+		wc.lpfnWndProc = WndProc;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
+		wc.lpszClassName = "OpenGLContextWindowClass";
+		wc.style = CS_OWNDC;
+		RegisterClass(&wc);
+
+		// Create a temporary render context in order to query
+		// the actual creation function
+		PIXELFORMATDESCRIPTOR pfd =
+		{
+			sizeof(PIXELFORMATDESCRIPTOR),
+			1,
+			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
+			PFD_TYPE_RGBA,            //The kind of framebuffer. RGBA or palette.
+			32,                        //Colordepth of the framebuffer.
+			0, 0, 0, 0, 0, 0,
+			0,
+			0,
+			0,
+			0, 0, 0, 0,
+			24,                        //Number of bits for the depthbuffer
+			8,                        //Number of bits for the stencilbuffer
+			0,                        //Number of Aux buffers in the framebuffer.
+			PFD_MAIN_PLANE,
+			0,
+			0, 0, 0
+		};
+		HWND tmp_hwnd = CreateWindowEx(0, wc.lpszClassName, "TmpOpenGLContextWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
+		HDC tmp_hdc = GetDC(tmp_hwnd);
+		int tmp_pf = ChoosePixelFormat(tmp_hdc, &pfd);
+		SetPixelFormat(tmp_hdc, tmp_pf, &pfd);
+		HGLRC tmp_rc = wglCreateContext(tmp_hdc);
+		wglMakeCurrent(tmp_hdc, tmp_rc);
+
+		_window_handle = CreateWindowEx(0, wc.lpszClassName, "OpenGLContextWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
+		PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
+		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
+		wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
+		wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+
+		// Explicitly initialize a versioned OpenGL context
+		const int attribs[] = {
+			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+			WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+			WGL_COLOR_BITS_ARB, 32,
+			WGL_ALPHA_BITS_ARB, 8,
+			WGL_DEPTH_BITS_ARB, 24,
+			WGL_STENCIL_BITS_ARB, 8,
+			WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
+			WGL_SAMPLES_ARB, 4,
+			0
+		};
+		HDC actual_hdc = GetDC((HWND)_window_handle);
+
+		int pixel_format_id;
+		UINT num_formats;
+		wglChoosePixelFormatARB(actual_hdc, attribs, nullptr, 1, &pixel_format_id, &num_formats);
+
+		PIXELFORMATDESCRIPTOR PFD;
+		DescribePixelFormat(actual_hdc, pixel_format_id, sizeof(PFD), &PFD);
+		SetPixelFormat(actual_hdc, pixel_format_id, &PFD);
+
+		int major_min = desc.MajorVersion;
+		int minor_min = desc.MinorVersion;
+		int type = desc.Type == ContextType::Core ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+		int  contextAttribs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
+			WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
+			WGL_CONTEXT_PROFILE_MASK_ARB, type,
+			0
+		};
+		HGLRC actual_rc = wglCreateContextAttribsARB(actual_hdc, 0, contextAttribs);
+
+		// Store the created context
+		_display_ctx = actual_hdc;
+		_render_ctx = actual_rc;
+
+		// Cleanup the temporary window
+		wglMakeCurrent(nullptr, nullptr);
+		wglDeleteContext(tmp_rc);
+		ReleaseDC(tmp_hwnd, tmp_hdc);
+		DestroyWindow(tmp_hwnd);
+
+		// Make the new context current
+		makeCurrent();
+
+		initExtensions();
+
+		if (desc.Debug)
+			setupDebugMessaging();
+	}
+
+	Context::~Context()
+	{
+		// Tear town the context and window
+		wglDeleteContext((HGLRC)_render_ctx);
+		CloseWindow((HWND)_window_handle);
+	}
+
+	bool Context::makeCurrent()
+	{
+		return wglMakeCurrent((HDC) _display_ctx, (HGLRC) _render_ctx) != 0 ? true : false;
+	}
+#	endif
+
 	void Context::initExtensions()
 	{
 		// Initialize glew
@@ -273,4 +410,4 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 	}
 }}}
-#endif // VCL_OPENGL_SUPPORT
+#endif // defined VCL_OPENGL_SUPPORT

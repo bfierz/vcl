@@ -30,11 +30,13 @@
 
 // VCL
 
-#ifdef VCL_OPENGL_SUPPORT
+#if defined VCL_OPENGL_SUPPORT
 
 // EGL
-#include <EGL/egl.h>
-#undef Success
+#	if defined VCL_EGL_SUPPORT
+#		include <EGL/egl.h>
+#		undef Success
+#	endif
 
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
@@ -66,14 +68,22 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		static void setupDebugMessaging();
 
 	public:
+		Context(const ContextDesc& desc = {});
+#	if defined VCL_EGL_SUPPORT
 		Context(EGLDisplay display, EGLSurface surface, const ContextDesc& desc = {});
+#	endif
 		~Context();
+
+		//! Access the context descriptor
+		//! \returns The context descriptor
+		const ContextDesc& desc() const { return _desc; }
 
 		//! Make the context the thread's current context
 		//! \returns True, if the operation was successful
 		bool makeCurrent();
 
 	private:
+#	if defined VCL_EGL_SUPPORT
 		//! Associated EGL display
 		EGLDisplay _display;
 
@@ -82,6 +92,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		//! EGL context
 		EGLContext _context;
+#	else
+		//! Windows window handle
+		void* _window_handle{ nullptr };
+
+		//! Windows display context
+		void* _display_ctx{ nullptr };
+
+		//! Windows render context
+		void* _render_ctx{ nullptr };
+#	endif
 
 		//! Context description
 		ContextDesc _desc;
@@ -93,4 +113,4 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		bool _allocated_surface{ false };
 	};
 }}}
-#endif // VCL_OPENGL_SUPPORT
+#endif // defined VCL_OPENGL_SUPPORT
