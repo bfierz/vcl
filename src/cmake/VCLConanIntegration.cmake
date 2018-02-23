@@ -25,10 +25,29 @@
 
 # Copy the target as aliasing imported targets is not possible (< 3.11)
 # https://github.com/conan-io/conan/issues/2125
-function(vcl_copy_conan_target dst src)
+function(vcl_copy_target dst src)
     add_library(${dst} INTERFACE IMPORTED)
     foreach(name INTERFACE_LINK_LIBRARIES INTERFACE_INCLUDE_DIRECTORIES INTERFACE_COMPILE_DEFINITIONS INTERFACE_COMPILE_OPTIONS)
         get_property(value TARGET ${src} PROPERTY ${name} )
         set_property(TARGET ${dst} PROPERTY ${name} ${value})
     endforeach()
+endfunction()
+
+# vcl_combine_targets_property(out_var target_prop target1 target2 ...)
+# Helper function: Collects @target_prop properties (as lists) from @target1, @target2 ..,
+# combines these lists into one and store into variable @out_var.
+function(vcl_combine_targets_property out_var target_prop)
+    set(values) # Resulted list
+    foreach(t ${ARGN})
+        get_property(v TARGET ${t} PROPERTY ${target_prop})
+        list(APPEND values ${v})
+    endforeach()
+    set(${out_var} ${values} PARENT_SCOPE)
+endfunction()
+
+# vcl_combine_targets(dst target1 target2 ...)
+# Creates a new target @dst which depends on @target1, @target2, ...
+function(vcl_combine_targets dst)
+    add_library(${dst} INTERFACE IMPORTED)
+    set_property(TARGET ${dst} PROPERTY INTERFACE_LINK_LIBRARIES ${ARGN})
 endfunction()
