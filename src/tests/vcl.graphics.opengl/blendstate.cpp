@@ -46,7 +46,7 @@ TEST(OpenGL, ConfigureLogicOp)
 
 	BlendState state{ desc };
 	state.bind();
-	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+	EXPECT_TRUE(state.isValid()) << "State is not valid";
 }
 
 TEST(OpenGL, ConfigureLogicOpCmds)
@@ -66,7 +66,7 @@ TEST(OpenGL, ConfigureLogicOpCmds)
 	state.record(cmds);
 
 	cmds.bind();
-	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+	EXPECT_TRUE(state.isValid()) << "State is not valid";
 }
 
 TEST(OpenGL, IndependentBlending)
@@ -86,7 +86,7 @@ TEST(OpenGL, IndependentBlending)
 
 		BlendState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+		EXPECT_TRUE(state.isValid()) << "State is not valid";
 	}
 	else
 	{
@@ -108,7 +108,7 @@ TEST(OpenGL, AdvancedBlendOp)
 
 		BlendState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+		EXPECT_TRUE(state.isValid()) << "State is not valid";
 	}
 	else
 	{

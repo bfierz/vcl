@@ -238,7 +238,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		return eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
 	}
 
-#	else
+#	elif defined VCL_ABI_WINAPI
 
 	// Based on OpenGL example:
 	// https://www.opengl.org/wiki/Creating_an_OpenGL_Context_%28WGL%29

@@ -111,7 +111,7 @@ namespace Vcl { namespace Core
 
 		}
 
-		explicit BitVector(size_t n)
+		explicit BitVector(size_t n, const allocator_t& alloc = allocator_t())
 		: _generation(1)
 		, _bits(n, alloc)
 		{

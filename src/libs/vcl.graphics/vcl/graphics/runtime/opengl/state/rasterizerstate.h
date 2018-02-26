@@ -64,8 +64,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		bool check() const;
 
 	public:
-		static GLenum toGLenum(CullMode op);
-		static GLenum toGLenum(FillMode op);
+		static GLenum toGLenum(CullModeMethod op);
+		static GLenum toGLenum(FillModeMethod op);
 
 	private:
 		//! Description of the rasterization state

@@ -45,12 +45,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		switch (desc().CullMode)
 		{
-		case CullMode::None:
+		case CullModeMethod::None:
 		{
 			glDisable(GL_CULL_FACE);
 			break;
 		}
-		case CullMode::Front:
+		case CullModeMethod::Front:
 		{
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
@@ -62,7 +62,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			
 			break;
 		}
-		case CullMode::Back:
+		case CullModeMethod::Back:
 		{
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
@@ -84,12 +84,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		switch (desc().CullMode)
 		{
-		case CullMode::None:
+		case CullModeMethod::None:
 		{
 			states.emplace(CommandType::Disable, GL_CULL_FACE);
 			break;
 		}
-		case CullMode::Front:
+		case CullModeMethod::Front:
 		{
 			states.emplace(CommandType::Enable, GL_CULL_FACE);
 			states.emplace(CommandType::CullFace, GL_FRONT);
@@ -101,7 +101,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			
 			break;
 		}
-		case CullMode::Back:
+		case CullModeMethod::Back:
 		{
 			states.emplace(CommandType::Enable, GL_CULL_FACE);
 			states.emplace(CommandType::CullFace, GL_BACK);
@@ -123,7 +123,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		bool valid = true;
 		
-		if (desc().CullMode ==  CullMode::None)
+		if (desc().CullMode ==  CullModeMethod::None)
 		{
 			valid &= glIsEnabled(GL_CULL_FACE) == GL_FALSE;
 		}
@@ -143,7 +143,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	bool RasterizerState::check() const
 	{
-		if (desc().CullMode ==  CullMode::None)
+		if (desc().CullMode ==  CullModeMethod::None)
 		{
 			VclCheck(glIsEnabled(GL_CULL_FACE) == GL_FALSE, "Rasterstate is correct");
 		}
@@ -161,25 +161,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return true;
 	}
 
-	GLenum RasterizerState::toGLenum(CullMode op)
+	GLenum RasterizerState::toGLenum(CullModeMethod op)
 	{
 		switch (op)
 		{
-		case CullMode::None:  return GL_INVALID_ENUM;
-		case CullMode::Front: return GL_FRONT;
-		case CullMode::Back:  return GL_BACK;
+		case CullModeMethod::None:  return GL_INVALID_ENUM;
+		case CullModeMethod::Front: return GL_FRONT;
+		case CullModeMethod::Back:  return GL_BACK;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
 
 		return GL_INVALID_ENUM;
 	}
 
-	GLenum RasterizerState::toGLenum(FillMode op)
+	GLenum RasterizerState::toGLenum(FillModeMethod op)
 	{
 		switch (op)
 		{
-		case FillMode::Solid:     return GL_FILL;
-		case FillMode::Wireframe: return GL_LINE;
+		case FillModeMethod::Solid:     return GL_FILL;
+		case FillModeMethod::Wireframe: return GL_LINE;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
 

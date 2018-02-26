@@ -108,7 +108,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			glNamedFramebufferTextureVCL(_glId, GL_DEPTH_ATTACHMENT, 0, 0);
 		}
 		
-		for (size_t v = 0; v < nrColourTargets; v++)
+		for (unsigned int v = 0; v < static_cast<unsigned int>(nrColourTargets); v++)
 		{
 			_colourTargets[v] = colourTargets[v];
 

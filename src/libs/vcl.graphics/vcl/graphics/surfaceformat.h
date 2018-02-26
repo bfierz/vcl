@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <functional>
+
 namespace Vcl { namespace Graphics
 {
 	enum class SurfaceFormat
@@ -83,3 +86,15 @@ namespace Vcl { namespace Graphics
 
 	int sizeInBytes(SurfaceFormat fmt);
 }}
+
+namespace std
+{
+	template<>
+	struct hash<Vcl::Graphics::SurfaceFormat>
+	{
+		size_t operator()(const Vcl::Graphics::SurfaceFormat& x) const
+		{
+			return hash<int>()(static_cast<int>(x));
+		}
+	};
+}

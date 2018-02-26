@@ -92,7 +92,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		//! EGL context
 		EGLContext _context;
-#	else
+#	elif defined VCL_ABI_WINAPI
 		//! Windows window handle
 		void* _window_handle{ nullptr };
 

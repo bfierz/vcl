@@ -29,13 +29,13 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	enum class FillMode
+	enum class FillModeMethod
 	{
 		Wireframe = 2,
 		Solid     = 3 
 	};
 
-	enum class CullMode
+	enum class CullModeMethod
 	{
 		None  = 1,
 		Front = 2,
@@ -44,8 +44,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct RasterizerDescription
 	{
-		FillMode FillMode{ FillMode::Solid };
-		CullMode CullMode{ CullMode::Back };
+		FillModeMethod FillMode{ FillModeMethod::Solid };
+		CullModeMethod CullMode{ CullModeMethod::Back };
 		bool     FrontCounterClockwise{ true };
 		int      DepthBias{ 0 };
 		float    SlopeScaledDepthBias{ 0.0f };
