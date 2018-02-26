@@ -251,13 +251,13 @@ endif()
 TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Check dependency requirements
-if(TARGET ${vcl_glew})
+if(TARGET ${vcl_ext_glew})
 	find_package(OpenGL REQUIRED)
 	
 	target_compile_definitions(vcl_graphics PUBLIC VCL_OPENGL_SUPPORT)
 	target_link_libraries(vcl_graphics
 		${OPENGL_gl_LIBRARY}
-		vcl_glew
+		${vcl_ext_glew}
 	)
 	if(TARGET ${egl})
 		target_link_libraries(vcl_graphics
