@@ -4,7 +4,7 @@ from conans.tools import download, unzip
 
 class VclConan(ConanFile):
     name = "vcl"
-    version = "2018.01"
+    version = "master"
     generators = "cmake"
     settings = "os","compiler","build_type","arch"
     options = { 
@@ -81,7 +81,6 @@ class VclConan(ConanFile):
         self.copy("*.h", dst="include", src="src/libs")
         self.copy("*.inl", dst="include", src="src/libs")
         self.copy("config.h", dst="include/vcl.core/vcl/config", src="libs/vcl.core/vcl/config")
-        self.copy("*.h", dst="include", src="src/externals/EGL/EGL/include")
 
     def package_info(self):
         self.cpp_info.includedirs = ['include/vcl.core', 'include/vcl.math', 'include/vcl.graphics', 'include/vcl.geometry']
