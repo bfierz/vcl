@@ -36,11 +36,11 @@ namespace
 
 		BufferDescription desc;
 		desc.Usage = ResourceUsage::Default;
-		desc.SizeInBytes = nr_elements * stride;
+		desc.SizeInBytes = static_cast<uint32_t>(nr_elements * stride);
 
 		BufferInitData data;
 		data.Data = buffer;
-		data.SizeInBytes = nr_elements * stride;
+		data.SizeInBytes = static_cast<uint32_t>(nr_elements * stride);
 
 		return std::make_unique<Vcl::Graphics::Runtime::OpenGL::Buffer>(desc, false, false, &data);
 	}

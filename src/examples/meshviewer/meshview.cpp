@@ -528,8 +528,8 @@ void FboRenderer::renderTriMesh(const GPUSurfaceMesh* mesh, Vcl::ref_ptr<Vcl::Gr
 	ps->program().setBuffer("VertexNormals", mesh->normals());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
-	glBindVertexBuffer(1, mesh->indices()->id(), mesh->indexStride() / 2, mesh->indexStride());
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, static_cast<GLsizei>(mesh->indexStride()));
+	glBindVertexBuffer(1, mesh->indices()->id(), mesh->indexStride() / 2, static_cast<GLsizei>(mesh->indexStride()));
 	glBindVertexBuffer(2, mesh->faceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh
@@ -548,8 +548,8 @@ void FboRenderer::renderTriMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 	ps->program().setBuffer("VertexNormals", mesh->surfaceNormals());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->surfaceIndices()->id(), 0, mesh->surfaceIndexStride());
-	glBindVertexBuffer(1, mesh->surfaceIndices()->id(), mesh->surfaceIndexStride() / 2, mesh->surfaceIndexStride());
+	glBindVertexBuffer(0, mesh->surfaceIndices()->id(), 0, static_cast<GLsizei>(mesh->surfaceIndexStride()));
+	glBindVertexBuffer(1, mesh->surfaceIndices()->id(), mesh->surfaceIndexStride() / 2, static_cast<GLsizei>(mesh->surfaceIndexStride()));
 	glBindVertexBuffer(2, mesh->surfaceColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh
@@ -566,7 +566,7 @@ void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 	ps->program().setBuffer("VertexPositions", mesh->positions());
 
 	// Bind the buffers
-	glBindVertexBuffer(0, mesh->indices()->id(), 0, mesh->indexStride());
+	glBindVertexBuffer(0, mesh->indices()->id(), 0, static_cast<GLsizei>(mesh->indexStride()));
 	glBindVertexBuffer(1, mesh->volumeColours()->id(), 0, sizeof(Eigen::Vector4f));
 
 	// Render the mesh

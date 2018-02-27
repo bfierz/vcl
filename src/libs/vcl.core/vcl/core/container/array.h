@@ -36,7 +36,14 @@
 #include <absl/meta/type_traits.h>
 #include <absl/utility/utility.h>
 
-#if (defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)) && __has_include(<experimental/array>)
+
+#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+#	if __has_include(<experimental/array>)
+#		define VCL_HAS_STL_MAKE_ARRAY
+#	endif
+#endif
+
+#ifdef VCL_HAS_STL_MAKE_ARRAY
 #	include <experimental/array>
 namespace std
 {

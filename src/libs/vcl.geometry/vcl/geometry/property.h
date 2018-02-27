@@ -221,14 +221,14 @@ namespace Vcl { namespace Geometry
 	
 	public:
 		//! Access the i'th element. No range check is performed!
-		inline reference operator[](int idx)
+		inline reference operator[](size_t idx)
 		{
 			VclRequire(idx < static_cast<int>(size()), "Index in bounds.");
 			return _data[idx];
 		}
 
 		//! Const access to the i'th element. No range check is performed!
-		inline const_reference operator[](int idx) const
+		inline const_reference operator[](size_t idx) const
 		{
 			VclRequire(idx < static_cast<int>(size()), "Index in bounds.");
 			return _data[idx];
@@ -395,12 +395,12 @@ namespace Vcl { namespace Geometry
 		Property<value_type, index_type>* ptr() const { return _property; }
 
 	public:
-		typename Property<value_type, index_type>::const_reference operator[](int idx) const
+		typename Property<value_type, index_type>::const_reference operator[](size_t idx) const
 		{
 			return _property->operator[](idx);
 		}
 
-		typename Property<value_type, index_type>::reference operator[](int idx)
+		typename Property<value_type, index_type>::reference operator[](size_t idx)
 		{
 			return _property->operator[](idx);
 		}
