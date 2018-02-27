@@ -259,9 +259,10 @@ if(TARGET ${vcl_ext_glew})
 		${OPENGL_gl_LIBRARY}
 		${vcl_ext_glew}
 	)
-	if(TARGET ${egl})
+	if(TARGET ${vcl_ext_egl})
+		target_compile_definitions(vcl_graphics PUBLIC VCL_EGL_SUPPORT)
 		target_link_libraries(vcl_graphics
-			egl
+			${vcl_ext_egl}
 		)
 	endif()
 endif()
