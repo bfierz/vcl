@@ -124,12 +124,13 @@
 
 #	define VCL_ALIGN(x) __attribute__((aligned(x)))
 
-#	define VCL_CALLBACK __attribute__ ((__stdcall__))
-
 #	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
 
 #	if defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 #		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
+#		define VCL_CALLBACK __attribute__ ((__stdcall__))
+#	else
+#		define VCL_CALLBACK
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 #	define VCL_CONSTEXPR_CPP11 constexpr
