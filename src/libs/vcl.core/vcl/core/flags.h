@@ -61,6 +61,7 @@ struct name		                                                         \
 		default:                                                         \
 			VCL_NO_SWITCH_DEFAULT;                                       \
 		}                                                                \
+		return "";                                                       \
 	}                                                                    \
 };																		 \
 inline Vcl::Flags<name> operator|(name::Enum lhs, name::Enum rhs)        \
