@@ -9,12 +9,14 @@ class VclReuseConan(ConanFile):
     def configure(self):
         if self.settings.os != "Windows":
             self.options["vcl"].fPIC = True
+            self.options["gtest"].fPIC = True
         self.options["gtest"].shared = False
 
     def build(self):
         cmake = CMake(self)
-        self.run('cmake %s %s' % (self.source_folder, cmake.command_line))
-        self.run("cmake --build . %s" % cmake.build_config)
+        cmake.definitions["VCL_VECTORIZE"] = str(self.options["vcl"].vectorization)
+        cmake.configure()
+        cmake.build()
 
     def test(self):
-        self.run(os.sep.join([".","bin", "test_vcl"]))
+        self.run(os.sep.join([".", "bin", "test_vcl"]))

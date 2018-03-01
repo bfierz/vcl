@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.5)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
+# Configure the VCL compilation environment
+include(${CMAKE_CURRENT_SOURCE_DIR}/../src/cmake/VCLConfig.cmake)
+
 option(BuildTests OFF)
 subdirs(../src/externals/json)
 
@@ -22,6 +25,7 @@ add_executable(test_vcl
 	../src/tests/vcl.core/scopeguard.cpp
 	../src/tests/vcl.core/simd.cpp
 	../src/tests/vcl.core/smart_ptr.cpp)
+vcl_configure(test_vcl)
 
 target_link_libraries(test_vcl
 	nlohmann_json
