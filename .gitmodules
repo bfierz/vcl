@@ -6,7 +6,7 @@
 	url = https://github.com/bfierz/eigen-git-mirror.git
 [submodule "src/externals/abseil"]
 	path = src/externals/abseil
-	url = https://github.com/bfierz/abseil-cpp.git
+	url = https://github.com/abseil/abseil-cpp.git
 [submodule "src/externals/cctz"]
 	path = src/externals/cctz
 	url = https://github.com/google/cctz.git
