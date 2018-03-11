@@ -16,5 +16,4 @@ TARGET_LINK_LIBRARIES(rotation33performance
 	vcl_core
 	vcl_math
 	benchmark
-	Shlwapi
 )

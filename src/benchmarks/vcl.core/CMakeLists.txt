@@ -16,5 +16,4 @@ TARGET_LINK_LIBRARIES(vcl_core_benchmarks
 	vcl_core
 	benchmark
 	foonathan_memory
-	Shlwapi
 )
