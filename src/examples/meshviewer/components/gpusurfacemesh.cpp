@@ -48,11 +48,11 @@ void GPUSurfaceMesh::update()
 	// Create the index buffer
 	BufferDescription idxDesc;
 	idxDesc.Usage = ResourceUsage::Default;
-	idxDesc.SizeInBytes = tri_adjs.size() * _indexStride;
+	idxDesc.SizeInBytes = static_cast<uint32_t>(tri_adjs.size() * _indexStride);
 
 	BufferInitData idxData;
 	idxData.Data = tri_adjs.data();
-	idxData.SizeInBytes = tri_adjs.size() * _indexStride;
+	idxData.SizeInBytes = static_cast<uint32_t>(tri_adjs.size() * _indexStride);
 
 	_indices = std::make_unique<OpenGL::Buffer>(idxDesc, false, false, &idxData);
 
@@ -62,11 +62,11 @@ void GPUSurfaceMesh::update()
 	BufferDescription posDesc;
 	posDesc.CPUAccess = ResourceAccess::Write;
 	posDesc.Usage = ResourceUsage::Default;
-	posDesc.SizeInBytes = _triMesh->nrVertices() * _positionStride;
+	posDesc.SizeInBytes = static_cast<uint32_t>(_triMesh->nrVertices() * _positionStride);
 
 	BufferInitData posData;
 	posData.Data = _triMesh->vertices()->data();
-	posData.SizeInBytes = _triMesh->nrVertices() * _positionStride;
+	posData.SizeInBytes = static_cast<uint32_t>(_triMesh->nrVertices() * _positionStride);
 
 	_positions = std::make_unique<OpenGL::Buffer>(posDesc, false, false, &posData);
 
@@ -77,11 +77,11 @@ void GPUSurfaceMesh::update()
 	BufferDescription normalDesc;
 	normalDesc.CPUAccess = ResourceAccess::Write;
 	normalDesc.Usage = ResourceUsage::Default;
-	normalDesc.SizeInBytes = normals->size() * _normalStride;
+	normalDesc.SizeInBytes = static_cast<uint32_t>(normals->size() * _normalStride);
 
 	BufferInitData normalData;
 	normalData.Data = normals->data();
-	normalData.SizeInBytes = normals->size() * _normalStride;
+	normalData.SizeInBytes = static_cast<uint32_t>(normals->size() * _normalStride);
 
 	_normals = std::make_unique<OpenGL::Buffer>(normalDesc, false, false, &normalData);
 

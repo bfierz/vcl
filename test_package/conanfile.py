@@ -1,22 +1,22 @@
 from conans import ConanFile, CMake
 import os
 
-channel = os.getenv("CONAN_CHANNEL", "testing")
-username = os.getenv("CONAN_USERNAME", "bfierz")
-
 class VclReuseConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    requires = "vcl/2018.01@%s/%s" % (username, channel)
+    requires = "gtest/1.8.0@bincrafters/stable"
     generators = "cmake"
     
     def configure(self):
         if self.settings.os != "Windows":
-            self.options["vcl"].fPIC=True
+            self.options["vcl"].fPIC = True
+            self.options["gtest"].fPIC = True
+        self.options["gtest"].shared = False
 
     def build(self):
         cmake = CMake(self)
-        self.run('cmake %s %s' % (self.conanfile_directory, cmake.command_line))
-        self.run("cmake --build . %s" % cmake.build_config)
+        cmake.definitions["VCL_VECTORIZE"] = str(self.options["vcl"].vectorization)
+        cmake.configure()
+        cmake.build()
 
     def test(self):
-        self.run(os.sep.join([".","bin", "test_vcl"]))
+        self.run(os.sep.join([".", "bin", "test_vcl"]))

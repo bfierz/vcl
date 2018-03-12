@@ -3,6 +3,9 @@ project(vcl_graphics_opengl_test)
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# GLSL compiler
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileGLSL.cmake)
+
 # Generate test executable
 add_executable(vcl_graphics_opengl_test "")
 

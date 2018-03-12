@@ -19,5 +19,4 @@ TARGET_LINK_LIBRARIES(vcl_geometry_benchmarks
 	vcl_core
 	vcl_geometry
 	benchmark
-	Shlwapi
 )

@@ -283,8 +283,8 @@ namespace Vcl { namespace Geometry
 	{
 		using face_t = std::array<unsigned int, 3>;
 
-		size_t nr_vertices = (stacks + 1) * (slices + 1);
-		size_t face_count = (stacks * slices) * 2;
+		unsigned int nr_vertices = (stacks + 1) * (slices + 1);
+		unsigned int face_count = (stacks * slices) * 2;
 
 		std::vector<Vector3f> positions{ nr_vertices };
 		std::vector<face_t>   faces{ face_count };
@@ -368,7 +368,7 @@ namespace Vcl { namespace Geometry
 		auto normals = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
 		
 		// Create the normals
-		float sign = inverted ? -1 : 1;
+		float sign = inverted ? -1.0f : 1.0f;
 		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
 		{
 			normals[i] = sign * (positions[i] - center).normalized();

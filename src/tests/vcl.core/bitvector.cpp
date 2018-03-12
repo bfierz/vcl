@@ -33,26 +33,19 @@
 #include <random>
 #include <vector>
 
-// Foonathan Allocator library
 VCL_BEGIN_EXTERNAL_HEADERS
-#include <foonathan/memory/namespace_alias.hpp>
-#include <foonathan/memory/temporary_allocator.hpp>
-#include <foonathan/memory/std_allocator.hpp>
 
 // Google test
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
-template<class T>
-using StdTempAllocator = memory::std_allocator<T, memory::temporary_allocator>;
-using TempBitVector = Vcl::Core::BitVector<StdTempAllocator>;
+using TempBitVector = Vcl::Core::BitVector<>;
 
 TEST(BitVectorTest, SetBit)
 {
 	using namespace Vcl::Core;
 
-	memory::temporary_allocator alloc;
-	TempBitVector v(alloc);
+	TempBitVector v;
 	v.assign(19, false);
 
 	EXPECT_FALSE((bool) v[17]) << "Element 17 is false";
@@ -66,8 +59,7 @@ TEST(BitVectorTest, Clear)
 {
 	using namespace Vcl::Core;
 
-	memory::temporary_allocator alloc;
-	TempBitVector v(alloc);
+	TempBitVector v;
 	v.assign(19, false);
 
 	EXPECT_EQ((size_t) 19, v.size()) << "Size is correct";

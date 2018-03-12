@@ -36,7 +36,14 @@
 #include <absl/meta/type_traits.h>
 #include <absl/utility/utility.h>
 
-#if (defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)) && __has_include(<experimental/array>)
+
+#if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
+#	if __has_include(<experimental/array>)
+#		define VCL_HAS_STL_MAKE_ARRAY
+#	endif
+#endif
+
+#ifdef VCL_HAS_STL_MAKE_ARRAY
 #	include <experimental/array>
 namespace std
 {
@@ -58,10 +65,8 @@ namespace std
 		template <class D, class...> struct return_type_helper { using type = D; };
 		template <class... Types>
 		struct return_type_helper<void, Types...> : std::common_type<Types...> {
-#if !defined(VCL_COMPILER_CLANG) && !defined(VCL_COMPILER_ICC)
-			static_assert(std::conjunction_v<not_ref_wrapper<Types>...>,
+			static_assert(absl::conjunction<not_ref_wrapper<Types>...>::value,
 				"Types cannot contain reference_wrappers when D is void");
-#endif
 		};
 
 		template <class D, class... Types>

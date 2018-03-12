@@ -300,4 +300,4 @@ BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float16);//->ThreadRange(1, 16);
 ////////////////////////////////////////////////////////////////////////////////
 
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

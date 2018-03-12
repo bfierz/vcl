@@ -33,5 +33,4 @@ TARGET_LINK_LIBRARIES(mutexperformance
 	${Boost_LIBRARIES}
 	Qt5::Core
 	benchmark
-	Shlwapi
 )

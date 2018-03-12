@@ -192,4 +192,4 @@ BENCHMARK(BM_InitCustomAllocator);
 BENCHMARK(BM_PodNoInitCustomAllocator);
 BENCHMARK(BM_NoInitCustomAllocator);
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

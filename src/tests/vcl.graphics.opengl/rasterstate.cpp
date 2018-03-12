@@ -41,11 +41,11 @@ TEST(OpenGL, ConfigureCullMode)
 	using namespace Vcl::Graphics;
 
 	RasterizerDescription desc;
-	desc.CullMode = CullMode::Front;
+	desc.CullMode = CullModeMethod::Front;
 
 	RasterizerState state{ desc };
 	state.bind();
-	EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+	EXPECT_TRUE(state.isValid()) << "State is not valid";
 }
 
 TEST(OpenGL, ConfigureFillMode)
@@ -56,19 +56,19 @@ TEST(OpenGL, ConfigureFillMode)
 
 	{
 		RasterizerDescription desc;
-		desc.FillMode = FillMode::Wireframe;
+		desc.FillMode = FillModeMethod::Wireframe;
 
 		RasterizerState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+		EXPECT_TRUE(state.isValid()) << "State is not valid";
 	}
 	
 	{
 		RasterizerDescription desc;
-		desc.FillMode = FillMode::Solid;
+		desc.FillMode = FillModeMethod::Solid;
 
 		RasterizerState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is nocht valid";
+		EXPECT_TRUE(state.isValid()) << "State is not valid";
 	}
 }

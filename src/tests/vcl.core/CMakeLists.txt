@@ -1,9 +1,12 @@
 PROJECT(vcl_core_test)
 
+# Configure the VCL compilation environment
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
+
 # Check dependency requirements
-check_target(nlohmann_json)
-check_target(gtest)
-check_target(gtest_main)
+vcl_check_target(nlohmann_json)
+vcl_check_target(gtest)
+vcl_check_target(gtest_main)
 
 SET(VCL_TEST_SRC
 	allocator.cpp

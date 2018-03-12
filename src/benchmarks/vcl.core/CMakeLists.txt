@@ -15,5 +15,5 @@ SET_TARGET_PROPERTIES(vcl_core_benchmarks PROPERTIES FOLDER benchmarks)
 TARGET_LINK_LIBRARIES(vcl_core_benchmarks
 	vcl_core
 	benchmark
-	Shlwapi
+	foonathan_memory
 )
