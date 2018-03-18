@@ -204,6 +204,7 @@ SET(VCL_GRAPHICS_VULKAN_SRC
 	vcl/graphics/vulkan/pipelinestate.cpp
 	vcl/graphics/vulkan/platform.cpp
 	vcl/graphics/vulkan/swapchain.cpp
+	vcl/graphics/vulkan/tools.cpp
 )
 
 
@@ -285,6 +286,10 @@ ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
 
 IF(VCL_OPENGL_SUPPORT)
 	TARGET_SOURCES(vcl_graphics PRIVATE ${OPENGL_SOURCE})
+ENDIF()
+
+IF(VCL_VULKAN_SUPPORT)
+	TARGET_SOURCES(vcl_graphics PRIVATE ${VULKAN_SOURCE})
 ENDIF()
 
 IF(VCL_VULKAN_SUPPORT)

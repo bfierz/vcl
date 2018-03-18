@@ -247,12 +247,12 @@ int main(int argc, char* argv[])
 	desc.Surface = surface_ctx;
 	desc.NumberOfImages = 4;
 	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
-	desc.DepthFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
+	desc.DepthFormat = VK_FORMAT_D32_SFLOAT;
 	desc.Width = 1280;
 	desc.Height = 720;
 	auto surface = createBasicSurface(*platform, *context, queue, desc);
 
-	VkRenderPass render_pass = createDefaultRenderPass(*context, VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_D32_SFLOAT_S8_UINT);
+	auto render_pass = createBasicRenderPass(*context, Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM, true, Vcl::Graphics::SurfaceFormat::D32_FLOAT, true, 1);
 
 	// End: Setup surface and swap-chain
 

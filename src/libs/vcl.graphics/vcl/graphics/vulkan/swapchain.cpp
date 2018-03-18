@@ -314,7 +314,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		(
 			cmd_buffer,
 			_depthBufferImage,
-			VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
+			isStencilFormat(depth_format) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT,
 			VK_IMAGE_LAYOUT_UNDEFINED,
 			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 		);
@@ -327,7 +327,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		view.flags = 0;
 		view.image = _depthBufferImage;
 		view.subresourceRange = {};
-		view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+		view.subresourceRange.aspectMask = isStencilFormat(depth_format) ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
 		view.subresourceRange.baseMipLevel = 0;
 		view.subresourceRange.levelCount = 1;
 		view.subresourceRange.baseArrayLayer = 0;

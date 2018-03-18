@@ -52,7 +52,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VclRequire(_memory, "Memory is allocated.");
 
 		if (_memory)
+		{
 			vkFreeMemory(*_context, _memory, nullptr);
+			_memory = nullptr;
+		}
 
 		VclEnsure(!_memory, "Memory is cleaned up.");
 	}

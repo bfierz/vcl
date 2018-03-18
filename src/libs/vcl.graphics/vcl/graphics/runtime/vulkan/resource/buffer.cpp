@@ -71,7 +71,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 		buffer_info.flags = 0;
 		buffer_info.size = desc.SizeInBytes;
 		buffer_info.usage = convert(buffer_usage);
-		buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Buffer not shared between queues
 		buffer_info.queueFamilyIndexCount = 0;
 		buffer_info.pQueueFamilyIndices = nullptr;
 
@@ -88,6 +88,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 			VkMemoryPropertyFlags flags{};
 			if (cpuAccess().isAnySet())
 				flags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+			flags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 
 			int heap_index = context->device()->getMemoryTypeIndex(reqs.memoryTypeBits, flags);
 
@@ -97,6 +98,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 		else
 		{
 			_memory = memory;
+		}
+
+		if (init_data)
+		{
+			void* data = _memory->map(0, init_data->SizeInBytes);
+			memcpy(data, init_data->Data, (size_t)init_data->SizeInBytes);
+			_memory->unmap();
 		}
 
 		res = vkBindBufferMemory(*context, _buffer, *_memory, 0);
@@ -109,7 +117,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 		VclRequire(_memory, "Memory is allocated.");
 		
 		if (_buffer)
+		{
 			vkDestroyBuffer(*(_memory->context()), _buffer, nullptr);
+			_buffer = nullptr;
+		}
 
 		_memoryOwner.reset();
 		_memory = nullptr;

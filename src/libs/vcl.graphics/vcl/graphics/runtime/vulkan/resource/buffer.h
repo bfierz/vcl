@@ -82,6 +82,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 	public:
 		Vcl::Graphics::Vulkan::Memory* memory() const { return _memory; }
 
+		VkBuffer id() const { return _buffer; }
+
 	private:
 		//! Buffer object
 		VkBuffer _buffer{ nullptr };

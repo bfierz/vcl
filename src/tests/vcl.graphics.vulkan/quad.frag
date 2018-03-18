@@ -5,7 +5,7 @@ layout(location = 0) in PerVertexData
   vec3 Colour;
 } In;
 
-layout(location = 0) uniform Material
+layout(binding = 0) uniform Material
 {
   float alpha;
 };

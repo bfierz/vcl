@@ -193,64 +193,47 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		setImageLayout(cmdbuffer, image, aspectMask, oldImageLayout, newImageLayout, subresourceRange, srcStageMask, dstStageMask);
 	}
 
-	inline VkRenderPass createDefaultRenderPass(VkDevice device, VkFormat color_format, VkFormat depth_format)
+	class RenderPass
 	{
-		VkAttachmentDescription attachments[2];
-		attachments[0].format = color_format;
-		attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachments[0].flags = 0;
+	public:
+		explicit RenderPass(VkDevice dev, VkRenderPass rp)
+			: _device(dev)
+			, _renderPass(rp)
+		{
+		}
+		~RenderPass()
+		{
+			vkDestroyRenderPass(_device, _renderPass, nullptr);
+		}
 
-		attachments[1].format = depth_format;
-		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		attachments[1].flags = 0;
+	private:
+		//! Vulkan device
+		VkDevice _device;
 
-		VkAttachmentReference colorReference = {};
-		colorReference.attachment = 0;
-		colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		//! Vulkan resource
+		VkRenderPass _renderPass;
+	};
+	
+	RenderPass createBasicRenderPass
+	(
+		VkDevice device,
+		Vcl::Graphics::SurfaceFormat color_format, bool clear_color,
+		Vcl::Graphics::SurfaceFormat depth_format, bool clear_depth,
+		int sample_count
+	);
 
-		VkAttachmentReference depthReference = {};
-		depthReference.attachment = 1;
-		depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	inline bool isStencilFormat(VkFormat fmt)
+	{
+		switch (fmt)
+		{
+		case VK_FORMAT_S8_UINT:
+		case VK_FORMAT_D16_UNORM_S8_UINT:
+		case VK_FORMAT_D24_UNORM_S8_UINT:
+		case VK_FORMAT_D32_SFLOAT_S8_UINT:
+			return true;
+		}
 
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.flags = 0;
-		subpass.inputAttachmentCount = 0;
-		subpass.pInputAttachments = nullptr;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorReference;
-		subpass.pResolveAttachments = nullptr;
-		subpass.pDepthStencilAttachment = &depthReference;
-		subpass.preserveAttachmentCount = 0;
-		subpass.pPreserveAttachments = nullptr;
-
-		VkRenderPassCreateInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		info.pNext = nullptr;
-		info.attachmentCount = 2;
-		info.pAttachments = attachments;
-		info.subpassCount = 1;
-		info.pSubpasses = &subpass;
-		info.dependencyCount = 0;
-		info.pDependencies = nullptr;
-
-		VkRenderPass pass;
-		VkResult res = vkCreateRenderPass(device, &info, nullptr, &pass);
-		VclCheck(res == VK_SUCCESS, "Render-pass was created.");
-
-		return pass;
+		return false;
 	}
 
 	inline VkFormat convert(Vcl::Graphics::SurfaceFormat fmt)
@@ -275,7 +258,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			//case SurfaceFormat::R10G10B10A2_UNORM   : gl_format = GL_RGB10_A2; break;
 			//case SurfaceFormat::R10G10B10A2_UINT    : gl_format = GL_RGB10_A2UI; break;
 			//case SurfaceFormat::R11G11B10_FLOAT     : gl_format = GL_R11F_G11F_B10F; break;
-			//case SurfaceFormat::R8G8B8A8_UNORM      : gl_format = GL_RGBA8; break;
+		case SurfaceFormat::R8G8B8A8_UNORM: return VK_FORMAT_R8G8B8A8_UNORM;
 			//case SurfaceFormat::R8G8B8A8_UNORM_SRGB : gl_format = GL_SRGB8_ALPHA8; break;
 			//case SurfaceFormat::R8G8B8A8_UINT       : gl_format = GL_RGBA8UI; break;
 			//case SurfaceFormat::R8G8B8A8_SNORM      : gl_format = GL_RGBA8_SNORM; break;
@@ -285,7 +268,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			//case SurfaceFormat::R16G16_UINT         : gl_format = GL_RG16UI; break;
 			//case SurfaceFormat::R16G16_SNORM        : gl_format = GL_RG16_SNORM; break;
 			//case SurfaceFormat::R16G16_SINT         : gl_format = GL_RG16I; break;
-			//case SurfaceFormat::D32_FLOAT           : gl_format = GL_DEPTH_COMPONENT32F; break;
+		case SurfaceFormat::D32_FLOAT           : return VK_FORMAT_D32_SFLOAT;
 			//case SurfaceFormat::R32_FLOAT           : gl_format = GL_R32F; break;
 			//case SurfaceFormat::R32_UINT            : gl_format = GL_R32UI; break;
 			//case SurfaceFormat::R32_SINT            : gl_format = GL_R32I; break;

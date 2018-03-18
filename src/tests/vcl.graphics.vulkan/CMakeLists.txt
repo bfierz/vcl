@@ -7,6 +7,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_executable(vcl_graphics_vulkan_test "")
 
 set(VCL_TEST_SRC
+	buffers.cpp
 	context.cpp
 	shaderprogram.cpp
 )
