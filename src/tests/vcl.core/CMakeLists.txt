@@ -12,6 +12,7 @@ SET(VCL_TEST_SRC
 	allocator.cpp
 	bitvector.cpp
 	flags.cpp
+	fnv1a.cpp
 	gather.cpp
 	interleavedarray.cpp
 	load.cpp
