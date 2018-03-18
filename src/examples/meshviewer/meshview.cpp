@@ -159,7 +159,7 @@ FboRenderer::FboRenderer()
 			{ 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
 		},
 		{
-			{ "Index",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
+			{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
 			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
 		}
 	};
