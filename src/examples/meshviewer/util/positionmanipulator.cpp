@@ -132,6 +132,7 @@ namespace Vcl { namespace Editor { namespace Util
 		 transparent_colour_psdesc.Blend.RenderTarget[0].BlendEnable = true;
 		 transparent_colour_psdesc.Blend.RenderTarget[0].SrcBlend = Blend::SrcAlpha;
 		 transparent_colour_psdesc.Blend.RenderTarget[0].DestBlend = Blend::InvSrcAlpha;
+		 transparent_colour_psdesc.Rasterizer.CullMode = Vcl::Graphics::Runtime::CullModeMethod::None;
 		 _transparentPipelineState = make_owner<PipelineState>(transparent_colour_psdesc);
 
 		 PipelineStateDescription opaque_id_psdesc;
@@ -143,6 +144,7 @@ namespace Vcl { namespace Editor { namespace Util
 		 PipelineStateDescription transaparent_id_psdesc;
 		 transaparent_id_psdesc.VertexShader = &square_id_vert;
 		 transaparent_id_psdesc.FragmentShader = &id_frag;
+		 transaparent_id_psdesc.Rasterizer.CullMode = Vcl::Graphics::Runtime::CullModeMethod::None;
 		 _transparentIdPipelineState = make_owner<PipelineState>(transaparent_id_psdesc);
 	}
 
