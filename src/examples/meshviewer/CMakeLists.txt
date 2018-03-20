@@ -14,7 +14,15 @@ FIND_PACKAGE(Qt5 COMPONENTS Core Gui OpenGL Qml Quick)
 
 # Do not automatically link Qt executables to qtmain target on Windows.
 # Uses console mode only. Not need to link against qtmain.lib.
-CMAKE_POLICY(SET CMP0020 OLD)
+if(${CMAKE_VERSION} VERSION_LESS "3.10.0")
+	cmake_policy(SET CMP0020 OLD)
+endif()
+
+# Configure behaviour of AUTOMOC and AUTOUIC.
+# The new behavior process all generated files 
+if(POLICY CMP0071)
+	cmake_policy(SET CMP0071 NEW)
+endif()
 
 # Enable QML debugging
 IF(CMAKE_BUILD_TYPE STREQUAL "Debug")

@@ -26,14 +26,21 @@ cmake_minimum_required(VERSION 3.5.0)
 
 project(VisualComputingLibrary)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+# Determine whether this is a standalone project or included by other projects
+set(VCL_STANDALONE_PROJECT OFF)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(VCL_STANDALONE_PROJECT ON)
+  
+	# Configure all projects
+	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+endif ()
+
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Conan setup
-include(${CMAKE_SOURCE_DIR}/cmake/VCLTargets.cmake)
-
-# Configure all projects
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VCLTargets.cmake)
 
 # Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
@@ -51,7 +58,7 @@ endif()
 # Add the externals
 ################################################################################
 if (NOT vcl_ext_eigen)
-	set(EIGEN3_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/externals/eigen")
+	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals/eigen")
 	find_package(Eigen3 3.3 QUIET)
 	vcl_copy_target(vcl_ext_eigen_tgt Eigen3)
 	set(vcl_ext_eigen "vcl_ext_eigen_tgt")
