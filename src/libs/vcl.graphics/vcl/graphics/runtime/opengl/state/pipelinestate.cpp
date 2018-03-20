@@ -29,7 +29,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	PipelineState::PipelineState(const PipelineStateDescription& desc)
 	: _inputLayout(desc.InputLayout)
 	, _blendState(desc.Blend)
-	//, _depthStencilState(desc.DepthStencil)
+	, _depthStencilState(desc.DepthStencil)
 	, _rasterizerState(desc.Rasterizer)
 	{
 		ShaderProgramDescription shader_desc;
@@ -53,6 +53,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Bind the rasterizer configueration
 		_rasterizerState.bind();
+
+		// Bind the depth-stencil configuration
+		_depthStencilState.bind();
 
 		// Bind the blending configuration
 		_blendState.bind();

@@ -30,6 +30,9 @@
 // C++ standard library
 #include <array>
 
+// VCL
+#include <vcl/graphics/runtime/state/common.h>
+
 namespace Vcl { namespace Graphics { namespace Runtime
 {
 	enum class FilterType
@@ -52,18 +55,6 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		ComparisonMinMagLinearMipPoint = 0x94,
 		ComparisonMinMagMipLinear = 0x95,
 		ComparisonAnisotropic = 0xd5
-	};
-
-	enum class ComparisonFunction
-	{
-		Never = 1,
-		Less = 2,
-		Equal = 3,
-		LessEqual = 4,
-		Greater = 5,
-		NotEqual = 6,
-		GreaterEqual = 7,
-		Always = 8
 	};
 
 	enum class TextureAddressMode

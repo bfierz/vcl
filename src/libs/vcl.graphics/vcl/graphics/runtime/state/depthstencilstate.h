@@ -28,28 +28,14 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/flags.h>
+#include <vcl/graphics/runtime/state/common.h>
 
-namespace Vcl { namespace Graphics
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	VCL_DECLARE_FLAGS(ClearFlag, Depth, Stencil);
-
 	enum class DepthWriteMask
 	{
 		Zero = 0,
 		All = 1
-	};
-
-	enum class ComparisonFunction
-	{
-		Never = 1,
-		Less = 2,
-		Equal = 3,
-		LessEqual = 4,
-		Greater = 5,
-		NotEqual = 6,
-		GreaterEqual = 7,
-		Always = 8
 	};
 
 	enum class StencilOperation
@@ -91,4 +77,4 @@ namespace Vcl { namespace Graphics
 		DepthStencilOperationDescription FrontFace;
 		DepthStencilOperationDescription BackFace;
 	};
-}}
+}}}

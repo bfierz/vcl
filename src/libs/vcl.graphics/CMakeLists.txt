@@ -148,6 +148,7 @@ SET(VCL_GRAPHICS_RUNTIME_RESOURCE_SRC
 # VCL / GRAPHICS / RUNTIME / STATE
 SET(VCL_GRAPHICS_RUNTIME_STATE_INC
 	vcl/graphics/runtime/state/blendstate.h
+	vcl/graphics/runtime/state/common.h
 	vcl/graphics/runtime/state/depthstencilstate.h
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h

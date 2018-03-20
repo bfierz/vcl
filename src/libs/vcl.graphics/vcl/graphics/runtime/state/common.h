@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,40 +27,17 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard libary
-#include <memory>
-
-// VCL
-#include <vcl/graphics/runtime/opengl/state/blendstate.h>
-#include <vcl/graphics/runtime/opengl/state/depthstencilstate.h>
-#include <vcl/graphics/runtime/opengl/state/inputlayout.h>
-#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
-#include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
-#include <vcl/graphics/runtime/state/pipelinestate.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class PipelineState : public Runtime::PipelineState
+	enum class ComparisonFunction
 	{
-	public:
-		PipelineState(const PipelineStateDescription& desc);
-
-	public:
-		InputLayout& layout() { return _inputLayout; }
-
-		ShaderProgram& program() { return *_shaderProgram; }
-
-		BlendState& blendState() { return _blendState; }
-
-	public:
-		void bind();
-
-	private:
-		InputLayout _inputLayout;
-		std::unique_ptr<ShaderProgram> _shaderProgram;
-
-		BlendState _blendState;
-		DepthStencilState _depthStencilState;
-		RasterizerState _rasterizerState;
+		Never = 1,
+		Less = 2,
+		Equal = 3,
+		LessEqual = 4,
+		Greater = 5,
+		NotEqual = 6,
+		GreaterEqual = 7,
+		Always = 8
 	};
-}}}}
+}}}

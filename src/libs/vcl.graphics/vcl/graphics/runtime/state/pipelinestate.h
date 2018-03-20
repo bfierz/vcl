@@ -33,6 +33,7 @@
 // VCL
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
+#include <vcl/graphics/runtime/state/depthstencilstate.h>
 #include <vcl/graphics/runtime/state/inputlayout.h>
 #include <vcl/graphics/runtime/state/rasterizerstate.h>
 
@@ -62,7 +63,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		Runtime::RasterizerDescription Rasterizer;
 
 		// Depth stencil state
-		//Runtime::DepthStencilDescription DepthStencil;
+		Runtime::DepthStencilDescription DepthStencil;
 
 		// Input layout
 		Runtime::InputLayoutDescription InputLayout;
