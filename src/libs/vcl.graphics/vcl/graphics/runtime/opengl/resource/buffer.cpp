@@ -80,6 +80,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(implies(usage() == ResourceUsage::Dynamic, cpuAccess().isSet(ResourceAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
 		VclRequire(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
 		VclRequire(implies(_allowCoherentMapping, _allowPersistentMapping), "A coherent buffer access is persistent.");
+		
+		VclRequire(glewIsSupported("GL_ARB_buffer_storage"), "GL buffer storage extension is supported.");
+		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "GL clear buffer object extension is supported.");
 
 		GLenum flags = GL_NONE;
 		switch (usage())

@@ -138,8 +138,8 @@ void main(void)
 	vec4 p3 = vec4(intersectRayPlane(vec3(0), d3, vec4(N, d)), 1);
 #else
 
-	vec3 u = normalize(computePerpendicular(N));
-	vec3 v = cross(u, N);
+	vec3 v = normalize(computePerpendicular(N));
+	vec3 u = cross(v, N);
 	
 	vec4 p0 = MV * vec4(P - u * 50 - v * 50, 1);
 	vec4 p1 = MV * vec4(P + u * 50 - v * 50, 1);
