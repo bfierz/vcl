@@ -58,11 +58,12 @@ class OpaqueObject
 
 const int kMemorySize = 512;
 
-void BM_InitTempAllocatorThreadSafe(benchmark::State& state)
+void BM_InitTempThreadSafeAllocator(benchmark::State& state)
 {
+	memory::temporary_stack stack{4096};
 	while (state.KeepRunning())
 	{
-		memory::temporary_allocator alloc;
+		memory::temporary_allocator alloc(stack);
 		std::vector<OpaqueObject, StdTempAllocator<OpaqueObject>> vec(alloc);
 		vec.resize(kMemorySize);
 		benchmark::DoNotOptimize(vec.size());
@@ -71,20 +72,22 @@ void BM_InitTempAllocatorThreadSafe(benchmark::State& state)
 
 void BM_InitTempAllocator(benchmark::State& state)
 {
+	memory::temporary_stack stack{ 4096 };
 	while (state.KeepRunning())
 	{
-		memory::temporary_allocator alloc;
+		memory::temporary_allocator alloc(stack);
 		std::vector<OpaqueObject, NoMutexStdTempAllocator<OpaqueObject>> vec(alloc);
 		vec.resize(kMemorySize);
 		benchmark::DoNotOptimize(vec.size());
 	}
 }
 
-void BM_PodTempAllocatorThreadSafe(benchmark::State& state)
+void BM_PodTempThreadSafeAllocator(benchmark::State& state)
 {
+	memory::temporary_stack stack{ 4096 };
 	while (state.KeepRunning())
 	{
-		memory::temporary_allocator alloc;
+		memory::temporary_allocator alloc(stack);
 		std::vector<int, StdTempAllocator<int>> vec(alloc);
 		vec.resize(kMemorySize);
 		benchmark::DoNotOptimize(vec.size());
@@ -93,25 +96,25 @@ void BM_PodTempAllocatorThreadSafe(benchmark::State& state)
 
 void BM_PodTempAllocator(benchmark::State& state)
 {
+	memory::temporary_stack stack{ 4096 };
 	while (state.KeepRunning())
 	{
-		memory::temporary_allocator alloc;
+		memory::temporary_allocator alloc(stack);
 		std::vector<int, NoMutexStdTempAllocator<int>> vec(alloc);
 		vec.resize(kMemorySize);
 		benchmark::DoNotOptimize(vec.size());
 	}
 }
 
-void BM_PodPmrTempAllocator(benchmark::State& state)
+void BM_PodPmrAllocator(benchmark::State& state)
 {
 	using namespace Vcl::Core;
 
+	memory::new_allocator new_alloc;
+	memory::memory_resource_adapter<memory::new_allocator> resource(std::move(new_alloc));
+
 	while (state.KeepRunning())
 	{
-		memory::new_allocator new_alloc;
-		memory::memory_resource_adapter<memory::new_allocator> resource(std::move(new_alloc));
-		//memory::temporary_allocator tmp_alloc;
-		//memory::memory_resource_adapter<memory::temporary_allocator> resource(std::move(tmp_alloc));
 		StdPmrAllocator<int> alloc(&resource);
 		std::vector<int, StdPmrAllocator<int>> vec(alloc);
 		vec.resize(kMemorySize);
@@ -119,6 +122,20 @@ void BM_PodPmrTempAllocator(benchmark::State& state)
 	}
 }
 
+void BM_InitPmrAllocator(benchmark::State& state)
+{
+	using namespace Vcl::Core;
+
+	memory::new_allocator new_alloc;
+	memory::memory_resource_adapter<memory::new_allocator> resource(std::move(new_alloc));
+	while (state.KeepRunning())
+	{
+		StdPmrAllocator<OpaqueObject> alloc(&resource);
+		std::vector<OpaqueObject, StdPmrAllocator<OpaqueObject>> vec(alloc);
+		vec.resize(kMemorySize);
+		benchmark::DoNotOptimize(vec.size());
+	}
+}
 void BM_PodStdAllocator(benchmark::State& state)
 {
 	using namespace Vcl::Core;
@@ -178,12 +195,13 @@ void BM_NoInitCustomAllocator(benchmark::State& state)
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_InitTempAllocatorThreadSafe);
+BENCHMARK(BM_InitTempThreadSafeAllocator);
 BENCHMARK(BM_InitTempAllocator);
-BENCHMARK(BM_PodTempAllocatorThreadSafe);
+BENCHMARK(BM_PodTempThreadSafeAllocator);
 BENCHMARK(BM_PodTempAllocator);
 
-BENCHMARK(BM_PodPmrTempAllocator);
+BENCHMARK(BM_PodPmrAllocator);
+BENCHMARK(BM_InitPmrAllocator);
 
 BENCHMARK(BM_PodStdAllocator);
 BENCHMARK(BM_InitStdAllocator);
