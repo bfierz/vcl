@@ -30,6 +30,11 @@
 #include <mutex>
 
 // Boost library
+#if defined(VCL_COMPILER_CLANG) && defined(VCL_ABI_WINAPI)
+#	define BOOST_USE_WINDOWS_H
+#	define BOOST_SP_USE_STD_ATOMIC
+#endif
+
 #include <boost/thread.hpp>
 
 // Qt
@@ -135,4 +140,4 @@ BENCHMARK(BM_WindowsCriticalSection)->ThreadRange(1, 16);
 #endif // VCL_ABI_WINAPI
 ////////////////////////////////////////////////////////////////////////////////
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();

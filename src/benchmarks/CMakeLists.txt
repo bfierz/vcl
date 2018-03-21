@@ -1,30 +1,51 @@
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-# For clang on Windows globally ignore unused commandline arguments
-if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" AND NOT WIN32)
-	# Performance benchmarks for mutexes
-	SUBDIRS(mutex)
-endif()
+# Performance benchmarks for mutexes
+add_subdirectory(mutex)
 
 # Performance benchmarks for 3x3 Eigen deompositions
-SUBDIRS(eigen33performance)
+add_subdirectory(eigen33performance)
 
 # Correctness benchmarks for 3x3 Eigen deompositions
-SUBDIRS(eigen33correctness)
+add_subdirectory(eigen33correctness)
 
 # Performance benchmarks for 3x3 SVDs
-SUBDIRS(svd33performance)
+add_subdirectory(svd33performance)
 
 # Correctness benchmarks for 3x3 SVDs
-SUBDIRS(svd33correctness)
+add_subdirectory(svd33correctness)
 
 # Performance benchmarks for 3x3 rotation computation
-SUBDIRS(rotation33performance)
+add_subdirectory(rotation33performance)
 
 # Correctness benchmarks for 3x3 rotation computation
-SUBDIRS(rotation33correctness)
+add_subdirectory(rotation33correctness)
 
 # Benchmark collection for Vcl Core
-SUBDIRS(vcl.core)
+add_subdirectory(vcl.core)
 
 # Benchmark collection for Vcl Geometry
-SUBDIRS(vcl.geometry)
+add_subdirectory(vcl.geometry)
