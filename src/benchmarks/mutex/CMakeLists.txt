@@ -1,36 +1,56 @@
-PROJECT(mutexperformance)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(mutexperformance)
 
 # Status message
-MESSAGE(STATUS "Configuring 'mutexperformance'")
+message(STATUS "Configuring 'mutexperformance'")
 
 # Boost dependency
-SET(Boost_USE_STATIC_LIBS ON)
-FIND_PACKAGE(Boost 1.55 COMPONENTS chrono date_time system thread REQUIRED)
-MESSAGE(STATUS "* Boost Include: ${Boost_INCLUDE_DIR}")
-MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARY_DIRS}")
-MESSAGE(STATUS "* Boost Libraries: ${Boost_LIBRARIES}")
+set(Boost_USE_STATIC_LIBS ON)
+find_package(Boost 1.55 COMPONENTS chrono date_time system thread)
 
 # Find the thread library
-FIND_PACKAGE(Threads REQUIRED)
+find_package(Threads REQUIRED)
 
 # Find the QtCore library
-FIND_PACKAGE(Qt5Core REQUIRED)
+find_package(Qt5Core)
 
-SET(SRC
-	main.cpp
-)
+if (Boost_FOUND AND Qt5Core_FOUND)
+	set(SRC
+		main.cpp
+	)
 
-SOURCE_GROUP("" FILES ${SRC})
+	source_group("" FILES ${SRC})
 
-# Include dependencies
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+	add_executable(mutexperformance ${SRC})
+	set_target_properties(mutexperformance PROPERTIES FOLDER benchmarks)
 
-ADD_EXECUTABLE(mutexperformance ${SRC})
-SET_TARGET_PROPERTIES(mutexperformance PROPERTIES FOLDER benchmarks)
-
-TARGET_LINK_LIBRARIES(mutexperformance
-	vcl_core
-	${Boost_LIBRARIES}
-	Qt5::Core
-	benchmark
-)
+	target_link_libraries(mutexperformance
+		vcl_core
+		Boost::thread
+		Qt5::Core
+		benchmark
+	)
+endif()
