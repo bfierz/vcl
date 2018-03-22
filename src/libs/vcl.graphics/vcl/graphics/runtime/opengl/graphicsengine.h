@@ -256,6 +256,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private: // Tracking state
 		Frame* _currentFrame{ nullptr };
+
+		// Currently active blend-state
+		uint32_t _blendstate_hash{ 0 };
 		
 		//! The current primitive type to draw
 		PrimitiveType _currentPrimitiveType;
