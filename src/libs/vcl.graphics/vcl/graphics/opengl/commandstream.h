@@ -32,6 +32,7 @@
 #include <vector>
 
 // VCL
+#include <vcl/core/span.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -39,6 +40,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 {
 	enum class CommandType
 	{
+		None,
 		Enable,
 		Disable,
 		Enablei,
@@ -80,14 +82,19 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	class CommandStream
 	{
 	public:
+		stdext::span<const uint32_t> data() const { return _commands; }
+
+		//! Emplate a new OpenGL command
 		template<typename... Args>
 		void emplace(CommandType type, Args&&... args)
 		{
 			addTokens(type, { toToken(args)... });
 		}
 
+		//! Emplate a new OpenGL command
 		void emplace(CommandType type, const BindVertexBuffersConfig& config);
 
+		//! Bind the command stream to the pipeline
 		void bind();
 
 	private:
@@ -98,6 +105,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		void addTokens(CommandType type, std::initializer_list<uint32_t> params);
 
 	private:
+		//! Sequence of stored commands
 		std::vector<uint32_t> _commands;
 	};
 }}}
