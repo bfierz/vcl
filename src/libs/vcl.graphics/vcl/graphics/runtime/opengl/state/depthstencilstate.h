@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,41 +26,41 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-
-// C++ standard libary
-#include <memory>
+#include <vcl/config/opengl.h>
 
 // VCL
-#include <vcl/graphics/runtime/opengl/state/blendstate.h>
-#include <vcl/graphics/runtime/opengl/state/depthstencilstate.h>
-#include <vcl/graphics/runtime/opengl/state/inputlayout.h>
-#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
-#include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
-#include <vcl/graphics/runtime/state/pipelinestate.h>
+#include <vcl/graphics/opengl/commandstream.h>
+#include <vcl/graphics/runtime/state/depthstencilstate.h>
 
+#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class PipelineState : public Runtime::PipelineState
+	class DepthStencilState
 	{
 	public:
-		PipelineState(const PipelineStateDescription& desc);
+		DepthStencilState(const DepthStencilDescription& desc);
 
-	public:
-		InputLayout& layout() { return _inputLayout; }
+		//! Access the state description
+		//! \returns The state description
+		const DepthStencilDescription& desc() const { return _desc; }
 
-		ShaderProgram& program() { return *_shaderProgram; }
-
-		BlendState& blendState() { return _blendState; }
-
-	public:
+		//! Bind the blend configurations
 		void bind();
 
-	private:
-		InputLayout _inputLayout;
-		std::unique_ptr<ShaderProgram> _shaderProgram;
+		//! Append the state changes to the state command buffer
+		//! \param states State command stream
+		void record(Graphics::OpenGL::CommandStream& states);
 
-		BlendState _blendState;
-		DepthStencilState _depthStencilState;
-		RasterizerState _rasterizerState;
+		//! Check if the depth-stencil state is valid
+		//! \returns True if the depth-stencil state is valid
+		bool isValid() const;
+
+		static GLenum toGLenum(ComparisonFunction op);
+		static GLenum toGLenum(StencilOperation op);
+
+	private:
+		//! Description of the depth state
+		DepthStencilDescription _desc;
 	};
 }}}}
+#endif // VCL_OPENGL_SUPPORT

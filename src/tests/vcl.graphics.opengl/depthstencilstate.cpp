@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,45 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard libary
-#include <memory>
+// C++ Standard Library
 
-// VCL
-#include <vcl/graphics/runtime/opengl/state/blendstate.h>
+// Include the relevant parts from the library
 #include <vcl/graphics/runtime/opengl/state/depthstencilstate.h>
-#include <vcl/graphics/runtime/opengl/state/inputlayout.h>
-#include <vcl/graphics/runtime/opengl/state/rasterizerstate.h>
-#include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
-#include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
+// Google test
+#include <gtest/gtest.h>
+
+TEST(OpenGL, ConfigureDepthFunc)
 {
-	class PipelineState : public Runtime::PipelineState
-	{
-	public:
-		PipelineState(const PipelineStateDescription& desc);
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
 
-	public:
-		InputLayout& layout() { return _inputLayout; }
+	DepthStencilDescription desc;
+	desc.DepthEnable = true;
+	desc.DepthFunc = ComparisonFunction::Less;
+	desc.DepthWriteMask = DepthWriteMask::Zero;
 
-		ShaderProgram& program() { return *_shaderProgram; }
-
-		BlendState& blendState() { return _blendState; }
-
-	public:
-		void bind();
-
-	private:
-		InputLayout _inputLayout;
-		std::unique_ptr<ShaderProgram> _shaderProgram;
-
-		BlendState _blendState;
-		DepthStencilState _depthStencilState;
-		RasterizerState _rasterizerState;
-	};
-}}}}
+	DepthStencilState state{ desc };
+	state.bind();
+	EXPECT_TRUE(state.isValid()) << "State is not valid";
+}

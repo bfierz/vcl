@@ -12,6 +12,7 @@ add_executable(vcl_graphics_opengl_test "")
 set(VCL_TEST_SRC
 	blendstate.cpp
 	buffers.cpp
+	depthstencilstate.cpp
 	engine.cpp
 	histogram.cpp
 	imageprocessor.cpp

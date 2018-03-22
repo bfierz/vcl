@@ -106,6 +106,7 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC
 # VCL / GRAPHICS / RUNTIME / OPENGL / STATE
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
 	vcl/graphics/runtime/opengl/state/blendstate.h
+	vcl/graphics/runtime/opengl/state/depthstencilstate.h
 	vcl/graphics/runtime/opengl/state/framebuffer.h
 	vcl/graphics/runtime/opengl/state/inputlayout.h
 	vcl/graphics/runtime/opengl/state/pipelinestate.h
@@ -115,6 +116,7 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC
 )
 SET(VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC
 	vcl/graphics/runtime/opengl/state/blendstate.cpp
+	vcl/graphics/runtime/opengl/state/depthstencilstate.cpp
 	vcl/graphics/runtime/opengl/state/framebuffer.cpp
 	vcl/graphics/runtime/opengl/state/inputlayout.cpp
 	vcl/graphics/runtime/opengl/state/pipelinestate.cpp
@@ -146,6 +148,8 @@ SET(VCL_GRAPHICS_RUNTIME_RESOURCE_SRC
 # VCL / GRAPHICS / RUNTIME / STATE
 SET(VCL_GRAPHICS_RUNTIME_STATE_INC
 	vcl/graphics/runtime/state/blendstate.h
+	vcl/graphics/runtime/state/common.h
+	vcl/graphics/runtime/state/depthstencilstate.h
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h
 	vcl/graphics/runtime/state/rasterizerstate.h
