@@ -205,6 +205,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		
 		void setConstantBuffer(int idx, BufferView buffer) override;
 		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
+		void setSampler(int idx, const Runtime::Sampler& sampler) override;
+		void setSamplers(int idx, gsl::span<const ref_ptr<Runtime::Sampler>> samplers) override;
 		void setTexture(int idx, const Runtime::Texture& texture) override;
 		void setTextures(int idx, gsl::span<const ref_ptr<Runtime::Texture>> textures) override;
 
