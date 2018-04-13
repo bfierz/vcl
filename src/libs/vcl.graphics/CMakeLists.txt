@@ -240,6 +240,7 @@ SET(OPENGL_SOURCE
 
 # Control OpenGL support
 SET(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
+SET(VCL_EGL_SUPPORT CACHE BOOL "Enable EGL support")
 
 # Generate library
 IF(VCL_OPENGL_SUPPORT)
@@ -263,7 +264,7 @@ if(TARGET ${vcl_ext_glew})
 		${OPENGL_gl_LIBRARY}
 		${vcl_ext_glew}
 	)
-	if(TARGET ${vcl_ext_egl})
+	if(VCL_EGL_SUPPORT AND TARGET ${vcl_ext_egl})
 		target_compile_definitions(vcl_graphics PUBLIC VCL_EGL_SUPPORT)
 		target_link_libraries(vcl_graphics
 			${vcl_ext_egl}

@@ -38,6 +38,7 @@
 #include <vcl/graphics/runtime/resource/buffer.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
+#include <vcl/graphics/runtime/state/sampler.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
@@ -160,6 +161,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;
 		virtual void setVertexBuffer(int idx, const Buffer& buffer, int offset, int stride) = 0;
+		virtual void setSampler(int idx, const Runtime::Sampler& sampler) = 0;
+		virtual void setSamplers(int idx, gsl::span<const ref_ptr<Sampler>> samplers) = 0;
 		virtual void setTexture(int idx, const Runtime::Texture& texture) = 0;
 		virtual void setTextures(int idx, gsl::span<const ref_ptr<Texture>> textures) = 0;
 		

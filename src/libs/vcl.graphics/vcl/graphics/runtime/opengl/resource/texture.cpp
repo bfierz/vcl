@@ -60,6 +60,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case SurfaceFormat::R8G8B8A8_UINT       : gl_format = GL_RGBA8UI; break;
 		case SurfaceFormat::R8G8B8A8_SNORM      : gl_format = GL_RGBA8_SNORM; break;
 		case SurfaceFormat::R8G8B8A8_SINT       : gl_format = GL_RGBA8I; break;
+		case SurfaceFormat::R8G8B8_UNORM        : gl_format = GL_RGB8; break;
 		case SurfaceFormat::R16G16_FLOAT        : gl_format = GL_RG16F; break;
 		case SurfaceFormat::R16G16_UNORM        : gl_format = GL_RG16; break;
 		case SurfaceFormat::R16G16_UINT         : gl_format = GL_RG16UI; break;
@@ -119,6 +120,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case SurfaceFormat::R8G8B8A8_UINT:        image_format.Format = GL_RGBA_INTEGER; image_format.Type = GL_UNSIGNED_BYTE;	break;
 		case SurfaceFormat::R8G8B8A8_SNORM:       image_format.Format = GL_RGBA; image_format.Type = GL_BYTE;			break;
 		case SurfaceFormat::R8G8B8A8_SINT:        image_format.Format = GL_RGBA_INTEGER; image_format.Type = GL_BYTE;			break;
+		case SurfaceFormat::R8G8B8_UNORM:         image_format.Format = GL_RGB; image_format.Type = GL_UNSIGNED_BYTE;	break;
 		case SurfaceFormat::R16G16_FLOAT:         image_format.Format = GL_RG;   image_format.Type = GL_HALF_FLOAT;		break;
 		case SurfaceFormat::R16G16_UNORM:         image_format.Format = GL_RG;   image_format.Type = GL_UNSIGNED_SHORT;	break;
 		case SurfaceFormat::R16G16_UINT:          image_format.Format = GL_RG_INTEGER;   image_format.Type = GL_UNSIGNED_SHORT;	break;

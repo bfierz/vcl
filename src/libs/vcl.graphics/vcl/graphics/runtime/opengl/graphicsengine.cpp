@@ -35,6 +35,7 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
+#include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/math/ceil.h>
 
 namespace
@@ -459,7 +460,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		auto& gl_buffer = static_cast<const OpenGL::Buffer&>(buffer);
 		glBindVertexBuffer(idx, gl_buffer.id(), offset, stride);
 	}
-	
+
+	void GraphicsEngine::setSampler(int idx, const Runtime::Sampler& sampler)
+	{
+		auto& gl_sampler = static_cast<const OpenGL::Sampler&>(sampler);
+
+		GLuint sampler_id = gl_sampler.id();
+		glBindSampler(idx, sampler_id);
+	}
+
+	void GraphicsEngine::setSamplers(int idx, gsl::span<const ref_ptr<Runtime::Sampler>> samplers)
+	{
+	}
+
 	void GraphicsEngine::setTexture(int idx, const Runtime::Texture& texture)
 	{
 		auto& gl_texture = static_cast<const OpenGL::Texture&>(texture);
