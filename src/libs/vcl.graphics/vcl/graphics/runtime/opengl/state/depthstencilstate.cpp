@@ -55,7 +55,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Configure the depth-buffer writing
-		if (_desc.DepthWriteMask == DepthWriteMask::All)
+		if (_desc.DepthWriteMask == DepthWriteMethod::All)
 			glDepthMask(GL_TRUE);
 		else
 			glDepthMask(GL_FALSE);
@@ -71,7 +71,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Configure the depth-buffer writing
-		GLboolean depth_write = desc().DepthWriteMask == DepthWriteMask::All ? GL_TRUE : GL_FALSE;
+		GLboolean depth_write = desc().DepthWriteMask == DepthWriteMethod::All ? GL_TRUE : GL_FALSE;
 		states.emplace(CommandType::DepthMask, depth_write);
 	}
 
@@ -89,7 +89,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			valid &= glIsEnabled(GL_DEPTH_TEST) == GL_FALSE;
 		}
 
-		valid &= GL::getEnum(GL_DEPTH_WRITEMASK) == (desc().DepthWriteMask == DepthWriteMask::All);
+		valid &= GL::getEnum(GL_DEPTH_WRITEMASK) == (desc().DepthWriteMask == DepthWriteMethod::All);
 
 		return valid;
 	}
