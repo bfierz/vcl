@@ -35,7 +35,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	VCL_DECLARE_FLAGS(ColourWriteEnable, Red, Green, Blue, Alpha);
+	VCL_DECLARE_FLAGS(ColourWriteEnable, Red, Green, Blue, Alpha)
 
 	enum class Blend
 	{

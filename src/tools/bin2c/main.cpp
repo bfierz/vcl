@@ -150,6 +150,7 @@ int main(int argc, char* argv [])
 		if (ofile.is_open())
 		{
 			// Write header
+			ofile << R"(#include <cstddef>)" << "\n";
 			ofile << R"(#include <cstdint>)" << "\n";
 			ofile << width_symbol << " " << export_symbol << "[] = \n{\n";
 
