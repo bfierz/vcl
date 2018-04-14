@@ -3,16 +3,6 @@
 INCLUDE(../cmake/VCLCudaSupport.cmake)
 INCLUDE(../cmake/VCLOpenCLSupport.cmake)
 
-# Control code coverage measurement
-SET(VCL_CODE_COVERAGE CACHE BOOL "Enable code coverage measurement")
-
-IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    INCLUDE(CodeCoverage)
-	
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-ENDIF()
-
 # Tests for the core library
 SUBDIRS(vcl.core)
 IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)

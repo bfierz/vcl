@@ -123,6 +123,7 @@ namespace Vcl { namespace Util
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
+			VCL_UNREFERENCED_PARAMETER(str);
 			return 0x811c9dc5;
 		}
 	};
