@@ -89,6 +89,8 @@ namespace Vcl { namespace Core
 		template<typename U>
 		void destroy(U* p)
 		{
+			// Fixes a GCC warning
+			VCL_UNREFERENCED_PARAMETER(p);
 			p->~U();
 		}
 	};
@@ -138,6 +140,7 @@ namespace Vcl { namespace Core
 		template<typename U>
 		void destroy(U* p)
 		{
+			VCL_UNREFERENCED_PARAMETER(p);
 		}
 	};
 

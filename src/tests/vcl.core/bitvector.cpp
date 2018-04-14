@@ -68,3 +68,37 @@ TEST(BitVectorTest, Clear)
 
 	EXPECT_EQ((size_t) 0, v.size()) << "Vector is empty";
 }
+
+TEST(BitVectorTest, ResizeWithValue)
+{
+	using namespace Vcl::Core;
+
+	TempBitVector v;
+	v.assign(19, true);
+
+	EXPECT_TRUE((bool)v[17]) << "Element 17 is true";
+
+	v[17] = false;
+
+	EXPECT_FALSE((bool)v[17]) << "Element 17 is false";
+}
+
+TEST(BitVectorTest, Generation)
+{
+	using namespace Vcl::Core;
+
+	TempBitVector v(19, false);
+	EXPECT_EQ(v.generation(), 1);
+	EXPECT_FALSE((bool)v[17]) << "Element 17 is false";
+
+	for (int i = 1; i < std::numeric_limits<TempBitVector::container_t::value_type>::max(); i++)
+	{
+		v[17] = true;
+		EXPECT_TRUE((bool)v[17]) << "Element 17 is true";
+		v.assign(19, false);
+		EXPECT_FALSE((bool)v[17]) << "Element 17 is false";
+		EXPECT_EQ(v.generation(), i + 1);
+	}
+	v.assign(19, false);
+	EXPECT_EQ(v.generation(), 1);
+}

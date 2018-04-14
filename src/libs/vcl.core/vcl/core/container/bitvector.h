@@ -40,7 +40,7 @@ namespace Vcl { namespace Core
 	 *	Picking up an idea formulated in:
 	 *	http://upcoder.com/9/fast-resettable-flag-vector/
 	 */
-	template<template<class> typename AllocatorT = std::allocator>
+	template<template<class> class AllocatorT = std::allocator>
 	class BitVector
 	{
 	public:
@@ -150,7 +150,7 @@ namespace Vcl { namespace Core
 			VclRequire(n > 0, "Size is greater than zero.");
 
 			// If the size is the same, try to increase the generation
-			if (n <= _bits.size() && val == false)
+			if (n == _bits.size() && val == false)
 			{
 				if (_generation == std::numeric_limits<uint16_t>::max())
 				{
@@ -183,7 +183,7 @@ namespace Vcl { namespace Core
 			assign(_bits.size(), false);
 		}
 
-	public: // Capacity
+	public:
 		size_t size() const noexcept
 		{
 			return _bits.size();
@@ -192,6 +192,11 @@ namespace Vcl { namespace Core
 		void shrink_to_fit()
 		{
 			_bits.shrink_to_fit();
+		}
+
+		uint16_t generation() const
+		{
+			return _generation;
 		}
 
 	private:

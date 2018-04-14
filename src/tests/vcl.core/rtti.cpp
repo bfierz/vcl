@@ -334,6 +334,7 @@ TEST(RttiTest, SimpleConstructor)
 	// Check if the parameters can be found
 	EXPECT_TRUE(def_constr.hasParam("Name")) << "Parameter 'Name' is not found.";
 	EXPECT_FALSE(def_constr.hasParam("NotExisting")) << "Parameter 'NotExisting' is found.";
+	EXPECT_EQ(def_constr.param(0).data().name(), "Name");
 
 	// Allocate memory for the test object
 	BaseObject* obj = (BaseObject*)malloc(sizeof(BaseObject));
@@ -425,9 +426,12 @@ TEST(RttiTest, AttributeSimpleSetter)
 	// Set an attribute
 	Attribute<BaseObject, const std::string&> attr{ "Name", &BaseObject::name, &BaseObject::setName };
 	attr.set(&obj, std::string{ "String" });
-
-	// Expected output
 	EXPECT_EQ(std::string{ "String" }, obj.name()) << "Property 'Name' was not set.";
+
+	// Test the move constructor
+	auto attr2 = std::move(attr);
+	attr2.set(&obj, std::string{ "String2" });
+	EXPECT_EQ(std::string{ "String2" }, obj.name()) << "Property 'Name' was not set.";
 }
 
 TEST(RttiTest, AttributeOwnedMember)

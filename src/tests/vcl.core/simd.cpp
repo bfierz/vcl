@@ -41,41 +41,143 @@ VCL_END_EXTERNAL_HEADERS
 TEST(Simd, Rsqrt)
 {
 	using Vcl::float4;
-
-	using Vcl::all;
-	using Vcl::rsqrt;
-
+	using Vcl::float8;
+	using Vcl::float16;
+	
 	using Vcl::Mathematics::equal;
 
 	// Source data
-	float4 vec{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float4  vec1{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
 
 	// Compute 1 / sqrt(x)
-	float4 res = rsqrt(vec);
+	float4  res1 = rsqrt(vec1);
+	float8  res2 = rsqrt(vec2);
+	float16 res3 = rsqrt(vec3);
 
 	// Reference result
-	float4 ref{ 0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f };
+	float4  ref1{ 0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f };
+	float8  ref2{ 0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f,
+		          0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f };
+	float16 ref3{ 0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f,
+		          0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f,
+		          0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f,
+		          0.2964281f, 0.4048497f, 0.2934622f, 0.2905749f };
 
-	EXPECT_TRUE(all(equal(ref, res, float4(1e-5f)))) << "'rsqrt' failed.";
+	EXPECT_TRUE(all(equal(ref1, res1,  float4(1e-5f)))) << "'rsqrt' failed.";
+	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'rsqrt' failed.";
+	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'rsqrt' failed.";
 }
 
 TEST(Simd, Rcp)
 {
 	using Vcl::float4;
-
-	using Vcl::all;
-	using Vcl::rsqrt;
-
+	using Vcl::float8;
+	using Vcl::float16;
+	
 	using Vcl::Mathematics::equal;
 
 	// Source data
-	float4 vec{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float4  vec1{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
 
 	// Compute 1 / x
-	float4 res = rcp(vec);
+	float4  res1 = rcp(vec1);
+	float8  res2 = rcp(vec2);
+	float16 res3 = rcp(vec3);
 
 	// Reference result
-	float4 ref{ 0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f };
+	float4  ref1{ 0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f };
+	float8  ref2{ 0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f,
+		          0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f };
+	float16 ref3{ 0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f,
+		          0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f,
+		          0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f,
+		          0.0878696f, 0.16390326f, 0.0861200f, 0.0844338f };
 
-	EXPECT_TRUE(all(equal(ref, res, float4(1e-5f)))) << "'rsqrt' failed.";
+	EXPECT_TRUE(all(equal(ref1, res1,  float4(1e-5f)))) << "'rcp' failed.";
+	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'rcp' failed.";
+	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'rcp' failed.";
+}
+
+TEST(Simd, Pow)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+	
+	using Vcl::Mathematics::equal;
+
+	// Source data
+	float4  vec1{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+
+	// Compute pow(x, 2)
+	float4  res1 = pow(vec1,  float4(2.0f));
+	float8  res2 = pow(vec2,  float8(2.0f));
+	float16 res3 = pow(vec3, float16(2.0f));
+
+	// Reference result
+	float4  ref1{ 129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f };
+	float8  ref2{ 129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f,
+		          129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f };
+	float16 ref3{ 129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f,
+		          129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f,
+		          129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f,
+		          129.51578025f, 37.2241533456f, 134.83157689f, 140.27086096f };
+
+	EXPECT_TRUE(all(equal(ref1, res1,  float4(1e-5f)))) << "'pow' failed.";
+	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'pow' failed.";
+	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'pow' failed.";
+}
+
+TEST(Simd, Log)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+	
+	using Vcl::Mathematics::equal;
+
+	// Source data
+	float4  vec1{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f,
+		          11.3805f, 6.10116f, 11.6117f, 11.8436f };
+
+	// Compute log(x)
+	float4  res1 = log(vec1);
+	float8  res2 = log(vec2);
+	float16 res3 = log(vec3);
+
+	// Reference result
+	float4  ref1{ 2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f };
+	float8  ref2{ 2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f,
+		          2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f };
+	float16 ref3{ 2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f,
+		          2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f,
+		          2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f,
+		          2.43190136f, 1.8084789170f, 2.45201321f, 2.47178763f };
+
+	EXPECT_TRUE(all(equal(ref1, res1,  float4(1e-5f)))) << "'log' failed.";
+	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'log' failed.";
+	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'log' failed.";
 }
