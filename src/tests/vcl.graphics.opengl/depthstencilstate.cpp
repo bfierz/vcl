@@ -43,7 +43,7 @@ TEST(OpenGL, ConfigureDepthFunc)
 	DepthStencilDescription desc;
 	desc.DepthEnable = true;
 	desc.DepthFunc = ComparisonFunction::Less;
-	desc.DepthWriteMask = DepthWriteMask::Zero;
+	desc.DepthWriteMask = DepthWriteMethod::Zero;
 
 	DepthStencilState state{ desc };
 	state.bind();

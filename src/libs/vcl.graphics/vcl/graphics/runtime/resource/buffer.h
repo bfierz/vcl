@@ -69,7 +69,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		 * The resource is to be mappable so that the CPU can read its contents.
 		 */
 		Read
-	);
+	)
 
 	struct BufferDescription
 	{

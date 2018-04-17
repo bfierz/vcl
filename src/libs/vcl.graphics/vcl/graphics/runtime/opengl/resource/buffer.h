@@ -72,7 +72,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 * Map the resource and invalidate the mapped range.
 		 */
 		InvalidateRange
-	);
+	)
 
 	class BufferBindPoint
 	{

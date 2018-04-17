@@ -62,6 +62,8 @@ function(VclCompileGLSL file_to_compile symbol include_paths compiled_files)
 	# Create a header file
 	file(WRITE  ${output_h_file} "")
 	file(APPEND ${output_h_file} "#pragma once\n")
+	file(APPEND ${output_h_file} "#include <cstddef>\n")
+	file(APPEND ${output_h_file} "#include <cstdint>\n")
 	file(APPEND ${output_h_file} "#include <gsl/gsl>\n")
 	file(APPEND ${output_h_file} "extern uint8_t ${symbol}Data[];\n")
 	file(APPEND ${output_h_file} "extern size_t ${symbol}DataSize;\n")
