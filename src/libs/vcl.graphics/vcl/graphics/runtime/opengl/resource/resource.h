@@ -36,6 +36,7 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	/// Generic VCL OpenGL error
 	class gl_error : public std::runtime_error
 	{
 	public:

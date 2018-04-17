@@ -386,6 +386,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ProgramBuffers _buffers;
 	};
 
+	/// Error thrown in case of a shader compilation error
+	class gl_program_link_error : public gl_error
+	{
+	public:
+		explicit gl_program_link_error(const std::string& what_arg) : gl_error(what_arg) {}
+		explicit gl_program_link_error(const char* what_arg) : gl_error(what_arg) {}
+	};
+
 	class ShaderProgram : public Resource
 	{
 	public:
@@ -430,8 +438,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void linkAttributes(const InputLayoutDescription& layout);
 
 	private:
-		//! Print the information of the current program state
-		void printInfoLog() const;
+		//! Access the information of the current program state
+		//! \returns The information of the current program state
+		std::string infoLog() const;
 
 	private:
 		//! Uniforms and resources

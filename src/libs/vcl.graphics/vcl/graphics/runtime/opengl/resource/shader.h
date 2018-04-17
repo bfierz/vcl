@@ -39,9 +39,18 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
+#include <vcl/graphics/opengl/gl.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	/// Error thrown in case of a shader compilation error
+	class gl_compile_error : public gl_error
+	{
+	public:
+		explicit gl_compile_error(const std::string& what_arg) : gl_error(what_arg) {}
+		explicit gl_compile_error(const char* what_arg) : gl_error(what_arg) {}
+	};
+
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
@@ -57,7 +66,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		static GLenum toGLenum(ShaderType type);
 
 	private:
-		void printInfoLog() const;
+		//! Access the shader log
+		//! \returns The shader log
+		std::string infoLog() const;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

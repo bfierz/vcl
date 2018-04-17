@@ -651,21 +651,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
 		if (linked == GL_FALSE)
 		{
-			VclAssertBlock
-			{
-				printInfoLog();
-			}
-			return;
+			throw gl_program_link_error(infoLog());
 		}
 
-#ifdef VCL_DEBUG
+		// Validate the program
 		glValidateProgram(id());
 
 		GLint valid;
 		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
 		if (valid == GL_FALSE)
-			return;
-#endif
+		{
+			throw gl_program_link_error(infoLog());
+		}
 
 		// Link the program to the input layout
 		if (!desc.ComputeShader)
@@ -777,22 +774,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	void ShaderProgram::printInfoLog() const
+	std::string ShaderProgram::infoLog() const
 	{
+		if (_glId == 0)
+			return{};
+
 		int info_log_length = 0;
 		int chars_written = 0;
-
-		if (_glId == 0)
-			return;
-
 		glGetProgramiv(_glId, GL_INFO_LOG_LENGTH, &info_log_length);
-
 		if (info_log_length > 1)
 		{
-			std::vector<char> info_log(info_log_length);
-			glGetProgramInfoLog(_glId, info_log_length, &chars_written, info_log.data());
-			printf("%s\n", info_log.data());
+			std::string info_log(info_log_length, '\0');
+			glGetProgramInfoLog(_glId, info_log_length, &chars_written, const_cast<char*>(info_log.data()));
+			return info_log;
 		}
+		return{};
 	}
 
 	UniformHandle ShaderProgram::uniform(const char* name) const
