@@ -37,20 +37,13 @@
 #include <gsl/gsl>
 
 // VCL
+#include <vcl/core/3rdparty/expected.hpp>
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/opengl/gl.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	/// Error thrown in case of a shader compilation error
-	class gl_compile_error : public gl_error
-	{
-	public:
-		explicit gl_compile_error(const std::string& what_arg) : gl_error(what_arg) {}
-		explicit gl_compile_error(const char* what_arg) : gl_error(what_arg) {}
-	};
-
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
@@ -62,13 +55,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 
-		static bool isSpirvSupported();
-		static GLenum toGLenum(ShaderType type);
+		//! Access the shader's compilation state
+		//! \returns The shader's compilation state
+		bool checkCompilationState() const;
 
-	private:
 		//! Access the shader log
 		//! \returns The shader log
-		std::string infoLog() const;
+		std::string readInfoLog() const;
+
+		static bool isSpirvSupported();
+		static GLenum toGLenum(ShaderType type);
 	};
+
+	/// Create a new shader from a source string
+	/// @returns The compiled shader, or the error-string in case of failure
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
+
+	/// Create a new shader from a SPIR-V binary
+	/// @returns The compiled shader, or the error-string in case of failure
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data, gsl::span<const unsigned int> spec_indices = {}, gsl::span<const unsigned int> spec_values = {});
 }}}}
 #endif // VCL_OPENGL_SUPPORT

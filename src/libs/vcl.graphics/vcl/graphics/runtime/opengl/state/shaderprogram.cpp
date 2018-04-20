@@ -647,25 +647,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Link the program
 		glLinkProgram(id());
 
-		GLint linked;
-		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
-		if (linked == GL_FALSE)
-		{
-			throw gl_program_link_error(infoLog());
-		}
-
-		// Validate the program
-		glValidateProgram(id());
-
-		GLint valid;
-		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
-		if (valid == GL_FALSE)
-		{
-			throw gl_program_link_error(infoLog());
-		}
+		bool linked = checkLinkState();
 
 		// Link the program to the input layout
-		if (!desc.ComputeShader)
+		if (linked && !desc.ComputeShader)
 			linkAttributes(desc.InputLayout);
 
 		// Detach shaders for deferred deletion
@@ -692,7 +677,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		// Collect the uniforms of this program
-		_resources = std::make_unique<ProgramResources>(id());
+		if (linked)
+			_resources = std::make_unique<ProgramResources>(id());
 
 		VclEnsure(id() > 0, "Shader program is created");
 	}
@@ -774,7 +760,23 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	std::string ShaderProgram::infoLog() const
+	bool ShaderProgram::checkLinkState() const
+	{
+		GLint linked = GL_FALSE;
+		glGetProgramiv(id(), GL_LINK_STATUS, &linked);
+		return linked == GL_TRUE;
+	}
+
+	bool ShaderProgram::validate() const
+	{
+		glValidateProgram(id());
+
+		GLint valid = GL_FALSE;
+		glGetProgramiv(id(), GL_VALIDATE_STATUS, &valid);
+		return valid == GL_TRUE;
+	}
+
+	std::string ShaderProgram::readInfoLog() const
 	{
 		if (_glId == 0)
 			return{};
@@ -967,6 +969,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			VclEnsure(static_cast<int>(buffer->id()) == Graphics::OpenGL::GL::getInteger(GL_SHADER_STORAGE_BUFFER_BINDING, handle->ResourceLocation), "Buffer is bound.");
 		}
+	}
+
+	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const ShaderProgramDescription& desc)
+	{
+		auto prog = std::make_unique<ShaderProgram>(desc);
+		if (prog->checkLinkState())
+			return prog;
+		else
+			return nonstd::make_unexpected(prog->readInfoLog());
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

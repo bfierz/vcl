@@ -136,7 +136,8 @@ TEST(OpenGL, CompileShaderError)
 	using namespace Vcl::Graphics::Runtime;
 
 	// Compile the shader
-	ASSERT_THROW(OpenGL::Shader(ShaderType::VertexShader, 0, "No Content"), OpenGL::gl_compile_error);
+	auto shader = OpenGL::makeShader(ShaderType::VertexShader, 0, "No Content");
+	EXPECT_FALSE(shader);
 }
 
 TEST(OpenGL, LinkShaderProgramError)
@@ -152,7 +153,8 @@ TEST(OpenGL, LinkShaderProgramError)
 	desc.VertexShader = &vs;
 	desc.FragmentShader = &fs;
 
-	ASSERT_THROW(OpenGL::ShaderProgram prog(desc), OpenGL::gl_program_link_error);
+	auto prog = OpenGL::makeShaderProgram(desc);
+	EXPECT_FALSE(prog);
 }
 
 TEST(OpenGL, CompileVertexShader)
