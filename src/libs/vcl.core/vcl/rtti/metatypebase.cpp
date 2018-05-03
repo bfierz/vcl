@@ -133,10 +133,8 @@ namespace Vcl { namespace RTTI
 		{
 			return parents()[0]->hasAttribute(name);
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	const AttributeBase* Type::attribute(const gsl::cstring_span<> name) const
@@ -158,10 +156,7 @@ namespace Vcl { namespace RTTI
 		{
 			return parents()[0]->attribute(name);
 		}
-		else
-		{
-			return nullptr;
-		}
+		return nullptr;
 	}
 
 	void Type::serialize(Serializer& ser, const void* obj) const

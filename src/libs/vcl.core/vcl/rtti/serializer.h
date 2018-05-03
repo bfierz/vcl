@@ -35,6 +35,8 @@ namespace Vcl { namespace RTTI
 	class Serializer
 	{
 	public:
+		~Serializer() = default;
+
 		virtual void beginType(const gsl::cstring_span<> name, int version) = 0;
 
 		//! Denote that the current type is finished
@@ -46,6 +48,8 @@ namespace Vcl { namespace RTTI
 	class Deserializer
 	{
 	public:
+		~Deserializer() = default;
+
 		virtual void beginType(const gsl::cstring_span<> name) = 0;
 
 		//! Denote that the current type is finished
