@@ -46,7 +46,7 @@ namespace Vcl { namespace Util
 	void PreciseTimer::start()
 	{
 #ifdef VCL_STL_CHRONO
-		_startTime = _clk.now();
+		_startTime = std::chrono::high_resolution_clock::now();
 #elif defined VCL_ABI_WINAPI
 		QueryPerformanceCounter(&_startTime);
 #elif defined VCL_ABI_POSIX
@@ -57,7 +57,7 @@ namespace Vcl { namespace Util
 	void PreciseTimer::stop()
 	{
 #ifdef VCL_STL_CHRONO
-		_stopTime = _clk.now();
+		_stopTime = std::chrono::high_resolution_clock::now();
 #elif defined VCL_ABI_WINAPI
 		QueryPerformanceCounter(&_stopTime);
 #elif defined VCL_ABI_POSIX

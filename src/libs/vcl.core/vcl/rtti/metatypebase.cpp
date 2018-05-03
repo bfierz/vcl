@@ -46,8 +46,10 @@ namespace Vcl { namespace RTTI
 	Type::Type(Type&& rhs)
 	: _name{ rhs._name }
 	{
-		if (rhs.hash())
+		if (rhs.hash() != 0u)
+		{
 			TypeRegistry::remove(&rhs);
+		}
 				
 		_hash = rhs._hash;
 		_size = rhs._size;
@@ -69,8 +71,10 @@ namespace Vcl { namespace RTTI
 
 	Type::~Type()
 	{
-		if (hash())
+		if (hash() != 0u)
+		{
 			TypeRegistry::remove(this);
+		}
 	}
 		
 	void* Type::allocate() const
@@ -96,12 +100,18 @@ namespace Vcl { namespace RTTI
 		while (meta != nullptr)
 		{
 			if (meta->hash() == base->hash())
+			{
 				return true; // found a match
+			}
 
 			if (meta->nrParents() > 0)
+			{
 				meta = meta->parents()[0];
+			}
 			else
+			{
 				meta = nullptr;
+			}
 		}
 		return false; // no match found
 	}
@@ -116,11 +126,17 @@ namespace Vcl { namespace RTTI
 		});
 
 		if (attribIt != _attributes.end())
+		{
 			return true;
-		else if (nrParents() > 0)
+		}
+		if (nrParents() > 0)
+		{
 			return parents()[0]->hasAttribute(name);
+		}
 		else
+		{
 			return false;
+		}
 	}
 
 	const AttributeBase* Type::attribute(const gsl::cstring_span<> name) const
@@ -135,11 +151,17 @@ namespace Vcl { namespace RTTI
 		});
 		
 		if (attribIt != _attributes.cend())
+		{
 			return *attribIt;
-		else if (nrParents() > 0)
+		}
+		if (nrParents() > 0)
+		{
 			return parents()[0]->attribute(name);
+		}
 		else
+		{
 			return nullptr;
+		}
 	}
 
 	void Type::serialize(Serializer& ser, const void* obj) const

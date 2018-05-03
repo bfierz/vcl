@@ -71,10 +71,10 @@ namespace Vcl
 	__m128 _mm_acos_ps(__m128 v);
 	__m128 _mm_asin_ps(__m128 v);
 
-	__m128 _mm_atan2_ps(__m128 y, __m128 x);
+	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x);
 	__m128 _mm_pow_ps(__m128 x, __m128 y);
 
-	__m128 _mmVCL_floor_ps(__m128 v);
+	__m128 _mmVCL_floor_ps(__m128 x);
 
 	VCL_STRONG_INLINE __m128i _mmVCL_mullo_epi32(__m128i a, __m128i b)
 	{
