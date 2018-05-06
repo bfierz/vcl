@@ -26,69 +26,84 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // C++ standard library
+#include <array>
+#include <random>
 #include <vector>
+
+// GSL
+#include <gsl/gsl>
 
 // VCL
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Util
 {
-	template<int N>
-	VCL_CPP_CONSTEXPR_11 inline int fast_modulo(int x)
-	{
-		int m = x % N; 
-		return (m < 0) ? m + N : m;
-	}
-	
-	template<> VCL_CPP_CONSTEXPR_11 inline int fast_modulo<128>(int x) { return x & 127; }
-	template<> VCL_CPP_CONSTEXPR_11 inline int fast_modulo< 64>(int x) { return x &  63; }
-	template<> VCL_CPP_CONSTEXPR_11 inline int fast_modulo< 32>(int x) { return x &  32; }
-	template<> VCL_CPP_CONSTEXPR_11 inline int fast_modulo< 16>(int x) { return x &  15; }
-
 	/*!
 	 *	Wavelet noise implementation by Robert L. Cook and Tony DeRose
 	 */
 	template<int N>
 	class WaveletNoise
 	{
+	public: // Type definitions
+		using Vec3 = std::array<float, 3>;
+		using Mat33 = std::array<std::array<float, 3>, 3>;
+
 	public:
 		WaveletNoise();
-		~WaveletNoise();
+		WaveletNoise(unsigned int seed);
+		WaveletNoise(std::mt19937& rnd_gen);
 
 	public: // Evaluation
-		float evaluate(const float p[3]) const;
-		float evaluate(const float p[3], float normal[3]) const;
-		float evaluate(const float p[3], float s, float normal[3], int first_band, int nr_bands, float *w) const;
+		float evaluate(const Vec3& p) const;
+		float evaluate(const Vec3& p, const Vec3& normal) const;
+		float evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, gsl::span<const float> w) const;
 
-		float dx(const float p[3]) const;
-		float dy(const float p[3]) const;
-		float dz(const float p[3]) const;
-		void dxDyDz(const float p[3], float final[3][3]) const;
+		float dx(const Vec3& p) const;
+		float dy(const Vec3& p) const;
+		float dz(const Vec3& p) const;
+		void dxDyDz(const Vec3& p, Mat33& final) const;
 
-		void velocity(const float p[3], float v[3]) const;
+		Vec3 velocity(const Vec3& p) const;
 
 	public: // Properties
-		float minValue() const { return _min; }
-		float maxValue() const { return _max; }
+		float minValue() const noexcept { return _min; }
+		float maxValue() const noexcept { return _max; }
 
 	public: // Access
-		int getNoiseTileSize() const { return N; }
-		const float* getNoiseTileData() const { return _noiseTileData.data(); }
+		int getNoiseTileSize() const noexcept { return N; }
+		const float* getNoiseTileData() const noexcept { return _noiseTileData.data(); }
 
-	private: // Helper methods
-		static void downsample(float* from, float* to, int n, int stride);
-		static void upsample(float* from, float* to, int n, int stride);
+	protected: // Helper methods
+		//! Downsample values according to the wavelet coefficients
+		static void downsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept;
 
-	private: // Constants
-		const static float ACoeffs[32];
-		const static float PCoeffs[4];
+		//! Upsample values according to the wavelet coefficients
+		static void upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept;
 
-	private: // Member fields
+		//! Evaluate quadratic B-spline basis functions
+		void evaluateQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept;
+
+		//! Evaluate quadratic B-spline basis functions
+		void evaluateQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept;
+
+		//! Evaluate derivative of the quadratic B-spline basis functions
+		void evaluateDQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept;
+
+		//! Evaluate derivative of the quadratic B-spline basis functions
+		void evaluateDQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept;
+
+	protected: // Constants
+		const static std::array<float, 32> ACoeffs;
+		const static std::array<float, 4>  PCoeffs;
+
+	private:
+		//! Noise data
 		std::vector<float> _noiseTileData;
-		float _min, _max;
+
+		float _min; //!< Minimum noise data
+		float _max;	//!< Maximum noise data
 	};
 }}
 

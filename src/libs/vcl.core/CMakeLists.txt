@@ -161,6 +161,7 @@ set(VCL_UTIL_INC
 	vcl/util/stringparser.h
 	vcl/util/vectornoise.h
 	vcl/util/waveletnoise.h
+	vcl/util/waveletnoise_modulo.h
 )
 
 source_group(config FILES ${VCL_CONFIG_INC})

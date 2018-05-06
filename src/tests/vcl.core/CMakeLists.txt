@@ -22,6 +22,7 @@ SET(VCL_TEST_SRC
 	scopeguard.cpp
 	simd.cpp
 	smart_ptr.cpp
+	waveletnoise.cpp
 )
 SET(VCL_TEST_INC
 )

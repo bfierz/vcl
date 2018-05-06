@@ -26,48 +26,33 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
-// C++ standard libary
-#include <memory>
-
-// VCL
-#include <vcl/util/waveletnoise.h>
+// C++ standard library
+#include <cstdint>
 
 namespace Vcl { namespace Util
 {
-	/*!
-	 *	Vector noise based on the SIGGRAPH 2007 paper by Bridson
-	 */
 	template<int N>
-	class VectorNoise
+	VCL_CPP_CONSTEXPR_14 inline int fast_modulo(int x)
 	{
-	public:
-		VectorNoise();
-		~VectorNoise();
+		const int m = x % N;
+		return (m < 0) ? m + N : m;
+	}
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo<128>(int x) { return x & 127; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 64>(int x) { return x &  63; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 32>(int x) { return x &  31; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 16>(int x) { return x &  15; }
 
-	public: // Evaluation
-		Eigen::Vector3f evaluate(const typename WaveletNoise<N>::Vec3& p) const;
-
-	public: // Access
-		int size() const { return N; }
-		void noiseData(const float** n1, const float** n2, const float** n3) const
-		{
-			*n1 = _noise1->getNoiseTileData();
-			*n2 = _noise2->getNoiseTileData();
-			*n3 = _noise3->getNoiseTileData();
-		}
-
-	private: // Member fields
-		std::unique_ptr<WaveletNoise<N>> _noise1, _noise2, _noise3;
-	};
-}}
-
-namespace Vcl { namespace Util
-{
-#ifndef VCL_UTIL_VECTORNOISE_INST
-	extern template class VectorNoise<32>;
-	extern template class VectorNoise<64>;
-	extern template class VectorNoise<128>;
-#endif // VCL_UTIL_VECTORNOISE_INST
+#if PTRDIFF_MAX != INT32_MAX
+	template<int N>
+	VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo(ptrdiff_t x)
+	{
+		const ptrdiff_t m = x % N;
+		return (m < 0) ? m + N : m;
+	}
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo<128>(ptrdiff_t x) { return x & 127; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 64>(ptrdiff_t x) { return x & 63; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 32>(ptrdiff_t x) { return x & 31; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 16>(ptrdiff_t x) { return x & 15; }
+#endif
 }}

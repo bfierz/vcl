@@ -38,7 +38,7 @@ namespace Vcl { namespace Util
 	{
 	}
 
-	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const float p[3]) const
+	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const typename WaveletNoise<N>::Vec3& p) const
 	{
 		const float f1y = _noise1->dy(p);
 		const float f1z = _noise1->dz(p);
