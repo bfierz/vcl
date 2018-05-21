@@ -33,7 +33,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	{
 		int dofs = ctx->size();
 		if (dofs == 0)
+		{
 			return false;
+		}
 
 		// d = r = b - A*x
 		ctx->computeInitialResidual();
@@ -66,12 +68,16 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			if (sub_iteration == _chunkSize)
 			{
 				if (_maxIterations == _chunkSize)
+				{
 					break;
+				}
 
 				// Check if the error is small enough
 				double err = ctx->computeError();
 				if (err < _eps)
+				{
 					break;
+				}
 
 				// Start a new iteration cycle
 				sub_iteration = 0;
@@ -80,7 +86,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		// Finalize the CG
 		_iterations = iteration;
-		if (residual && _maxIterations == _chunkSize)
+		if (residual != nullptr && _maxIterations == _chunkSize)
 		{
 			ctx->computeError();
 		}
