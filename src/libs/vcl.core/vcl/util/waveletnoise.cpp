@@ -404,9 +404,9 @@ namespace Vcl { namespace Util
 		const float t1 = midYf - (p[1] - 0.5f);
 		const float t2 = midZf - (p[2] - 0.5f);
 
-		const int midX = static_cast<int>(midXf);
-		const int midY = static_cast<int>(midYf);
-		const int midZ = static_cast<int>(midZf);
+		auto midX = static_cast<const int>(midXf);
+		auto midY = static_cast<const int>(midYf);
+		auto midZ = static_cast<const int>(midZf);
 
 		///////////////////////////////////////////////////////////////////////////////////////
 		// Evaluate splines

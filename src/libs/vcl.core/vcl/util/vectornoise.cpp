@@ -34,9 +34,7 @@ namespace Vcl { namespace Util
 		_noise3 = std::make_unique<WaveletNoise<N>>();
 	}
 
-	template<int N> VectorNoise<N>::~VectorNoise()
-	{
-	}
+	template<int N> VectorNoise<N>::~VectorNoise() = default;
 
 	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const typename WaveletNoise<N>::Vec3& p) const
 	{
