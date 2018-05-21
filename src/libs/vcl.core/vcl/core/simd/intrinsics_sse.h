@@ -31,12 +31,16 @@
 #include <cstdint>
 
 #if defined(VCL_VECTORIZE_SSE)
+
+#define VCL_M128I_SIGNBIT _mm_set1_epi32(int(0x80000000))
+#define VCL_M128I_ALLBITS _mm_set1_epi32(int(0xffffffff))
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE __m128 _mm_abs_ps(__m128 v)
 	{
 		// Compute abs using logical operations
-		return _mm_andnot_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), v);
+		return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), v);
 		
 		// Compute abs using shift operations
 		//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(v), 1), 1));
@@ -44,20 +48,29 @@ namespace Vcl
 
 	VCL_STRONG_INLINE __m128 _mm_sgn_ps(__m128 v)
 	{
-		return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(_mm_set1_epi32(0x80000000))), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
+		return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(VCL_M128I_SIGNBIT)), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
 	}
 
 	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b)
 	{
-		return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), _mm_set1_epi32(0xffffffff));
+		return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), VCL_M128I_ALLBITS);
 	}	
 	VCL_STRONG_INLINE __m128i _mm_cmple_epi32(__m128i a, __m128i b)
 	{
-		return _mm_andnot_si128(_mm_cmpgt_epi32(a, b), _mm_set1_epi32(0xffffffff));
+		return _mm_andnot_si128(_mm_cmpgt_epi32(a, b), VCL_M128I_ALLBITS);
 	}
 	VCL_STRONG_INLINE __m128i _mm_cmpge_epi32(__m128i a, __m128i b)
 	{
-		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), _mm_set1_epi32(0xffffffff));
+		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), VCL_M128I_ALLBITS);
+	}
+
+	//! Bitwise (mask ? a : b)
+	VCL_STRONG_INLINE __m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask)
+	{
+		a = _mm_and_si128(a, mask);    // clear a where mask = 0
+		b = _mm_andnot_si128(mask, b); // clear b where mask = 1
+		a = _mm_or_si128(a, b);        // a = a OR b                         
+		return a;
 	}
 
 	__m128i _mmVCL_abs_epi32(__m128i a);

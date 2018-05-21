@@ -1,5 +1,8 @@
 PROJECT(vcl_geometry)
 
+# Configure the VCL compilation environment
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
+
 # VCL / GEOMETRY / IO
 SET(VCL_GEOMETRY_IO_INC
 	vcl/geometry/io/serialiser.h
@@ -80,7 +83,9 @@ SET(SOURCE
 )
 
 # Generate library
-ADD_LIBRARY(vcl_geometry STATIC ${SOURCE})
+add_library(vcl_geometry STATIC ${SOURCE})
+vcl_configure(vcl_geometry)
+
 SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES FOLDER libs)
 if(WIN32)
 	SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES DEBUG_POSTFIX _d)

@@ -78,7 +78,7 @@ namespace Vcl { namespace Util
 
 		for (size_t i = 0; i < length; ++i)
 		{
-			hash ^= *str++;
+			hash ^= uint32_t(*str++);
 			hash *= 0x01000193;
 		}
  
@@ -96,7 +96,7 @@ namespace Vcl { namespace Util
 
 		for (size_t i = 0; i < length; ++i)
 		{
-			hash ^= *str++;
+			hash ^= uint32_t(*str++);
 			hash *= 0x100000001b3;
 		}
 
@@ -133,7 +133,7 @@ namespace Vcl { namespace Util
 	public:
 		struct DynamicConstCharString
 		{
-			VCL_STRONG_INLINE DynamicConstCharString(const char* str) : str(str) {}
+			VCL_STRONG_INLINE DynamicConstCharString(const char* s) : str(s) {}
 			const char* str;
 		};
 

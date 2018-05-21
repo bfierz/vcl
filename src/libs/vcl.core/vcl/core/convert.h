@@ -83,8 +83,8 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		float v0 = std::stof(value, &next);      pos += next;
-		float v1 = std::stof(value.substr(pos));
+		const float v0 = std::stof(value, &next);      pos += next;
+		const float v1 = std::stof(value.substr(pos));
 
 		return Eigen::Vector2f(v0, v1);
 	}
@@ -94,9 +94,9 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		float v0 = std::stof(value, &next);             pos += next;
-		float v1 = std::stof(value.substr(pos), &next); pos += next;
-		float v2 = std::stof(value.substr(pos));
+		const float v0 = std::stof(value, &next);             pos += next;
+		const float v1 = std::stof(value.substr(pos), &next); pos += next;
+		const float v2 = std::stof(value.substr(pos));
 
 		return Eigen::Vector3f(v0, v1, v2);
 	}
@@ -106,10 +106,10 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		float v0 = std::stof(value, &next);             pos += next;
-		float v1 = std::stof(value.substr(pos), &next); pos += next;
-		float v2 = std::stof(value.substr(pos), &next); pos += next;
-		float v3 = std::stof(value.substr(pos));
+		const float v0 = std::stof(value, &next);             pos += next;
+		const float v1 = std::stof(value.substr(pos), &next); pos += next;
+		const float v2 = std::stof(value.substr(pos), &next); pos += next;
+		const float v3 = std::stof(value.substr(pos));
 
 		return Eigen::Vector4f(v0, v1, v2, v3);
 	}
@@ -119,8 +119,8 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		unsigned int v0 = std::stoul(value, &next);      pos += next;
-		unsigned int v1 = std::stoul(value.substr(pos));
+		const unsigned int v0 = std::stoul(value, &next);      pos += next;
+		const unsigned int v1 = std::stoul(value.substr(pos));
 
 		return Eigen::Vector2ui(v0, v1);
 	}
@@ -130,9 +130,9 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		unsigned int v0 = std::stoul(value, &next);             pos += next;
-		unsigned int v1 = std::stoul(value.substr(pos), &next); pos += next;
-		unsigned int v2 = std::stoul(value.substr(pos));
+		const unsigned int v0 = std::stoul(value, &next);             pos += next;
+		const unsigned int v1 = std::stoul(value.substr(pos), &next); pos += next;
+		const unsigned int v2 = std::stoul(value.substr(pos));
 
 		return Eigen::Vector3ui(v0, v1, v2);
 	}
@@ -142,10 +142,10 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		unsigned int v0 = std::stoul(value, &next);             pos += next;
-		unsigned int v1 = std::stoul(value.substr(pos), &next);	pos += next;
-		unsigned int v2 = std::stoul(value.substr(pos), &next);	pos += next;
-		unsigned int v3 = std::stoul(value.substr(pos));
+		const unsigned int v0 = std::stoul(value, &next);             pos += next;
+		const unsigned int v1 = std::stoul(value.substr(pos), &next);	pos += next;
+		const unsigned int v2 = std::stoul(value.substr(pos), &next);	pos += next;
+		const unsigned int v3 = std::stoul(value.substr(pos));
 
 		return Eigen::Vector4ui(v0, v1, v2, v3);
 	}
@@ -155,17 +155,17 @@ namespace Vcl
 	{
 		size_t pos = 0;
 		size_t next = 0;
-		float v00 = std::stof(value, &next);             pos += next;
-		float v10 = std::stof(value.substr(pos), &next); pos += next;
-		float v20 = std::stof(value.substr(pos), &next); pos += next;
+		const float v00 = std::stof(value, &next);             pos += next;
+		const float v10 = std::stof(value.substr(pos), &next); pos += next;
+		const float v20 = std::stof(value.substr(pos), &next); pos += next;
 
-		float v01 = std::stof(value.substr(pos), &next); pos += next;
-		float v11 = std::stof(value.substr(pos), &next); pos += next;
-		float v21 = std::stof(value.substr(pos), &next); pos += next;
+		const float v01 = std::stof(value.substr(pos), &next); pos += next;
+		const float v11 = std::stof(value.substr(pos), &next); pos += next;
+		const float v21 = std::stof(value.substr(pos), &next); pos += next;
 
-		float v02 = std::stof(value.substr(pos), &next); pos += next;
-		float v12 = std::stof(value.substr(pos), &next); pos += next;
-		float v22 = std::stof(value.substr(pos));
+		const float v02 = std::stof(value.substr(pos), &next); pos += next;
+		const float v12 = std::stof(value.substr(pos), &next); pos += next;
+		const float v22 = std::stof(value.substr(pos));
 
 		Eigen::Matrix3f M;
 		M.col(0) << v00, v10, v20;
@@ -180,7 +180,7 @@ namespace Vcl
 	{
 		std::stringstream ss;
 
-		Eigen::IOFormat fmt{ -1, 0, ", ", "" };
+		const Eigen::IOFormat fmt{ -1, 0, ", ", "" };
 		ss << value.format(fmt);
 
 		return ss.str();
@@ -191,25 +191,25 @@ namespace Vcl
 	{
 		size_t pos = 0;
 		size_t next = 0;
-		float v00 = std::stof(value, &next);             pos += next;
-		float v10 = std::stof(value.substr(pos), &next); pos += next;
-		float v20 = std::stof(value.substr(pos), &next); pos += next;
-		float v30 = std::stof(value.substr(pos), &next); pos += next;
+		const float v00 = std::stof(value, &next);             pos += next;
+		const float v10 = std::stof(value.substr(pos), &next); pos += next;
+		const float v20 = std::stof(value.substr(pos), &next); pos += next;
+		const float v30 = std::stof(value.substr(pos), &next); pos += next;
 
-		float v01 = std::stof(value.substr(pos), &next); pos += next;
-		float v11 = std::stof(value.substr(pos), &next); pos += next;
-		float v21 = std::stof(value.substr(pos), &next); pos += next;
-		float v31 = std::stof(value.substr(pos), &next); pos += next;
+		const float v01 = std::stof(value.substr(pos), &next); pos += next;
+		const float v11 = std::stof(value.substr(pos), &next); pos += next;
+		const float v21 = std::stof(value.substr(pos), &next); pos += next;
+		const float v31 = std::stof(value.substr(pos), &next); pos += next;
 
-		float v02 = std::stof(value.substr(pos), &next); pos += next;
-		float v12 = std::stof(value.substr(pos), &next); pos += next;
-		float v22 = std::stof(value.substr(pos), &next); pos += next;
-		float v32 = std::stof(value.substr(pos), &next); pos += next;
+		const float v02 = std::stof(value.substr(pos), &next); pos += next;
+		const float v12 = std::stof(value.substr(pos), &next); pos += next;
+		const float v22 = std::stof(value.substr(pos), &next); pos += next;
+		const float v32 = std::stof(value.substr(pos), &next); pos += next;
 
-		float v03 = std::stof(value.substr(pos), &next); pos += next;
-		float v13 = std::stof(value.substr(pos), &next); pos += next;
-		float v23 = std::stof(value.substr(pos), &next); pos += next;
-		float v33 = std::stof(value.substr(pos));
+		const float v03 = std::stof(value.substr(pos), &next); pos += next;
+		const float v13 = std::stof(value.substr(pos), &next); pos += next;
+		const float v23 = std::stof(value.substr(pos), &next); pos += next;
+		const float v33 = std::stof(value.substr(pos));
 
 		Eigen::Matrix4f M;
 		M.col(0) << v00, v10, v20, v30;
@@ -225,7 +225,7 @@ namespace Vcl
 	{
 		std::stringstream ss;
 
-		Eigen::IOFormat fmt{ -1, 0, ", ", "" };
+		const Eigen::IOFormat fmt{ -1, 0, ", ", "" };
 		ss << value.format(fmt);
 
 		return ss.str();

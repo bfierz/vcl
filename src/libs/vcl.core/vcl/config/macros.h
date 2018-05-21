@@ -125,7 +125,7 @@
 #elif defined(VCL_COMPILER_CLANG)
 #	define VCL_BEGIN_EXTERNAL_HEADERS \
     _Pragma("clang diagnostic push") \
-    _Pragma("clang diagnostic ignored \"-Wunused-parameter\"")
+    _Pragma("clang diagnostic ignored \"-Weverything\"")
 #	define VCL_END_EXTERNAL_HEADERS \
     _Pragma("clang diagnostic pop")
 #else

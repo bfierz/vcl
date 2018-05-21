@@ -230,14 +230,14 @@ namespace Vcl
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[0], _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+					_mm_and_si128(a.mF4[0], VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
 				), _mm_cmpneq_epi32(a.mF4[0], _mm_setzero_si128())
 			),
 			_mm_and_si128
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[1], _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+					_mm_and_si128(a.mF4[1], VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
 				), _mm_cmpneq_epi32(a.mF4[1], _mm_setzero_si128())
 			),
 			
@@ -245,14 +245,14 @@ namespace Vcl
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[2], _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+					_mm_and_si128(a.mF4[2], VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
 				), _mm_cmpneq_epi32(a.mF4[2], _mm_setzero_si128())
 			),
 			_mm_and_si128
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[3], _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+					_mm_and_si128(a.mF4[3], VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
 				), _mm_cmpneq_epi32(a.mF4[3], _mm_setzero_si128())
 			)
 		);
@@ -261,10 +261,10 @@ namespace Vcl
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(16) int vars[16];
-		_mm_store_si128((__m128i*) (vars +  0), rhs.mF4[0]);
-		_mm_store_si128((__m128i*) (vars +  4), rhs.mF4[1]);
-		_mm_store_si128((__m128i*) (vars +  8), rhs.mF4[2]);
-		_mm_store_si128((__m128i*) (vars + 12), rhs.mF4[3]);
+		_mm_store_si128(reinterpret_cast<__m128i*>(vars +  0), rhs.mF4[0]);
+		_mm_store_si128(reinterpret_cast<__m128i*>(vars +  4), rhs.mF4[1]);
+		_mm_store_si128(reinterpret_cast<__m128i*>(vars +  8), rhs.mF4[2]);
+		_mm_store_si128(reinterpret_cast<__m128i*>(vars + 12), rhs.mF4[3]);
 
 		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
 				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]

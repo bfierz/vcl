@@ -35,7 +35,7 @@ namespace Vcl { namespace RTTI
 	class Serializer
 	{
 	public:
-		~Serializer() = default;
+		virtual ~Serializer() = default;
 
 		virtual void beginType(const gsl::cstring_span<> name, int version) = 0;
 
@@ -48,7 +48,7 @@ namespace Vcl { namespace RTTI
 	class Deserializer
 	{
 	public:
-		~Deserializer() = default;
+		virtual ~Deserializer() = default;
 
 		virtual void beginType(const gsl::cstring_span<> name) = 0;
 

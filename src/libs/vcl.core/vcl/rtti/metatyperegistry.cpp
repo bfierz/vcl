@@ -29,6 +29,9 @@
 
 namespace Vcl { namespace RTTI 
 {
+	// Stores pointer to instatiated type objects.
+	// This registry is non-owning. Initialization and cleanup
+	// must be performed by the calling code.
 	using TypeMap = std::unordered_map<size_t, const Type*>;
 
 	namespace

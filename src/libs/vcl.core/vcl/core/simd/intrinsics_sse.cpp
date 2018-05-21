@@ -35,15 +35,7 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
-{	
-	__m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask)   // Bitwise (mask ? a : b) 
-	{
-		a = _mm_and_si128   ( a,    mask );                                 // clear a where mask = 0
-		b = _mm_andnot_si128( mask, b    );                                 // clear b where mask = 1
-		a = _mm_or_si128    ( a,    b    );                                 // a = a OR b                         
-		return a; 
-	}
-
+{
 	__m128 _mm_sin_ps(__m128 v)
 	{
 		return sin_ps(v);
@@ -73,8 +65,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m128 _mm_acos_ps(__m128 v)
 	{
-		using float4 = VectorScalar<float, 4>;
-
 		float4 x{ v };
 
 		// Absolute error <= 6.7e-5
@@ -98,8 +88,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m128 _mm_asin_ps(__m128 v)
 	{
-		using float4 = VectorScalar<float, 4>;
-
 		float4 x{ v };
 
 		const float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
@@ -119,8 +107,6 @@ namespace Vcl
 
 	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x)
 	{
-		using float4 = VectorScalar<float, 4>;
-
 		float4 t0, t1, t3, t4;
 
 		float4 x{ in_x };

@@ -32,10 +32,12 @@
 // Disable the core-guideline checker until this file is refactored
 #if defined(VCL_COMPILER_MSVC) && defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
 #	pragma warning(push, 1)
-//#	pragma warning(disable: ALL_CPPCORECHECK_WARNINGS)
 #	pragma warning(disable: 26446)
 #	pragma warning(disable: 26451)
 #	pragma warning(disable: 26482)
+#elif defined(VCL_COMPILER_CLANG)
+#	pragma clang diagnostic push
+#	pragma clang diagnostic ignored "-Wsign-conversion"
 #endif
 
 namespace
@@ -404,9 +406,9 @@ namespace Vcl { namespace Util
 		const float t1 = midYf - (p[1] - 0.5f);
 		const float t2 = midZf - (p[2] - 0.5f);
 
-		auto midX = static_cast<const int>(midXf);
-		auto midY = static_cast<const int>(midYf);
-		auto midZ = static_cast<const int>(midZf);
+		const auto midX = static_cast<int>(midXf);
+		const auto midY = static_cast<int>(midYf);
+		const auto midZ = static_cast<int>(midZf);
 
 		///////////////////////////////////////////////////////////////////////////////////////
 		// Evaluate splines
@@ -586,4 +588,6 @@ namespace Vcl { namespace Util
 }}
 #if defined(VCL_COMPILER_MSVC) && defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
 #	pragma warning(pop)
+#elif defined(VCL_COMPILER_CLANG)
+#	pragma clang diagnostic pop
 #endif

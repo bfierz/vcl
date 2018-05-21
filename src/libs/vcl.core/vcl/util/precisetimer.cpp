@@ -71,15 +71,15 @@ namespace Vcl { namespace Util
 
 #ifdef VCL_STL_CHRONO
 		auto diff = _stopTime - _startTime;
-		return std::chrono::duration<double, std::nano>(diff).count() / (double) nr_iterations;
+		return std::chrono::duration<double, std::nano>(diff).count() / double(nr_iterations);
 #elif defined VCL_ABI_WINAPI
 		LARGE_INTEGER freq;
 		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
 		
-		return ((double)(_stopTime.QuadPart - _startTime.QuadPart) / (double) freq.QuadPart) / (double) nr_iterations;
+		return (double(_stopTime.QuadPart - _startTime.QuadPart) / double(freq.QuadPart)) / double(nr_iterations);
 #elif defined VCL_ABI_POSIX
 		timespec thisdiff = diff(_startTime, _stopTime);
-		return (double(size_t(1e9)*thisdiff.tv_sec) + double(thisdiff.tv_nsec)) / (double)nr_iterations;
+		return (double(size_t(1e9)*thisdiff.tv_sec) + double(thisdiff.tv_nsec)) / double(nr_iterations);
 #endif // VCL_STL_CHRONO
 	}
 }}

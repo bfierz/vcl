@@ -50,6 +50,7 @@ namespace Vcl { namespace RTTI
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
 		}
+		virtual ~AttributeBase() = default;
 
 	public:
 		virtual void set(void* object, const std::any& param) const = 0;

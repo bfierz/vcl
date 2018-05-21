@@ -43,7 +43,7 @@ namespace Vcl { namespace RTTI
 		TypeRegistry::add(this);
 	}
 
-	Type::Type(Type&& rhs)
+	Type::Type(Type&& rhs) noexcept
 	: _name{ rhs._name }
 	{
 		if (rhs.hash() != 0u)
@@ -61,10 +61,10 @@ namespace Vcl { namespace RTTI
 		rhs._alignment = 0;
 		rhs._version = 1;
 
-		_parents = std::move(rhs._parents);
-		_constructors = std::move(rhs._constructors);
-		_attributes = std::move(rhs._attributes);
-		_methods = std::move(rhs._methods);
+		std::swap(_parents, rhs._parents);
+		std::swap(_constructors, rhs._constructors);
+		std::swap(_attributes, rhs._attributes);
+		std::swap(_methods, rhs._methods);
 		
 		TypeRegistry::add(this);
 	}
