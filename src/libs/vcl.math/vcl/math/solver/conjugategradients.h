@@ -52,7 +52,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual void reduceVectors() = 0;
 
 		// alpha = d_r / d_g;
-		// beta = d_r - 2.0f * alpha * d_b + alpha * alpha * d_a;
+		// beta = (d_r - 2.0f * alpha * d_b + alpha * alpha * d_a) / d_r;
 		// x = x + alpha * d
 		// r = r - alpha * q
 		// d = r + beta * d
