@@ -11,6 +11,7 @@ vcl_check_target(gtest_main)
 SET(VCL_TEST_SRC
 	allocator.cpp
 	bitvector.cpp
+	convert.cpp
 	flags.cpp
 	fnv1a.cpp
 	gather.cpp

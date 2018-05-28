@@ -52,12 +52,28 @@ namespace Vcl
 	inline bool from_string<bool>(const std::string& value)
 	{
 		if (value == "true" || value == "1")
+		{
 			return true;
+		}
 		else if (value == "false" || value == "0")
+		{
 			return false;
+		}
 		
 		VclDebugError("value not recognized");
 		return false;
+	}
+	template<>
+	inline std::string to_string<bool>(const bool& value)
+	{
+		if (value)
+		{
+			return { "true" };
+		}
+		else
+		{
+			return { "false" };
+		}
 	}
 
 	template<>
@@ -65,13 +81,17 @@ namespace Vcl
 	{
 		return std::stof(value);
 	}
+	template<>
+	inline std::string to_string<float>(const float& value)
+	{
+		return std::to_string(value);
+	}
 
 	template<>
 	inline int from_string<int>(const std::string& value)
 	{
 		return std::stoi(value);
 	}
-
 	template<>
 	inline std::string to_string<int>(const int& value)
 	{
@@ -142,7 +162,7 @@ namespace Vcl
 	{
 		size_t pos  = 0;
 		size_t next = 0;
-		const unsigned int v0 = std::stoul(value, &next);             pos += next;
+		const unsigned int v0 = std::stoul(value, &next);               pos += next;
 		const unsigned int v1 = std::stoul(value.substr(pos), &next);	pos += next;
 		const unsigned int v2 = std::stoul(value.substr(pos), &next);	pos += next;
 		const unsigned int v3 = std::stoul(value.substr(pos));
