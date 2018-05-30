@@ -40,11 +40,13 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
+#include "waveletnoise_rnd.h"
+
 class WaveletNoiseTest : public Vcl::Util::WaveletNoise<32>, public testing::Test
 {
 public:
 	WaveletNoiseTest()
-		: WaveletNoise(0)
+		: WaveletNoise(random_numbers)
 	{}
 };
 

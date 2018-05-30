@@ -82,6 +82,12 @@ namespace Vcl { namespace Util
 		//! Upsample values according to the wavelet coefficients
 		static void upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept;
 
+		//! Special constructor taking an initialized set of random numbers
+		WaveletNoise(gsl::span<float> noise_data_base);
+
+		//! Initialize the noise data
+		void initializeNoise(gsl::span<float> noise_data_base);
+
 		//! Evaluate quadratic B-spline basis functions
 		void evaluateQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept;
 

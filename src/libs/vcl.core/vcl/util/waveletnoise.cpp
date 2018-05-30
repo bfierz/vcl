@@ -67,22 +67,37 @@ namespace Vcl { namespace Util
 	template<int N>
 	WaveletNoise<N>::WaveletNoise(std::mt19937& rnd_gen)
 	{
-		static_assert(N >= 0, "N >= 0");
-		static_assert(N % 2 == 0, "N is even");
+		const int n3 = N * N*N;
 
 		std::normal_distribution<float> normal;
-
-		const int n3 = N*N*N;
-
-		_noiseTileData.reserve(n3);
-		std::vector<float> temp1(n3, 0);
-		std::vector<float> temp2(n3, 0);
+		std::vector<float> noise_data_base;
+		noise_data_base.reserve(n3);
 
 		// Step 1. Fill the tile with random numbers in the range -1 to 1.
-		std::generate_n(std::back_inserter(_noiseTileData), n3, [&normal, &rnd_gen]()
+		std::generate_n(std::back_inserter(noise_data_base), n3, [&normal, &rnd_gen]()
 		{
 			return normal(rnd_gen);
 		});
+
+		initializeNoise(noise_data_base);
+	}
+
+	template<int N>
+	WaveletNoise<N>::WaveletNoise(gsl::span<float> noise_data_base)
+	{
+		initializeNoise(noise_data_base);
+	}
+
+	template<int N>
+	void WaveletNoise<N>::initializeNoise(gsl::span<float> noise_data_base)
+	{
+		static_assert(N >= 0, "N >= 0");
+		static_assert(N % 2 == 0, "N is even");
+		
+		const int n3 = N*N*N;
+
+		std::vector<float> temp1(n3, 0);
+		std::vector<float> temp2(n3, 0);
 
 		// Steps 2 and 3. Downsample and upsample the tile
 		for (int iy = 0; iy < N; iy++)
@@ -90,7 +105,7 @@ namespace Vcl { namespace Util
 			for (int iz = 0; iz < N; iz++)
 			{
 				const int i = iy * N + iz*N*N;
-				downsample(gsl::make_span(&_noiseTileData[i], N), gsl::make_span(&temp1[i], N), N, 1);
+				downsample(gsl::make_span(&noise_data_base[i], N), gsl::make_span(&temp1[i], N), N, 1);
 				upsample(  gsl::make_span(&temp1[i], N), gsl::make_span(&temp2[i], N), N, 1);
 			}
 		}
@@ -114,9 +129,10 @@ namespace Vcl { namespace Util
 		}
 
 		// Step 4. Subtract out the coarse-scale contribution
+		_noiseTileData.reserve(n3);
 		for (int i = 0; i < n3; i++)
 		{
-			_noiseTileData[i] -= temp2[i];
+			_noiseTileData.emplace_back(noise_data_base[i] - temp2[i]);
 		}
 
 		// Avoid even/odd variance difference by adding odd-offset version of noise to itself.
