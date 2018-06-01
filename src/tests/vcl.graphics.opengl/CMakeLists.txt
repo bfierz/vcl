@@ -16,6 +16,7 @@ set(VCL_TEST_SRC
 	engine.cpp
 	histogram.cpp
 	imageprocessor.cpp
+	inputlayout.cpp
 	main.cpp
 	radixsort.cpp
 	rasterstate.cpp

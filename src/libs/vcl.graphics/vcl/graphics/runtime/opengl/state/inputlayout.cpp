@@ -46,81 +46,6 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	template<>
-	struct VertexDataTypeTrait<float>
-	{
-		static const GLenum Type = GL_FLOAT;
-		static const GLint Size = sizeof(float);
-		static const GLint NrComponents = 1;
-		static const bool IsIntegral = false;
-	};
-
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector2f>
-	{
-		static const GLenum Type = GL_FLOAT;
-		static const GLint Size = sizeof(Eigen::Vector2f::Scalar);
-		static const GLint NrComponents = 2;
-		static const bool IsIntegral = false;
-	};
-
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector3f>
-	{
-		static const GLenum Type = GL_FLOAT;
-		static const GLint Size = sizeof(Eigen::Vector3f::Scalar);
-		static const GLint NrComponents = 3;
-		static const bool IsIntegral = false;
-	};
-	
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector4f>
-	{
-		static const GLenum Type = GL_FLOAT;
-		static const GLint Size = sizeof(Eigen::Vector4f::Scalar);
-		static const GLint NrComponents = 4;
-		static const bool IsIntegral = false;
-	};
-	
-	template<>
-	struct VertexDataTypeTrait<int>
-	{
-		static const GLenum Type = GL_INT;
-		static const GLint Size = sizeof(int);
-		static const GLint NrComponents = 1;
-		static const bool IsIntegral = true;
-	};
-	
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector2i>
-	{
-		static const GLenum Type = GL_INT;
-		static const GLint Size = sizeof(Eigen::Vector2i::Scalar);
-		static const GLint NrComponents = 2;
-		static const bool IsIntegral = true;
-	};
-	
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector3i>
-	{
-		static const GLenum Type = GL_INT;
-		static const GLint Size = sizeof(Eigen::Vector3i::Scalar);
-		static const GLint NrComponents = 3;
-		static const bool IsIntegral = true;
-	};
-	
-	template<>
-	struct VertexDataTypeTrait<Eigen::Vector4i>
-	{
-		static const GLenum Type = GL_INT;
-		static const GLint Size = sizeof(Eigen::Vector4i::Scalar);
-		static const GLint NrComponents = 4;
-		static const bool IsIntegral = true;
-	};
-}}}}
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
 	InputLayout::InputLayout(const Runtime::InputLayoutDescription& desc)
 	: _desc(desc)
 	{
@@ -181,7 +106,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				}
 				else
 				{
-					glVertexArrayAttribFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), GL_FALSE, elementOffset);
+					GLboolean normalized = !(rt.componentType() == GL_FLOAT || rt.componentType() == GL_HALF_FLOAT);
+					glVertexArrayAttribFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), normalized, elementOffset);
 				}
 			}
 
