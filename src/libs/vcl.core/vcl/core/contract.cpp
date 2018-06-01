@@ -28,7 +28,7 @@
 #include <iostream>
 
 // C runtime library
-#include <stdarg.h>
+#include <cstdarg>
 
 #ifdef VCL_CONTRACT
 

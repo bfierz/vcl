@@ -59,7 +59,7 @@ namespace Vcl { namespace RTTI
 		Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment);
 
 		Type(const Type&) = delete;
-		Type(Type&&);
+		Type(Type&&) noexcept;
 		virtual ~Type();
 
 	public:
@@ -69,7 +69,7 @@ namespace Vcl { namespace RTTI
 		gsl::cstring_span<> name() const { return _name; }
 		size_t hash() const { return _hash; }
 
-		size_t nrParents() const { return _parents.size(); }
+		size_t nrParents() const { return static_cast<size_t>(_parents.size()); }
 		const Type* const* parents() const { return _parents.data(); }
 
 		bool hasAttribute(const gsl::cstring_span<> name) const;

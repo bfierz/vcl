@@ -55,9 +55,6 @@ namespace Vcl { namespace Util
 
 	private:
 #ifdef VCL_STL_CHRONO
-		//! High resolution clock
-		std::chrono::high_resolution_clock _clk;
-
 		//! Time clock was started
 		std::chrono::high_resolution_clock::time_point _startTime;
 

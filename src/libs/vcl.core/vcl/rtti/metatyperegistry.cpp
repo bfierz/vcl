@@ -29,6 +29,9 @@
 
 namespace Vcl { namespace RTTI 
 {
+	// Stores pointer to instatiated type objects.
+	// This registry is non-owning. Initialization and cleanup
+	// must be performed by the calling code.
 	using TypeMap = std::unordered_map<size_t, const Type*>;
 
 	namespace
@@ -49,7 +52,9 @@ namespace Vcl { namespace RTTI
 		// Only add the entry if it is not yet added
 		auto itr = metas.find(meta->hash());
 		if (itr == metas.end())
+		{
 			metas.emplace(meta->hash(), meta);
+		}
 	}
 	
 	void TypeRegistry::remove(const Type* meta)
@@ -59,7 +64,9 @@ namespace Vcl { namespace RTTI
 		// Only remove the type, if it is the one stored
 		auto itr = metas.find(meta->hash());
 		if (itr != metas.end() && itr->second == meta)
+		{
 			metas.erase(itr);
+		}
 	}
 
 	const Type* TypeRegistry::get(const gsl::cstring_span<> name)

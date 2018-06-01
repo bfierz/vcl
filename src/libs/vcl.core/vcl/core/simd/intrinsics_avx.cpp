@@ -63,8 +63,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m256 _mm256_acos_ps(__m256 v)
 	{
-		using float8 = VectorScalar<float, 8>;
-
 		float8 x{ v };
 
 		// Absolute error <= 6.7e-5
@@ -88,8 +86,6 @@ namespace Vcl
 	// M. Abramowitz and I.A. Stegun, Ed.
 	__m256 _mm256_asin_ps(__m256 v)
 	{
-		using float8 = VectorScalar<float, 8>;
-
 		float8 x{ v };
 
 		float8 negate = select(x < 0, float8{ 1 }, float8{ 0 });
@@ -108,8 +104,6 @@ namespace Vcl
 
 	__m256 _mm256_atan2_ps(__m256 in_y, __m256 in_x)
 	{
-		using float8 = VectorScalar<float, 8>;
-
 		float8 t0, t1, t3, t4;
 
 		float8 x{ in_x };

@@ -161,6 +161,7 @@ set(VCL_UTIL_INC
 	vcl/util/stringparser.h
 	vcl/util/vectornoise.h
 	vcl/util/waveletnoise.h
+	vcl/util/waveletnoise_modulo.h
 )
 
 source_group(config FILES ${VCL_CONFIG_INC})
@@ -225,10 +226,6 @@ option(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking")
 if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
 	ENABLE_VS_GUIDELINE_CHECKER(vcl_core)
 	TARGET_COMPILE_DEFINITIONS(vcl_core PRIVATE VCL_CHECK_CORE_GUIDELINES)
-endif()
-option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy")
-if(VCL_ENABLE_CLANG_TIDY)
-	ENABLE_CLANG_TIDY(vcl_core)
 endif()
 
 # Setup installation

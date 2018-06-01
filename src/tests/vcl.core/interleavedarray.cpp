@@ -65,8 +65,8 @@ void consecutiveLayoutTest(size_t size)
 	Vcl::Core::InterleavedArray<float, ROWS, COLS, 1> data1(size);
 
 	// Check the configuration
-	EXPECT_EQ(data0.size(), (size_t) size);
-	EXPECT_EQ(data1.size(), (size_t) size);
+	EXPECT_EQ(data0.size(), size);
+	EXPECT_EQ(data1.size(), size);
 
 	// Check if the data is written correctly to the storage
 	for (size_t i = 0; i < size; i++)

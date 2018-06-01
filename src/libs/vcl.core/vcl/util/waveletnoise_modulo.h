@@ -27,41 +27,32 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// GSL
-#include <gsl/gsl>
+// C++ standard library
+#include <cstdint>
 
-namespace Vcl { namespace RTTI
+namespace Vcl { namespace Util
 {
-	class Serializer
+	template<int N>
+	VCL_CPP_CONSTEXPR_14 inline int fast_modulo(int x)
 	{
-	public:
-		virtual ~Serializer() = default;
+		const int m = x % N;
+		return (m < 0) ? m + N : m;
+	}
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo<128>(int x) { return x & 127; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 64>(int x) { return x &  63; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 32>(int x) { return x &  31; }
+	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 16>(int x) { return x &  15; }
 
-		virtual void beginType(const gsl::cstring_span<> name, int version) = 0;
-
-		//! Denote that the current type is finished
-		virtual void endType() = 0;
-
-		virtual void writeAttribute(const gsl::cstring_span<>, const gsl::cstring_span<> value) = 0;
-	};
-
-	class Deserializer
+#if PTRDIFF_MAX != INT32_MAX
+	template<int N>
+	VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo(ptrdiff_t x)
 	{
-	public:
-		virtual ~Deserializer() = default;
-
-		virtual void beginType(const gsl::cstring_span<> name) = 0;
-
-		//! Denote that the current type is finished
-		virtual void endType() = 0;
-
-		//! \returns the type string of the current object
-		virtual std::string readType() = 0;
-
-		//! \returns true if the current object has the queried attribute
-		virtual bool hasAttribute(const gsl::cstring_span<> name) = 0;
-
-
-		virtual std::string readAttribute(const gsl::cstring_span<> name) = 0;
-	};
+		const ptrdiff_t m = x % N;
+		return (m < 0) ? m + N : m;
+	}
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo<128>(ptrdiff_t x) { return x & 127; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 64>(ptrdiff_t x) { return x & 63; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 32>(ptrdiff_t x) { return x & 31; }
+	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 16>(ptrdiff_t x) { return x & 15; }
+#endif
 }}

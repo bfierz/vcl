@@ -139,7 +139,7 @@ namespace Vcl
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.get(0), _mm_set1_epi32(0x80000000)), _mm_set1_epi32(1)
+					_mm_and_si128(a.get(0), VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
 				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
 			)
 		);
@@ -148,7 +148,7 @@ namespace Vcl
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)
 	{
 		alignas(16) int vars[4];
-		_mm_store_si128((__m128i*) (vars + 0), rhs.get(0));
+		_mm_store_si128(reinterpret_cast<__m128i*>(vars + 0), rhs.get(0));
 
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << "'";
 

@@ -66,7 +66,7 @@ namespace Vcl { namespace Util
 		while (!full_line_available)
 		{
 			// Copy the remaining data to the front
-			size_t copy_amount = (_currentBuffer + _currentSizeAvailable) - _bufferReadPtr;
+			auto copy_amount = static_cast<size_t>((_currentBuffer + _currentSizeAvailable) - _bufferReadPtr);
 			if (copy_amount > 0 && _bufferReadPtr != _currentBuffer)
 				// There was some data read, move the remaining
 			{
@@ -89,13 +89,13 @@ namespace Vcl { namespace Util
 				continue;
 			}
 
-			_stream->read(_currentBuffer + _currentSizeAvailable, BufferSize - _currentSizeAvailable);
-			size_t amount_read = _stream->gcount();
+			_stream->read(_currentBuffer + _currentSizeAvailable, static_cast<std::streamsize>(BufferSize - _currentSizeAvailable));
+			auto amount_read = _stream->gcount();
 			if (amount_read == 0)
 			{
 				throw std::runtime_error("");
 			}
-			_currentSizeAvailable += amount_read;
+			_currentSizeAvailable += static_cast<size_t>(amount_read);
 
 			current_pointer = _bufferReadPtr;
 			while (current_pointer < _currentBuffer + _currentSizeAvailable)

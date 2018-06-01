@@ -52,18 +52,7 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace RTTI
-{/*
-	template<bool B> struct is_true
-	{
-		typedef std::false_type type;
-		static const std::false_type::value_type value = std::false_type::value;
-	};
-	template<> struct is_true<true>
-	{
-		typedef std::true_type type;
-		static const std::true_type::value_type value = std::true_type::value;
-	};
-*/
+{
 	template < typename T, typename... Ts >
 	auto& head(std::tuple<T, Ts...> t)
 	{
@@ -109,6 +98,7 @@ namespace Vcl { namespace RTTI
 		, _type(info)
 		{
 		}
+		virtual ~ParameterBase() = default;
 
 	public:
 		const ParameterMetaData& data() const
@@ -204,6 +194,8 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
+		virtual ~ConstructorBase() = default;
+
 		//! Invoke the constructor without parameters
 		void* call(void* location) const
 		{
@@ -264,7 +256,7 @@ namespace Vcl { namespace RTTI
 		}
 		VCL_STRONG_INLINE void set(gsl::span<std::unique_ptr<ConstructorBase>> constructors)
 		{
-			_constructors = { (const ConstructorBase**)constructors.data(), (std::ptrdiff_t) constructors.size() };
+			_constructors = { reinterpret_cast<const ConstructorBase**>(constructors.data()), std::ptrdiff_t(constructors.size()) };
 			for (const auto& c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;

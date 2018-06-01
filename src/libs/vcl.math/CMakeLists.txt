@@ -1,5 +1,8 @@
 PROJECT(vcl_math)
 
+# Configure the VCL compilation environment
+include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
+
 # VCL / MATH / MCADAMS
 SET(VCL_MATH_MCADAMS_INC
 	vcl/math/mcadams/Singular_Value_Decomposition_Givens_QR_Factorization_Kernel.hpp
@@ -72,7 +75,9 @@ SET(SOURCE
 )
 
 # Generate library
-ADD_LIBRARY(vcl_math STATIC ${SOURCE})
+add_library(vcl_math STATIC ${SOURCE})
+vcl_configure(vcl_math)
+
 SET_TARGET_PROPERTIES(vcl_math PROPERTIES FOLDER libs)
 if(WIN32)
 	SET_TARGET_PROPERTIES(vcl_math PROPERTIES DEBUG_POSTFIX _d)

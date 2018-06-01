@@ -47,7 +47,7 @@ namespace Vcl { namespace Util
 		~VectorNoise();
 
 	public: // Evaluation
-		Eigen::Vector3f evaluate(const float p[3]) const;
+		Eigen::Vector3f evaluate(const typename WaveletNoise<N>::Vec3& p) const;
 
 	public: // Access
 		int size() const { return N; }

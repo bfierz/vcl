@@ -23,6 +23,8 @@
 # SOFTWARE.
 #
 
+include(${CMAKE_CURRENT_LIST_DIR}/VCLClangTidy.cmake)
+
 # Configure the compiler options for a VCL target
 function(vcl_configure tgt)
 
@@ -49,7 +51,12 @@ function(vcl_configure tgt)
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)
-
+	
+	# Enable clang-tidy for all projects
+	if(VCL_COMPILER_CLANG AND VCL_ENABLE_CLANG_TIDY)
+		enable_clang_tidy(${tgt})
+	endif()
+	
 	# Determine platform architecture
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(VCL_ADDRESS_SIZE "64")
@@ -140,7 +147,7 @@ function(vcl_configure tgt)
 		# * Enable all warnings
 		target_compile_options(${tgt} PUBLIC "-Wall")
 		if(VCL_COMPILER_CLANG)
-			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes" "-D__STRICT_ANSI__")
+			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes" "-D__STRICT_ANSI__" "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic")
 		endif()
 	
 		if(VCL_VECTORIZE_AVX2)
@@ -169,32 +176,7 @@ function(enable_vs_guideline_checker target)
 		VS_GLOBAL_RunCodeAnalysis true)
 endfunction()
 
-# Support for clang-tidy
-find_program(
-	CLANG_TIDY_EXE
-	NAMES "clang-tidy"
-	DOC "Path to clang-tidy executable"
-)
-if(NOT CLANG_TIDY_EXE)
-	message(STATUS "clang-tidy not found.")
-else()
-	message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-	set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=*,-clang-analyzer-alpha.*")
-endif()
-
-function(enable_clang_tidy target)
-	if (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
-		message(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
-	endif()
-
-	if(CLANG_TIDY_EXE)
-		set_target_properties(
-			${target} PROPERTIES
-			CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
-		)
-	endif()
-endfunction()
-
+# Checks if a target with a given names exists
 function(vcl_check_target tgt)
 	if(NOT TARGET ${tgt})
 		message(FATAL_ERROR " VCL: compiling vcl requires a ${tgt} CMake target in your project")

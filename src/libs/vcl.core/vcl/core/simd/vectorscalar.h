@@ -156,8 +156,6 @@ namespace Vcl
 	template<>
 	class VectorScalar<float, 32>
 	{
-	private:
-		__m128 mF4[8];
 	};
 }
 #elif defined VCL_VECTORIZE_NEON
