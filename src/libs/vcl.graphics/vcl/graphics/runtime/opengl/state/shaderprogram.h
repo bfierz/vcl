@@ -426,17 +426,30 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void setTexture(const UniformHandle& handle, const Runtime::Texture* tex, const Runtime::Sampler* sampler);
 		void setImage(const UniformHandle& handle, const Runtime::Texture* img, bool read, bool write);
 
-	private:
-		void linkAttributes(const InputLayoutDescription& layout);
+	public:
+		//! Access the shader progams link state
+		//! \returns The shader progams link state
+		bool checkLinkState() const;
+
+		//! Validate the shader progams if it is valid given the current OpenGL state
+		//! \returns True if the shader progams if it is valid given the current OpenGL state
+		bool validate() const;
+
+		//! Access the information of the current program state
+		//! \returns The information of the current program state
+		std::string readInfoLog() const;
 
 	private:
-		//! Print the information of the current program state
-		void printInfoLog() const;
+		void linkAttributes(const InputLayoutDescription& layout);
 
 	private:
 		//! Uniforms and resources
 		std::unique_ptr<ProgramResources> _resources;
 	};
+
+	/// Create a new shader program from a OpenGL shader objects
+	/// @returns The compiled shader progam, or the error-string in case of failure
+	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const ShaderProgramDescription& desc);
 
 	inline std::unique_ptr<Runtime::OpenGL::ShaderProgram> createComputeKernel(const char* source, std::initializer_list<const char*> headers = {})
 	{

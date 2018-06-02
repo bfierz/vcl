@@ -41,6 +41,24 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
+	{
+		Shader shader{type, tag, source, headers};
+		if (shader.checkCompilationState())
+			return shader;
+		else
+			return nonstd::make_unexpected(shader.readInfoLog());
+	}
+	
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data, gsl::span<const unsigned int> spec_indices, gsl::span<const unsigned int> spec_values)
+	{
+		Shader shader{type, tag, binary_data, spec_indices, spec_values};
+		if (shader.checkCompilationState())
+			return shader;
+		else
+			return nonstd::make_unexpected(shader.readInfoLog());
+	}
+
 	Shader::Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	: Runtime::Shader(type, tag)
 	{
@@ -76,11 +94,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glShaderSource(_glId, table.size(), table.data(), sizes.data());
 		glCompileShader(_glId);
 
-		VclAssertBlock
-		{
-			printInfoLog();
-		}
-
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
@@ -104,14 +117,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Specialize the shader to determine its final behaviour
 		glSpecializeShaderARB(_glId, "main", spec_indices.size(), spec_indices.data(), spec_values.data());
-		
-		GLint specialization_success = 0;
-		glGetShaderiv(_glId, GL_COMPILE_STATUS, &specialization_success);
-
-		VclAssertBlock
-		{
-			printInfoLog();
-		}
 
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
@@ -127,7 +132,32 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_glId)
 			glDeleteShader(_glId);
 	}
-	
+
+	bool Shader::checkCompilationState() const
+	{
+		GLint compile_status = GL_TRUE;
+		glGetShaderiv(_glId, GL_COMPILE_STATUS, &compile_status);
+		return compile_status == GL_TRUE;
+	}
+
+	std::string Shader::readInfoLog() const
+	{
+		if (_glId == 0)
+			return{};
+
+		int info_log_length = 0;
+		int chars_written = 0;
+
+		glGetShaderiv(_glId, GL_INFO_LOG_LENGTH, &info_log_length);
+		if (info_log_length > 1)
+		{
+			std::string info_log(info_log_length, '\0');
+			glGetShaderInfoLog(_glId, info_log_length, &chars_written, const_cast<char*>(info_log.data()));
+			return info_log;
+		}
+		return{};
+	}
+
 	bool Shader::isSpirvSupported()
 	{
 		return glewIsSupported("GL_ARB_gl_spirv") && glewIsSupported("GL_ARB_spirv_extensions");
@@ -147,21 +177,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 
 		return GL_NONE;
-	}
-
-	void Shader::printInfoLog() const
-	{
-		int info_log_length = 0;
-		int chars_written = 0;
-
-		glGetShaderiv(_glId, GL_INFO_LOG_LENGTH, &info_log_length);
-
-		if (info_log_length > 1)
-		{
-			std::vector<char> info_log(info_log_length);
-			glGetShaderInfoLog(_glId, info_log_length, &chars_written, info_log.data());
-			printf("%s\n", info_log.data());
-		}
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

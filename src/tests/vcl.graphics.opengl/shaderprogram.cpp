@@ -94,6 +94,25 @@ void main()
 }
 )";
 
+const char* QuadColourAlphaFS =
+R"(
+#version 440 core
+
+layout(location = 0) in PerVertexData
+{
+	vec4 Colour;
+} In;
+
+layout(location = 0) uniform float alpha = 0.7f;
+
+layout(location = 0) out vec4 Colour;
+
+void main()
+{	
+	Colour = In.Colour;
+}
+)";
+
 const char* SimpleCS =
 R"(
 #version 440 core
@@ -111,6 +130,32 @@ void main()
 	imageStore(output0, outPos, vec4(float(gl_LocalInvocationID.x + gl_LocalInvocationID.y) / 256.0f, 0, 0, 1));
 }
 )";
+
+TEST(OpenGL, CompileShaderError)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Compile the shader
+	auto shader = OpenGL::makeShader(ShaderType::VertexShader, 0, "No Content");
+	EXPECT_FALSE(shader);
+}
+
+TEST(OpenGL, LinkShaderProgramError)
+{
+	using namespace Vcl::Graphics::Runtime;
+
+	// Compile the shader stages
+	OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadVS);
+	OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadColourAlphaFS);
+
+	// Compile the shader
+	OpenGL::ShaderProgramDescription desc;
+	desc.VertexShader = &vs;
+	desc.FragmentShader = &fs;
+
+	auto prog = OpenGL::makeShaderProgram(desc);
+	EXPECT_FALSE(prog);
+}
 
 TEST(OpenGL, CompileVertexShader)
 {
