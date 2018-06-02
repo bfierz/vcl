@@ -346,7 +346,7 @@ int main(int argc, char* argv [])
 			const char* sources [] = { source.data() };
 			size_t sizes [] = { source.size() };
 
-			const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_20";
+			const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_30";
 
 			char* log = nullptr;
 			char* binary = nullptr;

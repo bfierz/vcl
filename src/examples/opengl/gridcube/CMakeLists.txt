@@ -37,18 +37,21 @@ LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 VCLCOMPILEGLSL(
 	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.vert
+	"opengl"
 	"BoundingGridVert"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_0
 )
 VCLCOMPILEGLSL(
 	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.geom
+	"opengl"
 	"BoundingGridGeom"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_1
 )
 VCLCOMPILEGLSL(
 	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.frag
+	"opengl"
 	"BoundingGridFrag"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_2
