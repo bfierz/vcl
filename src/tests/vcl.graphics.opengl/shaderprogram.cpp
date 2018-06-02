@@ -45,7 +45,7 @@ R"(
 #version 440 core
 
 layout(location = 0) in vec2 Position;
-layout(location = 1) in vec3 Colour;
+layout(location = 1) in vec4 Colour;
 layout(location = 2) in mat4 Scale;
 
 layout(location = 0) out PerVertexData
@@ -71,7 +71,7 @@ layout(std430, binding = 2) buffer Colors
 void main()
 {
 	gl_Position = Projection*Modelview*Scale*vec4(Position, 0, 1);
-	Out.Colour = ColorScale*Colour;
+	Out.Colour = ColorScale*Colour.rgb;
 }
 )";
 
@@ -198,7 +198,7 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	InputLayoutDescription in = 
 	{
 		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R8G8B8A8_SNORM, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
 	};
 
@@ -232,8 +232,8 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	// Create the input definition
 	InputLayoutDescription in = 
 	{
-		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Position", SurfaceFormat::R16G16_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 4, VertexDataClassification::VertexDataPerObject, 0 },
 		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
 	};
 

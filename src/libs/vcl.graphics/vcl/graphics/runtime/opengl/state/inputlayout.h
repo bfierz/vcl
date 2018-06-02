@@ -39,15 +39,6 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	template<typename VertexDataType>
-	struct VertexDataTypeTrait
-	{
-		static const GLenum Type;
-		static const GLint Size;
-		static const GLint NrComponents;
-		static const bool IsIntegral;
-	};
-
 	struct VertexLayoutElement
 	{
 		GLint NrComponents;
@@ -63,6 +54,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		~InputLayout();
 
 	public:
+		GLuint id() const { return _vaoID; }
+
+	public:
 		void bind();
 
 	private:
@@ -75,16 +69,4 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! Vertex array object that caches the input layout
 		GLuint _vaoID{ 0 };
 	};
-
-	// Extern template specialization
-#ifndef VCL_GRAPHICS_HELIOS_OPENGL_INPUTLAYOUT_INST
-	extern template	struct VertexDataTypeTrait<float>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector2f>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector3f>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector4f>;
-	extern template	struct VertexDataTypeTrait<int>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector2i>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector3i>;
-	extern template	struct VertexDataTypeTrait<Eigen::Vector4i>;
-#endif // VCL_GRAPHICS_HELIOS_OPENGL_INPUTLAYOUT_INST
 }}}}

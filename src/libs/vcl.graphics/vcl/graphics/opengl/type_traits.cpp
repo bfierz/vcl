@@ -27,6 +27,27 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
+#define VCL_GRAPHICS_RTT(type, int_fmt, fmt, cmp_type, nr_cmp, integral)	   \
+	template<>																   \
+	struct RenderTypeTrait<type>											   \
+	{																		   \
+		typedef type Type;													   \
+		static const GLenum InternalFormat;									   \
+		static const GLenum Format;											   \
+		static const GLenum ComponentType;									   \
+		static const GLint ComponentSize;									   \
+		static const GLint NrComponents;									   \
+		static const GLint Size;											   \
+		static const bool IsIntegral;										   \
+	};																		   \
+	const GLenum RenderTypeTrait<type>::InternalFormat = int_fmt;			   \
+	const GLenum RenderTypeTrait<type>::Format = fmt;						   \
+	const GLenum RenderTypeTrait<type>::ComponentType = cmp_type;			   \
+	const GLint  RenderTypeTrait<type>::ComponentSize = sizeof(type) / nr_cmp; \
+	const GLint  RenderTypeTrait<type>::NrComponents = nr_cmp;				   \
+	const GLint  RenderTypeTrait<type>::Size = sizeof(type);				   \
+	const bool   RenderTypeTrait<type>::IsIntegral = integral
+
 namespace Vcl { namespace Graphics { namespace OpenGL
 {
 	GLenum AnyRenderType::internalFormat() const  { return _gate().internalFormat(); }
@@ -56,165 +77,80 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	const GLint  RenderTypeTrait<void>::NrComponents = 1;
 	const GLint  RenderTypeTrait<void>::Size = 1;
 	const bool   RenderTypeTrait<void>::IsIntegral = false;
+	
+	VCL_GRAPHICS_RTT(float,           GL_R32F,    GL_RED,  GL_FLOAT, 1, false);
+	VCL_GRAPHICS_RTT(Eigen::Vector2f, GL_RG32F,   GL_RG,   GL_FLOAT, 2, false);
+	VCL_GRAPHICS_RTT(Eigen::Vector3f, GL_RGB32F,  GL_RGB,  GL_FLOAT, 3, false);
+	VCL_GRAPHICS_RTT(Eigen::Vector4f, GL_RGBA32F, GL_RGBA, GL_FLOAT, 4, false);
 
-	template<>
-	struct RenderTypeTrait<float>
-	{
-		typedef float Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<float>::InternalFormat = GL_R32F;
-	const GLenum RenderTypeTrait<float>::Format = GL_RED;
-	const GLenum RenderTypeTrait<float>::ComponentType = GL_FLOAT;
-	const GLint  RenderTypeTrait<float>::ComponentSize = sizeof(float);
-	const GLint  RenderTypeTrait<float>::NrComponents = 1;
-	const GLint  RenderTypeTrait<float>::Size = sizeof(float);
-	const bool   RenderTypeTrait<float>::IsIntegral = false;
+	VCL_GRAPHICS_RTT(int,             GL_R32I,    GL_RED,  GL_INT, 1, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector2i, GL_RG32I,   GL_RG,   GL_INT, 2, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector3i, GL_RGB32I,  GL_RGB,  GL_INT, 3, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector4i, GL_RGBA32I, GL_RGBA, GL_INT, 4, true);
 
-	template<>
-	struct RenderTypeTrait<Eigen::Vector2f>
-	{
-		typedef Eigen::Vector2f Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector2f>::InternalFormat = GL_RG32F;
-	const GLenum RenderTypeTrait<Eigen::Vector2f>::Format = GL_RG;
-	const GLenum RenderTypeTrait<Eigen::Vector2f>::ComponentType = GL_FLOAT;
-	const GLint  RenderTypeTrait<Eigen::Vector2f>::ComponentSize = sizeof(Eigen::Vector2f::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector2f>::NrComponents = 2;
-	const GLint  RenderTypeTrait<Eigen::Vector2f>::Size = sizeof(Eigen::Vector2f);
-	const bool   RenderTypeTrait<Eigen::Vector2f>::IsIntegral = false;
+	VCL_GRAPHICS_RTT(unsigned int,     GL_R32UI,    GL_RED,  GL_UNSIGNED_INT, 1, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector2ui, GL_RG32UI,   GL_RG,   GL_UNSIGNED_INT, 2, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector3ui, GL_RGB32UI,  GL_RGB,  GL_UNSIGNED_INT, 3, true);
+	VCL_GRAPHICS_RTT(Eigen::Vector4ui, GL_RGBA32UI, GL_RGBA, GL_UNSIGNED_INT, 4, true);
+	
+	VCL_GRAPHICS_RTT(Float , GL_R32F,    GL_RED,  GL_FLOAT, 1, false);
+	VCL_GRAPHICS_RTT(Float2, GL_RG32F,   GL_RG,   GL_FLOAT, 2, false);
+	VCL_GRAPHICS_RTT(Float3, GL_RGB32F,  GL_RGB,  GL_FLOAT, 3, false);
+	VCL_GRAPHICS_RTT(Float4, GL_RGBA32F, GL_RGBA, GL_FLOAT, 4, false);
 
-	template<>
-	struct RenderTypeTrait<Eigen::Vector3f>
-	{
-		typedef Eigen::Vector3f Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector3f>::InternalFormat = GL_RGB32F;
-	const GLenum RenderTypeTrait<Eigen::Vector3f>::Format = GL_RGB;
-	const GLenum RenderTypeTrait<Eigen::Vector3f>::ComponentType = GL_FLOAT;
-	const GLint  RenderTypeTrait<Eigen::Vector3f>::ComponentSize = sizeof(Eigen::Vector3f::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector3f>::NrComponents = 3;
-	const GLint  RenderTypeTrait<Eigen::Vector3f>::Size = sizeof(Eigen::Vector3f);
-	const bool   RenderTypeTrait<Eigen::Vector3f>::IsIntegral = false;
+	VCL_GRAPHICS_RTT(SignedInt,  GL_R32I,    GL_RED,  GL_INT, 1, true);
+	VCL_GRAPHICS_RTT(SignedInt2, GL_RG32I,   GL_RG,   GL_INT, 2, true);
+	VCL_GRAPHICS_RTT(SignedInt3, GL_RGB32I,  GL_RGB,  GL_INT, 3, true);
+	VCL_GRAPHICS_RTT(SignedInt4, GL_RGBA32I, GL_RGBA, GL_INT, 4, true);
 
-	template<>
-	struct RenderTypeTrait<Eigen::Vector4f>
-	{
-		typedef Eigen::Vector4f Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector4f>::InternalFormat = GL_RGBA32F;
-	const GLenum RenderTypeTrait<Eigen::Vector4f>::Format = GL_RGBA;
-	const GLenum RenderTypeTrait<Eigen::Vector4f>::ComponentType = GL_FLOAT;
-	const GLint  RenderTypeTrait<Eigen::Vector4f>::ComponentSize = sizeof(Eigen::Vector4f::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector4f>::NrComponents = 4;
-	const GLint  RenderTypeTrait<Eigen::Vector4f>::Size = sizeof(Eigen::Vector4f);
-	const bool   RenderTypeTrait<Eigen::Vector4f>::IsIntegral = false;
+	VCL_GRAPHICS_RTT(UnsignedInt,  GL_R32UI,    GL_RED,  GL_UNSIGNED_INT, 1, true);
+	VCL_GRAPHICS_RTT(UnsignedInt2, GL_RG32UI,   GL_RG,   GL_UNSIGNED_INT, 2, true);
+	VCL_GRAPHICS_RTT(UnsignedInt3, GL_RGB32UI,  GL_RGB,  GL_UNSIGNED_INT, 3, true);
+	VCL_GRAPHICS_RTT(UnsignedInt4, GL_RGBA32UI, GL_RGBA, GL_UNSIGNED_INT, 4, true);
+	
+	VCL_GRAPHICS_RTT(Half , GL_R16F,    GL_RED,  GL_HALF_FLOAT, 1, false);
+	VCL_GRAPHICS_RTT(Half2, GL_RG16F,   GL_RG,   GL_HALF_FLOAT, 2, false);
+	VCL_GRAPHICS_RTT(Half3, GL_RGB16F,  GL_RGB,  GL_HALF_FLOAT, 3, false);
+	VCL_GRAPHICS_RTT(Half4, GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, 4, false);
 
-	template<>
-	struct RenderTypeTrait<int>
-	{
-		typedef int Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<int>::InternalFormat = GL_R32I;
-	const GLenum RenderTypeTrait<int>::Format = GL_RED;
-	const GLenum RenderTypeTrait<int>::ComponentType = GL_INT;
-	const GLint  RenderTypeTrait<int>::ComponentSize = sizeof(int);
-	const GLint  RenderTypeTrait<int>::NrComponents = 1;
-	const GLint  RenderTypeTrait<int>::Size = sizeof(int);
-	const bool   RenderTypeTrait<int>::IsIntegral = true;
+	VCL_GRAPHICS_RTT(short,        GL_R16I,    GL_RED,  GL_SHORT, 1, true);
+	VCL_GRAPHICS_RTT(SignedShort,  GL_R16I,    GL_RED,  GL_SHORT, 1, true);
+	VCL_GRAPHICS_RTT(SignedShort2, GL_RG16I,   GL_RG,   GL_SHORT, 2, true);
+	VCL_GRAPHICS_RTT(SignedShort3, GL_RGB16I,  GL_RGB,  GL_SHORT, 3, true);
+	VCL_GRAPHICS_RTT(SignedShort4, GL_RGBA16I, GL_RGBA, GL_SHORT, 4, true);	
+	VCL_GRAPHICS_RTT(NormalizedSignedShort,  GL_R16I,    GL_RED,  GL_SHORT, 1, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedShort2, GL_RG16I,   GL_RG,   GL_SHORT, 2, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedShort3, GL_RGB16I,  GL_RGB,  GL_SHORT, 3, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedShort4, GL_RGBA16I, GL_RGBA, GL_SHORT, 4, false);
 
-	template<>
-	struct RenderTypeTrait<Eigen::Vector2i>
-	{
-		typedef Eigen::Vector2i Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector2i>::InternalFormat = GL_RG32I;
-	const GLenum RenderTypeTrait<Eigen::Vector2i>::Format = GL_RG;
-	const GLenum RenderTypeTrait<Eigen::Vector2i>::ComponentType = GL_INT;
-	const GLint  RenderTypeTrait<Eigen::Vector2i>::ComponentSize = sizeof(Eigen::Vector2i::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector2i>::NrComponents = 2;
-	const GLint  RenderTypeTrait<Eigen::Vector2i>::Size = sizeof(Eigen::Vector2i);
-	const bool   RenderTypeTrait<Eigen::Vector2i>::IsIntegral = true;
+	VCL_GRAPHICS_RTT(unsigned short, GL_R16UI,    GL_RED,  GL_UNSIGNED_SHORT, 1, true);
+	VCL_GRAPHICS_RTT(UnsignedShort,  GL_R16UI,    GL_RED,  GL_UNSIGNED_SHORT, 1, true);
+	VCL_GRAPHICS_RTT(UnsignedShort2, GL_RG16UI,   GL_RG,   GL_UNSIGNED_SHORT, 2, true);
+	VCL_GRAPHICS_RTT(UnsignedShort3, GL_RGB16UI,  GL_RGB,  GL_UNSIGNED_SHORT, 3, true);
+	VCL_GRAPHICS_RTT(UnsignedShort4, GL_RGBA16UI, GL_RGBA, GL_UNSIGNED_SHORT, 4, true);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedShort,  GL_R16UI,    GL_RED,  GL_UNSIGNED_SHORT, 1, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedShort2, GL_RG16UI,   GL_RG,   GL_UNSIGNED_SHORT, 2, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedShort3, GL_RGB16UI,  GL_RGB,  GL_UNSIGNED_SHORT, 3, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedShort4, GL_RGBA16UI, GL_RGBA, GL_UNSIGNED_SHORT, 4, false);
+	
+	VCL_GRAPHICS_RTT(char,        GL_R8I,    GL_RED,  GL_BYTE, 1, true);
+	VCL_GRAPHICS_RTT(SignedByte,  GL_R8I,    GL_RED,  GL_BYTE, 1, true);
+	VCL_GRAPHICS_RTT(SignedByte2, GL_RG8I,   GL_RG,   GL_BYTE, 2, true);
+	VCL_GRAPHICS_RTT(SignedByte3, GL_RGB8I,  GL_RGB,  GL_BYTE, 3, true);
+	VCL_GRAPHICS_RTT(SignedByte4, GL_RGBA8I, GL_RGBA, GL_BYTE, 4, true);
+	VCL_GRAPHICS_RTT(NormalizedSignedByte,  GL_R8I,    GL_RED,  GL_BYTE, 1, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedByte2, GL_RG8I,   GL_RG,   GL_BYTE, 2, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedByte3, GL_RGB8I,  GL_RGB,  GL_BYTE, 3, false);
+	VCL_GRAPHICS_RTT(NormalizedSignedByte4, GL_RGBA8I, GL_RGBA, GL_BYTE, 4, false);
 
-	template<>
-	struct RenderTypeTrait<Eigen::Vector3i>
-	{
-		typedef Eigen::Vector3i Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector3i>::InternalFormat = GL_RGB32I;
-	const GLenum RenderTypeTrait<Eigen::Vector3i>::Format = GL_RGB;
-	const GLenum RenderTypeTrait<Eigen::Vector3i>::ComponentType = GL_INT;
-	const GLint  RenderTypeTrait<Eigen::Vector3i>::ComponentSize = sizeof(Eigen::Vector3i::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector3i>::NrComponents = 3;
-	const GLint  RenderTypeTrait<Eigen::Vector3i>::Size = sizeof(Eigen::Vector3i);
-	const bool   RenderTypeTrait<Eigen::Vector3i>::IsIntegral = true;
-
-	template<>
-	struct RenderTypeTrait<Eigen::Vector4i>
-	{
-		typedef Eigen::Vector4i Type;
-		static const GLenum InternalFormat;
-		static const GLenum Format;
-		static const GLenum ComponentType;
-		static const GLint ComponentSize;
-		static const GLint NrComponents;
-		static const GLint Size;
-		static const bool IsIntegral;
-	};
-	const GLenum RenderTypeTrait<Eigen::Vector4i>::InternalFormat = GL_RGBA32I;
-	const GLenum RenderTypeTrait<Eigen::Vector4i>::Format = GL_RGBA;
-	const GLenum RenderTypeTrait<Eigen::Vector4i>::ComponentType = GL_INT;
-	const GLint  RenderTypeTrait<Eigen::Vector4i>::ComponentSize = sizeof(Eigen::Vector4i::Scalar);
-	const GLint  RenderTypeTrait<Eigen::Vector4i>::NrComponents = 4;
-	const GLint  RenderTypeTrait<Eigen::Vector4i>::Size = sizeof(Eigen::Vector4i);
-	const bool   RenderTypeTrait<Eigen::Vector4i>::IsIntegral = true;
+	VCL_GRAPHICS_RTT(unsigned char, GL_R8UI,    GL_RED,  GL_UNSIGNED_BYTE, 1, true);
+	VCL_GRAPHICS_RTT(UnsignedByte,  GL_R8UI,    GL_RED,  GL_UNSIGNED_BYTE, 1, true);
+	VCL_GRAPHICS_RTT(UnsignedByte2, GL_RG8UI,   GL_RG,   GL_UNSIGNED_BYTE, 2, true);
+	VCL_GRAPHICS_RTT(UnsignedByte3, GL_RGB8UI,  GL_RGB,  GL_UNSIGNED_BYTE, 3, true);
+	VCL_GRAPHICS_RTT(UnsignedByte4, GL_RGBA8UI, GL_RGBA, GL_UNSIGNED_BYTE, 4, true);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedByte,  GL_R8UI,    GL_RED,  GL_UNSIGNED_BYTE, 1, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedByte2, GL_RG8UI,   GL_RG,   GL_UNSIGNED_BYTE, 2, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedByte3, GL_RGB8UI,  GL_RGB,  GL_UNSIGNED_BYTE, 3, false);
+	VCL_GRAPHICS_RTT(NormalizedUnsignedByte4, GL_RGBA8UI, GL_RGBA, GL_UNSIGNED_BYTE, 4, false);
 }}}
 #endif // VCL_OPENGL_SUPPORT
