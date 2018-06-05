@@ -51,3 +51,4 @@ Most, however, are managed as linked submodule.
 | Google Test                   | BSD-3      | 1.8.1    | https://github.com/google/googletest         |                           |
 | Google Benchmark              | Apache-2.0 | 1.4.1    | https://github.com/google/benchmark          |                           |
 | JSON for Modern C++           | MIT        | 3.6.1    | https://github.com/nlohmann/json             |                           |
+| Tet-tet intersection          | Custom     |          | https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h | Refactored implementation. The license is included [here](./doc/license_ganovelli_tet_a_tet.md) |

@@ -35,6 +35,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>
 #include <vcl/geometry/ray.h>
+#include <vcl/geometry/tetrahedron.h>
 #include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry
@@ -48,7 +49,7 @@ namespace Vcl { namespace Geometry
 	 *
 	 *	\note Rays aligned with the border of the bounding box produce only very inconsistent intersections
 	 */
-	bool intersects_Barnes
+	inline bool intersects_Barnes
 	(
 		const Eigen::AlignedBox<float, 3>& box,
 		const Ray<float, 3>& ray
@@ -77,7 +78,7 @@ namespace Vcl { namespace Geometry
 	 *	Implementation from
 	 *	https://www.solidangle.com/research/jcgt2013_robust_BVH-revised.pdf
 	 */
-	bool intersects_MaxMult
+	inline bool intersects_MaxMult
 	(
 		const Eigen::AlignedBox<float, 3>& box,
 		const Ray<float, 3>& r
@@ -155,7 +156,7 @@ namespace Vcl { namespace Geometry
 	*
 	*	Method from Pharr, Humphrey
 	*/
-	bool intersects_Pharr
+	inline bool intersects_Pharr
 	(
 		const Eigen::AlignedBox<float, 3>& box,
 		const Ray<float, 3>& ray
@@ -180,4 +181,12 @@ namespace Vcl { namespace Geometry
 
 		return true;
 	}
+
+	/*!
+	 * \brief Intersect two tetrahedra
+	 * The code is based on the implementation by:
+	 * Copyright(C) 2002 by Fabio Ganovelli, Federico Ponchio and Claudio Rocchini. All rights reserved.
+	 * https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h
+	 */
+	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1);
 }}

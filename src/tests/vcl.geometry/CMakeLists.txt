@@ -30,6 +30,7 @@ set(SOURCE_FILES
 	distance.cpp
 	distance_ref.h
 	intersect.cpp
+	intersect_tet.cpp
 	obb.cpp
 	tetramesh.cpp
 	
