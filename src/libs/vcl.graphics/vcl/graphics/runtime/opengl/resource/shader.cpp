@@ -45,7 +45,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		Shader shader{type, tag, source, headers};
 		if (shader.checkCompilationState())
-			return shader;
+			return std::move(shader);
 		else
 			return nonstd::make_unexpected(shader.readInfoLog());
 	}
@@ -54,7 +54,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		Shader shader{type, tag, binary_data, spec_indices, spec_values};
 		if (shader.checkCompilationState())
-			return shader;
+			return std::move(shader);
 		else
 			return nonstd::make_unexpected(shader.readInfoLog());
 	}
@@ -122,8 +122,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	}
 
 	Shader::Shader(Shader&& rhs)
-	: Resource(std::move(rhs))
-	, Runtime::Shader(rhs)
+	: Runtime::Shader(rhs)
+	, Resource(std::move(rhs))
 	{
 	}
 
