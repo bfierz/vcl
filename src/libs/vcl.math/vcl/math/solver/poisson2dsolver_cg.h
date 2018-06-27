@@ -53,6 +53,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y() }
 		, _dim{ dim }
 		{
+			for (auto& A : _laplacian)
+			{
+				A.resize(_dim.x()*_dim.y());
+			}
 		}
 		
 	public:
@@ -70,19 +74,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Ay_l = _laplacian[3];
 			auto& Ay_r = _laplacian[4];
 
-			Ac.resize(_dim.x() * _dim.y());
-			Ax_l.resize(_dim.x() * _dim.y());
-			Ax_r.resize(_dim.x() * _dim.y());
-			Ay_l.resize(_dim.x() * _dim.y());
-			Ay_r.resize(_dim.x() * _dim.y());
-
-			// Store the scale locally here, instead of applying it to the matrix.
-			// Note that this is the inverse scale, as it is applied to the right-hand side
-			_scale = (h*h) / k;
-			
 			makePoissonStencil
 			(
-				_dim, 1.0f, 1.0f, map_t{ Ac.data(), Ac.size() },
+				_dim, h, k, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 				skip
@@ -124,7 +118,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					if (sy < Y - 1)
 						q += unknowns[index + X] * Ay_r[index];
 
-					q = (Ac[index] != 0) ? (_scale*rhs[index] - q) : 0;
+					q = (Ac[index] != 0) ? (rhs[index] - q) : 0;
 
 					this->_res[index] = q;
 				}
@@ -178,8 +172,5 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Right-hand side
 		map_t* _rhs;
-
-		//! Scaling factor of the matrix
-		real_t _scale{ 1 };
 	};
 }}}

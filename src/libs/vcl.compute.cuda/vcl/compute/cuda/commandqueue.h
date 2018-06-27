@@ -51,15 +51,15 @@ namespace Vcl { namespace Compute { namespace Cuda
 		}
 
 	public:
-		virtual void sync() override;
+		void sync() override;
 
 	public:
-		virtual void copy(BufferView dst, ConstBufferView src) override;
+		void copy(BufferView dst, ConstBufferView src) override;
 
-		virtual void read(void* dst, ConstBufferView src, bool blocking = false) override;
-		virtual void write(BufferView dst, const void* src, bool blocking = false) override;
+		void read(void* dst, ConstBufferView src, bool blocking = false) override;
+		void write(BufferView dst, const void* src, bool blocking = false) override;
 
-		virtual void fill(BufferView dst, const void* pattern, size_t pattern_size) override;
+		void fill(BufferView dst, const void* pattern, size_t pattern_size) override;
 
 	private:
 		//! Link to the owning CL context

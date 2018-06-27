@@ -101,12 +101,12 @@ public:
 		_R.diagonal().setZero();
 	}
 
-	virtual int size() const override
+	int size() const override
 	{
 		return _size;
 	}
 
-	virtual void precompute() override
+	void precompute() override
 	{
 		_error = 0;
 	}
@@ -114,7 +114,7 @@ public:
 	// A x = b
 	// -> A = D + R
 	// -> x^{n+1} = D^-1 (b - R x^{n})
-	virtual void updateSolution() override
+	void updateSolution() override
 	{
 		auto& unknowns = *_unknowns;
 		auto& rhs = *_rhs;
@@ -132,13 +132,13 @@ public:
 	}
 
 	//
-	virtual double computeError() override
+	double computeError() override
 	{
 		return sqrt(_error) / size();
 	}
 
 	//! Ends the solver and returns the residual
-	virtual void finish(double*) override {}
+	void finish(double*) override {}
 
 private:
 	//! Dimensions of the grid

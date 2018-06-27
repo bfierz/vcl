@@ -45,7 +45,7 @@ TEST(Poisson1D, SimpleJacobiIdentityReference)
 	Eigen::VectorXf rhs, sol;
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol, skip);
-	
+
 	Eigen::VectorXf lhs = sol;
 	runPoissonTest<Jacobi, GenericJacobiCtx, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, 1, 1e-5f);
 }

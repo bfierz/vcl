@@ -65,22 +65,22 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		void updatePoissonStencil(float h, float k, const Compute::Cuda::Buffer& skip);
 
 	public:
-		virtual int size() const override;
+		int size() const override;
 
 	public:
 		//
-		virtual void precompute() override;
+		void precompute() override;
 
 		// A x = b
 		// -> A = D + R
 		// -> x^{n+1} = D^-1 (b - R x^{n})
-		virtual void updateSolution() override;
+		void updateSolution() override;
 
 		//
-		virtual double computeError() override;
+		double computeError() override;
 
 		//! Ends the solver and returns the residual
-		virtual void finish(double* residual) override;
+		void finish(double* residual) override;
 
 	private:
 		//! Dimensions of the grid

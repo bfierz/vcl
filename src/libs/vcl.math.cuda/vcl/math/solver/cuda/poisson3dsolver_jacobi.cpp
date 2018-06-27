@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_next = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size * sizeof(float)));
 		_dev_error = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, sizeof(float)));
 	}
-		
+
 	Poisson3DJacobiCtx::~Poisson3DJacobiCtx()
 	{
 		for (auto& buf : _laplacian)
@@ -148,7 +148,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size = 
+		const dim3 grid_size =
 		{
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,

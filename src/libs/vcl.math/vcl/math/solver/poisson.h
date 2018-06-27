@@ -30,6 +30,24 @@
 
 namespace Vcl { namespace Mathematics { namespace Solver
 {
+	namespace Detail
+	{
+		template<typename Real>
+		void updateStencil(unsigned int i, unsigned int dim, Real s, Real& c, Real& r, Real& l)
+		{
+			if (i < (dim - 1))
+			{
+				c -= s;
+				r = s;
+			}
+			if (i > 0)
+			{
+				c -= s;
+				l = s;
+			}
+		}
+	}
+
 	template<typename Real>
 	void makePoissonStencil
 	(
@@ -59,16 +77,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			const unsigned int index = i;
 			if (!skip[index])
 			{
-				if (i < (dim - 1))
-				{
-					a_c   -= s;
-					a_x_r  = s;
-				}
-				if (i > 0)
-				{
-					a_c   -= s;
-					a_x_l  = s;
-				}
+				Detail::updateStencil(i, dim, s, a_c, a_x_r, a_x_l);
 			}
 
 			Ac  [index] = a_c;
@@ -114,27 +123,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				const typename Eigen::Vector2ui::Scalar index = j * dim.x() + i;
 				if (!skip[index])
 				{
-					if (i < (dim.x() - 1))
-					{
-						a_c  -= s;
-						a_x_r = s;
-					}
-					if (i > 0)
-					{
-						a_c  -= s;
-						a_x_l = s;
-					}
-
-					if (j < (dim.y() - 1))
-					{
-						a_c  -= s;
-						a_y_r = s;
-					}
-					if (j > 0)
-					{
-						a_c  -= s;
-						a_y_l = s;
-					}
+					Detail::updateStencil(i, dim.x(), s, a_c, a_x_r, a_x_l);
+					Detail::updateStencil(j, dim.y(), s, a_c, a_y_r, a_y_l);
 				}
 
 				Ac  [index] = a_c;
@@ -193,38 +183,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					const typename Eigen::Vector2ui::Scalar index = k * slab + j * dim.x() + i;
 					if (!skip[index])
 					{
-						if (i < (dim.x() - 1))
-						{
-							a_c  -= s;
-							a_x_r = s;
-						}
-						if (i > 0)
-						{
-							a_c  -= s;
-							a_x_l = s;
-						}
-
-						if (j < (dim.y() - 1))
-						{
-							a_c  -= s;
-							a_y_r = s;
-						}
-						if (j > 0)
-						{
-							a_c  -= s;
-							a_y_l = s;
-						}
-
-						if (k < (dim.z() - 1))
-						{
-							a_c  -= s;
-							a_z_r = s;
-						}
-						if (k > 0)
-						{
-							a_c  -= s;
-							a_z_l = s;
-						}
+						Detail::updateStencil(i, dim.x(), s, a_c, a_x_r, a_x_l);
+						Detail::updateStencil(j, dim.y(), s, a_c, a_y_r, a_y_l);
+						Detail::updateStencil(k, dim.z(), s, a_c, a_z_r, a_z_l);
 					}
 
 					Ac  [index] = a_c;

@@ -52,6 +52,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		: _dim(dim)
 		{
 			_next.setZero(dim.x()*dim.y()*dim.z());
+			for (auto& A : _laplacian)
+			{
+				A.resize(_dim.x()*_dim.y()*_dim.z());
+			}
 		}
 		
 	public:
@@ -70,14 +74,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Ay_r = _laplacian[4];
 			auto& Az_l = _laplacian[5];
 			auto& Az_r = _laplacian[6];
-
-			Ac.resize(_dim.x() * _dim.y() * _dim.z());
-			Ax_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Ax_r.resize(_dim.x() * _dim.y() * _dim.z());
-			Ay_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Ay_r.resize(_dim.x() * _dim.y() * _dim.z());
-			Az_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Az_r.resize(_dim.x() * _dim.y() * _dim.z());
 
 			makePoissonStencil
 			(
