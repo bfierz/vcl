@@ -975,7 +975,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		auto prog = std::make_unique<ShaderProgram>(desc);
 		if (prog->checkLinkState())
-			return prog;
+			return std::move(prog);
 		else
 			return nonstd::make_unexpected(prog->readInfoLog());
 	}
