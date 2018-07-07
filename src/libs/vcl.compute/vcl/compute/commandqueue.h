@@ -60,14 +60,14 @@ namespace Vcl { namespace Compute
 		virtual void copy(BufferView dst, ConstBufferView src) = 0;
 
 		virtual void read(void* dst, ConstBufferView src, bool blocking = false) = 0;
-		virtual void write(BufferView dst, void* src, bool blocking = false) = 0;
+		virtual void write(BufferView dst, const void* src, bool blocking = false) = 0;
 		virtual void fill(BufferView dst, const void* pattern, size_t pattern_size) = 0;
 
 		void setZero(ref_ptr<Vcl::Compute::Buffer> dst);
 		void copy(ref_ptr<Vcl::Compute::Buffer> dst, ref_ptr<const Vcl::Compute::Buffer> src);
 
 		void read(void* dst, ref_ptr<const Vcl::Compute::Buffer> src, bool blocking = false);
-		void write(ref_ptr<Vcl::Compute::Buffer> dst, void* src, bool blocking = false);
+		void write(ref_ptr<Vcl::Compute::Buffer> dst, const void* src, bool blocking = false);
 		void fill(ref_ptr<Vcl::Compute::Buffer> dst, const void* pattern, size_t pattern_size);
 	};
 }}

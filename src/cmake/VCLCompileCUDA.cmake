@@ -50,7 +50,7 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	
 	# Take cudadevrt appart
 	GET_FILENAME_COMPONENT(RT_DIR  ${CUDA_cudadevrt_LIBRARY} DIRECTORY)
-	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)	
+	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)
 
 	# Load old environment if necessary
 	SET(VCVARS "")
@@ -62,12 +62,27 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 				SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat")
 			ENDIF()
 		ENDIF ()
+	ELSEIF(CUDA_VERSION_MAJOR EQUAL 9)
+		IF (MSVC_VERSION GREATER 1911)
+			FILE(GLOB compilers RELATIVE "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC" "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC/*")
+			FOREACH(compiler ${compilers})
+				IF (compiler MATCHES "14\.11.+")
+					IF (CMAKE_CL_64)
+						SET(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars64.bat" -vcvars_ver=14.11)
+					ELSE()
+						SET(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars32.bat" -vcvars_ver=14.11)
+					ENDIF()
+				ENDIF()
+			ENDFOREACH()
+		ENDIF()
 	ENDIF()
 
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
 
+		COMMAND set curr_dir=%__CD__%
 		COMMAND ${VCVARS}
+		COMMAND cd /d %curr_dir%
 		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"

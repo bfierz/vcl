@@ -74,7 +74,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 			sync();
 	}
 
-	void CommandQueue::write(BufferView dst, void* src, bool blocking)
+	void CommandQueue::write(BufferView dst, const void* src, bool blocking)
 	{
 		VclRequire(dynamic_cast<const Buffer*>(&dst.owner()), "dst is CUDA buffer.");
 		VclRequire(dst.offset() % 4 == 0, "Offset is aligned.");

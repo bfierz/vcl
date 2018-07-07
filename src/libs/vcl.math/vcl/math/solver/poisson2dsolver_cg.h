@@ -53,6 +53,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y() }
 		, _dim{ dim }
 		{
+			for (auto& A : _laplacian)
+			{
+				A.resize(_dim.x()*_dim.y());
+			}
 		}
 		
 	public:
@@ -62,7 +66,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_rhs = rhs;
 		}
 
-		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
 			auto& Ac = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
@@ -70,19 +74,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Ay_l = _laplacian[3];
 			auto& Ay_r = _laplacian[4];
 
-			Ac.resize(_dim.x() * _dim.y());
-			Ax_l.resize(_dim.x() * _dim.y());
-			Ax_r.resize(_dim.x() * _dim.y());
-			Ay_l.resize(_dim.x() * _dim.y());
-			Ay_r.resize(_dim.x() * _dim.y());
-
-			// Store the scale locally here, instead of applying it to the matrix.
-			// Note that this is the inverse scale, as it is applied to the right-hand side
-			_scale = (h*h) / k;
-			
 			makePoissonStencil
 			(
-				_dim, 1.0f, 1.0f, map_t{ Ac.data(), Ac.size() },
+				_dim, h, k, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 				skip
@@ -108,19 +102,23 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// r = (b - A x)
 			//          ---
 			//           q
-			size_t index = X + 1;
-			for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
+			size_t index = 0;
+			for (size_t sy = 0; sy < Y; sy++)
 			{
-				for (size_t sx = 1; sx < X - 1; sx++, index++)
+				for (size_t sx = 0; sx < X; sx++, index++)
 				{
-					float q =
-						unknowns[index    ] * Ac[index] +
-						unknowns[index - 1] * Ax_l[index] +
-						unknowns[index + 1] * Ax_r[index] +
-						unknowns[index - X] * Ay_l[index] +
-						unknowns[index + X] * Ay_r[index];
+					float q = 0;
+						q += unknowns[index    ] * Ac  [index];
+					if (sx > 0)
+						q += unknowns[index - 1] * Ax_l[index];
+					if (sx < X - 1)
+						q += unknowns[index + 1] * Ax_r[index];
+					if (sy > 0)
+						q += unknowns[index - X] * Ay_l[index];
+					if (sy < Y - 1)
+						q += unknowns[index + X] * Ay_r[index];
 
-					q = (Ac[index] != 0) ? (_scale*rhs[index] - q) : 0;
+					q = (Ac[index] != 0) ? (rhs[index] - q) : 0;
 
 					this->_res[index] = q;
 				}
@@ -143,17 +141,21 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			auto& d = this->_dir;
 
-			size_t index = X + 1;
-			for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
+			size_t index = 0;
+			for (size_t sy = 0; sy < Y; sy++)
 			{
-				for (size_t sx = 1; sx < X - 1; sx++, index++)
+				for (size_t sx = 0; sx < X; sx++, index++)
 				{
-					float q =
-						d[index    ] * Ac[index] +
-						d[index - 1] * Ax_l[index] +
-						d[index + 1] * Ax_r[index] +
-						d[index - X] * Ay_l[index] +
-						d[index + X] * Ay_r[index];
+					float q = 0;
+						q += d[index    ] * Ac  [index];
+					if (sx > 0)
+						q += d[index - 1] * Ax_l[index];
+					if (sx < X - 1)
+						q += d[index + 1] * Ax_r[index];
+					if (sy > 0)
+						q += d[index - X] * Ay_l[index];
+					if (sy < Y - 1)
+						q += d[index + X] * Ay_r[index];
 
 					q = (Ac[index] != 0) ? q : 0;
 
@@ -170,8 +172,5 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Right-hand side
 		map_t* _rhs;
-
-		//! Scaling factor of the matrix
-		real_t _scale{ 1 };
 	};
 }}}

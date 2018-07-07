@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014-2015 Basil Fierz
+ * Copyright (c) 2014-2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,49 +22,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/compute/commandqueue.h>
+
+// VCL configuration
+#include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
 // C++ standard library
+#include <random>
 
-// VCL
+// Include the relevant parts from the library
+#include <vcl/math/solver/poisson3dsolver_cg.h>
+#include <vcl/math/solver/cuda/poisson3dsolver_jacobi.h>
 
-namespace Vcl { namespace Compute
+// Tests
+#include "poisson.h"
+
+// Google test
+#include <gtest/gtest.h>
+
+TEST(Poisson3DCuda, SimpleJacobiNoBlockerIdentity)
 {
-	CommandQueue::CommandQueue(CommandQueue&&)
-	{
+	using namespace Vcl::Mathematics::Solver;
 
-	}
-	CommandQueue& CommandQueue::operator = (CommandQueue&&)
-	{
-		return *this;
-	}
+	float h;
+	Eigen::VectorXf rhs, sol;
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	void CommandQueue::setZero(BufferView dst)
-	{
-		unsigned int pattern = 0;
-		fill(dst, &pattern, sizeof(pattern));
-	}
+	Eigen::VectorXf lhs = sol;
+	runPoissonTest<Jacobi, Cuda::Poisson3DJacobiCtx, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, 1, 1e-4f);
+}
 
-	void CommandQueue::setZero(ref_ptr<Buffer> dst)
-	{
-		setZero(BufferView{ dst });
-	}
+TEST(Poisson3DCuda, SimpleJacobiNoBlocker)
+{
+	using namespace Vcl::Mathematics::Solver;
 
-	void CommandQueue::copy(ref_ptr<Buffer> dst, ref_ptr<const Buffer> src)
-	{
-		copy(BufferView{ dst }, ConstBufferView{ src });
-	}
+	float h;
+	Eigen::VectorXf rhs, sol;
+	std::vector<unsigned char> skip;
+	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	void CommandQueue::read(void* dst, ref_ptr<const Buffer> src, bool blocking)
-	{
-		read(dst, ConstBufferView{ src }, blocking);
-	}
-	void CommandQueue::write(ref_ptr<Buffer> dst, const void* src, bool blocking)
-	{
-		write(BufferView{ dst }, src, blocking);
-	}
-	void CommandQueue::fill(ref_ptr<Buffer> dst, const void* pattern, size_t pattern_size)
-	{
-		fill(BufferView{ dst }, pattern, pattern_size);
-	}
-}}
+	Eigen::VectorXf lhs; lhs.setZero(nr_pts*nr_pts*nr_pts);
+	runPoissonTest<Jacobi, Cuda::Poisson3DJacobiCtx, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, 1000, 5e-3f);
+}

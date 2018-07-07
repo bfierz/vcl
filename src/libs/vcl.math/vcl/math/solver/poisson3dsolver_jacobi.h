@@ -52,6 +52,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		: _dim(dim)
 		{
 			_next.setZero(dim.x()*dim.y()*dim.z());
+			for (auto& A : _laplacian)
+			{
+				A.resize(_dim.x()*_dim.y()*_dim.z());
+			}
 		}
 		
 	public:
@@ -61,7 +65,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_rhs = rhs;
 		}
 
-		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+		void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
 			auto& Ac = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
@@ -70,14 +74,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Ay_r = _laplacian[4];
 			auto& Az_l = _laplacian[5];
 			auto& Az_r = _laplacian[6];
-
-			Ac.resize(_dim.x() * _dim.y() * _dim.z());
-			Ax_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Ax_r.resize(_dim.x() * _dim.y() * _dim.z());
-			Ay_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Ay_r.resize(_dim.x() * _dim.y() * _dim.z());
-			Az_l.resize(_dim.x() * _dim.y() * _dim.z());
-			Az_r.resize(_dim.x() * _dim.y() * _dim.z());
 
 			makePoissonStencil
 			(
@@ -99,7 +95,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		//
 		virtual void precompute() override
 		{
-			*_unknowns = *_rhs;
 			_error = 0;
 		}
 
@@ -129,23 +124,29 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// x^{n+1} = D^-1 (b - R x^{n})
 			//                -------------
 			//                      q
-			size_t index = X*Y + X + 1;
-			for (size_t sz = 1; sz < Z - 1; sz++, index += 2 * X)
+			size_t index = 0;
+			for (size_t sz = 0; sz < Z; sz++)
 			{
-				for (size_t sy = 1; sy < Y - 1; sy++, index += 2)
+				for (size_t sy = 0; sy < Y; sy++)
 				{
-					for (size_t sx = 1; sx < X - 1; sx++, index++)
+					for (size_t sx = 0; sx < X; sx++, index++)
 					{
-						float q =
-							unknowns[index - 1  ] * Ax_l[index] +
-							unknowns[index + 1  ] * Ax_r[index] +
-							unknowns[index - X  ] * Ay_l[index] +
-							unknowns[index + X  ] * Ay_r[index] +
-							unknowns[index - X*Y] * Az_l[index] +
-							unknowns[index + X*Y] * Az_r[index];
+						float q = 0;
+						if (sx > 0)
+							q += unknowns[index - 1  ] * Ax_l[index];
+						if (sx < X - 1)
+							q += unknowns[index + 1  ] * Ax_r[index];
+						if (sy > 0)
+							q += unknowns[index - X  ] * Ay_l[index];
+						if (sy < Y - 1)
+							q += unknowns[index + X  ] * Ay_r[index];
+						if (sz > 0)
+							q += unknowns[index - X*Y] * Az_l[index];
+						if (sz < Z - 1)
+							q += unknowns[index + X*Y] * Az_r[index];
 
 						float n = (rhs[index] - q) / Ac[index];
-						n = (Ac[index] != 0) ? n : 0;
+						n = (Ac[index] != 0) ? n : unknowns[index];
 
 						_next[index] = n;
 

@@ -113,6 +113,7 @@ set(VCL_CORE_SIMD_INC
 
 # VCL / DEBUG / MSVC
 set(VCL_DEBUG_MSVC_INC
+	vcl/debug/msvc/eigen.natvis
 	vcl/debug/msvc/qt5.natvis
 )
 
