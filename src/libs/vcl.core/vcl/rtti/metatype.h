@@ -104,7 +104,8 @@ namespace Vcl { namespace RTTI
 		template<int N>                                                       \
 		static ConstructableType<name> init(const char(&str)[N])              \
 		{                                                                     \
-			ConstructableType<name> type{ str, sizeof(name), alignof(name) }; \
+			ConstructableType<name> type{ str,                                \
+				sizeof(name), std::alignment_of<name>::value };               \
 			construct(&type);                                                 \
 			return type;                                                      \
 		}                                                                     \
