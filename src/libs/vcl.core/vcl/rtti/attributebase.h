@@ -33,6 +33,7 @@
 // VCL
 #include <vcl/core/any.h>
 #include <vcl/core/contract.h>
+#include <vcl/core/flags.h>
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
@@ -56,8 +57,8 @@ namespace Vcl { namespace RTTI
 		virtual void set(void* object, const std::any& param) const = 0;
 		virtual void set(void* object, const std::string& param) const = 0;
 
-		virtual void get(void* object, void* param, void* result) const = 0;
-		virtual void get(void* object, const std::string& param, void* result) const = 0;
+		virtual void get(const void* object, std::any& result) const = 0;
+		virtual void get(const void* object, std::string& result) const = 0;
 
 		virtual void serialize(Serializer& ser, const void* object) const = 0;
 		virtual void deserialize(Deserializer& ser, void* object) const = 0;
@@ -67,6 +68,11 @@ namespace Vcl { namespace RTTI
 		size_t hash() const { return _hash; }
 		
 	public:
+		bool isEnum() const
+		{
+			return (_flags & 0x00000010) != 0;
+		}
+
 		bool isReference() const
 		{
 			return (_flags & 0x00000001) != 0;
@@ -88,6 +94,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
+		void setIsEnum()
+		{
+			_flags |= 0x00000010;
+		}
+
 		void setIsReference()
 		{
 			_flags |= 0x00000001;
@@ -118,5 +129,20 @@ namespace Vcl { namespace RTTI
 	private:
 		//! Flags describing the content of the attribute
 		uint32_t _flags{ 0 };
+	};
+
+	class EnumAttributeBase : public AttributeBase
+	{
+	public:
+		template<size_t N>
+		VCL_CPP_CONSTEXPR_14 EnumAttributeBase(const char(&name)[N])
+		: AttributeBase(name)
+		{
+			setIsEnum();
+		}
+
+		virtual uint32_t count() const = 0;
+		virtual uint32_t enumValue(uint32_t i) const = 0;
+		virtual std::string enumName(uint32_t i) const = 0;
 	};
 }}

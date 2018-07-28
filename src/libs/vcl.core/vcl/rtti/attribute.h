@@ -48,9 +48,34 @@
 
 namespace Vcl { namespace RTTI 
 {
-	template<typename MetaType, typename T>
-	class Attribute : public AttributeBase
+	template<typename T>
+	class EnumAttribute : public EnumAttributeBase
 	{
+	public:
+		template<size_t N>
+		VCL_CPP_CONSTEXPR_14 EnumAttribute(const char(&name)[N])
+			: EnumAttributeBase(name)
+		{
+		}
+
+		uint32_t count() const override
+		{
+			return enumCount<T>();
+		}
+		uint32_t enumValue(uint32_t i) const override
+		{
+			return static_cast<uint32_t>(Vcl::enumValue<T>(i));
+		}
+		std::string enumName(uint32_t i) const override
+		{
+			return Vcl::enumName<T>(i);
+		}
+	};
+
+	template<typename MetaType, typename T>
+	class Attribute : public std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type
+	{
+		using Base = typename std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type;
 	public:
 		using Getter = T (MetaType::*)() const;
 		using Setter = void (MetaType::*)(T);
@@ -58,7 +83,7 @@ namespace Vcl { namespace RTTI
 	public:
 		template<size_t N>
 		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
-		: AttributeBase(name)
+		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
 		{
@@ -71,42 +96,42 @@ namespace Vcl { namespace RTTI
 	public:
 		T get(const MetaType& obj) const
 		{
+			VclRequire(_getter, "Getter is valid.");
 			return (obj.*_getter)();
 		}
 
 		void set(MetaType& obj, T val) const
 		{
+			VclRequire(_setter, "Setter is valid.");
 			(obj.*_setter)(std::move(val));
 		}
 
 	public:
 		virtual void set(void* object, const std::any& param) const override
 		{
-			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
-			VclDebugError("Not implemented.");
+			VclRequire(_setter, "Setter is valid.");
+
+			set(*static_cast<MetaType*>(object), std::any_cast<T>(param));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
 			VclRequire(_setter, "Setter is valid.");
 
-			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
+			set(*static_cast<MetaType*>(object), from_string<T>(param));
 		}
-		virtual void get(void* object, void* param, void* result) const override
+		virtual void get(const void* object, std::any& result) const override
 		{
-			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
-			VCL_UNREFERENCED_PARAMETER(result);
-			VclDebugError("Not implemented.");
+			VclRequire(_getter, "Getter is valid.");
 
-			//_getter()
+			const auto* obj = static_cast<const MetaType*>(object);
+			result = get(*obj);
 		}
-		virtual void get(void* object, const std::string& param, void* result) const override
+		virtual void get(const void* object, std::string& result) const override
 		{
-			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
-			VCL_UNREFERENCED_PARAMETER(result);
-			VclDebugError("Not implemented.");
+			VclRequire(_getter, "Getter is valid.");
+
+			const auto* obj = static_cast<const MetaType*>(object);
+			result = to_string(get(*obj));
 		}
 
 		virtual void serialize(Serializer& ser, const void* object) const override
@@ -133,8 +158,9 @@ namespace Vcl { namespace RTTI
 	};
 
 	template<typename MetaType, typename T>
-	class Attribute<MetaType, const T&> : public AttributeBase
+	class Attribute<MetaType, const T&> : public std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type
 	{
+		using Base = typename std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type;
 	public:
 		using  AttrT = const T&;
 
@@ -144,7 +170,7 @@ namespace Vcl { namespace RTTI
 	public:
 		template<size_t N>
 		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
-		: AttributeBase(name)
+		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
 		{
@@ -168,29 +194,27 @@ namespace Vcl { namespace RTTI
 	public:
 		virtual void set(void* object, const std::any& param) const override
 		{
-			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
-			VclDebugError("Not implemented.");
+			VclRequire(_setter, "Setter is valid.");
+
+			set(*static_cast<MetaType*>(object), std::any_cast<T>(param));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
 			VclRequire(_setter, "Setter is valid.");
 
-			(static_cast<MetaType*>(object)->*_setter)(from_string<T>(param));
+			set(*static_cast<MetaType*>(object), from_string<T>(param));
 		}
-		virtual void get(void* object, void* param, void* result) const override
+		virtual void get(const void* object, std::any& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 			VclDebugError("Not implemented.");
 
 			//_getter()
 		}
-		virtual void get(void* object, const std::string& param, void* result) const override
+		virtual void get(const void* object, std::string& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 			VclDebugError("Not implemented.");
 		}
@@ -265,18 +289,16 @@ namespace Vcl { namespace RTTI
 
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, void* param, void* result) const override
+		virtual void get(const void* object, std::any& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, const std::string& param, void* result) const override
+		virtual void get(const void* object, std::string& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
-			VCL_UNREFERENCED_PARAMETER(param);
 			VCL_UNREFERENCED_PARAMETER(result);
 
 			VclDebugError("Not implemented.");
@@ -378,11 +400,11 @@ namespace Vcl { namespace RTTI
 			// This method could be implemented by looking up an object in a data base
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, void* param, void* result) const override
+		virtual void get(const void* object, void* param, void* result) const override
 		{
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, const std::string& param, void* result) const override
+		virtual void get(const void* object, const std::string& param, void* result) const override
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -442,11 +464,11 @@ namespace Vcl { namespace RTTI
 		{
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, void* param, void* result) const override
+		virtual void get(const void* object, void* param, void* result) const override
 		{
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(void* object, const std::string& param, void* result) const override
+		virtual void get(const void* object, const std::string& param, void* result) const override
 		{
 			VclDebugError("Not implemented.");
 		}
