@@ -46,8 +46,11 @@ function(vcl_configure tgt)
 	# Define C++ standard, minimum requirement is C++14
 	# As MSVC is not able to define the minimum level, software needs
 	# to implement per feature detection
+	set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
+	set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+	
 	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD 17
+		CXX_STANDARD "${VCL_CXX_STANDARD}"
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)

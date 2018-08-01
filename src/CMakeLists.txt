@@ -42,10 +42,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Conan setup
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VCLTargets.cmake)
 
-# Define C++ standard, minimum requirement is C++17
+# Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD "${VCL_CXX_STANDARD}")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # For clang on Windows globally ignore unused commandline arguments
@@ -75,6 +75,7 @@ if (NOT vcl_ext_absl)
 	set_property(TARGET absl_bad_any_cast PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_base PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_dynamic_annotations PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_meta PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_spinlock_wait PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_utility PROPERTY FOLDER 3rd-party/absl)
 endif()
