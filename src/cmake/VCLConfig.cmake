@@ -47,7 +47,7 @@ function(vcl_configure tgt)
 	# As MSVC is not able to define the minimum level, software needs
 	# to implement per feature detection
 	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD 14
+		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)

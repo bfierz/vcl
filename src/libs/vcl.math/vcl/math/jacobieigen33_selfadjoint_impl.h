@@ -212,7 +212,7 @@ namespace Vcl { namespace Mathematics
 		REAL App = c*c * M(p, p) + REAL(2)*c*s * M(p, q) + s*s * M(q, q);
 		REAL Aqq = s*s * M(p, p) - REAL(2)*c*s * M(p, q) + c*c * M(q, q);
 
-#ifdef VCL_DEBUG
+#if defined VCL_CONTRACT && defined VCL_DEBUG
 		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
 
 		VclCheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));

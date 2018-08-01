@@ -42,10 +42,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Conan setup
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VCLTargets.cmake)
 
-# Define C++ standard, minimum requirement is C++14
+# Define C++ standard, minimum requirement is C++17
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # For clang on Windows globally ignore unused commandline arguments

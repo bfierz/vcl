@@ -347,7 +347,7 @@ namespace Vcl { namespace Mathematics
 		}
 
 		// Sanity check, off diagonal elements must be zero.
-#ifdef VCL_DEBUG
+#if defined VCL_CONTRACT && defined VCL_DEBUG
 		Real Apq = A(p,p)*c1*s2 - A(q,p)*s1*s2 + A(p,q)*c1*c2 - A(q,q)*s1*c2;
 		Real Aqp = A(p,p)*kappa*s1*c2 + A(q,p)*kappa*c1*c2 - A(p,q)*kappa*s1*s2 - A(q,q)*kappa*c1*s2;
 

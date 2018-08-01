@@ -286,7 +286,7 @@ namespace Vcl { namespace Mathematics
 
 		Scalar a = c*c - s*s;
 		Scalar b = Scalar(2)*s*c;
-		if (p == 0 && q == 1)
+		VCL_IF_CONSTEXPR(p == 0 && q == 1)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
@@ -307,7 +307,7 @@ namespace Vcl { namespace Mathematics
 			// Update the rotation quaternion
 			Q *= quat;
 		}
-		else if (p == 0 && q == 2)
+		else VCL_IF_CONSTEXPR(p == 0 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
@@ -327,7 +327,7 @@ namespace Vcl { namespace Mathematics
 
 			Q *= quat;
 		}
-		else if (p == 1 && q == 2)
+		else VCL_IF_CONSTEXPR(p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
@@ -357,7 +357,7 @@ namespace Vcl { namespace Mathematics
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
 
-		if (p == 0 && q == 1)
+		VCL_IF_CONSTEXPR(p == 0 && q == 1)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 1), D(1, 1));
@@ -368,7 +368,7 @@ namespace Vcl { namespace Mathematics
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
 		}
-		else if (p == 0 && q == 2)
+		else VCL_IF_CONSTEXPR(p == 0 && q == 2)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 2), D(2, 2));
@@ -379,7 +379,7 @@ namespace Vcl { namespace Mathematics
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
 		}
-		else if (p == 1 && q == 2)
+		else VCL_IF_CONSTEXPR(p == 1 && q == 2)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(1, 1), D(1, 2), D(2, 2));
