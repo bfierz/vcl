@@ -32,6 +32,7 @@
 #include <cmath>
 
 VCL_BEGIN_EXTERNAL_HEADERS
+#	define FMT_NO_FMT_STRING_ALIAS
 #	include <fmt/format.h>
 #	include <fmt/ostream.h>
 VCL_END_EXTERNAL_HEADERS

@@ -55,7 +55,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	Platform::Platform()
 	{
 		std::array<char, 256> buffer;
-		buffer.assign(0);
+		buffer.fill(0);
 
 		// Get the number of available platforms
 		cl_uint nr_platforms = 0;

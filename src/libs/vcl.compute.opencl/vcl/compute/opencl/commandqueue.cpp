@@ -71,7 +71,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		VCL_CL_SAFE_CALL(clEnqueueReadBuffer(_queue, (cl_mem) clBuffer, blocking, src.offset(), src.size(), dst, 0, nullptr, nullptr));
 	}
 
-	void CommandQueue::write(BufferView dst, void* src, bool blocking)
+	void CommandQueue::write(BufferView dst, const void* src, bool blocking)
 	{
 		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 
