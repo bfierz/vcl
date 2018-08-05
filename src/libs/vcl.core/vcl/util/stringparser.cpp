@@ -66,7 +66,7 @@ namespace Vcl { namespace Util
 		while (!full_line_available)
 		{
 			// Copy the remaining data to the front
-			auto copy_amount = static_cast<size_t>((_currentBuffer + _currentSizeAvailable) - _bufferReadPtr);
+			const auto copy_amount = static_cast<size_t>((_currentBuffer + _currentSizeAvailable) - _bufferReadPtr);
 			if (copy_amount > 0 && _bufferReadPtr != _currentBuffer)
 				// There was some data read, move the remaining
 			{
@@ -90,7 +90,7 @@ namespace Vcl { namespace Util
 			}
 
 			_stream->read(_currentBuffer + _currentSizeAvailable, static_cast<std::streamsize>(BufferSize - _currentSizeAvailable));
-			auto amount_read = _stream->gcount();
+			const auto amount_read = _stream->gcount();
 			if (amount_read == 0)
 			{
 				throw std::runtime_error("");
@@ -134,7 +134,7 @@ namespace Vcl { namespace Util
 
 	void StringParser::readLine(std::string* out_string_ptr)
 	{
-		char* begin_ptr = _bufferReadPtr;
+		const char* begin_ptr = _bufferReadPtr;
 		skipLine();
 		
 		// Store the end-pointer and terminate the string
@@ -152,7 +152,7 @@ namespace Vcl { namespace Util
 	{
 		skipWhiteSpace();
 
-		char* begin_ptr = _bufferReadPtr;
+		const char* begin_ptr = _bufferReadPtr;
 		while ((*_bufferReadPtr) > ' ')
 		{
 			++_bufferReadPtr;
@@ -181,7 +181,7 @@ namespace Vcl { namespace Util
 		skipWhiteSpace();
 
 		// Find the end of the number
-		char* begin_ptr = _bufferReadPtr;
+		const char* begin_ptr = _bufferReadPtr;
 		while
 		(
 			((*_bufferReadPtr) >= '0' && (*_bufferReadPtr) <= '9') ||
@@ -217,7 +217,7 @@ namespace Vcl { namespace Util
 		skipWhiteSpace();
 
 		// Find the end of the number
-		char* begin_ptr = _bufferReadPtr;
+		const char* begin_ptr = _bufferReadPtr;
 		while (((*_bufferReadPtr) >= '0' && (*_bufferReadPtr) <= '9') ||
 		        (*_bufferReadPtr) == '-')
 		{
