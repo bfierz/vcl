@@ -226,7 +226,6 @@ target_link_libraries(vcl_core
 option(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking")
 if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
 	ENABLE_VS_GUIDELINE_CHECKER(vcl_core)
-	TARGET_COMPILE_DEFINITIONS(vcl_core PRIVATE VCL_CHECK_CORE_GUIDELINES)
 endif()
 
 # Setup installation
