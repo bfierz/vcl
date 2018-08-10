@@ -45,7 +45,10 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VCLTargets.cmake)
 # Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
-set(CMAKE_CXX_STANDARD "${VCL_CXX_STANDARD}")
+set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
+set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+
+set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # For clang on Windows globally ignore unused commandline arguments
@@ -148,6 +151,7 @@ if(VCL_BUILD_BENCHMARKS)
 	option(BENCHMARK_ENABLE_GTEST_TESTS "" OFF)
 	add_subdirectory(externals/gbenchmark)
 	set_property(TARGET benchmark PROPERTY FOLDER 3rd-party)
+	set_property(TARGET benchmark_main PROPERTY FOLDER 3rd-party)
 	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 		set_property(TARGET benchmark PROPERTY COMPILE_OPTIONS "/W4")
 	endif()
@@ -176,6 +180,14 @@ if(VCL_BUILD_TESTS)
 	set_property(TARGET gtest PROPERTY FOLDER 3rd-party)
 	set_property(TARGET gtest_main PROPERTY FOLDER 3rd-party)
 
+	# Remove non-supported options
+	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+		vcl_replace_compile_flag(gtest "[-/]W." "/W0")
+		vcl_replace_compile_flag(gtest_main "[-/]W." "/W0")
+		vcl_remove_compile_flag(gtest "/Gm-")
+		vcl_remove_compile_flag(gtest_main "/Gm-")
+	endif()
+	
 	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
 	add_subdirectory(tests)
 endif()

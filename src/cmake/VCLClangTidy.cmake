@@ -24,7 +24,7 @@
 #
 
 # Support for clang-tidy
-option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy")
+option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
 
 if(VCL_ENABLE_CLANG_TIDY)
 	if(NOT CLANG_TIDY_EXE)

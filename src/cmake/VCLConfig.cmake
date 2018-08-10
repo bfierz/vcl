@@ -28,6 +28,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/VCLClangTidy.cmake)
 # Configure the compiler options for a VCL target
 function(vcl_configure tgt)
 
+	message(STATUS "Configure target: ${tgt}")
+
 	# Determine the compiler vendor
 	message(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
 
@@ -50,10 +52,11 @@ function(vcl_configure tgt)
 	set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
 	
 	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD "${VCL_CXX_STANDARD}"
+		CXX_STANDARD ${VCL_CXX_STANDARD}
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)
+	message(STATUS "Using C++${VCL_CXX_STANDARD}")
 	
 	# Enable clang-tidy for all projects
 	if(VCL_COMPILER_CLANG AND VCL_ENABLE_CLANG_TIDY)
@@ -210,6 +213,7 @@ function(get_include_paths OUTPUT_LIST TARGET)
 endfunction()
 
 # Function enabling the Core guideline checker from Visual Studio
+option(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking" OFF)
 function(enable_vs_guideline_checker target)
 	get_include_paths(target_include_paths ${target})
 
