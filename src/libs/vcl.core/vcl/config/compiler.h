@@ -45,7 +45,11 @@
 // MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
 // MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
 // MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
-// MSVC++ 14.1 _MSC_VER == 191x (Visual Studio 2017)
+// MSVC++ 14.1 _MSC_VER == 1910 (Visual Studio 2017)
+// MSVC++ 14.1 _MSC_VER == 1911 (Visual Studio 2017 Update 3)
+// MSVC++ 14.1 _MSC_VER == 1912 (Visual Studio 2017 Update 5)
+// MSVC++ 14.1 _MSC_VER == 1913 (Visual Studio 2017 Update 6)
+// MSVC++ 14.1 _MSC_VER == 1914 (Visual Studio 2017 Update 7)
 #   if (_MSC_VER < 1900)
 #       warning "Minimum supported version is MSVC 2015. Good luck."
 #   endif
@@ -59,6 +63,38 @@
 #   if (__GNUC__ < 5)
 #       warning "Minimum supported version is GCC 5. Good luck."
 #   endif
+#endif
+
+// Identify C++ standard
+#if defined _MSVC_LANG
+#	if _MSVC_LANG >= 201703L
+#		define VCL_HAS_STDCXX17 1
+#	endif
+#	if _MSVC_LANG >= 201402L
+#		define VCL_HAS_STDCXX14 1
+#	endif
+#	if _MSVC_LANG >= 201103L
+#		define VCL_HAS_STDCXX11 1
+#	endif
+#elif defined __cplusplus
+#	if __cplusplus >= 201703L
+#		define VCL_HAS_STDCXX17 1
+#	endif
+#	if __cplusplus >= 201402L
+#		define VCL_HAS_STDCXX14 1
+#	endif
+#	if __cplusplus >= 201103L
+#		define VCL_HAS_STDCXX11 1
+#	endif
+#endif
+#ifndef VCL_HAS_STDCXX17
+#	define VCL_HAS_STDCXX17 0
+#endif
+#ifndef VCL_HAS_STDCXX14
+#	define VCL_HAS_STDCXX14 0
+#endif
+#ifndef VCL_HAS_STDCXX11
+#	define VCL_HAS_STDCXX11 0
 #endif
 
 // Identify system ABI
@@ -214,6 +250,27 @@
 #	define VCL_HAS_CPP_CONSTEXPR_14	0
 #	define VCL_CPP_CONSTEXPR_11
 #	define VCL_CPP_CONSTEXPR_14
+#endif
+
+// if constexpr
+#if defined (VCL_COMPILER_MSVC)
+#	if (_MSC_VER >= 1912 && VCL_HAS_STDCXX17)
+#		define VCL_IF_CONSTEXPR if constexpr
+#	else
+#		define VCL_IF_CONSTEXPR if
+#	endif
+#elif defined (VCL_COMPILER_GNU)
+#	if defined(__cpp_if_constexpr) && __cpp_if_constexpr >= 201606
+#		define VCL_IF_CONSTEXPR if constexpr
+#	else
+#		define VCL_IF_CONSTEXPR if
+#	endif
+#elif defined (VCL_COMPILER_CLANG)
+#	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9)
+#		define VCL_IF_CONSTEXPR if
+#	else
+#		define VCL_IF_CONSTEXPR if constexpr
+#	endif
 #endif
 
 // noexcept

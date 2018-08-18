@@ -223,10 +223,11 @@ target_link_libraries(vcl_core
 )
 
 # Enable static code analysis
-option(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking")
 if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
-	ENABLE_VS_GUIDELINE_CHECKER(vcl_core)
-	TARGET_COMPILE_DEFINITIONS(vcl_core PRIVATE VCL_CHECK_CORE_GUIDELINES)
+	enable_vs_guideline_checker(vcl_core)
+endif()
+if(VCL_ENABLE_CLANG_TIDY)
+	enable_clang_tidy(vcl_core)
 endif()
 
 # Setup installation

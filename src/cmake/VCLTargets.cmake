@@ -51,3 +51,19 @@ function(vcl_combine_targets dst)
     add_library(${dst} INTERFACE IMPORTED)
     set_property(TARGET ${dst} PROPERTY INTERFACE_LINK_LIBRARIES ${ARGN})
 endfunction()
+
+# vcl_remove_compile_flag(target option)
+# Removes all compile flags from @target that match the regex in @option.
+function(vcl_remove_compile_flag target_ option_)
+	get_target_property(compile_flags ${target_} COMPILE_FLAGS)
+	string(REGEX REPLACE "${option_} " "" gtest_compile_flags ${compile_flags})
+	set_target_properties(${target_} PROPERTIES COMPILE_FLAGS "${compile_flags}")
+endfunction()
+
+# vcl_replace_compile_flag(target option remove add)
+# Removes all compile flags from @target that match the regex in @option; and adds the new flag given in @add.
+function(vcl_replace_compile_flag target_ remove_ add_)
+	get_target_property(compile_flags ${target_} COMPILE_FLAGS)
+	string(REGEX REPLACE "${remove_} " "" gtest_compile_flags ${compile_flags})
+	set_target_properties(${target_} PROPERTIES COMPILE_FLAGS "${compile_flags} ${add_}")
+endfunction()

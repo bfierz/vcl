@@ -45,7 +45,7 @@ namespace Vcl { namespace RTTI
 		static void remove(const Type* meta);
 
 		/// Find an instance of a meta type object by name
-		static const Type* get(const gsl::cstring_span<> name);
+		static const Type* get(gsl::cstring_span<> name);
 	};
 }}
 

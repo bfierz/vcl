@@ -57,11 +57,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	bool BlendState::isIndependentBlendingSupported()
 	{
-		return glewIsSupported("GL_ARB_draw_buffers_blend") && glewIsSupported("GL_EXT_draw_buffers2");
+		return glewIsSupported("GL_ARB_draw_buffers_blend") != 0 && glewIsSupported("GL_EXT_draw_buffers2") != 0;
 	}
 	bool BlendState::areAdvancedBlendOperationsSupported()
 	{
-		return glewIsSupported("GL_KHR_blend_equation_advanced");
+		return glewIsSupported("GL_KHR_blend_equation_advanced") != 0;
 	}
 
 	void BlendState::bind()

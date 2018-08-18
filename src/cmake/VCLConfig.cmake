@@ -28,6 +28,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/VCLClangTidy.cmake)
 # Configure the compiler options for a VCL target
 function(vcl_configure tgt)
 
+	message(STATUS "Configure target: ${tgt}")
+
 	# Determine the compiler vendor
 	message(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
 
@@ -46,11 +48,15 @@ function(vcl_configure tgt)
 	# Define C++ standard, minimum requirement is C++14
 	# As MSVC is not able to define the minimum level, software needs
 	# to implement per feature detection
+	set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
+	set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+	
 	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD 14
+		CXX_STANDARD ${VCL_CXX_STANDARD}
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)
+	message(STATUS "Using C++${VCL_CXX_STANDARD}")
 	
 	# Enable clang-tidy for all projects
 	if(VCL_COMPILER_CLANG AND VCL_ENABLE_CLANG_TIDY)
@@ -123,8 +129,9 @@ function(vcl_configure tgt)
 		# * Enable all warnings
 		# * Exceptions
 		# * RTTI
+		# * Don't be permissive
 		target_compile_options(${tgt} PUBLIC "/EHsc" "/GR")
-		target_compile_options(${tgt} PRIVATE "/W4")
+		target_compile_options(${tgt} PRIVATE "/W4" "/permissive-")
 	
 		# Make AVX available
 		if(VCL_VECTORIZE_AVX2)
@@ -168,12 +175,63 @@ function(vcl_configure tgt)
 	endif(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 endfunction()
 
+# Travers all targets
+function(get_include_paths OUTPUT_LIST TARGET)
+    list(APPEND VISITED_TARGETS "${TARGET}")
+
+	# Determine target type. IMPORTED and INTERFACE_LIBRARY only support
+	# a restricted interface.
+    get_target_property(IMPORTED "${TARGET}" IMPORTED)
+    get_target_property(TYPE "${TARGET}" TYPE)
+
+	# Query the possible links for the recursive search
+    if (IMPORTED OR TYPE STREQUAL "INTERFACE_LIBRARY")
+        get_target_property(TARGETS "${TARGET}" INTERFACE_LINK_LIBRARIES)
+    else()
+        get_target_property(TARGETS "${TARGET}" LINK_LIBRARIES)
+    endif()
+
+    set(INCLUDE_PATHS "")
+    foreach(TGT ${TARGETS})
+        if (TARGET ${TGT})
+            list(FIND VISITED_TARGETS ${TGT} VISITED)
+            if (${VISITED} EQUAL -1)
+				get_target_property(TGT_INC_PATHS ${TGT} INTERFACE_INCLUDE_DIRECTORIES)
+				foreach(PATH ${TGT_INC_PATHS})
+					string(FIND ${PATH} ${PROJECT_SOURCE_DIR} FOUND)
+					if (EXISTS ${PATH} AND ${FOUND} EQUAL -1)
+						list(APPEND INCLUDE_PATHS ${PATH} ${DEPENDENCIES_INC_PATHS})
+					endif()
+				endforeach()
+                get_include_paths(DEPENDENCIES_INC_PATHS ${TGT})
+            endif()
+        endif()
+    endforeach()
+    set(VISITED_TARGETS ${VISITED_TARGETS} PARENT_SCOPE)
+	list(REMOVE_DUPLICATES INCLUDE_PATHS)
+    set(${OUTPUT_LIST} ${INCLUDE_PATHS} PARENT_SCOPE)
+endfunction()
+
 # Function enabling the Core guideline checker from Visual Studio
+option(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking" OFF)
 function(enable_vs_guideline_checker target)
+	get_include_paths(target_include_paths ${target})
+
+	if (MSVC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.13)
+		# Exclude external headers from static code analysis. According to a remark in
+		# https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
+		# only the environment variabl 'CAExcludePath' seems to work.
+		target_compile_options(${target} PRIVATE "/experimental:external" "/external:env:CAExcludePath")
+	endif()
+
 	set_target_properties(${target} PROPERTIES
 		VS_GLOBAL_EnableCppCoreCheck true
 		VS_GLOBAL_CodeAnalysisRuleSet CppCoreCheckRules.ruleset
+		VS_GLOBAL_CAExcludePath "${target_include_paths}"
 		VS_GLOBAL_RunCodeAnalysis true)
+		
+	# Pass the information about the core guidelines checker to the target
+	target_compile_definitions(${target} PRIVATE VCL_CHECK_CORE_GUIDELINES)
 endfunction()
 
 # Checks if a target with a given names exists

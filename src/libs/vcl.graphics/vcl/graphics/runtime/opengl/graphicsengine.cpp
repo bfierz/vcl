@@ -44,7 +44,7 @@ namespace
 	{
 		unsigned int hash = 2166136261u;
 
-		for (ptrdiff_t i = 0; i < str.length(); ++i)
+		for (ptrdiff_t i = 0; i < str.size(); ++i)
 		{
 			hash ^= str[i];
 			hash *= 16777619u;

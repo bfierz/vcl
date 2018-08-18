@@ -24,16 +24,14 @@
 #
 
 # Support for clang-tidy
-option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy")
+option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
 
-if(VCL_ENABLE_CLANG_TIDY)
-	if(NOT CLANG_TIDY_EXE)
-		find_program(
-			CLANG_TIDY_EXE
-			NAMES "clang-tidy"
-			DOC "Path to clang-tidy executable"
-		)
-	endif()
+if(VCL_ENABLE_CLANG_TIDY AND NOT CLANG_TIDY_EXE)
+	find_program(
+		CLANG_TIDY_EXE
+		NAMES "clang-tidy"
+		DOC "Path to clang-tidy executable"
+	)
 	if(NOT CLANG_TIDY_EXE)
 		message(STATUS "clang-tidy not found.")
 	else()
@@ -47,7 +45,8 @@ function(enable_clang_tidy target)
 	if (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
 		message(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
 	endif()
-
+	
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 	if(VCL_ENABLE_CLANG_TIDY AND CLANG_TIDY_EXE)
 		message(STATUS "Enable clang-tidy on ${target}")
 		set_target_properties(

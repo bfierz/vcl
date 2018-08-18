@@ -69,7 +69,7 @@ namespace Vcl { namespace RTTI
 		}
 	}
 
-	const Type* TypeRegistry::get(const gsl::cstring_span<> name)
+	const Type* TypeRegistry::get(gsl::cstring_span<> name)
 	{
 		const TypeMap& metas = instance();
 
