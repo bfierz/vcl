@@ -61,6 +61,11 @@ if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	list(APPEND test_project vcl.compute.cuda vcl.math.cuda)
 endif()
 
+# Vulkan related tests
+IF(VCL_VULKAN_SUPPORT)
+	SUBDIRS(vcl.graphics.vulkan)
+ENDIF()
+
 # OpenCL related tests
 if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	add_subdirectory(vcl.compute.opencl)

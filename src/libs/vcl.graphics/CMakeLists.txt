@@ -151,6 +151,33 @@ set(SOURCE_D3D12
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.h
 )
 
+set(SOURCE_VULKAN
+	vcl/graphics/vulkan/commands.cpp
+	vcl/graphics/vulkan/commands.h
+	vcl/graphics/vulkan/context.cpp
+	vcl/graphics/vulkan/context.h
+	vcl/graphics/vulkan/descriptorset.cpp
+	vcl/graphics/vulkan/descriptorset.h
+	vcl/graphics/vulkan/device.cpp
+	vcl/graphics/vulkan/device.h
+	vcl/graphics/vulkan/memory.cpp
+	vcl/graphics/vulkan/memory.h
+	vcl/graphics/vulkan/pipelinestate.cpp
+	vcl/graphics/vulkan/pipelinestate.h
+	vcl/graphics/vulkan/platform.cpp
+	vcl/graphics/vulkan/platform.h
+	vcl/graphics/vulkan/swapchain.cpp
+	vcl/graphics/vulkan/swapchain.h
+	vcl/graphics/vulkan/tools.cpp
+	vcl/graphics/vulkan/tools.h
+	vcl/graphics/runtime/vulkan/resource/buffer.cpp
+	vcl/graphics/runtime/vulkan/resource/buffer.h
+	vcl/graphics/runtime/vulkan/resource/shader.cpp
+	vcl/graphics/runtime/vulkan/resource/shader.h
+	vcl/graphics/runtime/vulkan/state/pipelinestate.cpp
+	vcl/graphics/runtime/vulkan/state/pipelinestate.h
+)
+
 set(SOURCE_WEBGPU
 	vcl/graphics/runtime/webgpu/resource/buffer.cpp
 	vcl/graphics/runtime/webgpu/resource/buffer.h
@@ -287,19 +314,19 @@ if(VCL_OPENGL_SUPPORT)
 					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 			find_package(GLEW QUIET)
-			target_link_libraries(vcl_graphics
+	target_link_libraries(vcl_graphics
 				PUBLIC
 					GLEW::glew
-			)
+	)
 		endif()
 	
-		if(VCL_EGL_SUPPORT AND TARGET ${vcl_ext_egl})
-			target_compile_definitions(vcl_graphics PUBLIC VCL_EGL_SUPPORT)
-			target_link_libraries(vcl_graphics
+	if(VCL_EGL_SUPPORT AND TARGET ${vcl_ext_egl})
+		target_compile_definitions(vcl_graphics PUBLIC VCL_EGL_SUPPORT)
+		target_link_libraries(vcl_graphics
 				PUBLIC
 					${vcl_ext_egl}
-			)
-		endif()
+		)
+	endif()
 	endif()
 endif()
 
@@ -321,6 +348,19 @@ if(VCL_D3D12_SUPPORT)
 			d3d12.lib dxgi.lib d3dcompiler.lib dxguid.lib
 	)
 endif()
+
+if(VCL_VULKAN_SUPPORT)
+	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_VULKAN})
+
+	target_compile_definitions(vcl_graphics PUBLIC VCL_VULKAN_SUPPORT)
+	target_include_directories(vcl_graphics PUBLIC ${Vulkan_INCLUDE_DIR})
+	target_link_libraries(vcl_graphics
+		PUBLIC
+			absl_variant
+			${Vulkan_LIBRARY}
+	)
+endif()
+
 
 if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 	if(${CMAKE_VERSION} VERSION_LESS "3.11.0")

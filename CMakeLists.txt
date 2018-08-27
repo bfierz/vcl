@@ -29,7 +29,7 @@ project(VisualComputingLibrary)
 # Determine whether this is a standalone project or included by other projects
 set(VCL_STANDALONE_PROJECT OFF)
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(VCL_STANDALONE_PROJECT ON)
+  set(VCL_STANDALONE_PROJECT ON)
 
 	# Configure all projects
 	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -77,12 +77,13 @@ if (NOT vcl_ext_absl)
 	option(ABSL_BUILD_TESTING "" OFF)
 	option(ABSL_PROPAGATE_CXX_STD "" ON)
 	add_subdirectory(src/externals/abseil EXCLUDE_FROM_ALL)
-	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast)
+	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast absl::variant)
 	set(vcl_ext_absl "vcl_ext_absl_tgt")
 	
 	set_property(TARGET absl_bad_any_cast_impl PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_log_severity PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_raw_logging_internal PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
 endif()
 
 if (NOT vcl_ext_fmt)
@@ -112,6 +113,12 @@ if(OpenGL_FOUND AND NOT EMSCRIPTEN)
 		set(vcl_ext_egl "vcl_ext_egl_tgt")
 	endif()
 endif()
+
+add_subdirectory(externals/SPIRV-Cross EXCLUDE_FROM_ALL)
+set_property(TARGET spirv-cross-core PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-cpp PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-glsl PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-reflect PROPERTY FOLDER 3rd-party)
 
 ################################################################################
 # The libraries

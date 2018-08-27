@@ -15,6 +15,11 @@ if(VCL_D3D12_SUPPORT)
 	add_subdirectory(d3d12)
 endif()
 
+
+if(VCL_VULKAN_SUPPORT)
+	add_subdirectory(vulkan)
+endif()
+
 if(VCL_WEBGPU_SUPPORT)
 	add_subdirectory(webgpu)
 endif()

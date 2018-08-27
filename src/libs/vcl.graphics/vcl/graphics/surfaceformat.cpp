@@ -93,4 +93,16 @@ namespace Vcl { namespace Graphics {
 			return 0;
 		}
 	}
+	bool isDepthFormat(SurfaceFormat fmt)
+	{
+		switch (fmt)
+		{
+		case SurfaceFormat::D16_UNORM:
+		case SurfaceFormat::D24_UNORM_S8_UINT:
+		case SurfaceFormat::D32_FLOAT:
+		case SurfaceFormat::D32_FLOAT_S8X24_UINT:
+			return true;
+		}
+		return false;
+	}
 }}
