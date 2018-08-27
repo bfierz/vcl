@@ -78,7 +78,7 @@ if (NOT vcl_ext_absl)
 	option(BUILD_TESTING "" OFF)
 	option(BUILD_EXAMPLES "" OFF)
 	add_subdirectory(externals/abseil EXCLUDE_FROM_ALL)
-	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast)
+	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast absl::variant)
 	set(vcl_ext_absl "vcl_ext_absl_tgt")
 	
 	set_property(TARGET absl_any PROPERTY FOLDER 3rd-party/absl)
@@ -87,6 +87,7 @@ if (NOT vcl_ext_absl)
 	set_property(TARGET absl_dynamic_annotations PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_internal_spinlock_wait PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_utility PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
 endif()
 
 if (NOT vcl_ext_fmt)
@@ -136,6 +137,12 @@ if(OPENGL_FOUND AND NOT EMSCRIPTEN)
 		set(vcl_ext_glew "vcl_ext_glew_tgt")
 	endif()
 endif()
+
+add_subdirectory(externals/SPIRV-Cross EXCLUDE_FROM_ALL)
+set_property(TARGET spirv-cross-core PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-cpp PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-glsl PROPERTY FOLDER 3rd-party)
+set_property(TARGET spirv-cross-reflect PROPERTY FOLDER 3rd-party)
 
 ################################################################################
 # The libraries

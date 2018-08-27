@@ -32,9 +32,9 @@
 #include <vcl/graphics/opengl/gl.h>
 
 #if defined VCL_OPENGL_SUPPORT
-#	ifdef VCL_ABI_WINAPI
-#		include <GL/wglew.h>
-#	endif
+#ifdef VCL_ABI_WINAPI
+#	include <GL/wglew.h>
+#endif
 
 namespace
 {

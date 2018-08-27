@@ -91,7 +91,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		// Depth stencil state
 		Runtime::DepthStencilDescription DepthStencil;
+	};
 
+	struct ComputePipelineStateDescription
+	{
+		// Compute shader
+		Runtime::Shader* ComputeShader{ nullptr };
 	};
 
 	/*!
