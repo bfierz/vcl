@@ -62,7 +62,13 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 					  Indirect,
 
 					  //! Buffer can be used to stream data out
-					  StreamOut)
+					  StreamOut,
+
+					  //! Buffer can be used as uniform texel buffer
+					  UniformTexel,
+
+					  //! Buffer can be used as storage texel buffer
+					  StorageTexel)
 
 	struct BufferDescription
 	{
