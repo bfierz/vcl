@@ -27,6 +27,7 @@
 // VCL
 #include <vcl/graphics/runtime/graphicsengine.h>
 
+#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime
 {
 	Framebuffer::Framebuffer(const FramebufferDescription& desc)
@@ -151,3 +152,4 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	}
 }}}
+#endif // VCL_OPENGL_SUPPORT

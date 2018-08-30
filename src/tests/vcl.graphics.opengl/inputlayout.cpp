@@ -92,7 +92,12 @@ TEST(OpenGL, Float4Layout)
 {
 	InputLayoutDescription in
 	{
-		{ "Position", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 }
+		{
+			{ 0, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject },
+		},
+		{
+			{ "Position", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0 },
+		}
 	};
 	InputLayout layout{ in };
 	EXPECT_NE(0, layout.id());
@@ -107,7 +112,12 @@ TEST(OpenGL, NormalizedSignedShort2Layout)
 {
 	InputLayoutDescription in
 	{
-		{ "Position", SurfaceFormat::R16G16_SNORM, 0, 0, 0, VertexDataClassification::VertexDataPerInstance, 1 }
+		{
+			{ 0, 2*sizeof(short), VertexDataClassification::VertexDataPerInstance },
+		},
+		{
+			{ "Position", SurfaceFormat::R16G16_SNORM, 0, 0, 0 },
+		}
 	};
 	InputLayout layout{ in };
 	EXPECT_NE(0, layout.id());
@@ -122,7 +132,12 @@ TEST(OpenGL, SignedByte1Layout)
 {
 	InputLayoutDescription in
 	{
-		{ "Position", SurfaceFormat::R8_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 }
+		{
+			{ 0, sizeof(char), VertexDataClassification::VertexDataPerObject },
+		},
+		{
+			{ "Position", SurfaceFormat::R8_SINT, 0, 0, 0 },
+		}
 	};
 	InputLayout layout{ in };
 	EXPECT_NE(0, layout.id());

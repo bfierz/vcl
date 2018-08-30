@@ -130,20 +130,38 @@ FboRenderer::FboRenderer()
 
 	InputLayoutDescription planeLayout =
 	{
-		{ "PlaneEquation", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{
+			{ 0, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject },
+		},
+		{
+			{ "PlaneEquation", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0 },
+		}
 	};
 	
 	InputLayoutDescription opaqueTriLayout =
 	{
-		{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{
+			{ 0, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+			{ 1, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+			{ 2, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
+		},
+		{
+			{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
+			{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0 },
+			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0 }
+		}
 	};
 	
 	InputLayoutDescription opaqueTetraLayout =
 	{
-		{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+		{
+			{ 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
+			{ 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
+		},
+		{
+			{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
+			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
+		}
 	};
 
 	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/debug/boundinggrid.vert");
@@ -368,6 +386,10 @@ void FboRenderer::render()
 			_planePipelineState->program().setUniform("ModelMatrix", M);
 		
 			// Bind the buffers
+			Vcl::Graphics::Runtime::BufferView buffers[] = 
+			{
+				{ _planeBuffer, 0, _planeBuffer->sizeInBytes() }
+			};
 			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
 		
 			// Render the mesh

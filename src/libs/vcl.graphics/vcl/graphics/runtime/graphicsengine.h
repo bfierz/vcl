@@ -42,21 +42,6 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	enum class PrimitiveType
-	{
-		Undefined = 0,
-		Pointlist = 1,
-		Linelist = 2,
-		Linestrip = 3,
-		Trianglelist = 4,
-		Trianglestrip = 5,
-		LinelistAdj = 10,
-		LinestripAdj = 11,
-		TrianglelistAdj = 12,
-		TrianglestripAdj = 13,
-		Patch = 14
-	};
-
 	class BufferView
 	{
 	public:

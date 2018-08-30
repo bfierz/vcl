@@ -32,6 +32,7 @@
 #include <vector>
 
 // VCL
+#include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
@@ -49,15 +50,20 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		VertexDataPerInstance
 	};
 
-	struct InputLayoutElement
+	struct InputBindingElement
+	{
+		unsigned int             Binding;
+		unsigned int             Stride;
+		VertexDataClassification InputRate;
+	};
+
+	struct InputAttributeElement
 	{
 		std::string Name;
 		SurfaceFormat Format;
 		unsigned int NumberLocations;
 		unsigned int InputSlot;
 		unsigned int Offset;
-		VertexDataClassification StreamType;
-		unsigned int StepRate;
 	};
 
 	class InputLayoutDescription
@@ -66,31 +72,37 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		InputLayoutDescription() = default;
 
 	public:
-		InputLayoutDescription(std::initializer_list<InputLayoutElement> init)
-		: _elements(init)
+		InputLayoutDescription(std::initializer_list<InputBindingElement> bindings, std::initializer_list<InputAttributeElement> attributes)
+		: _bindings(bindings)
+		, _elements(attributes)
 		{
 			_locations.reserve(_elements.size());
 
 			int loc = 0;
 			for (const auto& elem : _elements)
 			{
+				VclCheck(elem.InputSlot < unsigned int(_bindings.size()), "Input slot declaration is in range.");
+
 				_locations.emplace_back(loc);
 				loc += std::max(1, (int) elem.NumberLocations);
 			}
 		}
 		InputLayoutDescription(const InputLayoutDescription& rhs)
 		{
+			_bindings  = rhs._bindings;
 			_elements  = rhs._elements;
 			_locations = rhs._locations;
 		}
 		InputLayoutDescription(InputLayoutDescription&& rhs) 
 		{
+			std::swap(_bindings, rhs._bindings);
 			std::swap(_elements, rhs._elements);
 			std::swap(_locations, rhs._locations);
 		}
 
 		InputLayoutDescription& operator=(const InputLayoutDescription& rhs)
 		{
+			_bindings = rhs._bindings;
 			_elements = rhs._elements;
 			_locations = rhs._locations;
 
@@ -98,22 +110,15 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		}
 
 	public:
-		std::vector<InputLayoutElement>::iterator begin() { return _elements.begin(); }
-		std::vector<InputLayoutElement>::const_iterator begin() const { return _elements.cbegin(); }
-		std::vector<InputLayoutElement>::const_iterator cbegin() const { return _elements.cbegin(); }
+		const std::vector<InputBindingElement>& bindings() const { return _bindings; }
+		const std::vector<InputAttributeElement>& attributes() const { return _elements; }
 
-		std::vector<InputLayoutElement>::iterator end() { return _elements.end(); }
-		std::vector<InputLayoutElement>::const_iterator end() const { return _elements.cend(); }
-		std::vector<InputLayoutElement>::const_iterator cend() const { return _elements.cend(); }
-
-		std::vector<InputLayoutElement>::size_type size() const { return _elements.size(); }
-
-		const InputLayoutElement& operator[] (size_t idx) const { return _elements[idx]; }
-
+		const InputBindingElement& binding(size_t idx) const { return _bindings[idx]; }
 		int location(size_t idx) const { return _locations[idx]; }
 
 	private:
-		std::vector<InputLayoutElement> _elements;
+		std::vector<InputBindingElement> _bindings;
+		std::vector<InputAttributeElement> _elements;
 		std::vector<int> _locations;
 	};
 }}}

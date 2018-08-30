@@ -26,7 +26,6 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // C++ standard library
 #include <initializer_list>
@@ -134,7 +133,17 @@ namespace Vcl
 			return (_flags == ((1ull << T::Count) - 1u));
 		}
 
+		inline uint32_t bits() const
+		{
+			return _flags;
+		}
+
 	public: // Operators
+		inline bool operator==(Flags other) const
+		{
+			return _flags == other._flags;
+		}
+
 		inline Flags operator|(Flags other) const
 		{
 			return Flags(_flags | other._flags);

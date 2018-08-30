@@ -694,7 +694,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void ShaderProgram::linkAttributes(const InputLayoutDescription& layout)
 	{
 		// If no layout is set, nothing needs to be done
-		if (layout.size() == 0)
+		if (layout.attributes().size() == 0)
 			return;
 
 		// Match the attributes against the interface provided in the program description
@@ -705,15 +705,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			const auto& name = attrib.Name;
 
-			auto e = std::find_if(std::begin(layout), std::end(layout), [name](const InputLayoutElement& e)
+			auto e = std::find_if(std::begin(layout.attributes()), std::end(layout.attributes()), [name](const InputAttributeElement& e)
 			{
 				return e.Name == name;
 			});
 
 			// Bind the layout entry to the shader input variable
-			if (e != std::end(layout))
+			if (e != std::end(layout.attributes()))
 			{
-				size_t idx = e - std::begin(layout);
+				size_t idx = e - std::begin(layout.attributes());
 				int loc = layout.location(idx);
 
 				glBindAttribLocation(_glId, loc, name.c_str());
@@ -741,7 +741,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			// Check the input layout against the description
 			int idx = 0;
-			for (const auto& attrib : layout)
+			for (const auto& attrib : layout.attributes())
 			{
 				const auto& name = attrib.Name;
 				int loc = layout.location(idx++);

@@ -105,8 +105,14 @@ namespace Vcl { namespace Editor { namespace Util
 		 /////////////////////////////////////////////////////////////////////////
 		 InputLayoutDescription opaque_layout =
 		 {
-			 { "Position",  SurfaceFormat::R32G32B32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-			 { "Normal",    SurfaceFormat::R32G32B32_FLOAT, 0, 1, 0, VertexDataClassification::VertexDataPerObject, 0 },
+			 {
+				{ 0, sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
+				{ 1, sizeof(Eigen::Vector4f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject }
+			 },
+			{
+				{ "Position", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 0 },
+				{ "Normal",   SurfaceFormat::R32G32B32_FLOAT, 0, 1, 0 }
+			}
 		 };
 
 		 Shader arrow_colour_vert = createShader(ShaderType::VertexShader,   ":/shaders/debug/positionhandle_arrow.vert");

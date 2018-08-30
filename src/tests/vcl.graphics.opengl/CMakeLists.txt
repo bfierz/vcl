@@ -10,6 +10,7 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileGLSL.cmake)
 add_executable(vcl_graphics_opengl_test "")
 
 set(VCL_TEST_SRC
+	bindings.cpp
 	blendstate.cpp
 	buffers.cpp
 	depthstencilstate.cpp
@@ -41,12 +42,14 @@ list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 vclcompileglsl(
 	${PROJECT_SOURCE_DIR}/quad.vert
+	"opengl"
 	"QuadSpirvVS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_0
 )
 vclcompileglsl(
 	${PROJECT_SOURCE_DIR}/quad.frag
+	"opengl"
 	"QuadSpirvFS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_1

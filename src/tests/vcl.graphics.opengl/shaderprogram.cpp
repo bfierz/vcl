@@ -197,9 +197,15 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	// Create the input definition
 	InputLayoutDescription in = 
 	{
-		{ "Position", SurfaceFormat::R32G32_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R8G8B8A8_SNORM, 0, 0, 8, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
+		{
+			{ 0, sizeof(Eigen::Vector2f) + sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
+			{ 1, sizeof(Eigen::Vector4f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerInstance }
+		},
+		{
+			{ "Position",  Vcl::Graphics::SurfaceFormat::R32G32_FLOAT, 0, 0, 0 },
+			{ "Colour", Vcl::Graphics::SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8 },
+			{ "Scale",  Vcl::Graphics::SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
+		}
 	};
 
 	// Create the program descriptor
@@ -232,9 +238,15 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	// Create the input definition
 	InputLayoutDescription in = 
 	{
-		{ "Position", SurfaceFormat::R16G16_FLOAT, 0, 0, 0, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Colour", SurfaceFormat::R32G32B32_FLOAT, 0, 0, 4, VertexDataClassification::VertexDataPerObject, 0 },
-		{ "Scale", SurfaceFormat::R32G32B32A32_FLOAT, 4, 1, 0, VertexDataClassification::VertexDataPerInstance, 0 },
+		{
+			{ 0, sizeof(Eigen::Vector2f) + sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
+			{ 1, sizeof(Eigen::Vector4f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerInstance }
+		},
+		{
+			{ "Position",  Vcl::Graphics::SurfaceFormat::R32G32_FLOAT, 0, 0, 0 },
+			{ "Colour", Vcl::Graphics::SurfaceFormat::R32G32B32_FLOAT, 0, 0, 8 },
+			{ "Scale",  Vcl::Graphics::SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
+		}
 	};
 
 	// Create the program descriptor
