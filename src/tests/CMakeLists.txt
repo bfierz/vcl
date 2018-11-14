@@ -40,6 +40,7 @@ ENDIF()
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.compute.cuda)
 	SUBDIRS(vcl.math.cuda)
+	SUBDIRS(vcl.physics.fluid)
 ENDIF()
 
 # OpenCL related tests

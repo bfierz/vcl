@@ -35,3 +35,7 @@ IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	SUBDIRS(vcl.math.cuda)
 ENDIF()
 
+# Library, which contains the fluid solver
+IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	SUBDIRS(vcl.physics.fluid)
+ENDIF()
