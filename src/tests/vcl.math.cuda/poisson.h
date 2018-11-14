@@ -73,7 +73,7 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	return nr_pts;
 }
 template<typename Solver, typename Ctx, typename Dim>
-void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs, const Eigen::VectorXf& sol, int max_iters, float eps)
+void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs, const Eigen::VectorXf& sol, const std::vector<unsigned char>& skip, int max_iters, float eps)
 {
 	using namespace Vcl::Compute::Cuda;
 
@@ -87,16 +87,18 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 
 	Eigen::Map<Eigen::VectorXf> x(lhs.data(), lhs.size());
 	Eigen::Map<Eigen::VectorXf> y(rhs.data(), rhs.size());
-	std::vector<unsigned char> invalid_cells(rhs.size(), 0);
 
 	Ctx ctx{ dev_ctx, queue, dim };
-	ctx.updatePoissonStencil(h, -1, { invalid_cells.data(), (int64_t)invalid_cells.size() });
+	ctx.updatePoissonStencil(h, -1, 0, { skip.data(), (int64_t)skip.size() });
 	ctx.setData(&x, &y);
 
 	// Execute the poisson solver
 	Solver solver;
+	//solver.setIterationChunkSize(max_iters);
 	solver.setMaxIterations(max_iters);
-	solver.solve(&ctx);
+
+	double residual = 0;
+	solver.solve(&ctx, &residual);
 
 	// Check for the solution
 	Eigen::VectorXf err; err.setZero(sol.size());

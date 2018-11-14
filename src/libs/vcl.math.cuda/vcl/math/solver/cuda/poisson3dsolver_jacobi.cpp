@@ -47,6 +47,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		// Load the module
 		_poissonModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(Poisson3DJacobiCU), Poisson3DJacobiCUSize * sizeof(uint32_t));
+		_makeStencilKernel = static_pointer_cast<Compute::Cuda::Kernel>(_poissonModule->kernel("MakePoissonStencil"));
 		_updateKernel = static_pointer_cast<Compute::Cuda::Kernel>(_poissonModule->kernel("PoissonUpdateSolution"));
 
 		// Create buffers
@@ -101,7 +102,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		std::get<1>(_rhs) = nullptr;
 	}
 
-	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, float o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		Eigen::VectorXf Ac  { _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ax_l{ _dim.x() * _dim.y() * _dim.z() };
@@ -113,7 +114,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		makePoissonStencil
 		(
-			_dim, h, k, map_t{ Ac.data(), Ac.size() },
+			_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 			map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 			map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 			map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
@@ -129,8 +130,39 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_queue->write(_laplacian[6], Az_r.data(), true);
 	}
 
-	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, const Compute::Cuda::Buffer& skip)
+	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, float o, const Compute::Cuda::Buffer& skip)
 	{
+		// Compute block and grid size
+		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
+		const dim3 block_size = { 8, 8, 4 };
+		const dim3 grid_size =
+		{
+			ceil(_dim.x(), block_size.x) / block_size.x,
+			ceil(_dim.y(), block_size.y) / block_size.y,
+			ceil(_dim.z(), block_size.z) / block_size.z
+		};
+
+		_makeStencilKernel->run
+		(
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+			grid_size,
+			block_size,
+			0,
+
+			// Kernel parameters
+			_dim,
+			h,
+			k,
+			o, 
+			_laplacian[0],
+			_laplacian[1],
+			_laplacian[2],
+			_laplacian[3],
+			_laplacian[4],
+			_laplacian[5],
+			_laplacian[6],
+			skip
+		);
 	}
 
 	int Poisson3DJacobiCtx::size() const

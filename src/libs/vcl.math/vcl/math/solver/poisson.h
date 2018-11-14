@@ -54,6 +54,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		unsigned int dim,
 		Real h,
 		Real a,
+		Real o,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -80,7 +81,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				Detail::updateStencil(i, dim, s, a_c, a_x_r, a_x_l);
 			}
 
-			Ac  [index] = a_c;
+			Ac  [index] = a_c + o;
 			Ax_l[index] = a_x_l;
 			Ax_r[index] = a_x_r;
 		}
@@ -92,6 +93,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Eigen::Vector2ui dim,
 		Real h,
 		Real a,
+		Real o,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -127,7 +129,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					Detail::updateStencil(j, dim.y(), s, a_c, a_y_r, a_y_l);
 				}
 
-				Ac  [index] = a_c;
+				Ac  [index] = a_c + o;
 				Ax_l[index] = a_x_l;
 				Ax_r[index] = a_x_r;
 				Ay_l[index] = a_y_l;
@@ -142,6 +144,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Eigen::Vector3ui dim,
 		Real h,
 		Real a,
+		Real o,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
@@ -188,7 +191,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 						Detail::updateStencil(k, dim.z(), s, a_c, a_z_r, a_z_l);
 					}
 
-					Ac  [index] = a_c;
+					Ac  [index] = a_c + o;
 					Ax_l[index] = a_x_l;
 					Ax_r[index] = a_x_r;
 					Ay_l[index] = a_y_l;

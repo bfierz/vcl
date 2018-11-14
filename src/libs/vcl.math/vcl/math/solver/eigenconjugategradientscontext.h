@@ -28,6 +28,9 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// GSL
+#include <gsl/gsl>
+
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/math/solver/conjugategradients.h>
@@ -44,7 +47,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		EigenCgBaseContext(size_t s)
-		: _size(s)
+		: _x(nullptr)
+		, _size(s)
 		{
 			if (s > 0)
 			{
@@ -95,9 +99,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r + beta * d
 		virtual void updateVectors() override
 		{
-			VclRequire(_x != nullptr, "Solution vector is set.");
-
-			(*_x) += _alpha * _dir;
+			*_x += _alpha * _dir;
 			_res -= _alpha * _q;
 			_dir = _res + _beta * _dir;
 		}
@@ -111,11 +113,11 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual void finish(double* residual = nullptr) override
 		{
 			if (residual)
-				(*residual) = _residualLength;
+				(*residual) = sqrt(fabs(_beta * _residualLength));
 		}
 
 	protected: // Matrix to solve
-		map_t* _x{ nullptr };
+		map_t* _x;
 		size_t _size;
 
 	private:
@@ -137,8 +139,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		using vector_t = typename EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>::vector_t;
 
 	public:
-		GenericEigenCgContext(const matrix_t* A, const vector_t* b, vector_t* x)
-		: EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>(x)
+		GenericEigenCgContext(const matrix_t* A, const vector_t* b)
+		: EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>(b->size())
 		, _M(A)
 		, _b(b)
 		{
@@ -148,7 +150,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r = b - A*x
 		virtual void computeInitialResidual() override
 		{
-			this->_res = (*_b) - (*_M) * (*this->_x);
+			this->_res = (*_b) - (*_M) * *_x;
 			this->_dir = this->_res;
 		}
 			

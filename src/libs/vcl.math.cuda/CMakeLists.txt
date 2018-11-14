@@ -4,12 +4,15 @@ INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCUDA.cmake)
 
 # VCL / MATH / SOLVER / CUDA
 SET(VCL_MATH_SOLVER_CUDA_INC
+	vcl/math/solver/cuda/poisson3dsolver_cg.h
 	vcl/math/solver/cuda/poisson3dsolver_jacobi.h
 )
 SET(VCL_MATH_SOLVER_CUDA_SRC
+	vcl/math/solver/cuda/poisson3dsolver_cg.cpp
 	vcl/math/solver/cuda/poisson3dsolver_jacobi.cpp
 )
 SET(VCL_MATH_SOLVER_CUDA_CU
+	vcl/math/solver/cuda/poisson3dsolver_cg.cu
 	vcl/math/solver/cuda/poisson3dsolver_jacobi.cu
 )
 
@@ -50,7 +53,13 @@ VCLCOMPILECU(
 	"${CURR_INC_DIRS}"
 	COMPILEDKERNELS_2
 )
-SET(COMPILEDKERNELS ${COMPILEDKERNELS_0} ${COMPILEDKERNELS_1} ${COMPILEDKERNELS_2})
+VCLCOMPILECU(
+	${PROJECT_SOURCE_DIR}/vcl/math/solver/cuda/poisson3dsolver_cg.cu
+	"Poisson3DCgCU"
+	"${CURR_INC_DIRS}"
+	COMPILEDKERNELS_3
+)
+SET(COMPILEDKERNELS ${COMPILEDKERNELS_0} ${COMPILEDKERNELS_1} ${COMPILEDKERNELS_2} ${COMPILEDKERNELS_3})
 
 SOURCE_GROUP("cuc" FILES ${COMPILEDKERNELS})
 SOURCE_GROUP("solver" FILES ${VCL_MATH_SOLVER_CUDA_SRC} ${VCL_MATH_SOLVER_CUDA_INC} ${VCL_MATH_SOLVER_CUDA_CU})

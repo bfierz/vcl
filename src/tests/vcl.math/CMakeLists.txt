@@ -1,7 +1,9 @@
 PROJECT(vcl_math_test)
 
 SET(VCL_TEST_SRC
+	cg.cpp
 	eigen33.cpp
+	jacobi.cpp
 	poisson1d.cpp
 	poisson2d.cpp
 	poisson3d.cpp

@@ -274,22 +274,26 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		_queue->read(_hostA, Compute::BufferView(_reduceBuffersA[0], 0, sizeof(float)));
 		_queue->read(_hostB, Compute::BufferView(_reduceBuffersB[0], 0, sizeof(float)));
 		_queue->sync();
-				
+
 		float alpha = 0.0f;
 		if (abs(*_hostG) > 0.0f)
 			alpha = *_hostR / *_hostG;
 
-		float beta = *_hostR - 2.0f * alpha * *_hostB + alpha * alpha * *_hostA;
-		if (abs(*_hostR) > 0.0f)
-			beta = beta / *_hostR;
-
-		return abs(beta * *_hostR);
+		float beta = *_hostR - (2.0f * alpha) * *_hostB + (alpha * alpha) * *_hostA;
+		return abs(beta);
 	}
 
 	void ConjugateGradientsContext::finish(double* residual)
 	{
 		if (residual)
-			*residual = *_hostR;
+		{
+			float alpha = 0.0f;
+			if (abs(*_hostG) > 0.0f)
+				alpha = *_hostR / *_hostG;
+
+			float beta = *_hostR - (2.0f * alpha) * *_hostB + (alpha * alpha) * *_hostA;
+			*residual = abs(beta);
+		}
 	}
 }}}}
 #endif // VCL_CUDA_SUPPORT

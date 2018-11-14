@@ -39,24 +39,23 @@
 #include <vcl/compute/cuda/buffer.h>
 #include <vcl/compute/cuda/context.h>
 #include <vcl/compute/cuda/module.h>
-#include <vcl/math/solver/jacobi.h>
-#include <vcl/math/solver/poisson.h>
+#include <vcl/math/cuda/conjugategradientscontext.h>
 
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
-	class Poisson3DJacobiCtx : public JacobiContext
+	class Poisson3DCgCtx : public ConjugateGradientsContext
 	{
 		using vector_t = Eigen::Matrix<float, Eigen::Dynamic, 1>;
 		using map_t = Eigen::Map<vector_t>;
 
 	public:
-		Poisson3DJacobiCtx
+		Poisson3DCgCtx
 		(
 			ref_ptr<Compute::Context> ctx,
 			ref_ptr<Compute::CommandQueue> queue,
 			const Eigen::Vector3ui& dim
 		);
-		~Poisson3DJacobiCtx();
+		~Poisson3DCgCtx();
 
 		void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<const map_t*> rhs);
 		void setData(ref_ptr<Compute::Cuda::Buffer> unknowns, ref_ptr<Compute::Cuda::Buffer> rhs);
@@ -76,11 +75,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		//! \name Interface implementation
 		//! \{
-		int size() const override;
-		void precompute() override;
-		void updateSolution() override;
-		double computeError() override;
-		void finish(double* residual) override;
+		void computeInitialResidual() override;
+		void computeQ() override;
 		//! \}
 
 	private:
@@ -90,20 +86,17 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Current error
 		float _error{ 0 };
 
-		// Device context
-		ref_ptr<Compute::Context> _ownerCtx;
-
-		//! Commandqueue the execution uses
-		ref_ptr<Compute::CommandQueue> _queue;
-
-		//! Module
-		ref_ptr<Compute::Module> _poissonModule;
-
+		//! Module with the cuda fluid 3d poisson cg kernel functions
+		ref_ptr<Vcl::Compute::Cuda::Module> _cgModule;
+		
 		//! Kernel used to make the solver stencil
 		ref_ptr<Compute::Cuda::Kernel> _makeStencilKernel;
 
-		//! Kernel used to update the solution
-		ref_ptr<Compute::Cuda::Kernel> _updateKernel;
+		//! Device function initializing the conjugate gradients solver
+		ref_ptr<Vcl::Compute::Cuda::Kernel> _cgInit{ nullptr };
+
+		//! Device function compute the Q vector
+		ref_ptr<Vcl::Compute::Cuda::Kernel> _cgComputeQ{ nullptr };
 
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
@@ -113,11 +106,5 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		//! Right-hand side
 		std::tuple<ref_ptr<Compute::Cuda::Buffer>, const map_t*> _rhs;
-
-		//! Temporary buffer for the updated solution
-		ref_ptr<Compute::Cuda::Buffer> _next;
-
-		//! Buffer to accumulate the solver error
-		ref_ptr<Compute::Cuda::Buffer> _dev_error;
 	};
 }}}}

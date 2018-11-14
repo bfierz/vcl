@@ -99,7 +99,7 @@ __global__ void MakePoissonStencil
 }
 
 extern "C"
-__global__ void PoissonUpdateSolution
+__global__ void ComputeInitialResidual
 (
 	const unsigned int X,
 	const unsigned int Y,
@@ -113,44 +113,88 @@ __global__ void PoissonUpdateSolution
 	const float* __restrict__ Az_l,
 	const float* __restrict__ Az_r,
 	const float* __restrict__ rhs,
+	const float* __restrict__ unknowns,
 
-	float* __restrict__ unknowns,
-	float* __restrict__ next,
-	float* __restrict__ error
+	float* __restrict__ residual,
+	float* __restrict__ direction
 )
 {
-	// x^{n+1} = D^-1 (b - R x^{n})
-	//                -------------
-	//                      q
-
 	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
 	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
 	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
-	const unsigned int index = X*Y * z + X * y + x;
+	const unsigned int index = X * Y * z + X * y + x;
 
-	if (0 < x && x < X-1 &&
-		0 < y && y < Y-1 &&
-		0 < z && z < Z-1   )
+	if (x < X &&
+		y < Y &&
+		z < Z)
 	{
-		float q =
-			unknowns[index - 1] * Ax_l[index] +
-			unknowns[index + 1] * Ax_r[index] +
-			unknowns[index - X] * Ay_l[index] +
-			unknowns[index + X] * Ay_r[index] +
-			unknowns[index - X * Y] * Az_l[index] +
-			unknowns[index + X * Y] * Az_r[index];
-
 		const float c = Ac[index];
-		float n = (rhs[index] - q) / c;
-		n = (c != 0) ? n : unknowns[index];
+		float Ax = 0.0f;
+			Ax += unknowns[index] * c;
+		if (x > 0)
+			Ax += unknowns[index - 1] * Ax_l[index];
+		if (x < X - 1)
+			Ax += unknowns[index + 1] * Ax_r[index];
+		if (y > 0)
+			Ax += unknowns[index - X] * Ay_l[index];
+		if (y < Y - 1)
+			Ax += unknowns[index + X] * Ay_r[index];
+		if (z > 0)
+			Ax += unknowns[index - X * Y] * Az_l[index];
+		if (z < Z - 1)
+			Ax += unknowns[index + X * Y] * Az_r[index];
 
-		next[index] = n;
+		const float r = (c != 0.0f) ? rhs[index] - Ax : 0.0f;
+		residual[index]  = r;
+		direction[index] = r;
+	}
+}
 
-		// Compute the error
-		if (c)
-		{
-			const float e = rhs[index] - (Ac[index] * unknowns[index] + q);
-			atomicAdd(error, e * e);
-		}
+extern "C"
+__global__ void ComputeQ
+(
+	const unsigned int X,
+	const unsigned int Y,
+	const unsigned int Z,
+
+	const float* __restrict__ Ac,
+	const float* __restrict__ Ax_l,
+	const float* __restrict__ Ax_r,
+	const float* __restrict__ Ay_l,
+	const float* __restrict__ Ay_r,
+	const float* __restrict__ Az_l,
+	const float* __restrict__ Az_r,
+	const float* __restrict__ direction,
+
+	float* __restrict__ q
+)
+{
+	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
+	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
+	const unsigned int index = X * Y * z + X * y + x;
+
+	if (x < X &&
+		y < Y &&
+		z < Z)
+	{
+		const float c = Ac[index];
+		float Aq = 0.0f;
+			Aq += direction[index] * c;
+		if (x > 0)
+			Aq += direction[index - 1] * Ax_l[index];
+		if (x < X - 1)
+			Aq += direction[index + 1] * Ax_r[index];
+		if (y > 0)
+			Aq += direction[index - X] * Ay_l[index];
+		if (y < Y - 1)
+			Aq += direction[index + X] * Ay_r[index];
+		if (z > 0)
+			Aq += direction[index - X * Y] * Az_l[index];
+		if (z < Z - 1)
+			Aq += direction[index + X * Y] * Az_r[index];
+
+		Aq = (c != 0.0f) ? Aq : 0.0f;
+		q[index] = Aq;
 	}
 }

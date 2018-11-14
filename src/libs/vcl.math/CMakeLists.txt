@@ -16,6 +16,7 @@ SET(VCL_MATH_MCADAMS_INC
 SET(VCL_MATH_SOLVER_INC
 	vcl/math/solver/conjugategradients.h
 	vcl/math/solver/eigenconjugategradientscontext.h
+	vcl/math/solver/eigenjacobicontext.h
 	vcl/math/solver/jacobi.h
 	vcl/math/solver/poisson.h
 	vcl/math/solver/poisson1dsolver_cg.h
