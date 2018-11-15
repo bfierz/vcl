@@ -15,33 +15,39 @@
 //#####################################################################
 
 #ifdef PRINT_DEBUGGING_OUTPUT
-#	include <iomanip>
-#	include <iostream>
+#include <iomanip>
+#include <iostream>
 #endif
 
 #ifdef USE_SCALAR_IMPLEMENTATION
-#	define ENABLE_SCALAR_IMPLEMENTATION(X) X
+#define ENABLE_SCALAR_IMPLEMENTATION(X) X
 #else
-#	define ENABLE_SCALAR_IMPLEMENTATION(X)
+#define ENABLE_SCALAR_IMPLEMENTATION(X)
 #endif
 
 #ifdef USE_SSE_IMPLEMENTATION
-#	define ENABLE_SSE_IMPLEMENTATION(X) X
+#define ENABLE_SSE_IMPLEMENTATION(X) X
 #else
-#	define ENABLE_SSE_IMPLEMENTATION(X)
+#define ENABLE_SSE_IMPLEMENTATION(X)
 #endif
 
 #ifdef USE_AVX_IMPLEMENTATION
-#	include <immintrin.h>
-#	define ENABLE_AVX_IMPLEMENTATION(X) X
+#include <immintrin.h>
+#define ENABLE_AVX_IMPLEMENTATION(X) X
 #else
-//#	include <xmmintrin.h>
-#	define ENABLE_AVX_IMPLEMENTATION(X)
+#include <xmmintrin.h>
+#define ENABLE_AVX_IMPLEMENTATION(X)
 #endif
 
-#if defined(USE_SCALAR_IMPLEMENTATION) && !defined(HAS_RSQRT)
-#	include <xmmintrin.h>
+#ifdef USE_AVX512_IMPLEMENTATION
+#include <immintrin.h>
+#define ENABLE_AVX512_IMPLEMENTATION(X) X
+#else
+#include <xmmintrin.h>
+#define ENABLE_AVX512_IMPLEMENTATION(X)
+#endif
 
+#ifdef USE_SCALAR_IMPLEMENTATION
 float rsqrt(const float f)
 {
     float buf[4];
