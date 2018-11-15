@@ -66,15 +66,15 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! \brief Implement virtual interface
 		//! \{
-		virtual int size() const override
+		int size() const override
 		{
 			return static_cast<int>(_size);
 		}
-		virtual void precompute() override
+		void precompute() override
 		{
 			_error = 0;
 		}
-		virtual void updateSolution() override
+		void updateSolution() override
 		{
 			// x^{n+1} = D^-1 (b - R x^{n})
 			//                -------------
@@ -85,7 +85,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			x = _next;
 		}
-		virtual double computeError() override
+		 double computeError() override
 		{
 			auto& A = *_A;
 			auto& x = *_x;
@@ -95,7 +95,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			return _error / size();
 		}
-		virtual void finish(double * residual) override
+		void finish(double * residual) override
 		{
 			if (residual)
 				(*residual) = _error;

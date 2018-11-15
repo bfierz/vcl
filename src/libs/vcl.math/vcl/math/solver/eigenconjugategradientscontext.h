@@ -59,7 +59,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 	public:
-		virtual int size() const override
+		int size() const override
 		{
 			return static_cast<int>(_size);
 		}
@@ -74,7 +74,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d_g = dot(d, q)
 		// d_b = dot(r, q)
 		// d_a = dot(q, q)
-		virtual void reduceVectors() override
+		void reduceVectors() override
 		{
 			real_t d_r = _res.squaredNorm();
 			real_t d_g = _dir.dot(_q);
@@ -97,7 +97,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// x = x + alpha * d
 		// r = r - alpha * q
 		// d = r + beta * d
-		virtual void updateVectors() override
+		void updateVectors() override
 		{
 			*_x += _alpha * _dir;
 			_res -= _alpha * _q;
@@ -105,12 +105,12 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 		// abs(beta * d_r);
-		virtual double computeError() override
+		double computeError() override
 		{
 			return fabs(_beta * _residualLength);
 		}
 			
-		virtual void finish(double* residual = nullptr) override
+		void finish(double* residual = nullptr) override
 		{
 			if (residual)
 				(*residual) = sqrt(fabs(_beta * _residualLength));
@@ -148,14 +148,14 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		// d = r = b - A*x
-		virtual void computeInitialResidual() override
+		void computeInitialResidual() override
 		{
-			this->_res = (*_b) - (*_M) * *_x;
+			this->_res = (*_b) - (*_M) * *this->_x;
 			this->_dir = this->_res;
 		}
 			
 		// q = A*d
-		virtual void computeQ() override
+		void computeQ() override
 		{
 			this->_q = (*_M) * this->_dir;
 		}

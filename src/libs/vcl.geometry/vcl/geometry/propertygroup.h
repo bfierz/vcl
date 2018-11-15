@@ -34,6 +34,12 @@
 // VCL
 #include <vcl/geometry/property.h>
 
+#ifdef VCL_COMPILER_MSVC
+#	define typename_msvc
+#else
+#	define typename_msvc typename
+#endif
+
 namespace Vcl { namespace Geometry
 {
 	template<typename IndexT>
@@ -100,11 +106,11 @@ namespace Vcl { namespace Geometry
 
 	public:
 		template<typename T>
-		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::rvalue_reference init_value = typename Property<T, index_type>::value_type())
+		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::rvalue_reference init_value)
 		{		
 			if (_data.find(name) == _data.end())
 			{
-				auto data = std::make_unique<Property<T, index_type>>(name, std::forward<typename Property<T, index_type>::value_type>(init_value));
+				auto data = std::make_unique<Property<T, index_type>>(name, std::move(init_value));
 
 				data->resize(_propertySize);
 				_data.emplace(name, std::move(data));
@@ -114,7 +120,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename T>
-		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::reference init_value)
+		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::const_reference init_value = typename_msvc Property<T, index_type>::value_type())
 		{
 			if (_data.find(name) == _data.end())
 			{
@@ -153,7 +159,7 @@ namespace Vcl { namespace Geometry
 		}
 
 		template<typename T>
-		Property<T, index_type>* property(const std::string& name, bool create_if_not_found = false, typename Property<T, index_type>::rvalue_reference init_value = typename Property<T, index_type>::value_type())
+		Property<T, index_type>* property(const std::string& name, bool create_if_not_found = false, typename Property<T, index_type>::const_reference init_value = typename_msvc Property<T, index_type>::value_type())
 		{
 			auto prop = _data.find(name);
 			if (prop != _data.end())

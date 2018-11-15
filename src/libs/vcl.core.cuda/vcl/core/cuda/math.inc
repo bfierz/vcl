@@ -213,10 +213,10 @@ float4 warpReduceSum(float4 val)
 {
 	for (int offset = warpSize/2; offset > 0; offset /= 2) 
 	{
-		val.x += __shfl_down(val.x, offset);
-		val.y += __shfl_down(val.y, offset);
-		val.z += __shfl_down(val.z, offset);
-		val.w += __shfl_down(val.w, offset);
+		val.x += __shfl_down_sync(0xffffffff, val.x, offset);
+		val.y += __shfl_down_sync(0xffffffff, val.y, offset);
+		val.z += __shfl_down_sync(0xffffffff, val.z, offset);
+		val.w += __shfl_down_sync(0xffffffff, val.w, offset);
 	}
 	return val;
 }

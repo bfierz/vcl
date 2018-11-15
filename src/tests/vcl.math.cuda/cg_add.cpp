@@ -50,7 +50,6 @@ public:
 	CgContextUpdateMock(Vcl::ref_ptr<Vcl::Compute::Context> ctx, Vcl::ref_ptr<Vcl::Compute::CommandQueue> queue, int size)
 	: ConjugateGradientsContext(ctx, queue, size)
 	{
-
 		_devX = Vcl::static_pointer_cast<Vcl::Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Vcl::Compute::BufferAccess::None, size * sizeof(float)));
 	}
 
@@ -168,7 +167,6 @@ private:
 	std::vector<float> _input_r;
 	std::vector<float> _input_d;
 	std::vector<float> _input_q;
-
 };
 
 TEST(Cuda, CgUpdateVectors)

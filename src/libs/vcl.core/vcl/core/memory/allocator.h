@@ -171,7 +171,7 @@ namespace Vcl { namespace Core
 		inline explicit StandardAllocPolicy(StandardAllocPolicy<U> const&) {}
 
 	public: // Memory allocation
-		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)
+		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr)
 		{
 			return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
 		}
@@ -229,7 +229,7 @@ namespace Vcl { namespace Core
 		inline explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&) {}
 
 	public: // Memory allocation
-		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = 0)
+		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr)
 		{
 			return reinterpret_cast<pointer>(_mm_malloc(cnt * sizeof(T), Alignment));
 		}

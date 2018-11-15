@@ -50,7 +50,9 @@ namespace Vcl { namespace Geometry
 	public:
 		real_t computeVolume() const
 		{
-			return real_t(4) / real_t(3) * (real_t)M_PI * _radius * _radius * _radius;
+			using Vcl::Mathematics::pi;
+
+			return real_t(4) / real_t(3) * pi<real_t>() * _radius * _radius * _radius;
 		}
 
 	private:

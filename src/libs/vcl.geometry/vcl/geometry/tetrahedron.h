@@ -161,13 +161,15 @@ namespace Vcl { namespace Geometry
 
 		real_t computeAngle(const vector_t& a, const vector_t& b) const
 		{
+			using Vcl::Mathematics::pi;
+
 			real_t l1 = a.squaredNorm();
 			real_t l2 = b.squaredNorm();
 			real_t tmp = (a.dot(b)) / sqrt(l1*l2);
 			if (tmp >= 1.0)
-				return 0.0f;						// avoid rounding errors
+				return 0.0f;         // avoid rounding errors
 			if (tmp <= -1.0)
-				return static_cast<real_t>(M_PI);	// avoid rounding errors
+				return pi<real_t>(); // avoid rounding errors
 
 			tmp = (real_t)acos(tmp);
 
