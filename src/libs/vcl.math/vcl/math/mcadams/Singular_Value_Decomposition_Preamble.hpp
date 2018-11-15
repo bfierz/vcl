@@ -47,7 +47,8 @@
 #define ENABLE_AVX512_IMPLEMENTATION(X)
 #endif
 
-#ifdef USE_SCALAR_IMPLEMENTATION
+#if defined(USE_SCALAR_IMPLEMENTATION) && !defined(HAS_RSQRT)
+#include <xmmintrin.h>
 float rsqrt(const float f)
 {
     float buf[4];

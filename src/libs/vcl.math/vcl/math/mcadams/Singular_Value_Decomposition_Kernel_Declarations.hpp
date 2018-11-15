@@ -76,9 +76,9 @@
 
 #endif
 
-const float Four_Gamma_Squared=sqrt(8.)+3.;
-const float Sine_Pi_Over_Eight=.5*sqrt(2.-sqrt(2.));
-const float Cosine_Pi_Over_Eight=.5*sqrt(2.+sqrt(2.));
+const float Four_Gamma_Squared=sqrt(8.0f)+3.0f;
+const float Sine_Pi_Over_Eight=0.5f*sqrt(2.0f-sqrt(2.0f));
+const float Cosine_Pi_Over_Eight=0.5f*sqrt(2.0f+sqrt(2.0f));
 const unsigned One_Mask=0xffffffff;
 
 ENABLE_SCALAR_IMPLEMENTATION(union {float f;unsigned int ui;} Sfour_gamma_squared;)       ENABLE_SSE_IMPLEMENTATION(__m128 Vfour_gamma_squared;)                                    ENABLE_AVX_IMPLEMENTATION(__m256 Vfour_gamma_squared;)                                    ENABLE_AVX512_IMPLEMENTATION(__m512 Vfour_gamma_squared;)
@@ -93,10 +93,10 @@ ENABLE_SCALAR_IMPLEMENTATION(union {float f;unsigned int ui;} Ssmall_number;)   
 ENABLE_SCALAR_IMPLEMENTATION(Sfour_gamma_squared.f=Four_Gamma_Squared;)                   ENABLE_SSE_IMPLEMENTATION(Vfour_gamma_squared=_mm_set1_ps(Four_Gamma_Squared);)           ENABLE_AVX_IMPLEMENTATION(Vfour_gamma_squared=_mm256_set1_ps(Four_Gamma_Squared);)        ENABLE_AVX512_IMPLEMENTATION(Vfour_gamma_squared=_mm512_set1_ps(Four_Gamma_Squared);)
 ENABLE_SCALAR_IMPLEMENTATION(Ssine_pi_over_eight.f=Sine_Pi_Over_Eight;)                   ENABLE_SSE_IMPLEMENTATION(Vsine_pi_over_eight=_mm_set1_ps(Sine_Pi_Over_Eight);)           ENABLE_AVX_IMPLEMENTATION(Vsine_pi_over_eight=_mm256_set1_ps(Sine_Pi_Over_Eight);)        ENABLE_AVX512_IMPLEMENTATION(Vsine_pi_over_eight=_mm512_set1_ps(Sine_Pi_Over_Eight);)
 ENABLE_SCALAR_IMPLEMENTATION(Scosine_pi_over_eight.f=Cosine_Pi_Over_Eight;)               ENABLE_SSE_IMPLEMENTATION(Vcosine_pi_over_eight=_mm_set1_ps(Cosine_Pi_Over_Eight);)       ENABLE_AVX_IMPLEMENTATION(Vcosine_pi_over_eight=_mm256_set1_ps(Cosine_Pi_Over_Eight);)    ENABLE_AVX512_IMPLEMENTATION(Vcosine_pi_over_eight=_mm512_set1_ps(Cosine_Pi_Over_Eight);)
-ENABLE_SCALAR_IMPLEMENTATION(Sone_half.f=.5;)                                             ENABLE_SSE_IMPLEMENTATION(Vone_half=_mm_set1_ps(.5);)                                     ENABLE_AVX_IMPLEMENTATION(Vone_half=_mm256_set1_ps(.5);)                                  ENABLE_AVX512_IMPLEMENTATION(Vone_half=_mm512_set1_ps(.5);)
-ENABLE_SCALAR_IMPLEMENTATION(Sone.f=1.;)                                                  ENABLE_SSE_IMPLEMENTATION(Vone=_mm_set1_ps(1.);)                                          ENABLE_AVX_IMPLEMENTATION(Vone=_mm256_set1_ps(1.);)                                       ENABLE_AVX512_IMPLEMENTATION(Vone=_mm512_set1_ps(1.);)
-ENABLE_SCALAR_IMPLEMENTATION(Stiny_number.f=1.e-20;)                                      ENABLE_SSE_IMPLEMENTATION(Vtiny_number=_mm_set1_ps(1.e-20);)                              ENABLE_AVX_IMPLEMENTATION(Vtiny_number=_mm256_set1_ps(1.e-20);)                           ENABLE_AVX512_IMPLEMENTATION(Vtiny_number=_mm512_set1_ps(1.e-20);)
-ENABLE_SCALAR_IMPLEMENTATION(Ssmall_number.f=1.e-12;)                                     ENABLE_SSE_IMPLEMENTATION(Vsmall_number=_mm_set1_ps(1.e-12);)                             ENABLE_AVX_IMPLEMENTATION(Vsmall_number=_mm256_set1_ps(1.e-12);)                          ENABLE_AVX512_IMPLEMENTATION(Vsmall_number=_mm512_set1_ps(1.e-12);)
+ENABLE_SCALAR_IMPLEMENTATION(Sone_half.f=0.5f;)                                           ENABLE_SSE_IMPLEMENTATION(Vone_half=_mm_set1_ps(0.5f);)                                   ENABLE_AVX_IMPLEMENTATION(Vone_half=_mm256_set1_ps(0.5f);)                                ENABLE_AVX512_IMPLEMENTATION(Vone_half=_mm512_set1_ps(0.5f);)
+ENABLE_SCALAR_IMPLEMENTATION(Sone.f=1.0f;)                                                ENABLE_SSE_IMPLEMENTATION(Vone=_mm_set1_ps(1.0f);)                                        ENABLE_AVX_IMPLEMENTATION(Vone=_mm256_set1_ps(1.0f);)                                     ENABLE_AVX512_IMPLEMENTATION(Vone=_mm512_set1_ps(1.0f);)
+ENABLE_SCALAR_IMPLEMENTATION(Stiny_number.f=1e-20f;)                                      ENABLE_SSE_IMPLEMENTATION(Vtiny_number=_mm_set1_ps(1e-20f);)                              ENABLE_AVX_IMPLEMENTATION(Vtiny_number=_mm256_set1_ps(1e-20f);)                           ENABLE_AVX512_IMPLEMENTATION(Vtiny_number=_mm512_set1_ps(1e-20f);)
+ENABLE_SCALAR_IMPLEMENTATION(Ssmall_number.f=1e-12f;)                                     ENABLE_SSE_IMPLEMENTATION(Vsmall_number=_mm_set1_ps(1e-12f);)                             ENABLE_AVX_IMPLEMENTATION(Vsmall_number=_mm256_set1_ps(1e-12f);)                          ENABLE_AVX512_IMPLEMENTATION(Vsmall_number=_mm512_set1_ps(1e-12f);)
                                                                                                                                                                                                                                                                               ENABLE_AVX512_IMPLEMENTATION(Vone_mask=_mm512_castsi512_ps(_mm512_set1_epi32(One_Mask));)
 
 ENABLE_SCALAR_IMPLEMENTATION(union {float f;unsigned int ui;} Sa11;)                      ENABLE_SSE_IMPLEMENTATION(__m128 Va11;)                                                   ENABLE_AVX_IMPLEMENTATION(__m256 Va11;)                                                   ENABLE_AVX512_IMPLEMENTATION(__m512 Va11;)
