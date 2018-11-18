@@ -47,7 +47,7 @@ TEST(Poisson1D, SimpleJacobiIdentityReference)
 	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol, skip);
 
 	Eigen::VectorXf lhs = sol;
-	runPoissonTest<Jacobi, GenericJacobiCtx, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, 1, 1e-5f);
+	runPoissonTest<Jacobi, GenericPoissonJacobiCtx, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, 1, 1e-5f);
 }
 
 TEST(Poisson1D, SimpleJacobiReference)
@@ -61,7 +61,7 @@ TEST(Poisson1D, SimpleJacobiReference)
 
 	Eigen::VectorXf lhs;
 	lhs.setZero(sol.size());
-	runPoissonTest<Jacobi, GenericJacobiCtx, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, 1000, 5e-3f);
+	runPoissonTest<Jacobi, GenericPoissonJacobiCtx, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, 1000, 5e-3f);
 }
 
 TEST(Poisson1D, SimpleJacobiNoBlockerIdentity)

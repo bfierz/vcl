@@ -137,10 +137,10 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	protected:
 		//! Residual to reduce for the CG solver
-		ref_ptr<Compute::Cuda::Buffer> _cgResidual;
+		//ref_ptr<Compute::Cuda::Buffer> _cgResidual;
 
 		//! Update direction for the CG solver
-		ref_ptr<Compute::Cuda::Buffer> _cgDirection;
+		//ref_ptr<Compute::Cuda::Buffer> _cgDirection;
 	};
 }}}}
 #endif // VCL_CUDA_SUPPORT

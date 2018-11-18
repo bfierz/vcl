@@ -35,12 +35,12 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	class JacobiContext
 	{
 	public:
-		//! Size of the problem to be solved
+		//! \returns The size of the problem to be solved
 		virtual int size() const = 0;
 
-	public:
-		//  c = D^-1 b
-		// -C = I - D^-1 A
+		//! \brief Prepare computation for the interative processing
+		//!  c = D^-1 b
+		//! -C = I - D^-1 A
 		virtual void precompute() = 0;
 
 		// A x = b

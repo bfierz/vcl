@@ -422,7 +422,7 @@ __global__ void CGUpdateVectorsEx
 	if (abs(d_g) > 0.0f)
 		alpha = d_r / d_g;
 
-	float beta = d_r - 2.0f * alpha * d_b + alpha * alpha * d_a;
+	float beta = d_r - (2.0f * alpha) * d_b + (alpha * alpha) * d_a;
 	if (abs(d_r) > 0.0f)
 		beta = beta / d_r;
 

@@ -73,7 +73,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 				if (foundDevices > 0)
 				{
 					auto result = std::find(compatibleDevices.begin(), compatibleDevices.end(), dev_id);
-					Check(result != compatibleDevices.end(), "Device is OpenGL compatible.");
+					VclCheck(result != compatibleDevices.end(), "Device is OpenGL compatible.");
 
 					VCL_CU_SAFE_CALL(cuGLCtxCreate(&_context, flags, dev_id));
 				}

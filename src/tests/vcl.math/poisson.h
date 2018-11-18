@@ -63,7 +63,7 @@ inline Eigen::MatrixXf createStencilMatrix1D(unsigned int size, std::vector<unsi
 	return stencil;
 }
 
-class GenericJacobiCtx : public Vcl::Mathematics::Solver::JacobiContext
+class GenericPoissonJacobiCtx : public Vcl::Mathematics::Solver::JacobiContext
 {
 	using real_t = float;
 	using matrix_t = Eigen::Matrix<real_t, Eigen::Dynamic, Eigen::Dynamic>;
@@ -71,7 +71,7 @@ class GenericJacobiCtx : public Vcl::Mathematics::Solver::JacobiContext
 	using map_t = Eigen::Map<vector_t>;
 
 public:
-	GenericJacobiCtx(unsigned int size)
+	GenericPoissonJacobiCtx(unsigned int size)
 	: _size(size)
 	{
 		_next.setZero(size);
@@ -83,12 +83,13 @@ public:
 		_rhs = rhs;
 	}
 
-	void updatePoissonStencil(real_t h, real_t k, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
+	void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		std::vector<unsigned char> boundary(skip.data(), skip.data() + skip.size());
 
 		const real_t s = k / (h*h);
 		_M = s*createStencilMatrix1D(_size, boundary);
+		_M += vector_t::Constant(_M.rows(), o).asDiagonal();
 
 		_D = (1.0f / (_M.diagonal()).array()).matrix().asDiagonal();
 		for (int i = 0; i < skip.size(); i++)
@@ -269,7 +270,7 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 	Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> boundary(skip.data(), (int64_t)skip.size());
 
 	Ctx ctx{ dim };
-	ctx.updatePoissonStencil(h, -1, boundary);
+	ctx.updatePoissonStencil(h, -1, 0, boundary);
 	ctx.setData(&x, &y);
 
 	// Execute the poisson solver

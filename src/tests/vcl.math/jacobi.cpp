@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +22,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Geometry
+// C++ standard library
+#include <random>
+
+// Include the relevant parts from the library
+#include <vcl/math/solver/jacobi.h>
+#include <vcl/math/solver/eigenjacobicontext.h>
+
+// Google test
+#include <gtest/gtest.h>
+
+TEST(Jacobi, Identity)
 {
-	template<typename Scalar, int Dim>
-	class Sphere
-	{
-	public:
-		using real_t = Scalar;
-		using vector_t = Eigen::Matrix<Scalar, Dim, 1>;
+	using namespace Vcl::Mathematics::Solver;
 
-	public:
-		Sphere(vector_t center, real_t radius)
-		: _center(center)
-		, _radius(radius)
-		{}
+	Eigen::MatrixXf A = Eigen::MatrixXf::Identity(10, 10);
+	Eigen::VectorXf b = Eigen::VectorXf::Ones(10);
+	Eigen::VectorXf x = Eigen::VectorXf::Zero(10);
+	for (int i = 0; i < 10; i++)
+		b[i] = static_cast<float>(i + 1);
 
-	public:
-		const vector_t& center() const { return _center; }
-		real_t radius() const { return _radius; }
+	EigenJacobiContext<Eigen::MatrixXf> ctx{&A, &b};
 
-	public:
-		real_t computeVolume() const
-		{
-			using Vcl::Mathematics::pi;
+	Eigen::Map<Eigen::VectorXf> mx{x.data(), x.size()};
+	ctx.setX(&mx);
 
-			return real_t(4) / real_t(3) * pi<real_t>() * _radius * _radius * _radius;
-		}
+	Jacobi solver;
+	solver.setMaxIterations(10);
 
-	private:
-		vector_t _center;
-		real_t _radius;
-	};
-}}
+	double residual = 0;
+	solver.solve(&ctx, &residual);
+
+	EXPECT_DOUBLE_EQ(residual, 0.0);
+}

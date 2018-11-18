@@ -88,13 +88,13 @@ namespace Vcl { namespace Geometry
 		template<typename T>
 		struct PropertyMemberType
 		{
-			typedef T type;
+			using type = T;
 		};
 		
 		template<>
 		struct PropertyMemberType<bool>
 		{
-			typedef unsigned int type;
+			using type = unsigned int;
 		};
 	}
 
@@ -102,13 +102,13 @@ namespace Vcl { namespace Geometry
 	class Property : public PropertyBase
 	{
 	public:
-		typedef typename Internal::PropertyMemberType<T>::type	value_type;
+		using value_type = typename Internal::PropertyMemberType<T>::type;
 
-		typedef value_type*			pointer;
-		typedef value_type&			reference;
-		typedef value_type&&		rvalue_reference;
-		typedef const value_type&	const_reference;
-		typedef IndexT				index_type;
+		using pointer =  value_type*;
+		using reference = value_type&;
+		using rvalue_reference = value_type&&;
+		using const_reference =  const value_type&;
+		using index_type = IndexT;
 
 	public:
 		//! Constructor
@@ -150,7 +150,7 @@ namespace Vcl { namespace Geometry
 			VclEnsure(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
-		virtual ~Property()
+		~Property() override
 		{
 			clear();
 
