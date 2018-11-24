@@ -33,7 +33,7 @@ VCL_RTTI_CTOR_TABLE_BEGIN(Transform)
 VCL_RTTI_CTOR_TABLE_END(Transform)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(Transform)
-	Vcl::RTTI::Attribute<System::Components::Transform, const Eigen::Matrix3f&>{ "Rotation", &System::Components::Transform::rotation, &System::Components::Transform::setRotation }
+	Vcl::RTTI::Attribute<System::Components::Transform, Eigen::Matrix3f>{ "Rotation", &System::Components::Transform::rotation, &System::Components::Transform::setRotation }
 VCL_RTTI_ATTR_TABLE_END(Transform)
 
 VCL_DEFINE_METAOBJECT(System::Components::Transform)
@@ -50,12 +50,12 @@ namespace System { namespace Components
 
 	}
 
-	const Eigen::Matrix3f& Transform::rotation() const
+	Eigen::Matrix3f Transform::rotation() const
 	{
 		return _transform.block<3, 3>(0, 0);
 	}
 
-	void Transform::setRotation(const Eigen::Matrix3f& rotation)
+	void Transform::setRotation(Eigen::Matrix3f rotation)
 	{
 		_transform.block<3, 3>(0, 0) = rotation;
 	}

@@ -37,6 +37,7 @@
 #include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/convert.h>
+#include <vcl/core/enum.h>
 #include <vcl/rtti/attributebase.h>
 #include <vcl/rtti/factory.h>
 #include <vcl/rtti/metatypelookup.h>
@@ -60,7 +61,7 @@ namespace Vcl { namespace RTTI
 
 		uint32_t count() const override
 		{
-			return enumCount<T>();
+			return Vcl::enumCount<T>();
 		}
 		uint32_t enumValue(uint32_t i) const override
 		{
@@ -88,9 +89,9 @@ namespace Vcl { namespace RTTI
 		, _setter(setter)
 		{
 			if (setter != nullptr)
-				setHasSetter();
+				this->setHasSetter();
 			if (getter != nullptr)
-				setHasGetter();
+				this->setHasGetter();
 		}
 		
 	public:
@@ -139,14 +140,14 @@ namespace Vcl { namespace RTTI
 			T val = get(*static_cast<const MetaType*>(object));
 			std::string str = to_string(val);
 
-			ser.writeAttribute(name(), str);
+			ser.writeAttribute(this->name(), str);
 		}
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(this->name()), "Attribute is available.");
 
-			set(object, deser.readAttribute(name()));
+			set(object, deser.readAttribute(this->name()));
 		}
 
 	private:
@@ -175,9 +176,9 @@ namespace Vcl { namespace RTTI
 		, _setter(setter)
 		{
 			if (setter != nullptr)
-				setHasSetter();
+				this->setHasSetter();
 			if (getter != nullptr)
-				setHasGetter();
+				this->setHasGetter();
 		}
 
 	public:
@@ -224,14 +225,14 @@ namespace Vcl { namespace RTTI
 			const auto& val = get(*static_cast<const MetaType*>(object));
 			std::string str = to_string(val);
 
-			ser.writeAttribute(name(), str);
+			ser.writeAttribute(this->name(), str);
 		}
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(this->name()), "Attribute is available.");
 
-			set(object, deser.readAttribute(name()));
+			set(object, deser.readAttribute(this->name()));
 		}
 
 	private:
@@ -258,9 +259,9 @@ namespace Vcl { namespace RTTI
 		, _setter(setter)
 		{
 			if (setter != nullptr)
-				setHasSetter();
+				this->setHasSetter();
 			if (getter != nullptr)
-				setHasGetter();
+				this->setHasGetter();
 		}
 		
 	public:
@@ -307,7 +308,7 @@ namespace Vcl { namespace RTTI
 		virtual void serialize(Serializer& ser, const void* object) const override
 		{
 			// Write attribute name
-			ser.writeAttribute(name(), "");
+			ser.writeAttribute(this->name(), "");
 
 			// Write content of the attribute
 			auto* type = vcl_meta_type<T>();
@@ -316,10 +317,10 @@ namespace Vcl { namespace RTTI
 
 		virtual void deserialize(Deserializer& deser, void* object) const override
 		{
-			VclRequire(deser.hasAttribute(name()), "Attribute is available.");
+			VclRequire(deser.hasAttribute(this->name()), "Attribute is available.");
 
 			// Start reading a new object
-			deser.beginType(name());
+			deser.beginType(this->name());
 
 			// Read content of the attribute
 			auto type = vcl_meta_type_by_name(deser.readType());
@@ -342,142 +343,4 @@ namespace Vcl { namespace RTTI
 		/// Function pointer to the stored setter
 		Setter _setter;
 	};
-	
-	/*template<typename MetaType, typename T>
-	class Attribute<MetaType, std::shared_ptr<T>> : public AttributeBase
-	{
-		typedef T ValueType;
-		typedef std::shared_ptr<T> AttrT;
-
-	public:
-		Attribute(const char* name, AttrT (MetaType::*getter)() const, void (MetaType::*setter)(AttrT))
-		: AttributeBase(name)
-		, _getter(std::mem_fn(getter))
-		, _setter(std::mem_fn(setter))
-		{
-			setIsReference();
-			setIsShared();
-			if (setter != nullptr)
-				setHasSetter();
-			if (getter != nullptr)
-				setHasGetter();
-		}
-
-		virtual ~Attribute()
-		{
-		}
-		
-	public:
-		AttrT get(const MetaType& obj) const
-		{
-			return _getter(obj);
-		}
-
-		void set(MetaType& obj, AttrT val)
-		{
-			_setter(obj, val);
-		}
-
-	public:
-		virtual void set(void* object, const std::any& param) const override
-		{
-			VclRequire(object, "Object is set.");
-			//VclRequire(param, "Value is set.");
-
-			auto shared = boost::any_cast<AttrT>(&param);
-			if (shared)
-			{
-				_setter(*static_cast<MetaType*>(object), *shared);
-			}
-			else
-			{
-				ValueType* val = reinterpret_cast<ValueType*>(boost::any_cast<void*>(param));
-				_setter(*static_cast<MetaType*>(object), AttrT(val));
-			}
-		}
-		virtual void set(void* object, const std::string& param) const override
-		{
-			// This method could be implemented by looking up an object in a data base
-			VclDebugError("Not implemented.");
-		}
-		virtual void get(const void* object, void* param, void* result) const override
-		{
-			VclDebugError("Not implemented.");
-		}
-		virtual void get(const void* object, const std::string& param, void* result) const override
-		{
-			VclDebugError("Not implemented.");
-		}
-
-	private:
-		/// Function pointer to the stored getter
-		std::function<AttrT (const MetaType&)> _getter;
-
-		/// Function pointer to the stored setter
-		std::function<void (MetaType&, AttrT)> _setter;
-	};
-	
-	template<typename MetaType, typename T>
-	class Attribute<MetaType, T*> : public AttributeBase
-	{
-		typedef T* AttrT;
-
-	public:
-		Attribute(const char* name, AttrT (MetaType::*getter)() const, void (MetaType::*setter)(AttrT))
-		: AttributeBase(name)
-		, _getter(std::mem_fn(getter))
-		, _setter(std::mem_fn(setter))
-		{
-			setIsReference();
-			if (setter != nullptr)
-				setHasSetter();
-			if (getter != nullptr)
-				setHasGetter();
-		}
-
-		virtual ~Attribute()
-		{
-		}
-		
-	public:
-		AttrT get(const MetaType& obj) const
-		{
-			return _getter(obj);
-		}
-
-		void set(MetaType& obj, AttrT val)
-		{
-			_setter(obj, val);
-		}
-
-	public:
-		virtual void set(void* object, const std::any& param) const override
-		{
-			VclRequire(object, "Object is set.");
-			//VclRequire(param, "Value is set.");
-
-			AttrT obj_ptr = boost::any_cast<T*>(param);
-
-			_setter(*static_cast<MetaType*>(object), obj_ptr);
-		}
-		virtual void set(void* object, const std::string& param) const override
-		{
-			VclDebugError("Not implemented.");
-		}
-		virtual void get(const void* object, void* param, void* result) const override
-		{
-			VclDebugError("Not implemented.");
-		}
-		virtual void get(const void* object, const std::string& param, void* result) const override
-		{
-			VclDebugError("Not implemented.");
-		}
-
-	private:
-		/// Function pointer to the stored getter
-		std::function<AttrT (const MetaType&)> _getter;
-
-		/// Function pointer to the stored setter
-		std::function<void (MetaType&, AttrT)> _setter;
-	};*/
 }}

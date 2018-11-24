@@ -261,11 +261,9 @@ int main(int argc, char* argv [])
 		return -1;
 	}
 
-#ifdef VCL_COMPILER_MSVC
 	std::string compiler = "cl";
 	char param_tok = '/';
 	Compiler format = Compiler::Msvc;
-#endif
 
 	if (options.count("compiler") > 0)
 	{

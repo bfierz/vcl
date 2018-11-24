@@ -48,10 +48,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		EigenJacobiContext(const matrix_t* A, const vector_t* b)
-		: _size(b->size())
-		, _A(A)
+		: _A(A)
 		, _x(nullptr)
 		, _b(b)
+		, _size(b->size())
 		{
 			_D = A->diagonal();
 			_DInv = A->diagonal().cwiseInverse();

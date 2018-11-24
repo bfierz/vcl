@@ -38,6 +38,7 @@ set(VCL_CORE_INC
 	vcl/core/any.h
 	vcl/core/contract.h
 	vcl/core/convert.h
+	vcl/core/enum.h
 	vcl/core/flags.h
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h

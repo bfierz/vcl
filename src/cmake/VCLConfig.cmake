@@ -131,7 +131,10 @@ function(vcl_configure tgt)
 		# * RTTI
 		# * Don't be permissive
 		target_compile_options(${tgt} PUBLIC "/EHsc" "/GR")
-		target_compile_options(${tgt} PRIVATE "/W4" "/permissive-")
+		target_compile_options(${tgt} PRIVATE "/W4")
+		if (MSVC_VERSION GREATER 1900)
+			target_compile_options(${tgt} PRIVATE "/permissive-")
+		endif()
 	
 		# Make AVX available
 		if(VCL_VECTORIZE_AVX2)

@@ -33,6 +33,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Sampler::Sampler(const SamplerDescription& desc)
 	: Runtime::Sampler(desc)
 	{
+		// TextureAddressMode::MirrorOnce (GL_MIRROR_CLAMP_TO_EDGE) requires
+		// GL_ARB_texture_mirror_clamp_to_edge
+
 		glGenSamplers(1, &_glId);
 		
 		// Set GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TEXTURE_WRAP_R
@@ -128,15 +131,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	GLenum Sampler::convert(TextureAddressMode mode) const
 	{
-		VCL_WARNING("Check texture address mode conversion for Clamp and MirrorOnce.")
-
 		switch (mode)
 		{
 		case TextureAddressMode::Wrap      : return GL_REPEAT;
 		case TextureAddressMode::Mirror    : return GL_MIRRORED_REPEAT;
 		case TextureAddressMode::Clamp     : return GL_CLAMP_TO_EDGE;
 		case TextureAddressMode::Border    : return GL_CLAMP_TO_BORDER;
-		case TextureAddressMode::MirrorOnce: { VclDebugError("Not supported."); break; }
+		case TextureAddressMode::MirrorOnce: return GL_MIRROR_CLAMP_TO_EDGE;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
 

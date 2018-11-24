@@ -54,6 +54,7 @@ namespace Vcl { namespace Components
 	{
 	public:
 		ComponentStoreBase(const Vcl::RTTI::Type* type) : _type(type) {}
+		virtual ~ComponentStoreBase() = default;
 
 		//! \returns the type of the components in this store
 		const Vcl::RTTI::Type* type() const { return _type; }
