@@ -160,6 +160,8 @@ private:
 };
 
 // Test classes
+VCL_DECLARE_ENUM(Enum, One, Two)
+
 class BaseObject
 {
 	VCL_DECLARE_ROOT_METAOBJECT(BaseObject)
@@ -176,8 +178,13 @@ public:
 	const std::string& name() const { return _name; }
 	void setName(const std::string& n) { _name = n; }
 
+	Enum enumerator() const { return _enum; }
+	void setEnumerator(Enum e) { _enum = e; }
+
 private:
 	std::string _name{ "Initialized" };
+
+	Enum _enum{ Enum::One };
 };
 
 class AdditionalBase
@@ -196,7 +203,7 @@ class DerivedObject : public BaseObject, public AdditionalBase
 
 public:
 	DerivedObject()
-		: _size(42)
+	: _size(42)
 	{
 	}
 
@@ -238,13 +245,14 @@ VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 VCL_RTTI_CTOR_TABLE_END(BaseObject)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
-	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName }
+	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName },
+	Vcl::RTTI::Attribute<BaseObject, Enum>{ "Enumerator", &BaseObject::enumerator, &BaseObject::setEnumerator }
 VCL_RTTI_ATTR_TABLE_END(BaseObject)
 
 VCL_DEFINE_METAOBJECT(BaseObject)
 {
-	type->registerConstructors(BaseObject_constructor_bases);
-	type->registerAttributes(BaseObject_attribute_bases);
+	VCL_RTTI_REGISTER_CTORS(BaseObject);
+	VCL_RTTI_REGISTER_ATTRS(BaseObject);
 }
 
 VCL_DEFINE_METAOBJECT(AdditionalBase)
@@ -254,20 +262,19 @@ VCL_DEFINE_METAOBJECT(AdditionalBase)
 VCL_RTTI_BASES(DerivedObject, BaseObject)
 
 VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
-Vcl::RTTI::Constructor<DerivedObject>()
+	Vcl::RTTI::Constructor<DerivedObject>()
 VCL_RTTI_CTOR_TABLE_END(DerivedObject)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(DerivedObject)
-Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
+	Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
 VCL_RTTI_ATTR_TABLE_END(DerivedObject)
 
 VCL_DEFINE_METAOBJECT(DerivedObject)
 {
-	type->registerBaseClasses(DerivedObject_parents);
-	type->registerConstructors(DerivedObject_constructor_bases);
-	type->registerAttributes(DerivedObject_attribute_bases);
+	VCL_RTTI_REGISTER_BASES(DerivedObject);
+	VCL_RTTI_REGISTER_CTORS(DerivedObject);
+	VCL_RTTI_REGISTER_ATTRS(DerivedObject);
 }
-
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -436,6 +443,19 @@ TEST(RttiTest, AttributeSimpleSetter)
 	EXPECT_EQ(std::string{ "String2" }, obj.name()) << "Property 'Name' was not set.";
 }
 
+TEST(RttiTest, AttributeEnumSetter)
+{
+	using namespace Vcl::RTTI;
+
+	// Test object
+	BaseObject obj;
+	EXPECT_EQ(Enum::One, obj.enumerator());
+
+	// Set an enum attribute
+	Attribute<BaseObject, Enum> attr{ "E", &BaseObject::enumerator, &BaseObject::setEnumerator };
+	attr.set(&obj, Enum::Two);
+	EXPECT_EQ(Enum::Two, obj.enumerator());
+}
 TEST(RttiTest, AttributeOwnedMember)
 {
 	using namespace Vcl::RTTI;

@@ -56,21 +56,24 @@ namespace Vcl { namespace RTTI
 
 	public:		
 		template<size_t N>
-		void registerBaseClasses(std::array<const Type*, N>& bases)
+		ConstructableType* registerBaseClasses(std::array<const Type*, N>& bases)
 		{
 			_parents = bases;
+			return this;
 		}
 
 		template<size_t N>
-		void registerConstructors(std::array<const ConstructorBase*, N>& constructors)
+		ConstructableType* registerConstructors(std::array<const ConstructorBase*, N>& constructors)
 		{
 			_constructors.set(constructors);
+			return this;
 		}
 
 		template<size_t N>
-		void registerAttributes(std::array<const AttributeBase*, N>& attributes)
+		ConstructableType* registerAttributes(std::array<const AttributeBase*, N>& attributes)
 		{
 			_attributes = attributes;
+			return this;
 		}
 
 		virtual void destruct(void* ptr) const override

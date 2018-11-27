@@ -48,7 +48,7 @@ enum class type_name													       \
 namespace Vcl															       \
 {																		       \
 	template<>																   \
-	VCL_CPP_CONSTEXPR_11 size_t enumCount<type_name>()						   \
+	VCL_CPP_CONSTEXPR_11 unsigned int enumCount<type_name>()						   \
 	{																		   \
 		return VCL_PP_VA_NUM_ARGS(__VA_ARGS__);								   \
 	}																		   \
@@ -99,7 +99,7 @@ namespace Vcl															       \
 namespace Vcl
 {
 	template<typename T>
-	VCL_CPP_CONSTEXPR_11 size_t enumCount()
+	VCL_CPP_CONSTEXPR_11 unsigned int enumCount()
 	{
 		return 0;
 	}
