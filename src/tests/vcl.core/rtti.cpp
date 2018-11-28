@@ -245,8 +245,8 @@ VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 VCL_RTTI_CTOR_TABLE_END(BaseObject)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(BaseObject)
-	Vcl::RTTI::Attribute<BaseObject, const std::string&>{ "Name", &BaseObject::name, &BaseObject::setName },
-	Vcl::RTTI::Attribute<BaseObject, Enum>{ "Enumerator", &BaseObject::enumerator, &BaseObject::setEnumerator }
+	VCL_RTTI_ATTR(BaseObject, "Name", const std::string&, name, setName),
+	VCL_RTTI_ATTR(BaseObject, "Enumerator", Enum, enumerator, setEnumerator)
 VCL_RTTI_ATTR_TABLE_END(BaseObject)
 
 VCL_DEFINE_METAOBJECT(BaseObject)
@@ -266,7 +266,7 @@ VCL_RTTI_CTOR_TABLE_BEGIN(DerivedObject)
 VCL_RTTI_CTOR_TABLE_END(DerivedObject)
 
 VCL_RTTI_ATTR_TABLE_BEGIN(DerivedObject)
-	Vcl::RTTI::Attribute<DerivedObject, std::unique_ptr<BaseObject>>{ "OwnedMember", &DerivedObject::ownedObj, &DerivedObject::setOwnedObj }
+	VCL_RTTI_ATTR(DerivedObject, "OwnedMember", std::unique_ptr<BaseObject>, ownedObj, setOwnedObj)
 VCL_RTTI_ATTR_TABLE_END(DerivedObject)
 
 VCL_DEFINE_METAOBJECT(DerivedObject)
