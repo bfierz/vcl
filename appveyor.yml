@@ -38,27 +38,24 @@ configuration:
 environment:
   MSVC_DEFAULT_OPTIONS: ON
   
-  # Custom cmake version
-  cmake: C:\projects\cmake-3.10.1-win64-x64\bin\cmake.exe
-  
   matrix:	
+    #- tool_set: "v140"
+    #  vec_type: "SSE 2"
+    #- tool_set: "v140"
+    #  vec_type: "SSE 3"
+    #- tool_set: "v140"
+    #  vec_type: "SSE 4.1"
+    #- tool_set: "v140"
+    #  vec_type: "SSE 4.2"
     - tool_set: "v140"
+      vec_type: "AVX"
+
+    - tool_set: "v141"
       vec_type: "SSE 2"
-    - tool_set: "v140"
+    - tool_set: "v141"
       vec_type: "SSE 3"
-    - tool_set: "v140"
+    - tool_set: "v141"
       vec_type: "SSE 4.1"
-    - tool_set: "v140"
-      vec_type: "SSE 4.2"
-    - tool_set: "v140"
-      vec_type: "AVX"
-
-    #- tool_set: "v141"
-    #  vec_type: "SSE 2"
-    #- tool_set: "v141"
-    #  vec_type: "SSE 3"
-    #- tool_set: "v141"
-    #  vec_type: "SSE 4.1"
     - tool_set: "v141"
       vec_type: "SSE 4.2"
     - tool_set: "v141"
@@ -70,8 +67,8 @@ environment:
     #  vec_type: "SSE 3"
     #- tool_set: "LLVM-vs2014"
     #  vec_type: "SSE 4.1"
-    - tool_set: "LLVM-vs2014"
-      vec_type: "SSE 4.2"
+    #- tool_set: "LLVM-vs2014"
+    #  vec_type: "SSE 4.2"
     - tool_set: "LLVM-vs2014"
       vec_type: "AVX"
 
@@ -87,22 +84,13 @@ clone_folder: C:\projects\vcl
 install:
   - cmd: git submodule update --init --recursive
   
-  - ps: wget https://cmake.org/files/v3.10/cmake-3.10.1-win64-x64.zip -OutFile cmake.zip
-  - cmd: 7z x cmake.zip -o"C:\projects" -y > nul # will extract to cmake-3.10.1-win64-x64\
-  - cmd: '%cmake% --version'
-  
-  # Download and install clang
-  - if "%tool_set%"=="LLVM-vs2014" appveyor DownloadFile http://releases.llvm.org/5.0.1/LLVM-5.0.1-win64.exe -FileName llvm-installer.exe
-  - if "%tool_set%"=="LLVM-vs2014" start /WAIT llvm-installer.exe /S /D=C:\"Program Files\LLVM"
-  - if "%tool_set%"=="LLVM-vs2014" cmd: clang --version
-  
 before_build:
   - cmd: cd C:\projects\vcl
   - cmd: md build
   - cmd: cd build
   - cmd: if "%platform%"=="Win32" if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
   - cmd: if "%platform%"=="x64"   if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  - cmd: '%cmake% -G "%CMAKE_GENERATOR_NAME%" -T "%tool_set%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ../src'
+  - cmd: 'cmake -G "%CMAKE_GENERATOR_NAME%" -T "%tool_set%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ../src'
 
 build_script:
   - msbuild C:\projects\vcl\build\tests\vcl.components\vcl_components_test.sln
