@@ -12,9 +12,9 @@
 namespace gte
 {
 
-struct _Float16 { int16_t _dummy; };
+struct GteFloat16 { int16_t _dummy; };
 
-class IEEEBinary16 : public IEEEBinary<_Float16, uint16_t, 16, 11>
+class IEEEBinary16 : public IEEEBinary<GteFloat16, uint16_t, 16, 11>
 {
 public:
     // Construction and destruction.  The base class destructor is hidden, but

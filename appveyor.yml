@@ -37,19 +37,11 @@ configuration:
 
 environment:
   MSVC_DEFAULT_OPTIONS: ON
-  
-  matrix:	
-    #- tool_set: "v140"
-    #  vec_type: "SSE 2"
-    #- tool_set: "v140"
-    #  vec_type: "SSE 3"
-    #- tool_set: "v140"
-    #  vec_type: "SSE 4.1"
-    #- tool_set: "v140"
-    #  vec_type: "SSE 4.2"
+
+  matrix:
     - tool_set: "v140"
       vec_type: "AVX"
-
+    
     - tool_set: "v141"
       vec_type: "SSE 2"
     - tool_set: "v141"
@@ -61,27 +53,27 @@ environment:
     - tool_set: "v141"
       vec_type: "AVX"
 
-    #- tool_set: "LLVM-vs2014"
-    #  vec_type: "SSE 2"
-    #- tool_set: "LLVM-vs2014"
-    #  vec_type: "SSE 3"
-    #- tool_set: "LLVM-vs2014"
-    #  vec_type: "SSE 4.1"
-    #- tool_set: "LLVM-vs2014"
-    #  vec_type: "SSE 4.2"
-    - tool_set: "LLVM-vs2014"
+    - tool_set: "llvm"
       vec_type: "AVX"
 
 branches:
   only:
-    - master
+    - llvm
 
 init:
   - cmd: msbuild /version
+  - cmd: if "%tool_set%"=="llvm" clang --version
 
 clone_folder: C:\projects\vcl
 
 install:
+  # Make LLVM discoverable
+  - cmd: if "%tool_set%"=="llvm" reg add HKEY_LOCAL_MACHINE\SOFTWARE\LLVM\LLVM /d "C:\Program Files\LLVM" /t REG_SZ /f
+  # Install the LLVM toolchain 
+  - cmd: if "%tool_set%"=="llvm" C:\projects\vcl\ci\appveyor-install-vsix.bat C:\projects\vcl\ci\llvm-toolchain-1.0.340780.vsix
+  # Disable vcpkg as it interferes with the LLVM toolchain
+  - cmd: if "%tool_set%"=="llvm" vcpkg integrate remove
+  # Update all the submodules of the project
   - cmd: git submodule update --init --recursive
   
 before_build:
@@ -104,3 +96,7 @@ test_script:
   - cmd: vcl_core_test.exe
   - cmd: vcl_geometry_test.exe
   - cmd: vcl_math_test.exe
+
+on_finish:
+  # Tap in for debug CMake problems
+  #- ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
