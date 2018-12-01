@@ -3,7 +3,7 @@
 	url = https://github.com/Microsoft/GSL
 [submodule "src/externals/eigen"]
 	path = src/externals/eigen
-	url = https://github.com/bfierz/eigen-git-mirror.git
+	url = https://github.com/eigenteam/eigen-git-mirror
 [submodule "src/externals/abseil"]
 	path = src/externals/abseil
 	url = https://github.com/abseil/abseil-cpp.git
