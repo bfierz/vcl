@@ -58,7 +58,7 @@ environment:
 
 branches:
   only:
-    - llvm
+    - master
 
 init:
   - cmd: msbuild /version
