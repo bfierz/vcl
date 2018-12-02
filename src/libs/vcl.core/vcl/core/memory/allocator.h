@@ -129,7 +129,7 @@ namespace Vcl { namespace Core
 
 		//! Call constructor of p of type U
 		template<typename U, typename... Args>
-		void construct(U* p, Args&&... args)
+		void construct(U* p, Args&&...)
 		{
 			// Omit the '()' to avoid initialization of the objects
 			::new(static_cast<void*>(p)) U;

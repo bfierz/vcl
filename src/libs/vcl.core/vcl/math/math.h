@@ -48,7 +48,7 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE double sgn(double x)
 	{
-		return (double) ((0.0 < x) - (x < 0.0));
+		return static_cast<double>((0.0 < x) - (x < 0.0));
 	}
 
 	VCL_STRONG_INLINE double abs(double a)
@@ -131,7 +131,7 @@ namespace Vcl { namespace Mathematics
 
 	VCL_STRONG_INLINE float sgn(float x)
 	{
-		return (float) ((0.0f < x) - (x < 0.0f));
+		return static_cast<float>((0.0f < x) - (x < 0.0f));
 	}
 
 	VCL_STRONG_INLINE float abs(float a)
@@ -271,18 +271,18 @@ namespace Vcl { namespace Mathematics
 	template<typename T>
 	VCL_CPP_CONSTEXPR_11 T pi()
 	{
-		return (T) 3.14159265358979323846;
+		return static_cast<T>(3.14159265358979323846);
 	}
 
 	template<typename T>
 	VCL_CPP_CONSTEXPR_11 T rad2deg()
 	{
-		return (T) 180 / pi<T>();
+		return static_cast<T>(180) / pi<T>();
 	}
 
 	template<typename T>
 	VCL_CPP_CONSTEXPR_11 T deg2rad()
 	{
-		return pi<T>() / (T)180;
+		return pi<T>() / static_cast<T>(180);
 	}
 }}

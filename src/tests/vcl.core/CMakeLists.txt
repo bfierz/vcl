@@ -17,6 +17,7 @@ SET(VCL_TEST_SRC
 	gather.cpp
 	interleavedarray.cpp
 	load.cpp
+	math.cpp
 	minmax.cpp
 	rtti.cpp
 	scatter.cpp

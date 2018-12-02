@@ -22,8 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
 float liver_766_points[] =
 {
 	6.33635f, 11.4657f, 5.04827f,

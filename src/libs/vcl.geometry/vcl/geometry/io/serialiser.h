@@ -38,6 +38,8 @@ namespace Vcl { namespace Geometry { namespace IO
 {
 	struct AbstractDeserialiser
 	{
+		virtual ~AbstractDeserialiser() = default;
+
 		// Inform the deserialiser of begin and end of the file loading process
 		virtual void begin() =0;
 		virtual void end() =0;
@@ -62,6 +64,8 @@ namespace Vcl { namespace Geometry { namespace IO
 
 	struct AbstractSerialiser
 	{
+		virtual ~AbstractSerialiser() = default;
+
 		// Inform the serialiser of begin and end of the exporting process
 		virtual void begin() =0;
 		virtual void end() =0;
@@ -84,10 +88,13 @@ namespace Vcl { namespace Geometry { namespace IO
 
 	class Serialiser
 	{
+	public:
+		virtual ~Serialiser() = default;
+
 	public: // Read mesh file
-		virtual void load(AbstractDeserialiser* deserialiser, const std::string& path) const { VclDebugError("Not implemented."); }
+		virtual void load(AbstractDeserialiser* /*deserialiser*/, const std::string& /*path*/) const { VclDebugError("Not implemented."); }
 
 	public: // Write mesh file
-		virtual void store(AbstractSerialiser* serialiser,    const std::string& path) const { VclDebugError("Not implemented."); }
+		virtual void store(AbstractSerialiser* /*serialiser*/,    const std::string& /*path*/) const { VclDebugError("Not implemented."); }
 	};
 }}}

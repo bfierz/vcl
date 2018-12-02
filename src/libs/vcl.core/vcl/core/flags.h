@@ -52,7 +52,7 @@ struct name		                                                         \
 	{                                                                    \
 		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_FLAGS_BITS, __VA_ARGS__)      \
 	};                                                                   \
-	static const char* ToString(size_t value)                            \
+	static const char* toString(size_t value)                            \
 	{                                                                    \
 		switch (value)                                                   \
 		{                                                                \
@@ -86,7 +86,7 @@ namespace Vcl
 		typedef typename T::Bits Bits;
 
 	public:
-		inline Flags(void)
+		inline Flags()
 		: _flags(0)
 		{
 		}
@@ -113,9 +113,14 @@ namespace Vcl
 			_flags &= ~flag;
 		}
 
-		inline void clear(void)
+		inline void clear()
 		{
 			_flags = 0;
+		}
+
+		inline uint32_t data()
+		{
+			return _flags;
 		}
 
 		inline bool isSet(Enum flag) const
@@ -123,12 +128,12 @@ namespace Vcl
 			return ((_flags & flag) != 0);
 		}
 
-		inline bool isAnySet(void) const
+		inline bool isAnySet() const
 		{
 			return (_flags != 0);
 		}
 
-		inline bool areAllSet(void) const
+		inline bool areAllSet() const
 		{
 			return (_flags == ((1ull << T::Count) - 1u));
 		}

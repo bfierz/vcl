@@ -37,6 +37,7 @@
 #include <vcl/rtti/metatypebase.h>
 
 #define VCL_RTTI_BASES(Object, ...) auto VCL_PP_JOIN(Object, _parents) = vcl_meta_types<__VA_ARGS__>();
+#define VCL_RTTI_REGISTER_BASES(Object) type->registerBaseClasses(VCL_PP_JOIN(Object, _parents));
 
 namespace Vcl { namespace RTTI 
 {
@@ -55,21 +56,24 @@ namespace Vcl { namespace RTTI
 
 	public:		
 		template<size_t N>
-		void registerBaseClasses(std::array<const Type*, N>& bases)
+		ConstructableType* registerBaseClasses(std::array<const Type*, N>& bases)
 		{
 			_parents = bases;
+			return this;
 		}
 
 		template<size_t N>
-		void registerConstructors(std::array<const ConstructorBase*, N>& constructors)
+		ConstructableType* registerConstructors(std::array<const ConstructorBase*, N>& constructors)
 		{
 			_constructors.set(constructors);
+			return this;
 		}
 
 		template<size_t N>
-		void registerAttributes(std::array<const AttributeBase*, N>& attributes)
+		ConstructableType* registerAttributes(std::array<const AttributeBase*, N>& attributes)
 		{
 			_attributes = attributes;
+			return this;
 		}
 
 		virtual void destruct(void* ptr) const override

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
-// VCL
-#include <vcl/rtti/metatype.h>
+// C++ standard library
+#include <random>
 
-namespace System { namespace Components
+// Include the relevant parts from the library
+#include <vcl/math/math.h>
+
+VCL_BEGIN_EXTERNAL_HEADERS
+// Google test
+#include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
+
+using namespace Vcl::Mathematics;
+
+TEST(Math, Sign)
 {
-	class Transform
+	std::random_device rnd;
+	std::uniform_real_distribution<double> dist_d{-10, 10};
+
+	for (int i = 0; i < 50; i++)
 	{
-		VCL_DECLARE_PLAIN_METAOBJECT
+		const double d = dist_d(rnd);
+		if (d < 0)
+			EXPECT_EQ(sgn(d), -1.0);
+		else
+			EXPECT_EQ(sgn(d), 1.0);
+	}
+}
 
-	public:
-		Transform(const Eigen::Matrix4f& initial);
+TEST(Math, Max)
+{
+	std::random_device rnd;
+	std::uniform_real_distribution<double> dist_d{ -10, 10 };
 
-		const Eigen::Matrix4f& get() const { return _transform; }
+	for (int i = 0; i < 50; i++)
+	{
+		const double d0 = dist_d(rnd);
+		const double d1 = dist_d(rnd);
+		if (d0 > d1)
+			EXPECT_EQ(max(d0, d1), d0);
+		else
+			EXPECT_EQ(max(d0, d1), d1);
+	}
+}
 
-		Eigen::Matrix3f rotation() const;
-		void setRotation(Eigen::Matrix3f rotation);
+TEST(Math, Min)
+{
+	std::random_device rnd;
+	std::uniform_real_distribution<double> dist_d{ -10, 10 };
 
-		Eigen::Vector3f position() const;
-		void setPosition(const Eigen::Vector3f& position);
-
-	private:
-		//! Rotation and transformation
-		Eigen::Matrix4f _transform{ Eigen::Matrix4f::Identity() };
-	};
-}}
+	for (int i = 0; i < 50; i++)
+	{
+		const double d0 = dist_d(rnd);
+		const double d1 = dist_d(rnd);
+		if (d0 < d1)
+			EXPECT_EQ(min(d0, d1), d0);
+		else
+			EXPECT_EQ(min(d0, d1), d1);
+	}
+}
