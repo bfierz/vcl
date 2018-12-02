@@ -48,6 +48,85 @@ namespace
 		twister->seed(seed);
 		return twister;
 	}
+
+	VCL_CPP_CONSTEXPR_11 std::array<float, 32> ACoeffs =
+	{
+		 0.000334f,-0.001528f, 0.000410f, 0.003545f,-0.000938f,-0.008233f, 0.002172f, 0.019120f,
+		-0.005040f,-0.044412f, 0.011655f, 0.103311f,-0.025936f,-0.243780f, 0.033979f, 0.655340f,
+		 0.655340f, 0.033979f,-0.243780f,-0.025936f, 0.103311f, 0.011655f,-0.044412f,-0.005040f,
+		 0.019120f, 0.002172f,-0.008233f,-0.000938f, 0.003546f, 0.000410f,-0.001528f, 0.000334f
+	};
+	VCL_CPP_CONSTEXPR_11 std::array<float, 4> PCoeffs = { 0.25f, 0.75f, 0.75f, 0.25f };
+
+	//! Evaluate quadratic B-spline basis functions
+	void evaluateQuadraticSplineBasisImpl(float t, std::array<float, 3>& w) noexcept
+	{
+		w[0] = t * t / 2.0f;
+		w[2] = (1.0f - t) * (1.0f - t) / 2.0f;
+		w[1] = 1.0f - w[0] - w[2];
+	}
+
+	//! Evaluate quadratic B-spline basis functions
+	void evaluateQuadraticSplineBasis(float p, std::array<float, 3>& w, int& mid) noexcept
+	{
+		const float midf = ceil(p - 0.5f);
+		const float t = midf - (p - 0.5f);
+		mid = static_cast<int>(midf);
+
+		evaluateQuadraticSplineBasisImpl(t, w);
+	}
+
+	//! Evaluate derivative of the quadratic B-spline basis functions
+	void evaluateDQuadraticSplineBasisImpl(float t, std::array<float, 3>& w) noexcept
+	{
+		w[0] = -t;
+		w[2] = (1.0f - t);
+		w[1] = 2.0f * t - 1.0f;
+	}
+
+	//! Evaluate derivative of the quadratic B-spline basis functions
+	void evaluateDQuadraticSplineBasis(float p, std::array<float, 3>& w, int& mid) noexcept
+	{
+		const float midf = ceil(p - 0.5f);
+		const float t = midf - (p - 0.5f);
+		mid = static_cast<int>(midf);
+
+		evaluateDQuadraticSplineBasisImpl(t, w);
+	}
+
+	//! Downsample values according to the wavelet coefficients
+	template<int N>
+	void downsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
+	{
+		using Vcl::Util::fast_modulo;
+
+		const gsl::span<const float> a = ACoeffs;
+		for (ptrdiff_t i = 0; i < n / 2; i++)
+		{
+			to[i * stride] = 0;
+			for (ptrdiff_t k = 2 * i - 16; k < 2 * i + 16; k++)
+			{
+				to[i * stride] += a[16 + k - 2 * i] * from[fast_modulo<N>(k) * stride];
+			}
+		}
+	}
+
+	//! Upsample values according to the wavelet coefficients
+	template<int N>
+	void upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
+	{
+		using Vcl::Util::fast_modulo;
+
+		const gsl::span<const float> p = PCoeffs;
+		for (ptrdiff_t i = 0; i < n; i++)
+		{
+			to[i * stride] = 0;
+			for (ptrdiff_t k = i / 2; k <= i / 2 + 1; k++)
+			{
+				to[i * stride] += p[2 + i - 2 * k] * from[fast_modulo<N / 2>(k) * stride];
+			}
+		}
+	}
 }
 
 namespace Vcl { namespace Util
@@ -105,8 +184,8 @@ namespace Vcl { namespace Util
 			for (int iz = 0; iz < N; iz++)
 			{
 				const int i = iy * N + iz*N*N;
-				downsample(gsl::make_span(&noise_data_base[i], N), gsl::make_span(&temp1[i], N), N, 1);
-				upsample(  gsl::make_span(&temp1[i], N), gsl::make_span(&temp2[i], N), N, 1);
+				downsample<N>(gsl::make_span(&noise_data_base[i], N), gsl::make_span(&temp1[i], N), N, 1);
+				upsample<N>(  gsl::make_span(&temp1[i], N), gsl::make_span(&temp2[i], N), N, 1);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
@@ -114,8 +193,8 @@ namespace Vcl { namespace Util
 			for (int iz = 0; iz < N; iz++)
 			{
 				const int i = ix + iz*N*N;
-				downsample(gsl::make_span(&temp2[i], N + N*N), gsl::make_span(&temp1[i], N + N*N), N, N);
-				upsample(  gsl::make_span(&temp1[i], N + N*N), gsl::make_span(&temp2[i], N + N*N), N, N);
+				downsample<N>(gsl::make_span(&temp2[i], N + N*N), gsl::make_span(&temp1[i], N + N*N), N, N);
+				upsample<N>(  gsl::make_span(&temp1[i], N + N*N), gsl::make_span(&temp2[i], N + N*N), N, N);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
@@ -123,8 +202,8 @@ namespace Vcl { namespace Util
 			for (int iy = 0; iy < N; iy++)
 			{
 				const int i = ix + iy*N;
-				downsample(gsl::make_span(&temp2[i], N*N*N), gsl::make_span(&temp1[i], N*N*N), N, N*N);
-				upsample(  gsl::make_span(&temp1[i], N*N*N), gsl::make_span(&temp2[i], N*N*N), N, N*N);
+				downsample<N>(gsl::make_span(&temp2[i], N*N*N), gsl::make_span(&temp1[i], N*N*N), N, N*N);
+				upsample<N>(  gsl::make_span(&temp1[i], N*N*N), gsl::make_span(&temp2[i], N*N*N), N, N*N);
 			}
 		}
 
@@ -522,81 +601,6 @@ namespace Vcl { namespace Util
 		v[2] = f2x - f1y;
 		return v;
 	}
-
-	template<int N>
-	void WaveletNoise<N>::downsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
-	{
-		const gsl::span<const float> a = ACoeffs;
-		for (ptrdiff_t i = 0; i < n / 2; i++)
-		{
-			to[i * stride] = 0;
-			for (ptrdiff_t k = 2 * i - 16; k < 2 * i + 16; k++)
-			{
-				to[i * stride] += a[16 + k - 2 * i] * from[fast_modulo<N>(k) * stride];
-			}
-		}
-	}
-
-	template<int N>
-	void WaveletNoise<N>::upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
-	{
-		const gsl::span<const float> p = PCoeffs;
-		for (ptrdiff_t i = 0; i < n; i++)
-		{
-			to[i * stride] = 0;
-			for (ptrdiff_t k = i / 2; k <= i / 2 + 1; k++)
-			{
-				to[i * stride] += p[2 + i - 2 * k] * from[fast_modulo<N/2>(k) * stride];
-			}
-		}
-	}
-
-	template<int N>
-	void WaveletNoise<N>::evaluateQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept
-	{
-		const float midf = ceil(p - 0.5f);
-		const float t = midf - (p - 0.5f);
-		mid = static_cast<int>(midf);
-
-		evaluateQuadraticSplineBasisImpl(t, w);
-	}
-
-	template<int N>
-	void WaveletNoise<N>::evaluateQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept
-	{
-		w[0] = t * t / 2.0f;
-		w[2] = (1.0f - t) * (1.0f - t) / 2.0f;
-		w[1] = 1.0f - w[0] - w[2];
-	}
-
-	template<int N>
-	void WaveletNoise<N>::evaluateDQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept
-	{
-		const float midf = ceil(p - 0.5f);
-		const float t = midf - (p - 0.5f);
-		mid = static_cast<int>(midf);
-
-		evaluateDQuadraticSplineBasisImpl(t, w);
-	}
-
-	template<int N>
-	void WaveletNoise<N>::evaluateDQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept
-	{
-		w[0] = -t;
-		w[2] = (1.0f - t);
-		w[1] = 2.0f * t - 1.0f;
-	}
-
-	template<int N>
-	const std::array<float, 32> WaveletNoise<N>::ACoeffs =
-	{
-		 0.000334f,-0.001528f, 0.000410f, 0.003545f,-0.000938f,-0.008233f, 0.002172f, 0.019120f,
-		-0.005040f,-0.044412f, 0.011655f, 0.103311f,-0.025936f,-0.243780f, 0.033979f, 0.655340f,
-		 0.655340f, 0.033979f,-0.243780f,-0.025936f, 0.103311f, 0.011655f,-0.044412f,-0.005040f,
-		 0.019120f, 0.002172f,-0.008233f,-0.000938f, 0.003546f, 0.000410f,-0.001528f, 0.000334f
-	};
-	template<int N>
-	const std::array<float, 4> WaveletNoise<N>::PCoeffs = { 0.25f, 0.75f, 0.75f, 0.25f };
 
 	template class WaveletNoise<32>;
 	template class WaveletNoise<64>;
