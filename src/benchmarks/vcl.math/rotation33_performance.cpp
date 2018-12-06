@@ -32,6 +32,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
+#include <vcl/math/apd33.h>
 #include <vcl/math/polardecomposition.h>
 #include <vcl/math/rotation33_torque.h>
 
@@ -133,6 +134,39 @@ void perfRotationTorque(benchmark::State& state)
 	state.SetItemsProcessed(state.iterations() * state.range_x());
 }
 
+template<typename WideScalar>
+void perfRotationAPD(benchmark::State& state)
+{
+	Vcl::Core::InterleavedArray<float, 4, 1, -1> resR(state.range_x());
+
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+
+	size_t width = sizeof(real_t) / sizeof(float);
+
+	while (state.KeepRunning())
+	{
+		for (size_t i = 0; i < state.range_x() / width; i++)
+		{
+			// Map data
+			auto R = resR.at<real_t>(i);
+
+			// Compute Rotation using the torque based method
+			matrix3_t A = F.at<real_t>(i);
+
+			Eigen::Quaternion<real_t> RR = Eigen::Quaternion<real_t>::Identity();
+			Vcl::Mathematics::AnalyticPolarDecomposition(A, RR);
+
+			// Store results
+			R = RR.coeffs();
+		}
+	}
+
+	benchmark::DoNotOptimize(resR);
+
+	state.SetItemsProcessed(state.iterations() * state.range_x());
+}
+
 using Vcl::float4;
 using Vcl::float8;
 using Vcl::float16;
@@ -151,6 +185,12 @@ BENCHMARK_TEMPLATE(perfRotationTorque, float)  ->Arg(128);//->Arg(512)->Arg(8192
 BENCHMARK_TEMPLATE(perfRotationTorque, float4) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE(perfRotationTorque, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+
+// Test Performance: Iterative analytic polar decomposition
+BENCHMARK_TEMPLATE(perfRotationAPD, float)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float4)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float8)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 int main(int argc, char** argv)
 {

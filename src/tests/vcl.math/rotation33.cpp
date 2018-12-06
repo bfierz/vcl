@@ -33,6 +33,7 @@
 
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
+#include <vcl/math/apd33.h>
 #include <vcl/math/math.h>
 #include <vcl/math/rotation33_torque.h>
 
@@ -129,95 +130,97 @@ namespace
 		}
 	}
 }
-template<typename WideScalar>
-void runRotationTest(float max_angle, float tol)
+
+template<typename T>
+struct TorqueRotation
 {
-	using scalar_t = float;
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t nr_problems = 128;
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
-
-	createProblems<scalar_t>(nr_problems, max_angle * 3.14f / 180.0f, &F, &refR);
-
-	// Strides
-	size_t stride = nr_problems;
-	size_t width = sizeof(real_t) / sizeof(scalar_t);
-
-	std::vector<int> iterations(128);
-	for (size_t i = 0; i < stride / width; i++)
+	void operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
 	{
-		matrix3_t A = F.at<real_t>(i);
-		matrix3_t R = A;
-
-		iterations[i] = Vcl::Mathematics::Rotation(A, R);
-
-		resR.at<real_t>(i) = R;
+		Vcl::Mathematics::Rotation(A, R);
 	}
+};
 
-	// Check against reference solution
-	checkSolution(nr_problems, tol, refR, resR);
-}
+template<typename T>
+struct AnalyticPolarDecomposition
+{
+	void operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	{
+		Eigen::Quaternion<T> q = Eigen::Quaternion<T>::Identity();
+		Vcl::Mathematics::AnalyticPolarDecomposition(A, q);
+		R = q.matrix();
+	}
+};
 
-TEST(Rotation33, Rotation30Float)
+class Rotation33 : public ::testing::TestWithParam<int>
 {
-	runRotationTest<float>(30.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation60Float)
-{
-	runRotationTest<float>(60.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation90Float)
-{
-	runRotationTest<float>(90.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation120Float)
-{
-	runRotationTest<float>(120.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation180Float)
-{
-	runRotationTest<float>(180.0f, 2e-5f);
-}
+protected:
+	template<typename WideScalar, typename T>
+	void run(T&& func, float tol)
+	{
+		using scalar_t = float;
+		using real_t = WideScalar;
+		using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
-TEST(Rotation33, Rotation30Float4)
-{
-	runRotationTest<Vcl::float4>(30.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation60Float4)
-{
-	runRotationTest<Vcl::float4>(60.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation90Float4)
-{
-	runRotationTest<Vcl::float4>(90.0f, 2e-5f);
-}
+		size_t nr_problems = 128;
+		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
+		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
+		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
 
-TEST(Rotation33, Rotation30Float8)
-{
-	runRotationTest<Vcl::float8>(30.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation60Float8)
-{
-	runRotationTest<Vcl::float8>(60.0f, 2e-5f);
-}
-TEST(Rotation33, Rotation90Float8)
-{
-	runRotationTest<Vcl::float8>(90.0f, 2e-5f);
-}
+		createProblems<scalar_t>(nr_problems, GetParam() * 3.14f / 180.0f, &F, &refR);
 
-TEST(Rotation33, Rotation30Float16)
+		// Strides
+		size_t stride = nr_problems;
+		size_t width = sizeof(real_t) / sizeof(scalar_t);
+
+		for (size_t i = 0; i < stride / width; i++)
+		{
+			matrix3_t A = F.at<real_t>(i);
+			matrix3_t R = A;
+
+			func(A, R);
+
+			resR.at<real_t>(i) = R;
+		}
+
+		// Check against reference solution
+		checkSolution(nr_problems, tol, refR, resR);
+	}
+};
+
+using Torque = Rotation33;
+TEST_P(Torque, Float)
 {
-	runRotationTest<Vcl::float16>(30.0f, 2e-5f);
+	run<float>(TorqueRotation<float>{}, 2e-5f);
 }
-TEST(Rotation33, Rotation60Float16)
+TEST_P(Torque, Float4)
 {
-	runRotationTest<Vcl::float16>(60.0f, 2e-5f);
+	run<Vcl::float4>(TorqueRotation<Vcl::float4>{}, 2e-5f);
 }
-TEST(Rotation33, Rotation90Float16)
+TEST_P(Torque, Float8)
 {
-	runRotationTest<Vcl::float16>(90.0f, 2e-5f);
+	run<Vcl::float8>(TorqueRotation<Vcl::float8>{}, 2e-5f);
 }
+TEST_P(Torque, Float16)
+{
+	run<Vcl::float16>(TorqueRotation<Vcl::float16>{}, 2e-5f);
+}
+INSTANTIATE_TEST_CASE_P(Rotation33, Torque, ::testing::Values(30, 60, 90, 120, 180));
+
+using APD = Rotation33;
+TEST_P(APD, Float)
+{
+	run<float>(AnalyticPolarDecomposition<float>{}, 2e-5f);
+}
+TEST_P(APD, Float4)
+{
+	run<Vcl::float4>(AnalyticPolarDecomposition<Vcl::float4>{}, 2e-5f);
+}
+TEST_P(APD, Float8)
+{
+	run<Vcl::float8>(AnalyticPolarDecomposition<Vcl::float8>{}, 2e-5f);
+}
+TEST_P(APD, Float16)
+{
+	run<Vcl::float16>(AnalyticPolarDecomposition<Vcl::float16>{}, 2e-5f);
+}
+INSTANTIATE_TEST_CASE_P(Rotation33, APD, ::testing::Values(30, 60, 90, 120, 180));

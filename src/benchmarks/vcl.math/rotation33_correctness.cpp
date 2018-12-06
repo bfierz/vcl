@@ -33,6 +33,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 #include <vcl/math/math.h>
+#include <vcl/math/apd33.h>
 #include <vcl/math/rotation33_torque.h>
 
 #include "problems.h"
@@ -69,22 +70,22 @@ namespace
 			Scalar sqLenResRc0 = resR.col(0).squaredNorm();
 			Scalar sqLenResRc1 = resR.col(1).squaredNorm();
 			Scalar sqLenResRc2 = resR.col(2).squaredNorm();
-			//EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
 			//EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized.";
+			//EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
 			//EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized.";
 
 			float ang_dist = Eigen::Quaternionf{ refR }.angularDistance(Eigen::Quaternionf{ resR });
-			std::cout << "[" << ang_dist << ", " << iters[i] << "]" << std::endl;
+			if (ang_dist > 1e-4)
+				std::cout << i << ": [" << ang_dist << ", " << iters[i] << "]" << std::endl;
 
 			Vcl::Matrix3f I = resR.transpose() * resR;
 			Vcl::Matrix3f Iref = Vcl::Matrix3f::Identity();
-
 			//EXPECT_TRUE(equal(Iref, I, tol)) << "Index: " << i << ", Result U^t U: not Identity.";
 		}
 	}
 }
-template<typename WideScalar>
-void runRotationTest(float max_angle, float tol)
+template<typename WideScalar, typename T>
+void runRotationTest(T&& functor, float max_angle, float tol)
 {
 	using scalar_t = float;
 	using real_t = WideScalar;
@@ -108,9 +109,7 @@ void runRotationTest(float max_angle, float tol)
 		matrix3_t A = F.at<real_t>(i);
 		matrix3_t R = A;
 
-		iterations[i] = Vcl::Mathematics::Rotation(A, R);
-
-
+		iterations[i] = functor(A, R);
 		resR.at<real_t>(i) = R;
 	}
 
@@ -118,8 +117,38 @@ void runRotationTest(float max_angle, float tol)
 	checkSolution(nr_problems, tol, iterations, refR, resR);
 }
 
+template<typename T>
+struct TorqueRotation
+{
+	int operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	{
+		return Vcl::Mathematics::Rotation(A, R);
+	}
+};
+
+template<typename T>
+struct AnalyticPolarDecomposition
+{
+	int operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	{
+		Eigen::Quaternion<T> q = Eigen::Quaternion<T>::Identity();
+		int iterations = Vcl::Mathematics::AnalyticPolarDecomposition(A, q);
+		R = q.matrix();
+		return iterations;
+	}
+};
+
 int main(int, char**)
 {
-	runRotationTest<float>(90.0f, 2e-5f);
+	for (int i = 30; i <= 180; i += 30)
+	{
+		std::cout << "Torque. Max rotation: " << i << "deg" << std::endl;
+		runRotationTest<float>(TorqueRotation<float>{}, i, 2e-5f);
+	}
+	for (int i = 30; i <= 180; i += 30)
+	{
+		std::cout << "APD. Max rotation: " << i << "deg" << std::endl;
+		runRotationTest<float>(AnalyticPolarDecomposition<float>{}, i, 2e-5f);
+	}
 	return 0;
 }
