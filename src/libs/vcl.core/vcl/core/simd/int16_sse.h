@@ -149,6 +149,28 @@ namespace Vcl
 		}
 
 	public:
+		VCL_STRONG_INLINE VectorScalar<int, 16> operator& (const VectorScalar<int, 16>& rhs)
+		{
+			return VectorScalar<int, 16>
+			(
+				_mm_and_si128(mF4[0], rhs.mF4[0]),
+				_mm_and_si128(mF4[1], rhs.mF4[1]),
+				_mm_and_si128(mF4[2], rhs.mF4[2]),
+				_mm_and_si128(mF4[3], rhs.mF4[3])
+			);
+		}
+		VCL_STRONG_INLINE VectorScalar<int, 16> operator| (const VectorScalar<int, 16>& rhs)
+		{
+			return VectorScalar<int, 16>
+			(
+				_mm_or_si128(mF4[0], rhs.mF4[0]),
+				_mm_or_si128(mF4[1], rhs.mF4[1]),
+				_mm_or_si128(mF4[2], rhs.mF4[2]),
+				_mm_or_si128(mF4[3], rhs.mF4[3])
+			);
+		}
+
+	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator== (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>

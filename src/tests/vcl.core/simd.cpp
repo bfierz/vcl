@@ -181,3 +181,33 @@ TEST(Simd, Log)
 	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'log' failed.";
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'log' failed.";
 }
+
+TEST(Simd, Dot)
+{
+	using Vcl::Mathematics::equal;
+
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+
+	// Source data
+	float4  vec1{ 11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+				  11.3805f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 11.3805f, 6.10116f, 11.6117f, 11.8436f,
+				  11.3805f, 6.10116f, 11.6117f, 11.8436f,
+				  11.3805f, 6.10116f, 11.6117f, 11.8436f,
+				  11.3805f, 6.10116f, 11.6117f, 11.8436f };
+
+	// Compute dot(x, x)
+	float res1 = vec1.dot(vec1);
+	float res2 = vec2.dot(vec2);
+	float res3 = vec3.dot(vec3);
+
+	// Reference result
+	float ref = 11.3805f*11.3805f + 6.10116f*6.10116f + 11.6117f*11.6117f + 11.8436f*11.8436f;
+
+	EXPECT_TRUE(equal(ref*1, res1, 1e-5f));
+	EXPECT_TRUE(equal(ref*2, res2, 1e-5f));
+	EXPECT_TRUE(equal(ref*4, res3, 1e-5f));
+}

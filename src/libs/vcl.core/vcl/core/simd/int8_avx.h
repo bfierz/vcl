@@ -105,6 +105,10 @@ namespace Vcl
 		}
 
 	public:
+		VCL_STRONG_INLINE VectorScalar<int, 8> operator& (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mmVCL_and_si256(mF8, rhs.mF8)); }
+		VCL_STRONG_INLINE VectorScalar<int, 8> operator| (const VectorScalar<int, 8>& rhs) const { return VectorScalar<int, 8>(_mmVCL_or_si256 (mF8, rhs.mF8)); }
+
+	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 8> operator== (const VectorScalar<int, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>(_mmVCL_cmpeq_epi32(mF8, rhs.mF8));
@@ -150,7 +154,7 @@ namespace Vcl
 			(
 				_mmVCL_or_si256
 				(
-					_mmVCL_and_si256(a.mF8, _mm256_set1_epi32(0x80000000)), _mm256_set1_epi32(1)
+					_mmVCL_and_si256(a.mF8, VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
 				), _mmVCL_cmpneq_epi32(a.mF8, _mm256_setzero_si256())
 			)
 		);

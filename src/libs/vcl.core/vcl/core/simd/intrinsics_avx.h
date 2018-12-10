@@ -47,15 +47,18 @@
 #	define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
 #endif // _mm256_set_m128i
 
+#define VCL_M256I_SIGNBIT _mm256_set1_epi32(int(0x80000000))
+#define VCL_M256I_ALLBITS _mm256_set1_epi32(int(0xffffffff))
+
 namespace Vcl
 {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
 	{
-		return _mm256_andnot_ps(_mm256_castsi256_ps(_mm256_set1_epi32(0x80000000)), v);
+		return _mm256_andnot_ps(_mm256_castsi256_ps(VCL_M256I_SIGNBIT), v);
 	}
 	VCL_STRONG_INLINE __m256 _mm256_sgn_ps(__m256 v)
 	{
-		return _mm256_and_ps(_mm256_or_ps(_mm256_and_ps(v, _mm256_castsi256_ps(_mm256_set1_epi32(0x80000000))), _mm256_set1_ps(1.0f)), _mm256_cmp_ps(v, _mm256_setzero_ps(), _CMP_NEQ_OQ));
+		return _mm256_and_ps(_mm256_or_ps(_mm256_and_ps(v, _mm256_castsi256_ps(VCL_M256I_SIGNBIT)), _mm256_set1_ps(1.0f)), _mm256_cmp_ps(v, _mm256_setzero_ps(), _CMP_NEQ_OQ));
 	}
 
 #ifdef VCL_VECTORIZE_AVX2
@@ -65,15 +68,15 @@ namespace Vcl
 	}
 	VCL_STRONG_INLINE __m256i _mm256_cmpneq_epi32(__m256i a, __m256i b)
 	{
-		return _mm256_andnot_si256(_mm256_cmpeq_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+		return _mm256_andnot_si256(_mm256_cmpeq_epi32(a, b), VCL_M256I_ALLBITS);
 	}	
 	VCL_STRONG_INLINE __m256i _mm256_cmple_epi32(__m256i a, __m256i b)
 	{
-		return _mm256_andnot_si256(_mm256_cmpgt_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+		return _mm256_andnot_si256(_mm256_cmpgt_epi32(a, b), VCL_M256I_ALLBITS);
 	}
 	VCL_STRONG_INLINE __m256i _mm256_cmpge_epi32(__m256i a, __m256i b)
 	{
-		return _mm256_andnot_si256(_mm256_cmplt_epi32(a, b), _mm256_set1_epi32(0xffffffff));
+		return _mm256_andnot_si256(_mm256_cmplt_epi32(a, b), VCL_M256I_ALLBITS);
 	}
 #endif // VCL_VECTORIZE_AVX2
 
@@ -394,6 +397,18 @@ namespace Vcl
 		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
 		
 		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m256 a, __m256 b)
+	{
+		typedef union
+		{
+			__m256 x;
+			float a[8];
+		} F32;
+
+		const __m256 dp = _mm256_dp_ps(a, b, 0xff);
+		return F32{ dp }.a[0] + F32{ dp }.a[4];
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)

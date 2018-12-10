@@ -76,7 +76,6 @@ namespace Vcl { namespace Util
 		const float* getNoiseTileData() const noexcept { return _noiseTileData.data(); }
 
 	protected: // Helper methods
-
 		//! Special constructor taking an initialized set of random numbers
 		WaveletNoise(gsl::span<float> noise_data_base);
 

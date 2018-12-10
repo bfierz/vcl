@@ -52,8 +52,8 @@ namespace Vcl
 		}
 		
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) { return VectorScalar<bool, 4>(vandq_u32(_data[0], rhs._data[0])); }
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) { return VectorScalar<bool, 4>(vorrq_u32 (_data[0], rhs._data[0])); }
+		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(vandq_u32(_data[0], rhs._data[0])); }
+		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(vorrq_u32 (_data[0], rhs._data[0])); }
 
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator&= (const VectorScalar<bool, 4>& rhs) { _data[0] = vandq_u32(_data[0], rhs._data[0]); return *this; }
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator|= (const VectorScalar<bool, 4>& rhs) { _data[0] = vorrq_u32(_data[0], rhs._data[0]);  return *this; }

@@ -131,6 +131,24 @@ namespace Vcl
 		}
 
 	public:
+		VCL_STRONG_INLINE VectorScalar<int, 16> operator& (const VectorScalar<int, 16>& rhs) const
+		{
+			return VectorScalar<int, 16>
+			(
+				_mmVCL_and_si256(mF8[0], rhs.mF8[0]),
+				_mmVCL_and_si256(mF8[1], rhs.mF8[1])
+			);
+		}
+		VCL_STRONG_INLINE VectorScalar<int, 16> operator| (const VectorScalar<int, 16>& rhs) const
+		{
+			return VectorScalar<int, 16>
+			(
+				_mmVCL_or_si256(mF8[0], rhs.mF8[0]),
+				_mmVCL_or_si256(mF8[1], rhs.mF8[1])
+			);
+		}
+
+	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator== (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
@@ -200,14 +218,14 @@ namespace Vcl
 			(
 				_mmVCL_or_si256
 				(
-					_mmVCL_and_si256(a.mF8[0], _mm256_set1_epi32(0x80000000)), _mm256_set1_epi32(1)
+					_mmVCL_and_si256(a.mF8[0], VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
 				), _mmVCL_cmpneq_epi32(a.mF8[0], _mm256_setzero_si256())
 			),
 			_mmVCL_and_si256
 			(
 				_mmVCL_or_si256
 				(
-					_mmVCL_and_si256(a.mF8[1], _mm256_set1_epi32(0x80000000)), _mm256_set1_epi32(1)
+					_mmVCL_and_si256(a.mF8[1], VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
 				), _mmVCL_cmpneq_epi32(a.mF8[1], _mm256_setzero_si256())
 			)
 		);

@@ -49,8 +49,8 @@ namespace Vcl
 		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) : mF4(_mm_castsi128_ps(I4)) {}
 		
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) { return VectorScalar<bool, 4>(_mm_and_ps(mF4, rhs.mF4)); }
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) { return VectorScalar<bool, 4>(_mm_or_ps (mF4, rhs.mF4)); }
+		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_and_ps(mF4, rhs.mF4)); }
+		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_or_ps (mF4, rhs.mF4)); }
 
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator&= (const VectorScalar<bool, 4>& rhs) { mF4 = _mm_and_ps(mF4, rhs.mF4); return *this; }
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator|= (const VectorScalar<bool, 4>& rhs) { mF4 = _mm_or_ps(mF4, rhs.mF4);  return *this; }

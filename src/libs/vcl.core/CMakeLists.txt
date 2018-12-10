@@ -163,6 +163,7 @@ set(VCL_UTIL_INC
 	vcl/util/stringparser.h
 	vcl/util/vectornoise.h
 	vcl/util/waveletnoise.h
+	vcl/util/waveletnoise_helpers.h
 	vcl/util/waveletnoise_modulo.h
 )
 

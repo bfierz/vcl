@@ -133,16 +133,6 @@ namespace Vcl
 #	include <vcl/core/simd/float16_avx.h>
 #	include <vcl/core/simd/int8_avx.h>
 #	include <vcl/core/simd/int16_avx.h>
-
-namespace Vcl
-{
-	template<>
-	class VectorScalar<float, 32>
-	{
-	private:
-		__m256 mF8[4];
-	};
-}
 #elif defined VCL_VECTORIZE_SSE
 #	include <vcl/core/simd/bool8_sse.h>
 #	include <vcl/core/simd/bool16_sse.h>
@@ -150,14 +140,6 @@ namespace Vcl
 #	include <vcl/core/simd/float16_sse.h>
 #	include <vcl/core/simd/int8_sse.h>
 #	include <vcl/core/simd/int16_sse.h>
-
-namespace Vcl
-{
-	template<>
-	class VectorScalar<float, 32>
-	{
-	};
-}
 #elif defined VCL_VECTORIZE_NEON
 #	include <vcl/core/simd/bool4_neon.h>
 #	include <vcl/core/simd/bool8_neon.h>

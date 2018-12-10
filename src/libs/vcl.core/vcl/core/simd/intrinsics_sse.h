@@ -146,6 +146,26 @@ namespace Vcl
 		return _mm_cvtss_f32(accum);
 	}
 
+	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m128 a, __m128 b)
+	{
+		typedef union
+		{
+			__m128 x;
+			float a[4];
+		} F32;
+
+#ifdef VCL_VECTORIZE_SSE4_1
+		return F32{ _mm_dp_ps(a, b, 0xff) }.a[0];
+#elif defined VCL_VECTORIZE_SSE3
+		const __m128 ab = _mm_mul_ps(a, b);
+		const __m128 dp = _mm_hadd_ps(ab, ab);
+		return F32{ dp }.a[0] + F32{ dp }.a[1];
+#else
+		const __m128 ab = _mm_mul_ps(a, b);
+		return F32{ ab }.a[0] + F32{ ab }.a[1] + F32{ ab }.a[2] + F32{ ab }.a[3];
+#endif
+	}
+
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m128 v, int i)
 	{
 #if 1

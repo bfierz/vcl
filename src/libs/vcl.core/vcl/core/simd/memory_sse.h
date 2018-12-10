@@ -78,6 +78,11 @@ namespace Vcl
 		value = float4{ _mm_loadu_ps(base) };
 	}
 
+	VCL_STRONG_INLINE void load(int4& value, const int* base)
+	{
+		value = int4{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(base)) };
+	}
+
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
 	(
@@ -231,15 +236,41 @@ namespace Vcl
 
 	VCL_STRONG_INLINE void load(float8& value, const float* base)
 	{
-		value = float8{ _mm_loadu_ps(base), _mm_loadu_ps(base + 4) };
+		value = float8
+		{
+			_mm_loadu_ps(base + 0),
+			_mm_loadu_ps(base + 4)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(int8& value, const int* base)
+	{
+		value = int8
+		{
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base + 0)),
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base + 4))
+		};
 	}
 
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
 		value = float16
 		{
-			_mm_loadu_ps(base + 0), _mm_loadu_ps(base +  4),
-			_mm_loadu_ps(base + 8), _mm_loadu_ps(base + 12)
+			_mm_loadu_ps(base +  0),
+			_mm_loadu_ps(base +  4),
+			_mm_loadu_ps(base +  8),
+			_mm_loadu_ps(base + 12)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(int16& value, const int* base)
+	{
+		value = int16
+		{
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base +  0)),
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base +  4)),
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base +  8)),
+			_mm_loadu_si128(reinterpret_cast<const __m128i*>(base + 12))
 		};
 	}
 

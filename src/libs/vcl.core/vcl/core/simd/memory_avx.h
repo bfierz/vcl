@@ -30,7 +30,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-#if defined VCL_VECTORIZE_AVX
+#if defined(VCL_VECTORIZE_AVX)
 namespace Vcl
 {
 #ifdef VCL_VECTORIZE_AVX2
@@ -94,9 +94,27 @@ namespace Vcl
 		value = float8{ _mm256_loadu_ps(base) };
 	}
 
+	VCL_STRONG_INLINE void load(int8& value, const int* base)
+	{
+		value = int8{ _mm256_loadu_si256(reinterpret_cast<const __m256i*>(base)) };
+	}
+
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
-		value = float16{ _mm256_loadu_ps(base), _mm256_loadu_ps(base + 8) };
+		value = float16
+		{
+			_mm256_loadu_ps(base + 0),
+			_mm256_loadu_ps(base + 8)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(int16& value, const int* base)
+	{
+		value = int16
+		{
+			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(base + 0)),
+			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(base + 8))
+		};
 	}
 
 	// The load/store implementation for vectors are directly from or based on:
@@ -261,7 +279,13 @@ namespace Vcl
 		const Eigen::Matrix<float8, 3, 1>& value
 	)
 	{
-		store(base, (__m256) value(0), (__m256) value(1), (__m256) value(2));
+		store
+		(
+			base,
+			static_cast<__m256>(value(0)),
+			static_cast<__m256>(value(1)),
+			static_cast<__m256>(value(2))
+		);
 	}
 
 	VCL_STRONG_INLINE void store
@@ -273,9 +297,9 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base),
-			_mm256_castsi256_ps((__m256i) value(0)),
-			_mm256_castsi256_ps((__m256i) value(1)),
-			_mm256_castsi256_ps((__m256i) value(2))
+			_mm256_castsi256_ps(static_cast<__m256i>(value(0))),
+			_mm256_castsi256_ps(static_cast<__m256i>(value(1))),
+			_mm256_castsi256_ps(static_cast<__m256i>(value(2)))
 		);
 	}
 

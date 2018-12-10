@@ -57,7 +57,7 @@ namespace Vcl
 		}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
 			(
@@ -67,7 +67,7 @@ namespace Vcl
 				vandq_u32(mF4[3], rhs.mF4[3])
 			);
 		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
 			(
