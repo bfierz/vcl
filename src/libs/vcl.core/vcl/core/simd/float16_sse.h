@@ -26,10 +26,6 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// C++ Standard Library
-#include <array>
 
 // VCL 
 #include <vcl/core/simd/bool16_sse.h>
@@ -42,13 +38,13 @@ namespace Vcl
 	class VectorScalar<float, 16>
 	{
 	public:
+		using Self = VectorScalar<float, 16>;
+		using Bool = VectorScalar<bool, 16>;
+
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(float s)
 		{
-			mF4[0] = _mm_set1_ps(s);
-			mF4[1] = _mm_set1_ps(s);
-			mF4[2] = _mm_set1_ps(s);
-			mF4[3] = _mm_set1_ps(s);
+			set(s);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar
 		(
@@ -56,27 +52,17 @@ namespace Vcl
 			float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15
 		)
 		{
-			mF4[0] = _mm_set_ps(s03, s02, s01, s00);
-			mF4[1] = _mm_set_ps(s07, s06, s05, s04);
-			mF4[2] = _mm_set_ps(s11, s10, s09, s08);
-			mF4[3] = _mm_set_ps(s15, s14, s13, s12);
+			set(s00, s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15);
 		}
 		explicit VCL_STRONG_INLINE VectorScalar(const __m128& F4_0, const __m128& F4_1, const __m128& F4_2, const __m128& F4_3)
 		{
-			mF4[0] = F4_0;
-			mF4[1] = F4_1;
-			mF4[2] = F4_2;
-			mF4[3] = F4_3;
+			set(F4_0, F4_1, F4_2, F4_3);
 		}
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 16>& operator= (const VectorScalar<float, 16>& rhs)
 		{
-			mF4[0] = rhs.mF4[0];
-			mF4[1] = rhs.mF4[1];
-			mF4[2] = rhs.mF4[2];
-			mF4[3] = rhs.mF4[3];
-			
+			set(rhs.get(0), rhs.get(1), rhs.get(2), rhs.get(3));
 			return *this;
 		}
 
@@ -84,15 +70,13 @@ namespace Vcl
 		VCL_STRONG_INLINE float operator[] (int idx) const
 		{
 			VclRequire(0 <= idx && idx < 16, "Access is in range.");
-
-			return _mmVCL_extract_ps(mF4[idx / 4], idx % 4);
+			return _mmVCL_extract_ps(get(idx / 4), idx % 4);
 		}
 
 		VCL_STRONG_INLINE __m128 get(int i) const
 		{
 			VclRequire(0 <= i && i < 4, "Access is in range.");
-
-			return mF4[i];
+			return _data[i];
 		}
 
 	public:
@@ -102,182 +86,42 @@ namespace Vcl
 		}
 
 	public:
-		VectorScalar<float, 16> operator+ (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_add_ps(mF4[0], rhs.mF4[0]),
-				_mm_add_ps(mF4[1], rhs.mF4[1]),
-				_mm_add_ps(mF4[2], rhs.mF4[2]),
-				_mm_add_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-
-		VectorScalar<float, 16> operator- (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_sub_ps(mF4[0], rhs.mF4[0]),
-				_mm_sub_ps(mF4[1], rhs.mF4[1]),
-				_mm_sub_ps(mF4[2], rhs.mF4[2]),
-				_mm_sub_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-
-		VectorScalar<float, 16> operator* (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_mul_ps(mF4[0], rhs.mF4[0]),
-				_mm_mul_ps(mF4[1], rhs.mF4[1]),
-				_mm_mul_ps(mF4[2], rhs.mF4[2]),
-				_mm_mul_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-
-		VectorScalar<float, 16> operator/ (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_div_ps(mF4[0], rhs.mF4[0]),
-				_mm_div_ps(mF4[1], rhs.mF4[1]),
-				_mm_div_ps(mF4[2], rhs.mF4[2]),
-				_mm_div_ps(mF4[3], rhs.mF4[3])
-			);
-		}
+		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 4);
+		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 4);
+		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 4);
+		VCL_SIMD_BINARY_OP(operator/, _mm_div_ps, 4);
 
 	public:
-		VectorScalar<float, 16>& operator += (const VectorScalar<float, 16>& rhs)
-		{
-			mF4[0] = _mm_add_ps(mF4[0], rhs.mF4[0]);
-			mF4[1] = _mm_add_ps(mF4[1], rhs.mF4[1]);
-			mF4[2] = _mm_add_ps(mF4[2], rhs.mF4[2]);
-			mF4[3] = _mm_add_ps(mF4[3], rhs.mF4[3]);
-			return *this;
-		}
-		VectorScalar<float, 16>& operator -= (const VectorScalar<float, 16>& rhs)
-		{
-			mF4[0] = _mm_sub_ps(mF4[0], rhs.mF4[0]);
-			mF4[1] = _mm_sub_ps(mF4[1], rhs.mF4[1]);
-			mF4[2] = _mm_sub_ps(mF4[2], rhs.mF4[2]);
-			mF4[3] = _mm_sub_ps(mF4[3], rhs.mF4[3]);
-			return *this;
-		}
-		VectorScalar<float, 16>& operator *= (const VectorScalar<float, 16>& rhs)
-		{
-			mF4[0] = _mm_mul_ps(mF4[0], rhs.mF4[0]);
-			mF4[1] = _mm_mul_ps(mF4[1], rhs.mF4[1]);
-			mF4[2] = _mm_mul_ps(mF4[2], rhs.mF4[2]);
-			mF4[3] = _mm_mul_ps(mF4[3], rhs.mF4[3]);
-			return *this;
-		}
-		VectorScalar<float, 16>& operator /= (const VectorScalar<float, 16>& rhs)
-		{
-			mF4[0] = _mm_div_ps(mF4[0], rhs.mF4[0]);
-			mF4[1] = _mm_div_ps(mF4[1], rhs.mF4[1]);
-			mF4[2] = _mm_div_ps(mF4[2], rhs.mF4[2]);
-			mF4[3] = _mm_div_ps(mF4[3], rhs.mF4[3]);
-			return *this;
-		}
+		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_ps, 4);
+		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_ps, 4);
+		VCL_SIMD_ASSIGN_OP(operator*=, _mm_mul_ps, 4);
+		VCL_SIMD_ASSIGN_OP(operator/=, _mm_div_ps, 4);
 
 	public:
-		VectorScalar<bool, 16> operator== (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmpeq_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmpeq_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmpeq_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmpeq_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		
-		VectorScalar<bool, 16> operator!= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmpneq_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmpneq_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmpneq_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmpneq_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		VectorScalar<bool, 16> operator< (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmplt_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmplt_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmplt_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmplt_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		VectorScalar<bool, 16> operator<= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmple_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmple_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmple_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmple_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		VectorScalar<bool, 16> operator> (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmpgt_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmpgt_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmpgt_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmpgt_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		VectorScalar<bool, 16> operator>= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_cmpge_ps(mF4[0], rhs.mF4[0]),
-				_mm_cmpge_ps(mF4[1], rhs.mF4[1]),
-				_mm_cmpge_ps(mF4[2], rhs.mF4[2]),
-				_mm_cmpge_ps(mF4[3], rhs.mF4[3])
-			);
-		}
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps, 4);
+		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_ps, 4);
+		VCL_SIMD_COMP_OP(operator<, _mm_cmplt_ps, 4);
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps, 4);
+		VCL_SIMD_COMP_OP(operator>, _mm_cmpgt_ps, 4);
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps, 4);
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 16> abs()   const { return VectorScalar<float, 16>(_mm_abs_ps     (mF4[0]), _mm_abs_ps     (mF4[1]), _mm_abs_ps     (mF4[2]), _mm_abs_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sin()   const { return VectorScalar<float, 16>(_mm_sin_ps     (mF4[0]), _mm_sin_ps     (mF4[1]), _mm_sin_ps     (mF4[2]), _mm_sin_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> cos()   const { return VectorScalar<float, 16>(_mm_cos_ps     (mF4[0]), _mm_cos_ps     (mF4[1]), _mm_cos_ps     (mF4[2]), _mm_cos_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> exp()   const { return VectorScalar<float, 16>(_mm_exp_ps     (mF4[0]), _mm_exp_ps     (mF4[1]), _mm_exp_ps     (mF4[2]), _mm_exp_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> log()   const { return VectorScalar<float, 16>(_mm_log_ps     (mF4[0]), _mm_log_ps     (mF4[1]), _mm_log_ps     (mF4[2]), _mm_log_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sgn()   const { return VectorScalar<float, 16>(_mm_sgn_ps     (mF4[0]), _mm_sgn_ps     (mF4[1]), _mm_sgn_ps     (mF4[2]), _mm_sgn_ps     (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sqrt()  const { return VectorScalar<float, 16>(_mm_sqrt_ps    (mF4[0]), _mm_sqrt_ps    (mF4[1]), _mm_sqrt_ps    (mF4[2]), _mm_sqrt_ps    (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()   const { return VectorScalar<float, 16>(_mmVCL_rcp_ps  (mF4[0]), _mmVCL_rcp_ps  (mF4[1]), _mmVCL_rcp_ps  (mF4[2]), _mmVCL_rcp_ps  (mF4[3])); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rsqrt() const { return VectorScalar<float, 16>(_mmVCL_rsqrt_ps(mF4[0]), _mmVCL_rsqrt_ps(mF4[1]), _mmVCL_rsqrt_ps(mF4[2]), _mmVCL_rsqrt_ps(mF4[3])); }
+		VCL_SIMD_UNARY_OP(abs, _mm_abs_ps, 4);
+		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 4);
 
+		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 4);
+		VCL_SIMD_UNARY_OP(cos, _mm_cos_ps, 4);
+		VCL_SIMD_UNARY_OP(acos, _mm_acos_ps, 4);
 
-		VCL_STRONG_INLINE VectorScalar<float, 16> acos() const { return VectorScalar<float, 16>(_mm_acos_ps(mF4[0]), _mm_acos_ps(mF4[1]), _mm_acos_ps(mF4[2]), _mm_acos_ps(mF4[3])); }
+		VCL_SIMD_UNARY_OP(exp, _mm_exp_ps, 4);
+		VCL_SIMD_UNARY_OP(log, _mm_log_ps, 4);
+		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 4);
+		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 4);
+		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 4);
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 16> min(const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_min_ps(mF4[0], rhs.mF4[0]),
-				_mm_min_ps(mF4[1], rhs.mF4[1]),
-				_mm_min_ps(mF4[2], rhs.mF4[2]),
-				_mm_min_ps(mF4[3], rhs.mF4[3])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<float, 16> max(const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				_mm_max_ps(mF4[0], rhs.mF4[0]),
-				_mm_max_ps(mF4[1], rhs.mF4[1]),
-				_mm_max_ps(mF4[2], rhs.mF4[2]),
-				_mm_max_ps(mF4[3], rhs.mF4[3])
-			);
-		}
+		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 4);
+		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 4);
 
 		VCL_STRONG_INLINE float dot(const VectorScalar<float, 16>& rhs) const
 		{
@@ -310,16 +154,42 @@ namespace Vcl
 		friend VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b);
 
 	private:
-		__m128 mF4[4];
+		VCL_STRONG_INLINE void set(float s0)
+		{
+			_data[0] = _mm_set1_ps(s0);
+			_data[1] = _mm_set1_ps(s0);
+			_data[2] = _mm_set1_ps(s0);
+			_data[3] = _mm_set1_ps(s0);
+		}
+		VCL_STRONG_INLINE void set
+		(
+			float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
+			float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15
+		)
+		{
+			_data[0] = _mm_set_ps(s03, s02, s01, s00);
+			_data[1] = _mm_set_ps(s07, s06, s05, s04);
+			_data[2] = _mm_set_ps(s11, s10, s09, s08);
+			_data[3] = _mm_set_ps(s15, s14, s13, s12);
+		}
+		VCL_STRONG_INLINE void set(__m128 v0, __m128 v1, __m128 v2, __m128 v3)
+		{
+			_data[0] = v0;
+			_data[1] = v1;
+			_data[2] = v2;
+			_data[3] = v3;
+		}
+	private:
+		__m128 _data[4];
 	};
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
 		alignas(16) float vars[16];
-		_mm_store_ps(vars +  0, rhs.mF4[0]);
-		_mm_store_ps(vars +  4, rhs.mF4[1]);
-		_mm_store_ps(vars +  8, rhs.mF4[2]);
-		_mm_store_ps(vars + 12, rhs.mF4[3]);
+		_mm_store_ps(vars +  0, rhs.get(0));
+		_mm_store_ps(vars +  4, rhs.get(1));
+		_mm_store_ps(vars +  8, rhs.get(2));
+		_mm_store_ps(vars + 12, rhs.get(3));
 
 		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
 		         << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]

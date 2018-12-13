@@ -34,6 +34,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/preprocessor.h>
 
 namespace Vcl
 {
@@ -119,6 +120,19 @@ namespace Vcl
 		Scalar mData[Width];
 	};
 }
+
+#define VCL_SIMD_P1_1(op) op(get(0))
+#define VCL_SIMD_P1_2(op) VCL_SIMD_P1_1(op), op(get(1))
+#define VCL_SIMD_P1_4(op) VCL_SIMD_P1_2(op), op(get(2)), op(get(3))
+
+#define VCL_SIMD_P2_1(op) op(get(0), rhs.get(0))
+#define VCL_SIMD_P2_2(op) VCL_SIMD_P2_1(op), op(get(1), rhs.get(1))
+#define VCL_SIMD_P2_4(op) VCL_SIMD_P2_2(op), op(get(2), rhs.get(2)), op(get(3), rhs.get(3))
+
+#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
+#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
+#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)); return *this; }
+#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
 
 #if defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
 #	include <vcl/core/simd/bool4_sse.h>

@@ -38,6 +38,16 @@
 
 namespace Vcl
 {
+	namespace Core { namespace Simd { namespace SSE
+	{
+		/// Per element absolut value
+		VCL_STRONG_INLINE __m128 abs(__m128 a)
+		{
+			// Compute abs using logical operations
+			return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), a);
+		}
+	}}}
+
 	VCL_STRONG_INLINE __m128 _mm_abs_ps(__m128 v)
 	{
 		// Compute abs using logical operations
