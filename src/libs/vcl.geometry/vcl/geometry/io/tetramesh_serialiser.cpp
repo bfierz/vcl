@@ -43,11 +43,11 @@ namespace Vcl { namespace Geometry { namespace IO
 		_positions.reserve(hint);
 	}
 
-	void TetraMeshDeserialiser::sizeHintEdges(unsigned int hint)
+	void TetraMeshDeserialiser::sizeHintEdges(unsigned int)
 	{
 	}
 
-	void TetraMeshDeserialiser::sizeHintFaces(unsigned int hint)
+	void TetraMeshDeserialiser::sizeHintFaces(unsigned int)
 	{
 	}
 
@@ -63,11 +63,11 @@ namespace Vcl { namespace Geometry { namespace IO
 		_positions.emplace_back(coordinates[0], coordinates[1], coordinates[2]);
 	}
 
-	void TetraMeshDeserialiser::addEdge(const std::vector<unsigned int>& indices)
+	void TetraMeshDeserialiser::addEdge(const std::vector<unsigned int>&)
 	{
 	}
 
-	void TetraMeshDeserialiser::addFace(const std::vector<unsigned int>& indices)
+	void TetraMeshDeserialiser::addFace(const std::vector<unsigned int>&)
 	{
 	}
 
@@ -79,7 +79,7 @@ namespace Vcl { namespace Geometry { namespace IO
 		_volumes.push_back(volume);
 	}
 
-	void TetraMeshDeserialiser::addNormal(const Vector3f& normal)
+	void TetraMeshDeserialiser::addNormal(const Vector3f&)
 	{
 	}
 }}}

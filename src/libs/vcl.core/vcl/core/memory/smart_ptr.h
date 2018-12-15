@@ -267,10 +267,6 @@ namespace Vcl
 #endif
 				}
 			}
-			~ref_ptr()
-			{
-				_ptr = nullptr;
-			}
 
 			void reset()
 			{

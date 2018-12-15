@@ -32,11 +32,13 @@
 // Include the relevant parts from the library
 #include <vcl/geometry/primitives/obb.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
 
 // Local
 #include "liver_766.h"
+VCL_END_EXTERNAL_HEADERS
 
 TEST(OrientedBoxTest, SimpleConstruction)
 {

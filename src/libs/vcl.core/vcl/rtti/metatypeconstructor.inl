@@ -100,7 +100,7 @@ namespace Vcl { namespace RTTI
 		auto attrib = std::make_unique<Attribute<T, const AttribT&>>(name, getter, setter);
 
 		_concreteAttributes.push_back(std::move(attrib));
-		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), static_cast<std::ptrdiff_t>(_concreteAttributes.size()) };
 
 		return this;
 	}

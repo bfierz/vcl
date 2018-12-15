@@ -114,7 +114,7 @@ namespace Vcl { namespace Util
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
-			return (FnvHash<N, I-1>::hash(str) ^ str[I-2]) * 0x01000193;
+			return (FnvHash<N, I-1>::hash(str) ^ static_cast<unsigned int>(str[I-2])) * 0x01000193;
 		}
 	};
  

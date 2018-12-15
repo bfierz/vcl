@@ -43,8 +43,10 @@
 #define VCL_MATH_SELFADJOINTJACOBI_USE_RCP
 #include <vcl/math/jacobieigen33_selfadjoint_impl.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 namespace
@@ -84,7 +86,7 @@ namespace
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> A(nr_problems);
 	
 		// Initialize data
-		for (int i = 0; i < (int) nr_problems; i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Eigen::Matrix<Scalar, 3, 3> rnd;
 			rnd << d(rng), d(rng), d(rng),
@@ -106,7 +108,7 @@ namespace
 	)
 	{
 		// Compute reference using Eigen
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f A = ATA.template at<Scalar>(i);
 
@@ -133,7 +135,7 @@ namespace
 
 		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
 
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f refU = refUa.template at<Scalar>(i);
 			Vcl::Vector3f refS = refSa.template at<Scalar>(i);
@@ -192,7 +194,7 @@ void runJacobiEigen33Test(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;
@@ -231,7 +233,7 @@ void runJacobiEigenQuat33Test(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t ATA = A.template at<real_t>(i);
 		matrix3_t U;

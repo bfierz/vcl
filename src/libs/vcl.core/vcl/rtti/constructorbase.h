@@ -98,6 +98,8 @@ namespace Vcl { namespace RTTI
 		, _type(info)
 		{
 		}
+		ParameterBase(const ParameterBase&) = default;
+		ParameterBase(ParameterBase&&) = default;
 		virtual ~ParameterBase() = default;
 
 	public:

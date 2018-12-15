@@ -43,10 +43,6 @@
 #define COMPUTE_U_AS_MATRIX
 // #define COMPUTE_U_AS_QUATERNION
 
-#include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
-
-namespace Vcl { namespace Mathematics
-{
 // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks( "u", off )
@@ -56,8 +52,16 @@ namespace Vcl { namespace Mathematics
 #	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #elif defined VCL_COMPILER_CLANG
 #	pragma clang diagnostic push
+#	pragma clang diagnostic ignored "-Wmissing-prototypes"
+#	pragma clang diagnostic ignored "-Wold-style-cast"
 #	pragma clang diagnostic ignored "-Wuninitialized"
+#	pragma clang diagnostic ignored "-Wunused-variable"
 #endif
+
+#include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
+
+namespace Vcl { namespace Mathematics
+{
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps)
 	{
 		using ::sqrt;
@@ -106,6 +110,7 @@ namespace Vcl { namespace Mathematics
 
 		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
 	}
+}}
 #ifdef VCL_COMPILER_MSVC
 #	pragma runtime_checks( "u", restore )
 #elif defined VCL_COMPILER_GNU
@@ -113,5 +118,4 @@ namespace Vcl { namespace Mathematics
 #elif defined VCL_COMPILER_CLANG
 #	pragma clang diagnostic pop
 #endif
-}}
 #endif // defined(VCL_VECTORIZE_SSE)

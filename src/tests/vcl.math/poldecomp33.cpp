@@ -35,8 +35,10 @@
 #include <vcl/math/math.h>
 #include <vcl/math/polardecomposition.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 namespace
@@ -73,7 +75,7 @@ namespace
 	)
 	{
 		// Compute reference using Eigen
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f A = F.template at<Scalar>(i);
 
@@ -113,7 +115,7 @@ namespace
 
 		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
 
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f refR = refRa.template at<Scalar>(i);
 			Vcl::Matrix3f refS = refSa.template at<Scalar>(i);
@@ -170,7 +172,7 @@ void runPolDecompTest(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t A = F.at<real_t>(i);
 		matrix3_t R, S;

@@ -67,7 +67,10 @@ namespace Vcl { namespace Core
 		 *				  Dynamic: The stride is the same as the number of elements in the container.
 		 */
 		InterleavedArray(size_t size, int rows = ROWS, int cols = COLS, int stride = STRIDE)
-		: mSize(size), mRows(rows), mCols(cols), mStride(stride)
+		: mSize(size)
+		, mRows(static_cast<size_t>(rows))
+		, mCols(static_cast<size_t>(cols))
+		, mStride(static_cast<size_t>(stride))
 		{
 			// Template configuration checks
 			static_assert(COLS == DynamicStride || COLS > 0, "Width of a data member is either dynamic or fixed sized.");
@@ -83,10 +86,10 @@ namespace Vcl { namespace Core
 			mAllocated = mSize;
 
 			// Add enough memory to compensate the stride size
-			if (stride != DynamicStride && stride > 1)
+			if (stride != DynamicStride && mStride > 1)
 			{
-				if (mAllocated % stride > 0)
-					mAllocated += stride - mAllocated % stride;
+				if (mAllocated % mStride > 0)
+					mAllocated += mStride - mAllocated % mStride;
 			}
 
 			const size_t alignment = 32;
@@ -94,7 +97,7 @@ namespace Vcl { namespace Core
 				mAllocated += alignment - mAllocated % alignment;
 
 			// Allocate initial memory
-			mData = (SCALAR*) _mm_malloc(mAllocated*mRows*mCols*sizeof(SCALAR), alignment);
+			mData = static_cast<SCALAR*>(_mm_malloc(mAllocated*mRows*mCols*sizeof(SCALAR), alignment));
 		}
 
 		InterleavedArray(InterleavedArray&& rhs)
@@ -157,7 +160,7 @@ namespace Vcl { namespace Core
 			);
 			static_assert
 			(
-				implies(Stride != DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= Stride) && (Stride % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
+				implies(Stride != DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= static_cast<size_t>(Stride)) && (static_cast<size_t>(Stride) % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
 				"Output size and stride size are compatible."
 			);
 
@@ -173,11 +176,14 @@ namespace Vcl { namespace Core
 				"Output size and stride size are compatible."
 			);
 
+			const size_t rows = mRows;
+			const size_t cols = mCols;
+
 			// Stride between to entries of the same matrix
-			size_t stride = (mStride == size_t(DynamicStride)) ? mAllocated : mStride;
+			const size_t stride = (mStride == static_cast<size_t>(DynamicStride)) ? mAllocated : mStride;
 
 			// Size of a single entry
-			size_t scalar_width = sizeof(SCALAR_OUT) / sizeof(SCALAR);
+			const size_t scalar_width = sizeof(SCALAR_OUT) / sizeof(SCALAR);
 
 			// Outer/Inner stride
 			size_t outer_stride = 0;
@@ -187,29 +193,29 @@ namespace Vcl { namespace Core
 			auto base = reinterpret_cast<SCALAR_OUT*>(mData);
 			if (stride == 0 || stride == 1)
 			{
-				base += idx*mRows*mCols;
+				base += idx*rows*cols;
 			}
 			else if (stride < mAllocated)
 			{
 				size_t entry = idx % stride;
 				size_t group_idx = idx - entry;
-				base += group_idx*mRows*mCols + entry;
+				base += group_idx*rows*cols + entry;
 
-				outer_stride = mRows*stride / scalar_width;
+				outer_stride = rows*stride / scalar_width;
 				inner_stride = stride / scalar_width;
 			}
 			else
 			{
 				base += idx;
 
-				outer_stride = mRows*stride / scalar_width;
+				outer_stride = rows*stride / scalar_width;
 				inner_stride = stride / scalar_width;
 			}
 
 			if (Stride == DynamicStride || mStride == size_t(DynamicStride))
 				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>
 				(
-					base, StrideType(outer_stride, inner_stride)
+					base, StrideType(static_cast<ptrdiff_t>(outer_stride), static_cast<ptrdiff_t>(inner_stride))
 				);
 			else
 				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>(base);
@@ -231,11 +237,17 @@ namespace Vcl { namespace Core
 		}
 		
 	private:
+		//! Pointer to the allocated memory
 		SCALAR* mData;
+		//! Number of used elements in the buffer
 		size_t mSize;
+		//! Number of allocated elements
 		size_t mAllocated;
+		//! Number of rows within each elements
 		size_t mRows;
+		//! Number of columns within each element
 		size_t mCols;
+		//! Number of elements being consecutive in memory
 		size_t mStride;
 	};
 }}

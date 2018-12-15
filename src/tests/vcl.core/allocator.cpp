@@ -118,6 +118,6 @@ TEST(AllocatorTest, AlignedAllocInitObject)
 	EXPECT_EQ(5, v[13].x);
 
 	// Check alignment of vector data
-	auto base_ptr = reinterpret_cast<size_t>(v.data()) & 0x3f;
-	EXPECT_EQ(0u, base_ptr);
+	auto base = reinterpret_cast<size_t>(v.data()) & 0x3f;
+	EXPECT_EQ(0ull, base);
 }

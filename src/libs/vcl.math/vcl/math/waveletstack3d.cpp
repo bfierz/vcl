@@ -138,10 +138,11 @@ namespace Vcl { namespace Mathematics
 	WaveletStack3D::WaveletStack3D(int x_res, int y_res, int z_res)
 	: mResX(x_res), mResY(y_res), mResZ(z_res)
 	{
-		mBufferInput = new float[mResX*mResY*mResZ];
-		mBufferLowFreq = new float[mResX*mResY*mResZ];
-		mBufferHighFreq = new float[mResX*mResY*mResZ];
-		mBufferHalfSize = new float[mResX*mResY*mResZ];
+		const size_t elem_cnt = static_cast<size_t>(mResX*mResY*mResZ);
+		mBufferInput = new float[elem_cnt];
+		mBufferLowFreq = new float[elem_cnt];
+		mBufferHighFreq = new float[elem_cnt];
+		mBufferHalfSize = new float[elem_cnt];
 	}
 
 	WaveletStack3D::~WaveletStack3D()
@@ -153,12 +154,12 @@ namespace Vcl { namespace Mathematics
 
 		for (size_t x = 0; x < mStack.size(); x++)
 		{
-			if (mStack[x] != NULL) delete mStack[x];
+			if (mStack[x] != nullptr) delete mStack[x];
 		}
 
 		for (size_t x = 0; x < mCoeff.size(); x++)
 		{
-			if (mCoeff[x] != NULL) delete mCoeff[x];
+			if (mCoeff[x] != nullptr) delete mCoeff[x];
 		}
 
 		mStack.clear();
@@ -188,8 +189,8 @@ namespace Vcl { namespace Mathematics
 		float* temp1 = lowFreq;
 		float* temp2 = highFreq;
 
-		memset(temp1, 0, xRes*yRes*zRes*sizeof(float));
-		memset(temp2, 0, xRes*yRes*zRes*sizeof(float));
+		memset(temp1, 0, static_cast<size_t>(xRes*yRes*zRes)*sizeof(float));
+		memset(temp2, 0, static_cast<size_t>(xRes*yRes*zRes)*sizeof(float));
 		
 		DownsampleX(temp1, input, xRes, yRes, zRes);
 		DownsampleY(temp2, temp1, xRes, yRes, zRes);
@@ -244,42 +245,43 @@ namespace Vcl { namespace Mathematics
 
 	void WaveletStack3D::CreateStack(float* data, int levels)
 	{
-		int max_levels = (int)(log((float)mResX) / log(2.0f));
+		int max_levels = static_cast<int>(log(float(mResX)) / log(2.0f));
 
 		if (levels < 0 || levels > max_levels) levels = max_levels;
 
-		if (levels > (int) mStack.size())
+		if (levels > static_cast<int>(mStack.size()))
 		{
-			mStack.resize(levels, NULL);
-			mCoeff.resize(levels, NULL);
+			mStack.resize(static_cast<size_t>(levels), nullptr);
+			mCoeff.resize(static_cast<size_t>(levels), nullptr);
 		}
 
-		memcpy(mBufferInput, data, mResX*mResY*mResZ*sizeof(float));
+		memcpy(mBufferInput, data, static_cast<size_t>(mResX*mResY*mResZ)*sizeof(float));
 
 		int currentXRes = mResX;
 		int currentYRes = mResY;
 		int currentZRes = mResZ;
 
 		// Create the image stack
-		for (int x = 0; x < levels; x++)
+		for (size_t x = 0; x < static_cast<size_t>(levels); x++)
 		{
-			if (mStack[x] == NULL) mStack[x] = new float[currentXRes * currentYRes * currentZRes];
-			if (mCoeff[x] == NULL) mCoeff[x] = new float[currentXRes * currentYRes * currentZRes];
+			const size_t curr_elem_cnt = static_cast<size_t>(currentXRes*currentYRes*currentZRes);
+			if (mStack[x] == nullptr) mStack[x] = new float[curr_elem_cnt];
+			if (mCoeff[x] == nullptr) mCoeff[x] = new float[curr_elem_cnt];
 
 			Decompose(mBufferInput, mBufferLowFreq, mBufferHighFreq, mBufferHalfSize, currentXRes, currentYRes, currentZRes);
 
 			// Save downsampled image to _coeffs and _stack
-			memcpy(mCoeff[x], mBufferHighFreq, currentXRes * currentYRes * currentZRes * sizeof(float));
-			memcpy(mStack[x], mBufferHighFreq, currentXRes * currentYRes * currentZRes * sizeof(float));
+			memcpy(mCoeff[x], mBufferHighFreq, curr_elem_cnt * sizeof(float));
+			memcpy(mStack[x], mBufferHighFreq, curr_elem_cnt * sizeof(float));
 
 			// copy leftovers to input for next iteration
-			memcpy(mBufferInput, mBufferHalfSize, currentXRes * currentYRes * currentZRes * sizeof(float));
+			memcpy(mBufferInput, mBufferHalfSize, curr_elem_cnt * sizeof(float));
 
 			// upsample the image and save it to stack
 			int doubleX = currentXRes;
 			int doubleY = currentYRes;
 			int doubleZ = currentZRes;
-			for (int y = 0; y < x; y++)
+			for (size_t y = 0; y < x; y++)
 			{
 				DoubleSize(mStack[x], doubleX, doubleY, doubleZ);
 				doubleX *= 2;
@@ -297,14 +299,15 @@ namespace Vcl { namespace Mathematics
 	{
 		if (1 > mStack.size())
 		{
-			mStack.resize(1, NULL);
+			mStack.resize(1, nullptr);
 		}
 
-		if (mStack[0] == NULL) mStack[0] = new float[mResX * mResY * mResZ];
+		const size_t elem_cnt = static_cast<size_t>(mResX*mResY*mResZ);
+		if (mStack[0] == nullptr) mStack[0] = new float[elem_cnt];
 
 		Decompose(data, mBufferLowFreq, mBufferHighFreq, mBufferHalfSize, mResX, mResY, mResZ);
 
 		// Save downsampled image to the stack
-		memcpy(mStack[0], mBufferHighFreq, mResX*mResY*mResZ*sizeof(float));
+		memcpy(mStack[0], mBufferHighFreq, elem_cnt*sizeof(float));
 	}
 }}

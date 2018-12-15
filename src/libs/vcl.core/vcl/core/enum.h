@@ -59,8 +59,6 @@ namespace Vcl															       \
 		switch (i)                                                             \
 		{                                                                      \
 		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_IDX_TO_VALUE, __VA_ARGS__)     \
-		default:                                                               \
-			VCL_NO_SWITCH_DEFAULT;                                             \
 		}                                                                      \
 		return type_name(0);                                                   \
 	}																		   \
@@ -70,8 +68,6 @@ namespace Vcl															       \
 		switch (i)                                                             \
 		{                                                                      \
 		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_IDX_TO_STRING, __VA_ARGS__)    \
-		default:                                                               \
-			VCL_NO_SWITCH_DEFAULT;                                             \
 		}                                                                      \
 		return{};                                                              \
 	}																		   \
@@ -82,8 +78,6 @@ namespace Vcl															       \
 		switch (value)                                                         \
 		{                                                                      \
 		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_TO_STRING, __VA_ARGS__)        \
-		default:                                                               \
-			VCL_NO_SWITCH_DEFAULT;                                             \
 		}                                                                      \
 		return{};                                                              \
 	}                                                                          \

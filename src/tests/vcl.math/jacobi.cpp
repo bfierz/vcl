@@ -34,8 +34,10 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/eigenjacobicontext.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 TEST(Jacobi, Identity)
 {

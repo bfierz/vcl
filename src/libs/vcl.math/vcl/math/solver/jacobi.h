@@ -35,6 +35,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	class JacobiContext
 	{
 	public:
+		virtual ~JacobiContext() = default;
+
 		//! \returns The size of the problem to be solved
 		virtual int size() const = 0;
 
@@ -64,6 +66,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	class Jacobi
 	{
 	public:
+		virtual ~Jacobi() = default;
+
 		void setPrecision(double eps) { _eps = eps; }
 		void setMaxIterations(int iter) { _maxIterations = iter; }
 		void setIterationChunkSize(int size) { _chunkSize = size; }

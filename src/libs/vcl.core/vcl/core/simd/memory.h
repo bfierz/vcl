@@ -108,7 +108,7 @@ namespace Vcl
 				wideint_t scale = wideint_t(Rows*Cols);
 				wideint_t offset = wideint_t(Rows*c + r);
 				wideint_t idx = scale*vindex + offset;
-				res(r, c) = gather((Scalar*) base, idx);
+				res(r, c) = gather(base->data(), idx);
 			}
 		}
 
@@ -191,7 +191,7 @@ namespace Vcl
 				intN_t scale  = intN_t(Rows*Cols);
 				intN_t offset = intN_t(Rows*c + r);
 				intN_t idx = scale*vindex + offset;
-				scatter(value(r, c), (Scalar*) base, idx);
+				scatter(value(r, c), base->data(), idx);
 			}
 		}
 	}

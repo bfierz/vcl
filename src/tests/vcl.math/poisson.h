@@ -32,8 +32,10 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/math.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 inline Eigen::MatrixXf createStencilMatrix1D(unsigned int size, std::vector<unsigned char>& boundary)
 {
@@ -104,7 +106,7 @@ public:
 
 	int size() const override
 	{
-		return _size;
+		return static_cast<int>(_size);
 	}
 
 	void precompute() override
@@ -135,7 +137,7 @@ public:
 	//
 	double computeError() override
 	{
-		return sqrt(_error) / size();
+		return double(sqrt(_error) / size());
 	}
 
 	//! Ends the solver and returns the residual

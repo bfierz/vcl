@@ -33,11 +33,16 @@
 
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
+#include <vcl/math/math.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
+
+#define VCL_EIGEN_IDX(r, c) static_cast<ptrdiff_t>((r)), static_cast<ptrdiff_t>((c))
+
+using Vcl::Mathematics::equal;
 
 template<int ROWS, int COLS>
 void consecutiveLayoutTest(size_t size)
@@ -51,9 +56,9 @@ void consecutiveLayoutTest(size_t size)
 	std::vector<Eigen::Matrix<float, ROWS, COLS>, Eigen::aligned_allocator<Eigen::Matrix<float, ROWS, COLS>>> ref_data(size);
 	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data)
 	{
-		for (int c = 0; c < data.cols(); c++)
+		for (ptrdiff_t c = 0; c < data.cols(); c++)
 		{
-			for (int r = 0; r < data.rows(); r++)
+			for (ptrdiff_t r = 0; r < data.rows(); r++)
 			{
 				data(r, c) = rnd();
 			}
@@ -75,23 +80,26 @@ void consecutiveLayoutTest(size_t size)
 		data1.template at<float>(i) = ref_data[i];
 	}
 
+	const size_t cRows = static_cast<size_t>(ROWS);
+	const size_t cCols = static_cast<size_t>(COLS);
+
 	float* data_ptr0 = data0.data();
 	float* data_ptr1 = data1.data();
-	size_t stride = ROWS*COLS;
+	size_t stride = ROWS*cCols;
 	for (size_t i = 0; i < size; i++)
 	{
 		size_t base = i*stride;
 
 		bool check0 = true;
 		bool check1 = true;
-		for (int c = 0; c < COLS; c++)
+		for (size_t c = 0; c < cCols; c++)
 		{
-			for (int r = 0; r < ROWS; r++)
+			for (size_t r = 0; r < cRows; r++)
 			{
-				bool equal0 = data_ptr0[base + c*ROWS + r] == ref_data[i](r, c);
+				bool equal0 = equal(data_ptr0[base + c*cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
 				check0 = check0 && equal0;
 
-				bool equal1 = data_ptr1[base + c*ROWS + r] == ref_data[i](r, c);
+				bool equal1 = equal(data_ptr1[base + c*cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
 				check1 = check1 && equal1;
 			}
 		}
@@ -142,8 +150,8 @@ void stridedLayoutTest(size_t size)
 	Vcl::Core::InterleavedArray<float, ROWS, COLS, Vcl::Core::DynamicStride> data1(size, ROWS, COLS, STRIDE);
 
 	// Check the configuration
-	EXPECT_EQ(data0.size(), (size_t) size);
-	EXPECT_EQ(data1.size(), (size_t) size);
+	EXPECT_EQ(data0.size(), size);
+	EXPECT_EQ(data1.size(), size);
 
 	// Check if the data is written correctly to the storage
 	for (size_t i = 0; i < size; i++)
@@ -152,26 +160,30 @@ void stridedLayoutTest(size_t size)
 		data1.template at<float>(i) = ref_data[i];
 	}
 
+	const size_t cStride = static_cast<size_t>(STRIDE);
+	const size_t cRows = static_cast<size_t>(ROWS);
+	const size_t cCols = static_cast<size_t>(COLS);
+
 	float* data_ptr0 = data0.data();
 	float* data_ptr1 = data1.data();
-	size_t stride = STRIDE*ROWS*COLS;
+	size_t stride = cStride*cRows*cCols;
 	for (size_t i = 0; i < size; i++)
 	{
-		size_t base = (i / STRIDE)*stride;
-		size_t j = (i / STRIDE) * STRIDE;
+		size_t base = (i / cStride)*stride;
+		size_t j = (i / cStride) * cStride;
 
-		for (int s = 0; s < STRIDE && j + s < size; s++)
+		for (size_t s = 0; s < cStride && j + s < size; s++)
 		{
 			bool check0 = true;
 			bool check1 = true;
-			for (int c = 0; c < COLS; c++)
+			for (size_t c = 0; c < cCols; c++)
 			{
-				for (int r = 0; r < ROWS; r++)
+				for (size_t r = 0; r < cRows; r++)
 				{
-					bool equal0 = data_ptr0[base + c*ROWS*STRIDE + r*STRIDE + s] == ref_data[j + s](r, c);
+					bool equal0 = equal(data_ptr0[base + c*cRows*cStride + r*cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
 					check0 = check0 && equal0;
 
-					bool equal1 = data_ptr1[base + c*ROWS*STRIDE + r*STRIDE + s] == ref_data[j + s](r, c);
+					bool equal1 = equal(data_ptr1[base + c*cRows*cStride + r*cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
 					check1 = check1 && equal1;
 				}
 			}
