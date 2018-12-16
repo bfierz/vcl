@@ -49,8 +49,8 @@ namespace Vcl { namespace Geometry
 			Real inv_det = inv(det);
 			Real s = s_in * inv_det;
 			Real t = t_in * inv_det;
-			dist[0] = s*(a*s + b*t + ((Real)2.0)*d) +
-				      t*(b*s + c*t + ((Real)2.0)*e) + f;
+			dist[0] = s*(a*s + b*t + (Real(2))*d) +
+				      t*(b*s + c*t + (Real(2))*e) + f;
 			dist[1] = s;
 			dist[2] = t;
 
@@ -73,16 +73,16 @@ namespace Vcl { namespace Geometry
 
 			Real t_a = 1;
 			Real t_b = 0;
-			Real t_c = (Real)1.0 - s_c;
+			Real t_c = Real(1) - s_c;
 
-			Real d_a = c + ((Real)2.0)*e + f;
-			Real d_b = a + ((Real)2.0)*d + f;
-			Real d_c = s_c*(a*s_c + b*t_c + ((Real)2.0)*d) +
-					   t_c*(b*s_c + c*t_c + ((Real)2.0)*e) + f;
+			Real d_a = c + (Real(2))*e + f;
+			Real d_b = a + (Real(2))*d + f;
+			Real d_c = s_c*(a*s_c + b*t_c + (Real(2))*d) +
+					   t_c*(b*s_c + c*t_c + (Real(2))*e) + f;
 
 			dist[0] = select
 			(
-				numer <= (Real)0.0,
+				numer <= Real(0),
 				d_a,
 				select
 				(
@@ -93,7 +93,7 @@ namespace Vcl { namespace Geometry
 			);
 			dist[1] = select
 			(
-				numer <= (Real)0.0,
+				numer <= Real(0),
 				s_a,
 				select
 				(
@@ -104,7 +104,7 @@ namespace Vcl { namespace Geometry
 			);
 			dist[2] = select
 			(
-				numer <= (Real)0.0,
+				numer <= Real(0),
 				t_a,
 				select
 				(
@@ -136,32 +136,32 @@ namespace Vcl { namespace Geometry
 			Real s_e = 0;
 
 			Real t_a = 0;
-			Real t_b = (Real)1.0 - s_b;
+			Real t_b = Real(1) - s_b;
 			Real t_c = 1;
 			Real t_d = 0;
 			Real t_e = -e * inv(c);
 
-			Real d_a = a + ((Real)2.0)*d + f;
+			Real d_a = a + (Real(2))*d + f;
 			Real d_b = s_b*(a*s_b + b*t_b + d*2) +
-				       t_b*(b*s_b + c*t_b + ((Real)2.0)*e) + f;
-			Real d_c = c + ((Real)2.0)*e + f;
+				       t_b*(b*s_b + c*t_b + (Real(2))*e) + f;
+			Real d_c = c + (Real(2))*e + f;
 			Real d_d = f;
 			Real d_e = e*t_e + f;
 
 			dist[0] = select(tmp1 > tmp0,
 				select(numer >= denom, d_a, d_b),
-				select(tmp1 <= (Real)0.0, d_c,
-					select(e >= (Real)0.0, d_d, d_e)));
+				select(tmp1 <= Real(0), d_c,
+					select(e >= Real(0), d_d, d_e)));
 
 			dist[1] = select(tmp1 > tmp0,
 				select(numer >= denom, s_a, s_b),
-				select(tmp1 <= (Real)0.0, s_c,
-					select(e >= (Real)0.0, s_d, s_e)));
+				select(tmp1 <= Real(0), s_c,
+					select(e >= Real(0), s_d, s_e)));
 
 			dist[2] = select(tmp1 > tmp0,
 				select(numer >= denom, t_a, t_b),
-				select(tmp1 <= (Real)0.0, t_c,
-					select(e >= (Real)0.0, t_d, t_e)));
+				select(tmp1 <= Real(0), t_c,
+					select(e >= Real(0), t_d, t_e)));
 			return dist;
 		}
 
@@ -181,12 +181,12 @@ namespace Vcl { namespace Geometry
 			Real t_c = -e * inv(c);
 
 			Real sq_d_a = f;
-			Real sq_d_b = c + ((Real)2.0)*e + f;
+			Real sq_d_b = c + (Real(2))*e + f;
 			Real sq_d_c = e*t_c + f;
 
 			dist[0] = select
 			(
-				e >= (Real)0.0,
+				e >= Real(0),
 				sq_d_a,
 				select
 				(
@@ -198,7 +198,7 @@ namespace Vcl { namespace Geometry
 			dist[1] = 0;
 			dist[2] = select
 			(
-				e >= (Real)0.0,
+				e >= Real(0),
 				t_a,
 				select
 				(
@@ -232,25 +232,25 @@ namespace Vcl { namespace Geometry
 			Real t_d = 1;
 			Real t_e = -e * inv(c);
 					   
-			Real d_a = a + ((Real)2.0)*d + f;
+			Real d_a = a + (Real(2))*d + f;
 			Real d_b = d*s_b + f;
 			Real d_c = f;
-			Real d_d = c + ((Real)2.0)*e + f;
+			Real d_d = c + (Real(2))*e + f;
 			Real d_e = e*t_e + f;
 
-			dist[0] = select(d < (Real)0.0, 
+			dist[0] = select(d < Real(0), 
 				select(-d >= a, d_a, d_b),
-				select(e >= (Real)0.0, d_c,
+				select(e >= Real(0), d_c,
 					select(-e >= c, d_d, d_e)));
 					
-			dist[1] = select(d < (Real)0.0, 
+			dist[1] = select(d < Real(0), 
 				select(-d >= a, s_a, s_b),
-				select(e >= (Real)0.0, s_c,
+				select(e >= Real(0), s_c,
 					select(-e >= c, s_d, s_e)));
 					
-			dist[2] = select(d < (Real)0.0, 
+			dist[2] = select(d < Real(0), 
 				select(-d >= a, t_a, t_b),
-				select(e >= (Real)0.0, t_c,
+				select(e >= Real(0), t_c,
 					select(-e >= c, t_d, t_e)));
 
 			return dist;
@@ -295,7 +295,7 @@ namespace Vcl { namespace Geometry
 			Real tmp0 = b + e;
 			Real tmp1 = a + d;
 			Real numer = tmp1 - tmp0;
-			Real denom = a - ((Real)2.0)*b + c;
+			Real denom = a - (Real(2))*b + c;
 
 			Real t_a = 1;
 			Real t_b = numer * inv(denom);
@@ -304,32 +304,32 @@ namespace Vcl { namespace Geometry
 			Real t_e = 0;
 
 			Real s_a = 0;
-			Real s_b = (Real)1.0 - t_b;
+			Real s_b = Real(1) - t_b;
 			Real s_c = 1;
 			Real s_d = 0;
 			Real s_e = -d * inv(a);
 					   
-			Real d_a = c + ((Real)2.0)*e + f;
-			Real d_b = s_b*(a*s_b + b*t_b + ((Real)2.0)*d) +
-					   t_b*(b*s_b + c*t_b + ((Real)2.0)*e) + f;
-			Real d_c = a + ((Real)2.0)*d + f;
+			Real d_a = c + (Real(2))*e + f;
+			Real d_b = s_b*(a*s_b + b*t_b + (Real(2))*d) +
+					   t_b*(b*s_b + c*t_b + (Real(2))*e) + f;
+			Real d_c = a + (Real(2))*d + f;
 			Real d_d = f;
 			Real d_e = d*s_e + f;
 
 			dist[0] = select(tmp1 > tmp0,
 				select(numer >= denom, d_a, d_b),
-				select(tmp1 <= (Real)0.0, d_c,
-					select(d >= (Real)0.0, d_d, d_e)));
+				select(tmp1 <= Real(0), d_c,
+					select(d >= Real(0), d_d, d_e)));
 			
 			dist[1] = select(tmp1 > tmp0,
 				select(numer >= denom, s_a, s_b),
-				select(tmp1 <= (Real)0.0, s_c,
-					select(d >= (Real)0.0, s_d, s_e)));
+				select(tmp1 <= Real(0), s_c,
+					select(d >= Real(0), s_d, s_e)));
 
 			dist[2] = select(tmp1 > tmp0,
 				select(numer >= denom, t_a, t_b),
-				select(tmp1 <= (Real)0.0, t_c,
-					select(d >= (Real)0.0, t_d, t_e)));
+				select(tmp1 <= Real(0), t_c,
+					select(d >= Real(0), t_d, t_e)));
 
 			return dist;
 		}
@@ -366,15 +366,15 @@ namespace Vcl { namespace Geometry
 			s + t <= det, 
 			select
 			(
-				s < (Real)0.0,
-				select(t < (Real)0.0, detail::computeDistanceRegion4(det, a, b, c, d, e, f), detail::computeDistanceRegion3(det, a, b, c, d, e, f)),
-				select(t < (Real)0.0, detail::computeDistanceRegion5(det, a, b, c, d, e, f), detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f))
+				s < Real(0),
+				select(t < Real(0), detail::computeDistanceRegion4(det, a, b, c, d, e, f), detail::computeDistanceRegion3(det, a, b, c, d, e, f)),
+				select(t < Real(0), detail::computeDistanceRegion5(det, a, b, c, d, e, f), detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f))
 			),
 			select
 			(
-				s < (Real)0.0,
+				s < Real(0),
 				detail::computeDistanceRegion2(det, a, b, c, d, e, f),
-				select(t < (Real)0.0, detail::computeDistanceRegion6(det, a, b, c, d, e, f), detail::computeDistanceRegion1(det, a, b, c, d, e, f))
+				select(t < Real(0), detail::computeDistanceRegion6(det, a, b, c, d, e, f), detail::computeDistanceRegion1(det, a, b, c, d, e, f))
 			)
 		);
 
@@ -383,24 +383,24 @@ namespace Vcl { namespace Geometry
 		//	s + t <= det, 
 		//	select
 		//	(
-		//		s < (Real)0.0,
-		//		select(t < (Real)0.0, 4, 3), 
-		//		select(t < (Real)0.0, 5, 0)
+		//		s < Real(0),
+		//		select(t < Real(0), 4, 3), 
+		//		select(t < Real(0), 5, 0)
 		//	),
 		//	select
 		//	(
-		//		s < (Real)0.0,
+		//		s < Real(0),
 		//		2,
-		//		select(t < (Real)0.0, 6, 1)
+		//		select(t < Real(0), 6, 1)
 		//	)
 		//);
 
 		// Account for numerical round-off error
-		sq_dist[0] = max((Real) 0, sq_dist[0]);
+		sq_dist[0] = max(Real(0), sq_dist[0]);
 
 		if (barycentric)
 		{
-			(*barycentric)[0] = (Real)1.0 - s - t;
+			(*barycentric)[0] = Real(1) - s - t;
 			(*barycentric)[1] = sq_dist[1];
 			(*barycentric)[2] = sq_dist[2];
 		}

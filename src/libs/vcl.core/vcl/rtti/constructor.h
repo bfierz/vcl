@@ -204,6 +204,6 @@ namespace Vcl { namespace RTTI
 			return new(location) T();
 		}
 
-		ParameterBase _default{ { "Default" }, 0 };
+		ParameterBase _default{ { "Default" }, nullptr };
 	};
 }}

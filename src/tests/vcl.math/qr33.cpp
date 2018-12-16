@@ -31,8 +31,10 @@
 #include <vcl/math/math.h>
 #include <vcl/math/qr33.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 TEST(QR33, SimpleGivens)
 {

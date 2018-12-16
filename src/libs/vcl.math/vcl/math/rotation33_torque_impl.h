@@ -57,7 +57,7 @@ namespace Vcl { namespace Mathematics
 		q.z() = (RR.coeff(1, 0) - RR.coeff(0, 1)) * t;
 		q.coeffs() *= one / q.norm();
 
-		unsigned int i = 0;
+		int i = 0;
 		for (; i < 20; i++)
 		{
 			Eigen::Matrix<REAL, 3, 3> R = q.matrix();

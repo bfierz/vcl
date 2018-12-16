@@ -118,10 +118,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// x^{n+1} = D^-1 (b - R x^{n})
 			//                -------------
 			//                      q
-			size_t index = 0;
-			for (size_t sy = 0; sy < Y; sy++)
+			ptrdiff_t index = 0;
+			for (ptrdiff_t sy = 0; sy < Y; sy++)
 			{
-				for (size_t sx = 0; sx < X; sx++, index++)
+				for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 				{
 					float q = 0;
 					if (sx > 0)

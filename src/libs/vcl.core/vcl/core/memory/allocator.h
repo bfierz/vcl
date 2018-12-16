@@ -64,11 +64,9 @@ namespace Vcl { namespace Core
 
 	public:
 		//! Default constructor
-		explicit ObjectTraits() {}
+		explicit ObjectTraits() = default;
 
-		//! Destructor
-		~ObjectTraits() {}
-
+		//! Conversion constructor
 		template <typename U>
 		explicit ObjectTraits(ObjectTraits<U> const&) {}
 
@@ -113,11 +111,9 @@ namespace Vcl { namespace Core
 
 	public:
 		//! Default constructor
-		explicit NoInitObjectTraits() {}
+		explicit NoInitObjectTraits() = default;
 
-		//! Destructor
-		~NoInitObjectTraits() {}
-
+		//! Conversion constructor
 		template <typename U>
 		explicit NoInitObjectTraits(NoInitObjectTraits<U> const&) {}
 
@@ -289,7 +285,7 @@ namespace Vcl { namespace Core
 		inline ~Allocator() {}
 		inline Allocator(Allocator const& rhs) : Policy(rhs), Traits(rhs) {}
 		template <typename U, typename P, typename T2>
-		inline Allocator(Allocator<U, P, T2> const& rhs) : Traits(rhs), Policy(rhs) {}
+		inline Allocator(Allocator<U, P, T2> const& rhs) : Policy(rhs), Traits(rhs) {}
 	};
 
 	/*

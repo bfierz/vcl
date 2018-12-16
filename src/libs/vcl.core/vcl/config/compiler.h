@@ -266,7 +266,7 @@
 #		define VCL_IF_CONSTEXPR if
 #	endif
 #elif defined (VCL_COMPILER_CLANG)
-#	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9)
+#	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9) || __cplusplus < 201703l
 #		define VCL_IF_CONSTEXPR if
 #	else
 #		define VCL_IF_CONSTEXPR if constexpr

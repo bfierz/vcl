@@ -107,13 +107,13 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// abs(beta * d_r);
 		double computeError() override
 		{
-			return fabs(_beta * _residualLength);
+			return double(fabs(_beta * _residualLength));
 		}
 			
 		void finish(double* residual = nullptr) override
 		{
 			if (residual)
-				(*residual) = sqrt(fabs(_beta * _residualLength));
+				(*residual) = double(sqrt(fabs(_beta * _residualLength)));
 		}
 
 	protected: // Matrix to solve

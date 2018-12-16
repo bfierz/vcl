@@ -32,7 +32,7 @@ namespace Vcl { namespace Components
 		if (_freeIndices.empty())
 		{
 			// Get the next free index
-			index = (uint32_t) _generations.size();
+			index = static_cast<uint32_t>(_generations.size());
 
 			// Allocate the new index
 			_generations.push_back(1);

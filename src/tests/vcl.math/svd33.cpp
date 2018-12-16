@@ -37,8 +37,10 @@
 #include <vcl/math/jacobisvd33_qr.h>
 #include <vcl/math/jacobisvd33_twosided.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 #define USE_PREGEN_DATA
@@ -184,7 +186,7 @@ namespace
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
 	
 #ifdef USE_PREGEN_DATA
-		for (int i = 0; i < (int) nr_problems; i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Eigen::Matrix<Scalar, 3, 3> A;
 			A << predefinedProblems[9*i + 0],
@@ -239,7 +241,7 @@ namespace
 	)
 	{
 		// Compute reference using Eigen
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f A = F.template at<Scalar>(i);
 			Eigen::JacobiSVD<Vcl::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
@@ -266,7 +268,7 @@ namespace
 
 		Eigen::IOFormat fmt(6, 0, ", ", ";", "[", "]");
 
-		for (int i = 0; i < static_cast<int>(nr_problems); i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Vcl::Matrix3f refU = refUa.template at<Scalar>(i);
 			Vcl::Matrix3f refV = refVa.template at<Scalar>(i);
@@ -342,7 +344,6 @@ void runMcAdamsTest(float tol)
 	using scalar_t  = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -360,7 +361,7 @@ void runMcAdamsTest(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t S = F.at<real_t>(i);
 		matrix3_t U = matrix3_t::Identity();
@@ -384,7 +385,6 @@ void runTwoSidedTest(float tol)
 	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -402,7 +402,7 @@ void runTwoSidedTest(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t S = F.at<real_t>(i);
 		matrix3_t U = matrix3_t::Identity();
@@ -425,7 +425,6 @@ void runQRTest(float tol)
 	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
@@ -443,7 +442,7 @@ void runQRTest(float tol)
 	size_t stride = nr_problems;
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t S = F.at<real_t>(i);
 		matrix3_t U = matrix3_t::Identity();

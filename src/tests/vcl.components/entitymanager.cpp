@@ -29,8 +29,10 @@
 // Include the relevant parts from the library
 #include <vcl/components/entitymanager.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 struct NameComponent
 {

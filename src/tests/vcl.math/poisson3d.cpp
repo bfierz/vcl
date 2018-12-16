@@ -37,8 +37,10 @@
 // Tests
 #include "poisson.h"
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 TEST(Poisson3D, SimpleJacobiNoBlockerIdentity)
 {

@@ -35,6 +35,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	class ConjugateGradientsContext
 	{
 	public:
+		virtual ~ConjugateGradientsContext() = default;
+
 		//! Size of the problem to be solved
 		virtual int size() const = 0;
 
@@ -68,6 +70,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	class ConjugateGradients
 	{
 	public:
+		virtual ~ConjugateGradients() = default;
+
 		void setPrecision(double eps) { _eps = eps; }
 		void setMaxIterations(int iter) { _maxIterations = iter; }
 		void setIterationChunkSize(int size) { _chunkSize = size; }

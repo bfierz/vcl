@@ -91,8 +91,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// r = (b - A x)
 			//          ---
 			//           q
-			size_t index = 0;
-			for (size_t sx = 0; sx < X; sx++, index++)
+			ptrdiff_t index = 0;
+			for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 			{
 				float q_c = unknowns[index    ] * Ac  [index];
 				float q_l = (index > 0)     ? unknowns[index - 1] * Ax_l[index] : 0;
@@ -118,8 +118,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			auto& d = this->_dir;
 
-			size_t index = 0;
-			for (size_t sx = 0; sx < X; sx++, index++)
+			ptrdiff_t index = 0;
+			for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 			{
 				float q = 0;
 					q += d[index    ] * Ac  [index];

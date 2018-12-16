@@ -40,6 +40,7 @@
 #include <vcl/geometry/distanceTriangle3Triangle3.h>
 #include <vcl/math/math.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Reference code
 #include "ref/GteDistPointTriangle.h"
 #include "ref/GteDistRayRay.h"
@@ -49,6 +50,7 @@
 
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Tests the distance functions.
 gte::Vector3<float> cast(const Eigen::Vector3f& vec)
@@ -102,13 +104,13 @@ TEST(PointTriangleDistance, Simple)
 	WideVector         t1(nr_problems / width);
 
 	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		ref_points[i].setRandom();
 		points.at<float>(i) = ref_points[i];
 	}
 
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		Eigen::Vector3f p = ref_points[i];
 		std::array<float, 3> st;
@@ -118,7 +120,7 @@ TEST(PointTriangleDistance, Simple)
 		s0[i] = st[1];
 		t0[i] = st[2];
 	}
-	for (int i = 0; i < static_cast<int>(nr_problems / width); i++)
+	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		vector3_t p = points.at<real_t>(i);
 		std::array<real_t, 3> st;
@@ -128,7 +130,7 @@ TEST(PointTriangleDistance, Simple)
 		s1[i] = st[1];
 		t1[i] = st[2];
 	}
-	for (int i = 0; i < (int) nr_problems; i++)
+	for (size_t i = 0; i < nr_problems; i++)
 	{
 		EXPECT_TRUE(equal(d0[i], reinterpret_cast<float*>(d1.data())[i], 1e-4f)) << "Distance differ: " << i;
 		EXPECT_TRUE(equal(s0[i], reinterpret_cast<float*>(s1.data())[i], 1e-4f)) << "S differ: " << i;
@@ -146,13 +148,10 @@ TEST(TriangleTriangleDistance, Simple)
 	using real_t = Vcl::float4;
 	//using real_t = float;
 
-	using int_t = Vcl::int4;
-
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
-	using vector3i_t = Eigen::Matrix<int_t, 3, 1>;
 
-	const int width = sizeof(real_t) / sizeof(float);
-	const int problem_size = 64;
+	const size_t width = sizeof(real_t) / sizeof(float);
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_a(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_b(problem_size);
@@ -161,7 +160,7 @@ TEST(TriangleTriangleDistance, Simple)
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_B(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_C(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		points_a.at<float>(i) = Eigen::Vector3f::Random();
 		points_b.at<float>(i) = Eigen::Vector3f::Random();
@@ -183,7 +182,7 @@ TEST(TriangleTriangleDistance, Simple)
 	// Compute the reference solution
 	gte::DCPQuery<float, gte::Triangle3<float>, gte::Triangle3<float>> gteQuery;
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		Eigen::Vector3f triA_0 = points_a.at<float>(i);
 		Eigen::Vector3f triA_1 = points_b.at<float>(i);
@@ -202,7 +201,7 @@ TEST(TriangleTriangleDistance, Simple)
 	}
 
 	// Compute VCL solution
-	for (int i = 0; i < problem_size / width; i++)
+	for (size_t i = 0; i < problem_size / width; i++)
 	{
 		vector3_t triA_0 = points_a.at<real_t>(i);
 		vector3_t triA_1 = points_b.at<real_t>(i);
@@ -218,7 +217,7 @@ TEST(TriangleTriangleDistance, Simple)
 		points_Y.at<real_t>(i) = b;
 	}
 
-	for (int i = 0; i < (int)problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		EXPECT_TRUE(equal(ref_shortest_dist.at<float>(i)[0], shortest_dist.at<float>(i)[0], 1e-4f)) << "Distance differ: " << i;
 	}
@@ -235,8 +234,6 @@ TEST(DistanceRayRay, Simple)
 	//using real_t = Vcl::float8;
 	//using real_t = Vcl::float4;
 	using real_t = float;
-
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	// Simple crossing, intersection
 	{

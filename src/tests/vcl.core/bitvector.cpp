@@ -48,11 +48,11 @@ TEST(BitVectorTest, SetBit)
 	TempBitVector v;
 	v.assign(19, false);
 
-	EXPECT_FALSE((bool) v[17]) << "Element 17 is false";
+	EXPECT_FALSE(v[17]) << "Element 17 is false";
 
 	v[17] = true;
 
-	EXPECT_TRUE((bool) v[17]) << "Element 17 is true";
+	EXPECT_TRUE(v[17]) << "Element 17 is true";
 }
 
 TEST(BitVectorTest, Clear)
@@ -62,11 +62,11 @@ TEST(BitVectorTest, Clear)
 	TempBitVector v;
 	v.assign(19, false);
 
-	EXPECT_EQ((size_t) 19, v.size()) << "Size is correct";
+	EXPECT_EQ(19, v.size()) << "Size is correct";
 
 	v.clear();
 
-	EXPECT_EQ((size_t) 0, v.size()) << "Vector is empty";
+	EXPECT_EQ(0, v.size()) << "Vector is empty";
 }
 
 TEST(BitVectorTest, ResizeWithValue)
@@ -76,11 +76,11 @@ TEST(BitVectorTest, ResizeWithValue)
 	TempBitVector v;
 	v.assign(19, true);
 
-	EXPECT_TRUE((bool)v[17]) << "Element 17 is true";
+	EXPECT_TRUE(v[17]) << "Element 17 is true";
 
 	v[17] = false;
 
-	EXPECT_FALSE((bool)v[17]) << "Element 17 is false";
+	EXPECT_FALSE(v[17]) << "Element 17 is false";
 }
 
 TEST(BitVectorTest, Generation)
@@ -94,9 +94,9 @@ TEST(BitVectorTest, Generation)
 	for (int i = 1; i < std::numeric_limits<TempBitVector::container_t::value_type>::max(); i++)
 	{
 		v[17] = true;
-		EXPECT_TRUE((bool)v[17]) << "Element 17 is true";
+		EXPECT_TRUE(v[17]) << "Element 17 is true";
 		v.assign(19, false);
-		EXPECT_FALSE((bool)v[17]) << "Element 17 is false";
+		EXPECT_FALSE(v[17]) << "Element 17 is false";
 		EXPECT_EQ(v.generation(), i + 1);
 	}
 	v.assign(19, false);

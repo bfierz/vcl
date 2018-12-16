@@ -208,18 +208,18 @@ public:
 	}
 
 	DerivedObject(int a)
-	: _size((float) a)
+	: _size(float(a))
 	{
 	}
 
 	DerivedObject(int a, int b)
-	: _size((float) (a + b))
+	: _size(float(a + b))
 	{
 	}
 
 	const float& getFloat() const
 	{
-		return (const float&) _size;
+		return static_cast<const float&>(_size);
 	}
 
 	void setFloat(const float& f)

@@ -37,8 +37,10 @@
 #include <vcl/core/interleavedarray.h>
 #include <vcl/geometry/intersect.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 void prepare(std::array<float, 5>& o, std::array<float, 2>& d)
 {

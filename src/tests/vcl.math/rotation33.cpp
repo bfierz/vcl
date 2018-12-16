@@ -36,8 +36,10 @@
 #include <vcl/math/math.h>
 #include <vcl/math/rotation33_torque.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 namespace
@@ -57,7 +59,7 @@ namespace
 		std::uniform_real_distribution<float> a{ -max_angle, max_angle };
 			
 		// Initialize data
-		for (int i = 0; i < (int) nr_problems; i++)
+		for (size_t i = 0; i < nr_problems; i++)
 		{
 			// Rest-state
 			Eigen::Matrix<Scalar, 3, 3> X0;
@@ -133,7 +135,6 @@ void runRotationTest(float max_angle, float tol)
 	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
@@ -147,7 +148,7 @@ void runRotationTest(float max_angle, float tol)
 	size_t width = sizeof(real_t) / sizeof(scalar_t);
 
 	std::vector<int> iterations(128);
-	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	for (size_t i = 0; i < stride / width; i++)
 	{
 		matrix3_t A = F.at<real_t>(i);
 		matrix3_t R = A;
