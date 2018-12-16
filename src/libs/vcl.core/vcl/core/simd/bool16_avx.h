@@ -59,11 +59,11 @@ namespace Vcl
 
 		
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>(_mm256_and_ps(mF8[0], rhs.mF8[0]), _mm256_and_ps(mF8[1], rhs.mF8[1]));
 		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>(_mm256_or_ps(mF8[0], rhs.mF8[0]), _mm256_or_ps(mF8[1], rhs.mF8[1]));
 		}

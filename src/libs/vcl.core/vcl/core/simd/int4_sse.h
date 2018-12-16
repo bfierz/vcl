@@ -80,6 +80,10 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<int, 4> max(const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mmVCL_max_epi32(get(0), rhs.get(0))); }
 
 	public:
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator& (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_and_si128(get(0), rhs.get(0))); }
+		VCL_STRONG_INLINE VectorScalar<int, 4> operator| (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_or_si128(get(0), rhs.get(0))); }
+
+	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator== (const VectorScalar<int, 4>& rhs) const
 		{
 			return VectorScalar<bool, 4>(_mm_cmpeq_epi32(get(0), rhs.get(0)));

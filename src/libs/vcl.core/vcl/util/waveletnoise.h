@@ -76,34 +76,11 @@ namespace Vcl { namespace Util
 		const float* getNoiseTileData() const noexcept { return _noiseTileData.data(); }
 
 	protected: // Helper methods
-		//! Downsample values according to the wavelet coefficients
-		static void downsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept;
-
-		//! Upsample values according to the wavelet coefficients
-		static void upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept;
-
 		//! Special constructor taking an initialized set of random numbers
 		WaveletNoise(gsl::span<float> noise_data_base);
 
 		//! Initialize the noise data
 		void initializeNoise(gsl::span<float> noise_data_base);
-
-		//! Evaluate quadratic B-spline basis functions
-		void evaluateQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept;
-
-		//! Evaluate quadratic B-spline basis functions
-		void evaluateQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept;
-
-		//! Evaluate derivative of the quadratic B-spline basis functions
-		void evaluateDQuadraticSplineBasis(float p, Vec3& w, int& mid) const noexcept;
-
-		//! Evaluate derivative of the quadratic B-spline basis functions
-		void evaluateDQuadraticSplineBasisImpl(float t, Vec3& w) const noexcept;
-
-	protected: // Constants
-		const static std::array<float, 32> ACoeffs;
-		const static std::array<float, 4>  PCoeffs;
-
 	private:
 		//! Noise data
 		std::vector<float> _noiseTileData;

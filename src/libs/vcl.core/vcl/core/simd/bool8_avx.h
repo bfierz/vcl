@@ -49,11 +49,11 @@ namespace Vcl
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) : mF8(_mm256_castsi256_ps(I8)) {}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>(_mm256_and_ps(mF8, rhs.mF8));
 		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs)
+		VCL_STRONG_INLINE VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>(_mm256_or_ps(mF8, rhs.mF8));
 		}

@@ -213,6 +213,13 @@ namespace Vcl
 			);
 		}
 
+		VCL_STRONG_INLINE float dot(const VectorScalar<float, 8>& rhs) const
+		{
+			return 
+				_mmVCL_dp_ps(get(0), rhs.get(0)) + 
+				_mmVCL_dp_ps(get(1), rhs.get(1));
+		}
+
 		VCL_STRONG_INLINE float min() const
 		{
 			return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(_mmVCL_hmin_ps(get(0))), _mm_set_ss(_mmVCL_hmin_ps(get(1)))));

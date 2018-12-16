@@ -32,6 +32,7 @@
 // Include the relevant parts from the library
 #include <vcl/math/math.h>
 #include <vcl/util/waveletnoise.h>
+#include <vcl/util/waveletnoise_helpers.h>
 #include <vcl/util/waveletnoise_modulo.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
@@ -66,39 +67,44 @@ bool equal
 	return eq;
 }
 
+using namespace Vcl::Util::Details;
+
 TEST_F(WaveletNoiseTest, Modulo)
 {
 	using namespace Vcl::Util;
 
 	int m0 = 53 % 47;
 	EXPECT_EQ(m0, 6);
-	int m1 = fast_modulo<47>(53);
+	int m1 = FastMath<47>::modulo(53);
 	EXPECT_EQ(m1, 6);
 
 	int m2 = -53 % 47;
 	EXPECT_EQ(m2, -6);
-	int m3 = fast_modulo<47>(-53);
+	int m3 = FastMath<47>::modulo(-53);
 	EXPECT_EQ(m3, 41);
 
 	int m4 = -17 % 16;
 	EXPECT_EQ(m4, -1);
-	int m5 = fast_modulo<16>(-17);
+	int m5 = FastMath<16>::modulo(-17);
 	EXPECT_EQ(m5, 15);
 
 	int m6 = -33 % 32;
 	EXPECT_EQ(m6, -1);
-	int m7 = fast_modulo<32>(-33);
+	int m7 = FastMath<32>::modulo(-33);
 	EXPECT_EQ(m7, 31);
 
 	int m8 = -65 % 64;
 	EXPECT_EQ(m8, -1);
-	int m9 = fast_modulo<64>(-65);
+	int m9 = FastMath<64>::modulo(-65);
 	EXPECT_EQ(m9, 63);
 
 	int m10 = -129 % 128;
 	EXPECT_EQ(m10, -1);
-	int m11 = fast_modulo<128>(-129);
+	int m11 = FastMath<128>::modulo(-129);
 	EXPECT_EQ(m11, 127);
+
+	Vcl::int8 m12 = FastMath<64>::modulo(Vcl::int8(-65));
+	EXPECT_TRUE(Vcl::all(m12 == Vcl::int8(63)));
 }
 
 TEST_F(WaveletNoiseTest, EvalSpline)
@@ -133,7 +139,7 @@ TEST_F(WaveletNoiseTest, DownsampleIdentity)
 	std::generate(std::begin(values), std::end(values), []() { return 1.0f; });
 
 	std::array<float, 32> downsampled;
-	downsample(values, downsampled, 64, 1);
+	downsample<32>(values, downsampled, 64, 1);
 
 	const auto sum = std::accumulate(std::begin(downsampled), std::end(downsampled), 0.0f);
 	EXPECT_TRUE(Vcl::Mathematics::equal(sum, 32.0f, 1e-4f)) << "Actual sum: " << sum;
@@ -145,7 +151,7 @@ TEST_F(WaveletNoiseTest, Upsample)
 	std::generate(std::begin(values), std::end(values), []() { return 1.0f; });
 
 	std::array<float, 64> upsampled;
-	upsample(values, upsampled, 64, 1);
+	upsample<32>(values, upsampled, 64, 1);
 
 	const auto sum = std::accumulate(std::begin(upsampled), std::end(upsampled), 0.0f);
 	EXPECT_TRUE(Vcl::Mathematics::equal(sum, 64.0f, 1e-4f)) << "Actual sum: " << sum;

@@ -30,29 +30,55 @@
 // C++ standard library
 #include <cstdint>
 
+// VCL
+#include <vcl/core/simd/vectorscalar.h>
+
 namespace Vcl { namespace Util
 {
 	template<int N>
-	VCL_CPP_CONSTEXPR_14 inline int fast_modulo(int x)
+	struct FastMath
 	{
-		const int m = x % N;
-		return (m < 0) ? m + N : m;
-	}
-	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo<128>(int x) { return x & 127; }
-	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 64>(int x) { return x &  63; }
-	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 32>(int x) { return x &  31; }
-	template<> VCL_CPP_CONSTEXPR_14 inline int fast_modulo< 16>(int x) { return x &  15; }
-
-#if PTRDIFF_MAX != INT32_MAX
-	template<int N>
-	VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo(ptrdiff_t x)
+		template<typename T>
+		static T modulo(const T& x) noexcept
+		{
+			const int m = x % T(N);
+			return select(m < 0, m + T(N), m);
+		}
+	};
+	template<>
+	struct FastMath<16>
 	{
-		const ptrdiff_t m = x % N;
-		return (m < 0) ? m + N : m;
-	}
-	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo<128>(ptrdiff_t x) { return x & 127; }
-	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 64>(ptrdiff_t x) { return x & 63; }
-	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 32>(ptrdiff_t x) { return x & 31; }
-	template<> VCL_CPP_CONSTEXPR_14 inline ptrdiff_t fast_modulo< 16>(ptrdiff_t x) { return x & 15; }
-#endif
+		template<typename T>
+		static T modulo(const T& x) noexcept
+		{
+			return x & T(15);
+		}
+	};
+	template<>
+	struct FastMath<32>
+	{
+		template<typename T>
+		static T modulo(const T& x) noexcept
+		{
+			return x & T(31);
+		}
+	};
+	template<>
+	struct FastMath<64>
+	{
+		template<typename T>
+		static T modulo(const T& x) noexcept
+		{
+			return x & T(63);
+		}
+	};
+	template<>
+	struct FastMath<128>
+	{
+		template<typename T>
+		static T modulo(const T& x) noexcept
+		{
+			return x & T(127);
+		}
+	};
 }}

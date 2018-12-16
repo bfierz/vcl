@@ -53,11 +53,11 @@ namespace Vcl
 		}
 		
 	public:
-		VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs)
+		VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>(vandq_u32(mF4[0], rhs.mF4[0]), vandq_u32(mF4[1], rhs.mF4[1]));
 		}
-		VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs)
+		VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>(vorrq_u32(mF4[0], rhs.mF4[0]), vorrq_u32(mF4[1], rhs.mF4[1]));
 		}
