@@ -33,6 +33,7 @@
 #endif
 #include <stddef.h>    // Required for size_t and ptrdiff_t and NULL
 #include <limits>      // Required for numeric_limits
+#include <memory>      // Required for std::allocator
 #include <new>         // Required for placement new and std::bad_alloc
 #include <stdexcept>   // Required for std::length_error
 

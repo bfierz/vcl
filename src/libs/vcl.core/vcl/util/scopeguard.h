@@ -47,6 +47,16 @@ namespace std
 		return *(static_cast<unsigned*>(static_cast<void*>(details::_getptd() + (sizeof(void*) == 8 ? 0x100 : 0x90)))); // x32 offset - 0x90 , x64 - 0x100
 	}
 }
+#elif defined(__APPLE__)
+#	include <cxxabi.h>
+namespace std
+{
+	namespace details { extern "C" char * __cxa_get_globals(); }
+	inline int uncaught_exceptions() noexcept
+	{
+		return *(static_cast<unsigned*>(static_cast<void*>(reinterpret_cast<char*>(details::__cxa_get_globals()) + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
+	}
+}
 #elif defined(__GLIBCXX__) || defined(_LIBCPP_VERSION)
 #	include <cxxabi.h>
 namespace std

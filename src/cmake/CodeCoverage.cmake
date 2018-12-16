@@ -219,7 +219,7 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_XML)
 
     add_custom_target(${Coverage_NAME}
         # Run tests
-        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS} || (exit 0)
 
         # Running gcovr
         COMMAND ${GCOVR_PATH} --xml

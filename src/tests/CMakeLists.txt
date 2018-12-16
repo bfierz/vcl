@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+project(vcl.test)
 
 include(../cmake/VCLCudaSupport.cmake)
 include(../cmake/VCLOpenCLSupport.cmake)
@@ -34,22 +35,72 @@ add_subdirectory(vcl.geometry)
 add_subdirectory(vcl.math)
 add_subdirectory(vcl.components)
 
+# Setup a target for ctest
+if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
+	setup_target_for_coverage_gcovr_xml(
+		NAME vcl.test
+		EXECUTABLE ctest --no-compress-output -T Test
+		DEPENDENCIES
+			vcl.core.test
+			vcl.geometry.test
+			vcl.math.test
+			vcl.components.test
+	)
+elseif(VCL_CODE_COVERAGE AND MSVC)
+	find_program(
+		OPENCPPCOVERAGE_PATH
+			OpenCppCoverage
+		HINTS
+			"C:\\Program Files\\OpenCppCoverage"
+	)
+	
+	if(NOT OPENCPPCOVERAGE_PATH)
+		message(FATAL_ERROR "OpenCppCoverage not found! Aborting...")
+	endif()
+	
+	set(OPENCPPCOVERAGE_SOURCES "${CMAKE_SOURCE_DIR}")
+	string(REGEX REPLACE "/" "\\\\" OPENCPPCOVERAGE_SOURCES ${OPENCPPCOVERAGE_SOURCES})
+    add_custom_target(vcl.test
+		COMMAND ${OPENCPPCOVERAGE_PATH} --sources "${OPENCPPCOVERAGE_SOURCES}" --modules vcl* --export_type=cobertura --cover_children -- ctest --no-compress-output -T Test
+
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        DEPENDS
+			vcl.core.test
+			vcl.geometry.test
+			vcl.math.test
+			vcl.components.test
+        COMMENT "Generate code coverage report using OpenCppCoverage"
+	)
+else()
+	add_custom_target(vcl.test
+		COMMAND ctest --no-compress-output -T Test
+
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        DEPENDS
+			vcl.core.test
+			vcl.geometry.test
+			vcl.math.test
+			vcl.components.test
+        COMMENT "Generate code coverage report using OpenCppCoverage"
+	)
+endif()
+
 # OpenGL related tests
-IF(VCL_OPENGL_SUPPORT)
+if(VCL_OPENGL_SUPPORT)
 	find_package(OpenGL REQUIRED)
 	find_package(GLEW REQUIRED)
-	IF(GLEW_FOUND)
+	if(GLEW_FOUND)
 		add_subdirectory(vcl.graphics.opengl)
-	ENDIF()
-ENDIF()
+	endif()
+endif()
 
 # CUDA related tests
-IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	add_subdirectory(vcl.compute.cuda)
 	add_subdirectory(vcl.math.cuda)
-ENDIF()
+endif()
 
 # OpenCL related tests
-IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
 	add_subdirectory(vcl.compute.opencl)
-ENDIF()
+endif()
