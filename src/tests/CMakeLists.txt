@@ -1,48 +1,55 @@
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2014 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 
-# Configure the VCL libraries
-INCLUDE(../cmake/VCLCudaSupport.cmake)
-INCLUDE(../cmake/VCLOpenCLSupport.cmake)
+include(../cmake/VCLCudaSupport.cmake)
+include(../cmake/VCLOpenCLSupport.cmake)
 
-# Tests for the core library
-SUBDIRS(vcl.core)
-IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    SETUP_TARGET_FOR_COVERAGE(vcl_core_coverage vcl_core_test coverage_core)
-ENDIF()
+# Enable CMake test support
+enable_testing()
 
-# Test for the library containing geometric algorithms
-SUBDIRS(vcl.geometry)
-IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    SETUP_TARGET_FOR_COVERAGE(vcl_geometry_coverage vcl_geometry_test coverage_geometry)
-ENDIF()
-
-# Test for the library containing math routines
-SUBDIRS(vcl.math)
-IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    SETUP_TARGET_FOR_COVERAGE(vcl_math_coverage vcl_math_test coverage_math)
-ENDIF()
-
-# Tests for the components library
-SUBDIRS(vcl.components)
-IF(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    SETUP_TARGET_FOR_COVERAGE(vcl_components_coverage vcl_components_test coverage_components)
-ENDIF()
+add_subdirectory(vcl.core)
+add_subdirectory(vcl.geometry)
+add_subdirectory(vcl.math)
+add_subdirectory(vcl.components)
 
 # OpenGL related tests
 IF(VCL_OPENGL_SUPPORT)
-	FIND_PACKAGE(OpenGL REQUIRED)
-	FIND_PACKAGE(GLEW REQUIRED)
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
 	IF(GLEW_FOUND)
-		SUBDIRS(vcl.graphics.opengl)
+		add_subdirectory(vcl.graphics.opengl)
 	ENDIF()
 ENDIF()
 
 # CUDA related tests
 IF(CUDA_FOUND AND VCL_CUDA_SUPPORT)
-	SUBDIRS(vcl.compute.cuda)
-	SUBDIRS(vcl.math.cuda)
+	add_subdirectory(vcl.compute.cuda)
+	add_subdirectory(vcl.math.cuda)
 ENDIF()
 
 # OpenCL related tests
 IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
-	SUBDIRS(vcl.compute.opencl)
+	add_subdirectory(vcl.compute.opencl)
 ENDIF()

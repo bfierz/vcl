@@ -56,6 +56,10 @@ install:
   - tar xf lcov_1.13.orig.tar.gz
   - sudo make -C lcov-1.13/ install
   
+  # Install gcovr
+  - sudo pip install gcovr
+  - gcovr --version
+
 before_script:
   - if [ "$compiler" = "g++-6"        ]; then export CXX="g++-6" CC="gcc-6";              fi
   - if [ "$compiler" = "clang++-3.9"  ]; then export CXX="clang++-3.9" CC="clang-3.9";    fi

@@ -1,36 +1,47 @@
-PROJECT(vcl_math_test)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2014 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl.math.test)
 
-SET(VCL_TEST_SRC
+include(../../cmake/VCLTest.cmake)
+
+set(SOURCE_FILES
 	cg.cpp
 	eigen33.cpp
 	jacobi.cpp
 	poisson1d.cpp
 	poisson2d.cpp
 	poisson3d.cpp
+	poisson.h
 	poldecomp33.cpp
 	qr33.cpp
 	rotation33.cpp
 	svd33.cpp
 )
-SET(VCL_TEST_INC
-	poisson.h
-)
-
-SET(SOURCE
-	${VCL_TEST_SRC} ${VCL_TEST_INC}
-)
-
-SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${VCL_TEST_INC})
-
-# Generate library
-ADD_EXECUTABLE(vcl_math_test
-	${SOURCE}
-)
-
-SET_TARGET_PROPERTIES(vcl_math_test PROPERTIES FOLDER tests)
-
-TARGET_LINK_LIBRARIES(vcl_math_test
+vcl_add_test(vcl.math.test)
+vcl_target_sources(vcl.math.test "" ${SOURCE_FILES})
+target_link_libraries(vcl.math.test
 	vcl_math
-	gtest
-	gtest_main
+	nlohmann_json
 )

@@ -136,10 +136,8 @@ endif()
 set(VCL_CODE_COVERAGE CACHE BOOL "Enable code coverage measurement")
 
 if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
-    include(CodeCoverage)
-	
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+	include(CodeCoverage)
+	append_coverage_compiler_flags()
 endif()
 
 add_subdirectory(libs)

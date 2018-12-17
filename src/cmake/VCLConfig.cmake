@@ -243,3 +243,25 @@ function(vcl_check_target tgt)
 		message(FATAL_ERROR " VCL: compiling vcl requires a ${tgt} CMake target in your project")
 	endif()
 endfunction()
+
+# Add files to target
+# 'files' are supposed to be defined relative to where the target is defined
+function(vcl_target_sources tgt prefix)
+	
+	# Configure the VS project file filters
+	foreach(file ${ARGN})
+		get_filename_component(dir_ "${file}" DIRECTORY)
+		if(dir_)
+			# Remove the prefix and an optiona '/'
+			string(REGEX REPLACE "^${prefix}[/]" "" dir_ ${dir_})
+			# Replace the path separator with filter separators
+			string(REGEX REPLACE "/" "\\\\" dir_ ${dir_})
+		else()
+			set(dir_ "\\\\")
+		endif()
+		source_group(${dir_} FILES ${file})
+	endforeach()
+	
+	# Add the files to the target
+	target_sources(${tgt} PRIVATE ${ARGN})
+endfunction()

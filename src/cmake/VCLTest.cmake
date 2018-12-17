@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2017 Basil Fierz
+# Copyright (c) 2018 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,18 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl.compute.opencl.test)
+include(GoogleTest)
+include(VCLConfig)
 
-include(../../cmake/VCLTest.cmake)
+# Create a test executable using Google Test
+function(vcl_add_test tgt)
 
-set(SOURCE_FILES
-	cg_add.cpp
-	poisson3d.cpp
-	poisson.h
-	redux.cpp
-)
-vcl_add_test(vcl.compute.opencl.test)
-vcl_target_sources(vcl.compute.opencl.test "" ${SOURCE_FILES})
-target_link_libraries(vcl.compute.opencl.test
-	vcl_math_cuda
-)
+	vcl_check_target(gtest)
+	vcl_check_target(gtest_main)
+	
+    add_executable(${tgt} "")
+	
+	# Place into VS solution folder 'tests'
+	set_target_properties(${tgt} PROPERTIES FOLDER tests)
+
+	# Link against gtest
+	target_link_libraries(${tgt}
+		gtest
+		gtest_main
+	)
+	
+	# Enable static code analysis
+	if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
+		enable_vs_guideline_checker(vcl_core_test)
+	endif()
+	
+	# Enable code coverage recording
+	if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
+		setup_target_for_coverage_gcovr_xml(
+			NAME ${tgt}.coverage
+			EXECUTABLE ${tgt}
+			DEPENDENCIES ${tgt}
+		)
+	endif()
+	
+	# Register for test auto-discovery
+	gtest_discover_tests(${tgt})
+endfunction()
