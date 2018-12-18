@@ -54,6 +54,7 @@ set(VCL_CORE_CONTAINER_INC
 	vcl/core/container/array.h
 	vcl/core/container/bitvector.h
 	vcl/core/container/bucketadapter.h
+	vcl/core/container/enumerate.h
 )
 
 # VCL / CORE / MEMORY

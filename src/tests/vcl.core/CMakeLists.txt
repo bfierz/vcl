@@ -36,6 +36,7 @@ set(SOURCE_FILES
 	allocator.cpp
 	bitvector.cpp
 	convert.cpp
+	enumerate.cpp
 	flags.cpp
 	fnv1a.cpp
 	gather.cpp
