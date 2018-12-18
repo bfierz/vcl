@@ -34,6 +34,7 @@ set(SOURCE_FILES
 	convert.cpp
 	enummap.cpp
 	eigen_simd.cpp
+	enumerate.cpp
 	flags.cpp
 	fnv1a.cpp
 	gather.cpp
