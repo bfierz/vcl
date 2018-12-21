@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make -f ./tests/Makefile $1
+make $1
 rc=$?
 if [[ $rc = 0 ]]
 then

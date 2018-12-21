@@ -1,0 +1,75 @@
+# Azure test pipeline
+# Triggers build tests for Windows, Linux and MacOS for various configuarations
+
+trigger:
+- master
+
+jobs:
+- job: Linux
+  strategy:
+    matrix:
+      Debug_SSE2:
+        buildConfig: 'Debug'
+        configVectorization: 'SSE 2'
+        configCodeCoverage: 'on'
+      Debug_AVX:
+        buildConfig: 'Debug'
+        configVectorization: 'AVX'
+        configCodeCoverage: 'off'
+      Release_AVX:
+        buildConfig: 'Release'
+        configVectorization: 'AVX'
+        configCodeCoverage: 'off'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - template: ci/azure-pipeline-linux.yml
+#- job: Linux_ARM
+#  strategy:
+#    matrix:
+#      Debug_NEON:
+#        buildConfig: 'Debug'
+#        configVectorization: 'NEON'
+#        configCodeCoverage: 'off'
+#      Release_NEON:
+#        buildConfig: 'Release'
+#        configVectorization: 'NEON'
+#        configCodeCoverage: 'off'
+#  pool:
+#    name: 'Linux ARM32'
+#  steps:
+#  - template: ci/azure-pipeline-linux.yml
+- job: MacOS
+  strategy:
+    matrix:
+      Debug_SSE2:
+        buildConfig: 'Debug'
+        configVectorization: 'SSE 2'
+        configCodeCoverage: 'off'
+      Release_SSE2:
+        buildConfig: 'Release'
+        configVectorization: 'SSE 2'
+        configCodeCoverage: 'off'
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - template: ci/azure-pipeline-macos.yml
+- job: Windows
+  strategy:
+    matrix:
+      Debug_SSE2:
+        buildConfig: 'Debug'
+        configVectorization: 'SSE 2'
+        configCodeCoverage: 'on'
+      Debug_AVX:
+        buildConfig: 'Debug'
+        configVectorization: 'AVX'
+        configCodeCoverage: 'off'
+      Release_AVX:
+        buildConfig: 'Release'
+        configVectorization: 'AVX'
+        configCodeCoverage: 'off'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: ci/azure-pipeline-windows.yml

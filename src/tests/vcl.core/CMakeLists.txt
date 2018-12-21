@@ -1,14 +1,35 @@
-PROJECT(vcl_core_test)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2014 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl.core.test)
 
-# Configure the VCL compilation environment
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
+include(../../cmake/VCLTest.cmake)
 
 # Check dependency requirements
 vcl_check_target(nlohmann_json)
-vcl_check_target(gtest)
-vcl_check_target(gtest_main)
 
-SET(VCL_TEST_SRC
+set(SOURCE_FILES
 	allocator.cpp
 	bitvector.cpp
 	convert.cpp
@@ -26,31 +47,9 @@ SET(VCL_TEST_SRC
 	smart_ptr.cpp
 	waveletnoise.cpp
 )
-SET(VCL_TEST_INC
-)
-
-SET(SOURCE
-	${VCL_TEST_SRC} ${VCL_TEST_INC}
-)
-
-SOURCE_GROUP("" FILES ${VCL_TEST_SRC} ${VCL_TEST_INC})
-
-# Generate library
-ADD_EXECUTABLE(vcl_core_test
-	${SOURCE}
-)
-
-SET_TARGET_PROPERTIES(vcl_core_test PROPERTIES FOLDER tests)
-
-TARGET_LINK_LIBRARIES(vcl_core_test
+vcl_add_test(vcl.core.test)
+vcl_target_sources(vcl.core.test "" ${SOURCE_FILES})
+target_link_libraries(vcl.core.test
 	vcl_core
 	nlohmann_json
-	gtest
-	gtest_main
 )
-
-# Enable static code analysis
-OPTION(VCL_ENABLE_CORE_GUIDELINE_CHECKER "Enable core guideline checking")
-IF (VCL_ENABLE_CORE_GUIDELINE_CHECKER)
-	ENABLE_VS_GUIDELINE_CHECKER(vcl_core_test)
-ENDIF()
