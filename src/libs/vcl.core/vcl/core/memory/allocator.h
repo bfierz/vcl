@@ -28,10 +28,11 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#ifndef VCL_ABI_WINAPI
+#if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)) && !defined(VCL_ABI_WINAPI)
 #include <mm_malloc.h> // Required for _mm_malloc
 #endif
 #include <stddef.h>    // Required for size_t and ptrdiff_t and NULL
+#include <stdlib.h>    // Required for aligned_alloc
 #include <limits>      // Required for numeric_limits
 #include <memory>      // Required for std::allocator
 #include <new>         // Required for placement new and std::bad_alloc
@@ -228,11 +229,19 @@ namespace Vcl { namespace Core
 	public: // Memory allocation
 		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr)
 		{
+#if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 			return reinterpret_cast<pointer>(_mm_malloc(cnt * sizeof(T), Alignment));
+#else
+			return reinterpret_cast<pointer>(aligned_alloc(Alignment, cnt * sizeof(T)));
+#endif
 		}
 		inline void deallocate(pointer p, size_type)
 		{
+#if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 			_mm_free(p);
+#else
+			free(p);
+#endif
 		}
 
 	public: // Size

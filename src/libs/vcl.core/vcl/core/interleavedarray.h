@@ -29,6 +29,7 @@
 #include <vcl/config/eigen.h>
 
 // VCL
+#include <vcl/core/memory/allocator.h>
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Core
@@ -97,7 +98,8 @@ namespace Vcl { namespace Core
 				mAllocated += alignment - mAllocated % alignment;
 
 			// Allocate initial memory
-			mData = static_cast<SCALAR*>(_mm_malloc(mAllocated*mRows*mCols*sizeof(SCALAR), alignment));
+			AlignedAllocPolicy<SCALAR, 32> alloc;
+			mData = alloc.allocate(mAllocated*mRows*mCols);
 		}
 
 		InterleavedArray(InterleavedArray&& rhs)
@@ -120,7 +122,8 @@ namespace Vcl { namespace Core
 		{
 			if (mData)
 			{
-				_mm_free(mData);
+				AlignedAllocPolicy<SCALAR, 32> alloc;
+				alloc.deallocate(mData, mAllocated*mRows*mCols);
 			}
 		}
 		

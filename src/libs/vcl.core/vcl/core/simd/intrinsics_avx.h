@@ -98,6 +98,16 @@ namespace Vcl
 	VCL_STRONG_INLINE __m256 _mm256_cmpgt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GT_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpge_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_GE_OQ); }
 
+	VCL_STRONG_INLINE __m256 _mm256_isinf_ps(__m256 x)
+	{
+		const __m256 sign_mask = _mm256_set1_ps(-0.0);
+		const __m256 inf = _mm256_set1_ps(std::numeric_limits<float>::infinity());
+
+		x = _mm256_andnot_ps(sign_mask, x);
+		x = _mm256_cmpeq_ps(x, inf);
+		return x;
+	}
+
 	VCL_STRONG_INLINE __m256 _mmVCL_rsqrt_ps(__m256 v)
 	{
 		const __m256 nr = _mm256_rsqrt_ps(v);

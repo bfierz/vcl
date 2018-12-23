@@ -148,6 +148,8 @@ namespace Vcl
 		VCL_STRONG_INLINE VectorScalar<float, 4> min(const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(vminq_f32(get(0), rhs.get(0))); }
 		VCL_STRONG_INLINE VectorScalar<float, 4> max(const VectorScalar<float, 4>& rhs) const { return VectorScalar<float, 4>(vmaxq_f32(get(0), rhs.get(0))); }
 
+		VCL_STRONG_INLINE float dot(const VectorScalar<float, 4>& rhs) const { return vdotq_f32(get(0), rhs.get(0)); }
+
 		VCL_STRONG_INLINE float min() const { return vpminq_f32(get(0)); }
 		VCL_STRONG_INLINE float max() const { return vpmaxq_f32(get(0)); }
 
@@ -162,7 +164,7 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3)
 		{
-			float alignas(16) data[4] = { s0, s1, s2, s3 };
+			alignas(16) float data[4] = { s0, s1, s2, s3 };
 			_data[0] = vld1q_f32(data);
 		}
 		VCL_STRONG_INLINE void set(float32x4_t vec)
@@ -179,6 +181,11 @@ namespace Vcl
 		// Straight forward method
 		// (b & ~mask) | (a & mask)
 		return VectorScalar<float, 4>(vbslq_f32(mask._data[0], a.get(0), b.get(0)));
+	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 4> isinf(const VectorScalar<float, 4>& x)
+	{
+		return VectorScalar<bool, 4>(visinfq_f32(x.get(0)));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)

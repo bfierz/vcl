@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <cstdint>
+#include <limits>
 
 #if defined(VCL_VECTORIZE_SSE)
 
@@ -71,6 +72,16 @@ namespace Vcl
 		b = _mm_andnot_si128(mask, b); // clear b where mask = 1
 		a = _mm_or_si128(a, b);        // a = a OR b                         
 		return a;
+	}
+
+	VCL_STRONG_INLINE __m128 _mm_isinf_ps(__m128 x)
+	{
+		const __m128 sign_mask = _mm_set1_ps(-0.0);
+		const __m128 inf = _mm_set1_ps(std::numeric_limits<float>::infinity());
+
+		x = _mm_andnot_ps(sign_mask, x);
+		x = _mm_cmpeq_ps(x, inf);
+		return x;
 	}
 
 	__m128i _mmVCL_abs_epi32(__m128i a);

@@ -44,6 +44,8 @@ TEST(Math, Sign)
 	std::random_device rnd;
 	std::uniform_real_distribution<double> dist_d{-10, 10};
 
+	EXPECT_EQ(sgn(0.0), 0.0);
+	EXPECT_EQ(sgn(-0.0), 0.0);
 	for (int i = 0; i < 50; i++)
 	{
 		const double d = dist_d(rnd);

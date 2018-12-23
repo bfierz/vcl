@@ -181,6 +181,11 @@ namespace Vcl
 #endif
 	}
 
+	VCL_STRONG_INLINE VectorScalar<bool, 4> isinf(const VectorScalar<float, 4>& x)
+	{
+		return VectorScalar<bool, 4>(_mm_isinf_ps(x.get(0)));
+	}
+
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)
 	{
 		alignas(16) float vars[4];

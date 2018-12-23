@@ -147,6 +147,10 @@
 #	if defined __x86_64
 #		define VCL_ARCH_X64
 #	endif
+
+#	if defined __arm__
+#		define VCL_ARCH_ARM
+#	endif
 #endif
 
 // Identify supported compiler features

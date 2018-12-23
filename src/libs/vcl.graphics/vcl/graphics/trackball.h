@@ -38,7 +38,7 @@ namespace Vcl { namespace Graphics
 	public:
 		void reset(const Eigen::Vector3f& up = { 0.0f, 1.0f, 0.0f });
 		void startRotate(float ratio_x, float ratio_y, bool right_handed = true);
-		void startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed = true);
+		void startRotate(const Eigen::Quaternionf& inital_rotation, float ratio_x, float ratio_y, bool right_handed = true);
 		void rotate(float ratio_x, float ratio_y, bool right_handed = true);
 		void endRotate();
 

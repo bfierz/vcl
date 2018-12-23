@@ -253,4 +253,13 @@ namespace Vcl
 			_mm256_blendv_ps(b.mF8[1], a.mF8[1], mask.mF8[1])
 		);
 	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
+	{
+		return VectorScalar<bool, 16>
+		(
+			_mm256_isinf_ps(x.get(0)),
+			_mm256_isinf_ps(x.get(1))
+		);
+	}
 }

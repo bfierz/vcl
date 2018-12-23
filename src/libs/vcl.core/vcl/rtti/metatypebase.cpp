@@ -25,6 +25,7 @@
 #include <vcl/rtti/metatypebase.h>
 
 // VCL
+#include <vcl/core/memory/allocator.h>
 #include <vcl/core/contract.h>
 #include <vcl/rtti/attributebase.h>
 #include <vcl/rtti/metatyperegistry.h>
@@ -79,14 +80,22 @@ namespace Vcl { namespace RTTI
 		
 	void* Type::allocate() const
 	{
+#if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 		void* obj = _mm_malloc(_size, _alignment);
+#else
+		void* obj = aligned_alloc(_alignment, _size);
+#endif
 
 		return obj;
 	}
 
 	void Type::deallocate(void* ptr) const
 	{
+#if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 		_mm_free(ptr);
+#else
+		free(ptr);
+#endif
 	}
 
 	void Type::destruct(void* ptr) const

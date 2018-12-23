@@ -223,6 +223,13 @@ namespace Vcl
 			);
 		}
 
+		VCL_STRONG_INLINE float dot(const VectorScalar<float, 8>& rhs) const
+		{
+			return
+				vdotq_f32(get(0), rhs.get(0)) +
+				vdotq_f32(get(1), rhs.get(1));
+		}
+
 		VCL_STRONG_INLINE float min() const
 		{
 			return std::min(vpminq_f32(get(0)), vpminq_f32(get(1)));
@@ -244,8 +251,8 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
 		{
-			float alignas(16) d0[4] = { s0, s1, s2, s3 };
-			float alignas(16) d1[4] = { s4, s5, s6, s7 };
+			alignas(16) float d0[4] = { s0, s1, s2, s3 };
+			alignas(16) float d1[4] = { s4, s5, s6, s7 };
 			_data[0] = vld1q_f32(d0);
 			_data[1] = vld1q_f32(d1);
 		}
@@ -277,6 +284,15 @@ namespace Vcl
 		(
 			vbslq_f32(mask.mF4[0], a.get(0), b.get(0)),
 			vbslq_f32(mask.mF4[1], a.get(1), b.get(1))
+		);
+	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 8> isinf(const VectorScalar<float, 8>& x)
+	{
+		return VectorScalar<bool, 8>
+		(
+			visinfq_f32(x.get(0)),
+			visinfq_f32(x.get(1))
 		);
 	}
 }
