@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl.compute.opencl.test)
+project(vcl.math.cuda.test)
 
 include(../../cmake/VCLTest.cmake)
 
@@ -32,8 +32,8 @@ set(SOURCE_FILES
 	poisson.h
 	redux.cpp
 )
-vcl_add_test(vcl.compute.opencl.test)
-vcl_target_sources(vcl.compute.opencl.test "" ${SOURCE_FILES})
-target_link_libraries(vcl.compute.opencl.test
+vcl_add_test(vcl.math.cuda.test)
+vcl_target_sources(vcl.math.cuda.test "" ${SOURCE_FILES})
+target_link_libraries(vcl.math.cuda.test
 	vcl_math_cuda
 )

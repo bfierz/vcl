@@ -68,6 +68,13 @@ namespace Vcl
 			return _mmVCL_extract_ps(mF8, idx);
 		}
 
+		VCL_STRONG_INLINE __m256 get(int i = 0) const
+		{
+			VclRequire(0 == i, "Access is in range.");
+
+			return mF8;
+		}
+
 		VCL_STRONG_INLINE explicit operator __m256() const
 		{
 			return mF8;
@@ -186,5 +193,10 @@ namespace Vcl
 				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
-	}	
+	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 8> isinf(const VectorScalar<float, 8>& x)
+	{
+		return VectorScalar<bool, 8>(_mm256_isinf_ps(x.get(0)));
+	}
 }

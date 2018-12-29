@@ -280,6 +280,15 @@ namespace Vcl
 			);
 		}
 
+		VCL_STRONG_INLINE float dot(const VectorScalar<float, 16>& rhs) const
+		{
+			return
+				vdotq_f32(get(0), rhs.get(0)) +
+				vdotq_f32(get(1), rhs.get(1)) +
+				vdotq_f32(get(2), rhs.get(2)) +
+				vdotq_f32(get(3), rhs.get(3));
+		}
+
 		VCL_STRONG_INLINE float min() const
 		{
 			return std::min
@@ -312,10 +321,10 @@ namespace Vcl
 		VCL_STRONG_INLINE void set(float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
 			                       float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15)
 		{
-			float alignas(16) d0[4] = { s00, s01, s02, s03 };
-			float alignas(16) d1[4] = { s04, s05, s06, s07 };
-			float alignas(16) d2[4] = { s08, s09, s10, s11 };
-			float alignas(16) d3[4] = { s12, s13, s14, s15 };
+			alignas(16) float d0[4] = { s00, s01, s02, s03 };
+			alignas(16) float d1[4] = { s04, s05, s06, s07 };
+			alignas(16) float d2[4] = { s08, s09, s10, s11 };
+			alignas(16) float d3[4] = { s12, s13, s14, s15 };
 			mF4[0] = vld1q_f32(d0);
 			mF4[1] = vld1q_f32(d1);
 			mF4[2] = vld1q_f32(d2);
@@ -357,6 +366,17 @@ namespace Vcl
 			vbslq_f32(mask.mF4[1], a.get(1), b.get(1)),
 			vbslq_f32(mask.mF4[2], a.get(2), b.get(2)),
 			vbslq_f32(mask.mF4[3], a.get(3), b.get(3))
+		);
+	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
+	{
+		return VectorScalar<bool, 16>
+		(
+			visinfq_f32(x.get(0)),
+			visinfq_f32(x.get(1)),
+			visinfq_f32(x.get(2)),
+			visinfq_f32(x.get(3))
 		);
 	}
 }

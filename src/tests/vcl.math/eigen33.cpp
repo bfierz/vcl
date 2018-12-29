@@ -299,7 +299,7 @@ TEST(Eigen33, EigenFloat16)
 
 TEST(Eigen33, EigenQuatFloat)
 {
-	runJacobiEigenQuat33Test<float>(1e-5f);
+	runJacobiEigenQuat33Test<float>(2e-5f);
 }
 TEST(Eigen33, EigenQuatFloat4)
 {

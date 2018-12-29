@@ -34,6 +34,30 @@ add_subdirectory(vcl.core)
 add_subdirectory(vcl.geometry)
 add_subdirectory(vcl.math)
 add_subdirectory(vcl.components)
+set(test_project vcl.core.test vcl.geometry.test vcl.math.test vcl.components.test)
+
+# OpenGL related tests
+if(VCL_OPENGL_SUPPORT)
+	find_package(OpenGL REQUIRED)
+	find_package(GLEW REQUIRED)
+	if(GLEW_FOUND)
+		add_subdirectory(vcl.graphics.opengl)
+		list(APPEND test_project vcl.graphics.opengl)
+	endif()
+endif()
+
+# CUDA related tests
+if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	add_subdirectory(vcl.compute.cuda)
+	add_subdirectory(vcl.math.cuda)
+	list(APPEND test_project vcl.compute.cuda vcl.math.cuda)
+endif()
+
+# OpenCL related tests
+if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	add_subdirectory(vcl.compute.opencl)
+	list(APPEND test_project vcl.compute.opencl)
+endif()
 
 # Setup a target for ctest
 if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
@@ -83,24 +107,4 @@ else()
 			vcl.components.test
         COMMENT "Generate code coverage report using OpenCppCoverage"
 	)
-endif()
-
-# OpenGL related tests
-if(VCL_OPENGL_SUPPORT)
-	find_package(OpenGL REQUIRED)
-	find_package(GLEW REQUIRED)
-	if(GLEW_FOUND)
-		add_subdirectory(vcl.graphics.opengl)
-	endif()
-endif()
-
-# CUDA related tests
-if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
-	add_subdirectory(vcl.compute.cuda)
-	add_subdirectory(vcl.math.cuda)
-endif()
-
-# OpenCL related tests
-if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
-	add_subdirectory(vcl.compute.opencl)
 endif()

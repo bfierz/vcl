@@ -28,12 +28,13 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <limits>
 #include <cstdint>
 
 #if defined(VCL_VECTORIZE_NEON)
 namespace Vcl
 {
-	float32x4_t vsinq_f32(float32x4_t v);	
+	float32x4_t vsinq_f32(float32x4_t v);
 	float32x4_t vcosq_f32(float32x4_t v);
 	float32x4_t vlogq_f32(float32x4_t v);
 	float32x4_t vexpq_f32(float32x4_t v);
@@ -43,6 +44,17 @@ namespace Vcl
 
 	float32x4_t vatan2q_f32(float32x4_t y, float32x4_t x);
 	float32x4_t vpowq_f32(float32x4_t x, float32x4_t y);
+
+	VCL_STRONG_INLINE uint32x4_t visinfq_f32(float32x4_t x)
+	{
+		const uint32x4_t sign_mask = vdupq_n_u32(0x7fffffff);
+		const uint32x4_t inf = vreinterpretq_u32_f32(vdupq_n_f32(std::numeric_limits<float>::infinity()));
+
+		uint32x4_t r;
+		r = vandq_u32(sign_mask, vreinterpretq_u32_f32(x));
+		r = vceqq_u32(r, inf);
+		return r;
+	}
 
 	// From: Eigen/src/Core/arch/NEON/PacketMath.h
 	VCL_STRONG_INLINE float32x4_t vdivq_f32(float32x4_t x, float32x4_t y)
@@ -101,10 +113,10 @@ namespace Vcl
 		const float32x4_t q_step_1 = vmulq_f32(q_step_0, q_step_result0);
 		const float32x4_t q_step_parm1 = vmulq_f32(x, q_step_1);
 		const float32x4_t q_step_result1 = vrsqrtsq_f32(q_step_parm1, q_step_1);
-		
+
 		// take the res
 		const float32x4_t q_step_2 = vmulq_f32(q_step_1, q_step_result1);
-		
+
 		return q_step_2;
 	}
 
@@ -120,21 +132,26 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float32x4_t vsgnq_f32(float32x4_t v)
 	{
-		return vreinterpretq_f32_u32(vandq_u32(vorrq_u32(vandq_u32(v, vdupq_n_u32(0x80000000)), vdupq_n_u32(1)), vcneqq_f32(v, vdupq_n_f32(0))));
+		return vreinterpretq_f32_u32(vandq_u32(vorrq_u32(vandq_u32(vreinterpretq_u32_f32(v), vdupq_n_u32(0x80000000)), vreinterpretq_u32_f32(vdupq_n_f32(1.0f))), vcneqq_f32(v, vdupq_n_f32(0))));
 	}
 
-	VCL_STRONG_INLINE int vmovemaskq_f32(float32x4_t a)
+	VCL_STRONG_INLINE int vmovemaskq_u32(uint32x4_t a)
 	{
-		static const uint32_t alignas(16) data[4] = { 1, 2, 4, 8 };
+		static const uint32_t data[4] = { 1, 2, 4, 8 };
 		static const uint32x4_t movemask = vld1q_u32(data);
 		static const uint32x4_t highbit = vdupq_n_u32(0x80000000);
 
-		uint32x4_t t0 = vreinterpretq_u32_f32(a);
+		uint32x4_t t0 = a;
 		uint32x4_t t1 = vtstq_u32(t0, highbit);
 		uint32x4_t t2 = vandq_u32(t1, movemask);
 		uint32x2_t t3 = vorr_u32(vget_low_u32(t2), vget_high_u32(t2));
 
 		return vget_lane_u32(t3, 0) | vget_lane_u32(t3, 1);
+	}
+
+	VCL_STRONG_INLINE int vmovemaskq_f32(float32x4_t a)
+	{
+		return vmovemaskq_u32(vreinterpretq_u32_f32(a));
 	}
 
 	VCL_STRONG_INLINE float32_t vpminq_f32(float32x4_t v)
@@ -149,6 +166,14 @@ namespace Vcl
 		float32x2_t tmp = vpmax_f32(vget_low_f32(v), vget_high_f32(v));
 		tmp = vpmax_f32(tmp, tmp);
 		return vget_lane_f32(tmp, 0);
+	}
+
+	VCL_STRONG_INLINE float32_t vdotq_f32(float32x4_t a, float32x4_t b)
+	{
+		float32x4_t prod = vmulq_f32(a, b);
+		float32x4_t sum1 = vaddq_f32(prod, vrev64q_f32(prod));
+		float32x4_t sum2 = vaddq_f32(sum1, vcombine_f32(vget_high_f32(sum1), vget_low_f32(sum1)));
+		return vgetq_lane_f32(sum2, 0);
 	}
 
 	/*__m128 _mmVCL_floor_ps(__m128 v);

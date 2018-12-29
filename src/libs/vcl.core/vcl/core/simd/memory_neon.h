@@ -34,14 +34,17 @@
 namespace Vcl
 {
 #if defined VCL_VECTORIZE_NEON
-	VCL_STRONG_INLINE float32x4_t gather(float const* base, uint32x4_t vindex)
+	VCL_STRONG_INLINE float32x4_t gather(float const* base, int32x4_t vindex)
 	{
-		float alignas(16) data[4] =
+		alignas(16) int idx[4];
+		vst1q_s32(idx, vindex);
+		
+		alignas(16) float data[4] =
 		{
-			base[vindex.n128_i32[0]],
-			base[vindex.n128_i32[1]],
-			base[vindex.n128_i32[2]],
-			base[vindex.n128_i32[3]]
+			base[idx[0]],
+			base[idx[1]],
+			base[idx[2]],
+			base[idx[3]]
 		};
 
 		return vld1q_f32(data);
@@ -74,6 +77,11 @@ namespace Vcl
 	VCL_STRONG_INLINE void load(float4& value, const float* base)
 	{
 		value = float4{ vld1q_f32(base) };
+	}
+
+	VCL_STRONG_INLINE void load(int4& value, const int* base)
+	{
+		value = int4{ vld1q_s32(base) };
 	}
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
@@ -147,9 +155,9 @@ namespace Vcl
 		float32x4_t x0, y0, z0;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
 
-		loaded(0) = int4{ vreinterpret_s32_f32(x0) };
-		loaded(1) = int4{ vreinterpret_s32_f32(y0) };
-		loaded(2) = int4{ vreinterpret_s32_f32(z0) };
+		loaded(0) = int4{ vreinterpretq_s32_f32(x0) };
+		loaded(1) = int4{ vreinterpretq_s32_f32(y0) };
+		loaded(2) = int4{ vreinterpretq_s32_f32(z0) };
 	}
 	
 	VCL_STRONG_INLINE void load
@@ -175,10 +183,10 @@ namespace Vcl
 		float32x4_t x0, y0, z0, w0;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
 
-		loaded(0) = int4{ vreinterpret_s32_f32(x0) };
-		loaded(1) = int4{ vreinterpret_s32_f32(y0) };
-		loaded(2) = int4{ vreinterpret_s32_f32(z0) };
-		loaded(3) = int4{ vreinterpret_s32_f32(w0) };
+		loaded(0) = int4{ vreinterpretq_s32_f32(x0) };
+		loaded(1) = int4{ vreinterpretq_s32_f32(y0) };
+		loaded(2) = int4{ vreinterpretq_s32_f32(z0) };
+		loaded(3) = int4{ vreinterpretq_s32_f32(w0) };
 	}
 	
 	VCL_STRONG_INLINE void store
@@ -205,9 +213,9 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base),
-			vreinterpret_f32_s32(value(0).get(0)),
-			vreinterpret_f32_s32(value(1).get(0)),
-			vreinterpret_f32_s32(value(2).get(0))
+			vreinterpretq_f32_s32(value(0).get(0)),
+			vreinterpretq_f32_s32(value(1).get(0)),
+			vreinterpretq_f32_s32(value(2).get(0))
 		);
 	}
 
@@ -216,12 +224,26 @@ namespace Vcl
 		value = float8{ vld1q_f32(base), vld1q_f32(base + 4) };
 	}
 
+	VCL_STRONG_INLINE void load(int8& value, const int* base)
+	{
+		value = int8{ vld1q_s32(base), vld1q_s32(base + 4) };
+	}
+
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
 		value = float16
 		{
-			vld1q_f32(base + 0), vld1q_f32(base +  4),
+			vld1q_f32(base + 0), vld1q_f32(base + 4),
 			vld1q_f32(base + 8), vld1q_f32(base + 12)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(int16& value, const int* base)
+	{
+		value = int16
+		{
+			vld1q_s32(base + 0), vld1q_s32(base +  4),
+			vld1q_s32(base + 8), vld1q_s32(base + 12)
 		};
 	}
 
@@ -254,9 +276,9 @@ namespace Vcl
 
 		loaded =
 		{
-			int8{ vreinterpret_s32_f32(x0), vreinterpret_s32_f32(x1) },
-			int8{ vreinterpret_s32_f32(y0), vreinterpret_s32_f32(y1) },
-			int8{ vreinterpret_s32_f32(z0), vreinterpret_s32_f32(z1) }
+			int8{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1) },
+			int8{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1) },
+			int8{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1) }
 		};
 	}
 	
@@ -285,10 +307,10 @@ namespace Vcl
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
 		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector4f*>(base)+4);
 
-		loaded(0) = int8{ vreinterpret_s32_f32(x0), vreinterpret_s32_f32(x1) };
-		loaded(1) = int8{ vreinterpret_s32_f32(y0), vreinterpret_s32_f32(y1) };
-		loaded(2) = int8{ vreinterpret_s32_f32(z0), vreinterpret_s32_f32(z1) };
-		loaded(3) = int8{ vreinterpret_s32_f32(w0), vreinterpret_s32_f32(w1) };
+		loaded(0) = int8{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1) };
+		loaded(1) = int8{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1) };
+		loaded(2) = int8{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1) };
+		loaded(3) = int8{ vreinterpretq_s32_f32(w0), vreinterpretq_s32_f32(w1) };
 	}
 
 	VCL_STRONG_INLINE void load
@@ -325,9 +347,9 @@ namespace Vcl
 
 		loaded =
 		{
-			int16{ vreinterpret_s32_f32(x0), vreinterpret_s32_f32(x1), vreinterpret_s32_f32(x2), vreinterpret_s32_f32(x3) },
-			int16{ vreinterpret_s32_f32(y0), vreinterpret_s32_f32(y1), vreinterpret_s32_f32(y2), vreinterpret_s32_f32(y3) },
-			int16{ vreinterpret_s32_f32(z0), vreinterpret_s32_f32(z1), vreinterpret_s32_f32(z2), vreinterpret_s32_f32(z3) }
+			int16{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1), vreinterpretq_s32_f32(x2), vreinterpretq_s32_f32(x3) },
+			int16{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1), vreinterpretq_s32_f32(y2), vreinterpretq_s32_f32(y3) },
+			int16{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1), vreinterpretq_s32_f32(z2), vreinterpretq_s32_f32(z3) }
 		};
 	}
 	
@@ -366,10 +388,10 @@ namespace Vcl
 
 		loaded =
 		{
-			int16{ vreinterpret_s32_f32(x0), vreinterpret_s32_f32(x1), vreinterpret_s32_f32(x2), vreinterpret_s32_f32(x3) },
-			int16{ vreinterpret_s32_f32(y0), vreinterpret_s32_f32(y1), vreinterpret_s32_f32(y2), vreinterpret_s32_f32(y3) },
-			int16{ vreinterpret_s32_f32(z0), vreinterpret_s32_f32(z1), vreinterpret_s32_f32(z2), vreinterpret_s32_f32(z3) },
-			int16{ vreinterpret_s32_f32(w0), vreinterpret_s32_f32(w1), vreinterpret_s32_f32(w2), vreinterpret_s32_f32(w3) }
+			int16{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1), vreinterpretq_s32_f32(x2), vreinterpretq_s32_f32(x3) },
+			int16{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1), vreinterpretq_s32_f32(y2), vreinterpretq_s32_f32(y3) },
+			int16{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1), vreinterpretq_s32_f32(z2), vreinterpretq_s32_f32(z3) },
+			int16{ vreinterpretq_s32_f32(w0), vreinterpretq_s32_f32(w1), vreinterpretq_s32_f32(w2), vreinterpretq_s32_f32(w3) }
 		};
 	}
 
@@ -392,17 +414,17 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 0,
-			vreinterpret_f32_s32(value(0).get(0)),
-			vreinterpret_f32_s32(value(1).get(0)),
-			vreinterpret_f32_s32(value(2).get(0))
+			vreinterpretq_f32_s32(value(0).get(0)),
+			vreinterpretq_f32_s32(value(1).get(0)),
+			vreinterpretq_f32_s32(value(2).get(0))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 4,
-			vreinterpret_f32_s32(value(0).get(1)),
-			vreinterpret_f32_s32(value(1).get(1)),
-			vreinterpret_f32_s32(value(2).get(1))
+			vreinterpretq_f32_s32(value(0).get(1)),
+			vreinterpretq_f32_s32(value(1).get(1)),
+			vreinterpretq_f32_s32(value(2).get(1))
 		);
 	}
 	
@@ -427,32 +449,32 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  0,
-			vreinterpret_f32_s32(value(0).get(0)),
-			vreinterpret_f32_s32(value(1).get(0)),
-			vreinterpret_f32_s32(value(2).get(0))
+			vreinterpretq_f32_s32(value(0).get(0)),
+			vreinterpretq_f32_s32(value(1).get(0)),
+			vreinterpretq_f32_s32(value(2).get(0))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  4,
-			vreinterpret_f32_s32(value(0).get(1)),
-			vreinterpret_f32_s32(value(1).get(1)),
-			vreinterpret_f32_s32(value(2).get(1))
+			vreinterpretq_f32_s32(value(0).get(1)),
+			vreinterpretq_f32_s32(value(1).get(1)),
+			vreinterpretq_f32_s32(value(2).get(1))
 		);
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) +  8,
-			vreinterpret_f32_s32(value(0).get(2)),
-			vreinterpret_f32_s32(value(1).get(2)),
-			vreinterpret_f32_s32(value(2).get(2))
+			vreinterpretq_f32_s32(value(0).get(2)),
+			vreinterpretq_f32_s32(value(1).get(2)),
+			vreinterpretq_f32_s32(value(2).get(2))
 		);
 		
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 12,
-			vreinterpret_f32_s32(value(0).get(3)),
-			vreinterpret_f32_s32(value(1).get(3)),
-			vreinterpret_f32_s32(value(2).get(3))
+			vreinterpretq_f32_s32(value(0).get(3)),
+			vreinterpretq_f32_s32(value(1).get(3)),
+			vreinterpretq_f32_s32(value(2).get(3))
 		);
 	}
 #endif // defined VCL_VECTORIZE_NEON

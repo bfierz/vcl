@@ -24,7 +24,7 @@ steps:
     workingDirectory: 'build'
     cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ../src
 
-- script: |
+- powershell: |
     cmake --build build --config $(buildConfig) --target vcl.core.test
     cmake --build build --config $(buildConfig) --target vcl.components.test
     cmake --build build --config $(buildConfig) --target vcl.geometry.test
@@ -32,15 +32,28 @@ steps:
   displayName: 'Build'
   continueOnError: false
 
-- bash: |
+- powershell: |
+    # Execute unit-tests and report success/failure of tests using task commands
+    # https://github.com/Microsoft/azure-pipelines-tasks/blob/master/docs/authoring/commands.md
+
     cmake --build build --config $(buildConfig) --target vcl.test
+    $runTestSuccess=$?
     # Convert ctest output to junit-format
     # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
     pushd build/tests
-    if [ -f Testing/TAG ] ; then
+    if (Test-Path "Testing/TAG") {
       python ../../ci/ctest2junit.py . ../../ci/ctest2junit.xsl > JUnitResults.xml
-    fi
+      if (!(Test-Path "JUnitResults.xml")) {
+        echo '##vso[task.complete result=Failed;]FAILED'
+        exit 1
+      }
+    }
     popd
+    if ($runTestSuccess) {
+      echo '##vso[task.complete result=Succeeded;]DONE'
+    } else {
+      echo '##vso[task.complete result=SucceededWithIssues;]DONE'
+    }
   displayName: 'Run Unit Tests'
 
 # Publish unit test results
@@ -56,7 +69,7 @@ steps:
     #buildConfiguration: # Optional
     #publishRunAttachments: true # Optional
   displayName: 'Publish Test Results'
-  condition: succeeded()
+  condition: succeededOrFailed()
 
 # Publish Code Coverage Results
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-code-coverage-results
@@ -68,5 +81,5 @@ steps:
     #additionalCodeCoverageFiles: # Optional
     failIfCoverageEmpty: true
   displayName: 'Publish Code Coverage Report'
-  condition: and(succeeded(), eq(variables['configCodeCoverage'], 'on'))
+  condition: and(succeededOrFailed(), eq(variables['configCodeCoverage'], 'on'))
 

@@ -351,4 +351,15 @@ namespace Vcl
 		);
 #endif
 	}
+
+	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
+	{
+		return VectorScalar<bool, 16>
+		(
+			_mm_isinf_ps(x.get(0)),
+			_mm_isinf_ps(x.get(1)),
+			_mm_isinf_ps(x.get(2)),
+			_mm_isinf_ps(x.get(3))
+		);
+	}
 }

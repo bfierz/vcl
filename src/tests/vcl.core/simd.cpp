@@ -32,11 +32,29 @@
 
 // C++ standard library
 #include <cmath>
+#include <random>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
+
+TEST(Simd, Inf)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+	using Vcl::all;
+	using Vcl::isinf;
+
+	const float inf = std::numeric_limits<float>::infinity();
+
+	EXPECT_TRUE(all(isinf(float4(inf))));
+	EXPECT_TRUE(all(float4(inf) == float4(inf)));
+	EXPECT_TRUE(all(float4(-inf) == -float4(inf)));
+	EXPECT_TRUE(all(float4(2*inf) == float4(2)*float4(inf)));
+	EXPECT_TRUE(none(isinf(float4(0)*float4(inf))));
+}
 
 TEST(Simd, Rsqrt)
 {
@@ -210,4 +228,46 @@ TEST(Simd, Dot)
 	EXPECT_TRUE(equal(ref*1, res1, 1e-5f));
 	EXPECT_TRUE(equal(ref*2, res2, 1e-5f));
 	EXPECT_TRUE(equal(ref*4, res3, 1e-5f));
+}
+
+TEST(Simd, Sign4)
+{
+	using Vcl::float4;
+	using Vcl::all;
+	using Vcl::sgn;
+
+	std::random_device rnd;
+	std::uniform_real_distribution<float> dist{ -10, 10 };
+
+	EXPECT_TRUE(all(sgn(float4(0)) == float4(0)));
+	EXPECT_TRUE(all(sgn(float4(-0.0)) == float4(0)));
+	for (int i = 0; i < 50; i++)
+	{
+		const float d = dist(rnd);
+		if (d < 0)
+			EXPECT_TRUE(all(sgn(float4(d)) == float4(-1)));
+		else
+			EXPECT_TRUE(all(sgn(float4(d)) == float4(1)));
+	}
+}
+
+TEST(Simd, Sign8)
+{
+	using Vcl::float8;
+	using Vcl::all;
+	using Vcl::sgn;
+
+	std::random_device rnd;
+	std::uniform_real_distribution<float> dist{ -10, 10 };
+
+	EXPECT_TRUE(all(sgn(float8(0)) == float8(0)));
+	EXPECT_TRUE(all(sgn(float8(-0.0)) == float8(0)));
+	for (int i = 0; i < 50; i++)
+	{
+		const float d = dist(rnd);
+		if (d < 0)
+			EXPECT_TRUE(all(sgn(float8(d)) == float8(-1))) << d;
+		else
+			EXPECT_TRUE(all(sgn(float8(d)) == float8(1))) << d;
+	}
 }

@@ -71,16 +71,16 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)
 	{
-		return vmovemaskq_f32(b._data[0]) != 0;
+		return vmovemaskq_u32(b._data[0]) != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b)
 	{
-		return static_cast<unsigned int>(vmovemaskq_f32(b._data[0])) == 0xf;
+		return static_cast<unsigned int>(vmovemaskq_u32(b._data[0])) == 0xf;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b)
 	{
-		return static_cast<unsigned int>(vmovemaskq_f32(b._data[0])) == 0x0;
+		return static_cast<unsigned int>(vmovemaskq_u32(b._data[0])) == 0x0;
 	}
 }

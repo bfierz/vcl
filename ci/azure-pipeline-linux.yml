@@ -38,13 +38,24 @@ steps:
 
 - script: |
     cmake --build build --config $(buildConfig) --target vcl.test
+    runTestSuccess=$?
     # Convert ctest output to junit-format
     # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
     pushd build/tests
     if [ -f Testing/TAG ] ; then
       python ../../ci/ctest2junit.py . ../../ci/ctest2junit.xsl > JUnitResults.xml
+      if [ ! -f JUnitResults.xml ]; then
+        echo '##vso[task.complete result=Failed;]FAILED'
+        exit 1
+      fi
     fi
     popd
+    if [ $runTestSuccess -ne 0 ]; then
+      echo '##vso[task.complete result=SucceededWithIssues;]DONE'
+    else
+      # https://github.com/Microsoft/azure-pipelines-tasks/blob/master/docs/authoring/commands.md
+      echo '##vso[task.complete result=Succeeded;]DONE'
+    fi
   displayName: 'Run Unit Tests'
 
 # Publish unit test results

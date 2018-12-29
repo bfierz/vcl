@@ -108,30 +108,30 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = vmovemaskq_f32(b.mF4[3]) << 12;
-			mask |= vmovemaskq_f32(b.mF4[2]) <<  8;
-			mask |= vmovemaskq_f32(b.mF4[1]) <<  4;
-			mask |= vmovemaskq_f32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.mF4[3]) << 12;
+			mask |= vmovemaskq_u32(b.mF4[2]) <<  8;
+			mask |= vmovemaskq_u32(b.mF4[1]) <<  4;
+			mask |= vmovemaskq_u32(b.mF4[0]);
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = vmovemaskq_f32(b.mF4[3]) << 12;
-			mask |= vmovemaskq_f32(b.mF4[2]) <<  8;
-			mask |= vmovemaskq_f32(b.mF4[1]) <<  4;
-			mask |= vmovemaskq_f32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.mF4[3]) << 12;
+			mask |= vmovemaskq_u32(b.mF4[2]) <<  8;
+			mask |= vmovemaskq_u32(b.mF4[1]) <<  4;
+			mask |= vmovemaskq_u32(b.mF4[0]);
 
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = vmovemaskq_f32(b.mF4[3]) << 12;
-			mask |= vmovemaskq_f32(b.mF4[2]) <<  8;
-			mask |= vmovemaskq_f32(b.mF4[1]) <<  4;
-			mask |= vmovemaskq_f32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.mF4[3]) << 12;
+			mask |= vmovemaskq_u32(b.mF4[2]) <<  8;
+			mask |= vmovemaskq_u32(b.mF4[1]) <<  4;
+			mask |= vmovemaskq_u32(b.mF4[0]);
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

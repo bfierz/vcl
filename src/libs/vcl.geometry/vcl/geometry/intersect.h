@@ -118,14 +118,26 @@ namespace Vcl { namespace Geometry
 
 		using real_t = Vcl::VectorScalar<Real, Width>;
 
-		real_t txmin, txmax, tymin, tymax, tzmin, tzmax;
+		real_t txmin = select(r.signs().x() == 0, box.min().x(), box.max().x()) - r.origin().x();
+		real_t txmax = select(r.signs().x() == 1, box.min().x(), box.max().x()) - r.origin().x();
+		real_t tymin = select(r.signs().y() == 0, box.min().y(), box.max().y()) - r.origin().y();
+		real_t tymax = select(r.signs().y() == 1, box.min().y(), box.max().y()) - r.origin().y();
+		real_t tzmin = select(r.signs().z() == 0, box.min().z(), box.max().z()) - r.origin().z();
+		real_t tzmax = select(r.signs().z() == 1, box.min().z(), box.max().z()) - r.origin().z();
 
-		txmin = (select(r.signs().x() == 0, box.min().x(), box.max().x()) - r.origin().x()) * r.invDirection().x();
-		txmax = (select(r.signs().x() == 1, box.min().x(), box.max().x()) - r.origin().x()) * r.invDirection().x();
-		tymin = (select(r.signs().y() == 0, box.min().y(), box.max().y()) - r.origin().y()) * r.invDirection().y();
-		tymax = (select(r.signs().y() == 1, box.min().y(), box.max().y()) - r.origin().y()) * r.invDirection().y();
-		tzmin = (select(r.signs().z() == 0, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
-		tzmax = (select(r.signs().z() == 1, box.min().z(), box.max().z()) - r.origin().z()) * r.invDirection().z();
+		const real_t sign_txmin = select(txmin < real_t(0), real_t(-1), real_t(1));
+		const real_t sign_txmax = select(txmax < real_t(0), real_t(-1), real_t(1));
+		const real_t sign_tymin = select(tymin < real_t(0), real_t(-1), real_t(1));
+		const real_t sign_tymax = select(tymax < real_t(0), real_t(-1), real_t(1));
+		const real_t sign_tzmin = select(tzmin < real_t(0), real_t(-1), real_t(1));
+		const real_t sign_tzmax = select(tzmax < real_t(0), real_t(-1), real_t(1));
+
+		txmin = select(isinf(r.invDirection().x()), sign_txmin * r.invDirection().x(), txmin * r.invDirection().x());
+		txmax = select(isinf(r.invDirection().x()), sign_txmax * r.invDirection().x(), txmax * r.invDirection().x());
+		tymin = select(isinf(r.invDirection().y()), sign_tymin * r.invDirection().y(), tymin * r.invDirection().y());
+		tymax = select(isinf(r.invDirection().y()), sign_tymax * r.invDirection().y(), tymax * r.invDirection().y());
+		tzmin = select(isinf(r.invDirection().z()), sign_tzmin * r.invDirection().z(), tzmin * r.invDirection().z());
+		tzmax = select(isinf(r.invDirection().z()), sign_tzmax * r.invDirection().z(), tzmax * r.invDirection().z());
 
 		// Disallow any intersection that lies behind the start point of the ray
 		real_t tmin = 0;

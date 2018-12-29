@@ -42,7 +42,7 @@ namespace Vcl { namespace Graphics
 		_lastPosition = project(ratio_x, ratio_y, right_handed);
 	}
 
-	void Trackball::startRotate(Eigen::Quaternionf inital_rotation, float ratio_x, float ratio_y, bool right_handed)
+	void Trackball::startRotate(const Eigen::Quaternionf& inital_rotation, float ratio_x, float ratio_y, bool right_handed)
 	{
 		_rotate = true;
 		_lastQuat = inital_rotation;

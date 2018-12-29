@@ -132,6 +132,24 @@ namespace Vcl
 		}
 
 	public:
+		VCL_STRONG_INLINE VectorScalar<int, 8> operator& (const VectorScalar<int, 8>& rhs) const
+		{
+			return VectorScalar<int, 8>
+			(
+				vandq_s32(get(0), rhs.get(0)),
+				vandq_s32(get(1), rhs.get(1))
+			);
+		}
+		VCL_STRONG_INLINE VectorScalar<int, 8> operator| (const VectorScalar<int, 8>& rhs) const
+		{
+			return VectorScalar<int, 8>
+			(
+				vorrq_s32(get(0), rhs.get(0)),
+				vorrq_s32(get(1), rhs.get(1))
+			);
+		}
+
+	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 8> operator== (const VectorScalar<int, 8>& rhs) const
 		{
 			return VectorScalar<bool, 8>
@@ -187,8 +205,8 @@ namespace Vcl
 		}
 		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
 		{
-			int alignas(16) d0[4] = { s0, s1, s2, s3 };
-			int alignas(16) d1[4] = { s4, s5, s6, s7 };
+			alignas(16) int d0[4] = { s0, s1, s2, s3 };
+			alignas(16) int d1[4] = { s4, s5, s6, s7 };
 			_data[0] = vld1q_s32(d0);
 			_data[1] = vld1q_s32(d1);
 		}
