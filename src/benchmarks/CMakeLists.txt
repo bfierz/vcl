@@ -26,26 +26,11 @@
 # Performance benchmarks for mutexes
 add_subdirectory(mutex)
 
-# Performance benchmarks for 3x3 Eigen deompositions
-add_subdirectory(eigen33performance)
-
-# Correctness benchmarks for 3x3 Eigen deompositions
-add_subdirectory(eigen33correctness)
-
-# Performance benchmarks for 3x3 SVDs
-add_subdirectory(svd33performance)
-
-# Correctness benchmarks for 3x3 SVDs
-add_subdirectory(svd33correctness)
-
-# Performance benchmarks for 3x3 rotation computation
-add_subdirectory(rotation33performance)
-
-# Correctness benchmarks for 3x3 rotation computation
-add_subdirectory(rotation33correctness)
-
 # Benchmark collection for Vcl Core
 add_subdirectory(vcl.core)
 
 # Benchmark collection for Vcl Geometry
 add_subdirectory(vcl.geometry)
+
+# Benchmark collection for Vcl Math
+add_subdirectory(vcl.math)

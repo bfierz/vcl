@@ -37,7 +37,6 @@
 #include <vcl/math/jacobisvd33_mcadams.h>
 #include <vcl/math/jacobisvd33_qr.h>
 #include <vcl/math/jacobisvd33_twosided.h>
-#include <vcl/util/precisetimer.h>
 
 #ifdef VCL_CUDA_SUPPORT
 #	include <vcl/compute/cuda/commandqueue.h>
@@ -45,7 +44,7 @@
 #	include <vcl/compute/cuda/device.h>
 #	include <vcl/compute/cuda/platform.h>
 #	include <vcl/math/cuda/jacobisvd33_mcadams.h>
-#endif // defined VCL_CUDA_SUPPORT
+#endif
 
 #ifdef VCL_OPENCL_SUPPORT
 #	include <vcl/compute/opencl/commandqueue.h>
@@ -53,29 +52,9 @@
 #	include <vcl/compute/opencl/device.h>
 #	include <vcl/compute/opencl/platform.h>
 #	include <vcl/math/opencl/jacobisvd33_mcadams.h>
-#endif // defined VCL_OPENCL_SUPPORT
+#endif
 
-template<typename Scalar>
-Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
-{
-	// Random number generator
-	std::mt19937_64 rng;
-	std::uniform_real_distribution<float> d;
-
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-
-	// Initialize data
-	for (size_t i = 0; i < nr_problems; i++)
-	{
-		Eigen::Matrix<Scalar, 3, 3> rnd;
-		rnd << d(rng), d(rng), d(rng),
-			   d(rng), d(rng), d(rng),
-			   d(rng), d(rng), d(rng);
-		F.template at<Scalar>(i) = rnd;
-	}
-
-	return std::move(F);
-}
+#include "problems.h"
 
 template<typename Scalar>
 void computeReferenceSolution
@@ -346,8 +325,9 @@ int main(int, char**)
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refU(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refV(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> refS(nr_problems);
-
-	auto F = createProblems<scalar_t>(nr_problems);
+	
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
+	createRandomProblems(nr_problems, &F);
 	computeReferenceSolution(nr_problems, F, refU, refV, refS);
 	
 	// Test correctness: Two-sided Jacobi SVD (Brent)

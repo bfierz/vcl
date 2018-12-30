@@ -26,68 +26,27 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard library
-#include <iostream>
-#include <random>
+// Google benchmark
+#include "benchmark/benchmark.h"
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 #include <vcl/math/polardecomposition.h>
 #include <vcl/math/rotation33_torque.h>
-#include <vcl/util/precisetimer.h>
 
-// Google benchmark
-#include "benchmark/benchmark.h"
+#include "problems.h"
 
 // Global data store for one time problem setup
 const size_t nr_problems = 8192;
 
 Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 
-template<typename Scalar>
-void createProblems
-(
-	size_t nr_problems,
-	Scalar max_angle,
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* F
-)
-{
-	// Random number generator
-	std::mt19937_64 rng;
-	std::uniform_real_distribution<float> d;
-	std::uniform_real_distribution<float> a{ -max_angle, max_angle };
-
-	// Initialize data
-	for (int i = 0; i < (int)nr_problems; i++)
-	{
-		// Rest-state
-		Eigen::Matrix<Scalar, 3, 3> X0;
-		X0 << d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng);
-
-		// Rotation angle
-		Scalar angle = a(rng);
-
-		// Rotation axis
-		Eigen::Matrix<Scalar, 3, 1> rot_vec;
-		rot_vec << d(rng), d(rng), d(rng);
-		rot_vec.normalize();
-
-		// Rotation matrix
-		Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{ angle, rot_vec }.toRotationMatrix();
-
-		Eigen::Matrix<Scalar, 3, 3> X = Rot * X0;
-		F->template at<Scalar>(i) = X * X0.inverse();
-	}
-}
-
 void perfEigenSVD(benchmark::State& state)
 {
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range_x());
 
-	while (state.KeepRunning())
+	for (auto _ : state)
 	{
 		for (int i = 0; i < state.range_x(); ++i)
 		{
@@ -118,7 +77,7 @@ void perfPolarDecomposition(benchmark::State& state)
 
 	size_t width = sizeof(real_t) / sizeof(float);
 
-	while (state.KeepRunning())
+	for (auto _ : state)
 	{
 		for (size_t i = 0; i < state.range_x() / width; i++)
 		{
@@ -151,7 +110,7 @@ void perfRotationTorque(benchmark::State& state)
 
 	size_t width = sizeof(real_t) / sizeof(float);
 
-	while (state.KeepRunning())
+	for (auto _ : state)
 	{
 		for (size_t i = 0; i < state.range_x() / width; i++)
 		{
@@ -193,11 +152,10 @@ BENCHMARK_TEMPLATE(perfRotationTorque, float4) ->Arg(128);//->Arg(512)->Arg(8192
 BENCHMARK_TEMPLATE(perfRotationTorque, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
-
 int main(int argc, char** argv)
 {
 	// Initialize data
-	createProblems<float>(nr_problems, 90, &F);
+	createRotationProblems(nr_problems, 90, 0, &F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
