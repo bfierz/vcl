@@ -77,10 +77,11 @@ void computeReferenceSolution
 	}
 }
 
-template<typename WideScalar>
-void twoSidedSVD
+template<typename WideScalar, typename Func>
+void computeSolution
 (
 	size_t nr_problems,
+	Func& func,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
@@ -105,81 +106,7 @@ void twoSidedSVD
 		matrix3_t matU = matrix3_t::Identity();
 		matrix3_t matV = matrix3_t::Identity();
 
-		avg_nr_iter += Vcl::Mathematics::TwoSidedJacobiSVD(SV, matU, matV, false);
-
-		// Store results
-		U = matU;
-		V = matV;
-		S = SV.diagonal();
-	}
-}
-	
-template<typename WideScalar>
-void jacobiSVDQR
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t width = sizeof(real_t) / sizeof(float);
-	
-	int avg_nr_iter = 0;
-	for (size_t i = 0; i < nr_problems / width; i++)
-	{
-		// Map data
-		auto U = resU.at<real_t>(i);
-		auto V = resV.at<real_t>(i);
-		auto S = resS.at<real_t>(i);
-
-		// Compute SVD using Jacobi iterations and QR decomposition
-		matrix3_t SV = F.at<real_t>(i);
-		matrix3_t matU = matrix3_t::Identity();
-		matrix3_t matV = matrix3_t::Identity();
-
-		avg_nr_iter += Vcl::Mathematics::QRJacobiSVD(SV, matU, matV);
-
-		// Store results
-		U = matU;
-		V = matV;
-		S = SV.diagonal();
-	}
-}
-
-template<typename WideScalar>
-void mcAdamsSVD
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t width = sizeof(real_t) / sizeof(float);
-	
-	int avg_nr_iter = 0;
-	for (size_t i = 0; i < nr_problems / width; i++)
-	{
-		// Map data
-		auto U = resU.at<real_t>(i);
-		auto V = resV.at<real_t>(i);
-		auto S = resS.at<real_t>(i);
-
-		// Compute SVD using Jacobi iterations and QR decomposition
-		matrix3_t SV = F.at<real_t>(i);
-		matrix3_t matU = matrix3_t::Identity();
-		matrix3_t matV = matrix3_t::Identity();
-
-		avg_nr_iter += Vcl::Mathematics::McAdamsJacobiSVD(SV, matU, matV);
+		avg_nr_iter += func(SV, matU, matV);
 
 		// Store results
 		U = matU;
@@ -314,47 +241,68 @@ void checkSolution
 	
 int main(int, char**)
 {
-	size_t nr_problems = 1024*1024;
+	using Vcl::Mathematics::McAdamsJacobiSVD;
+	using Vcl::Mathematics::QRJacobiSVD;
+	using Vcl::Mathematics::TwoSidedJacobiSVD;
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
 
-	using scalar_t = float;
+	const size_t nr_problems = 1024*1024;
 
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resV(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> resS(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(nr_problems);
 
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refU(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refV(nr_problems);
-	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> refS(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> refU(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> refV(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> refS(nr_problems);
 	
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 	createRandomProblems(nr_problems, &F);
 	computeReferenceSolution(nr_problems, F, refU, refV, refS);
 	
+	using ComputeSvdFloat   = int (*)(Eigen::Matrix<float,   3, 3>&, Eigen::Matrix<float,   3, 3>&, Eigen::Matrix<float,   3, 3>&);
+	using ComputeSvdFloat4  = int (*)(Eigen::Matrix<float4,  3, 3>&, Eigen::Matrix<float4,  3, 3>&, Eigen::Matrix<float4,  3, 3>&);
+	using ComputeSvdFloat8  = int (*)(Eigen::Matrix<float8,  3, 3>&, Eigen::Matrix<float8,  3, 3>&, Eigen::Matrix<float8,  3, 3>&);
+	using ComputeSvdFloat16 = int (*)(Eigen::Matrix<float16, 3, 3>&, Eigen::Matrix<float16, 3, 3>&, Eigen::Matrix<float16, 3, 3>&);
+	
 	// Test correctness: Two-sided Jacobi SVD (Brent)
-	twoSidedSVD<float>(nr_problems, F, resU, resV, resS);        checkSolution("TwoSidedJacobiSVD - float",   "two_sided_jacobi_svd_float_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	twoSidedSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);  checkSolution("TwoSidedJacobiSVD - float4",  "two_sided_jacobi_svd_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	twoSidedSVD<Vcl::float8>(nr_problems, F, resU, resV, resS);  checkSolution("TwoSidedJacobiSVD - float8",  "two_sided_jacobi_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	twoSidedSVD<Vcl::float16>(nr_problems, F, resU, resV, resS); checkSolution("TwoSidedJacobiSVD - float16", "two_sided_jacobi_svd_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	auto two_sided_float   = static_cast<ComputeSvdFloat>  (TwoSidedJacobiSVD);
+	auto two_sided_float4  = static_cast<ComputeSvdFloat4> (TwoSidedJacobiSVD);
+	auto two_sided_float8  = static_cast<ComputeSvdFloat8> (TwoSidedJacobiSVD);
+	auto two_sided_float16 = static_cast<ComputeSvdFloat16>(TwoSidedJacobiSVD);
+	computeSolution<float>  (nr_problems, two_sided_float,   F, resU, resV, resS); checkSolution("TwoSidedJacobiSVD - float",   "two_sided_jacobi_svd_float_errors.txt",   nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float4> (nr_problems, two_sided_float4,  F, resU, resV, resS); checkSolution("TwoSidedJacobiSVD - float4",  "two_sided_jacobi_svd_float4_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float8> (nr_problems, two_sided_float8,  F, resU, resV, resS); checkSolution("TwoSidedJacobiSVD - float8",  "two_sided_jacobi_svd_float8_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float16>(nr_problems, two_sided_float16, F, resU, resV, resS); checkSolution("TwoSidedJacobiSVD - float16", "two_sided_jacobi_svd_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	
 	// Test correctness: Jacobi SVD with symmetric EV computation and QR decomposition
-	jacobiSVDQR<float>(nr_problems, F, resU, resV, resS);        checkSolution("JacobiSVDQR - float",   "jacobi_svd_qr_float_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	jacobiSVDQR<Vcl::float4>(nr_problems, F, resU, resV, resS);	 checkSolution("JacobiSVDQR - float4",  "jacobi_svd_qr_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	jacobiSVDQR<Vcl::float8>(nr_problems, F, resU, resV, resS);	 checkSolution("JacobiSVDQR - float8",  "jacobi_svd_qr_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	jacobiSVDQR<Vcl::float16>(nr_problems, F, resU, resV, resS); checkSolution("JacobiSVDQR - float16", "jacobi_svd_qr_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	auto jacobi_float   = static_cast<ComputeSvdFloat>  (QRJacobiSVD);
+	auto jacobi_float4  = static_cast<ComputeSvdFloat4> (QRJacobiSVD);
+	auto jacobi_float8  = static_cast<ComputeSvdFloat8> (QRJacobiSVD);
+	auto jacobi_float16 = static_cast<ComputeSvdFloat16>(QRJacobiSVD);
+	computeSolution<float>  (nr_problems, jacobi_float,   F, resU, resV, resS); checkSolution("JacobiSVDQR - float",   "jacobi_svd_qr_float_errors.txt",   nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float4> (nr_problems, jacobi_float4,  F, resU, resV, resS); checkSolution("JacobiSVDQR - float4",  "jacobi_svd_qr_float4_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float8> (nr_problems, jacobi_float8,  F, resU, resV, resS); checkSolution("JacobiSVDQR - float8",  "jacobi_svd_qr_float8_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float16>(nr_problems, jacobi_float16, F, resU, resV, resS); checkSolution("JacobiSVDQR - float16", "jacobi_svd_qr_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	
 	// Test correctness: McAdams SVD solver
-	mcAdamsSVD<float>(nr_problems, F, resU, resV, resS);       checkSolution("McAdamsSVD - float",   "mc_adams_svd_float_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	mcAdamsSVD<Vcl::float4>(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - float4",  "mc_adams_svd_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	auto mcadams_float   = static_cast<ComputeSvdFloat> (McAdamsJacobiSVD);
+	auto mcadams_float4  = static_cast<ComputeSvdFloat4>(McAdamsJacobiSVD);
+	computeSolution<float>  (nr_problems, mcadams_float,   F, resU, resV, resS); checkSolution("McAdamsSVD - float",   "mc_adams_svd_float_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	computeSolution<float4> (nr_problems, mcadams_float4,  F, resU, resV, resS); checkSolution("McAdamsSVD - float4",  "mc_adams_svd_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	
 #ifdef VCL_VECTORIZE_AVX
-	mcAdamsSVD<Vcl::float8>(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	auto mcadams_float8  = static_cast<ComputeSvdFloat8>(McAdamsJacobiSVD);
+	computeSolution<float8> (nr_problems, mcadams_float8,  F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
 	
 #ifdef VCL_CUDA_SUPPORT
-	cudaMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - CUDA", "cuda_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	cudaMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - CUDA", "cuda_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif // defined VCL_CUDA_SUPPORT
 	
 #ifdef VCL_OPENCL_SUPPORT
-	openCLMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamnsSVD - OpenCL", "opencl_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
+	openCLMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - OpenCL", "opencl_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif // defined VCL_OPENCL_SUPPORT
 }

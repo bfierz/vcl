@@ -35,7 +35,6 @@
 #include <immintrin.h>
 #define ENABLE_AVX_IMPLEMENTATION(X) X
 #else
-#include <xmmintrin.h>
 #define ENABLE_AVX_IMPLEMENTATION(X)
 #endif
 
@@ -43,7 +42,6 @@
 #include <immintrin.h>
 #define ENABLE_AVX512_IMPLEMENTATION(X) X
 #else
-#include <xmmintrin.h>
 #define ENABLE_AVX512_IMPLEMENTATION(X)
 #endif
 
