@@ -24,8 +24,13 @@
 #
 project(vcl.math.benchmark)
 
+# Status message
+message(STATUS "Configuring 'vcl.math.benchmarks'")
+
 # Includes
 include(VCLConfig)
+include(VCLCudaSupport)
+include(VCLOpenCLSupport)
 
 # Requirements
 vcl_check_target(benchmark)
@@ -91,6 +96,16 @@ set_target_properties(vcl.math.svd33.correctness PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.svd33.correctness
 	vcl_math
 )
+if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	target_link_libraries(vcl.math.svd33.correctness
+		vcl_math_cuda
+	)
+endif()
+if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	target_link_libraries(vcl.math.svd33.correctness
+		vcl_math_opencl
+	)
+endif()
 
 # Performance benchmarks for 3x3 SVDs
 set(SVD33_PERF_SOURCE_FILES
@@ -103,3 +118,13 @@ target_link_libraries(vcl.math.svd33.performance
 	vcl_math
 	benchmark
 )
+if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
+	target_link_libraries(vcl.math.svd33.performance
+		vcl_math_cuda
+	)
+endif()
+if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	target_link_libraries(vcl.math.svd33.performance
+		vcl_math_opencl
+	)
+endif()
