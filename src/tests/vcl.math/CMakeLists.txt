@@ -27,6 +27,9 @@ project(vcl.math.test)
 include(../../cmake/VCLTest.cmake)
 
 set(SOURCE_FILES
+	precompiled.cpp
+	precompiled.h
+
 	cg.cpp
 	eigen33.cpp
 	jacobi.cpp
@@ -41,6 +44,7 @@ set(SOURCE_FILES
 )
 vcl_add_test(vcl.math.test)
 vcl_target_sources(vcl.math.test "" ${SOURCE_FILES})
+add_precompiled_header(vcl.math.test precompiled.h precompiled.cpp)
 target_link_libraries(vcl.math.test
 	vcl_math
 	nlohmann_json

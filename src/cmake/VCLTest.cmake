@@ -23,6 +23,7 @@
 # SOFTWARE.
 #
 include(GoogleTest)
+include(PrecompiledHeader)
 include(VCLConfig)
 
 # Create a test executable using Google Test
@@ -32,7 +33,7 @@ function(vcl_add_test tgt)
 	vcl_check_target(gtest_main)
 	
     add_executable(${tgt} "")
-	
+
 	# Place into VS solution folder 'tests'
 	set_target_properties(${tgt} PROPERTIES FOLDER tests)
 

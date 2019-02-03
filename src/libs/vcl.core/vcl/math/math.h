@@ -83,34 +83,6 @@ namespace Vcl { namespace Mathematics
 #endif
 	}
 
-	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, const Eigen::Matrix<double, 12, 1>& x)
-	{
-		static_assert((Eigen::Matrix<double, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
-
-		// Inspecting the code shows that it is compiled using SSE
-		Eigen::Matrix<double, 12, 1> acc = A.col(0) * x(0);
-		for (int i = 1; i < 12; i++)
-		{
-			acc += A.col(i) * x(i);
-		}
-
-		return acc;
-	}
-
-	VCL_STRONG_INLINE Eigen::Matrix<double, 12, 1> mul(const Eigen::Matrix<double, 12, 12>& A, Eigen::Matrix<double, 12, 1>&& x)
-	{
-		static_assert((Eigen::Matrix<double, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
-
-		// Inspecting the code shows that it is compiled using SSE
-		Eigen::Matrix<double, 12, 1> acc = A.col(0) * x(0);
-		for (int i = 1; i < 12; i++)
-		{
-			acc += A.col(i) * x(i);
-		}
-
-		return acc;
-	}
-
 	template <typename T>
 	VCL_STRONG_INLINE int sgn(T x, std::false_type)
 	{
@@ -205,34 +177,6 @@ namespace Vcl { namespace Mathematics
 #else
 		return (a < b) ? a : b;
 #endif
-	}
-
-	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, const Eigen::Matrix<float, 12, 1>& x)
-	{
-		static_assert((Eigen::Matrix<float, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
-
-		// Inspecting the code shows that it is compiled using SSE
-		Eigen::Matrix<float, 12, 1> acc = A.col(0) * x(0);
-		for (int i = 1; i < 12; i++)
-		{
-			acc += A.col(i) * x(i);
-		}
-
-		return acc;
-	}
-
-	VCL_STRONG_INLINE Eigen::Matrix<float, 12, 1> mul(const Eigen::Matrix<float, 12, 12>& A, Eigen::Matrix<float, 12, 1>&& x)
-	{
-		static_assert((Eigen::Matrix<float, 12, 12>::Options & Eigen::RowMajorBit) == 0, "Only column major matrices are supported.");
-
-		// Inspecting the code shows that it is compiled using SSE
-		Eigen::Matrix<float, 12, 1> acc = A.col(0) * x(0);
-		for (int i = 1; i < 12; i++)
-		{
-			acc += A.col(i) * x(i);
-		}
-
-		return acc;
 	}
 
 	template<typename T>
