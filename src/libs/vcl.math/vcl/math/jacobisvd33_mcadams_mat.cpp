@@ -50,6 +50,7 @@
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
 #	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#	pragma GCC diagnostic ignored "-Wunused-variable"
 #elif defined VCL_COMPILER_CLANG
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wmissing-prototypes"

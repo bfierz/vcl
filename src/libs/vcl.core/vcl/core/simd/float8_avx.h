@@ -71,6 +71,7 @@ namespace Vcl
 		VCL_STRONG_INLINE __m256 get(int i = 0) const
 		{
 			VclRequire(0 == i, "Access is in range.");
+			VCL_UNREFERENCED_PARAMETER(i);
 
 			return mF8;
 		}

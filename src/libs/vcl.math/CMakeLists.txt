@@ -54,9 +54,12 @@ SET(VCL_MATH_INC
 SET(VCL_MATH_SRC
 	vcl/math/jacobieigen33_selfadjoint.cpp
 	vcl/math/jacobieigen33_selfadjoint_quat.cpp
-	vcl/math/jacobisvd33_mcadams.cpp
-	vcl/math/jacobisvd33_mcadams_sse.cpp
-	vcl/math/jacobisvd33_mcadams_avx.cpp
+	vcl/math/jacobisvd33_mcadams_mat.cpp
+	vcl/math/jacobisvd33_mcadams_mat_sse.cpp
+	vcl/math/jacobisvd33_mcadams_mat_avx.cpp
+	vcl/math/jacobisvd33_mcadams_quat.cpp
+	vcl/math/jacobisvd33_mcadams_quat_sse.cpp
+	vcl/math/jacobisvd33_mcadams_quat_avx.cpp
 	vcl/math/jacobisvd33_qr.cpp
 	vcl/math/jacobisvd33_twosided.cpp
 	vcl/math/polardecomposition.cpp
