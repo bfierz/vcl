@@ -180,7 +180,7 @@ namespace Vcl { namespace Geometry
 			auto prop = _data.find(name);
 			if (prop != _data.end())
 			{
-				return static_cast<const Property<T, index_type>*>(prop->second);
+				return static_cast<const Property<T, index_type>*>(prop->second.get());
 			}
 
 			return nullptr;
@@ -191,7 +191,7 @@ namespace Vcl { namespace Geometry
 			auto prop = _data.find(name);
 			if (prop != _data.end())
 			{
-				return prop->second;
+				return prop->second.get();
 			}
 
 			return nullptr;
@@ -199,11 +199,7 @@ namespace Vcl { namespace Geometry
 
 		bool exists(const std::string& name)
 		{
-			auto prop = _data.find(name);
-			if (prop != _data.end())
-				return true;
-			else
-				return false;
+			return _data.find(name) != _data.end();
 		}
 
 		size_t propertySize() const

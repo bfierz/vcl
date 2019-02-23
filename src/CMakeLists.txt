@@ -50,6 +50,7 @@ set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
 
 set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # For clang on Windows globally ignore unused commandline arguments
 if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")

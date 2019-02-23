@@ -549,7 +549,7 @@ namespace Vcl { namespace Geometry
 			unsigned int curr_seg = (seg == nr_radial_segments) ? 0 : seg;
 
 			float t1 = (float) curr_seg / nr_radial_segments * two_pi;
-			Eigen::Vector3f r1{ cos(t1) * outer_radius, 0.0f, sin(t1) * outer_radius };
+			Eigen::Vector3f r1{ std::cos(t1) * outer_radius, 0.0f, std::sin(t1) * outer_radius };
 
 			for (unsigned int side = 0; side <= nr_sides; side++)
 			{
