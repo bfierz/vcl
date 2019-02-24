@@ -46,7 +46,7 @@ public:
 	__device__
 	T& operator() (int i, int j)
 	{
-		return _data[_n*(i*J + j) + _idx];
+		return _data[_n*(j*I + i) + _idx];
 	}
 
 private:
@@ -59,14 +59,8 @@ private:
 #define USE_SCALAR_IMPLEMENTATION
 #define HAS_RSQRT
 
-// #define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
-// #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
-// #define PRINT_DEBUGGING_OUTPUT
-
 #define COMPUTE_V_AS_MATRIX
-//#define COMPUTE_V_AS_QUATERNION
 #define COMPUTE_U_AS_MATRIX
-//#define COMPUTE_U_AS_QUATERNION
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
 
@@ -81,7 +75,11 @@ __global__ void JacobiSVD33McAdams
 	float* __restrict__ memS
 )
 {
+#define JACOBI_CONJUGATION_SWEEPS (int) 4
+
 	int globalIdx = threadIdx.x + blockDim.x*blockIdx.x;
+	if (globalIdx >= size)
+		return;
 
 	MatrixArrayStorage<const float, 3, 3> A(memA, capacity, globalIdx);
 	MatrixArrayStorage<float, 3, 3> U(memU, capacity, globalIdx);
@@ -90,57 +88,39 @@ __global__ void JacobiSVD33McAdams
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
 
-	ENABLE_SCALAR_IMPLEMENTATION(Sa11.f = A(0, 0);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa21.f = A(1, 0);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa31.f = A(2, 0);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa12.f = A(0, 1);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa22.f = A(1, 1);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa32.f = A(2, 1);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa13.f = A(0, 2);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa23.f = A(1, 2);)
-	ENABLE_SCALAR_IMPLEMENTATION(Sa33.f = A(2, 2);)
+	Sa11.f = A(0, 0);
+	Sa21.f = A(1, 0);
+	Sa31.f = A(2, 0);
+	Sa12.f = A(0, 1);
+	Sa22.f = A(1, 1);
+	Sa32.f = A(2, 1);
+	Sa13.f = A(0, 2);
+	Sa23.f = A(1, 2);
+	Sa33.f = A(2, 2);
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp>
 
-#ifdef COMPUTE_U_AS_MATRIX
-	ENABLE_SCALAR_IMPLEMENTATION(U(0, 0) = Su11.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(1, 0) = Su21.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(2, 0) = Su31.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(0, 1) = Su12.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(1, 1) = Su22.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(2, 1) = Su32.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(0, 2) = Su13.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(1, 2) = Su23.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(2, 2) = Su33.f;)
-#endif
+	U(0, 0) = Su11.f;
+	U(1, 0) = Su21.f;
+	U(2, 0) = Su31.f;
+	U(0, 1) = Su12.f;
+	U(1, 1) = Su22.f;
+	U(2, 1) = Su32.f;
+	U(0, 2) = Su13.f;
+	U(1, 2) = Su23.f;
+	U(2, 2) = Su33.f;
 
-#ifdef COMPUTE_U_AS_QUATERNION
-	ENABLE_SCALAR_IMPLEMENTATION(U(0, 0) = Squs.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(1, 0) = Squvx.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(2, 0) = Squvy.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(U(0, 1) = Squvz.f;)
-#endif
+	V(0, 0) = Sv11.f;
+	V(1, 0) = Sv21.f;
+	V(2, 0) = Sv31.f;
+	V(0, 1) = Sv12.f;
+	V(1, 1) = Sv22.f;
+	V(2, 1) = Sv32.f;
+	V(0, 2) = Sv13.f;
+	V(1, 2) = Sv23.f;
+	V(2, 2) = Sv33.f;
 
-#ifdef COMPUTE_V_AS_MATRIX
-	ENABLE_SCALAR_IMPLEMENTATION(V(0, 0) = Sv11.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(1, 0) = Sv21.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(2, 0) = Sv31.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(0, 1) = Sv12.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(1, 1) = Sv22.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(2, 1) = Sv32.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(0, 2) = Sv13.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(1, 2) = Sv23.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(2, 2) = Sv33.f;)
-#endif
-
-#ifdef COMPUTE_V_AS_QUATERNION
-	ENABLE_SCALAR_IMPLEMENTATION(V(0, 0) = Sqvs.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(1, 0) = Sqvvx.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(2, 0) = Sqvvy.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(V(0, 1) = Sqvvz.f;)
-#endif
-
-	ENABLE_SCALAR_IMPLEMENTATION(S(0) = Sa11.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(S(1) = Sa22.f;)
-	ENABLE_SCALAR_IMPLEMENTATION(S(2) = Sa33.f;)
+	S(0) = Sa11.f;
+	S(1) = Sa22.f;
+	S(2) = Sa33.f;
 }

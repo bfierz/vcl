@@ -101,7 +101,6 @@ void computeSolution
 		auto V = resV.at<real_t>(i);
 		auto S = resS.at<real_t>(i);
 		
-		// Compute SVD using 2-sided Jacobi iterations (Brent)
 		matrix3_t SV = F.at<real_t>(i);
 		matrix3_t matU = matrix3_t::Identity();
 		matrix3_t matV = matrix3_t::Identity();

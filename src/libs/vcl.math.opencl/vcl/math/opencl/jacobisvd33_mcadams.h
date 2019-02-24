@@ -65,9 +65,9 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 		Core::ref_ptr<Compute::Kernel> _svdKernel;
 
 	private: // Buffers
-
-		//! Number of stored entries
-		size_t _size = 0;
+		
+		//! Number of allocated entries
+		size_t _capacity = 0;
 
 		//! Input buffer 
 		Core::ref_ptr<Compute::Buffer> _A;
