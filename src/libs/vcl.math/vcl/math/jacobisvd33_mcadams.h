@@ -51,11 +51,14 @@ namespace Vcl { namespace Mathematics
 	 * @returns total number of Givens rotations applied during execution
 	 */
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps = 4);
+	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V, unsigned int sweeps = 4);
 #ifdef VCL_VECTORIZE_SSE
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps = 4);
+	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Quaternion<float4>& U, Eigen::Quaternion<float4>& V, unsigned int sweeps = 4);
 #endif // defined(VCL_VECTORIZE_SSE)
 
 #ifdef VCL_VECTORIZE_AVX
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps = 4);
+	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V, unsigned int sweeps = 4);
 #endif // defined(VCL_VECTORIZE_AVX)
 }}

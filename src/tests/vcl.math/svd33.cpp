@@ -377,6 +377,46 @@ void runMcAdamsTest(float tol)
 	// Check against reference solution
 	checkSolution(nr_problems, tol, refU, refV, refS, resU, resV, resS);
 }
+template<typename WideScalar>
+void runMcAdamsQuatTest(float tol)
+{
+	using scalar_t  = float;
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+	using quat_t = Eigen::Quaternion<real_t>;
+
+	size_t nr_problems = 128;
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resU(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resV(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> resS(nr_problems);
+
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refU(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refV(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> refS(nr_problems);
+
+	auto F = createProblems<scalar_t>(nr_problems);
+	computeReferenceSolution(nr_problems, F, refU, refV, refS);
+
+	// Strides
+	size_t stride = nr_problems;
+	size_t width = sizeof(real_t) / sizeof(scalar_t);
+
+	for (size_t i = 0; i < stride / width; i++)
+	{
+		matrix3_t S = F.at<real_t>(i);
+		quat_t U = quat_t::Identity();
+		quat_t V = quat_t::Identity();
+
+		Vcl::Mathematics::McAdamsJacobiSVD(S, U, V, 5);
+		
+		resU.at<real_t>(i) = U.toRotationMatrix();
+		resV.at<real_t>(i) = V.toRotationMatrix();
+		resS.at<real_t>(i) = S.diagonal();
+	}
+
+	// Check against reference solution
+	checkSolution(nr_problems, tol, refU, refV, refS, resU, resV, resS);
+}
 #endif // defined(VCL_VECTORIZE_SSE) || defined(VCL_VECTORIZE_AVX)
 
 template<typename WideScalar>
@@ -464,10 +504,18 @@ TEST(SVD33, McAdamsSVDFloat)
 {
 	runMcAdamsTest<float>(1e-5f);
 }
+TEST(SVD33, McAdamsQuatSVDFloat)
+{
+	runMcAdamsQuatTest<float>(1e-5f);
+}
 
 TEST(SVD33, McAdamsSVDFloat4)
 {
 	runMcAdamsTest<Vcl::float4>(1e-5f);
+}
+TEST(SVD33, McAdamsQuatSVDFloat4)
+{
+	runMcAdamsQuatTest<Vcl::float4>(1e-5f);
 }
 #endif // defined(VCL_VECTORIZE_SSE)
 
@@ -475,6 +523,10 @@ TEST(SVD33, McAdamsSVDFloat4)
 TEST(SVD33, McAdamsSVDFloat8)
 {
 	runMcAdamsTest<Vcl::float8>(1e-5f);
+}
+TEST(SVD33, McAdamsQuatSVDFloat8)
+{
+	runMcAdamsQuatTest<Vcl::float8>(1e-5f);
 }
 #endif // defined VCL_VECTORIZE_AVX
 

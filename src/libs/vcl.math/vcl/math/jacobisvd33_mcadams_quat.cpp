@@ -1,0 +1,114 @@
+/*
+ * This file is part of the Visual Computing Library (VCL) release under the
+ * MIT license.
+ *
+ * Copyright (c) 2015 Basil Fierz
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#include <vcl/math/jacobisvd33_mcadams.h>
+
+#ifdef VCL_VECTORIZE_SSE
+
+// VCL
+#include <vcl/core/contract.h>
+#include <vcl/math/math.h>
+
+// McAdams SVD library
+#define USE_SCALAR_IMPLEMENTATION
+
+#define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
+// #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
+// #define PRINT_DEBUGGING_OUTPUT
+// #define HAS_RSQRT
+
+// #define COMPUTE_V_AS_MATRIX
+#define COMPUTE_V_AS_QUATERNION
+// #define COMPUTE_U_AS_MATRIX
+#define COMPUTE_U_AS_QUATERNION
+
+// Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", off )
+#elif defined VCL_COMPILER_GNU
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wuninitialized"
+#	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#	pragma GCC diagnostic ignored "-Wunused-variable"
+#elif defined VCL_COMPILER_CLANG
+#	pragma clang diagnostic push
+#	pragma clang diagnostic ignored "-Wmissing-prototypes"
+#	pragma clang diagnostic ignored "-Wold-style-cast"
+#	pragma clang diagnostic ignored "-Wuninitialized"
+#	pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
+#include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
+
+namespace Vcl { namespace Mathematics
+{
+	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V, unsigned int sweeps)
+	{
+		using ::sqrt;
+		using ::rsqrt;
+
+#define JACOBI_CONJUGATION_SWEEPS (int) sweeps
+
+
+#include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
+
+		ENABLE_SCALAR_IMPLEMENTATION(Sa11.f = A(0, 0);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa21.f = A(1, 0);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa31.f = A(2, 0);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa12.f = A(0, 1);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa22.f = A(1, 1);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa32.f = A(2, 1);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa13.f = A(0, 2);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa23.f = A(1, 2);)
+		ENABLE_SCALAR_IMPLEMENTATION(Sa33.f = A(2, 2);)
+
+#include <vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp>
+
+		ENABLE_SCALAR_IMPLEMENTATION(U.w() = Squs.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(U.x() = Squvx.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(U.y() = Squvy.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(U.z() = Squvz.f;)
+		U.normalize();
+			
+		ENABLE_SCALAR_IMPLEMENTATION(V.w() = Sqvs.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(V.x() = Sqvvx.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(V.y() = Sqvvy.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(V.z() = Sqvvz.f;)
+		V.normalize();
+
+		ENABLE_SCALAR_IMPLEMENTATION(A(0, 0) = Sa11.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(A(1, 1) = Sa22.f;)
+		ENABLE_SCALAR_IMPLEMENTATION(A(2, 2) = Sa33.f;)
+
+		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
+	}
+}}
+#ifdef VCL_COMPILER_MSVC
+#	pragma runtime_checks( "u", restore )
+#elif defined VCL_COMPILER_GNU
+#	pragma GCC diagnostic pop
+#elif defined VCL_COMPILER_CLANG
+#	pragma clang diagnostic pop
+#endif
+#endif // defined(VCL_VECTORIZE_SSE)

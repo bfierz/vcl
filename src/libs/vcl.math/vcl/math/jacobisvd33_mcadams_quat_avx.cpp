@@ -36,10 +36,10 @@
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
 
-#define COMPUTE_V_AS_MATRIX
-// #define COMPUTE_V_AS_QUATERNION
-#define COMPUTE_U_AS_MATRIX
-// #define COMPUTE_U_AS_QUATERNION
+// #define COMPUTE_V_AS_MATRIX
+#define COMPUTE_V_AS_QUATERNION
+// #define COMPUTE_U_AS_MATRIX
+#define COMPUTE_U_AS_QUATERNION
 
 // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
 #ifdef VCL_COMPILER_MSVC
@@ -49,6 +49,7 @@
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Wuninitialized"
 #	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#	pragma GCC diagnostic ignored "-Wunused-variable"
 #elif defined VCL_COMPILER_CLANG
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -61,7 +62,7 @@
 
 namespace Vcl { namespace Mathematics
 {
-	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps)
+	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V, unsigned int sweeps)
 	{
 		using ::sqrt;
 
@@ -80,26 +81,20 @@ namespace Vcl { namespace Mathematics
 		ENABLE_AVX_IMPLEMENTATION(Va33 = _mm256_loadu_ps(reinterpret_cast<float*>(&A(2, 2)));)
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp>
+			
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U.w()), Vqus);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U.x()), Vquvx);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U.y()), Vquvy);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U.z()), Vquvz);)
+		auto u = U.norm();
+		U.coeffs() /= u;
 
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(0, 0)), Vu11);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(1, 0)), Vu21);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(2, 0)), Vu31);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(0, 1)), Vu12);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(1, 1)), Vu22);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(2, 1)), Vu32);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(0, 2)), Vu13);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(1, 2)), Vu23);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&U(2, 2)), Vu33);)
-
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(0, 0)), Vv11);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(1, 0)), Vv21);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(2, 0)), Vv31);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(0, 1)), Vv12);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(1, 1)), Vv22);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(2, 1)), Vv32);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(0, 2)), Vv13);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(1, 2)), Vv23);)
-		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V(2, 2)), Vv33);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V.w()), Vqvs);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V.x()), Vqvvx);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V.y()), Vqvvy);)
+		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&V.z()), Vqvvz);)
+		auto v = V.norm();
+		V.coeffs() /= v;
 
 		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&A(0, 0)), Va11);)
 		ENABLE_AVX_IMPLEMENTATION(_mm256_storeu_ps(reinterpret_cast<float*>(&A(1, 1)), Va22);)
