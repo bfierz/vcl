@@ -29,13 +29,15 @@
 // C++ standard library
 #include <iostream>
 
+// Google benchmark
+#include "benchmark/benchmark.h"
+
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 #include <vcl/math/jacobisvd33_mcadams.h>
 #include <vcl/math/jacobisvd33_qr.h>
 #include <vcl/math/jacobisvd33_twosided.h>
-#include <vcl/util/precisetimer.h>
 
 #ifdef VCL_CUDA_SUPPORT
 #	include <vcl/compute/cuda/commandqueue.h>
@@ -43,7 +45,7 @@
 #	include <vcl/compute/cuda/device.h>
 #	include <vcl/compute/cuda/platform.h>
 #	include <vcl/math/cuda/jacobisvd33_mcadams.h>
-#endif // defined VCL_CUDA_SUPPORT
+#endif
 
 #ifdef VCL_OPENCL_SUPPORT
 #	include <vcl/compute/opencl/commandqueue.h>
@@ -51,177 +53,9 @@
 #	include <vcl/compute/opencl/device.h>
 #	include <vcl/compute/opencl/platform.h>
 #	include <vcl/math/opencl/jacobisvd33_mcadams.h>
-#endif // defined VCL_OPENCL_SUPPORT
+#endif
 
-// Google benchmark
-#include "benchmark/benchmark.h"
-
-void perfEigenSVD
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	Vcl::Util::PreciseTimer timer;
-	timer.start();
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems; i++)
-	{
-		// Map data
-		auto U = resU.at<float>(i);
-		auto V = resV.at<float>(i);
-		auto S = resS.at<float>(i);
-		
-		// Compute using Eigen
-		Eigen::Matrix3f A = F.at<float>(i);
-		Eigen::JacobiSVD<Eigen::Matrix3f> eigen_svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);
-
-		// Store results
-		U = eigen_svd.matrixU();
-		V = eigen_svd.matrixV();
-		S = eigen_svd.singularValues();
-	}
-	timer.stop();
-	std::cout << "Eigen Jacobi SVD: " << timer.interval() / nr_problems * 1e9 << "[ns]" << std::endl;	
-}
-
-template<typename WideScalar>
-void perfTwoSidedSVD
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t width = sizeof(real_t) / sizeof(float);
-	
-	Vcl::Util::PreciseTimer timer;
-	timer.start();
-	int avg_nr_iter = 0;
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems / width; i++)
-	{
-		// Map data
-		auto U = resU.at<real_t>(i);
-		auto V = resV.at<real_t>(i);
-		auto S = resS.at<real_t>(i);
-		
-		// Compute SVD using 2-sided Jacobi iterations (Brent)
-		matrix3_t SV = F.at<real_t>(i);
-		matrix3_t matU = matrix3_t::Identity();
-		matrix3_t matV = matrix3_t::Identity();
-
-		avg_nr_iter += Vcl::Mathematics::TwoSidedJacobiSVD(SV, matU, matV, false);
-
-		// Store results
-		U = matU;
-		V = matV;
-		S = SV.diagonal();
-	}
-	timer.stop();
-	std::cout << "Two-sided Jacobi SVD (Brent): " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
-}
-	
-template<typename WideScalar>
-void perfJacobiSVDQR
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t width = sizeof(real_t) / sizeof(float);
-	
-	Vcl::Util::PreciseTimer timer;
-	timer.start();
-	int avg_nr_iter = 0;
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif /* _OPENMP */
-	for (int i = 0; i < (int) nr_problems / width; i++)
-	{
-		// Map data
-		auto U = resU.at<real_t>(i);
-		auto V = resV.at<real_t>(i);
-		auto S = resS.at<real_t>(i);
-
-		// Compute SVD using Jacobi iterations and QR decomposition
-		matrix3_t SV = F.at<real_t>(i);
-		matrix3_t matU = matrix3_t::Identity();
-		matrix3_t matV = matrix3_t::Identity();
-
-		avg_nr_iter += Vcl::Mathematics::QRJacobiSVD(SV, matU, matV);
-
-		// Store results
-		U = matU;
-		V = matV;
-		S = SV.diagonal();
-	}
-	timer.stop();
-	std::cout << "Jacobi SVD (Symm. EV, QR): " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
-}
-
-template<typename WideScalar>
-void perfMcAdamsSVD
-(
-	size_t nr_problems,
-	unsigned int iters,
-	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
-{
-	using real_t = WideScalar;
-	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
-
-	size_t width = sizeof(real_t) / sizeof(float);
-	
-	Vcl::Util::PreciseTimer timer;
-	timer.start();
-	int avg_nr_iter = 0;
-#ifdef _OPENMP
-#	pragma omp parallel for
-#endif // _OPENMP
-	for (int i = 0; i < (int) nr_problems / width; i++)
-	{
-		// Map data
-		auto U = resU.at<real_t>(i);
-		auto V = resV.at<real_t>(i);
-		auto S = resS.at<real_t>(i);
-
-		// Compute SVD using Jacobi iterations and QR decomposition
-		matrix3_t SV = F.at<real_t>(i);
-		matrix3_t matU = matrix3_t::Identity();
-		matrix3_t matV = matrix3_t::Identity();
-
-		avg_nr_iter += Vcl::Mathematics::McAdamsJacobiSVD(SV, matU, matV, iters);
-
-		// Store results
-		U = matU;
-		V = matV;
-		S = SV.diagonal();
-	}
-	timer.stop();
-	std::cout << "Jacobi SVD (McAdams) - " << iters << " Iterations: " << timer.interval() / nr_problems * 1e9 << "[ns], Avg. iterations: " << (double) (avg_nr_iter * width) / (double) nr_problems << std::endl;
-}
+#include "problems.h"
 
 #ifdef VCL_CUDA_SUPPORT
 template<typename WideScalar>
@@ -556,10 +390,7 @@ BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 5)->Arg(128)->Arg(512)->Arg(8192)->T
 int main(int argc, char** argv)
 {
 	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
-	{
-		F.at<float>(i).setRandom();
-	}
+	createRandomProblems(nr_problems, &F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();

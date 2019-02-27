@@ -41,49 +41,7 @@
 #include <vcl/math/jacobieigen33_selfadjoint_quat.h>
 #include <vcl/util/precisetimer.h>
 
-template<typename Scalar>
-Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
-{
-	// Random number generator
-	std::mt19937_64 rng;
-	std::uniform_real_distribution<float> d;
-
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-
-	// Initialize data
-	for (int i = 0; i < (int) nr_problems; i++)
-	{
-		Eigen::Matrix<Scalar, 3, 3> rnd;
-		rnd << d(rng), d(rng), d(rng),
-			   d(rng), d(rng), d(rng),
-			   d(rng), d(rng), d(rng);
-		F.template at<Scalar>(i) = rnd.transpose() * rnd;
-	}
-
-	return std::move(F);
-}
-
-template<typename Scalar>
-void computeReferenceSolution
-(
-	size_t nr_problems,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& ATA,
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
-	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-)
-{
-	// Compute reference using Eigen
-	for (int i = 0; i < static_cast<int>(nr_problems); i++)
-	{
-		Vcl::Matrix3f A = ATA.template at<Scalar>(i);
-
-		Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver;
-		solver.compute(A, Eigen::ComputeEigenvectors);
-
-		U.template at<Scalar>(i) = solver.eigenvectors();
-		S.template at<Scalar>(i) = solver.eigenvalues();
-	}
-}
+#include "problems.h"
 
 template<typename WideScalar>
 void jacobiEig
@@ -254,8 +212,10 @@ int main(int, char**)
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refU(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 1, -1> refS(nr_problems);
 
-	auto F = createProblems<scalar_t>(nr_problems);
-	computeReferenceSolution(nr_problems, F, refU, refS);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
+
+	createSymmetricProblems(nr_problems, &F);
+	computeEigenReferenceSolution(nr_problems, F, refU, refS);
 
 	// Test correctness: Two-sided Jacobi SVD (Brent)
 	jacobiEig<float>(nr_problems, F, resU, resS);        checkSolution("JacobiEigen - float",   "jacobi_eigen_float_errors.txt",   nr_problems, 1e-5f, F, refU, refS, resU, resS);

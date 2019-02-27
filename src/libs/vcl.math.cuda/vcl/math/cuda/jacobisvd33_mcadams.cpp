@@ -72,38 +72,36 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 	{
 		VclRequire(dynamic_cast<Compute::Cuda::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
 		VclRequire(_svdKernel, "SVD kernel is loaded.");
-		VclRequire(inA.size() % 16 == 0, "Size of input is multiple of 16.");
-
-		size_t numEntries = inA.size();
 
 		auto A = Vcl::Core::dynamic_pointer_cast<Compute::Cuda::Buffer>(_A);
 		auto U = Vcl::Core::dynamic_pointer_cast<Compute::Cuda::Buffer>(_U);
 		auto V = Vcl::Core::dynamic_pointer_cast<Compute::Cuda::Buffer>(_V);
 		auto S = Vcl::Core::dynamic_pointer_cast<Compute::Cuda::Buffer>(_S);
 
-		if (_size < numEntries)
+		const size_t capacity = inA.capacity();
+		const size_t size = inA.size();
+		if (_capacity < capacity)
 		{
-			_size = ceil<16>(numEntries);
-
-			A->resize(_size * 9 * sizeof(float));
-			U->resize(_size * 9 * sizeof(float));
-			V->resize(_size * 9 * sizeof(float));
-			S->resize(_size * 3 * sizeof(float));
+			_capacity = capacity;
+			A->resize(_capacity * 9 * sizeof(float));
+			U->resize(_capacity * 9 * sizeof(float));
+			V->resize(_capacity * 9 * sizeof(float));
+			S->resize(_capacity * 3 * sizeof(float));
 		}
 
 		queue.write(A, inA.data());
 
 		// Perform the SVD computation
-		dim3 grid{ static_cast<unsigned int>(ceil<128>(numEntries)) };
-		dim3 block{ 128};
+		dim3 grid{ static_cast<unsigned int>(ceil<128>(size)) / 128 };
+		dim3 block{ 128 };
 		static_cast<Compute::Cuda::Kernel*>(_svdKernel.get())->run
 		(
 			static_cast<Compute::Cuda::CommandQueue&>(queue),
 			grid,
 			block,
 			0,
-			(int) numEntries,
-			(int) _size,
+			(int) size,
+			(int) _capacity,
 			A,
 			U,
 			V,

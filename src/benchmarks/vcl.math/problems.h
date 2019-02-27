@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,62 +23,43 @@
  * SOFTWARE.
  */
 #pragma once
-
+ 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-#include <vcl/config/cuda.h>
+
+// GSL
+#include <gsl/gsl>
 
 // VCL
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/context.h>
-#include <vcl/compute/kernel.h>
-#include <vcl/compute/module.h>
 #include <vcl/core/interleavedarray.h>
 
-namespace Vcl { namespace Mathematics { namespace Cuda
-{
-	class JacobiSVD33
-	{
-	public:
-		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
+void createRandomProblems
+(
+	size_t nr_problems,
+	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
+);
 
-	public:
-		void operator()
-		(
-			Vcl::Compute::CommandQueue& queue,
-			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-		);
+void createSymmetricProblems
+(
+	size_t nr_problems,
+	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
+);
 
-	private:
-		// Device context
-		Core::ref_ptr<Compute::Context> _ownerCtx;
+void createRotationProblems
+(
+	size_t nr_problems,
+	float max_angle,
+	float max_compression,
+	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
+);
 
-	private:
-		// Module
-		Core::ref_ptr<Compute::Module> _svdModule;
-
-		// Kernel performing the SVD computation
-		Core::ref_ptr<Compute::Kernel> _svdKernel;
-
-	private: // Buffers
-
-		//! Number of allocated entries
-		size_t _capacity = 0;
-
-		//! Input buffer 
-		Core::ref_ptr<Compute::Buffer> _A;
-
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _U;
-
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _V;
-
-		//! Singular value buffer 
-		Core::ref_ptr<Compute::Buffer> _S;
-	};
-}}}
+void computeEigenReferenceSolution
+(
+	size_t nr_problems,
+	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& ATA,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
+);

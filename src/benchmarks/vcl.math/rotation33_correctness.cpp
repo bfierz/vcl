@@ -28,87 +28,18 @@
 
 // C++ standard library
 #include <iostream>
-#include <random>
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 #include <vcl/math/math.h>
-#include <vcl/math/polardecomposition.h>
 #include <vcl/math/rotation33_torque.h>
-#include <vcl/util/precisetimer.h>
+
+#include "problems.h"
 
 // Common functions
 namespace
 {
-	template<typename Scalar>
-	void createProblems
-	(
-		size_t nr_problems,
-		Scalar max_angle,
-		Scalar max_compression,
-		bool create_random,
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* F,
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* R
-	)
-	{
-		// Random number generator
-		std::mt19937_64 rng;
-		std::uniform_real_distribution<float> d;
-		std::uniform_real_distribution<float> a{ -max_angle, max_angle };
-			
-		// Initialize data
-		if (!create_random)
-		{
-			for (int i = 0; i < (int)nr_problems; i++)
-			{
-				// Rest-state
-				Eigen::Matrix<Scalar, 3, 3> X0;
-				X0 << d(rng), d(rng), d(rng),
-					  d(rng), d(rng), d(rng),
-					  d(rng), d(rng), d(rng);
-
-				// Rotation angle
-				Scalar angle = a(rng);
-
-				// Rotation axis
-				Eigen::Matrix<Scalar, 3, 1> rot_vec;
-				rot_vec << d(rng), d(rng), d(rng);
-				rot_vec.normalize();
-
-				// Rotation matrix
-				Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{ angle, rot_vec }.toRotationMatrix();
-				R->template at<Scalar>(i) = Rot;
-				
-				Eigen::Matrix<Scalar, 3, 1> scaling;
-				scaling << (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng));
-
-				Eigen::JacobiSVD<Eigen::Matrix<Scalar, 3, 3>> svd{ Rot, Eigen::ComputeFullU | Eigen::ComputeFullV };
-				Rot *= svd.matrixV() * scaling.asDiagonal() * svd.matrixV().transpose();
-
-				Eigen::Matrix<Scalar, 3, 3> X = Rot * X0;
-				F->template at<Scalar>(i) = X * X0.inverse();
-			}
-		}
-		else
-		{
-			for (int i = 0; i < (int)nr_problems; i++)
-			{
-				// Rest-state
-				Eigen::Matrix<Scalar, 3, 3> M;
-				M << d(rng), d(rng), d(rng),
-					 d(rng), d(rng), d(rng),
-					 d(rng), d(rng), d(rng);
-				F->template at<Scalar>(i) = M;
-
-				Eigen::Matrix<Scalar, 3, 3> Rot;
-				Vcl::Mathematics::PolarDecomposition(M, Rot, nullptr);
-				R->template at<Scalar>(i) = Rot;
-			}
-
-		}
-	}
-
 	template<typename Scalar>
 	void checkSolution
 	(
@@ -164,8 +95,8 @@ void runRotationTest(float max_angle, float tol)
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
-
-	createProblems<scalar_t>(nr_problems, max_angle * 3.14f / 180.0f, 0.7f, false, &F, &refR);
+	
+	createRotationProblems(nr_problems, max_angle * 3.14f / 180.0f, 0.7f, &F, &refR);
 
 	// Strides
 	size_t stride = nr_problems;

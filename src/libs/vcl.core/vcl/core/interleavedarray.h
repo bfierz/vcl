@@ -138,6 +138,11 @@ namespace Vcl { namespace Core
 			return mSize;
 		}
 
+		size_t capacity() const
+		{
+			return mAllocated;
+		}
+
 		void setZero()
 		{
 			memset(mData, 0, mAllocated*mRows*mCols*sizeof(SCALAR));

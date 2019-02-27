@@ -49,29 +49,27 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 	{
 		VclRequire(dynamic_cast<Compute::OpenCL::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
 		VclRequire(_svdKernel, "SVD kernel is loaded.");
-		VclRequire(inA.size() % 16 == 0, "Size of input is multiple of 16.");
-
-		size_t numEntries = inA.size();
-
+		
 		auto A = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_A);
 		auto U = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_U);
 		auto V = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_V);
 		auto S = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_S);
-
-		if (_size < numEntries)
+		
+		const size_t capacity = inA.capacity();
+		const size_t size = inA.size();
+		if (_capacity < capacity)
 		{
-			_size = ceil<16>(numEntries);
-
-			A->resize(_size * 9 * sizeof(float));
-			U->resize(_size * 9 * sizeof(float));
-			V->resize(_size * 9 * sizeof(float));
-			S->resize(_size * 3 * sizeof(float));
+			_capacity = capacity;
+			A->resize(_capacity * 9 * sizeof(float));
+			U->resize(_capacity * 9 * sizeof(float));
+			V->resize(_capacity * 9 * sizeof(float));
+			S->resize(_capacity * 3 * sizeof(float));
 		}
 
 		queue.write(A, inA.data());
 
 		// Perform the SVD computation
-		std::array<size_t, 3> grid = { ceil<128>(numEntries), 0, 0 };
+		std::array<size_t, 3> grid = { ceil<128>(size), 0, 0 };
 		std::array<size_t, 3> block = { 128, 0, 0 };
 		static_cast<Compute::OpenCL::Kernel*>(_svdKernel.get())->run
 		(
@@ -79,8 +77,8 @@ namespace Vcl { namespace Mathematics { namespace OpenCL
 			1,
 			grid,
 			block,
-			(int) numEntries,
-			(int) _size,
+			(int) size,
+			(int) _capacity,
 			(cl_mem) *A,
 			(cl_mem) *U,
 			(cl_mem) *V,
