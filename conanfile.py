@@ -15,11 +15,11 @@ class VclConan(ConanFile):
             "vectorization=AVX", \
             "fPIC=False"
 
-    requires = "abseil/20180208@bincrafters/stable", \
-               "eigen/3.3.4@conan/stable", \
+    requires = "abseil/20180600@bincrafters/stable", \
+               "eigen/3.3.7@conan/stable", \
                "fmt/4.1.0@bincrafters/stable", \
-               "glew/2.1.0@dimi309/stable", \
-               "gsl_microsoft/20180102@bincrafters/stable"
+               "glew/2.1.0@bincrafters/stable", \
+               "gsl_microsoft/1.0.0@bincrafters/stable"
 
     url="https://github.com/bfierz/vcl.git"
     license="MIT"
@@ -34,9 +34,13 @@ class VclConan(ConanFile):
 
     def config_options(self):
         if self.settings.compiler == "Visual Studio":
-            self.options.remove("fPIC")
-            self.settings.remove("build_type")
-            self.settings.compiler["Visual Studio"].remove("runtime")
+            del self.options.fPIC
+            # Support multi-package configuration
+            #del self.settings.build_type
+            #del self.settings.compiler["Visual Studio"].runtime
+        else:
+            self.options["abseil"].fPIC = self.options.fPIC
+            self.options["glew"].fPIC = self.options.fPIC
 
     def build(self):
         cmake = CMake(self)
@@ -45,12 +49,13 @@ class VclConan(ConanFile):
         cmake.definitions["VCL_BUILD_TESTS"] = False
         cmake.definitions["VCL_BUILD_TOOLS"] = False
         cmake.definitions["VCL_BUILD_EXAMPLES"] = False
+        # Support multi-package configuration
+        #cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
         # Configure features
         cmake.definitions["VCL_VECTORIZE"] = str(self.options.vectorization)
         cmake.definitions["VCL_OPENGL_SUPPORT"] = True
-        cmake.definitions["CMAKE_DEBUG_POSTFIX"] = "_d"
-        if self.settings.os != "Windows" and self.options.fPIC:
-            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = True
+        if self.settings.os != "Windows":
+            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fPIC
         # Configure external targets
         cmake.definitions["vcl_ext_absl"] = "CONAN_PKG::abseil"
         cmake.definitions["vcl_ext_eigen"] = "CONAN_PKG::eigen"
@@ -85,8 +90,11 @@ class VclConan(ConanFile):
     def package_info(self):
         self.cpp_info.includedirs = ['include/vcl.core', 'include/vcl.math', 'include/vcl.graphics', 'include/vcl.geometry']
         if self.settings.os == "Windows":
-            self.cpp_info.debug.libs = ['vcl_core_d.lib', 'vcl_math_d.lib', 'vcl_geometry_d.lib', 'vcl_graphics_d.lib']
-            self.cpp_info.release.libs = ['vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib', 'vcl_graphics.lib']
+            if hasattr(self.settings, "build_type"):
+                self.cpp_info.debug.libs = ['vcl_core_d.lib', 'vcl_math_d.lib', 'vcl_geometry_d.lib', 'vcl_graphics_d.lib']
+                self.cpp_info.release.libs = ['vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib', 'vcl_graphics.lib']
+            else:
+                self.cpp_info.libs = ['vcl_core.lib', 'vcl_math.lib', 'vcl_geometry.lib', 'vcl_graphics.lib']
         else:
             self.cpp_info.libs = ['libvcl_core.a', 'libvcl_math.a', 'libvcl_geometry.a', 'libvcl_graphics.a']
         self.cpp_info.libdirs = [ "lib" ]
