@@ -36,6 +36,7 @@ VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl
 {
+#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m128 _mm_sin_ps(__m128 v)
 	{
 		return sin_ps(v);
@@ -134,6 +135,7 @@ namespace Vcl
 
 		return t3.get();
 	}
+#endif
 	
 	__m128 _mmVCL_floor_ps(__m128 x)
 	{

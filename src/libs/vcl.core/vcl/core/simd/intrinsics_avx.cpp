@@ -24,7 +24,7 @@
  */
 #include <vcl/core/simd/intrinsics_avx.h>
 
-#ifdef VCL_VECTORIZE_AVX
+#if defined VCL_VECTORIZE_AVX && (!defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920)
 VCL_BEGIN_EXTERNAL_HEADERS
 #if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__ 
 #	define __AVX2__
