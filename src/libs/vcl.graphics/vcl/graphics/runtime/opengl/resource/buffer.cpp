@@ -55,6 +55,16 @@
 #		define glClearNamedBufferDataVCL glClearNamedBufferDataEXT
 #		define glClearNamedBufferSubDataVCL glClearNamedBufferSubDataEXT
 #		define glGetNamedBufferSubDataVCL glGetNamedBufferSubDataEXT
+#	else
+#		define glCreateBuffersVCL glGenBuffers
+#		define glNamedBufferStorageVCL(buffer, size, data, flags)       [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glBufferStorage(GL_ARRAY_BUFFER, size, data, flags); }();
+#		define glMapNamedBufferRangeVCL(buffer, offset, length, access) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access); }();
+#		define glUnmapNamedBufferVCL(buffer)                            [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glUnmapBuffer(GL_ARRAY_BUFFER); }();
+#		define glFlushMappedNamedBufferRangeVCL(buffer, offset, length) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length); }();
+#		define glCopyNamedBufferSubDataVCL(rb, wb, ro, wo, size)        [&] { BufferBindPoint read_bind_point(GL_COPY_READ_BUFFER, rb); BufferBindPoint write_bind_point(GL_COPY_WRITE_BUFFER, wb); glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, ro, wo, size); }();
+#		define glClearNamedBufferDataVCL(buffer, ifmt, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferData(GL_ARRAY_BUFFER, ifmt, fmt, type, data); }();
+#		define glClearNamedBufferSubDataVCL(buffer, ifmt, offset, size, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferSubData(GL_ARRAY_BUFFER, ifmt, offset, size, fmt, type, data); }();
+#		define glGetNamedBufferSubDataVCL(buffer, offset, size, data)   [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glGetBufferSubData(GL_ARRAY_BUFFER, offset, size, data); }();
 #	endif
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -302,6 +312,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Buffer::clear()
 	{
+		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 
 		glClearNamedBufferDataVCL(_glId, GL_R8I, GL_RED, GL_BYTE, nullptr);
@@ -309,6 +320,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	
 	void Buffer::clear(const Graphics::OpenGL::AnyRenderType& rt, void* data)
 	{
+		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 
 		glClearNamedBufferDataVCL(_glId, rt.internalFormat(), rt.format(), rt.componentType(), data);
@@ -316,6 +328,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	
 	void Buffer::clear(size_t offset, size_t size)
 	{
+		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
 		
@@ -324,6 +337,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Buffer::clear(size_t offset, size_t size, const Graphics::OpenGL::AnyRenderType& rt, void* data)
 	{
+		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
 		
