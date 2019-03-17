@@ -127,6 +127,7 @@ set(SOURCE
 	vcl/debug/msvc/qt5.natvis
 
 	vcl/math/ceil.h
+	vcl/math/fixed.h
 	vcl/math/math.h
 
 	vcl/rtti/attributebase.h
