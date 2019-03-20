@@ -86,9 +86,9 @@ namespace Vcl { namespace Util { namespace Details
 
 	//! Downsample values according to the wavelet coefficients
 	template<int N>
-	void downsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
+	void downsample(std::span<const float> from, std::span<float> to, int n, int stride) noexcept
 	{
-		const gsl::span<const float> a = ACoeffs;
+		const std::span<const float> a = ACoeffs;
 		for (int i = 0; i < n / 2; i++)
 		{
 			to[i * stride] = 0;
@@ -101,9 +101,9 @@ namespace Vcl { namespace Util { namespace Details
 
 	//! Upsample values according to the wavelet coefficients
 	template<int N>
-	void upsample(gsl::span<const float> from, gsl::span<float> to, int n, int stride) noexcept
+	void upsample(std::span<const float> from, std::span<float> to, int n, int stride) noexcept
 	{
-		const gsl::span<const float> p = PCoeffs;
+		const std::span<const float> p = PCoeffs;
 		for (int i = 0; i < n; i++)
 		{
 			to[i * stride] = 0;

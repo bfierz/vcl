@@ -43,6 +43,7 @@ set(VCL_CORE_INC
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
 	vcl/core/preprocessor.h
+	vcl/core/span.h
 )
 
 # VCL / CORE / CONTAINER

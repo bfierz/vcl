@@ -50,6 +50,7 @@
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
+#include <vcl/core/span.h>
 
 namespace Vcl { namespace RTTI
 {
@@ -208,10 +209,10 @@ namespace Vcl { namespace RTTI
 		void* call(void* location, Args... args) const
 		{
 			auto any_args = std::make_array<std::any>(args...);
-			return callImpl(location, any_args);
+			return callImpl(location, std::make_span(any_args));
 		}
 
-		void* call(void* location, gsl::span<std::any> args) const
+		void* call(void* location, std::span<std::any> args) const
 		{
 			return callImpl(location, args);
 		}
@@ -232,7 +233,7 @@ namespace Vcl { namespace RTTI
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, gsl::span<std::any> params) const = 0;
+		virtual void* callImpl(void* location, std::span<std::any> params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -251,14 +252,14 @@ namespace Vcl { namespace RTTI
 		template<size_t N>
 		VCL_STRONG_INLINE void set(std::array<const ConstructorBase*, N>& constructors)
 		{
-			_constructors = constructors;
+			_constructors = std::make_span(constructors);
 			for (auto c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
 		}
-		VCL_STRONG_INLINE void set(gsl::span<std::unique_ptr<ConstructorBase>> constructors)
+		VCL_STRONG_INLINE void set(std::span<std::unique_ptr<ConstructorBase>> constructors)
 		{
-			_constructors = { reinterpret_cast<const ConstructorBase**>(constructors.data()), std::ptrdiff_t(constructors.size()) };
+			_constructors = { reinterpret_cast<const ConstructorBase**>(constructors.data()), constructors.size() };
 			for (const auto& c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
@@ -325,7 +326,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! List of registered ctor's
-		gsl::span<const ConstructorBase*> _constructors;
+		std::span<const ConstructorBase*> _constructors;
 
 		//! Indicate whether a standard ctor is available
 		bool _hasStandardConstructor{ false };

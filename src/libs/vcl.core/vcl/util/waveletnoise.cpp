@@ -68,7 +68,7 @@ namespace
 	(
 		int mid_x, int mid_y, int mid_z,
 		const std::array<std::array<float, 3>, 3>& weights,
-		gsl::span<const float> data
+		std::span<const float> data
 	) noexcept
 	{
 		//float result = 0;
@@ -174,13 +174,13 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	WaveletNoise<N>::WaveletNoise(gsl::span<float> noise_data_base)
+	WaveletNoise<N>::WaveletNoise(std::span<const float> noise_data_base)
 	{
 		initializeNoise(noise_data_base);
 	}
 
 	template<int N>
-	void WaveletNoise<N>::initializeNoise(gsl::span<float> noise_data_base)
+	void WaveletNoise<N>::initializeNoise(std::span<const float> noise_data_base)
 	{
 		static_assert(N >= 0, "N >= 0");
 		static_assert(N % 2 == 0, "N is even");
@@ -196,8 +196,8 @@ namespace Vcl { namespace Util
 			for (int iz = 0; iz < N; iz++)
 			{
 				const int i = iy * N + iz*N*N;
-				downsample<N>(gsl::make_span(&noise_data_base[i], N), gsl::make_span(&temp1[i], N), N, 1);
-				upsample<N>(  gsl::make_span(&temp1[i], N), gsl::make_span(&temp2[i], N), N, 1);
+				downsample<N>(std::make_span(&noise_data_base[i], N), std::make_span(&temp1[i], N), N, 1);
+				upsample<N>(  std::make_span(&temp1[i], N), std::make_span(&temp2[i], N), N, 1);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
@@ -205,8 +205,8 @@ namespace Vcl { namespace Util
 			for (int iz = 0; iz < N; iz++)
 			{
 				const int i = ix + iz*N*N;
-				downsample<N>(gsl::make_span(&temp2[i], N + N*N), gsl::make_span(&temp1[i], N + N*N), N, N);
-				upsample<N>(  gsl::make_span(&temp1[i], N + N*N), gsl::make_span(&temp2[i], N + N*N), N, N);
+				downsample<N>(std::make_span(&temp2[i], N + N*N), std::make_span(&temp1[i], N + N*N), N, N);
+				upsample<N>(  std::make_span(&temp1[i], N + N*N), std::make_span(&temp2[i], N + N*N), N, N);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
@@ -214,8 +214,8 @@ namespace Vcl { namespace Util
 			for (int iy = 0; iy < N; iy++)
 			{
 				const int i = ix + iy*N;
-				downsample<N>(gsl::make_span(&temp2[i], N*N*N), gsl::make_span(&temp1[i], N*N*N), N, N*N);
-				upsample<N>(  gsl::make_span(&temp1[i], N*N*N), gsl::make_span(&temp2[i], N*N*N), N, N*N);
+				downsample<N>(std::make_span(&temp2[i], N*N*N), std::make_span(&temp1[i], N*N*N), N, N*N);
+				upsample<N>(  std::make_span(&temp1[i], N*N*N), std::make_span(&temp2[i], N*N*N), N, N*N);
 			}
 		}
 
@@ -312,7 +312,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	float WaveletNoise<N>::evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, gsl::span<const float> w) const
+	float WaveletNoise<N>::evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, std::span<const float> w) const
 	{
 		float result = 0;
 		for (int b = 0; b < nr_bands && s + static_cast<float>(first_band + b) < 0; b++)
@@ -385,7 +385,7 @@ namespace Vcl { namespace Util
 	template<int N>
 	void WaveletNoise<N>::dxDyDz(const Vec3& p, Mat33& final) const
 	{
-		const gsl::span<const float> data = _noiseTileData;
+		const std::span<const float> data = _noiseTileData;
 
 		float result1 = 0;
 		float result2 = 0;

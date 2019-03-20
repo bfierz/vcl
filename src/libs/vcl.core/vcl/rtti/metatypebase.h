@@ -35,6 +35,7 @@
 
 // VCL
 #include <vcl/core/any.h>
+#include <vcl/core/span.h>
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
@@ -78,7 +79,7 @@ namespace Vcl { namespace RTTI
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		gsl::span<const AttributeBase*> attributes() const { return _attributes; }
+		std::span<const AttributeBase*> attributes() const { return _attributes; }
 
 		const ConstructorSet& constructors() const { return _constructors; }
 
@@ -127,15 +128,15 @@ namespace Vcl { namespace RTTI
 		
 	protected:
 		//! List of base types of this type
-		gsl::span<const Type*> _parents;
+		std::span<const Type*> _parents;
 
 		//! List of constructors for this type
 		ConstructorSet _constructors;
 
 		//! List of type attributes
-		gsl::span<const AttributeBase*> _attributes;
+		std::span<const AttributeBase*> _attributes;
 
 		//! List of general methods
-		gsl::span<const void*> _methods;
+		std::span<const void*> _methods;
 	};
 }}

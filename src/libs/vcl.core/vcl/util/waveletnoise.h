@@ -32,11 +32,9 @@
 #include <random>
 #include <vector>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/span.h>
 
 namespace Vcl { namespace Util
 {
@@ -58,7 +56,7 @@ namespace Vcl { namespace Util
 	public: // Evaluation
 		float evaluate(const Vec3& p) const;
 		float evaluate(const Vec3& p, const Vec3& normal) const;
-		float evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, gsl::span<const float> w) const;
+		float evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, std::span<const float> w) const;
 
 		float dx(const Vec3& p) const;
 		float dy(const Vec3& p) const;
@@ -77,10 +75,10 @@ namespace Vcl { namespace Util
 
 	protected: // Helper methods
 		//! Special constructor taking an initialized set of random numbers
-		WaveletNoise(gsl::span<float> noise_data_base);
+		WaveletNoise(std::span<const float> noise_data_base);
 
 		//! Initialize the noise data
-		void initializeNoise(gsl::span<float> noise_data_base);
+		void initializeNoise(std::span<const float> noise_data_base);
 	private:
 		//! Noise data
 		std::vector<float> _noiseTileData;

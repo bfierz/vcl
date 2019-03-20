@@ -44,6 +44,7 @@
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
+#include <vcl/core/span.h>
 #include <vcl/rtti/constructorbase.h>
 
 #define VCL_RTTI_CTOR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _constructors) = std::make_tuple(
@@ -103,20 +104,20 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, gsl::span<std::any> params) const override
+		virtual void* callImpl(void* location, std::span<std::any> params) const override
 		{
 			return callImplSeq(location, std::move(params), absl::make_index_sequence<sizeof...(Params)>());
 		}
 
 	private:
 		template<size_t... S>
-		void* callImplSeq(void* location, gsl::span<std::any>&& params, absl::index_sequence<S...>) const
+		void* callImplSeq(void* location, std::span<std::any>&& params, absl::index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename P, int I>
-		P getParam(const gsl::span<std::any> params) const
+		P getParam(const std::span<std::any> params) const
 		{
 			return extract<P>::get(params.begin()[I]);
 		}
@@ -195,7 +196,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, gsl::span<std::any> params) const override
+		virtual void* callImpl(void* location, std::span<std::any> params) const override
 		{
 			VclRequire(params.size() == 0, "No parameters supplied.");
 
