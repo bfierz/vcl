@@ -30,9 +30,6 @@
 // C++ standard library
 #include <vector>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/any.h>
 #include <vcl/core/span.h>
@@ -57,7 +54,7 @@ namespace Vcl { namespace RTTI
 		{
 		}
 
-		Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment);
+		Type(std::string_view name, size_t hash, size_t size, size_t alignment);
 
 		Type(const Type&) = delete;
 		Type(Type&&) noexcept;
@@ -67,14 +64,14 @@ namespace Vcl { namespace RTTI
 		Type& operator= (const Type&) = delete;
 
 	public: // Properties
-		gsl::cstring_span<> name() const { return _name; }
+		std::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
 
 		size_t nrParents() const { return static_cast<size_t>(_parents.size()); }
 		const Type* const* parents() const { return _parents.data(); }
 
-		bool hasAttribute(const gsl::cstring_span<> name) const;
-		const AttributeBase* attribute(const gsl::cstring_span<> name) const;
+		bool hasAttribute(const std::string_view name) const;
+		const AttributeBase* attribute(const std::string_view name) const;
 
 		/*!
 		 * \brief Access the list of all attributes
@@ -112,7 +109,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable type name
-		gsl::cstring_span<> _name;
+		std::string_view _name;
 
 		//! Hash of the type name
 		size_t _hash;

@@ -34,7 +34,7 @@
 
 namespace Vcl { namespace RTTI 
 {
-	Type::Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment)
+	Type::Type(std::string_view name, size_t hash, size_t size, size_t alignment)
 	: _name(name)
 	, _hash(hash)
 	, _size(size)
@@ -125,9 +125,9 @@ namespace Vcl { namespace RTTI
 		return false; // no match found
 	}
 
-	bool Type::hasAttribute(const gsl::cstring_span<> name) const
+	bool Type::hasAttribute(const std::string_view name) const
 	{
-		size_t hash = Vcl::Util::StringHash(name).hash();
+		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
 		auto attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash] (const AttributeBase* attrib)
 		{
@@ -146,11 +146,11 @@ namespace Vcl { namespace RTTI
 		return false;
 	}
 
-	const AttributeBase* Type::attribute(const gsl::cstring_span<> name) const
+	const AttributeBase* Type::attribute(const std::string_view name) const
 	{
 		VclRequire(hasAttribute(name), "Attribute exists.");
 
-		size_t hash = Vcl::Util::StringHash(name).hash();
+		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
 		auto attribIt = std::find_if(_attributes.cbegin(), _attributes.cend(), [hash] (const AttributeBase* attrib)
 		{

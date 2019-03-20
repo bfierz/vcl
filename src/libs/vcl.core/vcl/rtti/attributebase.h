@@ -27,13 +27,11 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/flags.h>
+#include <vcl/core/string_view.h>
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI 
@@ -64,7 +62,7 @@ namespace Vcl { namespace RTTI
 		virtual void deserialize(Deserializer& ser, void* object) const = 0;
 
 	public:
-		gsl::cstring_span<> name() const { return _name; }
+		std::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
 		
 	public:
@@ -121,7 +119,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable attribute name
-		gsl::cstring_span<> _name;
+		std::string_view _name;
 
 		//! Attribute name hash
 		size_t _hash;

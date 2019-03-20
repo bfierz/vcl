@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,32 +27,11 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL
-#include <vcl/rtti/metatype.h>
-#include <vcl/rtti/metatyperegistry.h>
+// Abseil
+#include <absl/strings/string_view.h>
 
-namespace Vcl { namespace RTTI
+namespace std
 {
-	class Factory
-	{
-	public:
-		template<typename... Args>
-		static void* create(const std::string_view name, Args... args)
-		{
-			// Get the meta type
-			auto type = vcl_meta_type_by_name(name);
+	using absl::string_view;
+}
 
-			// Type is available
-			if (!type)
-				return nullptr;
-
-			// Allocate memory for a new type instance
-			auto inst = type->allocate();
-
-			// Call the default constructor
-			type->construct(inst, args...);
-
-			return inst;
-		}
-	};
-}}

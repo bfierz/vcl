@@ -69,12 +69,12 @@ namespace Vcl { namespace RTTI
 		}
 	}
 
-	const Type* TypeRegistry::get(gsl::cstring_span<> name)
+	const Type* TypeRegistry::get(std::string_view name)
 	{
 		const TypeMap& metas = instance();
 
 		// Compute hash
-		size_t hash = Vcl::Util::StringHash(name).hash();
+		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
 		auto meta = metas.find(hash);
 		return (meta == metas.end()) ? nullptr : meta->second;

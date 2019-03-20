@@ -88,7 +88,7 @@ namespace Vcl { namespace RTTI
 			return new(location) T(std::forward<Params>(params)...);
 		}
 
-		virtual bool hasParam(const gsl::cstring_span<> name) const override
+		virtual bool hasParam(const std::string_view name) const override
 		{
 			return hasParamImpl(_parameters, name);
 		}
@@ -142,7 +142,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		template<typename... Ts>
-		bool hasParamImpl(const std::tuple<Ts...>& tuple, const gsl::cstring_span<>& name) const
+		bool hasParamImpl(const std::tuple<Ts...>& tuple, const std::string_view& name) const
 		{
 			if (head(_parameters).data().name() == name)
 				return true;
@@ -151,7 +151,7 @@ namespace Vcl { namespace RTTI
 		}
 
 		template<typename P>
-		bool hasParamImpl(const std::tuple<P>& tuple, const gsl::cstring_span<>& name) const
+		bool hasParamImpl(const std::tuple<P>& tuple, const std::string_view& name) const
 		{
 			return std::get<0>(tuple).data().name() == name;
 		}
@@ -177,7 +177,7 @@ namespace Vcl { namespace RTTI
 			return new(location) T;
 		}
 
-		virtual bool hasParam(const gsl::cstring_span<> name) const override
+		virtual bool hasParam(const std::string_view name) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(name);
 			return false;

@@ -42,15 +42,13 @@
 // Abseil
 #include <absl/utility/utility.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/container/array.h>
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
+#include <vcl/core/string_view.h>
 
 namespace Vcl { namespace RTTI
 {
@@ -85,10 +83,10 @@ namespace Vcl { namespace RTTI
 		VCL_CPP_CONSTEXPR_11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
-		gsl::cstring_span<> name() const { return _name; }
+		std::string_view name() const { return _name; }
 
 	private:
-		const gsl::cstring_span<> _name;
+		const std::string_view _name;
 	};
 
 	class ParameterBase
@@ -227,7 +225,7 @@ namespace Vcl { namespace RTTI
 			return hasParam(name, N - 1);
 		}
 
-		virtual bool hasParam(const gsl::cstring_span<> name) const = 0;
+		virtual bool hasParam(const std::string_view name) const = 0;
 
 		virtual const ParameterBase& param(int idx) const = 0;
 		virtual const std::type_info* paramType(int idx) const = 0;
