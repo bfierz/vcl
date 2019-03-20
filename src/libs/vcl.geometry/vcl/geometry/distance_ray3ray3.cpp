@@ -68,8 +68,8 @@ namespace Vcl { namespace Geometry
 		const Real Dt = pp*c2 - c1*pq;
 
 		// Handle parallel rays (D == 0)
-		const Real s = select(D > 0, Ds / D, 0.0f);
-		const Real t = select(D > 0, Dt / D, 0.0f);
+		const Real s = select(D > 0, Ds / D, Real(0.0f));
+		const Real t = select(D > 0, Dt / D, Real(0.0f));
 
 		const auto& pt_on_a = ray_a(s);
 		const auto& pt_on_b = ray_b(t);

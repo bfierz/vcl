@@ -42,83 +42,6 @@ namespace Vcl
 	template<typename Scalar, int Width>
 	class VectorScalar
 	{
-	public:
-		VectorScalar() = default;
-		explicit VectorScalar(Scalar s)
-		{
-			for (size_t i = 0; i < Width; i++)
-				mData[i] = s;
-		}
-		explicit VectorScalar(Scalar s[Width])
-		{
-			for (size_t i = 0; i < Width; i++)
-				mData[i] = s[i];
-		}
-		explicit VectorScalar(std::initializer_list<Scalar> list)
-		{
-			int i = 0;
-			for (Scalar s : list)
-			{
-				mData[i] = s;
-				i++;
-			}
-		}
-
-	public:
-		Scalar& operator[] (int idx)
-		{
-			VclRequire(0 <= idx && idx < Width, "Access is in range.");
-
-			return mData[idx];
-		}
-
-		Scalar operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < Width, "Access is in range.");
-
-			return mData[idx];
-		}
-
-	public:
-		VectorScalar<Scalar, Width> operator+ (const VectorScalar<Scalar, Width>& rhs) const
-		{
-			VectorScalar<Scalar, Width> res;
-
-			for (size_t i = 0; i < Width; i++)
-				res[i] = mData[i] + rhs[i];
-
-			return res;
-		}
-		VectorScalar<Scalar, Width> operator- (const VectorScalar<Scalar, Width>& rhs) const
-		{
-			VectorScalar<Scalar, Width> res;
-
-			for (size_t i = 0; i < Width; i++)
-				res[i] = mData[i] - rhs[i];
-
-			return res;
-		}
-		VectorScalar<Scalar, Width> operator* (const VectorScalar<Scalar, Width>& rhs) const
-		{
-			VectorScalar<Scalar, Width> res;
-
-			for (size_t i = 0; i < Width; i++)
-				res[i] = mData[i] * rhs[i];
-
-			return res;
-		}
-		VectorScalar<Scalar, Width> operator/ (const VectorScalar<Scalar, Width>& rhs) const
-		{
-			VectorScalar<Scalar, Width> res;
-
-			for (size_t i = 0; i < Width; i++)
-				res[i] = mData[i] / rhs[i];
-
-			return res;
-		}
-
-	private:
-		Scalar mData[Width];
 	};
 }
 
@@ -152,8 +75,73 @@ namespace Vcl
 #	include <vcl/core/simd/int4_neon.h>
 #	include <vcl/core/simd/int8_neon.h>
 #	include <vcl/core/simd/int16_neon.h>
-#endif
+#else
+#	include <vcl/core/simd/bool4_ref.h>
+#	include <vcl/core/simd/bool8_ref.h>
+#	include <vcl/core/simd/bool16_ref.h>
+#	include <vcl/core/simd/float4_ref.h>
+#	include <vcl/core/simd/float8_ref.h>
+#	include <vcl/core/simd/float16_ref.h>
+#	include <vcl/core/simd/int4_ref.h>
+#	include <vcl/core/simd/int8_ref.h>
+#	include <vcl/core/simd/int16_ref.h>
+namespace Vcl
+{
+	template<typename Scalar, int Width>
+	VectorScalar<Scalar, Width> select
+	(
+		const VectorScalar<bool, Width>& mask,
+		const VectorScalar<Scalar, Width>& a,
+		const VectorScalar<Scalar, Width>& b
+	)
+	{
+		VectorScalar<Scalar, Width> res;
+		for (int i = 0; i < Width; i++)
+			res[i] = mask[i] ? a[i] : b[i];
+		
+		return res;
+	}
+
+	template<int Width>
+	bool any(const VectorScalar<bool, Width>& x)
+	{
+		bool res = false;
+		for (int i = 0; i < Width; i++)
+			res = res || x[i];
+		
+		return res;
+	}
+	template<int Width>
+	bool all(const VectorScalar<bool, Width>& x)
+	{
+		bool res = true;
+		for (int i = 0; i < Width; i++)
+			res = res && x[i];
+
+		return res;
+	}
+	template<int Width>
+	bool none(const VectorScalar<bool, Width>& x)
+	{
+		bool res = false;
+		for (int i = 0; i < Width; i++)
+			res = res || x[i];
+
+		return !res;
+	}
 	
+	template<typename Scalar, int Width>
+	std::ostream& operator<< (std::ostream &s, const VectorScalar<Scalar, Width>& rhs)
+	{		
+		s << "'" << rhs[0];
+		for (int i = 1; i < Width; i++)
+			s << ", " << rhs[1];
+		s << "'";
+		return s;
+	}
+}
+#endif
+
 namespace Vcl
 {
 	template<typename T>

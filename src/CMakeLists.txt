@@ -58,6 +58,12 @@ if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+# Global configurations for emscripten
+if (EMSCRIPTEN)
+	# Make sure exception can be used
+	set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -s DISABLE_EXCEPTION_CATCHING=0")
+endif(EMSCRIPTEN)
+
 ################################################################################
 # Add the externals
 ################################################################################
@@ -97,7 +103,8 @@ add_subdirectory(externals/memory EXCLUDE_FROM_ALL)
 set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
 set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
 
-option(BuildTests "" OFF)
+option(JSON_BuildTests "" OFF)
+option(JSON_Install "" OFF)
 add_subdirectory(externals/json)
 
 find_package(OPENGL QUIET)

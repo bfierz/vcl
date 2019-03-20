@@ -57,7 +57,7 @@ namespace std
 		return *(static_cast<unsigned*>(static_cast<void*>(reinterpret_cast<char*>(details::__cxa_get_globals()) + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
 	}
 }
-#elif defined(__GLIBCXX__) || defined(_LIBCPP_VERSION)
+#elif defined(__GLIBCXX__) || (defined(_LIBCPP_VERSION) && !defined(__EMSCRIPTEN__))
 #	include <cxxabi.h>
 namespace std
 {

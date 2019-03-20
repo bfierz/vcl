@@ -45,7 +45,7 @@ function(vcl_add_test tgt)
 	
 	# Enable static code analysis
 	if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
-		enable_vs_guideline_checker(vcl_core_test)
+		enable_vs_guideline_checker(${tgt})
 	endif()
 	
 	# Enable code coverage recording
@@ -58,5 +58,13 @@ function(vcl_add_test tgt)
 	endif()
 	
 	# Register for test auto-discovery
-	gtest_discover_tests(${tgt})
+	if(NOT EMSCRIPTEN)
+		gtest_discover_tests(${tgt})
+	endif(NOT EMSCRIPTEN)
+
+	# For emscripten test targets, generate a basic html page executing the tests
+	if( EMSCRIPTEN)
+		set(EXECUTABLE "${tgt}.js")
+		configure_file(../vcl.test.html.in ${EXECUTABLE_OUTPUT_PATH}/${tgt}.html @ONLY)
+	endif(EMSCRIPTEN)
 endfunction()

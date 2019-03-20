@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <memory>
+
 // FUSE
 #include <vcl/util/waveletnoise_modulo.h>
 
