@@ -86,11 +86,11 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 	auto queue = dev_ctx->createCommandQueue();
 
 	Eigen::Map<Eigen::VectorXf> x(lhs.data(), lhs.size());
-	Eigen::Map<Eigen::VectorXf> y(rhs.data(), rhs.size());
+	Eigen::Map<const Eigen::VectorXf> y(rhs.data(), rhs.size());
 
 	Ctx ctx{ dev_ctx, queue, dim };
 	ctx.updatePoissonStencil(h, -1, 0, { skip.data(), (int64_t)skip.size() });
-	ctx.setData(&x, &y);
+	ctx.setData(x, y);
 
 	// Execute the poisson solver
 	Solver solver;

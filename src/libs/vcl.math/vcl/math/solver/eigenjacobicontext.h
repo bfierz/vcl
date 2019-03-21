@@ -28,9 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/math/solver/jacobi.h>
@@ -49,7 +46,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	public:
 		EigenJacobiContext(const matrix_t* A, const vector_t* b)
 		: _A(A)
-		, _x(nullptr)
+		, _x(nullptr, b->size())
 		, _b(b)
 		, _size(b->size())
 		{
@@ -59,9 +56,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			_R.diagonal().setZero();
 		}
 
-		void setX(map_t* x)
+		void setX(map_t x)
 		{
-			_x = x;
+			new(&_x) map_t(x);
 		}
 
 		//! \brief Implement virtual interface
@@ -79,7 +76,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			// x^{n+1} = D^-1 (b - R x^{n})
 			//                -------------
 			//                      q
-			auto& x = *_x;
+			auto& x = _x;
 			auto& b = *_b;
 			_next = _DInv.asDiagonal() * (b - _R * x);
 
@@ -88,7 +85,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		 double computeError() override
 		{
 			auto& A = *_A;
-			auto& x = *_x;
+			auto& x = _x;
 			auto& b = *_b;
 
 			_error = (b - A * x).norm();
@@ -104,7 +101,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	protected:
 		const matrix_t* _A;
-		map_t* _x;
+		map_t _x;
 		const vector_t* _b;
 
 	private:

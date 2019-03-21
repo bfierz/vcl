@@ -75,14 +75,16 @@ class GenericPoissonJacobiCtx : public Vcl::Mathematics::Solver::JacobiContext
 public:
 	GenericPoissonJacobiCtx(unsigned int size)
 	: _size(size)
+	, _unknowns(nullptr, size)
+	, _rhs(nullptr, size)
 	{
 		_next.setZero(size);
 	}
 
-	void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<map_t*> rhs)
+	void setData(map_t unknowns, map_t rhs)
 	{
-		_unknowns = unknowns;
-		_rhs = rhs;
+		new(&_unknowns) map_t(unknowns);
+		new(&_rhs) map_t(rhs);
 	}
 
 	void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -119,8 +121,8 @@ public:
 	// -> x^{n+1} = D^-1 (b - R x^{n})
 	void updateSolution() override
 	{
-		auto& unknowns = *_unknowns;
-		auto& rhs = *_rhs;
+		auto& unknowns = _unknowns;
+		auto& rhs = _rhs;
 
 		// x^{n+1} = D^-1 (b - R x^{n})
 		_next = _D * (rhs - _R * unknowns);
@@ -156,10 +158,10 @@ private:
 	matrix_t _R;
 
 	//! Left-hand side 
-	map_t* _unknowns;
+	map_t _unknowns;
 
 	//! Right-hand side
-	map_t* _rhs;
+	map_t _rhs;
 
 	//! Temporary buffer for the updated solution
 	vector_t _next;
@@ -273,7 +275,7 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 
 	Ctx ctx{ dim };
 	ctx.updatePoissonStencil(h, -1, 0, boundary);
-	ctx.setData(&x, &y);
+	ctx.setData(x, y);
 
 	// Execute the poisson solver
 	Solver solver;

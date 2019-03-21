@@ -31,9 +31,6 @@
 // C++ standard library
 #include <array>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/math/solver/conjugategradients.h>
 #include <vcl/math/solver/eigenconjugategradientscontext.h>
@@ -52,6 +49,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Poisson2DCgCtx(Eigen::Vector2ui dim)
 		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y() }
 		, _dim{ dim }
+		, _rhs{ nullptr, dim.x()*dim.y() }
 		{
 			for (auto& A : _laplacian)
 			{
@@ -60,10 +58,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 		
 	public:
-		void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<map_t*> rhs)
+		void setData(map_t unknowns, map_t rhs)
 		{
-			this->setX(unknowns.get());
-			_rhs = rhs;
+			this->setX(unknowns);
+			new(&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -96,8 +94,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			const auto& Ay_l = _laplacian[3];
 			const auto& Ay_r = _laplacian[4];
 
-			auto& unknowns = *this->_x;
-			auto& rhs = *_rhs;
+			auto& unknowns = this->_x;
+			auto& rhs = _rhs;
 
 			// r = (b - A x)
 			//          ---
@@ -171,6 +169,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		std::array<vector_t, 5> _laplacian;
 
 		//! Right-hand side
-		map_t* _rhs;
+		map_t _rhs;
 	};
 }}}

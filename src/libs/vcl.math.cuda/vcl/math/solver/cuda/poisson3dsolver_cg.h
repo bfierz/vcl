@@ -32,9 +32,6 @@
 // C++ standard library
 #include <array>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/compute/cuda/buffer.h>
 #include <vcl/compute/cuda/context.h>
@@ -47,6 +44,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	{
 		using vector_t = Eigen::Matrix<float, Eigen::Dynamic, 1>;
 		using map_t = Eigen::Map<vector_t>;
+		using const_map_t = Eigen::Map<const vector_t>;
 
 	public:
 		Poisson3DCgCtx
@@ -57,7 +55,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		);
 		~Poisson3DCgCtx();
 
-		void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<const map_t*> rhs);
+		void setData(map_t unknowns, const_map_t rhs);
 		void setData(ref_ptr<Compute::Cuda::Buffer> unknowns, ref_ptr<Compute::Cuda::Buffer> rhs);
 
 		//! \brief Create the poisson stencil
@@ -102,9 +100,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
 		
 		//! Left-hand side 
-		std::tuple<ref_ptr<Compute::Cuda::Buffer>, map_t*> _unknowns;
+		std::tuple<ref_ptr<Compute::Cuda::Buffer>, map_t> _unknowns;
 
 		//! Right-hand side
-		std::tuple<ref_ptr<Compute::Cuda::Buffer>, const map_t*> _rhs;
+		std::tuple<ref_ptr<Compute::Cuda::Buffer>, map_t> _rhs;
 	};
 }}}}

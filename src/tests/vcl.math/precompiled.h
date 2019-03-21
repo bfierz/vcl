@@ -34,9 +34,6 @@
 #include <unordered_map>
 #include <vector>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/contract.h>

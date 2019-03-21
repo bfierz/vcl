@@ -52,7 +52,7 @@ TEST(Jacobi, Identity)
 	EigenJacobiContext<Eigen::MatrixXf> ctx{&A, &b};
 
 	Eigen::Map<Eigen::VectorXf> mx{x.data(), x.size()};
-	ctx.setX(&mx);
+	ctx.setX(mx);
 
 	Jacobi solver;
 	solver.setMaxIterations(10);

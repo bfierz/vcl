@@ -42,6 +42,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	)
 	: ConjugateGradientsContext(ctx, queue, dim.x()*dim.y()*dim.z())
 	, _dim(dim)
+	, _unknowns(nullptr, map_t{nullptr, 0})
+	, _rhs(nullptr, map_t{nullptr, 0})
 	{
 		using namespace Vcl::Mathematics;
 
@@ -63,41 +65,41 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	Poisson3DCgCtx::~Poisson3DCgCtx()
 	{
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 	}
 
-	void Poisson3DCgCtx::setData(gsl::not_null<map_t*> unknowns, gsl::not_null<const map_t*> rhs)
+	void Poisson3DCgCtx::setData(map_t unknowns, const_map_t rhs)
 	{
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		std::get<1>(_unknowns) = unknowns;
+		new(&std::get<1>(_unknowns)) map_t(unknowns);
 		std::get<0>(_rhs) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		std::get<1>(_rhs) = rhs;
+		new(&std::get<1>(_rhs)) const_map_t(rhs);
 
-		_queue->write(std::get<0>(_unknowns), unknowns->data(), true);
-		_queue->write(std::get<0>(_rhs), rhs->data(), true);
+		_queue->write(std::get<0>(_unknowns), unknowns.data(), true);
+		_queue->write(std::get<0>(_rhs), rhs.data(), true);
 
 		_devX = std::get<0>(_unknowns);
 	}
 
 	void Poisson3DCgCtx::setData(ref_ptr<Compute::Cuda::Buffer> unknowns, ref_ptr<Compute::Cuda::Buffer> rhs)
 	{
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = unknowns;
-		std::get<1>(_unknowns) = nullptr;
+		new(&std::get<1>(_unknowns)) map_t(nullptr, 0);
 		std::get<0>(_rhs) = rhs;
-		std::get<1>(_rhs) = nullptr;
+		new(&std::get<1>(_rhs)) const_map_t(nullptr, 0);
 
 		_devX = std::get<0>(_unknowns);
 	}

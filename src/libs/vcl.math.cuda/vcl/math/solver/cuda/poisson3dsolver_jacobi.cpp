@@ -42,6 +42,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	: _ownerCtx(ctx)
 	, _queue(queue)
 	, _dim(dim)
+	, _unknowns(nullptr, map_t{nullptr, 0})
+	, _rhs(nullptr, map_t{nullptr, 0})
 	{
 		using namespace Vcl::Mathematics;
 
@@ -67,39 +69,39 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		_ownerCtx->release(_next);
 
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 	}
 
-	void Poisson3DJacobiCtx::setData(gsl::not_null<map_t*> unknowns, gsl::not_null<const map_t*> rhs)
+	void Poisson3DJacobiCtx::setData(map_t unknowns, const_map_t rhs)
 	{
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		std::get<1>(_unknowns) = unknowns;
+		new(&std::get<1>(_unknowns)) map_t(unknowns);
 		std::get<0>(_rhs) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		std::get<1>(_rhs) = rhs;
+		new(&std::get<1>(_rhs)) const_map_t(rhs);
 
-		_queue->write(std::get<0>(_unknowns), unknowns->data(), true);
-		_queue->write(std::get<0>(_rhs), rhs->data(), true);
+		_queue->write(std::get<0>(_unknowns), unknowns.data(), true);
+		_queue->write(std::get<0>(_rhs), rhs.data(), true);
 	}
 
 	void Poisson3DJacobiCtx::setData(ref_ptr<Compute::Cuda::Buffer> unknowns, ref_ptr<Compute::Cuda::Buffer> rhs)
 	{
-		if (std::get<1>(_unknowns))
+		if (std::get<1>(_unknowns).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_unknowns));
-		if (std::get<1>(_rhs))
+		if (std::get<1>(_rhs).data() != nullptr)
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = unknowns;
-		std::get<1>(_unknowns) = nullptr;
+		new(&std::get<1>(_unknowns)) map_t(nullptr, 0);
 		std::get<0>(_rhs) = rhs;
-		std::get<1>(_rhs) = nullptr;
+		new(&std::get<1>(_rhs)) const_map_t(nullptr, 0);
 	}
 
 	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, float o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -227,8 +229,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	void Poisson3DJacobiCtx::finish(double* residual)
 	{
-		if (std::get<1>(_unknowns))
-			_queue->read(std::get<1>(_unknowns)->data(), std::get<0>(_unknowns), true);
+		if (std::get<1>(_unknowns).data() != nullptr)
+			_queue->read(std::get<1>(_unknowns).data(), std::get<0>(_unknowns), true);
 
 		if (residual)
 		{
