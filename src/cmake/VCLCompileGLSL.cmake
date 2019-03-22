@@ -64,9 +64,9 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 	file(APPEND ${output_h_file} "#pragma once\n")
 	file(APPEND ${output_h_file} "#include <cstddef>\n")
 	file(APPEND ${output_h_file} "#include <cstdint>\n")
-	file(APPEND ${output_h_file} "#include <gsl/gsl>\n")
+	file(APPEND ${output_h_file} "#include <vcl/core/span.h>\n")
 	file(APPEND ${output_h_file} "extern uint8_t ${symbol}Data[];\n")
 	file(APPEND ${output_h_file} "extern size_t ${symbol}DataSize;\n")
-	file(APPEND ${output_h_file} "const gsl::span<const uint8_t> ${symbol}{${symbol}Data, static_cast<std::ptrdiff_t>(${symbol}DataSize)};\n")
+	file(APPEND ${output_h_file} "const std::span<const uint8_t> ${symbol}{${symbol}Data, ${symbol}DataSize};\n")
 
 endfunction(VclCompileGLSL)

@@ -33,11 +33,9 @@
 // C++ standard library
 #include <initializer_list>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/3rdparty/expected.hpp>
+#include <vcl/core/span.h>
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/opengl/gl.h>
@@ -49,9 +47,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
 		Shader(ShaderType type, int tag,
-			gsl::span<const uint8_t> binary_data,
-			gsl::span<const unsigned int> spec_indices = {},
-			gsl::span<const unsigned int> spec_values = {});
+			std::span<const uint8_t> binary_data,
+			std::span<const unsigned int> spec_indices = {},
+			std::span<const unsigned int> spec_values = {});
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 
@@ -73,6 +71,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	/// Create a new shader from a SPIR-V binary
 	/// @returns The compiled shader, or the error-string in case of failure
-	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data, gsl::span<const unsigned int> spec_indices = {}, gsl::span<const unsigned int> spec_values = {});
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, std::span<const uint8_t> binary_data, std::span<const unsigned int> spec_indices = {}, std::span<const unsigned int> spec_values = {});
 }}}}
 #endif // VCL_OPENGL_SUPPORT

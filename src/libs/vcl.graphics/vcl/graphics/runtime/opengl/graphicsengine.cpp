@@ -22,13 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
-// C++ standard library
-#include <iostream>
-
 // VCL
+#include <vcl/util/hashedstring.h>
 #include <vcl/graphics/opengl/drawcmds.h>
 #include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
@@ -40,19 +37,6 @@
 
 namespace
 {
-	unsigned int calculateFNV(gsl::span<char> str)
-	{
-		unsigned int hash = 2166136261u;
-
-		for (ptrdiff_t i = 0; i < str.size(); ++i)
-		{
-			hash ^= str[i];
-			hash *= 16777619u;
-		}
-
-		return hash;
-	}
-	
 	GLenum toGLenum(Vcl::Graphics::Runtime::PrimitiveType topology)
 	{
 		using Vcl::Graphics::Runtime::PrimitiveType;
@@ -243,17 +227,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_constantBuffer->unmap();
 	}
 	
-	void Frame::setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
+	void Frame::setRenderTargets(std::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
 	{
 		// Calculate the hash for the set of textures
 		std::array<void*, 9> ptrs;
 		ptrs[0] = depth_target;
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		for (size_t i = 0; i < colour_targets.size(); i++)
 		{
 			ptrs[i + 1] = colour_targets[i];
 		}
 
-		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+		const unsigned int hash = Vcl::Util::calculateFnv1a32(reinterpret_cast<char*>(ptrs.data()), ptrs.end() - ptrs.begin());
 
 		// Find the FBO in the cache
 		auto cache_entry = _fbos.find(hash);
@@ -264,7 +248,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		else
 		{
 			const Runtime::Texture* colours[8];
-			for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+			for (size_t i = 0; i < colour_targets.size(); i++)
 			{
 				colours[i] = colour_targets[i];
 			}
@@ -275,7 +259,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	void Frame::setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	void Frame::setRenderTargets(std::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
 	{
 		if ((colour_targets.size() == 0 || !colour_targets[0]) && !depth_target)
 		{
@@ -286,12 +270,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Calculate the hash for the set of textures
 		std::array<void*, 9> ptrs;
 		ptrs[0] = depth_target.get();
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		for (size_t i = 0; i < colour_targets.size(); i++)
 		{
 			ptrs[i + 1] = colour_targets[i].get();
 		}
 
-		unsigned int hash = calculateFNV({ (char*)ptrs.data(), (char*)(ptrs.data() + 9) });
+		const unsigned int hash = Vcl::Util::calculateFnv1a32(reinterpret_cast<char*>(ptrs.data()), ptrs.end() - ptrs.begin());
 
 		// Find the FBO in the cache
 		auto cache_entry = _fbos.find(hash);
@@ -302,7 +286,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		else
 		{
 			const Runtime::Texture* colours[8];
-			for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+			for (size_t i = 0; i < colour_targets.size(); i++)
 			{
 				colours[i] = colour_targets[i].get();
 			}
@@ -437,16 +421,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_genericCmds.emplace_back(std::move(cmd));
 	}
 
-	void GraphicsEngine::setRenderTargets(gsl::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	void GraphicsEngine::setRenderTargets(std::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
 	{
 		// Set the render targets for the current frame
 		ref_ptr<Runtime::Texture> colours[8];
-		for (ptrdiff_t i = 0; i < colour_targets.size(); i++)
+		for (size_t i = 0; i < colour_targets.size(); i++)
 		{
 			colours[i] = colour_targets[i];
 		}
 
-		_currentFrame->setRenderTargets({ colours, colours + colour_targets.size() }, depth_target);
+		_currentFrame->setRenderTargets(std::make_span(colours, colour_targets.size()), depth_target);
 	}
 
 	void GraphicsEngine::setConstantBuffer(int idx, BufferView view)
@@ -469,7 +453,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glBindSampler(idx, sampler_id);
 	}
 
-	void GraphicsEngine::setSamplers(int idx, gsl::span<const ref_ptr<Runtime::Sampler>> samplers)
+	void GraphicsEngine::setSamplers(int idx, std::span<const ref_ptr<Runtime::Sampler>> samplers)
 	{
 	}
 
@@ -481,7 +465,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glBindTextures(idx, 1, &tex_id);
 	}
 
-	void GraphicsEngine::setTextures(int idx, gsl::span<const ref_ptr<Runtime::Texture>> textures)
+	void GraphicsEngine::setTextures(int idx, std::span<const ref_ptr<Runtime::Texture>> textures)
 	{
 	}
 
