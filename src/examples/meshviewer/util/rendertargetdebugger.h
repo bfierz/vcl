@@ -28,9 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/graphics/imageprocessing/imageprocessor.h>
 #include <vcl/graphics/runtime/state/sampler.h>
@@ -50,7 +47,7 @@ namespace Vcl { namespace Editor { namespace Util
 		//! \param max_value Maximum integer value in the texture
 		//! \param loc_size Location and size of output region
 		void draw(
-			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			const Vcl::Graphics::Runtime::Texture& texture,
 			const unsigned int max_value,
 			const Eigen::Vector4f& loc_size

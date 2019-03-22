@@ -93,6 +93,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class GraphicsEngine
 	{
 	public:
+		GraphicsEngine() = default;
+		GraphicsEngine(const GraphicsEngine&) = delete;
+		GraphicsEngine(GraphicsEngine&&) = delete;
 		virtual ~GraphicsEngine() = default;
 
 	public:
