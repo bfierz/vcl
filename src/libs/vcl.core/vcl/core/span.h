@@ -33,7 +33,7 @@
 // Abseil
 #include <absl/types/span.h>
 
-namespace std
+namespace stdext
 {
 	template<typename T>
 	using span = absl::Span<T>;
@@ -53,7 +53,7 @@ namespace std
 	template <typename T, std::size_t N>
 	span<T> make_span(std::array<T, N>& arr) noexcept
 	{
-		return std::span<T>{arr};
+		return stdext::span<T>{arr};
 	}
 
 	template <typename T, std::size_t N>

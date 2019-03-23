@@ -139,7 +139,7 @@ TEST_F(WaveletNoiseTest, DownsampleIdentity)
 	std::generate(std::begin(values), std::end(values), []() { return 1.0f; });
 
 	std::array<float, 32> downsampled;
-	downsample<32>(values, std::make_span(downsampled), 64, 1);
+	downsample<32>(values, stdext::make_span(downsampled), 64, 1);
 
 	const auto sum = std::accumulate(std::begin(downsampled), std::end(downsampled), 0.0f);
 	EXPECT_TRUE(Vcl::Mathematics::equal(sum, 32.0f, 1e-4f)) << "Actual sum: " << sum;
@@ -151,7 +151,7 @@ TEST_F(WaveletNoiseTest, Upsample)
 	std::generate(std::begin(values), std::end(values), []() { return 1.0f; });
 
 	std::array<float, 64> upsampled;
-	upsample<32>(values, std::make_span(upsampled), 64, 1);
+	upsample<32>(values, stdext::make_span(upsampled), 64, 1);
 
 	const auto sum = std::accumulate(std::begin(upsampled), std::end(upsampled), 0.0f);
 	EXPECT_TRUE(Vcl::Mathematics::equal(sum, 64.0f, 1e-4f)) << "Actual sum: " << sum;

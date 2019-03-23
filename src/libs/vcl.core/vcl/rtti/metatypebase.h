@@ -76,7 +76,7 @@ namespace Vcl { namespace RTTI
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		std::span<const AttributeBase*> attributes() const { return _attributes; }
+		stdext::span<const AttributeBase*> attributes() const { return _attributes; }
 
 		const ConstructorSet& constructors() const { return _constructors; }
 
@@ -125,15 +125,15 @@ namespace Vcl { namespace RTTI
 		
 	protected:
 		//! List of base types of this type
-		std::span<const Type*> _parents;
+		stdext::span<const Type*> _parents;
 
 		//! List of constructors for this type
 		ConstructorSet _constructors;
 
 		//! List of type attributes
-		std::span<const AttributeBase*> _attributes;
+		stdext::span<const AttributeBase*> _attributes;
 
 		//! List of general methods
-		std::span<const void*> _methods;
+		stdext::span<const void*> _methods;
 	};
 }}

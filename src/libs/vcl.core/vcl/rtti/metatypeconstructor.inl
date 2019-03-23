@@ -37,7 +37,7 @@ namespace Vcl { namespace RTTI
 	DynamicConstructableType<T>* DynamicConstructableType<T>::inherit()
 	{
 		_concreteParents.push_back(vcl_meta_type<Args>());
-		_parents = std::make_span(_concreteParents);
+		_parents = stdext::make_span(_concreteParents);
 
 		return this;
 	}
@@ -50,7 +50,7 @@ namespace Vcl { namespace RTTI
 
 		// Store the constructor in the table
 		_concreteConstructors.push_back(std::move(constr));
-		_constructors.set(std::make_span(_concreteConstructors));
+		_constructors.set(stdext::make_span(_concreteConstructors));
 
 		return this;
 	}
@@ -64,7 +64,7 @@ namespace Vcl { namespace RTTI
 
 		// Store the constructor in the table
 		_concreteConstructors.push_back(std::move(constr));
-		_constructors.set(std::make_span(_concreteConstructors));
+		_constructors.set(stdext::make_span(_concreteConstructors));
 
 		return this;
 	}

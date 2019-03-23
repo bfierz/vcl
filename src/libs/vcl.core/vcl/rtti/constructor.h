@@ -104,20 +104,20 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::span<stdext::any> params) const override
+		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const override
 		{
 			return callImplSeq(location, std::move(params), absl::make_index_sequence<sizeof...(Params)>());
 		}
 
 	private:
 		template<size_t... S>
-		void* callImplSeq(void* location, std::span<stdext::any>&& params, absl::index_sequence<S...>) const
+		void* callImplSeq(void* location, stdext::span<stdext::any>&& params, absl::index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename P, int I>
-		P getParam(const std::span<stdext::any> params) const
+		P getParam(const stdext::span<stdext::any> params) const
 		{
 			return extract<P>::get(params.begin()[I]);
 		}
@@ -196,7 +196,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	protected:
-		virtual void* callImpl(void* location, std::span<stdext::any> params) const override
+		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const override
 		{
 			VclRequire(params.size() == 0, "No parameters supplied.");
 

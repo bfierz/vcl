@@ -68,7 +68,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		for (size_t i = 0; i < description().NrRenderTargets; i++)
 			textures[i] = _renderTargets[i];
 
-		std::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
+		stdext::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
 		engine->setRenderTargets(rt, _depthTarget);
 		_engine = engine;
 	}

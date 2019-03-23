@@ -49,7 +49,7 @@ namespace Vcl { namespace Geometry
 		using matrix_t = Eigen::Matrix<Scalar, Dim, Dim>;
 
 	public:
-		OrientedBox(std::span<const vector_t> points)
+		OrientedBox(stdext::span<const vector_t> points)
 		{
 			constructFromPoints(points);
 		}
@@ -57,7 +57,7 @@ namespace Vcl { namespace Geometry
 		const vector_t& center() const { return _center; }
 
 	private: // Construction
-		void constructFromPoints(std::span<const vector_t> points)
+		void constructFromPoints(stdext::span<const vector_t> points)
 		{
 			// Find the mean point
 			vector_t mu = vector_t::Zero();
@@ -93,7 +93,7 @@ namespace Vcl { namespace Geometry
 			evaluateCovariance(points, C);
 		}
 
-		void evaluateCovariance(std::span<const vector_t> points, const matrix_t& C)
+		void evaluateCovariance(stdext::span<const vector_t> points, const matrix_t& C)
 		{
 			Eigen::SelfAdjointEigenSolver<matrix_t> solver;
 			solver.compute(C, Eigen::ComputeEigenvectors);

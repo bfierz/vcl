@@ -72,7 +72,7 @@ namespace Vcl { namespace Geometry
 	}
 
 	template<typename VertexId>
-	std::vector<std::array<VertexId, 3>> extractSurface(std::span<std::array<VertexId, 4>> indices)
+	std::vector<std::array<VertexId, 3>> extractSurface(stdext::span<std::array<VertexId, 4>> indices)
 	{
 		using tetra_traits = Vcl::Geometry::CellTraits<TetrahedralCell<VertexId>>;
 
@@ -110,7 +110,7 @@ namespace Vcl { namespace Geometry
 	}
 
 	template<typename VertexId>
-	std::vector<std::array<VertexId, 6>> convertToTriangleAdjacency(std::span<std::array<VertexId, 3>> triangles)
+	std::vector<std::array<VertexId, 6>> convertToTriangleAdjacency(stdext::span<std::array<VertexId, 3>> triangles)
 	{
 		std::vector<std::array<VertexId, 6>> tri_adjs;
 		tri_adjs.reserve(triangles.size());
@@ -165,9 +165,9 @@ namespace Vcl { namespace Geometry
 	template<typename VertexId>
 	void computeNormals
 	(
-		const std::span<std::array<VertexId, 3>>& triangles,
-		const std::span<Eigen::Vector3f>& points,
-		std::span<Eigen::Vector3f> normals
+		const stdext::span<std::array<VertexId, 3>>& triangles,
+		const stdext::span<Eigen::Vector3f>& points,
+		stdext::span<Eigen::Vector3f> normals
 	)
 	{
 		for (int idx = 0; idx < (int)triangles.size(); idx++)

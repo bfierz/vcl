@@ -47,7 +47,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			return nonstd::make_unexpected(shader.readInfoLog());
 	}
 	
-	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, std::span<const uint8_t> binary_data, std::span<const unsigned int> spec_indices, std::span<const unsigned int> spec_values)
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices, stdext::span<const unsigned int> spec_values)
 	{
 		Shader shader{type, tag, binary_data, spec_indices, spec_values};
 		if (shader.checkCompilationState())
@@ -97,9 +97,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Shader::Shader
 	(
 		ShaderType type, int tag,
-		std::span<const uint8_t> binary_data,
-		std::span<const unsigned int> spec_indices,
-		std::span<const unsigned int> spec_values
+		stdext::span<const uint8_t> binary_data,
+		stdext::span<const unsigned int> spec_indices,
+		stdext::span<const unsigned int> spec_values
 	)
 	: Runtime::Shader(type, tag)
 	{

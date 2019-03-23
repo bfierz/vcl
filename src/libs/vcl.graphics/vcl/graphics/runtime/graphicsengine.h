@@ -140,17 +140,17 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	public: // Resource management
 		void setRenderTargets(std::initializer_list<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target)
 		{
-			setRenderTargets(std::span<const ref_ptr<Texture>>(colour_targets.begin(), colour_targets.size()), depth_target);
+			setRenderTargets(stdext::span<const ref_ptr<Texture>>(colour_targets.begin(), colour_targets.size()), depth_target);
 		}
 
-		virtual void setRenderTargets(std::span<const ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		virtual void setRenderTargets(stdext::span<const ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;
 		virtual void setVertexBuffer(int idx, const Buffer& buffer, int offset, int stride) = 0;
 		virtual void setSampler(int idx, const Runtime::Sampler& sampler) = 0;
-		virtual void setSamplers(int idx, std::span<const ref_ptr<Sampler>> samplers) = 0;
+		virtual void setSamplers(int idx, stdext::span<const ref_ptr<Sampler>> samplers) = 0;
 		virtual void setTexture(int idx, const Runtime::Texture& texture) = 0;
-		virtual void setTextures(int idx, std::span<const ref_ptr<Texture>> textures) = 0;
+		virtual void setTextures(int idx, stdext::span<const ref_ptr<Texture>> textures) = 0;
 		
 		virtual void pushConstants(void* data, size_t size) = 0;
 

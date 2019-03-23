@@ -227,7 +227,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_constantBuffer->unmap();
 	}
 	
-	void Frame::setRenderTargets(std::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
+	void Frame::setRenderTargets(stdext::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
 	{
 		// Calculate the hash for the set of textures
 		std::array<void*, 9> ptrs;
@@ -259,7 +259,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	void Frame::setRenderTargets(std::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	void Frame::setRenderTargets(stdext::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
 	{
 		if ((colour_targets.size() == 0 || !colour_targets[0]) && !depth_target)
 		{
@@ -421,7 +421,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_genericCmds.emplace_back(std::move(cmd));
 	}
 
-	void GraphicsEngine::setRenderTargets(std::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+	void GraphicsEngine::setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
 	{
 		// Set the render targets for the current frame
 		ref_ptr<Runtime::Texture> colours[8];
@@ -430,7 +430,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			colours[i] = colour_targets[i];
 		}
 
-		_currentFrame->setRenderTargets(std::make_span(colours, colour_targets.size()), depth_target);
+		_currentFrame->setRenderTargets(stdext::make_span(colours, colour_targets.size()), depth_target);
 	}
 
 	void GraphicsEngine::setConstantBuffer(int idx, BufferView view)
@@ -453,7 +453,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glBindSampler(idx, sampler_id);
 	}
 
-	void GraphicsEngine::setSamplers(int idx, std::span<const ref_ptr<Runtime::Sampler>> samplers)
+	void GraphicsEngine::setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers)
 	{
 	}
 
@@ -465,7 +465,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glBindTextures(idx, 1, &tex_id);
 	}
 
-	void GraphicsEngine::setTextures(int idx, std::span<const ref_ptr<Runtime::Texture>> textures)
+	void GraphicsEngine::setTextures(int idx, stdext::span<const ref_ptr<Runtime::Texture>> textures)
 	{
 	}
 
