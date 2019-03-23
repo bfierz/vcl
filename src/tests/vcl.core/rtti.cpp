@@ -40,7 +40,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 
 // JSON library
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 VCL_END_EXTERNAL_HEADERS
 
 // For convenience
