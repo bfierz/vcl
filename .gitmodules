@@ -1,6 +1,3 @@
-[submodule "src/externals/gsl"]
-	path = src/externals/gsl
-	url = https://github.com/Microsoft/GSL
 [submodule "src/externals/eigen"]
 	path = src/externals/eigen
 	url = https://github.com/eigenteam/eigen-git-mirror
