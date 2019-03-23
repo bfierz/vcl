@@ -52,10 +52,10 @@ namespace Vcl { namespace RTTI
 		virtual ~AttributeBase() = default;
 
 	public:
-		virtual void set(void* object, const std::any& param) const = 0;
+		virtual void set(void* object, const stdext::any& param) const = 0;
 		virtual void set(void* object, const std::string& param) const = 0;
 
-		virtual void get(const void* object, std::any& result) const = 0;
+		virtual void get(const void* object, stdext::any& result) const = 0;
 		virtual void get(const void* object, std::string& result) const = 0;
 
 		virtual void serialize(Serializer& ser, const void* object) const = 0;

@@ -113,17 +113,17 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(std::string value) const
+		virtual stdext::any pack(std::string value) const
 		{
 			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
 		}
-		virtual std::any pack(void* link) const
+		virtual stdext::any pack(void* link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return nullptr;
 		}
-		virtual std::any pack(std::shared_ptr<void> link) const
+		virtual stdext::any pack(std::shared_ptr<void> link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return std::shared_ptr<void>();
@@ -147,7 +147,7 @@ namespace Vcl { namespace RTTI
 		}
 	
 	public:
-		virtual std::any pack(std::string value) const override
+		virtual stdext::any pack(std::string value) const override
 		{
 			return from_string<T>(value);
 		}
@@ -163,7 +163,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(void* link) const override
+		virtual stdext::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -179,7 +179,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(std::shared_ptr<void> link) const override
+		virtual stdext::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -206,11 +206,11 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			auto any_args = std::make_array<std::any>(args...);
+			auto any_args = std::make_array<stdext::any>(args...);
 			return callImpl(location, std::make_span(any_args));
 		}
 
-		void* call(void* location, std::span<std::any> args) const
+		void* call(void* location, std::span<stdext::any> args) const
 		{
 			return callImpl(location, args);
 		}
@@ -231,7 +231,7 @@ namespace Vcl { namespace RTTI
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, std::span<std::any> params) const = 0;
+		virtual void* callImpl(void* location, std::span<stdext::any> params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
