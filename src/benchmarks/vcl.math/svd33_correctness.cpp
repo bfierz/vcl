@@ -258,7 +258,7 @@ int main(int, char**)
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> refS(nr_problems);
 	
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
-	createRandomProblems(nr_problems, &F);
+	createRandomProblems(nr_problems, F);
 	computeReferenceSolution(nr_problems, F, refU, refV, refS);
 	
 	using ComputeSvdFloat   = int (*)(Eigen::Matrix<float,   3, 3>&, Eigen::Matrix<float,   3, 3>&, Eigen::Matrix<float,   3, 3>&);

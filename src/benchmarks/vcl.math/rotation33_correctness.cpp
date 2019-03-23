@@ -96,7 +96,7 @@ void runRotationTest(float max_angle, float tol)
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
 	
-	createRotationProblems(nr_problems, max_angle * 3.14f / 180.0f, 0.7f, &F, &refR);
+	createRotationProblems(nr_problems, max_angle * 3.14f / 180.0f, 0.7f, F, &refR);
 
 	// Strides
 	size_t stride = nr_problems;

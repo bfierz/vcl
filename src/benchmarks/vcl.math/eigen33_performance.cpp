@@ -191,7 +191,7 @@ BENCHMARK_TEMPLATE(perfJacobiQuat, float16)->Arg(128);//->Arg(512)->Arg(8192)->T
 int main(int argc, char** argv)
 {
 	// Initialize data
-	createSymmetricProblems(nr_problems, &F);
+	createSymmetricProblems(nr_problems, F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
