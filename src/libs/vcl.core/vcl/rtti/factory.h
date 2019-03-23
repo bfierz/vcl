@@ -37,7 +37,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<typename... Args>
-		static void* create(const std::string_view name, Args... args)
+		static void* create(const stdext::string_view name, Args... args)
 		{
 			// Get the meta type
 			auto type = vcl_meta_type_by_name(name);

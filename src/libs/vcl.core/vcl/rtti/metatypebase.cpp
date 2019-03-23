@@ -34,7 +34,7 @@
 
 namespace Vcl { namespace RTTI 
 {
-	Type::Type(std::string_view name, size_t hash, size_t size, size_t alignment)
+	Type::Type(stdext::string_view name, size_t hash, size_t size, size_t alignment)
 	: _name(name)
 	, _hash(hash)
 	, _size(size)
@@ -125,7 +125,7 @@ namespace Vcl { namespace RTTI
 		return false; // no match found
 	}
 
-	bool Type::hasAttribute(const std::string_view name) const
+	bool Type::hasAttribute(const stdext::string_view name) const
 	{
 		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
@@ -146,7 +146,7 @@ namespace Vcl { namespace RTTI
 		return false;
 	}
 
-	const AttributeBase* Type::attribute(const std::string_view name) const
+	const AttributeBase* Type::attribute(const stdext::string_view name) const
 	{
 		VclRequire(hasAttribute(name), "Attribute exists.");
 

@@ -69,7 +69,7 @@ namespace Vcl { namespace RTTI
 		}
 	}
 
-	const Type* TypeRegistry::get(std::string_view name)
+	const Type* TypeRegistry::get(stdext::string_view name)
 	{
 		const TypeMap& metas = instance();
 

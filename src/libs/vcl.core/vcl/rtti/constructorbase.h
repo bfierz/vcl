@@ -83,10 +83,10 @@ namespace Vcl { namespace RTTI
 		VCL_CPP_CONSTEXPR_11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
-		std::string_view name() const { return _name; }
+		stdext::string_view name() const { return _name; }
 
 	private:
-		const std::string_view _name;
+		const stdext::string_view _name;
 	};
 
 	class ParameterBase
@@ -225,7 +225,7 @@ namespace Vcl { namespace RTTI
 			return hasParam(name, N - 1);
 		}
 
-		virtual bool hasParam(const std::string_view name) const = 0;
+		virtual bool hasParam(const stdext::string_view name) const = 0;
 
 		virtual const ParameterBase& param(int idx) const = 0;
 		virtual const std::type_info* paramType(int idx) const = 0;

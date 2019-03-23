@@ -62,7 +62,7 @@ namespace Vcl { namespace RTTI
 		virtual void deserialize(Deserializer& ser, void* object) const = 0;
 
 	public:
-		std::string_view name() const { return _name; }
+		stdext::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
 		
 	public:
@@ -119,7 +119,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable attribute name
-		std::string_view _name;
+		stdext::string_view _name;
 
 		//! Attribute name hash
 		size_t _hash;

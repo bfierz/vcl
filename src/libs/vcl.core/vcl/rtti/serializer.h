@@ -34,12 +34,12 @@ namespace Vcl { namespace RTTI
 	public:
 		virtual ~Serializer() = default;
 
-		virtual void beginType(const std::string_view name, int version) = 0;
+		virtual void beginType(const stdext::string_view name, int version) = 0;
 
 		//! Denote that the current type is finished
 		virtual void endType() = 0;
 
-		virtual void writeAttribute(const std::string_view, const std::string_view value) = 0;
+		virtual void writeAttribute(const stdext::string_view, const stdext::string_view value) = 0;
 	};
 
 	class Deserializer
@@ -47,7 +47,7 @@ namespace Vcl { namespace RTTI
 	public:
 		virtual ~Deserializer() = default;
 
-		virtual void beginType(const std::string_view name) = 0;
+		virtual void beginType(const stdext::string_view name) = 0;
 
 		//! Denote that the current type is finished
 		virtual void endType() = 0;
@@ -56,9 +56,9 @@ namespace Vcl { namespace RTTI
 		virtual std::string readType() = 0;
 
 		//! \returns true if the current object has the queried attribute
-		virtual bool hasAttribute(const std::string_view name) = 0;
+		virtual bool hasAttribute(const stdext::string_view name) = 0;
 
 
-		virtual std::string readAttribute(const std::string_view name) = 0;
+		virtual std::string readAttribute(const stdext::string_view name) = 0;
 	};
 }}

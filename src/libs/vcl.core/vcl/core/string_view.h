@@ -30,7 +30,7 @@
 // Abseil
 #include <absl/strings/string_view.h>
 
-namespace std
+namespace stdext
 {
 	using absl::string_view;
 }
