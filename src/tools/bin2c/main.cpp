@@ -60,6 +60,18 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 int main(int argc, char* argv [])
 {
 	cxxopts::Options options(argv[0], "bin2c - command line options");
+	
+	// Output width
+	int width = 1;
+	
+	// Export symbol name
+	std::string export_symbol{ "BinData" };
+	
+	// Input file
+	std::ifstream ifile;
+
+	// Write the temporary buffer to the output
+	std::ofstream ofile;
 
 	try
 	{
@@ -73,39 +85,44 @@ int main(int argc, char* argv [])
 			;
 		options.parse_positional("input-file");
 
-		options.parse(argc, argv);
+		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
+		
+		if (parsed_options.count("help") > 0)
+		{
+			std::cout << options.help({ "" }) << std::endl;
+			return 1;
+		}
+
+		if (parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
+		{
+			std::cout << options.help({ "" }) << std::endl;
+			return 1;
+		}
+
+		if (parsed_options.count("group") > 0)
+		{
+			int group = parsed_options["group"].as<int>();
+			if (!(group == 1 || group == 2 || group == 4 || group == 8))
+			{
+				std::cout << options.help({ "" }) << std::endl;
+				return -1;
+			}
+
+			width = group;
+		}
+		
+		if (parsed_options.count("symbol") > 0)
+		{
+			export_symbol = parsed_options["symbol"].as<std::string>();
+		}
+
+		ifile.open(parsed_options["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in);
+		ofile.open(parsed_options["output-file"].as<std::string>());
 	}
 	catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
-	}
-
-	// Print the help message
-	if (options.count("help") > 0)
-	{
-		std::cout << options.help({ "" }) << std::endl;
-		return 1;
-	}
-
-	if (options.count("input-file") == 0 || options.count("output-file") == 0)
-	{
-		std::cout << options.help({ "" }) << std::endl;
-		return 1;
-	}
-
-	// Output width
-	int width = 1;
-	if (options.count("group") > 0)
-	{
-		int group = options["group"].as<int>();
-		if (!(group == 1 || group == 2 || group == 4 || group == 8))
-		{
-			std::cout << options.help({ "" }) << std::endl;
-			return -1;
-		}
-
-		width = group;
 	}
 
 	std::string width_symbol;
@@ -125,14 +142,6 @@ int main(int argc, char* argv [])
 		break;
 	}
 
-	// Export symbol name
-	std::string export_symbol{ "BinData" };
-	if (options.count("symbol") > 0)
-	{
-		export_symbol = options["symbol"].as<std::string>();
-	}
-
-	std::ifstream ifile{ options["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in };
 	if (ifile.is_open())
 	{
 		// Copy the file to a temporary buffer
@@ -145,8 +154,6 @@ int main(int argc, char* argv [])
 			tmp_buffer.push_back(0);
 		}
 
-		// Write the temporary buffer to the output
-		std::ofstream ofile{ options["output-file"].as<std::string>() };
 		if (ofile.is_open())
 		{
 			// Write header
