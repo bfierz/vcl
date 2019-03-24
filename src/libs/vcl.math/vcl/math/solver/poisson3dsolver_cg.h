@@ -49,7 +49,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		Poisson3DCgCtx(Eigen::Vector3ui dim)
 		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y()*dim.z() }
 		, _dim{ dim }
-		, _rhs{ nullptr, dim.x()*dim.y()*dim.z() }
+		, _rhs{ nullptr, static_cast<Eigen::Index>(dim.x()*dim.y()*dim.z()) }
 		{
 			for (auto& A : _laplacian)
 			{
