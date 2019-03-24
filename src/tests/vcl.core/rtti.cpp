@@ -50,7 +50,7 @@ using json = nlohmann::json;
 class Serializer : public Vcl::RTTI::Serializer
 {
 public:
-	virtual void beginType(const gsl::cstring_span<> name, int version) override
+	virtual void beginType(const stdext::string_view name, int version) override
 	{
 		_objects.emplace_back(_attrib, json{ {"Type", name.data() },  { "Version", version } });
 	}
@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	virtual void writeAttribute(const gsl::cstring_span<> name, const gsl::cstring_span<> value) override
+	virtual void writeAttribute(const stdext::string_view name, const stdext::string_view value) override
 	{
 		_attrib = name.data();
 		if (!_objects.empty())
@@ -122,7 +122,7 @@ public:
 	}
 
 public:
-	virtual void beginType(const gsl::cstring_span<> name) override
+	virtual void beginType(const stdext::string_view name) override
 	{
 		if (name.empty())
 			_object_stack.emplace_back(&_storage);
@@ -141,13 +141,13 @@ public:
 		return (*_object_stack.back())["Type"];
 	}
 
-	virtual bool hasAttribute(const gsl::cstring_span<> name) override
+	virtual bool hasAttribute(const stdext::string_view name) override
 	{
 		auto& attribs = (*_object_stack.back())["Attributes"];
 		return attribs.find(name.data()) != attribs.cend();
 	}
 
-	virtual std::string readAttribute(const gsl::cstring_span<> name) override
+	virtual std::string readAttribute(const stdext::string_view name) override
 	{
 		return (*_object_stack.back())["Attributes"][name.data()];
 	}

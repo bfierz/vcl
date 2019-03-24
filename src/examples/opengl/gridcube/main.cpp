@@ -30,9 +30,6 @@
 // C++ standard library
 #include <iostream>
 
-// GSL
-#include <gsl/gsl>
-
 // NanoGUI
 #include <nanogui/label.h>
 #include <nanogui/layout.h>
@@ -174,7 +171,7 @@ public:
 private:
 	void renderBoundingBox
 	(
-		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> cmd_queue,
+		Vcl::Graphics::Runtime::GraphicsEngine* cmd_queue,
 		const Eigen::AlignedBox3f& bb,
 		unsigned int resolution,
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::PipelineState> ps,

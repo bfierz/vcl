@@ -18,8 +18,7 @@ class VclConan(ConanFile):
     requires = "abseil/20180600@bincrafters/stable", \
                "eigen/3.3.7@conan/stable", \
                "fmt/4.1.0@bincrafters/stable", \
-               "glew/2.1.0@bincrafters/stable", \
-               "gsl_microsoft/1.0.0@bincrafters/stable"
+               "glew/2.1.0@bincrafters/stable",
 
     url="https://github.com/bfierz/vcl.git"
     license="MIT"
@@ -61,7 +60,6 @@ class VclConan(ConanFile):
         cmake.definitions["vcl_ext_eigen"] = "CONAN_PKG::eigen"
         cmake.definitions["vcl_ext_fmt"] = "CONAN_PKG::fmt"
         cmake.definitions["vcl_ext_glew"] = "CONAN_PKG::glew"
-        cmake.definitions["vcl_ext_gsl"] = "CONAN_PKG::gsl_microsoft"
         cmake.configure(source_dir=self.source_folder + "/src/")
 
         if cmake.is_multi_configuration:

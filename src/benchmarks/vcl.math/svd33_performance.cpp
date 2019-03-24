@@ -390,7 +390,7 @@ BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 5)->Arg(128)->Arg(512)->Arg(8192)->T
 int main(int argc, char** argv)
 {
 	// Initialize data
-	createRandomProblems(nr_problems, &F);
+	createRandomProblems(nr_problems, F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();

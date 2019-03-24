@@ -31,9 +31,6 @@
 #include <cstring>
 #include <limits>
 
-// GSL
-#include <gsl/gsl>
-
 // Public implementations of the Fnv1a hashing function for C++:
 // http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
 // https://notes.underscorediscovery.com/constexpr-fnv1a/
@@ -50,25 +47,41 @@ namespace Vcl { namespace Util
 
 	namespace Details
 	{
-		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, const uint32_t value = fnv1a_32_offset) noexcept
+		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, const uint32_t value) noexcept
 		{
 			return (str[0] == '\0') ? value : calculateFnv1a32(&str[1], (value ^ uint32_t(str[0])) * fnv1a_32_prime);
 		}
+		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, size_t length, const uint32_t value) noexcept
+		{
+			return (str[0] == '\0' || length == 0) ? value : calculateFnv1a32(&str[1], length - 1, (value ^ uint32_t(str[0])) * fnv1a_32_prime);
+		}
 
-		VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str, const uint64_t value = fnv1a_64_offset) noexcept
+		VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str, const uint64_t value) noexcept
 		{
 			return (str[0] == '\0') ? value : calculateFnv1a64(&str[1], (value ^ uint64_t(str[0])) * fnv1a_64_prime);
 		}
+		VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str, size_t length, const uint64_t value) noexcept
+		{
+			return (str[0] == '\0' || length == 0) ? value : calculateFnv1a64(&str[1], length - 1, (value ^ uint64_t(str[0])) * fnv1a_64_prime);
+		}
 	}
 
-	VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str) noexcept
+	VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* str) noexcept
 	{
-		return Details::calculateFnv1a32(str);
+		return Details::calculateFnv1a32(str, fnv1a_32_offset);
+	}
+	VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* str, size_t length) noexcept
+	{
+		return Details::calculateFnv1a32(str, length, fnv1a_32_offset);
 	}
 
-	VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str) noexcept
+	VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* str) noexcept
 	{
-		return Details::calculateFnv1a64(str);
+		return Details::calculateFnv1a64(str, fnv1a_64_offset);
+	}
+	VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* str, size_t length) noexcept
+	{
+		return Details::calculateFnv1a64(str, length, fnv1a_64_offset);
 	}
 
 #else
@@ -149,12 +162,12 @@ namespace Vcl { namespace Util
 		{
 		}
 
-		VCL_STRONG_INLINE StringHash(gsl::cstring_span<> str)
-		: _hash(calculateFnv1a32(str.data()))
+		VCL_CPP_CONSTEXPR_14 VCL_STRONG_INLINE explicit StringHash(const char* s, size_t length)
+		: _hash(calculateFnv1a32(s, length))
 		{
 		}
 
-		uint32_t hash() const
+		VCL_CPP_CONSTEXPR_11 uint32_t hash() const
 		{
 			return _hash;
 		}

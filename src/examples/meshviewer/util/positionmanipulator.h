@@ -28,9 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/graphics/runtime/graphicsengine.h>
 
@@ -71,20 +68,20 @@ namespace Vcl { namespace Editor { namespace Util
 
 		//! Draw the handle
 		void drawIds(
-			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			unsigned int id,
 			const Eigen::Matrix4f& T
 		);
 
 		//! Draw the handle
 		void draw(
-			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			const Eigen::Matrix4f& T
 		);
 
 	private:
 		void draw(
-			gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			const Eigen::Matrix4f& T,
 			ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
 			ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps

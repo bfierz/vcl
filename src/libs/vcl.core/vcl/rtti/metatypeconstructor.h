@@ -58,7 +58,7 @@ namespace Vcl { namespace RTTI
 		template<size_t N>
 		ConstructableType* registerBaseClasses(std::array<const Type*, N>& bases)
 		{
-			_parents = bases;
+			_parents = stdext::make_span(bases);
 			return this;
 		}
 
@@ -72,7 +72,7 @@ namespace Vcl { namespace RTTI
 		template<size_t N>
 		ConstructableType* registerAttributes(std::array<const AttributeBase*, N>& attributes)
 		{
-			_attributes = attributes;
+			_attributes = stdext::make_span(attributes);
 			return this;
 		}
 

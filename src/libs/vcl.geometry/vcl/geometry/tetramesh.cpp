@@ -84,7 +84,7 @@ namespace Vcl { namespace Geometry
 
 	void TetraMesh::recomputeSurface()
 	{
-		auto surface = extractSurface<IndexDescriptionTrait<TetraMesh>::VertexId>({ volumes()->data(), static_cast<std::ptrdiff_t>(nrVolumes()) });
+		auto surface = extractSurface<IndexDescriptionTrait<TetraMesh>::VertexId>({ volumes()->data(), nrVolumes() });
 		_surfaceData.resizeProperties(surface.size());
 
 		for (size_t i = 0; i < surface.size(); i++)

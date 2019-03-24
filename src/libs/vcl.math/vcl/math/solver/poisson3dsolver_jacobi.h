@@ -31,9 +31,6 @@
 // C++ standard library
 #include <array>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/poisson.h>
@@ -50,6 +47,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	public:
 		Poisson3DJacobiCtx(Eigen::Vector3ui dim)
 		: _dim(dim)
+		, _unknowns(nullptr, dim.x()*dim.y())
+		, _rhs(nullptr, dim.x()*dim.y())
 		{
 			_next.setZero(dim.x()*dim.y()*dim.z());
 			for (auto& A : _laplacian)
@@ -59,10 +58,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 		
 	public:
-		void setData(gsl::not_null<map_t*> unknowns, gsl::not_null<map_t*> rhs)
+		void setData(map_t unknowns, map_t rhs)
 		{
-			_unknowns = unknowns;
-			_rhs = rhs;
+			new(&_unknowns) map_t(unknowns);
+			new(&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -115,8 +114,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			const auto& Az_l = _laplacian[5];
 			const auto& Az_r = _laplacian[6];
 
-			auto& unknowns = *_unknowns;
-			auto& rhs = *_rhs;
+			auto& unknowns = _unknowns;
+			auto& rhs = _rhs;
 
 			// Error
 			float acc = 0;
@@ -184,10 +183,10 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		std::array<vector_t, 7> _laplacian;
 		
 		//! Left-hand side 
-		map_t* _unknowns;
+		map_t _unknowns;
 
 		//! Right-hand side
-		map_t* _rhs;
+		map_t _rhs;
 
 		//! Temporary buffer for the updated solution
 		vector_t _next;

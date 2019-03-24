@@ -32,9 +32,6 @@
 #include <cmath>
 #include <cstring>
 
-// GSL
-#include <gsl/string_span>
-
 #ifdef VCL_OPENGL_SUPPORT
 
 #include <vcl/core/contract.h>
@@ -50,7 +47,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			return nonstd::make_unexpected(shader.readInfoLog());
 	}
 	
-	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, gsl::span<const uint8_t> binary_data, gsl::span<const unsigned int> spec_indices, gsl::span<const unsigned int> spec_values)
+	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices, stdext::span<const unsigned int> spec_values)
 	{
 		Shader shader{type, tag, binary_data, spec_indices, spec_values};
 		if (shader.checkCompilationState())
@@ -83,15 +80,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		std::vector<GLint> sizes;
 		sizes.reserve(2 + headers.size());
-		sizes.emplace_back(version_begin != version_end ? (version_end - version_begin) : 0);
+		sizes.emplace_back(version_begin != version_end ? static_cast<int>(version_end - version_begin) : 0);
 		for (auto header : headers)
-			sizes.emplace_back(header ? strlen(header) : 0);
+			sizes.emplace_back(header ? static_cast<int>(strlen(header)) : 0);
 		
-		sizes.emplace_back(strlen(source) - (version_begin != version_end ? (version_end - source) : 0));
+		sizes.emplace_back(static_cast<int>(strlen(source) - (version_begin != version_end ? (version_end - source) : 0)));
 
 		// Create the shader object
 		_glId = glCreateShader(toGLenum(type));
-		glShaderSource(_glId, table.size(), table.data(), sizes.data());
+		glShaderSource(_glId, static_cast<GLsizei>(table.size()), table.data(), sizes.data());
 		glCompileShader(_glId);
 
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
@@ -100,9 +97,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Shader::Shader
 	(
 		ShaderType type, int tag,
-		gsl::span<const uint8_t> binary_data,
-		gsl::span<const unsigned int> spec_indices,
-		gsl::span<const unsigned int> spec_values
+		stdext::span<const uint8_t> binary_data,
+		stdext::span<const unsigned int> spec_indices,
+		stdext::span<const unsigned int> spec_values
 	)
 	: Runtime::Shader(type, tag)
 	{
@@ -113,10 +110,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_glId = glCreateShader(toGLenum(type));
 
 		// Load the pre-compiled shader
-		glShaderBinary(1, &_glId, GL_SHADER_BINARY_FORMAT_SPIR_V, binary_data.data(), binary_data.size());
+		glShaderBinary(1, &_glId, GL_SHADER_BINARY_FORMAT_SPIR_V, binary_data.data(), static_cast<GLsizei>(binary_data.size()));
 
 		// Specialize the shader to determine its final behaviour
-		glSpecializeShaderARB(_glId, "main", spec_indices.size(), spec_indices.data(), spec_values.data());
+		glSpecializeShaderARB(_glId, "main", static_cast<GLsizei>(spec_indices.size()), spec_indices.data(), spec_values.data());
 
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}

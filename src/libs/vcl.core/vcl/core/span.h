@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2018 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,43 +22,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // C++ standard library
-#include <random>
+#include <array>
 
-// Include the relevant parts from the library
-#include <vcl/math/solver/jacobi.h>
-#include <vcl/math/solver/eigenjacobicontext.h>
+// Abseil
+#include <absl/types/span.h>
 
-VCL_BEGIN_EXTERNAL_HEADERS
-// Google test
-#include <gtest/gtest.h>
-VCL_END_EXTERNAL_HEADERS
-
-TEST(Jacobi, Identity)
+namespace stdext
 {
-	using namespace Vcl::Mathematics::Solver;
+	template<typename T>
+	using span = absl::Span<T>;
 
-	Eigen::MatrixXf A = Eigen::MatrixXf::Identity(10, 10);
-	Eigen::VectorXf b = Eigen::VectorXf::Ones(10);
-	Eigen::VectorXf x = Eigen::VectorXf::Zero(10);
-	for (int i = 0; i < 10; i++)
-		b[i] = static_cast<float>(i + 1);
+	template <typename ElementType>
+	span<ElementType> make_span(span<ElementType> s) noexcept
+	{
+		return s;
+	}
 
-	EigenJacobiContext<Eigen::MatrixXf> ctx{&A, &b};
+	template <typename T, std::size_t N>
+	span<T> make_span(T (&arr)[N]) noexcept
+	{
+		return span<T>{arr};
+	}
 
-	Eigen::Map<Eigen::VectorXf> mx{x.data(), x.size()};
-	ctx.setX(mx);
+	template <typename T, std::size_t N>
+	span<T> make_span(std::array<T, N>& arr) noexcept
+	{
+		return stdext::span<T>{arr};
+	}
 
-	Jacobi solver;
-	solver.setMaxIterations(10);
+	template <typename T, std::size_t N>
+	span<const T> make_span(const std::array<T, N>& arr) noexcept
+	{
+		return span<const T>{arr};
+	}
 
-	double residual = 0;
-	solver.solve(&ctx, &residual);
+	template <typename T>
+	span<T> make_span(T* arr, size_t N) noexcept
+	{
+		return span<T>{arr, N};
+	}
 
-	EXPECT_DOUBLE_EQ(residual, 0.0);
+	template <typename Container>
+	span<typename Container::value_type> make_span(Container& cont)
+	{
+		return span<typename Container::value_type>{cont};
+	}
+
+	template <typename Container>
+	span<const typename Container::value_type> make_span(const Container& cont)
+	{
+		return span<const typename Container::value_type>{cont};
+	}
 }
+

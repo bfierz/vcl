@@ -109,11 +109,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const std::any& param) const override
+		virtual void set(void* object, const stdext::any& param) const override
 		{
 			VclRequire(_setter, "Setter is valid.");
 
-			set(*static_cast<MetaType*>(object), std::any_cast<T>(param));
+			set(*static_cast<MetaType*>(object), stdext::any_cast<T>(param));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
@@ -121,7 +121,7 @@ namespace Vcl { namespace RTTI
 
 			set(*static_cast<MetaType*>(object), from_string<T>(param));
 		}
-		virtual void get(const void* object, std::any& result) const override
+		virtual void get(const void* object, stdext::any& result) const override
 		{
 			VclRequire(_getter, "Getter is valid.");
 
@@ -194,11 +194,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const std::any& param) const override
+		virtual void set(void* object, const stdext::any& param) const override
 		{
 			VclRequire(_setter, "Setter is valid.");
 
-			set(*static_cast<MetaType*>(object), std::any_cast<T>(param));
+			set(*static_cast<MetaType*>(object), stdext::any_cast<T>(param));
 		}
 		virtual void set(void* object, const std::string& param) const override
 		{
@@ -206,7 +206,7 @@ namespace Vcl { namespace RTTI
 
 			set(*static_cast<MetaType*>(object), from_string<T>(param));
 		}
-		virtual void get(const void* object, std::any& result) const override
+		virtual void get(const void* object, stdext::any& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(result);
@@ -277,11 +277,11 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual void set(void* object, const std::any& param) const override
+		virtual void set(void* object, const stdext::any& param) const override
 		{
 			VclRequire(object, "Object is set.");
 
-			auto ptr = std::any_cast<T*>(param);
+			auto ptr = stdext::any_cast<T*>(param);
 			(static_cast<MetaType*>(object)->*_setter)(AttrT(ptr));
 		}
 		virtual void set(void* object, const std::string& param) const override
@@ -291,7 +291,7 @@ namespace Vcl { namespace RTTI
 
 			VclDebugError("Not implemented.");
 		}
-		virtual void get(const void* object, std::any& result) const override
+		virtual void get(const void* object, stdext::any& result) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(object);
 			VCL_UNREFERENCED_PARAMETER(result);

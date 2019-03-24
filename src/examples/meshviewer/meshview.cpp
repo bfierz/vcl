@@ -126,7 +126,7 @@ FboRenderer::FboRenderer()
 	Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
 #endif
 
-	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
+	_engine = Vcl::make_owner<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
 	InputLayoutDescription planeLayout =
 	{
@@ -304,7 +304,7 @@ void FboRenderer::render()
 
 		// Draw the object buffer
 		{
-			_idBuffer->bind(_engine.get());
+			_idBuffer->bind(_engine);
 			_idBuffer->clear(0, Eigen::Vector4i{ -1, -1, 0, 0 });
 			_idBuffer->clear(1.0f);
 
@@ -352,7 +352,7 @@ void FboRenderer::render()
 
 			const auto pos_handle_id = scene->positionHandle();
 			const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
-			_posManip->drawIds(_engine.get(), pos_handle_id.id(), M * curr_transform->get());
+			_posManip->drawIds(_engine, pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
 			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
@@ -494,7 +494,7 @@ void FboRenderer::render()
 	// Render the ID map
 	if (true)
 	{
-		_rtDebugger->draw(_engine.get(), _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
+		_rtDebugger->draw(_engine, _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
 	}
 
 	_engine->endFrame();
@@ -508,7 +508,7 @@ void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
 	const auto pos_handle_id = scene->positionHandle();
 	const auto* curr_transform = scene->entityManager()->get<System::Components::Transform>()->operator()(pos_handle_id);
 
-	_posManip->draw(_engine.get(), M * curr_transform->get());
+	_posManip->draw(_engine, M * curr_transform->get());
 }
 
 void FboRenderer::renderBoundingBox
@@ -630,7 +630,7 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 	id_fbo_desc.NrRenderTargets = 1;
 	id_fbo_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R32G32_SINT;
 	id_fbo_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(_engine.get(), id_fbo_desc);
+	_idBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::GBuffer>(_engine, id_fbo_desc);
 
 	// Create the host version
 	_idBufferHost = std::make_unique<Eigen::Vector2i[]>(_idBuffer->width() * _idBuffer->height());
@@ -641,7 +641,7 @@ QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size
 	abuffer_desc.NrRenderTargets = 1;
 	abuffer_desc.RenderTargets[0].Format = Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
 	abuffer_desc.DepthBuffer.Format = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(_engine.get(), abuffer_desc);
+	_transparencyBuffer = Vcl::make_owner<Vcl::Graphics::Runtime::ABuffer>(_engine, abuffer_desc);
 
 	QOpenGLFramebufferObjectFormat format;
 	format.setAttachment(QOpenGLFramebufferObject::Depth);

@@ -31,9 +31,6 @@
 // C++ standard library
 #include <array>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
@@ -73,7 +70,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		Framebuffer(const FramebufferDescription& desc);
 
 	public:
-		virtual void bind(GraphicsEngine* engine) = 0;
+		virtual void bind(ref_ptr<GraphicsEngine> engine) = 0;
 		virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
 		virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
 		virtual void clear(int idx, const Eigen::Vector4ui& colour) = 0;
@@ -96,10 +93,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class GBuffer : public Framebuffer
 	{
 	public:
-		GBuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc);
+		GBuffer(ref_ptr<GraphicsEngine> engine, const FramebufferDescription& desc);
 
 	public:
-		void bind(GraphicsEngine* engine) override;
+		void bind(ref_ptr<GraphicsEngine> engine) override;
 		void clear(int idx, const Eigen::Vector4f& colour) override;
 		void clear(int idx, const Eigen::Vector4i& colour) override;
 		void clear(int idx, const Eigen::Vector4ui& colour) override;
@@ -111,7 +108,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	private:
 		//! Engine to which the GBuffer is currently bound
-		GraphicsEngine* _engine{ nullptr };
+		ref_ptr<GraphicsEngine> _engine{ nullptr };
 
 		//! Depth target
 		owner_ptr<Vcl::Graphics::Runtime::Texture> _depthTarget;
@@ -123,10 +120,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class ABuffer : public Framebuffer
 	{
 	public:
-		ABuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc);
+		ABuffer(ref_ptr<GraphicsEngine> engine, const FramebufferDescription& desc);
 
 	public:
-		void bind(GraphicsEngine* engine) override;
+		void bind(ref_ptr<GraphicsEngine> engine) override;
 		void clear(int idx, const Eigen::Vector4f& colour) override;
 		void clear(int idx, const Eigen::Vector4i& colour) override;
 		void clear(int idx, const Eigen::Vector4ui& colour) override;

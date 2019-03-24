@@ -38,12 +38,11 @@
 #include <unordered_map>
 #include <vector>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
+#include <vcl/core/span.h>
+#include <vcl/core/string_view.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // Google test

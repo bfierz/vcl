@@ -92,12 +92,6 @@ if (NOT vcl_ext_fmt)
 	set(vcl_ext_fmt "vcl_ext_fmt_tgt")
 endif()
 
-if (NOT vcl_ext_gsl)
-	add_subdirectory(externals/gsl)
-	vcl_copy_target(vcl_ext_gsl_tgt GSL)
-	set(vcl_ext_gsl "vcl_ext_gsl_tgt")
-endif()
-
 option(FOONATHAN_MEMORY_BUILD_EXAMPLES "" OFF)
 option(FOONATHAN_MEMORY_BUILD_TESTS "" OFF)
 add_subdirectory(externals/memory EXCLUDE_FROM_ALL)

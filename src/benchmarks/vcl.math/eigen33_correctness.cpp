@@ -214,7 +214,7 @@ int main(int, char**)
 
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
 
-	createSymmetricProblems(nr_problems, &F);
+	createSymmetricProblems(nr_problems, F);
 	computeEigenReferenceSolution(nr_problems, F, refU, refS);
 
 	// Test correctness: Two-sided Jacobi SVD (Brent)

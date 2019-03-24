@@ -35,7 +35,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	}
 
-	GBuffer::GBuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc)
+	GBuffer::GBuffer(ref_ptr<GraphicsEngine> engine, const FramebufferDescription& desc)
 	: Framebuffer{ desc }
 	{
 		// Create the depth buffer
@@ -62,13 +62,13 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		}
 	}
 
-	void GBuffer::bind(GraphicsEngine* engine)
+	void GBuffer::bind(ref_ptr<GraphicsEngine> engine)
 	{
 		std::array<ref_ptr<Texture>, 8> textures;
 		for (size_t i = 0; i < description().NrRenderTargets; i++)
 			textures[i] = _renderTargets[i];
 
-		gsl::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
+		stdext::span<ref_ptr<Texture>> rt{ textures.data(), description().NrRenderTargets };
 		engine->setRenderTargets(rt, _depthTarget);
 		_engine = engine;
 	}
@@ -97,7 +97,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		_engine->clear(stencil);
 	}
 
-	ABuffer::ABuffer(gsl::not_null<GraphicsEngine*> engine, const FramebufferDescription& desc)
+	ABuffer::ABuffer(ref_ptr<GraphicsEngine> engine, const FramebufferDescription& desc)
 	: Framebuffer{ desc }
 	{
 		VclRequire(desc.DepthBuffer.Format != SurfaceFormat::Unknown, "Depth-buffer is configured.");
@@ -118,7 +118,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	}
 
-	void ABuffer::bind(GraphicsEngine* engine)
+	void ABuffer::bind(ref_ptr<GraphicsEngine> engine)
 	{
 
 	}

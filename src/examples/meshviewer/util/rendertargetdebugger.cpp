@@ -67,7 +67,7 @@ namespace Vcl { namespace Editor { namespace Util
 	}
 
 	void RendertargetDebugger::draw(
-		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		const Vcl::Graphics::Runtime::Texture& texture,
 		const unsigned int max_value,
 		const Eigen::Vector4f& loc_size

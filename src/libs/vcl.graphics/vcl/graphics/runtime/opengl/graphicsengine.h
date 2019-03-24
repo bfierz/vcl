@@ -140,8 +140,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		
 		OpenGL::Framebuffer* currentFramebuffer() { return _currentFramebuffer; }
-		void setRenderTargets(gsl::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target);
-		void setRenderTargets(gsl::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target);
+		void setRenderTargets(stdext::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target);
+		void setRenderTargets(stdext::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target);
 
 		void queueBufferForDeletion(owner_ptr<Buffer> buffer);
 
@@ -201,14 +201,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Expose method from parent class
 		using Runtime::GraphicsEngine::setRenderTargets;
 
-		void setRenderTargets(gsl::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
 		
 		void setConstantBuffer(int idx, BufferView buffer) override;
 		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
 		void setSampler(int idx, const Runtime::Sampler& sampler) override;
-		void setSamplers(int idx, gsl::span<const ref_ptr<Runtime::Sampler>> samplers) override;
+		void setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers) override;
 		void setTexture(int idx, const Runtime::Texture& texture) override;
-		void setTextures(int idx, gsl::span<const ref_ptr<Runtime::Texture>> textures) override;
+		void setTextures(int idx, stdext::span<const ref_ptr<Runtime::Texture>> textures) override;
 
 		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
 

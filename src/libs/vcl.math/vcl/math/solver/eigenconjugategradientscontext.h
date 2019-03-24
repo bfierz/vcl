@@ -28,9 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/math/solver/conjugategradients.h>
@@ -48,7 +45,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		EigenCgBaseContext(size_t s)
-		: _x(nullptr)
+		: _x(nullptr, s)
 		, _size(s)
 		{
 			if (s > 0)
@@ -65,9 +62,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			return static_cast<int>(_size);
 		}
 
-		void setX(map_t* x)
+		void setX(map_t x)
 		{
-			_x = x;
+			new(&_x) map_t(x);
 		}
 
 	public:
@@ -100,7 +97,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r + beta * d
 		void updateVectors() override
 		{
-			*_x += _alpha * _dir;
+			_x += _alpha * _dir;
 			_res -= _alpha * _q;
 			_dir = _res + _beta * _dir;
 		}
@@ -118,7 +115,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		}
 
 	protected: // Matrix to solve
-		map_t* _x;
+		map_t _x;
 		size_t _size;
 
 	private:
@@ -151,7 +148,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r = b - A*x
 		void computeInitialResidual() override
 		{
-			this->_res = (*_b) - (*_M) * *this->_x;
+			this->_res = (*_b) - (*_M) * this->_x;
 			this->_dir = this->_res;
 		}
 			

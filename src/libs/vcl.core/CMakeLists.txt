@@ -7,7 +7,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 vcl_check_target(${vcl_ext_absl})
 vcl_check_target(${vcl_ext_eigen})
 vcl_check_target(${vcl_ext_fmt})
-vcl_check_target(${vcl_ext_gsl})
 
 # Generate library
 add_library(vcl_core STATIC "")
@@ -43,6 +42,8 @@ set(VCL_CORE_INC
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
 	vcl/core/preprocessor.h
+	vcl/core/span.h
+	vcl/core/string_view.h
 )
 
 # VCL / CORE / CONTAINER
@@ -221,7 +222,6 @@ target_link_libraries(vcl_core
 	${vcl_ext_absl}
 	${vcl_ext_eigen}
 	${vcl_ext_fmt}
-	${vcl_ext_gsl}
 )
 
 # Enable static code analysis

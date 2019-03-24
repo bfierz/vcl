@@ -155,7 +155,7 @@ BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128);//->Arg(512)->Arg(8192
 int main(int argc, char** argv)
 {
 	// Initialize data
-	createRotationProblems(nr_problems, 90, 0, &F);
+	createRotationProblems(nr_problems, 90, 0, F);
 	
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();

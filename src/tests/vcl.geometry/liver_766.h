@@ -28,8 +28,11 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
+// C++ standard library
+#include <cstddef>
+
 extern float liver_766_points[];
 extern int   liver_766_faces [];
 
-extern int num_liver_766_points;
-extern int num_liver_766_faces;
+extern std::size_t num_liver_766_points;
+extern std::size_t num_liver_766_faces;

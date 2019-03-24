@@ -42,14 +42,13 @@
 // Abseil
 #include <absl/utility/utility.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/container/array.h>
 #include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
+#include <vcl/core/span.h>
+#include <vcl/core/string_view.h>
 
 namespace Vcl { namespace RTTI
 {
@@ -84,10 +83,10 @@ namespace Vcl { namespace RTTI
 		VCL_CPP_CONSTEXPR_11 ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
-		gsl::cstring_span<> name() const { return _name; }
+		stdext::string_view name() const { return _name; }
 
 	private:
-		const gsl::cstring_span<> _name;
+		const stdext::string_view _name;
 	};
 
 	class ParameterBase
@@ -114,17 +113,17 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(std::string value) const
+		virtual stdext::any pack(std::string value) const
 		{
 			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
 		}
-		virtual std::any pack(void* link) const
+		virtual stdext::any pack(void* link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return nullptr;
 		}
-		virtual std::any pack(std::shared_ptr<void> link) const
+		virtual stdext::any pack(std::shared_ptr<void> link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return std::shared_ptr<void>();
@@ -148,7 +147,7 @@ namespace Vcl { namespace RTTI
 		}
 	
 	public:
-		virtual std::any pack(std::string value) const override
+		virtual stdext::any pack(std::string value) const override
 		{
 			return from_string<T>(value);
 		}
@@ -164,7 +163,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(void* link) const override
+		virtual stdext::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -180,7 +179,7 @@ namespace Vcl { namespace RTTI
 		}
 
 	public:
-		virtual std::any pack(std::shared_ptr<void> link) const override
+		virtual stdext::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -207,11 +206,11 @@ namespace Vcl { namespace RTTI
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			auto any_args = std::make_array<std::any>(args...);
-			return callImpl(location, any_args);
+			auto any_args = std::make_array<stdext::any>(args...);
+			return callImpl(location, stdext::make_span(any_args));
 		}
 
-		void* call(void* location, gsl::span<std::any> args) const
+		void* call(void* location, stdext::span<stdext::any> args) const
 		{
 			return callImpl(location, args);
 		}
@@ -226,13 +225,13 @@ namespace Vcl { namespace RTTI
 			return hasParam(name, N - 1);
 		}
 
-		virtual bool hasParam(const gsl::cstring_span<> name) const = 0;
+		virtual bool hasParam(const stdext::string_view name) const = 0;
 
 		virtual const ParameterBase& param(int idx) const = 0;
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, gsl::span<std::any> params) const = 0;
+		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -251,14 +250,14 @@ namespace Vcl { namespace RTTI
 		template<size_t N>
 		VCL_STRONG_INLINE void set(std::array<const ConstructorBase*, N>& constructors)
 		{
-			_constructors = constructors;
+			_constructors = stdext::make_span(constructors);
 			for (auto c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
 		}
-		VCL_STRONG_INLINE void set(gsl::span<std::unique_ptr<ConstructorBase>> constructors)
+		VCL_STRONG_INLINE void set(stdext::span<std::unique_ptr<ConstructorBase>> constructors)
 		{
-			_constructors = { reinterpret_cast<const ConstructorBase**>(constructors.data()), std::ptrdiff_t(constructors.size()) };
+			_constructors = { reinterpret_cast<const ConstructorBase**>(constructors.data()), constructors.size() };
 			for (const auto& c : constructors)
 				if (c->numParams() == 0)
 					_hasStandardConstructor = true;
@@ -325,7 +324,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! List of registered ctor's
-		gsl::span<const ConstructorBase*> _constructors;
+		stdext::span<const ConstructorBase*> _constructors;
 
 		//! Indicate whether a standard ctor is available
 		bool _hasStandardConstructor{ false };

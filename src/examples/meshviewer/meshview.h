@@ -68,7 +68,7 @@ private:
 	void renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps, const Eigen::Matrix4f& M);
 
 private:
-	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
+	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	MeshView* _owner{ nullptr };

@@ -27,23 +27,20 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/interleavedarray.h>
 
 void createRandomProblems
 (
 	size_t nr_problems,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
 );
 
 void createSymmetricProblems
 (
 	size_t nr_problems,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
 );
 
@@ -52,7 +49,7 @@ void createRotationProblems
 	size_t nr_problems,
 	float max_angle,
 	float max_compression,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
 );
 

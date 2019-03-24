@@ -155,7 +155,7 @@ namespace Vcl { namespace Editor { namespace Util
 	}
 
 	void PositionManipulator::drawIds(
-		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		unsigned int id,
 		const Eigen::Matrix4f& T
 	)
@@ -172,7 +172,7 @@ namespace Vcl { namespace Editor { namespace Util
 	}
 
 	void PositionManipulator::draw(
-		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		const Eigen::Matrix4f& T
 	)
 	{
@@ -183,7 +183,7 @@ namespace Vcl { namespace Editor { namespace Util
 	}
 
 	void PositionManipulator::draw(
-		gsl::not_null<Vcl::Graphics::Runtime::GraphicsEngine*> engine,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		const Eigen::Matrix4f& T,
 		ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
 		ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps

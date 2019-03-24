@@ -22,6 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+// C++ standard library
+#include <cstddef>
+
 float liver_766_points[] =
 {
 	6.33635f, 11.4657f, 5.04827f,
@@ -283,7 +287,7 @@ float liver_766_points[] =
 	20.5374f, 10.5735f, 16.4047f,
 	20.8421f, 12.501f, 17.6582f,
 };
-int num_liver_766_points = sizeof(liver_766_points) / sizeof(float);
+std::size_t num_liver_766_points = sizeof(liver_766_points) / sizeof(float);
 
 int liver_766_faces[] =
 {
@@ -704,4 +708,4 @@ int liver_766_faces[] =
 	91, 105, 73,
 	118, 133, 131,
 };
-int num_liver_766_faces = sizeof(liver_766_faces) / sizeof(int);
+std::size_t num_liver_766_faces = sizeof(liver_766_faces) / sizeof(int);

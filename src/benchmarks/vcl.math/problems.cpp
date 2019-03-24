@@ -38,7 +38,7 @@
 void createRandomProblems
 (
 	size_t nr_problems,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
 )
 {
@@ -53,7 +53,7 @@ void createRandomProblems
 		M << d(rng), d(rng), d(rng),
 		     d(rng), d(rng), d(rng),
 		     d(rng), d(rng), d(rng);
-		F->template at<float>(i) = M;
+		F.at<float>(i) = M;
 
 		if (R)
 		{
@@ -67,7 +67,7 @@ void createRandomProblems
 void createSymmetricProblems
 (
 	size_t nr_problems,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
 )
 {
@@ -83,7 +83,7 @@ void createSymmetricProblems
 		     d(rng), d(rng), d(rng),
 		     d(rng), d(rng), d(rng);
 		Eigen::Matrix3f MtM = M.transpose() * M;
-		F->template at<float>(i) = MtM;
+		F.at<float>(i) = MtM;
 
 		if (R)
 		{
@@ -99,7 +99,7 @@ void createRotationProblems
 	size_t nr_problems,
 	float max_angle,
 	float max_compression,
-	gsl::not_null<Vcl::Core::InterleavedArray<float, 3, 3, -1>*> F,
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
 )
 {
@@ -139,7 +139,7 @@ void createRotationProblems
 		}
 
 		Eigen::Matrix3f X = Rot * X0;
-		F->template at<float>(i) = X * X0.inverse();
+		F.at<float>(i) = X * X0.inverse();
 	}
 }
 

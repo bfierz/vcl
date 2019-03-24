@@ -30,11 +30,9 @@
 // C++ standard library
 #include <vector>
 
-// GSL
-#include <gsl/gsl>
-
 // VCL
 #include <vcl/core/any.h>
+#include <vcl/core/span.h>
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
@@ -56,7 +54,7 @@ namespace Vcl { namespace RTTI
 		{
 		}
 
-		Type(gsl::cstring_span<> name, size_t hash, size_t size, size_t alignment);
+		Type(stdext::string_view name, size_t hash, size_t size, size_t alignment);
 
 		Type(const Type&) = delete;
 		Type(Type&&) noexcept;
@@ -66,19 +64,19 @@ namespace Vcl { namespace RTTI
 		Type& operator= (const Type&) = delete;
 
 	public: // Properties
-		gsl::cstring_span<> name() const { return _name; }
+		stdext::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
 
 		size_t nrParents() const { return static_cast<size_t>(_parents.size()); }
 		const Type* const* parents() const { return _parents.data(); }
 
-		bool hasAttribute(const gsl::cstring_span<> name) const;
-		const AttributeBase* attribute(const gsl::cstring_span<> name) const;
+		bool hasAttribute(const stdext::string_view name) const;
+		const AttributeBase* attribute(const stdext::string_view name) const;
 
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		gsl::span<const AttributeBase*> attributes() const { return _attributes; }
+		stdext::span<const AttributeBase*> attributes() const { return _attributes; }
 
 		const ConstructorSet& constructors() const { return _constructors; }
 
@@ -111,7 +109,7 @@ namespace Vcl { namespace RTTI
 
 	private:
 		//! Readable type name
-		gsl::cstring_span<> _name;
+		stdext::string_view _name;
 
 		//! Hash of the type name
 		size_t _hash;
@@ -127,15 +125,15 @@ namespace Vcl { namespace RTTI
 		
 	protected:
 		//! List of base types of this type
-		gsl::span<const Type*> _parents;
+		stdext::span<const Type*> _parents;
 
 		//! List of constructors for this type
 		ConstructorSet _constructors;
 
 		//! List of type attributes
-		gsl::span<const AttributeBase*> _attributes;
+		stdext::span<const AttributeBase*> _attributes;
 
 		//! List of general methods
-		gsl::span<const void*> _methods;
+		stdext::span<const void*> _methods;
 	};
 }}

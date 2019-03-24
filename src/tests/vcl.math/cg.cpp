@@ -52,7 +52,7 @@ TEST(ConjugateGradients, Identity)
 	GenericEigenCgContext<Eigen::MatrixXf> ctx{&A, &b};
 
 	Eigen::Map<Eigen::VectorXf> mx{x.data(), x.size()};
-	ctx.setX(&mx);
+	ctx.setX(mx);
 
 	ConjugateGradients solver;
 	solver.setMaxIterations(10);
