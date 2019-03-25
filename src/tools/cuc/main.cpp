@@ -220,173 +220,171 @@ int main(int argc, char* argv [])
 			;
 		options.parse_positional("input-file");
 
-		options.parse(argc, argv);
+		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
+
+		if (parsed_options.count("help") > 0)
+		{
+			std::cout << options.help({ "" }) << std::endl;
+			return 1;
+		}
+
+		if (parsed_options.count("symbol") == 0 || parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
+		{
+			std::cout << options.help({ "" }) << std::endl;
+			return -1;
+		}
+
+		std::vector<std::string> profiles;
+		if (parsed_options.count("profile"))
+		{
+			profiles = parsed_options["profile"].as<std::vector<std::string>>();
+		}
+
+		// Construct the base name for the intermediate files
+#if (_MSC_VER < 1900)
+		std::string tmp_file_base = fs::basename(fs::path(parsed_options["input-file"].as<std::string>()));
+#else
+		std::string tmp_file_base = fs::path(parsed_options["input-file"].as<std::string>()).stem().string();
+#endif
+
+		// Add the address 
+		if (parsed_options.count("m64"))
+		{
+			tmp_file_base += "_m64";
+		}
+		else
+		{
+			tmp_file_base += "_m32";
+		}
+
+		// Invoke the cuda compiler for each profile
+		std::vector<std::pair<std::string, std::string>> compiled_files;
+		compiled_files.reserve(profiles.size());
+		for (auto& p : profiles)
+		{
+			std::stringstream cmd_compile;
+			std::stringstream cmd_link;
+
+			// Force a compiler version
+			//cmd_compile << R"(--use-local-env --cl-version 2013 )";
+
+			if (parsed_options.count("include"))
+			{
+				for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
+				{
+					cmd_compile << "-I \"" << inc << "\" ";
+				}
+			}
+
+			cmd_compile << "-gencode=arch=";
+			cmd_link << "-arch ";
+
+			// Generate the output filename for intermediate file
+			std::string tmp_file = tmp_file_base + "_";
+			std::string cc_file  = tmp_file_base + "_compiled_";
+
+			auto sm = p.find("sm");
+			if (sm != p.npos)
+			{
+				cmd_compile << "compute" << p.substr(2, p.npos) << ",code=" << p;
+				cmd_compile << " -cubin ";
+				tmp_file += p + ".cubin";
+
+				cmd_link << p << " ";
+				cc_file  += p + ".cubin";
+			}
+			else
+			{
+				cmd_compile << p << ",code=" << p;
+				cmd_compile << " -ptx ";
+				tmp_file += p + ".ptx";
+
+				cmd_link << p << " ";
+				cc_file  += p + ".ptx";
+			}
+
+			// Link against CUDA libraries
+			if (parsed_options.count("library-path"))
+			{
+				for (auto& path : parsed_options["library-path"].as<std::vector<std::string>>())
+				{
+					cmd_link << "-L\"" << path << "\" ";
+				}
+			}
+			if (parsed_options.count("library"))
+			{
+				for (auto& lib : parsed_options["library"].as<std::vector<std::string>>())
+				{
+					cmd_link << "-l\"" << lib<< "\" ";
+				}
+			}
+			cmd_compile << "-dc -rdc=true ";
+
+			compiled_files.emplace_back(p, tmp_file);
+			cmd_compile << "-o \"" << cc_file << "\" \"" << parsed_options["input-file"].as<std::string>() << "\"";
+			cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
+
+			// Compile the code
+			exec("nvcc.exe", cmd_compile.str().c_str());
+
+			// Link the code
+			exec("nvlink.exe", cmd_link.str().c_str());
+		}
+
+		// Create a fat binary from the compiled files 
+		std::stringstream fatbin_cmdbuilder;
+
+		// Create a new fatbin
+		fatbin_cmdbuilder << R"(--create=")" << tmp_file_base << R"(.fatbin" )";
+
+		// We want to create an embedded file
+		//fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
+
+		// Set the bitness
+		if (parsed_options.count("m64"))
+		{
+			fatbin_cmdbuilder << "-64 ";
+		}
+		else
+		{
+			fatbin_cmdbuilder << "-32 ";
+		}
+
+		// We are compiling cuda
+		fatbin_cmdbuilder << R"(--cuda )";
+		
+		// Add the orignal filename as identifier
+		fatbin_cmdbuilder << R"(--ident=")" << parsed_options["symbol"].as<std::string>() << R"(" )";
+
+		// Add all the created files
+		for (auto& profile_file : compiled_files)
+		{
+			fatbin_cmdbuilder << R"("--image=profile=)" << profile_file.first << R"(,file=)" << profile_file.second << R"(" )";
+		}
+
+		exec("fatbinary.exe", fatbin_cmdbuilder.str().c_str());
+
+		// Create a source file with the binary 
+		std::stringstream bin2c_cmdbuilder;
+		bin2c_cmdbuilder.str("");
+		bin2c_cmdbuilder.clear();
+		bin2c_cmdbuilder << "--group 4 ";
+
+		if (parsed_options.count("symbol"))
+		{
+			bin2c_cmdbuilder << "--symbol " << parsed_options["symbol"].as<std::string>() << " ";
+		}
+
+		bin2c_cmdbuilder << "-o " << parsed_options["output-file"].as<std::string>() << " ";
+		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
+
+		// Invoke the binary file translator
+		exec("bin2c", bin2c_cmdbuilder.str().c_str());
 	}
 	catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
 	}
-
-	// Print the help message
-	if (options.count("help") > 0)
-	{
-		std::cout << options.help({ "" }) << std::endl;
-		return 1;
-	}
-
-	if (options.count("symbol") == 0 || options.count("input-file") == 0 || options.count("output-file") == 0)
-	{
-		std::cout << options.help({ "" }) << std::endl;
-		return -1;
-	}
-
-	std::vector<std::string> profiles;
-	if (options.count("profile"))
-	{
-		profiles = options["profile"].as<std::vector<std::string>>();
-	}
-
-	// Construct the base name for the intermediate files
-#if (_MSC_VER < 1900)
-	std::string tmp_file_base = fs::basename(fs::path(options["input-file"].as<std::string>()));
-#else
-	std::string tmp_file_base = fs::path(options["input-file"].as<std::string>()).stem().string();
-#endif
-
-	// Add the address 
-	if (options.count("m64"))
-	{
-		tmp_file_base += "_m64";
-	}
-	else
-	{
-		tmp_file_base += "_m32";
-	}
-
-	// Invoke the cuda compiler for each profile
-	std::vector<std::pair<std::string, std::string>> compiled_files;
-	compiled_files.reserve(profiles.size());
-	for (auto& p : profiles)
-	{
-		std::stringstream cmd_compile;
-		std::stringstream cmd_link;
-
-		// Force a compiler version
-		//cmd_compile << R"(--use-local-env --cl-version 2013 )";
-
-		if (options.count("include"))
-		{
-			for (auto& inc : options["include"].as<std::vector<std::string>>())
-			{
-				cmd_compile << "-I \"" << inc << "\" ";
-			}
-		}
-
-		cmd_compile << "-gencode=arch=";
-		cmd_link << "-arch ";
-
-		// Generate the output filename for intermediate file
-		std::string tmp_file = tmp_file_base + "_";
-		std::string cc_file  = tmp_file_base + "_compiled_";
-
-		auto sm = p.find("sm");
-		if (sm != p.npos)
-		{
-			cmd_compile << "compute" << p.substr(2, p.npos) << ",code=" << p;
-			cmd_compile << " -cubin ";
-			tmp_file += p + ".cubin";
-
-			cmd_link << p << " ";
-			cc_file  += p + ".cubin";
-		}
-		else
-		{
-			cmd_compile << p << ",code=" << p;
-			cmd_compile << " -ptx ";
-			tmp_file += p + ".ptx";
-
-			cmd_link << p << " ";
-			cc_file  += p + ".ptx";
-		}
-
-		// Link against CUDA libraries
-		if (options.count("library-path"))
-		{
-			for (auto& path : options["library-path"].as<std::vector<std::string>>())
-			{
-				cmd_link << "-L\"" << path << "\" ";
-			}
-		}
-		if (options.count("library"))
-		{
-			for (auto& lib : options["library"].as<std::vector<std::string>>())
-			{
-				cmd_link << "-l\"" << lib<< "\" ";
-			}
-		}
-		cmd_compile << "-dc -rdc=true ";
-
-		compiled_files.emplace_back(p, tmp_file);
-		cmd_compile << "-o \"" << cc_file << "\" \"" << options["input-file"].as<std::string>() << "\"";
-		cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
-
-		// Compile the code
-		exec("nvcc.exe", cmd_compile.str().c_str());
-
-		// Link the code
-		exec("nvlink.exe", cmd_link.str().c_str());
-	}
-
-	// Create a fat binary from the compiled files 
-	std::stringstream fatbin_cmdbuilder;
-
-	// Create a new fatbin
-	fatbin_cmdbuilder << R"(--create=")" << tmp_file_base << R"(.fatbin" )";
-
-	// We want to create an embedded file
-	//fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
-
-	// Set the bitness
-	if (options.count("m64"))
-	{
-		fatbin_cmdbuilder << "-64 ";
-	}
-	else
-	{
-		fatbin_cmdbuilder << "-32 ";
-	}
-
-	// We are compiling cuda
-	fatbin_cmdbuilder << R"(--cuda )";
-		
-	// Add the orignal filename as identifier
-	fatbin_cmdbuilder << R"(--ident=")" << options["symbol"].as<std::string>() << R"(" )";
-
-	// Add all the created files
-	for (auto& profile_file : compiled_files)
-	{
-		fatbin_cmdbuilder << R"("--image=profile=)" << profile_file.first << R"(,file=)" << profile_file.second << R"(" )";
-	}
-
-	exec("fatbinary.exe", fatbin_cmdbuilder.str().c_str());
-
-	// Create a source file with the binary 
-	std::stringstream bin2c_cmdbuilder;
-	bin2c_cmdbuilder.str("");
-	bin2c_cmdbuilder.clear();
-	bin2c_cmdbuilder << "--group 4 ";
-
-	if (options.count("symbol"))
-	{
-		bin2c_cmdbuilder << "--symbol " << options["symbol"].as<std::string>() << " ";
-	}
-
-	bin2c_cmdbuilder << "-o " << options["output-file"].as<std::string>() << " ";
-	bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
-
-	// Invoke the binary file translator
-	exec("bin2c", bin2c_cmdbuilder.str().c_str());
-
 	return 0;
 }
