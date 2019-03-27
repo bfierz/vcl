@@ -41,15 +41,18 @@
 #elif defined _MSC_VER && !defined __clang__
 #	define VCL_COMPILER_MSVC
 // Microsoft compiler versions
-// MSVC++ 10.0 _MSC_VER == 1600 (Visual Studio 2010)
-// MSVC++ 11.0 _MSC_VER == 1700 (Visual Studio 2012)
-// MSVC++ 12.0 _MSC_VER == 1800 (Visual Studio 2013)
-// MSVC++ 14.0 _MSC_VER == 1900 (Visual Studio 2015)
-// MSVC++ 14.1 _MSC_VER == 1910 (Visual Studio 2017)
-// MSVC++ 14.1 _MSC_VER == 1911 (Visual Studio 2017 Update 3)
-// MSVC++ 14.1 _MSC_VER == 1912 (Visual Studio 2017 Update 5)
-// MSVC++ 14.1 _MSC_VER == 1913 (Visual Studio 2017 Update 6)
-// MSVC++ 14.1 _MSC_VER == 1914 (Visual Studio 2017 Update 7)
+// MSVC++ 10.0  _MSC_VER == 1600 (Visual Studio 2010)
+// MSVC++ 11.0  _MSC_VER == 1700 (Visual Studio 2012)
+// MSVC++ 12.0  _MSC_VER == 1800 (Visual Studio 2013)
+// MSVC++ 14.0  _MSC_VER == 1900 (Visual Studio 2015)
+// MSVC++ 14.10 _MSC_VER == 1910 (Visual Studio 2017)
+// MSVC++ 14.11 _MSC_VER == 1911 (Visual Studio 2017 Update 3)
+// MSVC++ 14.12 _MSC_VER == 1912 (Visual Studio 2017 Update 5)
+// MSVC++ 14.13 _MSC_VER == 1913 (Visual Studio 2017 Update 6)
+// MSVC++ 14.14 _MSC_VER == 1914 (Visual Studio 2017 Update 7)
+// MSVC++ 14.15 _MSC_VER == 1915 (Visual Studio 2017 Update 8)
+// MSVC++ 14.16 _MSC_VER == 1916 (Visual Studio 2017 Update 9)
+// MSVC++ 14.20 _MSC_VER == 1920 (Visual Studio 2019)
 #   if (_MSC_VER < 1900)
 #       warning "Minimum supported version is MSVC 2015. Good luck."
 #   endif

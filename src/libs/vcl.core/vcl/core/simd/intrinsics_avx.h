@@ -80,6 +80,7 @@ namespace Vcl
 	}
 #endif // VCL_VECTORIZE_AVX2
 
+#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m256 _mm256_sin_ps(__m256 v);	
 	__m256 _mm256_cos_ps(__m256 v);
 	__m256 _mm256_log_ps(__m256 v);
@@ -87,9 +88,10 @@ namespace Vcl
 
 	__m256 _mm256_acos_ps(__m256 v);
 	__m256 _mm256_asin_ps(__m256 v);
-
 	__m256 _mm256_atan2_ps(__m256 y, __m256 x);
+
 	__m256 _mm256_pow_ps(__m256 x, __m256 y);
+#endif
 
 	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmpneq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_NEQ_OQ); }

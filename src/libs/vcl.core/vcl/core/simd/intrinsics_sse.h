@@ -87,6 +87,7 @@ namespace Vcl
 	__m128i _mmVCL_abs_epi32(__m128i a);
 	__m128i _mmVCL_max_epi32(__m128i a, __m128i b);
 
+#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m128 _mm_sin_ps(__m128 v);	
 	__m128 _mm_cos_ps(__m128 v);
 	__m128 _mm_log_ps(__m128 v);
@@ -94,9 +95,10 @@ namespace Vcl
 
 	__m128 _mm_acos_ps(__m128 v);
 	__m128 _mm_asin_ps(__m128 v);
-
 	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x);
+
 	__m128 _mm_pow_ps(__m128 x, __m128 y);
+#endif
 
 	__m128 _mmVCL_floor_ps(__m128 x);
 
