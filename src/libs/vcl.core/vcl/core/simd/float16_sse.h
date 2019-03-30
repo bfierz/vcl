@@ -149,10 +149,6 @@ namespace Vcl
 			));
 		}
 
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs);
-		friend VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b);
-
 	private:
 		VCL_STRONG_INLINE void set(float s0)
 		{
@@ -214,10 +210,10 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<float, 16>
 		(
-			_mm_xor_ps(b.mF4[0], _mm_and_ps(mask.mF4[0], _mm_xor_ps(b.mF4[0], a.mF4[0]))),
-			_mm_xor_ps(b.mF4[1], _mm_and_ps(mask.mF4[1], _mm_xor_ps(b.mF4[1], a.mF4[1]))),
-			_mm_xor_ps(b.mF4[2], _mm_and_ps(mask.mF4[2], _mm_xor_ps(b.mF4[2], a.mF4[2]))),
-			_mm_xor_ps(b.mF4[3], _mm_and_ps(mask.mF4[3], _mm_xor_ps(b.mF4[3], a.mF4[3])))
+			_mm_xor_ps(b.get(0), _mm_and_ps(mask.mF4[0], _mm_xor_ps(b.get(0), a.get(0)))),
+			_mm_xor_ps(b.get(1), _mm_and_ps(mask.mF4[1], _mm_xor_ps(b.get(1), a.get(1)))),
+			_mm_xor_ps(b.get(2), _mm_and_ps(mask.mF4[2], _mm_xor_ps(b.get(2), a.get(2)))),
+			_mm_xor_ps(b.get(3), _mm_and_ps(mask.mF4[3], _mm_xor_ps(b.get(3), a.get(3))))
 		);
 #endif
 	}

@@ -208,22 +208,42 @@ namespace Vcl
 	struct NumericTrait
 	{
 		using base_t = T;
+		using wide_t = T;
 	};
 
 	template<>
 	struct NumericTrait<VectorScalar<float, 4>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
 	template<>
 	struct NumericTrait<VectorScalar<float, 8>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_AVX
+		using wide_t = __m256;
+#elif defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
 	template<>
 	struct NumericTrait<VectorScalar<float, 16>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_AVX
+		using wide_t = __m256;
+#elif defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
 
 
