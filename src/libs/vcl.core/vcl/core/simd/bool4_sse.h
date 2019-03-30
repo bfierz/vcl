@@ -32,36 +32,32 @@
 #include <array>
 
 // VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<bool, 4>
+	class VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
+		using Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>::get;
+
 		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s)
+		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
+		explicit VCL_STRONG_INLINE VectorScalar(bool s0, bool s1, bool s2, bool s3)
 		{
-			_data[0] = s ? _mm_castsi128_ps(_mm_set1_epi32(-1)) : _mm_castsi128_ps(_mm_set1_epi32(0));
+			set(s0, s1, s2, s3);
 		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4) { _data[0] = F4; }
-		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) { _data[0] = _mm_castsi128_ps(I4); }
-		
-		VCL_STRONG_INLINE __m128 get(int i = 0) const
-		{
-			VclRequire(0 == i, "Access is in range.");
-			return _data[i];
-		}
+		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4) { set(F4); }
+		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) { set(_mm_castsi128_ps(I4)); }
+
 	public:
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_and_ps(get(0), rhs.get(0))); }
 		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_or_ps (get(0), rhs.get(0))); }
 
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator&= (const VectorScalar<bool, 4>& rhs) { _data[0] = _mm_and_ps(get(0), rhs.get(0)); return *this; }
 		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator|= (const VectorScalar<bool, 4>& rhs) { _data[0] = _mm_or_ps(get(0), rhs.get(0));  return *this; }
-
-	private:
-		__m128 _data[1];
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)

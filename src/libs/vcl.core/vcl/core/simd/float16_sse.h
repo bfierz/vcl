@@ -29,17 +29,20 @@
 
 // VCL 
 #include <vcl/core/simd/bool16_sse.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<float, 16>
+	class VectorScalar<float, 16> : protected Core::Simd::VectorScalarBase<float, 16, Core::Simd::SimdExt::SSE>
 	{
 	public:
 		using Self = VectorScalar<float, 16>;
 		using Bool = VectorScalar<bool, 16>;
+		
+		using Core::Simd::VectorScalarBase<float, 16, Core::Simd::SimdExt::SSE>::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(float s)
@@ -71,12 +74,6 @@ namespace Vcl
 		{
 			VclRequire(0 <= idx && idx < 16, "Access is in range.");
 			return _mmVCL_extract_ps(get(idx / 4), idx % 4);
-		}
-
-		VCL_STRONG_INLINE __m128 get(int i) const
-		{
-			VclRequire(0 <= i && i < 4, "Access is in range.");
-			return _data[i];
 		}
 
 	public:
@@ -148,35 +145,6 @@ namespace Vcl
 				_mm_max_ss(_mm_set_ss(_mmVCL_hmax_ps(get(2))), _mm_set_ss(_mmVCL_hmax_ps(get(3))))
 			));
 		}
-
-	private:
-		VCL_STRONG_INLINE void set(float s0)
-		{
-			_data[0] = _mm_set1_ps(s0);
-			_data[1] = _mm_set1_ps(s0);
-			_data[2] = _mm_set1_ps(s0);
-			_data[3] = _mm_set1_ps(s0);
-		}
-		VCL_STRONG_INLINE void set
-		(
-			float s00, float s01, float s02, float s03, float s04, float s05, float s06, float s07,
-			float s08, float s09, float s10, float s11, float s12, float s13, float s14, float s15
-		)
-		{
-			_data[0] = _mm_set_ps(s03, s02, s01, s00);
-			_data[1] = _mm_set_ps(s07, s06, s05, s04);
-			_data[2] = _mm_set_ps(s11, s10, s09, s08);
-			_data[3] = _mm_set_ps(s15, s14, s13, s12);
-		}
-		VCL_STRONG_INLINE void set(__m128 v0, __m128 v1, __m128 v2, __m128 v3)
-		{
-			_data[0] = v0;
-			_data[1] = v1;
-			_data[2] = v2;
-			_data[3] = v3;
-		}
-	private:
-		__m128 _data[4];
 	};
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)

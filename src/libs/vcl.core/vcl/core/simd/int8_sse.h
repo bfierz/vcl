@@ -41,7 +41,7 @@ namespace Vcl
 	class VectorScalar<int, 8>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() {}
+		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(int s)
 		{
 			set(s);
