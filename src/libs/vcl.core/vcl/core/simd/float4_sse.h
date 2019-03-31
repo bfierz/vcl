@@ -43,10 +43,13 @@ namespace Vcl
 	class VectorScalar<float, 4> : protected Core::Simd::VectorScalarBase<float, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
+		using Base = Core::Simd::VectorScalarBase<float, 4, Core::Simd::SimdExt::SSE>;
+		using Scalar = float;
 		using Self = VectorScalar<float, 4>;
 		using Bool = VectorScalar<bool, 4>;
 
-		using Core::Simd::VectorScalarBase<float, 4, Core::Simd::SimdExt::SSE>::get;
+		using Base::operator[];
+		using Base::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(const VectorScalar<float, 4>& rhs)
@@ -68,14 +71,6 @@ namespace Vcl
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 4>& operator= (const VectorScalar<float, 4>& rhs) { set(rhs.get(0)); return *this; }
-
-	public:
-		VCL_STRONG_INLINE float operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 4, "Access is in range.");
-
-			return _mmVCL_extract_ps(get(0), idx);
-		}
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator- () const
@@ -121,10 +116,10 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 1);
 		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 1);
 
-		VCL_STRONG_INLINE float dot(const VectorScalar<float, 4>& rhs) const { return _mmVCL_dp_ps(get(0), rhs.get(0)); }
+		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, VCL_UNUSED, 1)
 
-		VCL_STRONG_INLINE float min() const { return _mmVCL_hmin_ps(get(0)); }
-		VCL_STRONG_INLINE float max() const { return _mmVCL_hmax_ps(get(0)); }
+		VCL_SIMD_UNARY_REDUCTION_OP(min, _mmVCL_hmin_ps, VCL_UNUSED, 1)
+		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, VCL_UNUSED, 1)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)

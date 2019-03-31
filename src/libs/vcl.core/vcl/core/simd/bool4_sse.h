@@ -41,6 +41,7 @@ namespace Vcl
 	class VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
+		using Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>::operator[];
 		using Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;

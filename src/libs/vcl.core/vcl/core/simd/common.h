@@ -33,7 +33,7 @@
 // VCL 
 //#include <vcl/core/simd/bool4_sse.h>
 //#include <vcl/core/simd/vectorscalar.h>
-//#include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/intrinsics_sse.h>
 
 namespace Vcl { namespace Core { namespace Simd
 {
@@ -82,6 +82,10 @@ namespace Vcl { namespace Core { namespace Simd
 		{
 			return vec;
 		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_ps(vec, i);
+		}
 	};
 	template<>
 	struct SimdRegister<int, SimdExt::SSE>
@@ -101,6 +105,10 @@ namespace Vcl { namespace Core { namespace Simd
 		VCL_STRONG_INLINE static Type set(Type vec)
 		{
 			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(vec, i);
 		}
 	};
 	template<>
@@ -127,6 +135,10 @@ namespace Vcl { namespace Core { namespace Simd
 		{
 			return vec;
 		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(_mm_castps_si128(vec), i) != 0;
+		}
 	};
 #endif
 
@@ -143,6 +155,11 @@ namespace Vcl { namespace Core { namespace Simd
 		{
 			VclRequire(0 <= i && i < Regs, "Access is in range.");
 			return _data[i];
+		}
+		VCL_STRONG_INLINE Scalar operator[] (int idx) const
+		{
+			VclRequire(0 <= idx && idx < Width, "Access is in range.");
+			return SimdRegister<Scalar, Type>::get(get(idx / RegValues), idx % RegValues);
 		}
 
 		VCL_STRONG_INLINE void set(Scalar s)
@@ -199,4 +216,45 @@ namespace Vcl { namespace Core { namespace Simd
 			setImpl(tag, i+1, vals...);
 		}
 	};
+
+	namespace Details
+	{
+		//! Add two floats
+		//! \param a First summand
+		//! \param b Second summand
+		//! \returns The sum of \a and \b
+		//! Helper function to allow for code geneartion in the VectorScalar specializations
+		VCL_STRONG_INLINE float add(float a, float b)
+		{
+			return a + b;
+		}
+	}
 }}}
+
+#define VCL_SIMD_P1_1(op) op(get(0))
+#define VCL_SIMD_P1_2(op) VCL_SIMD_P1_1(op), op(get(1))
+#define VCL_SIMD_P1_4(op) VCL_SIMD_P1_2(op), op(get(2)), op(get(3))
+#define VCL_SIMD_P1_8(op) VCL_SIMD_P1_4(op), op(get(4)), op(get(5)), op(get(6)), op(get(7))
+
+#define VCL_SIMD_P2_1(op) op(get(0), rhs.get(0))
+#define VCL_SIMD_P2_2(op) VCL_SIMD_P2_1(op), op(get(1), rhs.get(1))
+#define VCL_SIMD_P2_4(op) VCL_SIMD_P2_2(op), op(get(2), rhs.get(2)), op(get(3), rhs.get(3))
+#define VCL_SIMD_P2_8(op) VCL_SIMD_P2_4(op), op(get(4), rhs.get(4)), op(get(5), rhs.get(5)), op(get(6), rhs.get(6)), op(get(7), rhs.get(7))
+
+#define VCL_SIMD_RED_P1_1(op1, op2, i) op1(get(i))
+#define VCL_SIMD_RED_P1_2(op1, op2, i) op2(VCL_SIMD_RED_P1_1(op1, op2, i), VCL_SIMD_RED_P1_1(op1, op2, i+1))
+#define VCL_SIMD_RED_P1_4(op1, op2, i) op2(VCL_SIMD_RED_P1_2(op1, op2, i), VCL_SIMD_RED_P1_2(op1, op2, i+2))
+#define VCL_SIMD_RED_P1_8(op1, op2, i) op2(VCL_SIMD_RED_P1_4(op1, op2, i), VCL_SIMD_RED_P1_4(op1, op2, i+4))
+
+#define VCL_SIMD_RED_P2_1(op1, op2, i) op1(get(i), rhs.get(i))
+#define VCL_SIMD_RED_P2_2(op1, op2, i) op2(VCL_SIMD_RED_P2_1(op1, op2, i), VCL_SIMD_RED_P2_1(op1, op2, i+1))
+#define VCL_SIMD_RED_P2_4(op1, op2, i) op2(VCL_SIMD_RED_P2_2(op1, op2, i), VCL_SIMD_RED_P2_2(op1, op2, i+2))
+#define VCL_SIMD_RED_P2_8(op1, op2, i) op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i+4))
+
+#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
+#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
+#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)); return *this; }
+#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
+#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
+#define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
+#define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }

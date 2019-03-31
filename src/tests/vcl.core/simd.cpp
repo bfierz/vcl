@@ -230,6 +230,25 @@ TEST(Simd, Dot)
 	EXPECT_TRUE(equal(ref*4, res3, 1e-5f));
 }
 
+TEST(Simd, HMinMax)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+	
+	float4 vec4(1, 2, 3, 4);
+	EXPECT_EQ(vec4.min(), 1);
+	EXPECT_EQ(vec4.max(), 4);
+	
+	float8 vec8(1, 2, 3, 4, 5, 6, 7, 8);
+	EXPECT_EQ(vec8.min(), 1);
+	EXPECT_EQ(vec8.max(), 8);
+	
+	float16 vec16(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+	EXPECT_EQ(vec16.min(), 1);
+	EXPECT_EQ(vec16.max(), 16);
+}
+
 TEST(Simd, Sign4)
 {
 	using Vcl::float4;

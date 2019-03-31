@@ -39,6 +39,7 @@ namespace Vcl
 	class VectorScalar<int, 4> : protected Core::Simd::VectorScalarBase<int, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
+		using Core::Simd::VectorScalarBase<int, 4, Core::Simd::SimdExt::SSE>::operator[];
 		using Core::Simd::VectorScalarBase<int, 4, Core::Simd::SimdExt::SSE>::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
@@ -57,14 +58,6 @@ namespace Vcl
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 4>& operator= (const VectorScalar<int, 4>& rhs) { set(rhs.get(0)); return *this; }
-
-	public:
-		VCL_STRONG_INLINE int operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 4, "Access is in range.");
-
-			return _mmVCL_extract_epi32(get(0), idx);
-		}
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 4> operator+ (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(_mm_add_epi32(get(0), rhs.get(0))); }
