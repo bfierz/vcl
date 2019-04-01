@@ -221,20 +221,8 @@ namespace Vcl
 	{
 		return VectorScalar<int, 8>
 		(
-			_mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a.get(0), VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
-				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
-			),
-			_mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a.get(1), VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
-				), _mm_cmpneq_epi32(a.get(1), _mm_setzero_si128())
-			)
+			Core::Simd::SSE::signum(a.get(0)),
+			Core::Simd::SSE::signum(a.get(1))
 		);
 	}
 

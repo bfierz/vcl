@@ -104,16 +104,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<int, 4> signum(const VectorScalar<int, 4>& a)
 	{
-		return VectorScalar<int, 4>
-		(
-			_mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a.get(0), VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
-				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
-			)
-		);
+		return VectorScalar<int, 4>(Core::Simd::SSE::signum(a.get(0)));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)

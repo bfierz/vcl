@@ -73,12 +73,6 @@ namespace Vcl
 		}
 
 	public:
-		VectorScalar<float, 16> operator- () const
-		{
-			return (*this) * VectorScalar<float, 16>(-1);
-		}
-
-	public:
 		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 4);
 		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 4);
 		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 4);
@@ -99,7 +93,7 @@ namespace Vcl
 		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps, 4);
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, _mm_abs_ps, 4);
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 4);
 		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 4);
 
 		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 4);
@@ -111,6 +105,8 @@ namespace Vcl
 		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 4);
 		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 4);
 		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 4);
+		
+		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 4);
 
 	public:
 		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 4);
@@ -140,35 +136,12 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b)
 	{
-#ifdef VCL_VECTORIZE_SSE4_1
-		// SSE way
 		return VectorScalar<float, 16>
 		(
-			_mm_blendv_ps(b.get(0), a.get(0), mask.mF4[0]),
-			_mm_blendv_ps(b.get(1), a.get(1), mask.mF4[1]),
-			_mm_blendv_ps(b.get(2), a.get(2), mask.mF4[2]),
-			_mm_blendv_ps(b.get(3), a.get(3), mask.mF4[3])
-		);
-#else
-		// (((b ^ a) & mask)^b)
-		return VectorScalar<float, 16>
-		(
-			_mm_xor_ps(b.get(0), _mm_and_ps(mask.mF4[0], _mm_xor_ps(b.get(0), a.get(0)))),
-			_mm_xor_ps(b.get(1), _mm_and_ps(mask.mF4[1], _mm_xor_ps(b.get(1), a.get(1)))),
-			_mm_xor_ps(b.get(2), _mm_and_ps(mask.mF4[2], _mm_xor_ps(b.get(2), a.get(2)))),
-			_mm_xor_ps(b.get(3), _mm_and_ps(mask.mF4[3], _mm_xor_ps(b.get(3), a.get(3))))
-		);
-#endif
-	}
-
-	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
-	{
-		return VectorScalar<bool, 16>
-		(
-			_mm_isinf_ps(x.get(0)),
-			_mm_isinf_ps(x.get(1)),
-			_mm_isinf_ps(x.get(2)),
-			_mm_isinf_ps(x.get(3))
+			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.mF4[0]),
+			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.mF4[1]),
+			Core::Simd::SSE::blend(b.get(2), a.get(2), mask.mF4[2]),
+			Core::Simd::SSE::blend(b.get(3), a.get(3), mask.mF4[3])
 		);
 	}
 }

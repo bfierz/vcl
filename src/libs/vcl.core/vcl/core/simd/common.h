@@ -143,12 +143,14 @@ namespace Vcl { namespace Core { namespace Simd
 #endif
 
 	template<typename Scalar, int Width, SimdExt Type>
-	struct VectorScalarBase
+	class VectorScalarBase
 	{
+	protected:
 		using RegType = typename SimdRegister<Scalar, Type>::Type;
 		static const int RegValues = SimdRegister<Scalar, Type>::Width;
 		static const int Regs = Width / RegValues;
-		 
+
+		//! SIMD registers
 		RegType _data[Regs];
 		
 		VCL_STRONG_INLINE RegType get(int i) const
@@ -255,6 +257,6 @@ namespace Vcl { namespace Core { namespace Simd
 #define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
 #define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)); return *this; }
 #define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
-#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
+#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
 #define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
 #define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }

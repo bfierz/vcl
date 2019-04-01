@@ -38,6 +38,8 @@
 
 namespace Vcl
 {
+	__m128i _mm_cmpneq_epi32(__m128i a, __m128i b);
+
 	namespace Core { namespace Simd { namespace SSE
 	{
 		/// Per element absolut value
@@ -45,17 +47,37 @@ namespace Vcl
 		{
 			// Compute abs using logical operations
 			return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), a);
+			
+			// Compute abs using shift operations
+			//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(a), 1), 1));
+		}
+
+		VCL_STRONG_INLINE __m128 blend(__m128 a, __m128 b, __m128 mask)
+		{
+#ifdef VCL_VECTORIZE_SSE4_1
+			return _mm_blendv_ps(a, b, mask);
+#else
+			// Straight forward method
+			// (b & ~mask) | (a & mask)
+			return _mm_or_ps(_mm_andnot_ps(mask, b), _mm_and_ps(mask, a)));
+
+			// xor-method
+			// (((b ^ a) & mask)^b)
+			//return _mm_xor_ps(b, _mm_and_ps(mask, _mm_xor_ps(b, a))));
+#endif
+		}
+
+		VCL_STRONG_INLINE __m128i signum(__m128i a)
+		{
+			return _mm_and_si128
+			(
+				_mm_or_si128
+				(
+					_mm_and_si128(a, VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
+				), _mm_cmpneq_epi32(a, _mm_setzero_si128())
+			);
 		}
 	}}}
-
-	VCL_STRONG_INLINE __m128 _mm_abs_ps(__m128 v)
-	{
-		// Compute abs using logical operations
-		return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), v);
-		
-		// Compute abs using shift operations
-		//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(v), 1), 1));
-	}
 
 	VCL_STRONG_INLINE __m128 _mm_sgn_ps(__m128 v)
 	{
@@ -65,7 +87,7 @@ namespace Vcl
 	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b)
 	{
 		return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), VCL_M128I_ALLBITS);
-	}	
+	}
 	VCL_STRONG_INLINE __m128i _mm_cmple_epi32(__m128i a, __m128i b)
 	{
 		return _mm_andnot_si128(_mm_cmpgt_epi32(a, b), VCL_M128I_ALLBITS);
