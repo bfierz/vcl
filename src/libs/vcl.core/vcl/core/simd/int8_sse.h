@@ -32,15 +32,19 @@
 
 // VCL 
 #include <vcl/core/simd/bool8_sse.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<int, 8>
+	class VectorScalar<int, 8> : protected Core::Simd::VectorScalarBase<int, 8, Core::Simd::SimdExt::SSE>
 	{
 	public:
+		using Core::Simd::VectorScalarBase<int, 8, Core::Simd::SimdExt::SSE>::operator[];
+		using Core::Simd::VectorScalarBase<int, 8, Core::Simd::SimdExt::SSE>::get;
+
 		VCL_STRONG_INLINE VectorScalar() = default;
 		VCL_STRONG_INLINE VectorScalar(int s)
 		{
@@ -63,20 +67,6 @@ namespace Vcl
 			return *this;
 		}
 
-	public:
-		VCL_STRONG_INLINE int operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 8, "Access is in range.");
-
-			return _mmVCL_extract_epi32(get(idx / 4), idx % 4);
-		}
-
-		VCL_STRONG_INLINE __m128i get(int i) const
-		{
-			VclRequire(0 <= i && i < 2, "Access is in range.");
-
-			return _data[i];
-		}
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const
 		{
@@ -181,30 +171,6 @@ namespace Vcl
 				_mm_cmpge_epi32(get(1), rhs.get(1))
 			);
 		}
-
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs);
-		friend VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b);
-		friend VectorScalar<int, 8> signum(const VectorScalar<int, 8>& a);
-
-	private:
-		VCL_STRONG_INLINE void set(int s0)
-		{
-			_data[0] = _mm_set1_epi32(s0);
-			_data[1] = _mm_set1_epi32(s0);
-		}
-		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
-		{
-			_data[0] = _mm_set_epi32(s3, s2, s1, s0);
-			_data[1] = _mm_set_epi32(s7, s6, s5, s4);
-		}
-		VCL_STRONG_INLINE void set(__m128i v0, __m128i v1)
-		{
-			_data[0] = v0;
-			_data[1] = v1;
-		}
-	private:
-		__m128i _data[2];
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
@@ -212,8 +178,8 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 8>
 		(
-			_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.mF4[0]), _mm_xor_si128(b.get(0), a.get(0)))),
-			_mm_xor_si128(b.get(1), _mm_and_si128(_mm_castps_si128(mask.mF4[1]), _mm_xor_si128(b.get(1), a.get(1))))
+			_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.get(0)), _mm_xor_si128(b.get(0), a.get(0)))),
+			_mm_xor_si128(b.get(1), _mm_and_si128(_mm_castps_si128(mask.get(1)), _mm_xor_si128(b.get(1), a.get(1))))
 		);
 	}
 

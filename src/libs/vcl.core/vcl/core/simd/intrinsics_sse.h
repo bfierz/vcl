@@ -58,12 +58,12 @@ namespace Vcl
 			return _mm_blendv_ps(a, b, mask);
 #else
 			// Straight forward method
-			// (b & ~mask) | (a & mask)
-			return _mm_or_ps(_mm_andnot_ps(mask, b), _mm_and_ps(mask, a)));
+			// (a & ~mask) | (b & mask)
+			return _mm_or_ps(_mm_andnot_ps(mask, a), _mm_and_ps(mask, b));
 
 			// xor-method
-			// (((b ^ a) & mask)^b)
-			//return _mm_xor_ps(b, _mm_and_ps(mask, _mm_xor_ps(b, a))));
+			// (((a ^ b) & mask)^a)
+			//return _mm_xor_ps(a, _mm_and_ps(mask, _mm_xor_ps(a, b)));
 #endif
 		}
 

@@ -138,10 +138,10 @@ namespace Vcl
 	{
 		return VectorScalar<float, 16>
 		(
-			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.mF4[0]),
-			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.mF4[1]),
-			Core::Simd::SSE::blend(b.get(2), a.get(2), mask.mF4[2]),
-			Core::Simd::SSE::blend(b.get(3), a.get(3), mask.mF4[3])
+			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.get(0)),
+			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.get(1)),
+			Core::Simd::SSE::blend(b.get(2), a.get(2), mask.get(2)),
+			Core::Simd::SSE::blend(b.get(3), a.get(3), mask.get(3))
 		);
 	}
 }
