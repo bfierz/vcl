@@ -282,9 +282,9 @@ namespace Vcl
 		store
 		(
 			base,
-			static_cast<__m256>(value(0)),
-			static_cast<__m256>(value(1)),
-			static_cast<__m256>(value(2))
+			value(0).get(0),
+			value(1).get(0),
+			value(2).get(0)
 		);
 	}
 

@@ -27,13 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
-//#include <array>
-
-// VCL 
-//#include <vcl/core/simd/bool4_sse.h>
-//#include <vcl/core/simd/vectorscalar.h>
+// VCL
 #include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/intrinsics_avx.h>
 
 namespace Vcl { namespace Core { namespace Simd
 {
@@ -138,6 +134,102 @@ namespace Vcl { namespace Core { namespace Simd
 		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
 		{
 			return _mmVCL_extract_epi32(_mm_castps_si128(vec), i) != 0;
+		}
+	};
+#endif
+	
+#ifdef VCL_VECTORIZE_AVX
+	template<>
+	struct SimdRegister<float, SimdExt::AVX>
+	{
+		using Scalar = float;
+		using Type = __m256;
+		static const int Width = 8;
+		
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return _mm256_set1_ps(s0);
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			return _mm256_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_ps(vec, i);
+		}
+	};
+	template<>
+	struct SimdRegister<int, SimdExt::AVX>
+	{
+		using Scalar = int;
+		using Type = __m256i;
+		static const int Width = 8;
+		
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return _mm256_set1_epi32(s0);
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			return _mm256_set_epi32(s7, s6, s5, s4, s3, s2, s1, s0);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(vec, i);
+		}
+	};
+	template<>
+	struct SimdRegister<bool, SimdExt::AVX>
+	{
+		using Scalar = bool;
+		using Type = __m256;
+		static const int Width = 8;
+		
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			const int m0 = s0 ? -1 : 0;
+			return _mm256_castsi256_ps(_mm256_set1_epi32(m0));
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			const int m0 = s0 ? -1 : 0;
+			const int m1 = s1 ? -1 : 0;
+			const int m2 = s2 ? -1 : 0;
+			const int m3 = s3 ? -1 : 0;
+			const int m4 = s4 ? -1 : 0;
+			const int m5 = s5 ? -1 : 0;
+			const int m6 = s6 ? -1 : 0;
+			const int m7 = s7 ? -1 : 0;
+			return _mm256_castsi256_ps(_mm256_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0));
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(_mm256_castps_si256(vec), i) != 0;
 		}
 	};
 #endif
