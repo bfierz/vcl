@@ -39,6 +39,107 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
+TEST(Simd, Bool_Construct)
+{
+	using Vcl::bool4;
+	using Vcl::bool8;
+	using Vcl::bool16;
+	using Vcl::all;
+	using Vcl::none;
+
+	EXPECT_TRUE(all(bool4{true}));
+	EXPECT_TRUE(all(bool8{true}));
+	EXPECT_TRUE(all(bool16{true}));
+	
+	EXPECT_TRUE(none(bool4{false}));
+	EXPECT_TRUE(none(bool8{false}));
+	EXPECT_TRUE(none(bool16{false}));
+	
+	bool4 b4{true, false, true, false};
+	bool8 b8{true, false, true, false, true, false, true, false};
+	bool16 b16{true, false, true, false, true, false, true, false,
+		true, false, true, false, true, false, true, false};
+
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(b4[i], i % 2 == 0);
+	
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(b8[i], i % 2 == 0);
+	
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(b16[i], i % 2 == 0);
+}
+
+TEST(Simd, Bool_And)
+{
+	using Vcl::bool4;
+	using Vcl::bool8;
+	using Vcl::bool16;
+	using Vcl::all;
+	using Vcl::none;
+	
+	bool4 b4_0{true, false, true, false};
+	bool4 b4_1{false, true, false, true};
+
+	bool8 b8_0{true, false, true, false, true, false, true, false};
+	bool8 b8_1{false, true, false, true, false, true, false, true};
+
+	bool16 b16_0{true, false, true, false, true, false, true, false,
+		true, false, true, false, true, false, true, false};
+	bool16 b16_1{false, true, false, true, false, true, false, true,
+		false, true, false, true, false, true, false, true};
+
+	bool4 b4 = b4_0 && b4_0;
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(b4[i], i % 2 == 0);
+	EXPECT_TRUE(none(b4_0 && b4_1));
+	
+	bool8 b8 = b8_0 && b8_0;
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(b8[i], i % 2 == 0);
+	EXPECT_TRUE(none(b8_0 && b8_1));
+	
+	bool16 b16 = b16_0 && b16_0;
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(b16[i], i % 2 == 0);
+	EXPECT_TRUE(none(b16_0 && b16_1));
+}
+
+TEST(Simd, Bool_Or)
+{
+	using Vcl::bool4;
+	using Vcl::bool8;
+	using Vcl::bool16;
+	using Vcl::all;
+	using Vcl::none;
+	
+	bool4 b4_0{true, false, true, false};
+	bool4 b4_1{false, true, false, true};
+
+	bool8 b8_0{true, false, true, false, true, false, true, false};
+	bool8 b8_1{false, true, false, true, false, true, false, true};
+
+	bool16 b16_0{true, false, true, false, true, false, true, false,
+		true, false, true, false, true, false, true, false};
+	bool16 b16_1{false, true, false, true, false, true, false, true,
+		false, true, false, true, false, true, false, true};
+
+	bool4 b4 = b4_0 || b4_0;
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(b4[i], i % 2 == 0);
+	EXPECT_TRUE(all(b4_0 || b4_1));
+	
+	bool8 b8 = b8_0 || b8_0;
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(b8[i], i % 2 == 0);
+	EXPECT_TRUE(all(b8_0 || b8_1));
+	
+	bool16 b16 = b16_0 || b16_0;
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(b16[i], i % 2 == 0);
+	EXPECT_TRUE(all(b16_0 || b16_1));
+}
+
 TEST(Simd, Inf)
 {
 	using Vcl::float4;

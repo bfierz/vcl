@@ -41,11 +41,15 @@ namespace Vcl
 	class VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		using Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>::operator[];
-		using Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>::get;
+		using Base = Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>;
+		using Scalar = bool;
+		using Self = VectorScalar<bool, 4>;
+		
+		using Base::operator[];
+		using Base::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
+		explicit VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
 		explicit VCL_STRONG_INLINE VectorScalar(bool s0, bool s1, bool s2, bool s3)
 		{
 			set(s0, s1, s2, s3);
@@ -54,11 +58,11 @@ namespace Vcl
 		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) { set(_mm_castsi128_ps(I4)); }
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_and_ps(get(0), rhs.get(0))); }
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_or_ps (get(0), rhs.get(0))); }
+		VCL_SIMD_BINARY_OP(operator&&, _mm_and_ps, 1)
+		VCL_SIMD_BINARY_OP(operator||, _mm_or_ps, 1)
 
-		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator&= (const VectorScalar<bool, 4>& rhs) { _data[0] = _mm_and_ps(get(0), rhs.get(0)); return *this; }
-		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator|= (const VectorScalar<bool, 4>& rhs) { _data[0] = _mm_or_ps(get(0), rhs.get(0));  return *this; }
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm_and_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm_or_ps, 1)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)

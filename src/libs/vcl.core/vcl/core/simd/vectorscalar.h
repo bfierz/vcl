@@ -427,6 +427,11 @@ namespace Vcl
 	typedef VectorScalar<int,  8> int8;
 	typedef VectorScalar<int, 16> int16;
 	typedef VectorScalar<int, 32> int32;
+	
+	typedef VectorScalar<bool,  4> bool4;
+	typedef VectorScalar<bool,  8> bool8;
+	typedef VectorScalar<bool, 16> bool16;
+	typedef VectorScalar<bool, 32> bool32;
 }
 
 namespace Eigen

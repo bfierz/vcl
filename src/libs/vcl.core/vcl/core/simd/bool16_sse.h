@@ -41,11 +41,23 @@ namespace Vcl
 	class VectorScalar<bool, 16> : protected Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		using Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::SSE>::operator[];
-		using Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::SSE>::get;
+		using Base = Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::SSE>;
+		using Scalar = bool;
+		using Self = VectorScalar<bool, 16>;
+		
+		using Base::operator[];
+		using Base::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
+		explicit VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
+		explicit VCL_STRONG_INLINE VectorScalar
+		(
+			bool s00, bool s01, bool s02, bool s03, bool s04, bool s05, bool s06, bool s07,
+			bool s08, bool s09, bool s10, bool s11, bool s12, bool s13, bool s14, bool s15
+		)
+		{
+			set(s00, s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15);
+		}
 		explicit VCL_STRONG_INLINE VectorScalar(const __m128& F4_0, const __m128& F4_1, const __m128& F4_2, const __m128& F4_3)
 		{
 			_data[0] = F4_0;
@@ -62,43 +74,11 @@ namespace Vcl
 		}
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_and_ps(get(0), rhs.get(0)),
-				_mm_and_ps(get(1), rhs.get(1)),
-				_mm_and_ps(get(2), rhs.get(2)),
-				_mm_and_ps(get(3), rhs.get(3))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mm_or_ps(get(0), rhs.get(0)),
-				_mm_or_ps(get(1), rhs.get(1)),
-				_mm_or_ps(get(2), rhs.get(2)),
-				_mm_or_ps(get(3), rhs.get(3))
-			);
-		}
-		
-		VCL_STRONG_INLINE VectorScalar<bool, 16>& operator&= (const VectorScalar<bool, 16>& rhs)
-		{
-			_data[0] = _mm_and_ps(get(0), rhs.get(0));
-			_data[1] = _mm_and_ps(get(1), rhs.get(1));
-			_data[2] = _mm_and_ps(get(2), rhs.get(2));
-			_data[3] = _mm_and_ps(get(3), rhs.get(3));
-			return *this;
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16>& operator|= (const VectorScalar<bool, 16>& rhs)
-		{
-			_data[0] = _mm_or_ps(get(0), rhs.get(0));
-			_data[1] = _mm_or_ps(get(1), rhs.get(1));
-			_data[2] = _mm_or_ps(get(2), rhs.get(2));
-			_data[3] = _mm_or_ps(get(3), rhs.get(3));
-			return *this;
-		}
+		VCL_SIMD_BINARY_OP(operator&&, _mm_and_ps, 4)
+		VCL_SIMD_BINARY_OP(operator||, _mm_or_ps, 4)
+
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm_and_ps, 4)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm_or_ps, 4)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
