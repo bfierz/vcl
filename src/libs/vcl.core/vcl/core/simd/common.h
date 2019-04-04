@@ -27,6 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <type_traits>
+
+// Abseil
+#include <absl/utility/utility.h>
+
 // VCL
 #include <vcl/core/simd/intrinsics_sse.h>
 #include <vcl/core/simd/intrinsics_avx.h>
@@ -266,6 +272,21 @@ namespace Vcl { namespace Core { namespace Simd
 		VCL_STRONG_INLINE void set(T... vals)
 		{
 			setImpl(SimdWidthTag<RegValues>{}, 0, vals...);
+		}
+
+		template<typename T, size_t N, size_t... Is>
+		VCL_STRONG_INLINE void set(const T (&arr)[N], absl::index_sequence<Is...>)
+		{
+			set(arr[Is]...);
+		}
+		
+		//! Assignment operator
+		//! Define a custom assignment in order to support the compiler generating
+		//! SIMD instructions for copying data
+		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator= (const VectorScalarBase<Scalar, Width, Type>& rhs)
+		{
+			set(rhs._data, absl::make_index_sequence<Regs>{});
+			return *this;
 		}
 
 	private:
