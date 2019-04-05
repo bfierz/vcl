@@ -56,7 +56,23 @@ protected:
 		true, false, true, false, true, false, true, false};
 	bool16 b16_1{false, true, false, true, false, true, false, true,
 		false, true, false, true, false, true, false, true};
+};
 
+class SimdFloat : public ::testing::Test
+{
+protected:
+	using float4 = Vcl::float4;
+	using float8 = Vcl::float8;
+	using float16 = Vcl::float16;
+
+	float4 f4_asc{1, 2, 3, 4};
+	float4 f4_desc{4, 3, 2, 1};
+
+	float8 f8_asc{1, 2, 3, 4, 5, 6, 7, 8};
+	float8 f8_desc{8, 7, 6, 5, 4, 3, 2, 1};
+
+	float16 f16_asc{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	float16 f16_desc{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 };
 
 TEST_F(SimdBool, Construct)
@@ -72,14 +88,26 @@ TEST_F(SimdBool, Construct)
 	EXPECT_TRUE(none(bool8{false}));
 	EXPECT_TRUE(none(bool16{false}));
 	
+	bool4 b4{ b4_0 };
 	for (int i = 0; i < 4; i++)
+	{
 		EXPECT_EQ(b4_0[i], i % 2 == 0);
-	
+		EXPECT_EQ(b4[i], i % 2 == 0);
+	}
+
+	bool8 b8{ b8_0 };
 	for (int i = 0; i < 8; i++)
+	{
 		EXPECT_EQ(b8_0[i], i % 2 == 0);
-	
+		EXPECT_EQ(b8[i], i % 2 == 0);
+	}
+
+	bool16 b16{ b16_0 };
 	for (int i = 0; i < 16; i++)
+	{
 		EXPECT_EQ(b16_0[i], i % 2 == 0);
+		EXPECT_EQ(b16[i], i % 2 == 0);
+	}
 }
 
 TEST_F(SimdBool, Assign)
@@ -146,6 +174,60 @@ TEST_F(SimdBool, Or)
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(b16[i], i % 2 == 0);
 	EXPECT_TRUE(all(b16_0 || b16_1));
+}
+
+TEST_F(SimdFloat, Construct)
+{
+	float4 f4{ 1 };
+	float4 f4_2{ f4 };
+	for (int i = 0; i < 4; i++)
+	{
+		EXPECT_EQ(f4[i], 1);
+		EXPECT_EQ(f4_2[i], 1);
+		EXPECT_EQ(f4_asc[i], i + 1);
+	}
+
+	float8 f8{ 1 };
+	float8 f8_2{ f8 };
+	for (int i = 0; i < 8; i++)
+	{
+		EXPECT_EQ(f8[i], 1);
+		EXPECT_EQ(f8_2[i], 1);
+		EXPECT_EQ(f8_asc[i], i + 1);
+	}
+
+	float16 f16{ 1 };
+	float16 f16_2{ f16 };
+	for (int i = 0; i < 16; i++)
+	{
+		EXPECT_EQ(f16[i], 1);
+		EXPECT_EQ(f16_2[i], 1);
+		EXPECT_EQ(f16_asc[i], i + 1);
+	}
+}
+
+TEST_F(SimdFloat, Assign)
+{
+	float4 f4{0};
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(f4[i], 0.0f);
+	f4 = f4_asc;
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(f4_asc[i], i+1);
+	
+	float8 f8{0};
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(f8[i], 0.0f);
+	f8 = f8_asc;
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(f8_asc[i], i+1);
+	
+	float16 f16{0};
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(f16[i], 0.0f);
+	f16 = f16_asc;
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(f16_asc[i], i+1);
 }
 
 TEST(Simd, Inf)
