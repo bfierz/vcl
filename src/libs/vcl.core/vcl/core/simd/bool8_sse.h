@@ -49,7 +49,7 @@ namespace Vcl
 		using Base::get;
 
 		VCL_STRONG_INLINE VectorScalar() = default;
-		explicit VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
+		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
 		explicit VCL_STRONG_INLINE VectorScalar(bool s0, bool s1, bool s2, bool s3, bool s4, bool s5, bool s6, bool s7)
 		{
 			set(s0, s1, s2, s3, s4, s5, s6, s7);
