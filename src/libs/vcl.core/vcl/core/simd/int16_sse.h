@@ -66,11 +66,7 @@ namespace Vcl
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 16>& operator = (const VectorScalar<int, 16>& rhs)
 		{
-			set(rhs.get(0));
-			set(rhs.get(1));
-			set(rhs.get(2));
-			set(rhs.get(3));
-
+			set(rhs.get(0), rhs.get(1), rhs.get(2), rhs.get(3));
 			return *this;
 		}
 
