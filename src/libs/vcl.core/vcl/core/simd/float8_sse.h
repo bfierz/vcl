@@ -47,26 +47,7 @@ namespace Vcl
 		using Base::operator[];
 		using Base::get;
 
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(float s)
-		{
-			set(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
-		{
-			set(s0, s1, s2, s3, s4, s5, s6, s7);
-		}
-		VCL_STRONG_INLINE explicit VectorScalar(__m128 F4_0, __m128 F4_1)
-		{
-			set(F4_0, F4_1);
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<float, 8>& operator = (const VectorScalar<float, 8>& rhs)
-		{
-			set(rhs.get(0), rhs.get(1));
-			return *this;
-		}
+		VCL_SIMD_CONSTRUCTORS()
 
 	public:
 		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 2);

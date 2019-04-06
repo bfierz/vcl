@@ -75,6 +75,23 @@ protected:
 	float16 f16_desc{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 };
 
+class SimdInt : public ::testing::Test
+{
+protected:
+	using int4 = Vcl::int4;
+	using int8 = Vcl::int8;
+	using int16 = Vcl::int16;
+
+	int4 i4_asc{ 1, 2, 3, 4 };
+	int4 i4_desc{ 4, 3, 2, 1 };
+
+	int8 i8_asc{ 1, 2, 3, 4, 5, 6, 7, 8 };
+	int8 i8_desc{ 8, 7, 6, 5, 4, 3, 2, 1 };
+
+	int16 i16_asc{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+	int16 i16_desc{ 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+};
+
 TEST_F(SimdBool, Construct)
 {
 	using Vcl::all;
@@ -507,4 +524,59 @@ TEST(Simd, Sign8)
 		else
 			EXPECT_TRUE(all(sgn(float8(d)) == float8(1))) << d;
 	}
+}
+
+
+TEST_F(SimdInt, Construct)
+{
+	int4 i4{ 1 };
+	int4 i4_2{ i4 };
+	for (int i = 0; i < 4; i++)
+	{
+		EXPECT_EQ(i4[i], 1);
+		EXPECT_EQ(i4_2[i], 1);
+		EXPECT_EQ(i4_asc[i], i + 1);
+	}
+
+	int8 i8{ 1 };
+	int8 i8_2{ i8 };
+	for (int i = 0; i < 8; i++)
+	{
+		EXPECT_EQ(i8[i], 1);
+		EXPECT_EQ(i8_2[i], 1);
+		EXPECT_EQ(i8_asc[i], i + 1);
+	}
+
+	int16 i16{ 1 };
+	int16 i16_2{ i16 };
+	for (int i = 0; i < 16; i++)
+	{
+		EXPECT_EQ(i16[i], 1);
+		EXPECT_EQ(i16_2[i], 1);
+		EXPECT_EQ(i16_asc[i], i + 1);
+	}
+}
+
+TEST_F(SimdInt, Assign)
+{
+	int4 i4{ 0 };
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(i4[i], 0.0f);
+	i4 = i4_asc;
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(i4_asc[i], i + 1);
+
+	int8 i8{ 0 };
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(i8[i], 0.0f);
+	i8 = i8_asc;
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(i8_asc[i], i + 1);
+
+	int16 i16{ 0 };
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(i16[i], 0.0f);
+	i16 = i16_asc;
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(i16_asc[i], i + 1);
 }

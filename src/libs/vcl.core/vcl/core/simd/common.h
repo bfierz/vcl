@@ -51,6 +51,9 @@ namespace Vcl { namespace Core { namespace Simd
 	template<typename, SimdExt>
 	struct SimdRegister
 	{
+		//! Scalar value type stored in registers
+		using Scalar = void;
+
 		//! Type of values in registers
 		using Type = void;
 
@@ -240,38 +243,40 @@ namespace Vcl { namespace Core { namespace Simd
 	};
 #endif
 
-	template<typename Scalar, int Width, SimdExt Type>
+	template<typename ScalarT, int Width, SimdExt Type>
 	class VectorScalarBase
 	{
 	protected:
-		using RegType = typename SimdRegister<Scalar, Type>::Type;
-		static const int RegValues = SimdRegister<Scalar, Type>::Width;
-		static const int Regs = Width / RegValues;
+		using RegType = typename SimdRegister<ScalarT, Type>::Type;
+		using Scalar = typename SimdRegister<ScalarT, Type>::Scalar;
+		static constexpr int NrValues = Width;
+		static constexpr int NrValuesPerReg = SimdRegister<Scalar, Type>::Width;
+		static constexpr int NrRegs = NrValues / NrValuesPerReg;
 
 		//! SIMD registers
-		RegType _data[Regs];
+		RegType _data[NrRegs];
 		
 		VCL_STRONG_INLINE RegType get(int i) const
 		{
-			VclRequire(0 <= i && i < Regs, "Access is in range.");
+			VclRequire(0 <= i && i < NrRegs, "Access is in range.");
 			return _data[i];
 		}
 		VCL_STRONG_INLINE Scalar operator[] (int idx) const
 		{
 			VclRequire(0 <= idx && idx < Width, "Access is in range.");
-			return SimdRegister<Scalar, Type>::get(get(idx / RegValues), idx % RegValues);
+			return SimdRegister<Scalar, Type>::get(get(idx / NrValuesPerReg), idx % NrValuesPerReg);
 		}
 
 		VCL_STRONG_INLINE void set(Scalar s)
 		{
-			for (int i = 0; i < Regs; i++)
+			for (int i = 0; i < NrRegs; i++)
 				_data[i] = SimdRegister<Scalar, Type>::set(s);
 		}
 
 		template<typename... T>
 		VCL_STRONG_INLINE void set(T... vals)
 		{
-			setImpl(SimdWidthTag<RegValues>{}, 0, vals...);
+			setImpl(SimdWidthTag<NrValuesPerReg>{}, 0, vals...);
 		}
 
 		template<typename T, size_t N, size_t... Is>
@@ -285,7 +290,7 @@ namespace Vcl { namespace Core { namespace Simd
 		//! SIMD instructions for copying data
 		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator= (const VectorScalarBase<Scalar, Width, Type>& rhs)
 		{
-			set(rhs._data, absl::make_index_sequence<Regs>{});
+			set(rhs._data, absl::make_index_sequence<NrRegs>{});
 			return *this;
 		}
 
@@ -345,6 +350,18 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 	}
 }}}
+
+#define VCL_SIMD_CONSTRUCTORS() \
+	VCL_STRONG_INLINE VectorScalar() = default; \
+	VCL_STRONG_INLINE VectorScalar(Scalar s) { set(s); } \
+	template<typename... S> explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) { \
+		static_assert(absl::conjunction<std::is_convertible<S, Scalar>...>::value, "All parameters need to be convertible to the scalar base type"); \
+		static_assert(sizeof...(S) == NrValues-4, "Wrong number number of parameters"); \
+		set(s0, s1, s2, s3, static_cast<Scalar>(s)...); } \
+	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(__m128 v0, V... v) { \
+		static_assert(sizeof...(V) == NrRegs-1, "Wrong number number of parameters"); \
+		set(v0, v...); }
+
 
 #define VCL_SIMD_P1_1(op) op(get(0))
 #define VCL_SIMD_P1_2(op) VCL_SIMD_P1_1(op), op(get(1))
