@@ -76,7 +76,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex)
 	{
-		__m256i idx = static_cast<__m256i>(vindex);
+		__m256i idx = vindex.get(0);
 		return VectorScalar<float, 8>(gather(base, idx));
 	}
 
@@ -297,9 +297,9 @@ namespace Vcl
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base),
-			_mm256_castsi256_ps(static_cast<__m256i>(value(0))),
-			_mm256_castsi256_ps(static_cast<__m256i>(value(1))),
-			_mm256_castsi256_ps(static_cast<__m256i>(value(2)))
+			_mm256_castsi256_ps(value(0).get(0)),
+			_mm256_castsi256_ps(value(1).get(0)),
+			_mm256_castsi256_ps(value(2).get(0))
 		);
 	}
 

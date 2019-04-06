@@ -26,7 +26,6 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // VCL
 #include <vcl/core/simd/common.h>
@@ -38,35 +37,15 @@ namespace Vcl
 	class VectorScalar<bool, 8> : protected Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::AVX>
 	{
 	public:
-		using Base = Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::AVX>;
-		
-		using Base::operator[];
-		using Base::get;
-
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
-		explicit VCL_STRONG_INLINE VectorScalar(__m256 F8) { set(F8); }
+		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) { set(_mm256_castsi256_ps(I8)); }
-
+		
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>(_mm256_and_ps(get(0), rhs.get(0)));
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>(_mm256_or_ps(get(0), rhs.get(0)));
-		}
+		VCL_SIMD_BINARY_OP(operator&&, _mm256_and_ps, 1)
+		VCL_SIMD_BINARY_OP(operator||, _mm256_or_ps, 1)
 
-		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator&= (const VectorScalar<bool, 8>& rhs) { _data[0] = _mm256_and_ps(get(0), rhs.get(0)); return *this; }
-		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator|= (const VectorScalar<bool, 8>& rhs) { _data[0] = _mm256_or_ps(get(0), rhs.get(0));  return *this; }
-
-	public:
-		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);
-		friend VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b);
-		friend bool any(const VectorScalar<bool, 8>& b);
-		friend bool all(const VectorScalar<bool, 8>& b);
-		friend bool none(const VectorScalar<bool, 8>& b);
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm256_and_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm256_or_ps, 1)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b)

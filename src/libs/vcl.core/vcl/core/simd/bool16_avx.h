@@ -26,93 +26,52 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// C++ Standard Library
-#include <array>
 
 // VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<bool, 16>
+	class VectorScalar<bool, 16> : protected Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::AVX>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s)
-		{
-			mF8[0] = s ? _mm256_castsi256_ps(_mm256_set1_epi32(-1)) : _mm256_castsi256_ps(_mm256_set1_epi32(0));
-			mF8[1] = s ? _mm256_castsi256_ps(_mm256_set1_epi32(-1)) : _mm256_castsi256_ps(_mm256_set1_epi32(0));
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m256 F8_0, __m256 F8_1)
-		{
-			mF8[0] = F8_0;
-			mF8[1] = F8_1;
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8_0, __m256i I8_1)
 		{
-			mF8[0] = _mm256_castsi256_ps(I8_0);
-			mF8[1] = _mm256_castsi256_ps(I8_1);
+			_data[0] = _mm256_castsi256_ps(I8_0);
+			_data[1] = _mm256_castsi256_ps(I8_1);
 		}
-
 		
 	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator&& (const VectorScalar<bool, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>(_mm256_and_ps(mF8[0], rhs.mF8[0]), _mm256_and_ps(mF8[1], rhs.mF8[1]));
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator|| (const VectorScalar<bool, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>(_mm256_or_ps(mF8[0], rhs.mF8[0]), _mm256_or_ps(mF8[1], rhs.mF8[1]));
-		}
+		VCL_SIMD_BINARY_OP(operator&&, _mm256_and_ps, 2)
+		VCL_SIMD_BINARY_OP(operator||, _mm256_or_ps, 2)
 
-		VCL_STRONG_INLINE VectorScalar<bool, 16>& operator&= (const VectorScalar<bool, 16>& rhs)
-		{
-			mF8[0] = _mm256_and_ps(mF8[0], rhs.mF8[0]);
-			mF8[1] = _mm256_and_ps(mF8[1], rhs.mF8[1]);
-			return *this;
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16>& operator|= (const VectorScalar<bool, 16>& rhs)
-		{
-			mF8[0] = _mm256_or_ps(mF8[0], rhs.mF8[0]);
-			mF8[1] = _mm256_or_ps(mF8[1], rhs.mF8[1]);
-			return *this;
-		}
-
-
-	public:
-		friend VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b);
-		friend VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b);
-		friend bool any(const VectorScalar<bool, 16>& b);
-		friend bool all(const VectorScalar<bool, 16>& b);
-		friend bool none(const VectorScalar<bool, 16>& b);
-
-	private:
-		__m256 mF8[2];
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm256_and_ps, 2)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm256_or_ps, 2)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm256_movemask_ps(b.mF8[1]) << 8;
-		    mask |= _mm256_movemask_ps(b.mF8[0]);
+		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
+		    mask |= _mm256_movemask_ps(b.get(0));
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm256_movemask_ps(b.mF8[1]) << 8;
-		    mask |= _mm256_movemask_ps(b.mF8[0]);
+		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
+		    mask |= _mm256_movemask_ps(b.get(0));
 			
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm256_movemask_ps(b.mF8[1]) << 8;
-		    mask |= _mm256_movemask_ps(b.mF8[0]);
+		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
+		    mask |= _mm256_movemask_ps(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

@@ -27,9 +27,6 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
-#include <array>
-
 // VCL 
 #include <vcl/core/simd/bool8_sse.h>
 #include <vcl/core/simd/common.h>

@@ -26,7 +26,6 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
 // VCL 
 #include <vcl/core/simd/bool8_avx.h>
@@ -40,28 +39,7 @@ namespace Vcl
 	class alignas(32) VectorScalar<float, 8> : protected Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::AVX>
 	{
 	public:
-		using Base = Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::AVX>;
-		
-		using Base::operator[];
-		using Base::get;
-
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(const VectorScalar<float, 8>& rhs)
-		{
-			_data[0] = rhs.get(0);
-		}
-		VCL_STRONG_INLINE VectorScalar(float s)
-		{
-			_data[0] = _mm256_set1_ps(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(float s0, float s1, float s2, float s3, float s4, float s5, float s6, float s7)
-		{
-			_data[0] = _mm256_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m256 F8) { set(F8); }
-
-	public:
-		VCL_STRONG_INLINE const VectorScalar<float, 8>& operator= (const VectorScalar<float, 8>& rhs) { _data[0] = rhs.get(0); return *this; }
+		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 8> operator+ (const VectorScalar<float, 8>& rhs) const { return VectorScalar<float, 8>(_mm256_add_ps(get(0), rhs.get(0))); }
