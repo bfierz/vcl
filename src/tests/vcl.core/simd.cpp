@@ -230,6 +230,33 @@ TEST_F(SimdFloat, Assign)
 		EXPECT_EQ(f16_asc[i], i+1);
 }
 
+template<int W>
+void selectTest
+(
+	const Vcl::VectorScalar<bool, W>& t,
+	const Vcl::VectorScalar<float, W>& a, const Vcl::VectorScalar<float, W>& b,
+	const Vcl::VectorScalar<float, W>& c
+)
+{
+	const auto selected = Vcl::select(t, a, b);
+	EXPECT_TRUE(Vcl::all(selected == c));
+}
+
+TEST_F(SimdFloat, Select)
+{
+	selectTest<4>(true, 1.0f, 0.0f, 1.0f);
+	selectTest<8>(true, 1.0f, 0.0f, 1.0f);
+	selectTest<16>(true, 1.0f, 0.0f, 1.0f);
+
+	selectTest<4>(false, 1.0f, 0.0f, 0.0f);
+	selectTest<8>(false, 1.0f, 0.0f, 0.0f);
+	selectTest<16>(false, 1.0f, 0.0f, 0.0f);
+
+	selectTest<4>(float4{ 1 } / float4{ 0 } < 0, 1.0f, 0.0f, 0.0f);
+	selectTest<8>(float8{ 1 } / float8{ 0 } < 0, 1.0f, 0.0f, 0.0f);
+	selectTest<16>(float16{ 1 } / float16{ 0 } < 0, 1.0f, 0.0f, 0.0f);
+}
+
 TEST(Simd, Inf)
 {
 	using Vcl::float4;
