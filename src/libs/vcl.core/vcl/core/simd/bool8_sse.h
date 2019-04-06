@@ -41,28 +41,10 @@ namespace Vcl
 	class VectorScalar<bool, 8> : protected Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		using Base = Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::SSE>;
-		using Scalar = bool;
-		using Self = VectorScalar<bool, 8>;
-		
-		using Base::operator[];
-		using Base::get;
-
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s) { set(s); }
-		explicit VCL_STRONG_INLINE VectorScalar(bool s0, bool s1, bool s2, bool s3, bool s4, bool s5, bool s6, bool s7)
-		{
-			set(s0, s1, s2, s3, s4, s5, s6, s7);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4_0, __m128 F4_1)
-		{
-			_data[0] = F4_0;
-			_data[1] = F4_1;
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
 		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4_0, __m128i I4_1)
 		{
-			_data[0] = _mm_castsi128_ps(I4_0);
-			_data[1] = _mm_castsi128_ps(I4_1);
+			set(_mm_castsi128_ps(I4_0), _mm_castsi128_ps(I4_1));
 		}
 		
 	public:

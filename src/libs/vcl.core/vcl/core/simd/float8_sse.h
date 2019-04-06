@@ -39,15 +39,7 @@ namespace Vcl
 	class VectorScalar<float, 8> : protected Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		using Base = Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::SSE>;
-		using Scalar = float;
-		using Self = VectorScalar<float, 8>;
-		using Bool = VectorScalar<bool, 8>;
-		
-		using Base::operator[];
-		using Base::get;
-
-		VCL_SIMD_CONSTRUCTORS()
+		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
 
 	public:
 		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 2);

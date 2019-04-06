@@ -42,33 +42,7 @@ namespace Vcl
 	class VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		using Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::SSE>::operator[];
-		using Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::SSE>::get;
-
-		VCL_STRONG_INLINE VectorScalar() {}
-		VCL_STRONG_INLINE VectorScalar(int s)
-		{
-			set(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar
-		(
-			int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
-			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
-		)
-		{
-			set(s00, s01, s02, s03, s04, s05, s06, s07, s08, s09, s10, s11, s12, s13, s14, s15);
-		}
-		VCL_STRONG_INLINE explicit VectorScalar(__m128i I4_0, __m128i I4_1, __m128i I4_2, const __m128i& I4_3)
-		{
-			set(I4_0, I4_1, I4_2, I4_3);
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16>& operator = (const VectorScalar<int, 16>& rhs)
-		{
-			set(rhs.get(0), rhs.get(1), rhs.get(2), rhs.get(3));
-			return *this;
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator+ (const VectorScalar<int, 16>& rhs) const

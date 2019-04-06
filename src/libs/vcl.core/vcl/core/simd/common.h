@@ -351,17 +351,21 @@ namespace Vcl { namespace Core { namespace Simd
 	}
 }}}
 
-#define VCL_SIMD_CONSTRUCTORS() \
+#define VCL_SIMD_VECTORSCALAR_SETUP(SIMD_TYPE) \
+	using Base = Core::Simd::VectorScalarBase<Scalar, NrValues, Core::Simd::SimdExt::SIMD_TYPE>; \
+	using Self = VectorScalar<Scalar, NrValues>; \
+	using Bool = VectorScalar<bool, NrValues>; \
+	using Base::operator[]; \
+	using Base::get; \
 	VCL_STRONG_INLINE VectorScalar() = default; \
 	VCL_STRONG_INLINE VectorScalar(Scalar s) { set(s); } \
 	template<typename... S> explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) { \
 		static_assert(absl::conjunction<std::is_convertible<S, Scalar>...>::value, "All parameters need to be convertible to the scalar base type"); \
 		static_assert(sizeof...(S) == NrValues-4, "Wrong number number of parameters"); \
 		set(s0, s1, s2, s3, static_cast<Scalar>(s)...); } \
-	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(__m128 v0, V... v) { \
+	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) { \
 		static_assert(sizeof...(V) == NrRegs-1, "Wrong number number of parameters"); \
 		set(v0, v...); }
-
 
 #define VCL_SIMD_P1_1(op) op(get(0))
 #define VCL_SIMD_P1_2(op) VCL_SIMD_P1_1(op), op(get(1))
