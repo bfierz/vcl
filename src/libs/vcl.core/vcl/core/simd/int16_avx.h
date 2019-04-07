@@ -36,7 +36,7 @@
 namespace Vcl
 {
 	template<>
-	class VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::AVX>
+	class alignas(32) VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::AVX>
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX)

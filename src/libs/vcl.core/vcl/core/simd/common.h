@@ -324,13 +324,13 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 
 		template<int W>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W>, int i, RegType v0)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W>, int i, const RegType& v0)
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(v0);
 		}
 
 		template<int W, typename... T>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W> tag, int i, RegType v0, T... vals)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W> tag, int i, const RegType& v0, T... vals)
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(v0);
 			setImpl(tag, i+1, vals...);

@@ -39,61 +39,45 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <gtest/gtest.h>
 VCL_END_EXTERNAL_HEADERS
 
-class SimdBool : public ::testing::Test
-{
-protected:
-	using bool4 = Vcl::bool4;
-	using bool8 = Vcl::bool8;
-	using bool16 = Vcl::bool16;
-
-	bool4 b4_0{true, false, true, false};
-	bool4 b4_1{false, true, false, true};
-
-	bool8 b8_0{true, false, true, false, true, false, true, false};
-	bool8 b8_1{false, true, false, true, false, true, false, true};
-
-	bool16 b16_0{true, false, true, false, true, false, true, false,
-		true, false, true, false, true, false, true, false};
-	bool16 b16_1{false, true, false, true, false, true, false, true,
+#define VCL_SIMD_BOOLS \
+	using bool4 = Vcl::bool4; \
+	using bool8 = Vcl::bool8; \
+	using bool16 = Vcl::bool16; \
+	bool4 b4_0{true, false, true, false}; \
+	bool4 b4_1{false, true, false, true}; \
+	bool8 b8_0{true, false, true, false, true, false, true, false}; \
+	bool8 b8_1{false, true, false, true, false, true, false, true}; \
+	bool16 b16_0{true, false, true, false, true, false, true, false, \
+		true, false, true, false, true, false, true, false}; \
+	bool16 b16_1{false, true, false, true, false, true, false, true, \
 		false, true, false, true, false, true, false, true};
-};
 
-class SimdFloat : public ::testing::Test
-{
-protected:
-	using float4 = Vcl::float4;
-	using float8 = Vcl::float8;
-	using float16 = Vcl::float16;
-
-	float4 f4_asc{1, 2, 3, 4};
-	float4 f4_desc{4, 3, 2, 1};
-
-	float8 f8_asc{1, 2, 3, 4, 5, 6, 7, 8};
-	float8 f8_desc{8, 7, 6, 5, 4, 3, 2, 1};
-
-	float16 f16_asc{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+#define VCL_SIMD_FLOATS \
+	using float4 = Vcl::float4; \
+	using float8 = Vcl::float8; \
+	using float16 = Vcl::float16; \
+	float4 f4_asc{1, 2, 3, 4}; \
+	float4 f4_desc{4, 3, 2, 1}; \
+	float8 f8_asc{1, 2, 3, 4, 5, 6, 7, 8}; \
+	float8 f8_desc{8, 7, 6, 5, 4, 3, 2, 1}; \
+	float16 f16_asc{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}; \
 	float16 f16_desc{16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-};
 
-class SimdInt : public ::testing::Test
-{
-protected:
-	using int4 = Vcl::int4;
-	using int8 = Vcl::int8;
-	using int16 = Vcl::int16;
-
-	int4 i4_asc{ 1, 2, 3, 4 };
-	int4 i4_desc{ 4, 3, 2, 1 };
-
-	int8 i8_asc{ 1, 2, 3, 4, 5, 6, 7, 8 };
-	int8 i8_desc{ 8, 7, 6, 5, 4, 3, 2, 1 };
-
-	int16 i16_asc{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+#define VCL_SIMD_INTS \
+	using int4 = Vcl::int4; \
+	using int8 = Vcl::int8; \
+	using int16 = Vcl::int16; \
+	int4 i4_asc{ 1, 2, 3, 4 }; \
+	int4 i4_desc{ 4, 3, 2, 1 }; \
+	int8 i8_asc{ 1, 2, 3, 4, 5, 6, 7, 8 }; \
+	int8 i8_desc{ 8, 7, 6, 5, 4, 3, 2, 1 }; \
+	int16 i16_asc{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }; \
 	int16 i16_desc{ 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-};
 
-TEST_F(SimdBool, Construct)
+TEST(SimdBool, Construct)
 {
+	VCL_SIMD_BOOLS
+
 	using Vcl::all;
 	using Vcl::none;
 
@@ -127,8 +111,10 @@ TEST_F(SimdBool, Construct)
 	}
 }
 
-TEST_F(SimdBool, Assign)
+TEST(SimdBool, Assign)
 {
+	VCL_SIMD_BOOLS
+
 	using Vcl::all;
 
 	bool4 b4{true};
@@ -153,8 +139,10 @@ TEST_F(SimdBool, Assign)
 		EXPECT_EQ(b16[i], i % 2 == 0);
 }
 
-TEST_F(SimdBool, And)
+TEST(SimdBool, And)
 {
+	VCL_SIMD_BOOLS
+
 	using Vcl::none;
 
 	bool4 b4 = b4_0 && b4_0;
@@ -173,8 +161,10 @@ TEST_F(SimdBool, And)
 	EXPECT_TRUE(none(b16_0 && b16_1));
 }
 
-TEST_F(SimdBool, Or)
+TEST(SimdBool, Or)
 {
+	VCL_SIMD_BOOLS
+
 	using Vcl::all;
 
 	bool4 b4 = b4_0 || b4_0;
@@ -193,8 +183,10 @@ TEST_F(SimdBool, Or)
 	EXPECT_TRUE(all(b16_0 || b16_1));
 }
 
-TEST_F(SimdFloat, Construct)
+TEST(SimdFloat, Construct)
 {
+	VCL_SIMD_FLOATS
+
 	float4 f4{ 1 };
 	float4 f4_2{ f4 };
 	for (int i = 0; i < 4; i++)
@@ -223,8 +215,10 @@ TEST_F(SimdFloat, Construct)
 	}
 }
 
-TEST_F(SimdFloat, Assign)
+TEST(SimdFloat, Assign)
 {
+	VCL_SIMD_FLOATS
+
 	float4 f4{0};
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(f4[i], 0.0f);
@@ -259,8 +253,10 @@ void selectTest
 	EXPECT_TRUE(Vcl::all(selected == c));
 }
 
-TEST_F(SimdFloat, Select)
+TEST(SimdFloat, Select)
 {
+	VCL_SIMD_FLOATS
+
 	selectTest<float, 4>(true, 1.0f, 0.0f, 1.0f);
 	selectTest<float, 8>(true, 1.0f, 0.0f, 1.0f);
 	selectTest<float, 16>(true, 1.0f, 0.0f, 1.0f);
@@ -527,8 +523,10 @@ TEST(Simd, Sign8)
 }
 
 
-TEST_F(SimdInt, Construct)
+TEST(SimdInt, Construct)
 {
+	VCL_SIMD_INTS
+
 	int4 i4{ 1 };
 	int4 i4_2{ i4 };
 	for (int i = 0; i < 4; i++)
@@ -557,8 +555,10 @@ TEST_F(SimdInt, Construct)
 	}
 }
 
-TEST_F(SimdInt, Assign)
+TEST(SimdInt, Assign)
 {
+	VCL_SIMD_INTS
+
 	int4 i4{ 0 };
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(i4[i], 0.0f);
@@ -581,7 +581,7 @@ TEST_F(SimdInt, Assign)
 		EXPECT_EQ(i16_asc[i], i + 1);
 }
 
-TEST_F(SimdInt, Select)
+TEST(SimdInt, Select)
 {
 	selectTest<int, 4>(true, 1, 0, 1);
 	selectTest<int, 8>(true, 1, 0, 1);
