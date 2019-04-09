@@ -23,19 +23,18 @@
 # SOFTWARE.
 #
 
-# Path to the vcl cu compiler
-SET(VCL_CUC_DIR CACHE PATH "Directory of cuc")
+set(VCL_CUC_NVCC_PATH CACHE FILEPATH "Path to the CUDA compiler to use")
 
-FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
+function(VclCompileCU file_to_compile symbol include_paths compiled_files)
 
-	IF (CUDA_VERSION_MAJOR LESS 8)
-		MESSAGE(ERROR "Require at least CUDA 8")
+	if (CUDA_VERSION_MAJOR LESS 8)
+		message(ERROR "Require at least CUDA 8")
 		return()
-	ENDIF()
+	endif()
 
-	FOREACH(dir ${include_paths})
-		LIST(APPEND include_dir_param -I "\"${dir}\"")
-	ENDFOREACH()
+	foreach(dir ${include_paths})
+		list(APPEND include_dir_param -I "\"${dir}\"")
+	endforeach()
 
 	# Remove the directories from the path and append ".fatbin.cpp"
 	GET_FILENAME_COMPONENT(output_file ${file_to_compile} NAME_WE)
@@ -52,7 +51,23 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	GET_FILENAME_COMPONENT(RT_DIR  ${CUDA_cudadevrt_LIBRARY} DIRECTORY)
 	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)
 
+	# Compiler flag
+	set(CUSTOM_NVCC "")
+	if (EXISTS "${VCL_CUC_NVCC_PATH}")
+		set(CUSTOM_NVCC --nvcc "\"${VCL_CUC_NVCC_PATH}\"")
+	endif()
+
 	# Load old environment if necessary
+	# CUDA Toolkit 	              | MSVC       | GCC | Clang
+	# CUDA 10.1.105               | 1900..1920 |
+	# CUDA 10.0.130               | 1900..1916 |
+	# CUDA 9.2 (9.2.148 Update 1) | 1900..1913 |
+	# CUDA 9.2 (9.2.88)           | 1900..1913 |
+	# CUDA 9.1 (9.1.85)           | 1900..1910 |
+	# CUDA 9.0 (9.0.76)           | 1900..1910 |
+	# CUDA 8.0 (8.0.61 GA2)       | 1900	   |
+	# CUDA 8.0 (8.0.44)           | 1900	   |
+
 	SET(VCVARS "")
 	IF (CUDA_VERSION_MAJOR EQUAL 8)
 		IF (MSVC_VERSION GREATER 1900)
@@ -77,15 +92,15 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 		ENDIF()
 	ENDIF()
 
-	ADD_CUSTOM_COMMAND(
+	add_custom_command(
 		OUTPUT ${output_file}
 
 		COMMAND set curr_dir=%__CD__%
 		COMMAND ${VCVARS}
 		COMMAND cd /d %curr_dir%
-		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
+		COMMAND "${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/cuc.exe" ${CUSTOM_NVCC} --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)
 
-ENDFUNCTION(VclCompileCU)
+endfunction(VclCompileCU)

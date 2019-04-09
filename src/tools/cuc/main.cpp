@@ -209,6 +209,7 @@ int main(int argc, char* argv [])
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
+			("nvcc", "Specify which nvcc should be used.", cxxopts::value<std::string>())
 			("m64", "Specify that this should be compiled in 64bit.")
 			("profile", "Target compute architectures (sm_30, sm_35, sm_50, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
 			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
@@ -226,6 +227,13 @@ int main(int argc, char* argv [])
 		{
 			std::cout << options.help({ "" }) << std::endl;
 			return 1;
+		}
+
+		fs::path nvcc_bin_path;
+		if (parsed_options.count("nvcc"))
+		{
+			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
+			nvcc_bin_path = exe_path.parent_path();
 		}
 
 		if (parsed_options.count("symbol") == 0 || parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
@@ -264,6 +272,9 @@ int main(int argc, char* argv [])
 		{
 			std::stringstream cmd_compile;
 			std::stringstream cmd_link;
+			
+			// Verbose compiler output
+			//cmd_compile << R"(--verbose )";
 
 			// Force a compiler version
 			//cmd_compile << R"(--use-local-env --cl-version 2013 )";
@@ -325,10 +336,10 @@ int main(int argc, char* argv [])
 			cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
 
 			// Compile the code
-			exec("nvcc.exe", cmd_compile.str().c_str());
+			exec((nvcc_bin_path / "nvcc.exe").string().c_str(), cmd_compile.str().c_str());
 
 			// Link the code
-			exec("nvlink.exe", cmd_link.str().c_str());
+			exec((nvcc_bin_path / "nvlink.exe").string().c_str(), cmd_link.str().c_str());
 		}
 
 		// Create a fat binary from the compiled files 
@@ -362,7 +373,7 @@ int main(int argc, char* argv [])
 			fatbin_cmdbuilder << R"("--image=profile=)" << profile_file.first << R"(,file=)" << profile_file.second << R"(" )";
 		}
 
-		exec("fatbinary.exe", fatbin_cmdbuilder.str().c_str());
+		exec((nvcc_bin_path / "fatbinary.exe").string().c_str(), fatbin_cmdbuilder.str().c_str());
 
 		// Create a source file with the binary 
 		std::stringstream bin2c_cmdbuilder;
