@@ -23,3 +23,4 @@ SET_TARGET_PROPERTIES(cuc PROPERTIES FOLDER tools)
 TARGET_LINK_LIBRARIES(cuc
 	vcl_core
 )
+add_dependencies(cuc bin2c)

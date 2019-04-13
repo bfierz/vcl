@@ -361,8 +361,8 @@ int main(int argc, char* argv [])
 			fatbin_cmdbuilder << "-32 ";
 		}
 
-		// We are compiling cuda
-		fatbin_cmdbuilder << R"(--cuda )";
+		// We are compiling cuda (not supported since 10.1), doesn't seem to affect the output
+		//fatbin_cmdbuilder << R"(--cuda )";
 		
 		// Add the orignal filename as identifier
 		fatbin_cmdbuilder << R"(--ident=")" << parsed_options["symbol"].as<std::string>() << R"(" )";
