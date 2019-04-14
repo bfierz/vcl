@@ -27,10 +27,8 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
-#include <array>
-
-// VCL 
+// VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool8_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_neon.h>
@@ -38,55 +36,11 @@
 namespace Vcl
 {
 	template<>
-	class VectorScalar<int, 8>
+	class alignas(16) VectorScalar<int, 8> : protected Core::Simd::VectorScalarBase<int, 8, Core::Simd::SimdExt::NEON>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() {}
-		VCL_STRONG_INLINE VectorScalar(int s)
-		{
-			set(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
-		{
-			set(s0, s1, s2, s3, s4, s5, s6, s7);
-		}
-		VCL_STRONG_INLINE explicit VectorScalar(int32x4_t I4_0, int32x4_t I4_1)
-		{
-			set(I4_0, I4_1);
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
-	public:
-		VCL_STRONG_INLINE VectorScalar<int, 8>& operator = (const VectorScalar<int, 8>& rhs)
-		{
-			set(rhs.get(0), rhs.get(1));
-			
-			return *this;
-		}
-
-	public:
-		VCL_STRONG_INLINE int operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 8, "Access is in range.");
-
-			switch (idx % 4)
-			{
-			case 0:
-				return vgetq_lane_s32(get(idx / 4), 0);
-			case 1:
-				return vgetq_lane_s32(get(idx / 4), 1);
-			case 2:
-				return vgetq_lane_s32(get(idx / 4), 2);
-			case 3:
-				return vgetq_lane_s32(get(idx / 4), 3);
-			}
-		}
-
-		VCL_STRONG_INLINE int32x4_t get(int i) const
-		{
-			VclRequire(0 <= i && i < 2, "Access is in range.");
-
-			return _data[i];
-		}
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const
 		{
@@ -191,32 +145,6 @@ namespace Vcl
 				vcgeq_s32(get(1), rhs.get(1))
 			);
 		}
-
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs);
-		friend VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b);
-		friend VectorScalar<int, 8> signum(const VectorScalar<int, 8>& a);
-
-	private:
-		VCL_STRONG_INLINE void set(int s0)
-		{
-			_data[0] = vdupq_n_s32(s0);
-			_data[1] = vdupq_n_s32(s0);
-		}
-		VCL_STRONG_INLINE void set(int s0, int s1, int s2, int s3, int s4, int s5, int s6, int s7)
-		{
-			alignas(16) int d0[4] = { s0, s1, s2, s3 };
-			alignas(16) int d1[4] = { s4, s5, s6, s7 };
-			_data[0] = vld1q_s32(d0);
-			_data[1] = vld1q_s32(d1);
-		}
-		VCL_STRONG_INLINE void set(int32x4_t v0, int32x4_t v1)
-		{
-			_data[0] = v0;
-			_data[1] = v1;
-		}
-	private:
-		int32x4_t _data[2];
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
@@ -224,8 +152,8 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 8>
 		(
-			vbslq_s32(mask.mF4[0], a.get(0), b.get(0)),
-			vbslq_s32(mask.mF4[1], a.get(1), b.get(1))
+			vbslq_s32(mask.get(0), a.get(0), b.get(0)),
+			vbslq_s32(mask.get(1), a.get(1), b.get(1))
 		);
 	}
 

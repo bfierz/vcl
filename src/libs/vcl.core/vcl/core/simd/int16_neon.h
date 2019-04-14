@@ -27,10 +27,8 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
-#include <array>
-
-// VCL 
+// VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool16_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_neon.h>
@@ -38,96 +36,40 @@
 namespace Vcl
 {
 	template<>
-	class VectorScalar<int, 16>
+	class alignas(16) VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::NEON>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() {}
-		VCL_STRONG_INLINE VectorScalar(int s)
-		{
-			set(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar
-		(
-			int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
-			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
-		)
-		{
-			set(s00, s01, s02, s03, s04, s05, s06, s07,
-				s08, s09, s10, s11, s12, s13, s14, s15);
-		}
-		VCL_STRONG_INLINE explicit VectorScalar(int32x4_t I4_0, int32x4_t I4_1, int32x4_t I4_2, const int32x4_t& I4_3)
-		{
-			mF4[0] = I4_0;
-			mF4[1] = I4_1;
-			mF4[2] = I4_2;
-			mF4[3] = I4_3;
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16>& operator = (const VectorScalar<int, 16>& rhs)
-		{
-			mF4[0] = rhs.mF4[0];
-			mF4[1] = rhs.mF4[1];
-			mF4[2] = rhs.mF4[2];
-			mF4[3] = rhs.mF4[3];
-
-			return *this;
-		}
-
-	public:
-		VCL_STRONG_INLINE int operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 16, "Access is in range.");
-
-			switch (idx % 4)
-			{
-			case 0:
-				return vgetq_lane_s32(get(idx / 4), 0);
-			case 1:
-				return vgetq_lane_s32(get(idx / 4), 1);
-			case 2:
-				return vgetq_lane_s32(get(idx / 4), 2);
-			case 3:
-				return vgetq_lane_s32(get(idx / 4), 3);
-			}
-		}
-
-		VCL_STRONG_INLINE int32x4_t get(int i) const
-		{
-			VclRequire(0 <= i && i < 4, "Access is in range.");
-
-			return mF4[i];
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator+ (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<int, 16>
 			(
-				vaddq_s32(mF4[0], rhs.mF4[0]),
-				vaddq_s32(mF4[1], rhs.mF4[1]),
-				vaddq_s32(mF4[2], rhs.mF4[2]),
-				vaddq_s32(mF4[3], rhs.mF4[3])
+				vaddq_s32(get(0), rhs.get(0)),
+				vaddq_s32(get(1), rhs.get(1)),
+				vaddq_s32(get(2), rhs.get(2)),
+				vaddq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator- (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<int, 16>
 			(
-				vsubq_s32(mF4[0], rhs.mF4[0]),
-				vsubq_s32(mF4[1], rhs.mF4[1]),
-				vsubq_s32(mF4[2], rhs.mF4[2]),
-				vsubq_s32(mF4[3], rhs.mF4[3])
+				vsubq_s32(get(0), rhs.get(0)),
+				vsubq_s32(get(1), rhs.get(1)),
+				vsubq_s32(get(2), rhs.get(2)),
+				vsubq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator* (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<int, 16>
 			(
-				vmulq_s32(mF4[0], rhs.mF4[0]),
-				vmulq_s32(mF4[1], rhs.mF4[1]),
-				vmulq_s32(mF4[2], rhs.mF4[2]),
-				vmulq_s32(mF4[3], rhs.mF4[3])
+				vmulq_s32(get(0), rhs.get(0)),
+				vmulq_s32(get(1), rhs.get(1)),
+				vmulq_s32(get(2), rhs.get(2)),
+				vmulq_s32(get(3), rhs.get(3))
 			);
 		}
 
@@ -136,20 +78,20 @@ namespace Vcl
 		{
 			return VectorScalar<int, 16>
 			(
-				vabsq_s32(mF4[0]),
-				vabsq_s32(mF4[1]),
-				vabsq_s32(mF4[2]),
-				vabsq_s32(mF4[3])
+				vabsq_s32(get(0)),
+				vabsq_s32(get(1)),
+				vabsq_s32(get(2)),
+				vabsq_s32(get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<int, 16> max(const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<int, 16>
 			(
-				vmaxq_s32(mF4[0], rhs.mF4[0]),
-				vmaxq_s32(mF4[1], rhs.mF4[1]),
-				vmaxq_s32(mF4[2], rhs.mF4[2]),
-				vmaxq_s32(mF4[3], rhs.mF4[3])
+				vmaxq_s32(get(0), rhs.get(0)),
+				vmaxq_s32(get(1), rhs.get(1)),
+				vmaxq_s32(get(2), rhs.get(2)),
+				vmaxq_s32(get(3), rhs.get(3))
 			);
 		}
 
@@ -158,20 +100,20 @@ namespace Vcl
 		{
 			return VectorScalar<int, 16>
 			(
-				vandq_s32(mF4[0], rhs.mF4[0]),
-				vandq_s32(mF4[1], rhs.mF4[1]),
-				vandq_s32(mF4[2], rhs.mF4[2]),
-				vandq_s32(mF4[3], rhs.mF4[3])
+				vandq_s32(get(0), rhs.get(0)),
+				vandq_s32(get(1), rhs.get(1)),
+				vandq_s32(get(2), rhs.get(2)),
+				vandq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<int, 16> operator| (const VectorScalar<int, 16>& rhs)
 		{
 			return VectorScalar<int, 16>
 			(
-				vorrq_s32(mF4[0], rhs.mF4[0]),
-				vorrq_s32(mF4[1], rhs.mF4[1]),
-				vorrq_s32(mF4[2], rhs.mF4[2]),
-				vorrq_s32(mF4[3], rhs.mF4[3])
+				vorrq_s32(get(0), rhs.get(0)),
+				vorrq_s32(get(1), rhs.get(1)),
+				vorrq_s32(get(2), rhs.get(2)),
+				vorrq_s32(get(3), rhs.get(3))
 			);
 		}
 
@@ -180,10 +122,10 @@ namespace Vcl
 		{
 			return VectorScalar<bool, 16>
 			(
-				vceqq_s32(mF4[0], rhs.mF4[0]),
-				vceqq_s32(mF4[1], rhs.mF4[1]),
-				vceqq_s32(mF4[0], rhs.mF4[2]),
-				vceqq_s32(mF4[1], rhs.mF4[3])
+				vceqq_s32(get(0), rhs.get(0)),
+				vceqq_s32(get(1), rhs.get(1)),
+				vceqq_s32(get(2), rhs.get(2)),
+				vceqq_s32(get(3), rhs.get(3))
 			);
 		}
 
@@ -191,71 +133,42 @@ namespace Vcl
 		{
 			return VectorScalar<bool, 16>
 			(
-				vcltq_s32(mF4[0], rhs.mF4[0]),
-				vcltq_s32(mF4[1], rhs.mF4[1]),
-				vcltq_s32(mF4[0], rhs.mF4[2]),
-				vcltq_s32(mF4[1], rhs.mF4[3])
+				vcltq_s32(get(0), rhs.get(0)),
+				vcltq_s32(get(1), rhs.get(1)),
+				vcltq_s32(get(2), rhs.get(2)),
+				vcltq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator<= (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
 			(
-				vcleq_s32(mF4[0], rhs.mF4[0]),
-				vcleq_s32(mF4[1], rhs.mF4[1]),
-				vcleq_s32(mF4[0], rhs.mF4[2]),
-				vcleq_s32(mF4[1], rhs.mF4[3])
+				vcleq_s32(get(0), rhs.get(0)),
+				vcleq_s32(get(1), rhs.get(1)),
+				vcleq_s32(get(2), rhs.get(2)),
+				vcleq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator> (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
 			(
-				vcgtq_s32(mF4[0], rhs.mF4[0]),
-				vcgtq_s32(mF4[1], rhs.mF4[1]),
-				vcgtq_s32(mF4[0], rhs.mF4[2]),
-				vcgtq_s32(mF4[1], rhs.mF4[3])
+				vcgtq_s32(get(0), rhs.get(0)),
+				vcgtq_s32(get(1), rhs.get(1)),
+				vcgtq_s32(get(2), rhs.get(2)),
+				vcgtq_s32(get(3), rhs.get(3))
 			);
 		}
 		VCL_STRONG_INLINE VectorScalar<bool, 16> operator>= (const VectorScalar<int, 16>& rhs) const
 		{
 			return VectorScalar<bool, 16>
 			(
-				vcgeq_s32(mF4[0], rhs.mF4[0]),
-				vcgeq_s32(mF4[1], rhs.mF4[1]),
-				vcgeq_s32(mF4[0], rhs.mF4[2]),
-				vcgeq_s32(mF4[1], rhs.mF4[3])
+				vcgeq_s32(get(0), rhs.get(0)),
+				vcgeq_s32(get(1), rhs.get(1)),
+				vcgeq_s32(get(2), rhs.get(2)),
+				vcgeq_s32(get(3), rhs.get(3))
 			);
 		}
-		
-	private:
-		VCL_STRONG_INLINE void set(int s0)
-		{
-			mF4[0] = vdupq_n_s32(s0);
-			mF4[1] = vdupq_n_s32(s0);
-			mF4[2] = vdupq_n_s32(s0);
-			mF4[3] = vdupq_n_s32(s0);
-		}
-		VCL_STRONG_INLINE void set(int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
-			                       int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15)
-		{
-			alignas(16) int d0[4] = { s00, s01, s02, s03 };
-			alignas(16) int d1[4] = { s04, s05, s06, s07 };
-			alignas(16) int d2[4] = { s08, s09, s10, s11 };
-			alignas(16) int d3[4] = { s12, s13, s14, s15 };
-			mF4[0] = vld1q_s32(d0);
-			mF4[1] = vld1q_s32(d1);
-			mF4[2] = vld1q_s32(d2);
-			mF4[3] = vld1q_s32(d3);
-		}
-
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs);
-		friend VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b);
-		friend VectorScalar<int, 16> signum(const VectorScalar<int, 16>& a);
-
-	private:
-		int32x4_t mF4[4];
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b)
@@ -263,10 +176,10 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 16>
 		(
-			vbslq_s32(mask.mF4[0], a.get(0), b.get(0)),
-			vbslq_s32(mask.mF4[1], a.get(1), b.get(1)),
-			vbslq_s32(mask.mF4[2], a.get(2), b.get(2)),
-			vbslq_s32(mask.mF4[3], a.get(3), b.get(3))
+			vbslq_s32(mask.get(0), a.get(0), b.get(0)),
+			vbslq_s32(mask.get(1), a.get(1), b.get(1)),
+			vbslq_s32(mask.get(2), a.get(2), b.get(2)),
+			vbslq_s32(mask.get(3), a.get(3), b.get(3))
 		);
 	}
 
@@ -278,30 +191,30 @@ namespace Vcl
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[0], vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.mF4[0], _mm_setzero_si128())
+					_mm_and_si128(a.get(0), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
+				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
 			),
 			_mm_and_si128
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[1], vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.mF4[1], _mm_setzero_si128())
+					_mm_and_si128(a.get(1), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
+				), _mm_cmpneq_epi32(a.get(1), _mm_setzero_si128())
 			),
 			
 			_mm_and_si128
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[2], vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.mF4[2], _mm_setzero_si128())
+					_mm_and_si128(a.get(2), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
+				), _mm_cmpneq_epi32(a.get(2), _mm_setzero_si128())
 			),
 			_mm_and_si128
 			(
 				_mm_or_si128
 				(
-					_mm_and_si128(a.mF4[3], vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.mF4[3], _mm_setzero_si128())
+					_mm_and_si128(a.get(3), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
+				), _mm_cmpneq_epi32(a.get(3), _mm_setzero_si128())
 			)
 		);
 	}*/
@@ -309,10 +222,10 @@ namespace Vcl
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(16) int vars[16];
-		vst1q_s32(vars +  0, rhs.mF4[0]);
-		vst1q_s32(vars +  4, rhs.mF4[1]);
-		vst1q_s32(vars +  8, rhs.mF4[2]);
-		vst1q_s32(vars + 12, rhs.mF4[3]);
+		vst1q_s32(vars +  0, rhs.get(0));
+		vst1q_s32(vars +  4, rhs.get(1));
+		vst1q_s32(vars +  8, rhs.get(2));
+		vst1q_s32(vars + 12, rhs.get(3));
 
 		s << "'" << vars[ 0] << "," << vars[ 1] << "," << vars[ 2] << "," << vars[ 3]
 				 << vars[ 4] << "," << vars[ 5] << "," << vars[ 6] << "," << vars[ 7]

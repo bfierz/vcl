@@ -26,86 +26,48 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// C++ Standard Library
-#include <array>
 
 // VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/intrinsics_neon.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<bool, 8>
+	class alignas(16) VectorScalar<bool, 8> : protected Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::NEON>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s)
-		{
-			mF4[0] = s ? vdupq_n_u32((uint32_t) -1) : vdupq_n_u32(0);
-			mF4[1] = s ? vdupq_n_u32((uint32_t) -1) : vdupq_n_u32(0);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(uint32x4_t I4_0, uint32x4_t I4_1)
-		{
-			mF4[0] = I4_0;
-			mF4[1] = I4_1;
-		}
-		
-	public:
-		VectorScalar<bool, 8> operator&& (const VectorScalar<bool, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>(vandq_u32(mF4[0], rhs.mF4[0]), vandq_u32(mF4[1], rhs.mF4[1]));
-		}
-		VectorScalar<bool, 8> operator|| (const VectorScalar<bool, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>(vorrq_u32(mF4[0], rhs.mF4[0]), vorrq_u32(mF4[1], rhs.mF4[1]));
-		}
-
-		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator&= (const VectorScalar<bool, 8>& rhs)
-		{
-			mF4[0] = vandq_u32(mF4[0], rhs.mF4[0]);
-			mF4[1] = vandq_u32(mF4[1], rhs.mF4[1]);
-			return *this;
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8>& operator|= (const VectorScalar<bool, 8>& rhs)
-		{
-			mF4[0] = vorrq_u32(mF4[0], rhs.mF4[0]);
-			mF4[1] = vorrq_u32(mF4[1], rhs.mF4[1]);
-			return *this;
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
 	public:
-		friend VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b);
-		friend VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b);
-		friend bool any(const VectorScalar<bool, 8>& b);
-		friend bool all(const VectorScalar<bool, 8>& b);
-		friend bool none(const VectorScalar<bool, 8>& b);
+		VCL_SIMD_BINARY_OP(operator&&, vandq_u32, 2)
+		VCL_SIMD_BINARY_OP(operator||, vorrq_u32, 2)
 
-	private:
-		uint32x4_t mF4[2];
+		VCL_SIMD_ASSIGN_OP(operator&=, vandq_u32, 2)
+		VCL_SIMD_ASSIGN_OP(operator|=, vorrq_u32, 2)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b)
 	{
-		int mask  = vmovemaskq_u32(b.mF4[1]) << 4;
-		    mask |= vmovemaskq_u32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.get(1)) << 4;
+		    mask |= vmovemaskq_u32(b.get(0));
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 8>& b)
 	{
-		int mask  = vmovemaskq_u32(b.mF4[1]) << 4;
-		    mask |= vmovemaskq_u32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.get(1)) << 4;
+		    mask |= vmovemaskq_u32(b.get(0));
 			
 		return static_cast<unsigned int>(mask) == 0xff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b)
 	{
-		int mask  = vmovemaskq_u32(b.mF4[1]) << 4;
-		    mask |= vmovemaskq_u32(b.mF4[0]);
+		int mask  = vmovemaskq_u32(b.get(1)) << 4;
+		    mask |= vmovemaskq_u32(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

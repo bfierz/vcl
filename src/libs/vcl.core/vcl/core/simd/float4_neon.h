@@ -26,67 +26,20 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
 
-// C++ Standard Library
-#include <array>
-
-// VCL 
-//#include <vcl/core/simd/bool4_sse.h>
+// VCL
+#include <vcl/core/simd/common.h>
+#include <vcl/core/simd/bool4_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_neon.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<float, 4>
+	class alignas(16) VectorScalar<float, 4> : protected Core::Simd::VectorScalarBase<float, 4, Core::Simd::SimdExt::NEON>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(const VectorScalar<float, 4>& rhs)
-		{
-			set(rhs.get(0));
-		}
-		VCL_STRONG_INLINE VectorScalar(float s)
-		{
-			set(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(float s0, float s1, float s2, float s3)
-		{
-			set(s0, s1, s2, s3);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(float32x4_t F4)
-		{
-			set(F4);
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<float, 4>& operator= (const VectorScalar<float, 4>& rhs) { set(rhs.get(0)); return *this; }
-
-	public:
-		VCL_STRONG_INLINE float operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 4, "Access is in range.");
-
-			switch (idx)
-			{
-			case 0:
-				return vgetq_lane_f32(get(0), 0);
-			case 1:
-				return vgetq_lane_f32(get(0), 1);
-			case 2:
-				return vgetq_lane_f32(get(0), 2);
-			case 3:
-				return vgetq_lane_f32(get(0), 3);
-			}
-		}
-
-		VCL_STRONG_INLINE float32x4_t get(int i = 0) const
-		{
-			VclRequire(0 == i, "Access is in range.");
-
-			return _data[i];
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
 	public:
 		VCL_STRONG_INLINE VectorScalar<float, 4> operator- () const
@@ -152,35 +105,13 @@ namespace Vcl
 
 		VCL_STRONG_INLINE float min() const { return vpminq_f32(get(0)); }
 		VCL_STRONG_INLINE float max() const { return vpmaxq_f32(get(0)); }
-
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs);
-		friend VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b);
-		
-	private:
-		VCL_STRONG_INLINE void set(float s0)
-		{
-			_data[0] = vdupq_n_f32(s0);
-		}
-		VCL_STRONG_INLINE void set(float s0, float s1, float s2, float s3)
-		{
-			alignas(16) float data[4] = { s0, s1, s2, s3 };
-			_data[0] = vld1q_f32(data);
-		}
-		VCL_STRONG_INLINE void set(float32x4_t vec)
-		{
-			_data[0] = vec;
-		}
-
-	private:
-		float32x4_t _data[1];
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)
 	{
 		// Straight forward method
 		// (b & ~mask) | (a & mask)
-		return VectorScalar<float, 4>(vbslq_f32(mask._data[0], a.get(0), b.get(0)));
+		return VectorScalar<float, 4>(vbslq_f32(mask.get(0), a.get(0), b.get(0)));
 	}
 
 	VCL_STRONG_INLINE VectorScalar<bool, 4> isinf(const VectorScalar<float, 4>& x)

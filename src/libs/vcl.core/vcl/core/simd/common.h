@@ -243,6 +243,123 @@ namespace Vcl { namespace Core { namespace Simd
 	};
 #endif
 
+#ifdef VCL_VECTORIZE_NEON
+	template<>
+	struct SimdRegister<float, SimdExt::NEON>
+	{
+		using Scalar = float;
+		using Type = float32x4_t;
+		static const int Width = 4;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return vdupq_n_f32(s0);
+		}
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		{
+			alignas(16) float data[4] = { s0, s1, s2, s3 };
+			return vld1q_f32(data);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			switch (i)
+			{
+			case 0:
+				return vgetq_lane_f32(vec, 0);
+			case 1:
+				return vgetq_lane_f32(vec, 1);
+			case 2:
+				return vgetq_lane_f32(vec, 2);
+			case 3:
+				return vgetq_lane_f32(vec, 3);
+			}
+			return 0;
+		}
+	};
+	template<>
+	struct SimdRegister<int, SimdExt::NEON>
+	{
+		using Scalar = int;
+		using Type = int32x4_t;
+		static const int Width = 4;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return vdupq_n_s32(s0);
+		}
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		{
+			alignas(16) int data[4] = { s0, s1, s2, s3 };
+			return vld1q_s32(data);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			switch (i)
+			{
+			case 0:
+				return vgetq_lane_s32(vec, 0);
+			case 1:
+				return vgetq_lane_s32(vec, 1);
+			case 2:
+				return vgetq_lane_s32(vec, 2);
+			case 3:
+				return vgetq_lane_s32(vec, 3);
+			}
+			return 0;
+		}
+	};
+	template<>
+	struct SimdRegister<bool, SimdExt::NEON>
+	{
+		using Scalar = bool;
+		using Type = uint32x4_t;
+		static const int Width = 4;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			const uint32_t m0 = s0 ? uint32_t(-1) : 0;
+			return vdupq_n_u32(m0);
+		}
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		{
+			const uint32_t m0 = s0 ? uint32_t(-1) : 0;
+			const uint32_t m1 = s1 ? uint32_t(-1) : 0;
+			const uint32_t m2 = s2 ? uint32_t(-1) : 0;
+			const uint32_t m3 = s3 ? uint32_t(-1) : 0;
+
+			alignas(16) uint32_t data[4] = { m0, m1, m2, m3 };
+			return vld1q_u32(data);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			switch (i)
+			{
+			case 0:
+				return vgetq_lane_u32(vec, 0) != 0;
+			case 1:
+				return vgetq_lane_u32(vec, 1) != 0;
+			case 2:
+				return vgetq_lane_u32(vec, 2) != 0;
+			case 3:
+				return vgetq_lane_u32(vec, 3) != 0;
+			}
+			return false;
+		}
+	};
+#endif
+
 	template<typename ScalarT, int Width, SimdExt Type>
 	class VectorScalarBase
 	{
