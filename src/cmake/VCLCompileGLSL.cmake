@@ -25,7 +25,6 @@
 
 # Path to the glslc compiler
 set(VCL_GLSLC_PATH CACHE FILEPATH "Path to glslc")
-set(VCL_BIN2C_PATH CACHE FILEPATH "Path to VCL bin2c")
 
 function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled_files)
 
@@ -50,7 +49,7 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 			"${VCL_GLSLC_PATH}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
 			
 		COMMAND
-			"${VCL_BIN2C_PATH}" --group 1 --symbol "${symbol}Data" -o ${output_cpp_file} ${tmp_file}
+			bin2c --group 1 --symbol "${symbol}Data" -o ${output_cpp_file} ${tmp_file}
 		
 		MAIN_DEPENDENCY
 			${file_to_compile}

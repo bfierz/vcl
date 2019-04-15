@@ -78,3 +78,4 @@ target_sources(vcl.graphics.opengl.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.opengl.test
 	vcl_graphics
 )
+add_dependencies(vcl.graphics.opengl.test bin2c)
