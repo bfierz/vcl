@@ -32,6 +32,7 @@
 #include <memory>
 
 // VCL
+#include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
@@ -94,28 +95,36 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	public:
 		//! Pointer to the image data
-		void* Data;
+		stdext::span<const unsigned char> Data;
 
 		//! Format of the image data
-		SurfaceFormat Format;
+		SurfaceFormat Format{ SurfaceFormat::Unknown };
 
 		//! Width of the image data
-		int Width;
-		int Height;
-		int Depth;
-		int Layers;
-		int MipMaps;
+		int Width{ 0 };
+		//! Height of the image data
+		int Height{ 0 };
+		//! Number of depth-layers in the image data
+		int Depth{ 1 };
+		//! Number of array-layers in the image data
+		int Layers{ 1 };
+		//! Number of mipmaps in the image data
+		int MipMaps{ 1 };
 
-	public:
-		TextureResource()
-		: Data(nullptr)
-		, Format(SurfaceFormat::Unknown)
-		, Width(1)
-		, Height(1)
-		, Depth(1)
-		, Layers(1)
-		, MipMaps(1)
+		//! Width offset of the image data
+		int X{ 0 };
+		//! Height offset of the image data
+		int Y{ 0 };
+		//! Depth offset of the image data
+		int Z{ 0 };
+		//! Layer offset of the image data
+		int Layer{ 0 };
+		//! Mipmap offset of the image data
+		int MipMap{ 0 };
+
+		const void* data() const
 		{
+			return reinterpret_cast<const void*>(Data.data());
 		}
 
 		int rowPitch() const
@@ -126,6 +135,11 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		int slicePitch() const
 		{
 			return Height * rowPitch();
+		}
+
+		bool verify() const
+		{
+			return Data.size() == slicePitch() * Depth * Layers * MipMaps;
 		}
 	};
 

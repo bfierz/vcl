@@ -36,7 +36,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		const Texture1DDescription& desc,
 		const TextureResource* init_data /* = nullptr */
 	)
-	: Texture()
 	{
 		initializeView
 		(
@@ -48,60 +47,34 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		initialise(init_data);
 	}
 
-	Texture1D::~Texture1D()
+	std::unique_ptr<Runtime::Texture> Texture1D::clone() const
 	{
-		// Delete the texture
-		glDeleteTextures(1, &_glId);
+		return std::make_unique<Texture1D>(*this);
 	}
 
-	void Texture1D::fill(SurfaceFormat fmt, const void* data)
+	void Texture1D::allocImpl(GLenum colour_fmt)
 	{
-		ImageFormat gl_fmt = toImageFormat(fmt);
-
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glTextureSubImage1D(_glId, 0, 0, width(), gl_fmt.Format, gl_fmt.Type, data);
+		glTextureStorage1D(_glId, mipMapLevels(), colour_fmt, width());
 #	elif defined(VCL_GL_EXT_direct_state_access)
-		glTextureSubImage1DEXT(_glId, GL_TEXTURE_1D, 0, 0, width(), gl_fmt.Format, gl_fmt.Type, data);
+		glTextureStorage1DEXT(_glId, GL_TEXTURE_1D, mipMapLevels(), colour_fmt, width());
+#	else
+		glTexStorage1D(GL_TEXTURE_1D, mipMapLevels(), colour_fmt, width());
 #	endif
 	}
 
-	void Texture1D::fill(SurfaceFormat fmt, int mip_level, const void* data)
+	void Texture1D::updateImpl(const TextureResource& data)
 	{
-	}
-	void Texture1D::read(size_t size, void* data) const
-	{
-	}
-
-	void Texture1D::initialise(const TextureResource* init_data /* = nullptr */)
-	{
-		GLenum colour_fmt = toSurfaceFormat(format());
+		ImageFormat img_fmt = toImageFormat(data.Format != SurfaceFormat::Unknown ? data.Format : format());
+		GLsizei w = (GLsizei)data.Width;
+		GLsizei mip = (GLsizei)data.MipMap;
 
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glCreateTextures(GL_TEXTURE_1D, 1, &_glId);
-		glTextureStorage1D(_glId, 1, colour_fmt, width());
-
-		if (init_data)
-		{
-			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
-			glTextureSubImage1D(_glId, 0, 0, init_data->Width, img_fmt.Format, img_fmt.Type, init_data->Data);
-		}
-
-		// Configure texture
-		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+		glTextureSubImage1D(_glId, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
 #	elif defined(VCL_GL_EXT_direct_state_access)
-		glGenTextures(1, &_glId);
-		glTextureStorage1DEXT(_glId, GL_TEXTURE_1D, 1, colour_fmt, width());
-
-		if (init_data)
-		{
-			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
-			glTextureSubImage1DEXT(_glId, GL_TEXTURE_1D, 0, 0, init_data->Width, img_fmt.Format, img_fmt.Type, init_data->Data);
-		}
-
-		// Configure texture
-		glTextureParameteriEXT(_glId, GL_TEXTURE_1D, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteriEXT(_glId, GL_TEXTURE_1D, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+		glTextureSubImage1DEXT(_glId, GL_TEXTURE_1D, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
+#	else
+		glTexSubImage1D(GL_TEXTURE_1D, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
 #	endif
 	}
 }}}}

@@ -102,7 +102,7 @@ TEST(OpenGL, ImageProcessingTaskSRGB)
 	init_res.Width = 256;
 	init_res.Height = 256;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = numerical_average_gray.data();
+	init_res.Data = numerical_average_gray;
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -164,7 +164,7 @@ TEST(OpenGL, ImageProcessingTaskLuminance)
 	init_res.Width = 512;
 	init_res.Height = 128;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = input_pattern.data();
+	init_res.Data = input_pattern;
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -229,7 +229,7 @@ TEST(OpenGL, ImageProcessingTaskTonemap)
 	init_res.Width = 256;
 	init_res.Height = 256;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = numerical_average_gray.data();
+	init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(numerical_average_gray.data()), numerical_average_gray.size() * sizeof(decltype(numerical_average_gray)::value_type));
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -243,7 +243,7 @@ TEST(OpenGL, ImageProcessingTaskTonemap)
 	init_avg_lum.Width = 1;
 	init_avg_lum.Height = 1;
 	init_avg_lum.Format = SurfaceFormat::R32_FLOAT;
-	init_avg_lum.Data = &lum;
+	init_avg_lum.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(&lum), sizeof(float));
 
 	Runtime::Texture2DDescription desc_avg_lum;
 	desc_avg_lum.Format = SurfaceFormat::R16_FLOAT;
@@ -315,7 +315,7 @@ TEST(OpenGL, ImageProcessingTaskGaussian)
 	init_res.Width = 81;
 	init_res.Height = 81;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = input_image.data();
+	init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(input_image.data()), input_image.size() * sizeof(decltype(input_image)::value_type));
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -394,7 +394,7 @@ TEST(OpenGL, ImageProcessingSimpleGraph)
 	init_res.Width = 81;
 	init_res.Height = 81;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = input_image.data();
+	init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(input_image.data()), input_image.size()*sizeof(decltype(input_image)::value_type));
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;

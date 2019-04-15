@@ -40,6 +40,17 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	class TextureBindPoint
+	{
+	public:
+		TextureBindPoint(GLenum target, GLuint id);
+		~TextureBindPoint();
+
+	private:
+		GLenum _target;
+		GLuint _id;
+	};
+
 	struct ImageFormat
 	{
 		GLenum Format;
@@ -53,23 +64,27 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		Texture(const Texture&);
 
 	public:
-		virtual ~Texture() = default;
+		virtual ~Texture();
 		
 	public:
 		static GLenum toSurfaceFormat(SurfaceFormat type);
-		static ImageFormat toImageFormat(SurfaceFormat fmt);		
+		static ImageFormat toImageFormat(SurfaceFormat fmt);
+		static GLenum toTextureType(TextureType type);
 
 	public:
 		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const;
 
 	public:
-		virtual void clear(SurfaceFormat fmt, const void* data) override;
+		void clear(SurfaceFormat fmt, const void* data) override;
 
 	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) = 0;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) = 0;
+		void initialise(const TextureResource* init_data = nullptr);
+		void update(const TextureResource& data);
+		void read(size_t size, void* data) const;
 
-		virtual void read(size_t size, void* data) const = 0;
+	protected:
+		virtual void allocImpl(GLenum colour_fmt) = 0;
+		virtual void updateImpl(const TextureResource& data) = 0;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

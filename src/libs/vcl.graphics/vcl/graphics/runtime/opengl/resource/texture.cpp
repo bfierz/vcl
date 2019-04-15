@@ -31,6 +31,18 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	TextureBindPoint::TextureBindPoint(GLenum target, GLuint id)
+		: _target(target)
+		, _id(id)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(_target, _id);
+	}
+	TextureBindPoint::~TextureBindPoint()
+	{
+		glBindTexture(_target, GL_NONE);
+	}
+
 	GLenum Texture::toSurfaceFormat(SurfaceFormat type)
 	{
 		GLenum gl_format = GL_NONE;
@@ -151,10 +163,33 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		return image_format;
 	}
 
+	GLenum Texture::toTextureType(TextureType type)
+	{
+		switch (type)
+		{
+		case TextureType::Texture1D:        return GL_TEXTURE_1D;
+		case TextureType::Texture1DArray:   return GL_TEXTURE_1D_ARRAY;
+		case TextureType::Texture2D:        return GL_TEXTURE_2D;
+		case TextureType::Texture2DArray:   return GL_TEXTURE_2D_ARRAY;
+		case TextureType::Texture2DMS:      return GL_TEXTURE_2D_MULTISAMPLE;
+		case TextureType::Texture2DMSArray: return GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+		case TextureType::Texture3D:        return GL_TEXTURE_3D;
+		case TextureType::TextureCube:      return GL_TEXTURE_CUBE_MAP;
+		case TextureType::TextureCubeArray: return GL_TEXTURE_CUBE_MAP_ARRAY;
+		default: return GL_NONE;
+		}
+	}
+
 	Texture::Texture(const Texture& rhs)
 	: Runtime::Texture(rhs)
 	, Resource()
 	{
+	}
+
+	Texture::~Texture()
+	{
+		// Delete the texture
+		glDeleteTextures(1, &_glId);
 	}
 
 	void Texture::clear(SurfaceFormat fmt, const void* data)
@@ -170,5 +205,95 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		read(sizeInBytes(), (void*)dstOffset);
 	}
 
+	void Texture::initialise(const TextureResource* init_data /* = nullptr */)
+	{
+		GLenum tex_type = toTextureType(type());
+		GLenum colour_fmt = toSurfaceFormat(format());
+
+#	if defined(VCL_GL_ARB_direct_state_access)
+		glCreateTextures(tex_type, 1, &_glId);
+		allocImpl(colour_fmt);
+
+		// Configure texture
+		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+#	elif defined(VCL_GL_EXT_direct_state_access)
+		glGenTextures(1, &_glId);
+		allocImpl(colour_fmt);
+
+		// Configure texture
+		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+#	else
+		glCreateTextures(tex_type, 1, &_glId);
+		TextureBindPoint bp(tex_type, _glId);
+		allocImpl(colour_fmt);
+
+		// Configure texture
+		glTexParameteri(tex_type, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
+		glTexParameteri(tex_type, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+#	endif
+
+		if (init_data)
+			updateImpl(*init_data);
+	}
+
+	void Texture::update(const TextureResource& data)
+	{
+#	if !defined(VCL_GL_ARB_direct_state_access) && !defined(VCL_GL_EXT_direct_state_access)
+		TextureBindPoint bp(toTextureType(type()), _glId);
+#	endif
+		updateImpl(data);
+	}
+
+	void Texture::read(size_t size, void* data) const
+	{
+		GLenum tex_type = toTextureType(type());
+		SurfaceFormat fmt = this->format();
+		ImageFormat gl_fmt = toImageFormat(fmt);
+
+		// Read to 'data', not to a device buffer
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
+
+#	if defined(VCL_GL_ARB_direct_state_access)
+		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, (GLsizei)size, data);
+#	else
+		TextureBindPoint bp(tex_type, _glId);
+		if (tex_type != GL_TEXTURE_CUBE_MAP)
+		{
+#		if defined(VCL_GL_EXT_direct_state_access)
+			glGetTextureImageEXT(_glId, tex_type, 0, gl_fmt.Format, gl_fmt.Type, data);
+#		else
+			glGetTexImage(tex_type, 0, gl_fmt.Format, gl_fmt.Type, data);
+#		endif
+		}
+		else
+		{
+			const GLenum faces[] =
+			{
+				GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+				GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+				GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+				GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+				GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+				GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+			};
+			int pixel_size = Vcl::Graphics::sizeInBytes(fmt);
+			GLsizei w = (GLsizei)width();
+			GLsizei h = (GLsizei)height();
+
+			unsigned char* data_ptr = reinterpret_cast<unsigned char*>(data);
+			for (const auto face : faces)
+			{
+#		if defined(VCL_GL_EXT_direct_state_access)
+				glGetTextureImageEXT(_glId, face, 0, gl_fmt.Format, gl_fmt.Type, data_ptr);
+#		else
+				glGetTexImage(face, 0, gl_fmt.Format, gl_fmt.Type, data_ptr);
+#		endif
+				data_ptr += w * h * pixel_size;
+			}
+		}
+#	endif
+	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT
