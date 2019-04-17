@@ -241,6 +241,128 @@ TEST(SimdFloat, Assign)
 		EXPECT_EQ(f16_asc[i], i+1);
 }
 
+TEST(SimdFloat, Negate)
+{
+	VCL_SIMD_FLOATS
+
+	float4 f4 = -f4_asc;
+	for (int i = 0; i < 4; i++)
+	{
+		EXPECT_EQ(f4[i], -f4_asc[i]);
+	}
+
+	float8 f8 = -f8_asc;
+	for (int i = 0; i < 8; i++)
+	{
+		EXPECT_EQ(f8[i], -f8_asc[i]);
+	}
+
+	float16 f16 = -f16_asc;
+	for (int i = 0; i < 16; i++)
+	{
+		EXPECT_EQ(f16[i], -f16_asc[i]);
+	}
+}
+
+TEST(SimdFloat, Add)
+{
+	VCL_SIMD_FLOATS
+
+	float4 f4 = f4_asc + f4_asc;
+	for (int i = 0; i < 4; i++)
+	{
+		EXPECT_EQ(f4[i], f4_asc[i] + f4_asc[i]);
+	}
+
+	float8 f8 = f8_asc + f8_asc;
+	for (int i = 0; i < 8; i++)
+	{
+		EXPECT_EQ(f8[i], f8_asc[i] + f8_asc[i]);
+	}
+
+	float16 f16 = f16_asc + f16_asc;
+	for (int i = 0; i < 16; i++)
+	{
+		EXPECT_EQ(f16[i], f16_asc[i] + f16_asc[i]);
+	}
+}
+
+TEST(SimdFloat, Sub)
+{
+	VCL_SIMD_FLOATS
+
+	float4 f4 = f4_asc - f4_asc;
+	for (int i = 0; i < 4; i++)
+	{
+		EXPECT_EQ(f4[i], 0);
+	}
+
+	float8 f8 = f8_asc - f8_asc;
+	for (int i = 0; i < 8; i++)
+	{
+		EXPECT_EQ(f8[i], 0);
+	}
+
+	float16 f16 = f16_asc - f16_asc;
+	for (int i = 0; i < 16; i++)
+	{
+		EXPECT_EQ(f16[i], 0);
+	}
+}
+
+TEST(SimdFloat, Inf)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+	using Vcl::all;
+	using Vcl::isinf;
+
+	const float inf = std::numeric_limits<float>::infinity();
+
+	EXPECT_TRUE(all(isinf(float4(inf))));
+	EXPECT_TRUE(all(float4(inf) == float4(inf)));
+	EXPECT_TRUE(all(float4(-inf) == -float4(inf)));
+	EXPECT_TRUE(all(float4(2 * inf) == float4(2) * float4(inf)));
+	EXPECT_TRUE(none(isinf(float4(0) * float4(inf))));
+}
+
+TEST(SimdFloat, Sqrt)
+{
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+
+	using Vcl::Mathematics::equal;
+
+	// Source data
+	float4  vec1{ 0.0f, 6.10116f, 11.6117f, 11.8436f };
+	float8  vec2{ 0.0f, 6.10116f, 11.6117f, 11.8436f,
+				  0.0f, 6.10116f, 11.6117f, 11.8436f };
+	float16 vec3{ 0.0f, 6.10116f, 11.6117f, 11.8436f,
+				  0.0f, 6.10116f, 11.6117f, 11.8436f,
+				  0.0f, 6.10116f, 11.6117f, 11.8436f,
+				  0.0f, 6.10116f, 11.6117f, 11.8436f };
+
+	// Compute 1 / sqrt(x)
+	float4  res1 = sqrt(vec1);
+	float8  res2 = sqrt(vec2);
+	float16 res3 = sqrt(vec3);
+
+	// Reference result
+	float4  ref1{ 0.0f, 2.4700526f, 3.4075945f, 3.4414532f };
+	float8  ref2{ 0.0f, 2.4700526f, 3.4075945f, 3.4414532f,
+				  0.0f, 2.4700526f, 3.4075945f, 3.4414532f };
+	float16 ref3{ 0.0f, 2.4700526f, 3.4075945f, 3.4414532f,
+				  0.0f, 2.4700526f, 3.4075945f, 3.4414532f,
+				  0.0f, 2.4700526f, 3.4075945f, 3.4414532f,
+				  0.0f, 2.4700526f, 3.4075945f, 3.4414532f };
+
+	EXPECT_TRUE(all(equal(ref1, res1, float4(1e-5f)))) << "'sqrt' failed.";
+	EXPECT_TRUE(all(equal(ref2, res2, float8(1e-5f)))) << "'sqrt' failed.";
+	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'sqrt' failed.";
+}
+
 template<typename T, int W>
 void selectTest
 (
@@ -268,23 +390,6 @@ TEST(SimdFloat, Select)
 	selectTest<float, 4>(float4{ 1 } / float4{ 0 } < 0, 1.0f, 0.0f, 0.0f);
 	selectTest<float, 8>(float8{ 1 } / float8{ 0 } < 0, 1.0f, 0.0f, 0.0f);
 	selectTest<float, 16>(float16{ 1 } / float16{ 0 } < 0, 1.0f, 0.0f, 0.0f);
-}
-
-TEST(Simd, Inf)
-{
-	using Vcl::float4;
-	using Vcl::float8;
-	using Vcl::float16;
-	using Vcl::all;
-	using Vcl::isinf;
-
-	const float inf = std::numeric_limits<float>::infinity();
-
-	EXPECT_TRUE(all(isinf(float4(inf))));
-	EXPECT_TRUE(all(float4(inf) == float4(inf)));
-	EXPECT_TRUE(all(float4(-inf) == -float4(inf)));
-	EXPECT_TRUE(all(float4(2*inf) == float4(2)*float4(inf)));
-	EXPECT_TRUE(none(isinf(float4(0)*float4(inf))));
 }
 
 TEST(Simd, Rsqrt)
@@ -430,6 +535,32 @@ TEST(Simd, Log)
 	EXPECT_TRUE(all(equal(ref2, res2,  float8(1e-5f)))) << "'log' failed.";
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'log' failed.";
 }
+
+TEST(Simd, Abs)
+{
+	using Vcl::all;
+	using Vcl::Mathematics::equal;
+
+	using Vcl::float4;
+	using Vcl::float8;
+	using Vcl::float16;
+
+	// Source data
+	float4  vec1{ -1 };
+	float8  vec2{ -1 };
+	float16 vec3{ -1 };
+
+	// Compute dot(x, x)
+	float4  res1 = abs(vec1);
+	float8  res2 = abs(vec2);
+	float16 res3 = abs(vec3);
+
+	// Reference result
+	EXPECT_TRUE(all(equal(res1, float4 { 1 })));
+	EXPECT_TRUE(all(equal(res2, float8 { 1 })));
+	EXPECT_TRUE(all(equal(res3, float16{ 1 })));
+}
+
 
 TEST(Simd, Dot)
 {

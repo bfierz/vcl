@@ -30,7 +30,7 @@
 namespace Vcl { namespace Geometry
 {
 	template<typename Real>
-	float distanceImpl
+	Real distanceImpl
 	(
 		const Ray<Real, 3>& ray_a,
 		const Ray<Real, 3>& ray_b,
@@ -91,6 +91,33 @@ namespace Vcl { namespace Geometry
 		const Ray<float, 3>& ray_a,
 		const Ray<float, 3>& ray_b,
 		Result<float>* result
+	)
+	{
+		return distanceImpl(ray_a, ray_b, result);
+	}
+	float4 distance
+	(
+		const Ray<float4, 3>& ray_a,
+		const Ray<float4, 3>& ray_b,
+		Result<float4>* result
+	)
+	{
+		return distanceImpl(ray_a, ray_b, result);
+	}
+	float8 distance
+	(
+		const Ray<float8, 3>& ray_a,
+		const Ray<float8, 3>& ray_b,
+		Result<float8>* result
+	)
+	{
+		return distanceImpl(ray_a, ray_b, result);
+	}
+	float16 distance
+	(
+		const Ray<float16, 3>& ray_a,
+		const Ray<float16, 3>& ray_b,
+		Result<float16>* result
 	)
 	{
 		return distanceImpl(ray_a, ray_b, result);

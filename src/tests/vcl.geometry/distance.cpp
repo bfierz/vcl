@@ -63,18 +63,13 @@ Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 	return{ vec[0], vec[1], vec[2] };
 }
 
-TEST(PointTriangleDistance, Simple)
+template<typename real_t>
+void pointTriangleDistanceGeneric()
 {
 	using Vcl::Geometry::distance;
 	using Vcl::Mathematics::equal;
 
-	//typedef Vcl::float16 real_t;
-	typedef Vcl::float8 real_t;
-	//typedef Vcl::float4 real_t;
-	//typedef float real_t;
-
-	typedef Eigen::Matrix<real_t, 3, 1> vector3_t;
-
+	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t, 32>>>;
 
 	// Reference triangle
@@ -137,16 +132,28 @@ TEST(PointTriangleDistance, Simple)
 		EXPECT_TRUE(equal(t0[i], reinterpret_cast<float*>(t1.data())[i], 1e-4f)) << "T differ: " << i;
 	}
 }
+TEST(PointTriangleDistance, Simple)
+{
+	pointTriangleDistanceGeneric<float>();
+}
+TEST(PointTriangleDistance, Simple4)
+{
+	pointTriangleDistanceGeneric<Vcl::float4>();
+}
+TEST(PointTriangleDistance, Simple8)
+{
+	pointTriangleDistanceGeneric<Vcl::float8>();
+}
+TEST(PointTriangleDistance, Simple16)
+{
+	pointTriangleDistanceGeneric<Vcl::float16>();
+}
 
-TEST(TriangleTriangleDistance, Simple)
+template<typename real_t>
+void triangleTriangleDistanceGeneric()
 {
 	using namespace Vcl::Geometry;
 	using Vcl::Mathematics::equal;
-
-	//using real_t = Vcl::float16;
-	//using real_t = Vcl::float8;
-	using real_t = Vcl::float4;
-	//using real_t = float;
 
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
@@ -223,17 +230,36 @@ TEST(TriangleTriangleDistance, Simple)
 	}
 }
 
-TEST(DistanceRayRay, Simple)
+//TEST(TriangleTriangleDistance, Simple)
+//{
+//	triangleTriangleDistanceGeneric<float>();
+//}
+TEST(TriangleTriangleDistance, Simple4)
+{
+	triangleTriangleDistanceGeneric<Vcl::float4>();
+}
+TEST(TriangleTriangleDistance, Simple8)
+{
+	triangleTriangleDistanceGeneric<Vcl::float8>();
+}
+TEST(TriangleTriangleDistance, Simple16)
+{
+	triangleTriangleDistanceGeneric<Vcl::float16>();
+}
+
+template<typename real_t>
+void distanceRayRayGeneric()
 {
 	using Vcl::Geometry::distance;
 	using Vcl::Geometry::Ray;
 	using Vcl::Geometry::Result;
 	using Vcl::Mathematics::equal;
+	using Vcl::all;
+	using Vcl::equal;
 
-	//using real_t = Vcl::float16;
-	//using real_t = Vcl::float8;
-	//using real_t = Vcl::float4;
-	using real_t = float;
+	const real_t zero{0.0f};
+	const real_t one{1.0f};
+	const real_t eps{1e-4f};
 
 	// Simple crossing, intersection
 	{
@@ -241,10 +267,11 @@ TEST(DistanceRayRay, Simple)
 		Ray<real_t, 3> ray_b{ { 0, -1, 0 },{ 0, 1, 0 } };
 
 		Result<real_t> result;
-		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 0.0f);
+		const auto dist = distance(ray_a, ray_b, &result);
+		EXPECT_TRUE(all(equal(dist, zero, eps))) << dist;
 
-		EXPECT_FLOAT_EQ(result.Parameter[0], 1.0f);
-		EXPECT_FLOAT_EQ(result.Parameter[1], 1.0f);
+		EXPECT_TRUE(all(equal(result.Parameter[0], one, eps)));
+		EXPECT_TRUE(all(equal(result.Parameter[1], one, eps)));
 	}
 
 	// Simple crossing, no intersection
@@ -253,10 +280,10 @@ TEST(DistanceRayRay, Simple)
 		Ray<real_t, 3> ray_b{ { 0, -1, 1 },{ 0, 1, 0 } };
 
 		Result<real_t> result;
-		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 1.0f);
+		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), one, eps)));
 
-		EXPECT_FLOAT_EQ(result.Parameter[0], 1.0f);
-		EXPECT_FLOAT_EQ(result.Parameter[1], 1.0f);
+		EXPECT_TRUE(all(equal(result.Parameter[0], one, eps)));
+		EXPECT_TRUE(all(equal(result.Parameter[1], one, eps)));
 	}
 
 	// Parallel crossing, intersection
@@ -265,10 +292,10 @@ TEST(DistanceRayRay, Simple)
 		Ray<real_t, 3> ray_b{ { -1, 0, 0 },{ 1, 0, 0 } };
 
 		Result<real_t> result;
-		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 0.0f);
+		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), zero, eps)));
 
-		EXPECT_FLOAT_EQ(result.Parameter[0], 0.0f);
-		EXPECT_FLOAT_EQ(result.Parameter[1], 0.0f);
+		EXPECT_TRUE(all(equal(result.Parameter[0], zero, eps)));
+		EXPECT_TRUE(all(equal(result.Parameter[1], zero, eps)));
 	}
 
 	// Parallel crossing, no intersection
@@ -277,9 +304,26 @@ TEST(DistanceRayRay, Simple)
 		Ray<real_t, 3> ray_b{ { -1, 0, 1 },{ 1, 0, 0 } };
 
 		Result<real_t> result;
-		EXPECT_FLOAT_EQ(distance(ray_a, ray_b, &result), 1.0f);
+		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), one, eps)));
 
-		EXPECT_FLOAT_EQ(result.Parameter[0], 0.0f);
-		EXPECT_FLOAT_EQ(result.Parameter[1], 0.0f);
+		EXPECT_TRUE(all(equal(result.Parameter[0], zero, eps)));
+		EXPECT_TRUE(all(equal(result.Parameter[1], zero, eps)));
 	}
+}
+
+//TEST(DistanceRayRay, Simple)
+//{
+//	distanceRayRayGeneric<float>();
+//}
+TEST(DistanceRayRay, Simple4)
+{
+	distanceRayRayGeneric<Vcl::float4>();
+}
+TEST(DistanceRayRay, Simple8)
+{
+	distanceRayRayGeneric<Vcl::float8>();
+}
+TEST(DistanceRayRay, Simple16)
+{
+	distanceRayRayGeneric<Vcl::float16>();
 }
