@@ -139,7 +139,13 @@ namespace Vcl
 
 		return t3.get(0);
 	}
-	
+
+	float32x4_t vsqrtq_f32(float32x4_t x)
+	{
+		const float4 v{ x };
+		return select(v == 0.0f, 0.0f, v * rsqrt(v)).get(0);
+	}
+
 //	float32x4_t _mmVCL_floor_ps(float32x4_t x)
 //	{
 //#ifdef VCL_VECTORIZE_SSE4_1

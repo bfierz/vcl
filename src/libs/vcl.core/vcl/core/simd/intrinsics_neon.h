@@ -120,10 +120,7 @@ namespace Vcl
 		return q_step_2;
 	}
 
-	VCL_STRONG_INLINE float32x4_t vsqrtq_f32(float32x4_t x)
-	{
-		return vmulq_f32(x, vrsqrtq_f32(x));
-	}
+	float32x4_t vsqrtq_f32(float32x4_t x);
 
 	VCL_STRONG_INLINE uint32x4_t vcneqq_f32(float32x4_t x, float32x4_t y)
 	{
