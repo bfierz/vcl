@@ -42,109 +42,32 @@ namespace Vcl
 		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator+ (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mm_add_epi32(get(0), rhs.get(0)),
-				_mm_add_epi32(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator- (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mm_sub_epi32(get(0), rhs.get(0)),
-				_mm_sub_epi32(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator* (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mmVCL_mullo_epi32(get(0), rhs.get(0)),
-				_mmVCL_mullo_epi32(get(1), rhs.get(1))
-			);
-		}
+		VCL_SIMD_BINARY_OP(operator+, _mm_add_epi32, 2)
+		VCL_SIMD_BINARY_OP(operator-, _mm_sub_epi32, 2)
+		VCL_SIMD_BINARY_OP(operator*, _mmVCL_mullo_epi32, 2)
+		
+	public:
+		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_epi32, 2)
+		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_epi32, 2)
+		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 2)
+		
+	public:
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_epi32,  2)
+		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_epi32, 2)
+		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_epi32,  2)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_epi32,  2)
+		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_epi32,  2)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32,  2)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 8> abs() const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mmVCL_abs_epi32(get(0)),
-				_mmVCL_abs_epi32(get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 8> max(const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mmVCL_max_epi32(get(0), rhs.get(0)),
-				_mmVCL_max_epi32(get(1), rhs.get(1))
-			);
-		}
-
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 2)
+		
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator& (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mm_and_si128(get(0), rhs.get(0)),
-				_mm_and_si128(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 8> operator| (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<int, 8>
-			(
-				_mm_or_si128(get(0), rhs.get(0)),
-				_mm_or_si128(get(1), rhs.get(1))
-			);
-		}
+		VCL_SIMD_BINARY_OP(operator&, _mm_and_si128, 2)
+		VCL_SIMD_BINARY_OP(operator|, _mm_or_si128, 2)
 
-	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator== (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>
-			(
-				_mm_cmpeq_epi32(get(0), rhs.get(0)),
-				_mm_cmpeq_epi32(get(1), rhs.get(1))
-			);
-		}
-
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator< (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>
-			(
-				_mm_cmplt_epi32(get(0), rhs.get(0)),
-				_mm_cmplt_epi32(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator<= (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>
-			(
-				_mm_cmple_epi32(get(0), rhs.get(0)),
-				_mm_cmple_epi32(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator> (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>
-			(
-				_mm_cmpgt_epi32(get(0), rhs.get(0)),
-				_mm_cmpgt_epi32(get(1), rhs.get(1))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 8> operator>= (const VectorScalar<int, 8>& rhs) const
-		{
-			return VectorScalar<bool, 8>
-			(
-				_mm_cmpge_epi32(get(0), rhs.get(0)),
-				_mm_cmpge_epi32(get(1), rhs.get(1))
-			);
-		}
+		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min, 2)
+		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max, 2)
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)

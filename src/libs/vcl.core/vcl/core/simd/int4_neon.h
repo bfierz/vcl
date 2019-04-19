@@ -28,8 +28,8 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool4_neon.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_neon.h>
 
@@ -42,40 +42,32 @@ namespace Vcl
 		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator+ (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vaddq_s32(get(0), rhs.get(0))); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator- (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vsubq_s32(get(0), rhs.get(0))); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator* (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vmulq_s32(get(0), rhs.get(0))); }
+		VCL_SIMD_BINARY_OP(operator+, vaddq_s32, 1)
+		VCL_SIMD_BINARY_OP(operator-, vsubq_s32, 1)
+		VCL_SIMD_BINARY_OP(operator*, vmulq_s32, 1)
+		
+	public:
+		VCL_SIMD_ASSIGN_OP(operator+=, vaddq_s32, 1)
+		VCL_SIMD_ASSIGN_OP(operator-=, vsubq_s32, 1)
+		VCL_SIMD_ASSIGN_OP(operator*=, vmulq_s32, 1)
+		
+	public:
+		VCL_SIMD_COMP_OP(operator==, vceqq_s32, 1)
+		//VCL_SIMD_COMP_OP(operator!=, vcneqq_s32, 1)
+		VCL_SIMD_COMP_OP(operator<,  vcltq_s32, 1)
+		VCL_SIMD_COMP_OP(operator<=, vcleq_s32, 1)
+		VCL_SIMD_COMP_OP(operator>,  vcgtq_s32, 1)
+		VCL_SIMD_COMP_OP(operator>=, vcgeq_s32, 1)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4> abs() const { return VectorScalar<int, 4>(vabsq_s32(get(0))); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> max(const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vmaxq_s32(get(0), rhs.get(0))); }
-
+		VCL_SIMD_UNARY_OP(abs, vabsq_s32, 1)
+		
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator& (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vandq_s32(get(0), rhs.get(0))); }
-		VCL_STRONG_INLINE VectorScalar<int, 4> operator| (const VectorScalar<int, 4>& rhs) const { return VectorScalar<int, 4>(vorrq_s32(get(0), rhs.get(0))); }
+		VCL_SIMD_BINARY_OP(operator&, vandq_s32, 1)
+		VCL_SIMD_BINARY_OP(operator|, vorrq_s32, 1)
 
-	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator== (const VectorScalar<int, 4>& rhs) const
-		{
-			return VectorScalar<bool, 4>(vceqq_s32(get(0), rhs.get(0)));
-		}
-
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator< (const VectorScalar<int, 4>& rhs) const
-		{
-			return VectorScalar<bool, 4>(vcltq_s32(get(0), rhs.get(0)));
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator<= (const VectorScalar<int, 4>& rhs) const
-		{
-			return VectorScalar<bool, 4>(vcleq_s32(get(0), rhs.get(0)));
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator> (const VectorScalar<int, 4>& rhs) const
-		{
-			return VectorScalar<bool, 4>(vcgtq_s32(get(0), rhs.get(0)));
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator>= (const VectorScalar<int, 4>& rhs) const
-		{
-			return VectorScalar<bool, 4>(vcgeq_s32(get(0), rhs.get(0)));
-		}
+		VCL_SIMD_BINARY_OP(min, vminq_s32, 1)
+		VCL_SIMD_BINARY_OP(max, vmaxq_s32, 1)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b)

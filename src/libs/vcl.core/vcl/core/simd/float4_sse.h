@@ -42,44 +42,44 @@ namespace Vcl
 		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
 
 	public:
-		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 1);
-		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 1);
-		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 1);
-		VCL_SIMD_BINARY_OP(operator/, _mm_div_ps, 1);
+		VCL_SIMD_BINARY_OP(operator+, _mm_add_ps, 1)
+		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 1)
+		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 1)
+		VCL_SIMD_BINARY_OP(operator/, _mm_div_ps, 1)
 		
 	public:
-		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_ps, 1);
-		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_ps, 1);
-		VCL_SIMD_ASSIGN_OP(operator*=, _mm_mul_ps, 1);
-		VCL_SIMD_ASSIGN_OP(operator/=, _mm_div_ps, 1);
+		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator*=, _mm_mul_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator/=, _mm_div_ps, 1)
 		
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps,  1);
-		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_ps, 1);
-		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_ps,  1);
-		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps,  1);
-		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_ps,  1);
-		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  1);
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps,  1)
+		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_ps, 1)
+		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_ps,  1)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps,  1)
+		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_ps,  1)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  1)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 1);
-		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 1);
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 1)
+		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 1)
 
-		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 1);
-		VCL_SIMD_UNARY_OP(cos, _mm_cos_ps, 1);
-		VCL_SIMD_UNARY_OP(acos, _mm_acos_ps, 1);
+		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 1)
+		VCL_SIMD_UNARY_OP(cos, _mm_cos_ps, 1)
+		VCL_SIMD_UNARY_OP(acos, _mm_acos_ps, 1)
 
-		VCL_SIMD_UNARY_OP(exp, _mm_exp_ps, 1);
-		VCL_SIMD_UNARY_OP(log, _mm_log_ps, 1);
-		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 1);
-		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 1);
-		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 1);
+		VCL_SIMD_UNARY_OP(exp, _mm_exp_ps, 1)
+		VCL_SIMD_UNARY_OP(log, _mm_log_ps, 1)
+		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 1)
+		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 1)
+		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 1)
 		
-		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 1);
+		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 1)
 
 	public:
-		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 1);
-		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 1);
+		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 1)
+		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 1)
 
 		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, VCL_UNUSED, 1)
 

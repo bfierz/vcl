@@ -42,213 +42,46 @@ namespace Vcl
 		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
 
 	public:
-		VectorScalar<float, 16> operator- () const
-		{
-			return (*this) * VectorScalar<float, 16>(-1);
-		}
+		VCL_SIMD_BINARY_OP(operator+, vaddq_f32, 4)
+		VCL_SIMD_BINARY_OP(operator-, vsubq_f32, 4)
+		VCL_SIMD_BINARY_OP(operator*, vmulq_f32, 4)
+		VCL_SIMD_BINARY_OP(operator/, vdivq_f32, 4)
 
 	public:
-		VectorScalar<float, 16> operator+ (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vaddq_f32(get(0), rhs.get(0)),
-				vaddq_f32(get(1), rhs.get(1)),
-				vaddq_f32(get(2), rhs.get(2)),
-				vaddq_f32(get(3), rhs.get(3))
-			);
-		}
-
-		VectorScalar<float, 16> operator- (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vsubq_f32(get(0), rhs.get(0)),
-				vsubq_f32(get(1), rhs.get(1)),
-				vsubq_f32(get(2), rhs.get(2)),
-				vsubq_f32(get(3), rhs.get(3))
-			);
-		}
-
-		VectorScalar<float, 16> operator* (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vmulq_f32(get(0), rhs.get(0)),
-				vmulq_f32(get(1), rhs.get(1)),
-				vmulq_f32(get(2), rhs.get(2)),
-				vmulq_f32(get(3), rhs.get(3))
-			);
-		}
-
-		VectorScalar<float, 16> operator/ (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vdivq_f32(get(0), rhs.get(0)),
-				vdivq_f32(get(1), rhs.get(1)),
-				vdivq_f32(get(2), rhs.get(2)),
-				vdivq_f32(get(3), rhs.get(3))
-			);
-		}
+		VCL_SIMD_ASSIGN_OP(operator+=, vaddq_f32, 4)
+		VCL_SIMD_ASSIGN_OP(operator-=, vsubq_f32, 4)
+		VCL_SIMD_ASSIGN_OP(operator*=, vmulq_f32, 4)
+		VCL_SIMD_ASSIGN_OP(operator/=, vdivq_f32, 4)
 
 	public:
-		VectorScalar<float, 16>& operator += (const VectorScalar<float, 16>& rhs)
-		{
-			_data[0] = vaddq_f32(get(0), rhs.get(0));
-			_data[1] = vaddq_f32(get(1), rhs.get(1));
-			_data[2] = vaddq_f32(get(2), rhs.get(2));
-			_data[3] = vaddq_f32(get(3), rhs.get(3));
-			return *this;
-		}
-		VectorScalar<float, 16>& operator -= (const VectorScalar<float, 16>& rhs)
-		{
-			_data[0] = vsubq_f32(get(0), rhs.get(0));
-			_data[1] = vsubq_f32(get(1), rhs.get(1));
-			_data[2] = vsubq_f32(get(2), rhs.get(2));
-			_data[3] = vsubq_f32(get(3), rhs.get(3));
-			return *this;
-		}
-		VectorScalar<float, 16>& operator *= (const VectorScalar<float, 16>& rhs)
-		{
-			_data[0] = vmulq_f32(get(0), rhs.get(0));
-			_data[1] = vmulq_f32(get(1), rhs.get(1));
-			_data[2] = vmulq_f32(get(2), rhs.get(2));
-			_data[3] = vmulq_f32(get(3), rhs.get(3));
-			return *this;
-		}
-		VectorScalar<float, 16>& operator /= (const VectorScalar<float, 16>& rhs)
-		{
-			_data[0] = vdivq_f32(get(0), rhs.get(0));
-			_data[1] = vdivq_f32(get(1), rhs.get(1));
-			_data[2] = vdivq_f32(get(2), rhs.get(2));
-			_data[3] = vdivq_f32(get(3), rhs.get(3));
-			return *this;
-		}
+		VCL_SIMD_COMP_OP(operator==, vceqq_f32 , 4)
+		VCL_SIMD_COMP_OP(operator!=, vcneqq_f32, 4)
+		VCL_SIMD_COMP_OP(operator< , vcltq_f32 , 4)
+		VCL_SIMD_COMP_OP(operator<=, vcleq_f32 , 4)
+		VCL_SIMD_COMP_OP(operator> , vcgtq_f32 , 4)
+		VCL_SIMD_COMP_OP(operator>=, vcgeq_f32 , 4)
 
 	public:
-		VectorScalar<bool, 16> operator== (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vceqq_f32(get(0), rhs.get(0)),
-				vceqq_f32(get(1), rhs.get(1)),
-				vceqq_f32(get(2), rhs.get(2)),
-				vceqq_f32(get(3), rhs.get(3))
-			);
-		}
-		
-		VectorScalar<bool, 16> operator!= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vcneqq_f32(get(0), rhs.get(0)),
-				vcneqq_f32(get(1), rhs.get(1)),
-				vcneqq_f32(get(2), rhs.get(2)),
-				vcneqq_f32(get(3), rhs.get(3))
-			);
-		}
-		VectorScalar<bool, 16> operator< (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vcltq_f32(get(0), rhs.get(0)),
-				vcltq_f32(get(1), rhs.get(1)),
-				vcltq_f32(get(2), rhs.get(2)),
-				vcltq_f32(get(3), rhs.get(3))
-			);
-		}
-		VectorScalar<bool, 16> operator<= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vcleq_f32(get(0), rhs.get(0)),
-				vcleq_f32(get(1), rhs.get(1)),
-				vcleq_f32(get(2), rhs.get(2)),
-				vcleq_f32(get(3), rhs.get(3))
-			);
-		}
-		VectorScalar<bool, 16> operator> (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vcgtq_f32(get(0), rhs.get(0)),
-				vcgtq_f32(get(1), rhs.get(1)),
-				vcgtq_f32(get(2), rhs.get(2)),
-				vcgtq_f32(get(3), rhs.get(3))
-			);
-		}
-		VectorScalar<bool, 16> operator>= (const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				vcgeq_f32(get(0), rhs.get(0)),
-				vcgeq_f32(get(1), rhs.get(1)),
-				vcgeq_f32(get(2), rhs.get(2)),
-				vcgeq_f32(get(3), rhs.get(3))
-			);
-		}
+		VCL_SIMD_UNARY_OP(abs,   vabsq_f32  , 4)
+		VCL_SIMD_UNARY_OP(sin,   vsinq_f32  , 4)
+		VCL_SIMD_UNARY_OP(cos,   vcosq_f32  , 4)
+		VCL_SIMD_UNARY_OP(exp,   vexpq_f32  , 4)
+		VCL_SIMD_UNARY_OP(log,   vlogq_f32  , 4)
+		VCL_SIMD_UNARY_OP(sgn,   vsgnq_f32  , 4)
+		VCL_SIMD_UNARY_OP(sqrt,  vsqrtq_f32 , 4)
+		VCL_SIMD_UNARY_OP(rcp,   vrcpq_f32  , 4)
+		VCL_SIMD_UNARY_OP(rsqrt, vrsqrtq_f32, 4)
+
+		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 4)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<float, 16> abs()   const { return VectorScalar<float, 16>(vabsq_f32  (get(0)), vabsq_f32  (get(1)), vabsq_f32  (get(2)), vabsq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sin()   const { return VectorScalar<float, 16>(vsinq_f32  (get(0)), vsinq_f32  (get(1)), vsinq_f32  (get(2)), vsinq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> cos()   const { return VectorScalar<float, 16>(vcosq_f32  (get(0)), vcosq_f32  (get(1)), vcosq_f32  (get(2)), vcosq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> exp()   const { return VectorScalar<float, 16>(vexpq_f32  (get(0)), vexpq_f32  (get(1)), vexpq_f32  (get(2)), vexpq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> log()   const { return VectorScalar<float, 16>(vlogq_f32  (get(0)), vlogq_f32  (get(1)), vlogq_f32  (get(2)), vlogq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sgn()   const { return VectorScalar<float, 16>(vsgnq_f32  (get(0)), vsgnq_f32  (get(1)), vsgnq_f32  (get(2)), vsgnq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> sqrt()  const { return VectorScalar<float, 16>(vsqrtq_f32 (get(0)), vsqrtq_f32 (get(1)), vsqrtq_f32 (get(2)), vsqrtq_f32 (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rcp()   const { return VectorScalar<float, 16>(vrcpq_f32  (get(0)), vrcpq_f32  (get(1)), vrcpq_f32  (get(2)), vrcpq_f32  (get(3))); }
-		VCL_STRONG_INLINE VectorScalar<float, 16> rsqrt() const { return VectorScalar<float, 16>(vrsqrtq_f32(get(0)), vrsqrtq_f32(get(1)), vrsqrtq_f32(get(2)), vrsqrtq_f32(get(3))); }
+		VCL_SIMD_BINARY_OP(min, vminq_f32, 4)
+		VCL_SIMD_BINARY_OP(max, vmaxq_f32, 4)
 
-		VCL_STRONG_INLINE VectorScalar<float, 16> acos() const { return VectorScalar<float, 16>(vacosq_f32(get(0)), vacosq_f32(get(1)), vacosq_f32(get(2)), vacosq_f32(get(3))); }
+		VCL_SIMD_BINARY_REDUCTION_OP(dot, vdotq_f32, Core::Simd::Details::add, 4)
 
-	public:
-		VCL_STRONG_INLINE VectorScalar<float, 16> min(const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vminq_f32(get(0), rhs.get(0)),
-				vminq_f32(get(1), rhs.get(1)),
-				vminq_f32(get(2), rhs.get(2)),
-				vminq_f32(get(3), rhs.get(3))
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<float, 16> max(const VectorScalar<float, 16>& rhs) const
-		{
-			return VectorScalar<float, 16>
-			(
-				vmaxq_f32(get(0), rhs.get(0)),
-				vmaxq_f32(get(1), rhs.get(1)),
-				vmaxq_f32(get(2), rhs.get(2)),
-				vmaxq_f32(get(3), rhs.get(3))
-			);
-		}
-
-		VCL_STRONG_INLINE float dot(const VectorScalar<float, 16>& rhs) const
-		{
-			return
-				vdotq_f32(get(0), rhs.get(0)) +
-				vdotq_f32(get(1), rhs.get(1)) +
-				vdotq_f32(get(2), rhs.get(2)) +
-				vdotq_f32(get(3), rhs.get(3));
-		}
-
-		VCL_STRONG_INLINE float min() const
-		{
-			return std::min
-			(
-				std::min(vpminq_f32(get(0)), vpminq_f32(get(1))),
-				std::min(vpminq_f32(get(2)), vpminq_f32(get(3)))
-			);
-		}
-		VCL_STRONG_INLINE float max() const
-		{
-			return std::max
-			(
-				std::max(vpmaxq_f32(get(0)), vpmaxq_f32(get(1))),
-				std::max(vpmaxq_f32(get(2)), vpmaxq_f32(get(3)))
-			);
-		}
+		VCL_SIMD_UNARY_REDUCTION_OP(min, vpminq_f32, Mathematics::min, 4)
+		VCL_SIMD_UNARY_REDUCTION_OP(max, vpmaxq_f32, Mathematics::max, 4)
 	};
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)

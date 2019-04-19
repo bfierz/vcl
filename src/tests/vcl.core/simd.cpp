@@ -712,6 +712,40 @@ TEST(SimdInt, Assign)
 		EXPECT_EQ(i16_asc[i], i + 1);
 }
 
+TEST(SimdInt, Max)
+{
+	VCL_SIMD_INTS
+
+	int4 i4 = max(i4_asc, i4_desc);
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(i4[i], std::max(i4_asc[i], i4_desc[i]));
+
+	int8 i8 = max(i8_asc, i8_desc);
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(i8[i], std::max(i8_asc[i], i8_desc[i]));
+
+	int16 i16 = max(i16_asc, i16_desc);
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(i16[i], std::max(i16_asc[i], i16_desc[i]));
+}
+
+TEST(SimdInt, Min)
+{
+	VCL_SIMD_INTS
+		
+	int4 i4 = min(i4_asc, i4_desc);
+	for (int i = 0; i < 4; i++)
+		EXPECT_EQ(i4[i], std::min(i4_asc[i], i4_desc[i]));
+
+	int8 i8 = min(i8_asc, i8_desc);
+	for (int i = 0; i < 8; i++)
+		EXPECT_EQ(i8[i], std::min(i8_asc[i], i8_desc[i]));
+
+	int16 i16 = min(i16_asc, i16_desc);
+	for (int i = 0; i < 16; i++)
+		EXPECT_EQ(i16[i], std::min(i16_asc[i], i16_desc[i]));
+}
+
 TEST(SimdInt, Select)
 {
 	selectTest<int, 4>(true, 1, 0, 1);
