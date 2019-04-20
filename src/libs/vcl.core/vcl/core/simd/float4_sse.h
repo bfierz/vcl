@@ -62,8 +62,8 @@ namespace Vcl
 		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  1)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 1)
-		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 1)
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_f32, 1)
+		VCL_SIMD_UNARY_OP(sgn, Core::Simd::SSE::sgn_f32, 1)
 
 		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 1)
 		VCL_SIMD_UNARY_OP(cos, _mm_cos_ps, 1)
@@ -89,7 +89,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)
 	{
-		return VectorScalar<float, 4>(Core::Simd::SSE::blend(b.get(0), a.get(0), mask.get(0)));
+		return VectorScalar<float, 4>(Core::Simd::SSE::blend_f32(b.get(0), a.get(0), mask.get(0)));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)

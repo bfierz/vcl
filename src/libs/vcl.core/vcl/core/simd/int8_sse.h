@@ -60,22 +60,22 @@ namespace Vcl
 		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32,  2)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 2)
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_s32, 2)
 		
 	public:
 		VCL_SIMD_BINARY_OP(operator&, _mm_and_si128, 2)
 		VCL_SIMD_BINARY_OP(operator|, _mm_or_si128, 2)
 
-		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min, 2)
-		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max, 2)
+		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min_s32, 2)
+		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max_s32, 2)
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
 	{
 		return VectorScalar<int, 8>
 		(
-			_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.get(0)), _mm_xor_si128(b.get(0), a.get(0)))),
-			_mm_xor_si128(b.get(1), _mm_and_si128(_mm_castps_si128(mask.get(1)), _mm_xor_si128(b.get(1), a.get(1))))
+			Core::Simd::SSE::blend_s32(b.get(0), a.get(0), mask.get(0)),
+			Core::Simd::SSE::blend_s32(b.get(1), a.get(1), mask.get(1))
 		);
 	}
 

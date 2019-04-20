@@ -38,13 +38,10 @@
 
 namespace Vcl
 {
-	__m128i _mm_cmpneq_epi32(__m128i a, __m128i b);
-	__m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask);
-
 	namespace Core { namespace Simd { namespace SSE
 	{
 		/// Per element absolut value
-		VCL_STRONG_INLINE __m128 abs(__m128 a)
+		VCL_STRONG_INLINE __m128 abs_f32(__m128 a)
 		{
 			// Compute abs using logical operations
 			return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), a);
@@ -53,7 +50,7 @@ namespace Vcl
 			//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(a), 1), 1));
 		}
 
-		VCL_STRONG_INLINE __m128i abs(__m128i a)
+		VCL_STRONG_INLINE __m128i abs_s32(__m128i a)
 		{
 #ifdef VCL_VECTORIZE_SSSE3
 			return _mm_abs_epi32(a);
@@ -66,7 +63,7 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128 blend(__m128 a, __m128 b, __m128 mask)
+		VCL_STRONG_INLINE __m128 blend_f32(__m128 a, __m128 b, __m128 mask)
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_blendv_ps(a, b, mask);
@@ -81,32 +78,47 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128i max(__m128i a, __m128i b)
+		VCL_STRONG_INLINE __m128i blend_s32(__m128i a, __m128i b, __m128 mask)
+		{
+#ifdef VCL_VECTORIZE_SSE4_1
+			return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), mask));
+#else
+			// Straight forward method
+			// (a & ~mask) | (b & mask)
+			return _mm_or_si128(_mm_andnot_si128(_mm_castps_si128(mask), a), _mm_and_si128(_mm_castps_si128(mask), b));
+
+			// xor-method
+			// (((a ^ b) & mask)^a)
+			//return _mm_xor_si128(a, _mm_and_si128(_mm_castps_si128(mask), _mm_xor_si128(a, b)));
+#endif
+		}
+
+		VCL_STRONG_INLINE __m128i max_s32(__m128i a, __m128i b)
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_max_epi32(a, b);
 #else
 			__m128i mask = _mm_cmpgt_epi32(a, b);
-			a = _mm_logical_bitwise_select(a, b, mask);
+			a = blend_s32(b, a, _mm_castsi128_ps(mask));
 			return a;
 #endif
 		}
-		VCL_STRONG_INLINE __m128i min(__m128i a, __m128i b)
+		VCL_STRONG_INLINE __m128i min_s32(__m128i a, __m128i b)
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_min_epi32(a, b);
 #else
 			__m128i mask = _mm_cmplt_epi32(a, b);
-			a = _mm_logical_bitwise_select(a, b, mask);
+			a = blend_s32(b, a, _mm_castsi128_ps(mask));
 			return a;
 #endif
 		}
-	}}}
 
-	VCL_STRONG_INLINE __m128 _mm_sgn_ps(__m128 v)
-	{
-		return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(VCL_M128I_SIGNBIT)), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
-	}
+		VCL_STRONG_INLINE __m128 sgn_f32(__m128 v)
+		{
+			return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(VCL_M128I_SIGNBIT)), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
+		}
+	}}}
 
 	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b)
 	{
@@ -119,15 +131,6 @@ namespace Vcl
 	VCL_STRONG_INLINE __m128i _mm_cmpge_epi32(__m128i a, __m128i b)
 	{
 		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), VCL_M128I_ALLBITS);
-	}
-
-	//! Bitwise (mask ? a : b)
-	VCL_STRONG_INLINE __m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask)
-	{
-		a = _mm_and_si128(a, mask);    // clear a where mask = 0
-		b = _mm_andnot_si128(mask, b); // clear b where mask = 1
-		a = _mm_or_si128(a, b);        // a = a OR b                         
-		return a;
 	}
 
 	VCL_STRONG_INLINE __m128 _mm_isinf_ps(__m128 x)

@@ -60,20 +60,19 @@ namespace Vcl
 		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32,  1)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 1)
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_s32, 1)
 		
 	public:
 		VCL_SIMD_BINARY_OP(operator&, _mm_and_si128, 1)
 		VCL_SIMD_BINARY_OP(operator|, _mm_or_si128, 1)
 
-		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min, 1)
-		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max, 1)
+		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min_s32, 1)
+		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max_s32, 1)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b)
 	{
-		// (((b ^ a) & mask)^b)
-		return VectorScalar<int, 4>(_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.get(0)), _mm_xor_si128(b.get(0), a.get(0)))));
+		return VectorScalar<int, 4>(Core::Simd::SSE::blend_s32(b.get(0), a.get(0), mask.get(0)));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)

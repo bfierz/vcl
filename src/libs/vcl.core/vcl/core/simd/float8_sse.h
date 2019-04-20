@@ -62,8 +62,8 @@ namespace Vcl
 		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  2);
 
 	public:
-		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs, 2);
-		VCL_SIMD_UNARY_OP(sgn, _mm_sgn_ps, 2);
+		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_f32, 2);
+		VCL_SIMD_UNARY_OP(sgn, Core::Simd::SSE::sgn_f32, 2);
 
 		VCL_SIMD_UNARY_OP(sin, _mm_sin_ps, 2);
 		VCL_SIMD_UNARY_OP(cos, _mm_cos_ps, 2);
@@ -91,8 +91,8 @@ namespace Vcl
 	{
 		return VectorScalar<float, 8>
 		(
-			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.get(0)),
-			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.get(1))
+			Core::Simd::SSE::blend_f32(b.get(0), a.get(0), mask.get(0)),
+			Core::Simd::SSE::blend_f32(b.get(1), a.get(1), mask.get(1))
 		);
 	}
 

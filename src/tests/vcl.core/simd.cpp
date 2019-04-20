@@ -422,7 +422,7 @@ TEST(SimdFloat, Select)
 	selectTest<float, 16>(float16{ 1 } / float16{ 0 } < 0, 1.0f, 0.0f, 0.0f);
 }
 
-TEST(Simd, Rsqrt)
+TEST(SimdFloat, Rsqrt)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -458,7 +458,7 @@ TEST(Simd, Rsqrt)
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'rsqrt' failed.";
 }
 
-TEST(Simd, Rcp)
+TEST(SimdFloat, Rcp)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -494,7 +494,7 @@ TEST(Simd, Rcp)
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'rcp' failed.";
 }
 
-TEST(Simd, Pow)
+TEST(SimdFloat, Pow)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -530,7 +530,7 @@ TEST(Simd, Pow)
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'pow' failed.";
 }
 
-TEST(Simd, Log)
+TEST(SimdFloat, Log)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -566,7 +566,7 @@ TEST(Simd, Log)
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'log' failed.";
 }
 
-TEST(Simd, Abs)
+TEST(SimdFloat, Abs)
 {
 	using Vcl::all;
 	using Vcl::Mathematics::equal;
@@ -591,8 +591,7 @@ TEST(Simd, Abs)
 	EXPECT_TRUE(all(equal(res3, float16{ 1 })));
 }
 
-
-TEST(Simd, Dot)
+TEST(SimdFloat, Dot)
 {
 	using Vcl::Mathematics::equal;
 
@@ -622,7 +621,7 @@ TEST(Simd, Dot)
 	EXPECT_TRUE(equal(ref*4, res3, 1e-5f));
 }
 
-TEST(Simd, HMinMax)
+TEST(SimdFloat, HMinMax)
 {
 	using Vcl::float4;
 	using Vcl::float8;
@@ -697,6 +696,31 @@ TEST(SimdInt, Assign)
 	i16 = i16_asc;
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(i16_asc[i], i + 1);
+}
+
+TEST(SimdInt, Abs)
+{
+	using Vcl::all;
+	using Vcl::Mathematics::equal;
+
+	using Vcl::int4;
+	using Vcl::int8;
+	using Vcl::int16;
+
+	// Source data
+	int4  vec1{ -1 };
+	int8  vec2{ -1 };
+	int16 vec3{ -1 };
+
+	// Compute dot(x, x)
+	int4  res1 = abs(vec1);
+	int8  res2 = abs(vec2);
+	int16 res3 = abs(vec3);
+
+	// Reference result
+	EXPECT_TRUE(all(res1 == int4{ 1 }));
+	EXPECT_TRUE(all(res2 == int8{ 1 }));
+	EXPECT_TRUE(all(res3 == int16{ 1 }));
 }
 
 TEST(SimdInt, Max)
