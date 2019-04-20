@@ -30,8 +30,8 @@
 // VCL 
 #include <vcl/core/simd/bool8_sse.h>
 #include <vcl/core/simd/common.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -87,6 +87,15 @@ namespace Vcl
 		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, Mathematics::max, 2)
 	};
 
+	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
+	{
+		return VectorScalar<float, 8>
+		(
+			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.get(0)),
+			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.get(1))
+		);
+	}
+
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
 	{
 		alignas(16) float vars[8];
@@ -97,14 +106,5 @@ namespace Vcl
 				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
-	}
-
-	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
-	{
-		return VectorScalar<float, 8>
-		(
-			Core::Simd::SSE::blend(b.get(0), a.get(0), mask.get(0)),
-			Core::Simd::SSE::blend(b.get(1), a.get(1), mask.get(1))
-		);
 	}
 }

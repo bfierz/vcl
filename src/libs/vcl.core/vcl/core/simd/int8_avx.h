@@ -29,8 +29,8 @@
 
 // VCL 
 #include <vcl/core/simd/bool8_avx.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_avx.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -71,7 +71,6 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
 	{
-		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 8>(_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))));
 	}
 

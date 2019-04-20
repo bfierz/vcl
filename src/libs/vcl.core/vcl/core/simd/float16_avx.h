@@ -29,8 +29,8 @@
 
 // VCL 
 #include <vcl/core/simd/bool16_avx.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_avx.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -86,18 +86,6 @@ namespace Vcl
 		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, Mathematics::max, 2)
 	};
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
-	{
-		alignas(32) float vars[16];
-		_mm256_store_ps(vars + 0, rhs.get(0));
-		_mm256_store_ps(vars + 8, rhs.get(1));
-		
-		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
-				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
-
-		return s;
-	}
-
 	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b)
 	{
 		// (((b ^ a) & mask)^b)
@@ -108,12 +96,15 @@ namespace Vcl
 		);
 	}
 
-	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
+	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
-		return VectorScalar<bool, 16>
-		(
-			_mm256_isinf_ps(x.get(0)),
-			_mm256_isinf_ps(x.get(1))
-		);
+		alignas(32) float vars[16];
+		_mm256_store_ps(vars + 0, rhs.get(0));
+		_mm256_store_ps(vars + 8, rhs.get(1));
+		
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
+				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
+
+		return s;
 	}
 }

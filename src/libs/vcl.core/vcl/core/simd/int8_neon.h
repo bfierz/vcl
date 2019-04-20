@@ -28,10 +28,10 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool8_neon.h>
-#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_neon.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -72,7 +72,6 @@ namespace Vcl
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
 	{
-		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 8>
 		(
 			vbslq_s32(mask.get(0), a.get(0), b.get(0)),

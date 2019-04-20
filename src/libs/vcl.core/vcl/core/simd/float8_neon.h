@@ -28,10 +28,10 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool8_neon.h>
-#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_neon.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -74,6 +74,8 @@ namespace Vcl
 
 		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 2)
 
+		VCL_SIMD_QUERY_OP(isinf, visinfq_f32, 2)
+
 	public:
 		VCL_SIMD_BINARY_OP(min, vminq_f32, 2)
 		VCL_SIMD_BINARY_OP(max, vmaxq_f32, 2)
@@ -83,18 +85,6 @@ namespace Vcl
 		VCL_SIMD_UNARY_REDUCTION_OP(min, vpminq_f32, Mathematics::min, 2)
 		VCL_SIMD_UNARY_REDUCTION_OP(max, vpmaxq_f32, Mathematics::max, 2)
 	};
-
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
-	{
-		alignas(16) float vars[8];
-		vst1q_f32(vars + 0, rhs.get(0));
-		vst1q_f32(vars + 4, rhs.get(1));
-		
-		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3]
-				 << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
-
-		return s;
-	}
 
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
 	{
@@ -106,12 +96,15 @@ namespace Vcl
 		);
 	}
 
-	VCL_STRONG_INLINE VectorScalar<bool, 8> isinf(const VectorScalar<float, 8>& x)
+	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
 	{
-		return VectorScalar<bool, 8>
-		(
-			visinfq_f32(x.get(0)),
-			visinfq_f32(x.get(1))
-		);
+		alignas(16) float vars[8];
+		vst1q_f32(vars + 0, rhs.get(0));
+		vst1q_f32(vars + 4, rhs.get(1));
+		
+		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3]
+				 << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
+
+		return s;
 	}
 }

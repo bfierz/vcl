@@ -28,10 +28,10 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool16_neon.h>
-#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_neon.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -73,6 +73,8 @@ namespace Vcl
 		VCL_SIMD_UNARY_OP(rsqrt, vrsqrtq_f32, 4)
 
 		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 4)
+			
+		VCL_SIMD_QUERY_OP(isinf, visinfq_f32, 4)
 
 	public:
 		VCL_SIMD_BINARY_OP(min, vminq_f32, 4)
@@ -83,6 +85,18 @@ namespace Vcl
 		VCL_SIMD_UNARY_REDUCTION_OP(min, vpminq_f32, Mathematics::min, 4)
 		VCL_SIMD_UNARY_REDUCTION_OP(max, vpmaxq_f32, Mathematics::max, 4)
 	};
+
+	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b)
+	{
+		// (((b ^ a) & mask)^b)
+		return VectorScalar<float, 16>
+		(
+			vbslq_f32(mask.get(0), a.get(0), b.get(0)),
+			vbslq_f32(mask.get(1), a.get(1), b.get(1)),
+			vbslq_f32(mask.get(2), a.get(2), b.get(2)),
+			vbslq_f32(mask.get(3), a.get(3), b.get(3))
+		);
+	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
@@ -98,28 +112,5 @@ namespace Vcl
 				 << vars[12] << "," << vars[13] << "," << vars[14] << "," << vars[15] << "'";
 
 		return s;
-	}
-
-	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b)
-	{
-		// (((b ^ a) & mask)^b)
-		return VectorScalar<float, 16>
-		(
-			vbslq_f32(mask.get(0), a.get(0), b.get(0)),
-			vbslq_f32(mask.get(1), a.get(1), b.get(1)),
-			vbslq_f32(mask.get(2), a.get(2), b.get(2)),
-			vbslq_f32(mask.get(3), a.get(3), b.get(3))
-		);
-	}
-
-	VCL_STRONG_INLINE VectorScalar<bool, 16> isinf(const VectorScalar<float, 16>& x)
-	{
-		return VectorScalar<bool, 16>
-		(
-			visinfq_f32(x.get(0)),
-			visinfq_f32(x.get(1)),
-			visinfq_f32(x.get(2)),
-			visinfq_f32(x.get(3))
-		);
 	}
 }

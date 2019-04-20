@@ -30,8 +30,8 @@
 // VCL 
 #include <vcl/core/simd/bool4_sse.h>
 #include <vcl/core/simd/common.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {

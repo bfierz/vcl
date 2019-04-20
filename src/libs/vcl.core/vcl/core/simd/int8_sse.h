@@ -30,8 +30,8 @@
 // VCL 
 #include <vcl/core/simd/bool8_sse.h>
 #include <vcl/core/simd/common.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -72,7 +72,6 @@ namespace Vcl
 	
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
 	{
-		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 8>
 		(
 			_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.get(0)), _mm_xor_si128(b.get(0), a.get(0)))),

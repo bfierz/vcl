@@ -28,10 +28,10 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/bool4_neon.h>
-#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_neon.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -74,6 +74,8 @@ namespace Vcl
 
 		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 1)
 
+		VCL_SIMD_QUERY_OP(isinf, visinfq_f32, 1)
+
 	public:
 		VCL_SIMD_BINARY_OP(min, vminq_f32, 1)
 		VCL_SIMD_BINARY_OP(max, vmaxq_f32, 1)
@@ -87,11 +89,6 @@ namespace Vcl
 	VCL_STRONG_INLINE VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b)
 	{
 		return VectorScalar<float, 4>(vbslq_f32(mask.get(0), a.get(0), b.get(0)));
-	}
-
-	VCL_STRONG_INLINE VectorScalar<bool, 4> isinf(const VectorScalar<float, 4>& x)
-	{
-		return VectorScalar<bool, 4>(visinfq_f32(x.get(0)));
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)

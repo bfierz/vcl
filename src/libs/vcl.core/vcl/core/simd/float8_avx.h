@@ -30,8 +30,8 @@
 // VCL 
 #include <vcl/core/simd/bool8_avx.h>
 #include <vcl/core/simd/common.h>
-#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_avx.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
@@ -89,15 +89,6 @@ namespace Vcl
 	
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
 	{
-		// Straight forward method
-		// (b & ~mask) | (a & mask)
-		//return VectorScalar<float, 8>(_mm256_or_ps(_mm256_andnot_ps(mask.get(0), b.get(0)), _mm256_and_ps(mask.get(0), a.get(0))));
-
-		// xor-method
-		// (((b ^ a) & mask)^b)
-		//return VectorScalar<float, 8>(_mm256_xor_ps(b.get(0), _mm256_and_ps(mask.get(0), _mm256_xor_ps(b.get(0), a.get(0)))));
-
-		// AVX way
 		return VectorScalar<float, 8>(_mm256_blendv_ps(b.get(0), a.get(0), mask.get(0)));
 	}
 
