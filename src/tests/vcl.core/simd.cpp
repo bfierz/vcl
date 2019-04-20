@@ -363,6 +363,36 @@ TEST(SimdFloat, Sqrt)
 	EXPECT_TRUE(all(equal(ref3, res3, float16(1e-5f)))) << "'sqrt' failed.";
 }
 
+template<int W>
+void fltSignumTest()
+{
+	using Vcl::all;
+	using Vcl::sgn;
+
+	using floatN = Vcl::VectorScalar<float, W>;
+
+	std::random_device rnd;
+	std::uniform_real_distribution<float> dist{ -10, 10 };
+
+	EXPECT_TRUE(all(sgn(floatN(0)) == floatN(0)));
+	EXPECT_TRUE(all(sgn(floatN(-0.0f)) == floatN(0)));
+	for (int i = 0; i < 50; i++)
+	{
+		const float d = dist(rnd);
+		if (d < 0)
+			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(-1)));
+		else if (d > 0)
+			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(1)));
+	}
+}
+
+TEST(SimdFloat, Signum)
+{
+	fltSignumTest<4>();
+	fltSignumTest<8>();
+	fltSignumTest<16>();
+}
+
 template<typename T, int W>
 void selectTest
 (
@@ -611,49 +641,6 @@ TEST(Simd, HMinMax)
 	EXPECT_EQ(vec16.max(), 16);
 }
 
-TEST(Simd, Sign4)
-{
-	using Vcl::float4;
-	using Vcl::all;
-	using Vcl::sgn;
-
-	std::random_device rnd;
-	std::uniform_real_distribution<float> dist{ -10, 10 };
-
-	EXPECT_TRUE(all(sgn(float4(0)) == float4(0)));
-	EXPECT_TRUE(all(sgn(float4(-0.0)) == float4(0)));
-	for (int i = 0; i < 50; i++)
-	{
-		const float d = dist(rnd);
-		if (d < 0)
-			EXPECT_TRUE(all(sgn(float4(d)) == float4(-1)));
-		else
-			EXPECT_TRUE(all(sgn(float4(d)) == float4(1)));
-	}
-}
-
-TEST(Simd, Sign8)
-{
-	using Vcl::float8;
-	using Vcl::all;
-	using Vcl::sgn;
-
-	std::random_device rnd;
-	std::uniform_real_distribution<float> dist{ -10, 10 };
-
-	EXPECT_TRUE(all(sgn(float8(0)) == float8(0)));
-	EXPECT_TRUE(all(sgn(float8(-0.0)) == float8(0)));
-	for (int i = 0; i < 50; i++)
-	{
-		const float d = dist(rnd);
-		if (d < 0)
-			EXPECT_TRUE(all(sgn(float8(d)) == float8(-1))) << d;
-		else
-			EXPECT_TRUE(all(sgn(float8(d)) == float8(1))) << d;
-	}
-}
-
-
 TEST(SimdInt, Construct)
 {
 	VCL_SIMD_INTS
@@ -744,6 +731,35 @@ TEST(SimdInt, Min)
 	int16 i16 = min(i16_asc, i16_desc);
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(i16[i], std::min(i16_asc[i], i16_desc[i]));
+}
+
+template<int W>
+void intSignumTest()
+{
+	using Vcl::all;
+	using Vcl::sgn;
+
+	using intN = Vcl::VectorScalar<int, W>;
+
+	std::random_device rnd;
+	std::uniform_int_distribution<int> dist{ -10, 10 };
+
+	EXPECT_TRUE(all(sgn(intN(0)) == intN(0)));
+	for (int i = 0; i < 50; i++)
+	{
+		const int d = dist(rnd);
+		if (d < 0)
+			EXPECT_TRUE(all(sgn(intN(d)) == intN(-1))) << d;
+		else if (d > 0)
+			EXPECT_TRUE(all(sgn(intN(d)) == intN(1))) << d;
+	}
+}
+
+TEST(SimdInt, Signum)
+{
+	intSignumTest<4>();
+	intSignumTest<8>();
+	intSignumTest<16>();
 }
 
 TEST(SimdInt, Select)

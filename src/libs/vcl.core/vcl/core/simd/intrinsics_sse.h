@@ -39,6 +39,7 @@
 namespace Vcl
 {
 	__m128i _mm_cmpneq_epi32(__m128i a, __m128i b);
+	__m128i _mm_logical_bitwise_select(__m128i a, __m128i b, __m128i mask);
 
 	namespace Core { namespace Simd { namespace SSE
 	{
@@ -99,17 +100,6 @@ namespace Vcl
 			a = _mm_logical_bitwise_select(a, b, mask);
 			return a;
 #endif
-		}
-
-		VCL_STRONG_INLINE __m128i signum(__m128i a)
-		{
-			return _mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a, VCL_M128I_SIGNBIT), _mm_set1_epi32(1)
-				), _mm_cmpneq_epi32(a, _mm_setzero_si128())
-			);
 		}
 	}}}
 

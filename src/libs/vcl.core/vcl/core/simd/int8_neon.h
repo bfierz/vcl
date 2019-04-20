@@ -80,27 +80,6 @@ namespace Vcl
 		);
 	}
 
-	/*VCL_STRONG_INLINE VectorScalar<int, 8> signum(const VectorScalar<int, 8>& a)
-	{
-		return VectorScalar<int, 8>
-		(
-			_mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a.get(0), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.get(0), _mm_setzero_si128())
-			),
-			_mm_and_si128
-			(
-				_mm_or_si128
-				(
-					_mm_and_si128(a.get(1), vdupq_n_s32(0x80000000)), vdupq_n_s32(1)
-				), _mm_cmpneq_epi32(a.get(1), _mm_setzero_si128())
-			)
-		);
-	}*/
-
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs)
 	{
 		alignas(16) int vars[8];

@@ -311,10 +311,10 @@ void distanceRayRayGeneric()
 	}
 }
 
-//TEST(DistanceRayRay, Simple)
-//{
-//	distanceRayRayGeneric<float>();
-//}
+TEST(DistanceRayRay, Simple)
+{
+	distanceRayRayGeneric<float>();
+}
 TEST(DistanceRayRay, Simple4)
 {
 	distanceRayRayGeneric<Vcl::float4>();

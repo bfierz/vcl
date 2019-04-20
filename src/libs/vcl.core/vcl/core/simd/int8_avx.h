@@ -75,20 +75,6 @@ namespace Vcl
 		return VectorScalar<int, 8>(_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))));
 	}
 
-	VCL_STRONG_INLINE VectorScalar<int, 8> signum(const VectorScalar<int, 8>& a)
-	{
-		return VectorScalar<int, 8>
-		(
-			_mmVCL_and_si256
-			(
-				_mmVCL_or_si256
-				(
-					_mmVCL_and_si256(a.get(0), VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
-				), _mmVCL_cmpneq_epi32(a.get(0), _mm256_setzero_si256())
-			)
-		);
-	}
-
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs)
 	{
 		alignas(32) int vars[8];

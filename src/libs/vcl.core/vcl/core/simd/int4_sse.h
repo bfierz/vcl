@@ -76,11 +76,6 @@ namespace Vcl
 		return VectorScalar<int, 4>(_mm_xor_si128(b.get(0), _mm_and_si128(_mm_castps_si128(mask.get(0)), _mm_xor_si128(b.get(0), a.get(0)))));
 	}
 
-	VCL_STRONG_INLINE VectorScalar<int, 4> signum(const VectorScalar<int, 4>& a)
-	{
-		return VectorScalar<int, 4>(Core::Simd::SSE::signum(a.get(0)));
-	}
-
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)
 	{
 		alignas(16) int vars[4];

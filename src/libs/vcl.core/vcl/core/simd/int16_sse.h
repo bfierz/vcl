@@ -82,17 +82,6 @@ namespace Vcl
 		);
 	}
 
-	VCL_STRONG_INLINE VectorScalar<int, 16> signum(const VectorScalar<int, 16>& a)
-	{
-		return VectorScalar<int, 16>
-		(
-			Core::Simd::SSE::signum(a.get(0)),
-			Core::Simd::SSE::signum(a.get(1)),
-			Core::Simd::SSE::signum(a.get(2)),
-			Core::Simd::SSE::signum(a.get(3))
-		);
-	}
-
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(16) int vars[16];

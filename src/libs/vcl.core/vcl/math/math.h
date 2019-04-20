@@ -86,13 +86,13 @@ namespace Vcl { namespace Mathematics
 	template <typename T>
 	VCL_STRONG_INLINE int sgn(T x, std::false_type)
 	{
-		return T(0) < x;
+		return T(0) < x ? 1 : 0;
 	}
 
 	template <typename T>
 	VCL_STRONG_INLINE int sgn(T x, std::true_type)
 	{
-		return (T(0) < x) - (x < T(0));
+		return (T(0) < x ? 1 : 0) - (x < T(0) ? 1 : 0);
 	}
 
 	template <typename T>
