@@ -86,13 +86,13 @@ namespace Vcl { namespace Mathematics
 	template <typename T>
 	VCL_STRONG_INLINE int sgn(T x, std::false_type)
 	{
-		return T(0) < x;
+		return T(0) < x ? 1 : 0;
 	}
 
 	template <typename T>
 	VCL_STRONG_INLINE int sgn(T x, std::true_type)
 	{
-		return (T(0) < x) - (x < T(0));
+		return (T(0) < x ? 1 : 0) - (x < T(0) ? 1 : 0);
 	}
 
 	template <typename T>
@@ -160,9 +160,7 @@ namespace Vcl { namespace Mathematics
 	VCL_STRONG_INLINE float max(float a, float b)
 	{
 #ifdef VCL_VECTORIZE_SSE
-		float z;
-		_mm_store_ss(&z, _mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
-		return z;
+		return _mm_cvtss_f32(_mm_max_ss(_mm_set_ss(a), _mm_set_ss(b)));
 #else
 		return (a > b) ? a : b;
 #endif
@@ -171,9 +169,7 @@ namespace Vcl { namespace Mathematics
 	VCL_STRONG_INLINE float min(float a, float b)
 	{
 #ifdef VCL_VECTORIZE_SSE
-		float z;
-		_mm_store_ss(&z, _mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
-		return z;
+		return _mm_cvtss_f32(_mm_min_ss(_mm_set_ss(a), _mm_set_ss(b)));
 #else
 		return (a < b) ? a : b;
 #endif

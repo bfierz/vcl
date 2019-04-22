@@ -34,6 +34,8 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/preprocessor.h>
+#include <vcl/math/math.h>
 
 namespace Vcl
 {
@@ -194,25 +196,57 @@ namespace Vcl
 	struct NumericTrait
 	{
 		using base_t = T;
+		using wide_t = T;
 	};
 
 	template<>
 	struct NumericTrait<VectorScalar<float, 4>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
 	template<>
 	struct NumericTrait<VectorScalar<float, 8>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_AVX
+		using wide_t = __m256;
+#elif defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
 	template<>
 	struct NumericTrait<VectorScalar<float, 16>>
 	{
 		using base_t = float;
+#if defined VCL_VECTORIZE_AVX
+		using wide_t = __m256;
+#elif defined VCL_VECTORIZE_SSE
+		using wide_t = __m128;
+#elif defined VCL_VECTORIZE_NEON
+		using wide_t = float32x4_t;
+#endif
 	};
+	
+	//! Component-wise negation
+	template<int Width>
+	VCL_STRONG_INLINE VectorScalar<float, Width> operator-(const VectorScalar<float, Width>& a)
+	{
+		return a * VectorScalar<float, Width>(-1);
+	}
 
-
+	//! Component-wise negation
+	template<int Width>
+	VCL_STRONG_INLINE VectorScalar<int, Width> operator-(const VectorScalar<int, Width>& a)
+	{
+		return a * VectorScalar<int, Width>(-1);
+	}
 
 	template<typename Scalar, int Width>
 	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator +(Scalar a, const VectorScalar<Scalar, Width>& b)
@@ -235,13 +269,13 @@ namespace Vcl
 		return VectorScalar<Scalar, Width>(a) / b;
 	}
 
+	template<int Width> VCL_STRONG_INLINE Vcl::VectorScalar<bool, Width> isinf(const Vcl::VectorScalar<float, Width>& x) { return x.isinf(); }
 
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.abs(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs2 (const Vcl::VectorScalar<Scalar, Width>& x) { return x*x; }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sqrt (const Vcl::VectorScalar<Scalar, Width>& x) { return x.sqrt(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> exp  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.exp(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> log  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.log(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sgn  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.sgn(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rcp  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.rcp(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rsqrt(const Vcl::VectorScalar<Scalar, Width>& x) { return x.rsqrt(); }
 
@@ -256,6 +290,18 @@ namespace Vcl
 
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar min(const Vcl::VectorScalar<Scalar, Width>& x)  { return x.min(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar max(const Vcl::VectorScalar<Scalar, Width>& x)  { return x.max(); }
+
+	template<int Width>
+	VCL_STRONG_INLINE Vcl::VectorScalar<float, Width> sgn(const Vcl::VectorScalar<float, Width>& x)
+	{
+		return x.sgn();
+	}
+	template<int Width>
+	VCL_STRONG_INLINE VectorScalar<int, Width> sgn(const VectorScalar<int, Width>& a)
+	{
+		using int_t = VectorScalar<int, Width>;
+		return select(int_t(0) < a, int_t(1), int_t(0)) - select(a < int_t(0), int_t(1), int_t(0));
+	}
 
 	VCL_STRONG_INLINE float min(float x)
 	{
@@ -392,6 +438,11 @@ namespace Vcl
 	typedef VectorScalar<int,  8> int8;
 	typedef VectorScalar<int, 16> int16;
 	typedef VectorScalar<int, 32> int32;
+	
+	typedef VectorScalar<bool,  4> bool4;
+	typedef VectorScalar<bool,  8> bool8;
+	typedef VectorScalar<bool, 16> bool16;
+	typedef VectorScalar<bool, 32> bool32;
 }
 
 namespace Eigen
@@ -458,13 +509,12 @@ namespace Eigen
 	};
 }
 
-template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs (const Vcl::VectorScalar<Scalar, Width>& x) { return x.abs(); }
-
 namespace Eigen { namespace numext
 {
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& conj(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& real(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
-	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> imag(const Vcl::VectorScalar<Scalar, Width>&)   { return Vcl::VectorScalar<Scalar, Width>(0); }	
+	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> imag(const Vcl::VectorScalar<Scalar, Width>&)   { return Vcl::VectorScalar<Scalar, Width>(0); }
+	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> isinf (const Vcl::VectorScalar<Scalar, Width>& x) { return x.isinf(); }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs2(const Vcl::VectorScalar<Scalar, Width>& x) { return x*x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sqrt(const Vcl::VectorScalar<Scalar, Width>& x) { return x.sqrt(); }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> exp (const Vcl::VectorScalar<Scalar, Width>& x) { return x.exp(); }

@@ -26,73 +26,55 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-
-// C++ Standard Library
-#include <array>
 
 // VCL
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<bool, 4>
+	class alignas(16) VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() = default;
-		VCL_STRONG_INLINE VectorScalar(bool s)
-		{
-			mF4 = s ? _mm_castsi128_ps(_mm_set1_epi32(-1)) : _mm_castsi128_ps(_mm_set1_epi32(0));
-		}
-		explicit VCL_STRONG_INLINE VectorScalar(__m128 F4) : mF4(F4) {}
-		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) : mF4(_mm_castsi128_ps(I4)) {}
-		
-	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator&& (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_and_ps(mF4, rhs.mF4)); }
-		VCL_STRONG_INLINE VectorScalar<bool, 4> operator|| (const VectorScalar<bool, 4>& rhs) const { return VectorScalar<bool, 4>(_mm_or_ps (mF4, rhs.mF4)); }
-
-		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator&= (const VectorScalar<bool, 4>& rhs) { mF4 = _mm_and_ps(mF4, rhs.mF4); return *this; }
-		VCL_STRONG_INLINE VectorScalar<bool, 4>& operator|= (const VectorScalar<bool, 4>& rhs) { mF4 = _mm_or_ps(mF4, rhs.mF4);  return *this; }
+		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
+		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) { set(_mm_castsi128_ps(I4)); }
 
 	public:
-		friend VectorScalar<float, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<float, 4>& a, const VectorScalar<float, 4>& b);
-		friend VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b);
-		friend bool any(const VectorScalar<bool, 4>& b);
-		friend bool all(const VectorScalar<bool, 4>& b);
-		friend bool none(const VectorScalar<bool, 4>& b);
+		VCL_SIMD_BINARY_OP(operator&&, _mm_and_ps, 1)
+		VCL_SIMD_BINARY_OP(operator||, _mm_or_ps, 1)
 
-	private:
-		__m128 mF4;
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm_and_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm_or_ps, 1)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)
 	{
 		//int alignas(16) vars[4];
-		//_mm_store_ps((float*) vars, b.mF4);
+		//_mm_store_ps((float*) vars, b.get(0));
 		//
 		//return vars[0] | vars[1] | vars[2] | vars[3];
 
-		return _mm_movemask_ps(b.mF4) != 0;
+		return _mm_movemask_ps(b.get(0)) != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b)
 	{
 		//int alignas(16) vars[4];
-		//_mm_store_ps((float*) vars, b.mF4);
+		//_mm_store_ps((float*) vars, b.get(0));
 		//
 		//return vars[0] & vars[1] & vars[2] & vars[3];
 
-		return static_cast<unsigned int>(_mm_movemask_ps(b.mF4)) == 0xf;
+		return static_cast<unsigned int>(_mm_movemask_ps(b.get(0))) == 0xf;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b)
 	{
 		//int alignas(16) vars[4];
-		//_mm_store_ps((float*) vars, b.mF4);
+		//_mm_store_ps((float*) vars, b.get(0));
 		//
 		//return !(vars[0] | vars[1] | vars[2] | vars[3]);
 
-		return static_cast<unsigned int>(_mm_movemask_ps(b.mF4)) == 0x0;
+		return static_cast<unsigned int>(_mm_movemask_ps(b.get(0))) == 0x0;
 	}
 }

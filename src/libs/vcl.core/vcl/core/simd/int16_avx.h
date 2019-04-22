@@ -27,215 +27,63 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ Standard Library
-#include <array>
-
 // VCL 
 #include <vcl/core/simd/bool16_avx.h>
-#include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_avx.h>
+#include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
 	template<>
-	class VectorScalar<int, 16>
+	class alignas(32) VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::AVX>
 	{
 	public:
-		VCL_STRONG_INLINE VectorScalar() {}
-		VCL_STRONG_INLINE VectorScalar(int s)
-		{
-			mF8[0] = _mm256_set1_epi32(s);
-			mF8[1] = _mm256_set1_epi32(s);
-		}
-		explicit VCL_STRONG_INLINE VectorScalar
-		(
-			int s00, int s01, int s02, int s03, int s04, int s05, int s06, int s07,
-			int s08, int s09, int s10, int s11, int s12, int s13, int s14, int s15
-		)
-		{
-			mF8[0] = _mm256_set_epi32(s07, s06, s05, s04, s03, s02, s01, s00);
-			mF8[1] = _mm256_set_epi32(s15, s14, s13, s12, s11, s10, s09, s08);
-		}
-		VCL_STRONG_INLINE explicit VectorScalar(__m256i I8_0, __m256i I8_1)
-		{
-			mF8[0] = I8_0;
-			mF8[1] = I8_1;
-		}
+		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
 
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16>& operator = (const VectorScalar<int, 16>& rhs)
-		{
-			mF8[0] = rhs.mF8[0];
-			mF8[1] = rhs.mF8[1];
-
-			return *this;
-		}
+		VCL_SIMD_BINARY_OP(operator+, _mmVCL_add_epi32, 2)
+		VCL_SIMD_BINARY_OP(operator-, _mmVCL_sub_epi32, 2)
+		VCL_SIMD_BINARY_OP(operator*, _mmVCL_mullo_epi32, 2)
+		
+	public:
+		VCL_SIMD_ASSIGN_OP(operator+=, _mmVCL_add_epi32, 2)
+		VCL_SIMD_ASSIGN_OP(operator-=, _mmVCL_sub_epi32, 2)
+		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 2)
+		
+	public:
+		VCL_SIMD_COMP_OP(operator==, _mmVCL_cmpeq_epi32,  2)
+		VCL_SIMD_COMP_OP(operator!=, _mmVCL_cmpneq_epi32, 2)
+		VCL_SIMD_COMP_OP(operator<,  _mmVCL_cmplt_epi32,  2)
+		VCL_SIMD_COMP_OP(operator<=, _mmVCL_cmple_epi32,  2)
+		VCL_SIMD_COMP_OP(operator>,  _mmVCL_cmpgt_epi32,  2)
+		VCL_SIMD_COMP_OP(operator>=, _mmVCL_cmpge_epi32,  2)
 
 	public:
-		VCL_STRONG_INLINE int operator[] (int idx) const
-		{
-			VclRequire(0 <= idx && idx < 16, "Access is in range.");
-
-			return _mmVCL_extract_epi32(mF8[idx / 8], idx % 8);
-		}
-
-		VCL_STRONG_INLINE __m256i get(int i) const
-		{
-			VclRequire(0 <= i && i < 2, "Access is in range.");
-
-			return mF8[i];
-		}
-
+		VCL_SIMD_UNARY_OP(abs, _mmVCL_abs_epi32, 2)
+		
 	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16> operator+ (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_add_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_add_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 16> operator- (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_sub_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_sub_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 16> operator* (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_mullo_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_mullo_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
+		VCL_SIMD_BINARY_OP(operator&, _mmVCL_and_si256, 2)
+		VCL_SIMD_BINARY_OP(operator|, _mmVCL_or_si256, 2)
 
-	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16> abs() const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_abs_epi32(mF8[0]),
-				_mmVCL_abs_epi32(mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 16> max(const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_max_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_max_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<int, 16> operator& (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_and_si256(mF8[0], rhs.mF8[0]),
-				_mmVCL_and_si256(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<int, 16> operator| (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<int, 16>
-			(
-				_mmVCL_or_si256(mF8[0], rhs.mF8[0]),
-				_mmVCL_or_si256(mF8[1], rhs.mF8[1])
-			);
-		}
-
-	public:
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator== (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mmVCL_cmpeq_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_cmpeq_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator< (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mmVCL_cmplt_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_cmplt_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator<= (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mmVCL_cmple_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_cmple_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator> (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mmVCL_cmpgt_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_cmpgt_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-		VCL_STRONG_INLINE VectorScalar<bool, 16> operator>= (const VectorScalar<int, 16>& rhs) const
-		{
-			return VectorScalar<bool, 16>
-			(
-				_mmVCL_cmpge_epi32(mF8[0], rhs.mF8[0]),
-				_mmVCL_cmpge_epi32(mF8[1], rhs.mF8[1])
-			);
-		}
-
-	public:
-		friend std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs);
-		friend VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b);
-		friend VectorScalar<int, 16> signum(const VectorScalar<int, 16>& a);
-
-	private:
-		__m256i mF8[2];
+		VCL_SIMD_BINARY_OP(min, _mmVCL_min_epi32, 2)
+		VCL_SIMD_BINARY_OP(max, _mmVCL_max_epi32, 2)
 	};
 	
 	VCL_STRONG_INLINE VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b)
 	{
-		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 16>
 		(
-			_mmVCL_xor_si256(b.mF8[0], _mmVCL_and_si256(_mm256_castps_si256(mask.mF8[0]), _mmVCL_xor_si256(b.mF8[0], a.mF8[0]))),
-			_mmVCL_xor_si256(b.mF8[1], _mmVCL_and_si256(_mm256_castps_si256(mask.mF8[1]), _mmVCL_xor_si256(b.mF8[1], a.mF8[1])))
-		);
-	}
-
-	VCL_STRONG_INLINE VectorScalar<int, 16> signum(const VectorScalar<int, 16>& a)
-	{
-		return VectorScalar<int, 16>
-		(
-			_mmVCL_and_si256
-			(
-				_mmVCL_or_si256
-				(
-					_mmVCL_and_si256(a.mF8[0], VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
-				), _mmVCL_cmpneq_epi32(a.mF8[0], _mm256_setzero_si256())
-			),
-			_mmVCL_and_si256
-			(
-				_mmVCL_or_si256
-				(
-					_mmVCL_and_si256(a.mF8[1], VCL_M256I_SIGNBIT), _mm256_set1_epi32(1)
-				), _mmVCL_cmpneq_epi32(a.mF8[1], _mm256_setzero_si256())
-			)
+			_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))),
+			_mmVCL_xor_si256(b.get(1), _mmVCL_and_si256(_mm256_castps_si256(mask.get(1)), _mmVCL_xor_si256(b.get(1), a.get(1))))
 		);
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(16) int vars[8];
-		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 0), rhs.mF8[0]);
-		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 4), rhs.mF8[1]);
+		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 0), rhs.get(0));
+		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 4), rhs.get(1));
 
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
 				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";

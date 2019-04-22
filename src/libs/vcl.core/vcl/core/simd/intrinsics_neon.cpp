@@ -82,7 +82,7 @@ namespace Vcl
 		ret = ret + 1.5707288f;
 		ret = ret * (1.0f - x).sqrt();
 		ret = ret - 2.0f * negate * ret;
-		return (negate * 3.14159265358979f + ret).get();
+		return (negate * 3.14159265358979f + ret).get(0);
 	}
 
 	// Handbook of Mathematical Functions
@@ -104,7 +104,7 @@ namespace Vcl
 		ret *= x;
 		ret += 1.5707288f;
 		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
-		return (ret - 2.0f * negate * ret).get();
+		return (ret - 2.0f * negate * ret).get(0);
 	}
 
 
@@ -137,9 +137,15 @@ namespace Vcl
 		t3 = select(x < 0, 3.141592654f - t3, t3);
 		t3 = select(y < 0, -t3, t3);
 
-		return t3.get();
+		return t3.get(0);
 	}
-	
+
+	float32x4_t vsqrtq_f32(float32x4_t x)
+	{
+		const float4 v{ x };
+		return select(v == 0.0f, 0.0f, v * rsqrt(v)).get(0);
+	}
+
 //	float32x4_t _mmVCL_floor_ps(float32x4_t x)
 //	{
 //#ifdef VCL_VECTORIZE_SSE4_1

@@ -82,7 +82,7 @@ namespace Vcl
 		ret = ret + 1.5707288f;
 		ret = ret * (1.0f - x).sqrt();
 		ret = ret - 2.0f * negate * ret;
-		return (negate * 3.14159265358979f + ret).get();
+		return (negate * 3.14159265358979f + ret).get(0);
 	}
 
 	// Handbook of Mathematical Functions
@@ -102,7 +102,7 @@ namespace Vcl
 		ret *= x;
 		ret += 1.5707288f;
 		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
-		return (ret - 2.0f * negate * ret).get();
+		return (ret - 2.0f * negate * ret).get(0);
 	}
 
 
@@ -133,7 +133,7 @@ namespace Vcl
 		t3 = select(x < 0, 3.141592654f - t3, t3);
 		t3 = select(y < 0, -t3, t3);
 
-		return t3.get();
+		return t3.get(0);
 	}
 #endif
 	
@@ -154,30 +154,6 @@ namespace Vcl
 		__m128 igx = _mm_cmpgt_ps(fi, x);
 		j = _mm_and_ps(igx, j);
 		return _mm_sub_ps(fi, j);
-#endif
-	}
-
-	__m128i _mmVCL_abs_epi32(__m128i a)
-	{
-#ifdef VCL_VECTORIZE_SSSE3
-		return _mm_abs_epi32(a);
-#else
-		__m128i mask = _mm_cmplt_epi32( a, _mm_setzero_si128() ); // FFFF   where a < 0
-		a    = _mm_xor_si128 ( a, mask );                         // Invert where a < 0
-		mask = _mm_srli_epi32( mask, 31 );                        // 0001   where a < 0
-		a = _mm_add_epi32( a, mask );                             // Add 1  where a < 0
-		return a;
-#endif
-	}
-
-	__m128i _mmVCL_max_epi32(__m128i a, __m128i b)
-	{
-#ifdef VCL_VECTORIZE_SSE4_1
-		return _mm_max_epi32(a, b);
-#else
-		__m128i mask  = _mm_cmpgt_epi32( a, b );                            // FFFFFFFF where a > b
-		a = _mm_logical_bitwise_select( a, b, mask );
-		return a;
 #endif
 	}
 }

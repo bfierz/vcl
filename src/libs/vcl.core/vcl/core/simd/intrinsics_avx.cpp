@@ -79,7 +79,7 @@ namespace Vcl
 		ret = ret + 1.5707288f;
 		ret = ret * (1.0f - x).sqrt();
 		ret = ret - 2.0f * negate * ret;
-		return static_cast<__m256>(negate * 3.14159265358979f + ret);
+		return (negate * 3.14159265358979f + ret).get(0);
 	}
 
 	// Handbook of Mathematical Functions
@@ -99,7 +99,7 @@ namespace Vcl
 		ret *= x;
 		ret += 1.5707288f;
 		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
-		return static_cast<__m256>(ret - 2.0f * negate * ret);
+		return (ret - 2.0f * negate * ret).get(0);
 	}
 
 	__m256 _mm256_atan2_ps(__m256 in_y, __m256 in_x)
@@ -129,7 +129,7 @@ namespace Vcl
 		t3 = select(x < 0, 3.141592654f - t3, t3);
 		t3 = select(y < 0, -t3, t3);
 
-		return static_cast<__m256>(t3);
+		return t3.get(0);
 	}
 
 	__m256 _mm256_pow_ps(__m256 x, __m256 y)

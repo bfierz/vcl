@@ -87,6 +87,7 @@ set(VCL_CORE_SIMD_INC
 	vcl/core/simd/bool16_avx.h
 	vcl/core/simd/bool16_sse.h
 	vcl/core/simd/bool16_neon.h
+	vcl/core/simd/common.h
 	vcl/core/simd/float4_sse.h
 	vcl/core/simd/float4_neon.h
 	vcl/core/simd/float8_avx.h

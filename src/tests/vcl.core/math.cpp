@@ -39,7 +39,7 @@ VCL_END_EXTERNAL_HEADERS
 
 using namespace Vcl::Mathematics;
 
-TEST(Math, Sign)
+TEST(Math, FltSign)
 {
 	std::random_device rnd;
 	std::uniform_real_distribution<double> dist_d{-10, 10};
@@ -51,8 +51,24 @@ TEST(Math, Sign)
 		const double d = dist_d(rnd);
 		if (d < 0)
 			EXPECT_EQ(sgn(d), -1.0);
-		else
+		else if (d > 0)
 			EXPECT_EQ(sgn(d), 1.0);
+	}
+}
+
+TEST(Math, IntSign)
+{
+	std::random_device rnd;
+	std::uniform_int_distribution<int> dist{ -10, 10 };
+
+	EXPECT_EQ(sgn(0), 0);
+	for (int i = 0; i < 50; i++)
+	{
+		const int d = dist(rnd);
+		if (d < 0)
+			EXPECT_EQ(sgn(d), -1);
+		else if (d > 0)
+			EXPECT_EQ(sgn(d), 1);
 	}
 }
 

@@ -189,7 +189,7 @@ namespace Vcl
 	VCL_STRONG_INLINE __m256i _mmVCL_max_epi32(__m256i x, __m256i y)
 	{
 #ifdef VCL_VECTORIZE_AVX2
-		return _mm256_add_epi32(x, y);
+		return _mm256_max_epi32(x, y);
 #else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
@@ -199,6 +199,24 @@ namespace Vcl
 
 		const __m128i z0 = _mm_max_epi32(x0, y0);
 		const __m128i z1 = _mm_max_epi32(x1, y1);
+
+		return _mm256_set_m128i(z1, z0);
+#endif
+	}
+
+	VCL_STRONG_INLINE __m256i _mmVCL_min_epi32(__m256i x, __m256i y)
+	{
+#ifdef VCL_VECTORIZE_AVX2
+		return _mm256_min_epi32(x, y);
+#else
+		const __m128i x0 = _mm256_extractf128_si256(x, 0);
+		const __m128i x1 = _mm256_extractf128_si256(x, 1);
+
+		const __m128i y0 = _mm256_extractf128_si256(y, 0);
+		const __m128i y1 = _mm256_extractf128_si256(y, 1);
+
+		const __m128i z0 = _mm_min_epi32(x0, y0);
+		const __m128i z1 = _mm_min_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
 #endif
