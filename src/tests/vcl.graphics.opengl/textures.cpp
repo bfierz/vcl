@@ -172,6 +172,34 @@ TEST(OpenGL, InitTexture1D)
 	EXPECT_EQ(image, test_image);
 }
 
+TEST(OpenGL, ClearTexture1D)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	Texture1DDescription desc1d;
+	desc1d.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	desc1d.ArraySize = 1;
+	desc1d.Width = 32;
+	desc1d.MipLevels = 1;
+
+	const auto test_image = createTestPattern(32, 1, 1);
+	TextureResource res;
+	res.Data = stdext::make_span(test_image);
+	res.Width = 32;
+	res.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	Runtime::OpenGL::Texture1D tex{ desc1d, &res };
+
+	std::vector<unsigned char> image(32 * 1 * 4);
+	tex.read(image.size(), image.data());
+	EXPECT_EQ(image, test_image);
+
+	int zero = 0;
+	tex.clear(SurfaceFormat::R8G8B8A8_UNORM, &zero);
+
+	tex.read(image.size(), image.data());
+	EXPECT_TRUE(std::all_of(image.begin(), image.end(), [](unsigned char c) { return c == 0; }));
+}
 
 TEST(OpenGL, InitEmptyTexture1DArray)
 {

@@ -136,7 +136,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		GLint values[2];
 		glGetIntegerv(GL_POLYGON_MODE, values);
-		valid &= (values[0] == toGLenum(desc().FillMode) && values[1] == toGLenum(desc().FillMode));
+		valid &= (values[0] == toGLenum(desc().FillMode));
 
 		return valid;
 	}
