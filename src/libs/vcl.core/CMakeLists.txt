@@ -79,6 +79,17 @@ set(VCL_CORE_SIMD_INC
 	vcl/core/simd/avx_mathfun.h
 	vcl/core/simd/sse_mathfun.h
 	vcl/core/simd/neon_mathfun.h
+
+	vcl/core/simd/bool4_ref.h
+	vcl/core/simd/bool8_ref.h
+	vcl/core/simd/bool16_ref.h
+	vcl/core/simd/float4_ref.h
+	vcl/core/simd/float8_ref.h
+	vcl/core/simd/float16_ref.h
+	vcl/core/simd/int4_ref.h
+	vcl/core/simd/int8_ref.h
+	vcl/core/simd/int16_ref.h
+
 	vcl/core/simd/bool4_sse.h
 	vcl/core/simd/bool4_neon.h
 	vcl/core/simd/bool8_avx.h

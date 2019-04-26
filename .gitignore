@@ -3,5 +3,6 @@
 /build_*
 /build-*
 /build
+.vs
 CMakeLists.txt.user
 test_package/build

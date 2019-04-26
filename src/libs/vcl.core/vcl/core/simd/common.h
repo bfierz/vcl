@@ -59,11 +59,54 @@ namespace Vcl { namespace Core { namespace Simd
 
 		//! Number of values in a register
 		static const int Width = 0;
+	};
 
-		template<typename... U>
-		Type set(U...)
+	template<>
+	struct SimdRegister<float, SimdExt::None>
+	{
+		using Scalar = float;
+		using Type = float;
+		static const int Width = 1;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
 		{
+			return s0;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		{
+			return vec;
+		}
+	};
+	template<>
+	struct SimdRegister<int, SimdExt::None>
+	{
+		using Scalar = int;
+		using Type = int;
+		static const int Width = 1;
 
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return s0;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		{
+			return vec;
+		}
+	};
+	template<>
+	struct SimdRegister<bool, SimdExt::None>
+	{
+		using Scalar = bool;
+		using Type = bool;
+		static const int Width = 1;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return s0;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		{
+			return vec;
 		}
 	};
 
@@ -456,14 +499,88 @@ namespace Vcl { namespace Core { namespace Simd
 
 	namespace Details
 	{
+		template<typename T>
+		VCL_STRONG_INLINE T nop(T a)
+		{
+			return a;
+		}
 		//! Add two floats
+		//! \tparam T Scalar type used for operation
 		//! \param a First summand
 		//! \param b Second summand
 		//! \returns The sum of \a and \b
-		//! Helper function to allow for code geneartion in the VectorScalar specializations
-		VCL_STRONG_INLINE float add(float a, float b)
+		//! Helper function to allow for code generation in the VectorScalar specializations
+		template<typename T>
+		VCL_STRONG_INLINE T add(T a, T b)
 		{
 			return a + b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE T sub(T a, T b)
+		{
+			return a - b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE T mul(T a, T b)
+		{
+			return a * b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE T div(T a, T b)
+		{
+			return a / b;
+		}
+
+		template<typename T>
+		VCL_STRONG_INLINE bool cmpeq(T a, T b)
+		{
+			return a == b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE bool cmpne(T a, T b)
+		{
+			return a != b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE bool cmplt(T a, T b)
+		{
+			return a < b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE bool cmple(T a, T b)
+		{
+			return a <= b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE bool cmpgt(T a, T b)
+		{
+			return a > b;
+		}
+		template<typename T>
+		VCL_STRONG_INLINE bool cmpge(T a, T b)
+		{
+			return a >= b;
+		}
+
+		//! Logical conjunction
+		VCL_STRONG_INLINE bool conj(bool a, bool b)
+		{
+			return a && b;
+		}
+		//! Bitwise conjunction
+		VCL_STRONG_INLINE int conj(int a, int b)
+		{
+			return a & b;
+		}
+		//! Logical disjunction
+		VCL_STRONG_INLINE bool disj(bool a, bool b)
+		{
+			return a || b;
+		}
+		//! Bitwise disjunction
+		VCL_STRONG_INLINE int disj(int a, int b)
+		{
+			return a | b;
 		}
 	}
 }}}
@@ -484,30 +601,34 @@ namespace Vcl { namespace Core { namespace Simd
 		static_assert(sizeof...(V) == NrRegs-1, "Wrong number number of parameters"); \
 		set(v0, v...); }
 
-#define VCL_SIMD_P1_1(op) op(get(0))
-#define VCL_SIMD_P1_2(op) VCL_SIMD_P1_1(op), op(get(1))
-#define VCL_SIMD_P1_4(op) VCL_SIMD_P1_2(op), op(get(2)), op(get(3))
-#define VCL_SIMD_P1_8(op) VCL_SIMD_P1_4(op), op(get(4)), op(get(5)), op(get(6)), op(get(7))
+#define VCL_SIMD_P1_1(op, i)  op(get(i))
+#define VCL_SIMD_P1_2(op, i)  VCL_SIMD_P1_1(op, i), VCL_SIMD_P1_1(op, i+1)
+#define VCL_SIMD_P1_4(op, i)  VCL_SIMD_P1_2(op, i), VCL_SIMD_P1_2(op, i+2)
+#define VCL_SIMD_P1_8(op, i)  VCL_SIMD_P1_4(op, i), VCL_SIMD_P1_4(op, i+4)
+#define VCL_SIMD_P1_16(op, i) VCL_SIMD_P1_8(op, i), VCL_SIMD_P1_8(op, i+8)
 
-#define VCL_SIMD_P2_1(op) op(get(0), rhs.get(0))
-#define VCL_SIMD_P2_2(op) VCL_SIMD_P2_1(op), op(get(1), rhs.get(1))
-#define VCL_SIMD_P2_4(op) VCL_SIMD_P2_2(op), op(get(2), rhs.get(2)), op(get(3), rhs.get(3))
-#define VCL_SIMD_P2_8(op) VCL_SIMD_P2_4(op), op(get(4), rhs.get(4)), op(get(5), rhs.get(5)), op(get(6), rhs.get(6)), op(get(7), rhs.get(7))
+#define VCL_SIMD_P2_1(op, i)  op(get(i), rhs.get(i))
+#define VCL_SIMD_P2_2(op, i)  VCL_SIMD_P2_1(op, i), VCL_SIMD_P2_1(op, i+1)
+#define VCL_SIMD_P2_4(op, i)  VCL_SIMD_P2_2(op, i), VCL_SIMD_P2_2(op, i+2)
+#define VCL_SIMD_P2_8(op, i)  VCL_SIMD_P2_4(op, i), VCL_SIMD_P2_4(op, i+4)
+#define VCL_SIMD_P2_16(op, i) VCL_SIMD_P2_8(op, i), VCL_SIMD_P2_8(op, i+8)
 
-#define VCL_SIMD_RED_P1_1(op1, op2, i) op1(get(i))
-#define VCL_SIMD_RED_P1_2(op1, op2, i) op2(VCL_SIMD_RED_P1_1(op1, op2, i), VCL_SIMD_RED_P1_1(op1, op2, i+1))
-#define VCL_SIMD_RED_P1_4(op1, op2, i) op2(VCL_SIMD_RED_P1_2(op1, op2, i), VCL_SIMD_RED_P1_2(op1, op2, i+2))
-#define VCL_SIMD_RED_P1_8(op1, op2, i) op2(VCL_SIMD_RED_P1_4(op1, op2, i), VCL_SIMD_RED_P1_4(op1, op2, i+4))
+#define VCL_SIMD_RED_P1_1(op1, op2, i)  op1(get(i))
+#define VCL_SIMD_RED_P1_2(op1, op2, i)  op2(VCL_SIMD_RED_P1_1(op1, op2, i), VCL_SIMD_RED_P1_1(op1, op2, i+1))
+#define VCL_SIMD_RED_P1_4(op1, op2, i)  op2(VCL_SIMD_RED_P1_2(op1, op2, i), VCL_SIMD_RED_P1_2(op1, op2, i+2))
+#define VCL_SIMD_RED_P1_8(op1, op2, i)  op2(VCL_SIMD_RED_P1_4(op1, op2, i), VCL_SIMD_RED_P1_4(op1, op2, i+4))
+#define VCL_SIMD_RED_P1_16(op1, op2, i) op2(VCL_SIMD_RED_P1_8(op1, op2, i), VCL_SIMD_RED_P1_8(op1, op2, i+8))
 
-#define VCL_SIMD_RED_P2_1(op1, op2, i) op1(get(i), rhs.get(i))
-#define VCL_SIMD_RED_P2_2(op1, op2, i) op2(VCL_SIMD_RED_P2_1(op1, op2, i), VCL_SIMD_RED_P2_1(op1, op2, i+1))
-#define VCL_SIMD_RED_P2_4(op1, op2, i) op2(VCL_SIMD_RED_P2_2(op1, op2, i), VCL_SIMD_RED_P2_2(op1, op2, i+2))
-#define VCL_SIMD_RED_P2_8(op1, op2, i) op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i+4))
+#define VCL_SIMD_RED_P2_1(op1, op2, i)  op1(get(i), rhs.get(i))
+#define VCL_SIMD_RED_P2_2(op1, op2, i)  op2(VCL_SIMD_RED_P2_1(op1, op2, i), VCL_SIMD_RED_P2_1(op1, op2, i+1))
+#define VCL_SIMD_RED_P2_4(op1, op2, i)  op2(VCL_SIMD_RED_P2_2(op1, op2, i), VCL_SIMD_RED_P2_2(op1, op2, i+2))
+#define VCL_SIMD_RED_P2_8(op1, op2, i)  op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i+4))
+#define VCL_SIMD_RED_P2_16(op1, op2, i) op2(VCL_SIMD_RED_P2_8(op1, op2, i), VCL_SIMD_RED_P2_8(op1, op2, i+8))
 
-#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
-#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
-#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)); return *this; }
-#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op)}; }
-#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op)}; }
+#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
+#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
+#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)); return *this; }
+#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
+#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
 #define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
 #define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }

@@ -203,4 +203,48 @@ namespace Vcl
 
 		base.template at<Scalar>(vindex * 1) = value;
 	}
+	
+#if !defined(VCL_VECTORIZE_SSE) && !defined(VCL_VECTORIZE_AVX) && !defined(VCL_VECTORIZE_NEON)
+	template<typename T, int Width>
+	VCL_STRONG_INLINE void load(VectorScalar<T, Width>& value, const T* base)
+	{
+		value = VectorScalar<T, Width>(base, 1);
+	}
+	
+	template<typename T, int Width>
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<VectorScalar<T, Width>, 3, 1>& loaded,
+		const Eigen::Matrix<T, 3, 1>* base
+	)
+	{
+		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 3);
+		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 3);
+		loaded(2) = VectorScalar<T, Width>(base->data() + 2, 3);
+	}
+	
+	template<typename T, int Width>
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<VectorScalar<T, Width>, 4, 1>& loaded,
+		const Eigen::Matrix<T, 4, 1>* base
+	)
+	{
+		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 4);
+		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 4);
+		loaded(2) = VectorScalar<T, Width>(base->data() + 2, 4);
+		loaded(3) = VectorScalar<T, Width>(base->data() + 3, 4);
+	}
+	
+	template<typename T, int Width>
+	VectorScalar<T, Width> gather(T const * base, VectorScalar<int, Width> vindex)
+	{
+		VectorScalar<T, Width> gathered;
+		for (size_t i = 0; i < Width; i++)
+			gathered[i] = *(base + vindex[i]);
+
+		return gathered;
+	}
+	
+#endif
 }
