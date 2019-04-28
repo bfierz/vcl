@@ -41,18 +41,18 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba16f) restrict readonly uniform image2D input0;
+		layout(rgba16f, binding = 0) restrict readonly uniform image2D input0;
 
 		// Input ranges
 		uniform ivec4 inputRange0;
 
 		// Kernel output
-		restrict writeonly uniform image2D output0;		
+		layout(rgba8, binding = 1) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform ivec4 outputRange0;
 
-		float LinearToSrgb(float val)
+		float linearToSrgb(float val)
 		{
 			float ret;
 			if (val <= 0.0)
@@ -71,9 +71,9 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 			vec4 values = imageLoad(input0, coords);
 
-			float sr = LinearToSrgb(values.r);
-			float sg = LinearToSrgb(values.g);
-			float sb = LinearToSrgb(values.b);
+			float sr = linearToSrgb(values.r);
+			float sg = linearToSrgb(values.g);
+			float sb = linearToSrgb(values.b);
 			float sa = values.a;
 
 			imageStore(output0, coords, vec4(sr, sg, sb, sa));

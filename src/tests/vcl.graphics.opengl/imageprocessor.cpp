@@ -46,6 +46,7 @@
 #include "pattern.h"
 
 // http://fgiesen.wordpress.com/2012/03/28/half-to-float-done-quic/
+// https://gist.github.com/rygorous/2156668
 
 union FP32
 {
@@ -86,6 +87,34 @@ static FP32 half_to_float_fast5(FP16 h)
 	return o;
 }
 
+// Approximate solution. This is faster but converts some sNaNs to
+// infinity and doesn't round correctly. Handle with care.
+static FP16 approx_float_to_half(FP32 f)
+{
+	FP32 f32infty = { 255 << 23 };
+	FP32 f16max = { (127 + 16) << 23 };
+	FP32 magic = { 15 << 23 };
+	FP32 expinf = { (255 ^ 31) << 23 };
+	uint32_t sign_mask = 0x80000000u;
+	FP16 o = { 0 };
+
+	uint32_t sign = f.u & sign_mask;
+	f.u ^= sign;
+
+	if (!(f.f < f32infty.u)) // Inf or NaN
+		o.u = f.u ^ expinf.u;
+	else
+	{
+		if (f.f > f16max.f) f.f = f16max.f;
+		f.f *= magic.f;
+	}
+
+	o.u = f.u >> 13; // Take the mantissa bits
+	o.u |= sign >> 16;
+	return o;
+}
+
+
 TEST(OpenGL, ImageProcessingTaskSRGB)
 {
 	using namespace Vcl::Graphics::ImageProcessing::OpenGL;
@@ -95,14 +124,21 @@ TEST(OpenGL, ImageProcessingTaskSRGB)
 	ImageProcessor proc;
 
 	// Prepare the input
-	std::vector<unsigned char> numerical_average_gray(256 * 256 * 4, 127);
-	std::vector<unsigned char> physiological_average_gray(256 * 256 * 4, 127);
+	FP32 half;
+	half.f = 0.5f;
+	std::vector<FP16> numerical_average_gray_half(256 * 256 * 4, approx_float_to_half(half));
+	std::vector<unsigned char> numerical_average_gray(256 * 256 * 4, 128);
+	std::vector<unsigned char> physiological_average_gray(256 * 256 * 4, 128);
 
 	Runtime::TextureResource init_res;
 	init_res.Width = 256;
 	init_res.Height = 256;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = numerical_average_gray;
+	init_res.Data = stdext::make_span(numerical_average_gray);
+
+	// Using half-floats to load the textures causes read-bug in the shader. G and A are read as 0.
+	//init_res.Format = SurfaceFormat::R16G16B16A16_FLOAT;
+	//init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(numerical_average_gray_half.data()), numerical_average_gray_half.size() * sizeof(decltype(numerical_average_gray_half)::value_type));
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -137,9 +173,10 @@ TEST(OpenGL, ImageProcessingTaskSRGB)
 	{
 		for (int x = 0; x < 256; x++)
 		{
-			bool r = physiological_average_gray[4 * (y * 256 + x) + 0] == 187;
-			bool g = physiological_average_gray[4 * (y * 256 + x) + 1] == 187;
-			bool b = physiological_average_gray[4 * (y * 256 + x) + 2] == 187;
+			bool r = physiological_average_gray[4 * (y * 256 + x) + 0] == 188;
+			bool g = physiological_average_gray[4 * (y * 256 + x) + 1] == 188;
+			bool b = physiological_average_gray[4 * (y * 256 + x) + 2] == 188;
+			bool a = physiological_average_gray[4 * (y * 256 + x) + 3] == 128;
 
 			equal = equal && r && g && b;
 		}

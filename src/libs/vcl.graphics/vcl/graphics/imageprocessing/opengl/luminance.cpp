@@ -64,13 +64,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(rgba16f) restrict readonly uniform image2D input0;
+		layout(rgba16f, binding = 0) restrict readonly uniform image2D input0;
 
 		// Input ranges
 		uniform ivec4 inputRange0;
 
 		// Kernel output
-		layout(r16f) restrict writeonly uniform image2D output0;		
+		layout(r16f, binding = 1) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform ivec4 outputRange0;
@@ -121,13 +121,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		layout (local_size_x = 16, local_size_y = 16) in;
 
 		// Kernel input
-		layout(r16f) restrict readonly uniform image2D input0;
+		layout(r16f, binding = 0) restrict readonly uniform image2D input0;
 
 		// Input ranges
 		uniform ivec4 inputRange0;
 
 		// Kernel output
-		layout(r16f) restrict writeonly uniform image2D output0;		
+		layout(r16f, binding = 1) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform ivec4 outputRange0;

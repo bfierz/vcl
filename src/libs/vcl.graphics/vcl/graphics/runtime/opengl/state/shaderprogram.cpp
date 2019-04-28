@@ -150,8 +150,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				GLint resLoc = -1;
 				if (type >= ProgramResourceType::Sampler1D)
 				{
-					resLoc = glGetProgramResourceLocation(program, GL_UNIFORM, name.data());
-					glProgramUniform1i(program, values[3], resLoc);
+					glGetUniformiv(program, values[3], &resLoc);
 				}
 
 				// Construct the uniform
