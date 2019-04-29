@@ -270,6 +270,8 @@ if(TARGET ${vcl_ext_glew})
 			${vcl_ext_egl}
 		)
 	endif()
+elseif(EMSCRIPTEN)
+	target_compile_definitions(vcl_graphics PUBLIC VCL_OPENGL_SUPPORT)
 endif()
 
 TARGET_LINK_LIBRARIES(vcl_graphics

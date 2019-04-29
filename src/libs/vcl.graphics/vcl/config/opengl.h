@@ -28,11 +28,17 @@
 #include <vcl/config/global.h>
 
 // Define OpenGL configuration
-#define VCL_GL_ARB_direct_state_access
-//#define VCL_GL_EXT_direct_state_access
+#ifndef VCL_ARCH_WEBASM
+#	define VCL_GL_ARB_direct_state_access
+//#	define VCL_GL_EXT_direct_state_access
+#endif
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_OPENGL_SUPPORT
-#	include <GL/glew.h>
-#endif // VCL_OPENGL_SUPPORT
+#	ifdef VCL_ARCH_WEBASM
+#		include <GLES3/gl32.h>
+#	else
+#		include <GL/glew.h>
+#	endif
+#endif
 VCL_END_EXTERNAL_HEADERS

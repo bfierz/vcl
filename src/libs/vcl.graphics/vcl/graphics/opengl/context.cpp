@@ -32,9 +32,6 @@
 #include <vcl/graphics/opengl/gl.h>
 
 #if defined VCL_OPENGL_SUPPORT
-
-// OpenGL
-#include <GL/glew.h>
 #	ifdef VCL_ABI_WINAPI
 #		include <GL/wglew.h>
 #	endif

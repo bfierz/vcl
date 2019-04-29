@@ -108,7 +108,7 @@ option(JSON_Install "" OFF)
 add_subdirectory(externals/json)
 
 find_package(OPENGL QUIET)
-if(OPENGL_FOUND)
+if(OPENGL_FOUND AND NOT EMSCRIPTEN)
 	find_package(EGL QUIET)
 	if(EGL_FOUND)
 		add_library(vcl_ext_egl_tgt UNKNOWN IMPORTED)
