@@ -88,7 +88,7 @@ TEST(OpenGL, ClearBuffer)
 	EXPECT_TRUE(equal) << "Buffer not cleared: " << std::hex << "0x" << fault;
 }
 
-TEST(OpenGL, DISABLED_SetBufferValue)
+TEST(OpenGL, SetBufferValue)
 {
 	using namespace Vcl::Graphics::Runtime;
 
