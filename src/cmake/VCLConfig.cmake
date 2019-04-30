@@ -254,7 +254,7 @@ function(vcl_target_sources tgt prefix)
 	foreach(file ${ARGN})
 		get_filename_component(dir_ "${file}" DIRECTORY)
 		if(dir_)
-			# Remove the prefix and an optiona '/'
+			# Remove the prefix and an optional '/'
 			string(REGEX REPLACE "^${prefix}[/]" "" dir_ ${dir_})
 			# Replace the path separator with filter separators
 			string(REGEX REPLACE "/" "\\\\" dir_ ${dir_})
