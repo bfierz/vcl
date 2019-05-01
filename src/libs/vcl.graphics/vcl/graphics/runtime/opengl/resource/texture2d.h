@@ -35,24 +35,17 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Texture2D : public Texture
+	class Texture2D final : public Texture
 	{
 	public:
 		Texture2D(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
 		Texture2D(const Texture2D&);
-		virtual ~Texture2D();
+
+		std::unique_ptr<Runtime::Texture> clone() const override;
 
 	private:
-		void initialise(const TextureResource* init_data = nullptr);
-
-	public:
-		virtual std::unique_ptr<Runtime::Texture> clone() const override;
-
-	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) override;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
-
-		virtual void read(size_t size, void* data) const override;
+		void allocImpl(GLenum colour_fmt) override;
+		void updateImpl(const TextureResource& data) override;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

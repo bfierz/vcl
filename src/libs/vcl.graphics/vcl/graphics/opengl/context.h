@@ -43,7 +43,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	enum class ContextType
 	{
 		Core,
-		Compatibility
+		Compatibility,
+		Embedded
 	};
 
 	struct ContextDesc

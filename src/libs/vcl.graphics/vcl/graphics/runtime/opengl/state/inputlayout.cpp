@@ -42,6 +42,13 @@
 #	define glVertexArrayBindingDivisorVCL glVertexArrayVertexBindingDivisorEXT
 #	define glVertexArrayAttribIFormatVCL glVertexArrayVertexAttribIFormatEXT
 #	define glVertexArrayAttribFormatVCL glVertexArrayVertexAttribFormatEXT
+#else
+#	define glCreateVertexArraysVCL glGenVertexArrays
+#	define glEnableVertexArrayAttribVCL(idx, loc) glEnableVertexAttribArray(loc)
+#	define glVertexArrayAttribBindingVCL(idx, loc, slot) glVertexAttribBinding(loc, slot)
+#	define glVertexArrayBindingDivisorVCL(idx, loc, divisor) glVertexBindingDivisor(loc, divisor)
+#	define glVertexArrayAttribIFormatVCL(idx, loc, size, type, offset) glVertexAttribIFormat(loc, size, type, offset)
+#	define glVertexArrayAttribFormatVCL(idx, loc, size, type, normalized, offset) glVertexAttribFormat(loc, size, type, normalized, offset)
 #endif
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -65,9 +72,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void InputLayout::setup(const InputLayoutDescription& desc)
 	{
 		VclRequire(_vaoID == 0, "No yet created.");
+		VclRequire(glewIsSupported("GL_ARB_vertex_array_object"), "Vertex array objects are supported.");
 		VclRequire(glewIsSupported("GL_ARB_vertex_attrib_binding"), "Vertex attribute binding is supported.");
 
 		glCreateVertexArraysVCL(1, &_vaoID);
+#if !(defined(VCL_GL_ARB_direct_state_access) || defined(VCL_GL_EXT_direct_state_access))
+		glBindVertexArray(_vaoID);
+#endif
 
 		int idx = 0;
 		for (const auto& elem : desc.attributes())
@@ -113,5 +124,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			idx++;
 		}
+#if !(defined(VCL_GL_ARB_direct_state_access) || defined(VCL_GL_EXT_direct_state_access))
+		glBindVertexArray(GL_NONE);
+#endif
 	}
 }}}}

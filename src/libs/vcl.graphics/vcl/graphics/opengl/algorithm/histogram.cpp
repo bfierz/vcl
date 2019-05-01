@@ -58,8 +58,8 @@ namespace Vcl { namespace Graphics
 		_partialHistograms = make_owner<Runtime::OpenGL::Buffer>(desc);
 
 		// Define the number of buckets for the shader
-		auto partials = fmt::format("#define partialHistograms\n#define NUM_BUCKETS {}", nr_buckets);
-		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}", nr_buckets);
+		auto partials = fmt::format("#define partialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
+		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
 
 		// Load the kernels
 		_partialHistogramKernel         = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });

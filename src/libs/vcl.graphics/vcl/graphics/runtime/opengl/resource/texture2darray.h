@@ -35,25 +35,16 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
-	class Texture2DArray : public Texture
+	class Texture2DArray final : public Texture
 	{
 	public:
 		Texture2DArray(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
-		virtual ~Texture2DArray();
+
+		std::unique_ptr<Runtime::Texture> clone() const override;
 
 	private:
-		void initialise(const TextureResource* init_data = nullptr);
-
-	public:
-		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const override { VclDebugError("Not implemented"); }
-
-	public:
-		virtual void fill(SurfaceFormat fmt, const void* data) override;
-		virtual void fill(SurfaceFormat fmt, int mip_level, const void* data) override;
-		void fill(int layer, int mip_level, SurfaceFormat fmt, const void* data);
-		
-	public:
-		virtual void read(size_t size, void* data) const override;
+		void allocImpl(GLenum colour_fmt) override;
+		void updateImpl(const TextureResource& data) override;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT

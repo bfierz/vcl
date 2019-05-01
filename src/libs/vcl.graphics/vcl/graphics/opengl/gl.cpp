@@ -40,6 +40,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return "Core";
 		else if (profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
 			return "Compatibility";
+		else if (profile == 0x4) // GLX_CONTEXT_ES_PROFILE_BIT_EXT/WGL_CONTEXT_ES_PROFILE_BIT_EXT
+			return "Embedded";
 		else
 			return "Invalid";
 	}

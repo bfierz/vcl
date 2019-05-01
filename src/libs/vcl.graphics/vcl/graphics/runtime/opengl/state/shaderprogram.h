@@ -457,14 +457,20 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		using namespace Vcl::Graphics::Runtime;
 
 		// Compile the shader
-		OpenGL::Shader cs(ShaderType::ComputeShader, 0, source, headers);
+		auto compiled_shader = makeShader(ShaderType::ComputeShader, 0, source, headers);
+		if (!compiled_shader)
+			return {};
+		OpenGL::Shader cs = std::move(compiled_shader).value();
 
 		// Create the program descriptor
 		OpenGL::ShaderProgramDescription desc;
 		desc.ComputeShader = &cs;
 
 		// Create the shader program
-		return std::make_unique<OpenGL::ShaderProgram>(desc);
+		auto program = makeShaderProgram(desc);
+		if (program)
+			return std::move(program).value();
+		return {};
 	}
 }}}}
 #endif // VCL_OPENGL_SUPPORT

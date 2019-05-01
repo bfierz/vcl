@@ -43,15 +43,15 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// Kernel input
 		// * Input[0] -> Rendered scene
 		// * Input[1] -> Average luminance
-		layout(rgba16f) restrict readonly uniform image2D input0;
-		layout(r16f)    restrict readonly uniform image2D input1;
+		layout(rgba16f, binding = 0) restrict readonly uniform image2D input0;
+		layout(r16f,    binding = 1) restrict readonly uniform image2D input1;
 
 		// Input ranges
 		uniform uvec4 inputRange0;
 		uniform uvec4 inputRange1;
 
 		// Kernel output
-		restrict writeonly uniform image2D output0;		
+		layout(binding = 2) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform uvec4 outputRange0;

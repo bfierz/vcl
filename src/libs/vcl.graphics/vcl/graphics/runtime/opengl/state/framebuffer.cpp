@@ -37,11 +37,19 @@
 #		define glNamedFramebufferDrawBuffersVCL glNamedFramebufferDrawBuffers
 #		define glNamedFramebufferTextureVCL glNamedFramebufferTexture
 #		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayer
+#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatus
 #	elif defined(VCL_GL_EXT_direct_state_access)
 #		define glCreateFramebuffersVCL glGenFramebuffers
 #		define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
 #		define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
 #		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
+#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
+#	else
+#		define glCreateFramebuffersVCL glGenFramebuffers
+#		define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
+#		define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
+#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
+#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
 #	endif
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
@@ -229,7 +237,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	bool Framebuffer::checkGLFramebufferStatus(GLuint fbo)
 	{
 		// check FBO status
-		GLenum status = glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);
+		GLenum status = glCheckNamedFramebufferStatusVCL(fbo, GL_FRAMEBUFFER);
 		switch (status)
 		{
 		case GL_FRAMEBUFFER_COMPLETE:

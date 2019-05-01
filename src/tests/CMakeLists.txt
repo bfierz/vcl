@@ -38,9 +38,7 @@ set(test_project vcl.core.test vcl.geometry.test vcl.math.test vcl.components.te
 
 # OpenGL related tests
 if(VCL_OPENGL_SUPPORT)
-	find_package(OpenGL REQUIRED)
-	find_package(GLEW REQUIRED)
-	if(GLEW_FOUND)
+	if(TARGET ${vcl_ext_glew})
 		add_subdirectory(vcl.graphics.opengl)
 		list(APPEND test_project vcl.graphics.opengl)
 	endif()

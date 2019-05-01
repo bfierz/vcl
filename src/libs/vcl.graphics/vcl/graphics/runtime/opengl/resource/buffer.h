@@ -111,6 +111,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void clear(const Graphics::OpenGL::AnyRenderType& rt, void* data);
 		
 		//! Clear the contents of the buffer
+		//! \param offset Offset into the buffer
+		//! \param size Size of the area to clear
+		//! Sets the specified region to zero
 		void clear(size_t offset, size_t size);
 
 		//! Clear a portion of the buffer

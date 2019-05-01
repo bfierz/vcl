@@ -36,7 +36,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		const TextureCubeDescription& desc,
 		const TextureResource* init_data /* = nullptr */
 	)
-	: Texture()
 	{
 		initializeView
 		(
@@ -48,61 +47,52 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		initialise(init_data);
 	}
 
-	TextureCube::~TextureCube()
+	std::unique_ptr<Runtime::Texture> TextureCube::clone() const
 	{
-		// Delete the texture
-		glDeleteTextures(1, &_glId);
+		return std::make_unique<TextureCube>(*this);
 	}
 
-	void TextureCube::fill(SurfaceFormat fmt, const void* data)
+	void TextureCube::allocImpl(GLenum colour_fmt)
 	{
-		ImageFormat gl_fmt = toImageFormat(fmt);
-		
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glTextureSubImage3D(_glId, 0, 0, 0, 0, width(), height(), 6, gl_fmt.Format, gl_fmt.Type, data);
+		glTextureStorage2D(_glId, mipMapLevels(), colour_fmt, width(), height());
 #	elif defined(VCL_GL_EXT_direct_state_access)
-		glTextureSubImage3DEXT(_glId, GL_TEXTURE_CUBE_MAP, 0, 0, 0, 0, width(), height(), 6, gl_fmt.Format, gl_fmt.Type, data);
+		glTextureStorage2DEXT(_glId, GL_TEXTURE_CUBE_MAP, mipMapLevels(), colour_fmt, width(), height());
+#	else
+		glTexStorage2D(GL_TEXTURE_CUBE_MAP, mipMapLevels(), colour_fmt, width(), height());
 #	endif
 	}
 
-	void TextureCube::fill(SurfaceFormat fmt, int mip_level, const void* data)
+	void TextureCube::updateImpl(const TextureResource& data)
 	{
-	}
-
-	void TextureCube::read(size_t size, void* data) const
-	{
-	}
-
-	void TextureCube::initialise(const TextureResource* init_data /* = nullptr */)
-	{
-		GLenum colour_fmt = toSurfaceFormat(format());
+		ImageFormat img_fmt = toImageFormat(data.Format != SurfaceFormat::Unknown ? data.Format : format());
+		int pixel_size = Vcl::Graphics::sizeInBytes(data.Format);
+		GLsizei w = (GLsizei)data.Width;
+		GLsizei h = (GLsizei)data.Height;
+		GLsizei mip = (GLsizei)data.MipMap;
 
 #	if defined(VCL_GL_ARB_direct_state_access)
-		glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &_glId);
-		glTextureStorage3D(_glId, 1, colour_fmt, width(), height(), 6);
-		
-		if (init_data)
+		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, 6, img_fmt.Format, img_fmt.Type, data.data());
+#	else
+		const GLenum faces[] =
 		{
-			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
-			glTextureSubImage3D(_glId, 0, 0, 0, 0, init_data->Width, init_data->Height, 6, img_fmt.Format, img_fmt.Type, init_data->Data);
-		}
-		
-		// Configure texture
-		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
-#	elif defined(VCL_GL_EXT_direct_state_access)
-		glGenTextures(1, &_glId);
-		glTextureStorage3DEXT(_glId, GL_TEXTURE_CUBE_MAP, 1, colour_fmt, width(), height(), 6);
-
-		if (init_data)
+			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+		};
+		auto data_ptr = data.Data.data();
+		for (const auto face : faces)
 		{
-			ImageFormat img_fmt = toImageFormat(init_data->Format != SurfaceFormat::Unknown ? init_data->Format : format());
-			glTextureSubImage3DEXT(_glId, GL_TEXTURE_CUBE_MAP, 0, 0, 0, 0, init_data->Width, init_data->Height, 6, img_fmt.Format, img_fmt.Type, init_data->Data);
+#		if defined(VCL_GL_EXT_direct_state_access)
+			glTextureSubImage2DEXT(_glId, face, mip, 0, 0, w, h, img_fmt.Format, img_fmt.Type, data_ptr);
+#		else
+			glTexSubImage2D(face, mip, 0, 0, w, h, img_fmt.Format, img_fmt.Type, data_ptr);
+#		endif
+			data_ptr += w * h * pixel_size;
 		}
-
-		// Configure texture
-		glTextureParameteriEXT(_glId, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteriEXT(_glId, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
 #	endif
 	}
 }}}}

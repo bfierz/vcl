@@ -32,9 +32,6 @@
 #include <vcl/graphics/opengl/gl.h>
 
 #if defined VCL_OPENGL_SUPPORT
-
-// OpenGL
-#include <GL/glew.h>
 #	ifdef VCL_ABI_WINAPI
 #		include <GL/wglew.h>
 #	endif
@@ -142,6 +139,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return "Core";
 		else if (profile == GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
 			return "Compatibility";
+		else if (profile == 0x4) // GLX_CONTEXT_ES_PROFILE_BIT_EXT/WGL_CONTEXT_ES_PROFILE_BIT_EXT
+			return "Embedded";
 		else
 			return "Invalid";
 	}
@@ -244,12 +243,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	// https://www.opengl.org/wiki/Creating_an_OpenGL_Context_%28WGL%29
 	LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
-		switch (message)
-		{
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		return 0;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
 	Context::Context(const ContextDesc& desc)
@@ -325,11 +319,30 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		int major_min = desc.MajorVersion;
 		int minor_min = desc.MinorVersion;
-		int type = desc.Type == ContextType::Core ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+		int type;
+		switch (desc.Type)
+		{
+		case ContextType::Core:
+			type = WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
+			break;
+		case ContextType::Compatibility:
+			type = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+			break;
+		case ContextType::Embedded:
+			type = WGL_CONTEXT_ES_PROFILE_BIT_EXT;
+			break;
+		default:
+			type = WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
+		}
+		int flags = 0;
+		if (desc.Type != ContextType::Compatibility) flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
+		if (desc.Debug) flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
+
 		int  contextAttribs[] = {
 			WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 			WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
 			WGL_CONTEXT_PROFILE_MASK_ARB, type,
+			WGL_CONTEXT_FLAGS_ARB, flags,
 			0
 		};
 		HGLRC actual_rc = wglCreateContextAttribsARB(actual_hdc, 0, contextAttribs);
