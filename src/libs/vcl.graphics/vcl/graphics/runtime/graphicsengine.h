@@ -99,7 +99,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual ~GraphicsEngine() = default;
 
 	public:
-		//! \defgroup ResourceAllocation Resource allocation
+		//! \name ResourceAllocation Resource allocation
 		//! \{
 		virtual owner_ptr<Texture> createResource(const Texture2DDescription& desc) =0;
 		virtual owner_ptr<Buffer> createResource(const BufferDescription& desc) =0;
@@ -155,7 +155,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual void pushConstants(void* data, size_t size) = 0;
 
 	public:
-		//! \defgroup FramebufferCommands Framebuffer commands
+		//! \name FramebufferCommands Framebuffer commands
 		//! \{
 		virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
 		virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
@@ -169,7 +169,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Set a new pipeline state
 		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
 		
-		//! \defgroup DrawCommannds Draw commands
+		//! \name DrawCommannds Draw commands
 		//! \{
 		virtual void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) = 0;
 		virtual void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) = 0;

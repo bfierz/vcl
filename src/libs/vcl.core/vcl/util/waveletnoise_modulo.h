@@ -45,6 +45,7 @@ namespace Vcl { namespace Util
 			return select(m < 0, m + T(N), m);
 		}
 	};
+	//! \cond
 	template<>
 	struct FastMath<16>
 	{
@@ -81,4 +82,5 @@ namespace Vcl { namespace Util
 			return x & T(127);
 		}
 	};
+	//! \endcond
 }}

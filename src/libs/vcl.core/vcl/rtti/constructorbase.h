@@ -52,19 +52,19 @@
 
 namespace Vcl { namespace RTTI
 {
-	template < typename T, typename... Ts >
+	template<typename T, typename... Ts>
 	auto& head(std::tuple<T, Ts...> t)
 	{
 		return std::get<0>(t);
 	}
 
-	template < std::size_t... Ns, typename... Ts >
+	template<std::size_t... Ns, typename... Ts>
 	auto tail_impl(absl::index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
 		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
 
-	template < typename... Ts >
+	template<typename... Ts>
 	auto tail(const std::tuple<Ts...>& t)
 	{
 		return tail_impl(absl::make_index_sequence<sizeof...(Ts)-1u>(), t);
@@ -153,6 +153,7 @@ namespace Vcl { namespace RTTI
 		}
 	};
 
+	//! \cond
 	template<typename T>
 	class Parameter<T*> : public ParameterBase
 	{
@@ -184,6 +185,7 @@ namespace Vcl { namespace RTTI
 			return link;
 		}
 	};
+	//! \endcond
 
 	//! Base class for typed constructors.
 	class ConstructorBase

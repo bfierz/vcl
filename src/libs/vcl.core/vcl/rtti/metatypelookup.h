@@ -41,29 +41,32 @@ namespace Vcl { namespace RTTI
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
 	
-	template <typename MetaType>
-	struct MetaIsDynamic
+	namespace Detail
 	{
-	private:
-		struct no_return {};
-		template <typename U> static char check(decltype(static_cast<U*>(0)->metaType()));
-		template <typename U> static no_return check(...);
+		template <typename MetaType>
+		struct MetaIsDynamic
+		{
+		private:
+			struct no_return {};
+			template <typename U> static char check(decltype(static_cast<U*>(0)->metaType()));
+			template <typename U> static no_return check(...);
 
-	public:
-		static const bool value = !std::is_same<no_return, decltype(check<MetaType>(0))>::value;
-	};
+		public:
+			static const bool value = !std::is_same<no_return, decltype(check<MetaType>(0))>::value;
+		};
+	}
 
 	template <typename MetaType>
 	struct MetaLookup
 	{
 		template <typename U>
-		static typename std::enable_if<MetaIsDynamic<U>::value, const Type*>::type resolve(const U& obj)
+		static typename std::enable_if<Detail::MetaIsDynamic<U>::value, const Type*>::type resolve(const U& obj)
 		{
 			return obj.metaType();
 		}
 
 		template <typename U>
-		static typename std::enable_if<!MetaIsDynamic<U>::value, const Type*>::type resolve(const U&)
+		static typename std::enable_if<!Detail::MetaIsDynamic<U>::value, const Type*>::type resolve(const U&)
 		{
 			return MetaTypeSingleton<U>::get();
 		}
@@ -74,6 +77,7 @@ namespace Vcl { namespace RTTI
 		}
 	};
 
+	//! \cond
 	template <typename MetaType>
 	struct MetaLookup<MetaType*>
 	{
@@ -82,6 +86,7 @@ namespace Vcl { namespace RTTI
 
 	template <typename MetaType>
 	struct MetaLookup<const MetaType*> : public MetaLookup<MetaType*> {};
+	//! \endcond
 }}
 
 

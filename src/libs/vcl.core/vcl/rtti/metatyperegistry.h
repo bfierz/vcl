@@ -27,9 +27,6 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// C++ standard library
-#include <unordered_map>
-
 // VCL
 #include <vcl/rtti/metatype.h>
 

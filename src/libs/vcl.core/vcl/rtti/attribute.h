@@ -159,6 +159,7 @@ namespace Vcl { namespace RTTI
 		Setter _setter;
 	};
 
+	//! \cond
 	template<typename MetaType, typename T>
 	class Attribute<MetaType, const T&> : public std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type
 	{
@@ -344,4 +345,5 @@ namespace Vcl { namespace RTTI
 		/// Function pointer to the stored setter
 		Setter _setter;
 	};
+	//! \endcond
 }}

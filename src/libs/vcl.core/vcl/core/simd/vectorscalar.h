@@ -39,6 +39,7 @@
 
 namespace Vcl
 {
+	//! \addtogroup group_vcl_core_simd
 	template<typename Scalar, int Width>
 	class VectorScalar
 	{
@@ -87,6 +88,16 @@ namespace Vcl
 #	include <vcl/core/simd/int16_ref.h>
 namespace Vcl
 {
+	//! \addtogroup group_vcl_core_simd
+	//! \{
+
+	//! Creating a new scalar vector by choosing elements according to \p mask
+	//! \tparam Scalar Scalar values in the vector
+	//! \tparam Width Number of entries in the vector
+	//! \param mask Boolean vector selecting between \p a and \p b
+	//! \param a Values selected when \p mask entries are true
+	//! \param b Values selected when \p mask entries are false
+	//! \returns The blended vectors \p a and \p b according to \p mask
 	template<typename Scalar, int Width>
 	VectorScalar<Scalar, Width> select
 	(
@@ -95,11 +106,11 @@ namespace Vcl
 		const VectorScalar<Scalar, Width>& b
 	)
 	{
-		VectorScalar<Scalar, Width> res;
+		VectorScalar<Scalar, Width> blended;
 		for (int i = 0; i < Width; i++)
-			res[i] = mask[i] ? a[i] : b[i];
+			blended[i] = mask[i] ? a[i] : b[i];
 		
-		return res;
+		return blended;
 	}
 
 	template<int Width>
@@ -139,6 +150,7 @@ namespace Vcl
 		s << "'";
 		return s;
 	}
+	//! \}
 }
 #endif
 

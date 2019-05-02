@@ -70,6 +70,7 @@ namespace Vcl { namespace RTTI
 	}
 
 	// Template specializations matching different type variations
+	//! \cond
 	template <typename MetaType>
 	class MetaTypeSingleton<const MetaType> : public MetaTypeSingleton<MetaType> {};
 
@@ -87,6 +88,7 @@ namespace Vcl { namespace RTTI
 
 	template <typename MetaType>
 	class MetaTypeSingleton<const MetaType*> : public MetaTypeSingleton<MetaType> {};
+	//! \endcond
 }}
 
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()

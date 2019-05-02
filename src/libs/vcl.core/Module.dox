@@ -1,0 +1,21 @@
+//! \brief Visual Computing Library (VCL)
+namespace Vcl
+{
+    /*!
+    * \defgroup group_vcl_core Core
+    * \brief Core module of VCL
+    *
+    * The module contains common functionality used by other modules.
+    * @{
+    * \defgroup group_vcl_core_simd SIMD wrappers
+    * \defgroup group_vcl_core_rtti Runtime type information system
+    */
+    //! \brief Core functionality of VCL
+    namespace Core {
+    }
+    
+    //! \brief Runtime type information of VCL
+    namespace Rtti {
+    }
+    //! @}
+}

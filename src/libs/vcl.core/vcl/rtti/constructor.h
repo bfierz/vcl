@@ -53,22 +53,25 @@
 
 namespace Vcl { namespace RTTI
 {
-	template<typename T>
-	struct extract
+	namespace Detail
 	{
-		static T get(const stdext::any& value)
+		template<typename T>
+		struct extract
 		{
-			return stdext::any_cast<T>(value);
-		}
-	};
-	template<typename T>
-	struct extract<std::shared_ptr<T>>
-	{
-		static std::shared_ptr<T> get(const stdext::any& value)
+			static T get(const stdext::any& value)
+			{
+				return stdext::any_cast<T>(value);
+			}
+		};
+		template<typename T>
+		struct extract<std::shared_ptr<T>>
 		{
-			return std::static_pointer_cast<T>(std::move(stdext::any_cast<std::shared_ptr<void>>(value)));
-		}
-	};
+			static std::shared_ptr<T> get(const stdext::any& value)
+			{
+				return std::static_pointer_cast<T>(std::move(stdext::any_cast<std::shared_ptr<void>>(value)));
+			}
+		};
+	}
 
 	template<typename T, typename... Params>
 	class Constructor : public ConstructorBase
@@ -119,7 +122,7 @@ namespace Vcl { namespace RTTI
 		template<typename P, int I>
 		P getParam(const stdext::span<stdext::any> params) const
 		{
-			return extract<P>::get(params.begin()[I]);
+			return Detail::extract<P>::get(params.begin()[I]);
 		}
 
 		template<typename... Ts>
@@ -160,6 +163,7 @@ namespace Vcl { namespace RTTI
 		std::tuple<Parameter<Params>...> _parameters;
 	};
 
+	//! \cond
 	template<typename T>
 	class Constructor<T> : public ConstructorBase
 	{
@@ -207,4 +211,5 @@ namespace Vcl { namespace RTTI
 
 		ParameterBase _default{ { "Default" }, nullptr };
 	};
+	//! \endcond
 }}

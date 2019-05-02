@@ -30,7 +30,9 @@
 // C runtime
 #include <cstddef>
 
-#include <vcl/config/config.h>
+#ifndef VCL_DOXYGEN_IGNORE
+#	include <vcl/config/config.h>
+#endif
 
 // Check library configuration
 #if defined __ICC || defined __ICL

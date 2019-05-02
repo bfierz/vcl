@@ -50,3 +50,14 @@ Most, however, are managed as linked submodule.
 | Google Test                   | BSD-3      | 1.8.1    | https://github.com/google/googletest         |                           |
 | Google Benchmark              | Apache-2.0 | 1.4.1    | https://github.com/google/benchmark          |                           |
 | JSON for Modern C++           | MIT        | 3.6.1    | https://github.com/nlohmann/json             |                           |
+
+Documentation
+-------------
+
+The library documenation is written using Doxygen. The documention is generated directly using doxygen
+
+    doxygen doxygen.cfg
+
+Alternatively, 
+
+    pip install exhale

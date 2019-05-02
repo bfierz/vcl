@@ -24,6 +24,9 @@
  */
 #include <vcl/rtti/metatyperegistry.h>
 
+ // C++ standard library
+#include <unordered_map>
+
 // VCL
 #include <vcl/util/hashedstring.h>
 
