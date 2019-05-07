@@ -192,4 +192,5 @@ if(VCL_BUILD_TESTS)
 	
 	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
 	add_subdirectory(tests)
+	add_subdirectory(examples/vcl.core)
 endif()
