@@ -149,6 +149,7 @@ set(SOURCE
 	vcl/util/precisetimer.cpp
 	vcl/util/precisetimer.h
 	vcl/util/mortoncodes.h
+	vcl/util/reservememory.cpp
 	vcl/util/reservememory.h
 	vcl/util/scopeguard.h
 	vcl/util/stringparser.cpp
