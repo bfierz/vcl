@@ -87,9 +87,6 @@ add_library(vcl_geometry STATIC ${SOURCE})
 vcl_configure(vcl_geometry)
 
 SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES FOLDER libs)
-if(WIN32)
-	SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES DEBUG_POSTFIX _d)
-endif()
 TARGET_INCLUDE_DIRECTORIES(vcl_geometry PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(vcl_geometry
