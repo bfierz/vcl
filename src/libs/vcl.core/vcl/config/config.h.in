@@ -41,6 +41,4 @@
 
 #cmakedefine VCL_VECTORIZE_NEON
 
-#cmakedefine VCL_OPENMP_SUPPORT
-
 #cmakedefine VCL_USE_CONTRACTS

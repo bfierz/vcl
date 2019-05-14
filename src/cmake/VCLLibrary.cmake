@@ -23,6 +23,7 @@
 # SOFTWARE.
 #
 include(VCLConfig)
+include(VCLClangTidy)
 
 # Create a library for VCL
 function(vcl_add_library tgt)
