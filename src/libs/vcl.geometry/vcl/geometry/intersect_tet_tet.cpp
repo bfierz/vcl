@@ -28,7 +28,6 @@ namespace Vcl { namespace Geometry
 {
 
 
-#define DOT(a,b) (a[0]*b[0]+a[1]*b[1]+a[2]*b[2])
 
 #define VECT(res,a, b){ \
 	res[0] = a[1]*b[2]-b[1]*a[2];\
@@ -72,17 +71,17 @@ namespace Vcl { namespace Geometry
 	};
 
 
-										// FaceA ----------------------------------------------------
+	// FaceA ----------------------------------------------------
 
 	inline bool FaceA_1(const Ctx& ctx, double * Coord, int & maskEdges)
 	{
 
 		maskEdges = 000;
 
-		if ((Coord[0] = DOT(ctx.P_V1[0], ctx.n)) > 0) maskEdges = 001;
-		if ((Coord[1] = DOT(ctx.P_V1[1], ctx.n)) > 0) maskEdges |= 002;
-		if ((Coord[2] = DOT(ctx.P_V1[2], ctx.n)) > 0) maskEdges |= 004;
-		if ((Coord[3] = DOT(ctx.P_V1[3], ctx.n)) > 0) maskEdges |= 010;
+		if ((Coord[0] = ctx.P_V1[0].dot(ctx.n)) > 0) maskEdges = 001;
+		if ((Coord[1] = ctx.P_V1[1].dot(ctx.n)) > 0) maskEdges |= 002;
+		if ((Coord[2] = ctx.P_V1[2].dot(ctx.n)) > 0) maskEdges |= 004;
+		if ((Coord[3] = ctx.P_V1[3].dot(ctx.n)) > 0) maskEdges |= 010;
 
 
 		return (maskEdges == 017);	// if true it means that all of the vertices are out the halfspace
@@ -114,19 +113,19 @@ namespace Vcl { namespace Geometry
 	inline bool FaceB_1(const Ctx& ctx)
 	{
 
-		return  ((DOT(ctx.P_V2[0], ctx.n)>0) &&
-			(DOT(ctx.P_V2[1], ctx.n)>0) &&
-			(DOT(ctx.P_V2[2], ctx.n)>0) &&
-			(DOT(ctx.P_V2[3], ctx.n)>0));
+		return ((ctx.P_V2[0].dot(ctx.n)>0) &&
+				(ctx.P_V2[1].dot(ctx.n)>0) &&
+				(ctx.P_V2[2].dot(ctx.n)>0) &&
+				(ctx.P_V2[3].dot(ctx.n)>0));
 	}
 
 	inline bool FaceB_2(const Ctx& ctx)
 	{
 		const Eigen::Vector3d& v_ref = ctx.V2[1];
-		return	((SUB_DOT(ctx.V1[0], v_ref, ctx.n) > 0) &&
-			(SUB_DOT(ctx.V1[1], v_ref, ctx.n) > 0) &&
-			(SUB_DOT(ctx.V1[2], v_ref, ctx.n) > 0) &&
-			(SUB_DOT(ctx.V1[3], v_ref, ctx.n) > 0));
+		return ((SUB_DOT(ctx.V1[0], v_ref, ctx.n) > 0) &&
+				(SUB_DOT(ctx.V1[1], v_ref, ctx.n) > 0) &&
+				(SUB_DOT(ctx.V1[2], v_ref, ctx.n) > 0) &&
+				(SUB_DOT(ctx.V1[3], v_ref, ctx.n) > 0));
 	}
 
 
@@ -296,7 +295,6 @@ namespace Vcl { namespace Geometry
 		return true;
 	}
 
-#undef DOT
 #undef SUB_DOT
 #undef VECT
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1)
