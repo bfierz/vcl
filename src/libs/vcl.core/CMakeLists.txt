@@ -149,6 +149,7 @@ set(SOURCE
 	vcl/util/precisetimer.cpp
 	vcl/util/precisetimer.h
 	vcl/util/mortoncodes.h
+	vcl/util/reservememory.cpp
 	vcl/util/reservememory.h
 	vcl/util/scopeguard.h
 	vcl/util/stringparser.cpp
@@ -179,8 +180,8 @@ target_link_libraries(vcl_core
 )
 
 # Setup installation
-set(INCLUDE_DIR_PREFIX "vcl_core/include")
-set(LIBRARY_DIR_PREFIX "vcl_core/lib")
+set(INCLUDE_DIR_PREFIX "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
+set(LIBRARY_DIR_PREFIX "${CMAKE_INSTALL_LIBDIR}")
 install(DIRECTORY vcl DESTINATION ${INCLUDE_DIR_PREFIX})
 install(FILES ${PROJECT_BINARY_DIR}/vcl/config/config.h DESTINATION ${INCLUDE_DIR_PREFIX}/vcl/config)
-install(TARGETS vcl_core ARCHIVE DESTINATION ${LIBRARY_DIR_PREFIX})
+install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${LIBRARY_DIR_PREFIX})

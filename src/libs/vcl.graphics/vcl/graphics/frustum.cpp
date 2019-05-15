@@ -25,9 +25,6 @@
 #include <vcl/graphics/frustum.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
-// FMT
-#	include <fmt/format.h>
-
 // Eigen library
 #	include <Eigen/Eigenvalues>
 
