@@ -26,29 +26,17 @@
 
 namespace Vcl { namespace Geometry
 {
-
-
-
-#define VECT(res,a, b){ \
-	res[0] = a[1]*b[2]-b[1]*a[2];\
-	res[1] = -a[0]*b[2]+b[0]*a[2];\
-	res[2] = a[0]*b[1]-b[0]*a[1];\
-}
-
-#define SUB_DOT(a,b,c) (\
-	 (a[0]-b[0])*c[0]+\
-	 (a[1]-b[1])*c[1]+\
-	 (a[2]-b[2])*c[2]\
-)
+#define SUB_DOT(a,b,c) ((a-b).dot(c))
 
 
 
 	struct Ctx
 	{
-		std::array<Eigen::Vector3d, 4> V1, V2;			        // vertices coordinates
+		// Coordinates of the tetrahedra
+		std::array<Eigen::Vector3d, 4> V1, V2;
 
-
-		Eigen::Vector3d e_v1[6], e_v2[6];            // vectors edge-oriented
+		// Oriented edges of the tetrahedra
+		Eigen::Vector3d e_v1[6], e_v2[6];
 
 
 		int masks[4];			        // for each face of the first tetrahedron
@@ -65,23 +53,20 @@ namespace Vcl { namespace Geometry
 														// and the vertex 0  of the first(second) tetrahedron
 
 		double  Coord_1[4][4], Coord_2[4][4];     // vertices coordinates in the affine space
-
-
-		Eigen::Vector3d n;			        // variable to store the normals
 	};
 
 
 	// FaceA ----------------------------------------------------
 
-	inline bool FaceA_1(const Ctx& ctx, double * Coord, int & maskEdges)
+	inline bool FaceA_1(const Ctx& ctx, const Eigen::Vector3d& n, double * Coord, int & maskEdges)
 	{
 
 		maskEdges = 000;
 
-		if ((Coord[0] = ctx.P_V1[0].dot(ctx.n)) > 0) maskEdges = 001;
-		if ((Coord[1] = ctx.P_V1[1].dot(ctx.n)) > 0) maskEdges |= 002;
-		if ((Coord[2] = ctx.P_V1[2].dot(ctx.n)) > 0) maskEdges |= 004;
-		if ((Coord[3] = ctx.P_V1[3].dot(ctx.n)) > 0) maskEdges |= 010;
+		if ((Coord[0] = ctx.P_V1[0].dot(n)) > 0) maskEdges = 001;
+		if ((Coord[1] = ctx.P_V1[1].dot(n)) > 0) maskEdges |= 002;
+		if ((Coord[2] = ctx.P_V1[2].dot(n)) > 0) maskEdges |= 004;
+		if ((Coord[3] = ctx.P_V1[3].dot(n)) > 0) maskEdges |= 010;
 
 
 		return (maskEdges == 017);	// if true it means that all of the vertices are out the halfspace
@@ -93,15 +78,15 @@ namespace Vcl { namespace Geometry
 
 	// hence they do not need to be stored
 
-	inline bool FaceA_2(const Ctx& ctx, double * Coord, int & maskEdges)
+	inline bool FaceA_2(const Ctx& ctx, const Eigen::Vector3d& n, double * Coord, int & maskEdges)
 	{
 		maskEdges = 000;
 		const Eigen::Vector3d& v_ref = ctx.V1[1];
 
-		if ((Coord[0] = SUB_DOT(ctx.V2[0], v_ref, ctx.n)) > 0) maskEdges = 001;
-		if ((Coord[1] = SUB_DOT(ctx.V2[1], v_ref, ctx.n)) > 0) maskEdges |= 002;
-		if ((Coord[2] = SUB_DOT(ctx.V2[2], v_ref, ctx.n)) > 0) maskEdges |= 004;
-		if ((Coord[3] = SUB_DOT(ctx.V2[3], v_ref, ctx.n)) > 0) maskEdges |= 010;
+		if ((Coord[0] = SUB_DOT(ctx.V2[0], v_ref, n)) > 0) maskEdges = 001;
+		if ((Coord[1] = SUB_DOT(ctx.V2[1], v_ref, n)) > 0) maskEdges |= 002;
+		if ((Coord[2] = SUB_DOT(ctx.V2[2], v_ref, n)) > 0) maskEdges |= 004;
+		if ((Coord[3] = SUB_DOT(ctx.V2[3], v_ref, n)) > 0) maskEdges |= 010;
 
 		return (maskEdges == 017);
 	}
@@ -110,22 +95,22 @@ namespace Vcl { namespace Geometry
 
 	// FaceB --------------------------------------------------------------
 
-	inline bool FaceB_1(const Ctx& ctx)
+	inline bool FaceB_1(const Ctx& ctx, const Eigen::Vector3d& n)
 	{
 
-		return ((ctx.P_V2[0].dot(ctx.n)>0) &&
-				(ctx.P_V2[1].dot(ctx.n)>0) &&
-				(ctx.P_V2[2].dot(ctx.n)>0) &&
-				(ctx.P_V2[3].dot(ctx.n)>0));
+		return ((ctx.P_V2[0].dot(n)>0) &&
+				(ctx.P_V2[1].dot(n)>0) &&
+				(ctx.P_V2[2].dot(n)>0) &&
+				(ctx.P_V2[3].dot(n)>0));
 	}
 
-	inline bool FaceB_2(const Ctx& ctx)
+	inline bool FaceB_2(const Ctx& ctx, const Eigen::Vector3d& n)
 	{
 		const Eigen::Vector3d& v_ref = ctx.V2[1];
-		return ((SUB_DOT(ctx.V1[0], v_ref, ctx.n) > 0) &&
-				(SUB_DOT(ctx.V1[1], v_ref, ctx.n) > 0) &&
-				(SUB_DOT(ctx.V1[2], v_ref, ctx.n) > 0) &&
-				(SUB_DOT(ctx.V1[3], v_ref, ctx.n) > 0));
+		return ((SUB_DOT(ctx.V1[0], v_ref, n) > 0) &&
+				(SUB_DOT(ctx.V1[1], v_ref, n) > 0) &&
+				(SUB_DOT(ctx.V1[2], v_ref, n) > 0) &&
+				(SUB_DOT(ctx.V1[3], v_ref, n) > 0));
 	}
 
 
@@ -214,6 +199,8 @@ namespace Vcl { namespace Geometry
 	bool tet_a_tet(std::array<Eigen::Vector3d, 4> V_1, std::array<Eigen::Vector3d, 4> V_2)
 	{
 		Ctx ctx;
+		Eigen::Vector3d n;
+
 		ctx.V1 = V_1;
 		ctx.V2 = V_2;
 
@@ -226,23 +213,22 @@ namespace Vcl { namespace Geometry
 		ctx.e_v1[0] = ctx.V1[1] - ctx.V1[0];
 		ctx.e_v1[1] = ctx.V1[2] - ctx.V1[0];
 
-		VECT(ctx.n, ctx.e_v1[0], ctx.e_v1[1]);		// find the normal to  face 0
-
-
-		if (FaceA_1(ctx, &ctx.Coord_1[0][0], ctx.masks[0]))	return false;
+		n = ctx.e_v1[0].cross(ctx.e_v1[1]);		// find the normal to  face 0
+		if (FaceA_1(ctx, n, &ctx.Coord_1[0][0], ctx.masks[0]))
+			return false;
 
 
 		ctx.e_v1[2] = ctx.V1[3] - ctx.V1[0];
-		VECT(ctx.n, ctx.e_v1[2], ctx.e_v1[0]);
-
-		if (FaceA_1(ctx, &ctx.Coord_1[1][0], ctx.masks[1])) 	return false;
+		n = ctx.e_v1[2].cross(ctx.e_v1[0]);
+		if (FaceA_1(ctx, n, &ctx.Coord_1[1][0], ctx.masks[1]))
+			return false;
 
 		if (EdgeA(ctx, 0, 1)) return false;
 
 
-		VECT(ctx.n, ctx.e_v1[1], ctx.e_v1[2]);
-
-		if (FaceA_1(ctx, &ctx.Coord_1[2][0], ctx.masks[2])) 	return false;
+		n = ctx.e_v1[1].cross(ctx.e_v1[2]);
+		if (FaceA_1(ctx, n, &ctx.Coord_1[2][0], ctx.masks[2]))
+			return false;
 
 		if (EdgeA(ctx, 0, 2)) return false;
 		if (EdgeA(ctx, 1, 2)) return false;
@@ -250,15 +236,16 @@ namespace Vcl { namespace Geometry
 		ctx.e_v1[4] = ctx.V1[3] - ctx.V1[1];
 		ctx.e_v1[3] = ctx.V1[2] - ctx.V1[1];
 
-		VECT(ctx.n, ctx.e_v1[4], ctx.e_v1[3]);
-
-		if (FaceA_2(ctx, &ctx.Coord_1[3][0], ctx.masks[3]))  return false;
+		n = ctx.e_v1[4].cross(ctx.e_v1[3]);
+		if (FaceA_2(ctx, n, &ctx.Coord_1[3][0], ctx.masks[3]))
+			return false;
 
 		if (EdgeA(ctx, 0, 3)) return false;
 		if (EdgeA(ctx, 1, 3)) return false;
 		if (EdgeA(ctx, 2, 3)) return false;
 
-		if ((ctx.masks[0] | ctx.masks[1] | ctx.masks[2] | ctx.masks[3]) != 017) return true;
+		if ((ctx.masks[0] | ctx.masks[1] | ctx.masks[2] | ctx.masks[3]) != 017)
+			return true;
 
 
 		// from now on, if there is a separating plane it is parallel to a face of b
@@ -272,31 +259,30 @@ namespace Vcl { namespace Geometry
 		ctx.e_v2[0] = ctx.V2[1] - ctx.V2[0];
 		ctx.e_v2[1] = ctx.V2[2] - ctx.V2[0];
 
-		VECT(ctx.n, ctx.e_v2[0], ctx.e_v2[1]);
-		if (FaceB_1(ctx)) return false;
+		n = ctx.e_v2[0].cross(ctx.e_v2[1]);
+		if (FaceB_1(ctx, n)) return false;
 
 		ctx.e_v2[2] = ctx.V2[3] - ctx.V2[0];
 
-		VECT(ctx.n, ctx.e_v2[2], ctx.e_v2[0]);
+		n = ctx.e_v2[2].cross(ctx.e_v2[0]);
 
-		if (FaceB_1(ctx)) return false;
+		if (FaceB_1(ctx, n)) return false;
 
-		VECT(ctx.n, ctx.e_v2[1], ctx.e_v2[2]);
+		n = ctx.e_v2[1].cross(ctx.e_v2[2]);
 
-		if (FaceB_1(ctx)) return false;
+		if (FaceB_1(ctx, n)) return false;
 
 		ctx.e_v2[4] = ctx.V2[3] - ctx.V2[1];
 		ctx.e_v2[3] = ctx.V2[2] - ctx.V2[1];
 
-		VECT(ctx.n, ctx.e_v2[4], ctx.e_v2[3]);
+		n = ctx.e_v2[4].cross(ctx.e_v2[3]);
 
-		if (FaceB_2(ctx)) return false;
+		if (FaceB_2(ctx, n)) return false;
 
 		return true;
 	}
 
 #undef SUB_DOT
-#undef VECT
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1)
 	{
 		std::array<Eigen::Vector3d, 4> V_1;
