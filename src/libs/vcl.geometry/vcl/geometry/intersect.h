@@ -184,8 +184,11 @@ namespace Vcl { namespace Geometry
 
 	/*!
 	 * \brief Intersect two tetrahedra
-	 * The code is based on the implementation by:
-	 * Copyright(C) 2002 by Fabio Ganovelli, Federico Ponchio and Claudio Rocchini. All rights reserved.
+	 *
+	 * \note The code is based on the paper and implementation:
+	 * Copyright(C) 2002 by Fabio Ganovelli, Federico Ponchio and Claudio Rocchini.
+	 * "Fast tetrahedron-tetrahedron overlap algorithm"
+	 * Reference implementation:
 	 * https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h
 	 */
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1);
