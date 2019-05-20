@@ -179,13 +179,14 @@
 
 #	define VCL_DEBUG_BREAK __builtin_trap()
 
-#	define VCL_CALLBACK __attribute__ ((__stdcall__))
-
 #	if defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 #		pragma clang diagnostic push
 #		pragma clang diagnostic ignored "-Wreserved-id-macro"
 #		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
 #		pragma clang diagnostic pop
+#		define VCL_CALLBACK __attribute__ ((__stdcall__))
+#	else
+#		define VCL_CALLBACK
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
