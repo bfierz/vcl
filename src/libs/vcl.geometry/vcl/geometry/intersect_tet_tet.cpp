@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,16 @@
 
 namespace Vcl { namespace Geometry
 {
+	template<typename Scalar>
 	struct HalfSpaceCoordinates
 	{
 		// For each face of the first tetrahedron
 		// store the halfspace each vertex of the
 		// second tetrahedron belongs to
-		int Masks[4];
+		std::array<int, 4> Masks;
 
-		// Vertices coordinates in the affine space
-		std::array<double, 4> Coord[4];
+		// Vertex coordinates in the affine space
+		std::array<std::array<Scalar, 4>, 4> Coord;
 	};
 
 	//! Computes the half space of tet points, given the normal \p n
@@ -43,7 +44,13 @@ namespace Vcl { namespace Geometry
 	//! \param[out] coord For each vertex store the distance to the half space
 	//! \param[out] mask For each vertex mark the half space
 	//! \returns True, if all points are in the same half space
-	inline bool detHalfSpace(const std::array<Eigen::Vector3d, 4>& diff, const Eigen::Vector3d& n, std::array<double, 4>& coord, int& mask)
+	template<typename Scalar>
+	inline bool detHalfSpace(
+		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
+		const Eigen::Matrix<Scalar, 3, 1>& n,
+		std::array<Scalar, 4>& coord,
+		int& mask
+	)
 	{
 		mask = 000;
 		if ((coord[0] = diff[0].dot(n)) > 0) mask  = 001;
@@ -58,7 +65,11 @@ namespace Vcl { namespace Geometry
 	//! \param[in] diff Points of the tetrahedron relative to a point on the half space separator
 	//! \param[in] n Normal defining the half space
 	//! \returns True, if all points are in the same half space
-	inline bool detHalfSpace(const std::array<Eigen::Vector3d, 4>& diff, const Eigen::Vector3d& n)
+	template<typename Scalar>
+	inline bool detHalfSpace(
+		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
+		const Eigen::Matrix<Scalar, 3, 1>& n
+	)
 	{
 		return ((diff[0].dot(n)>0) &&
 				(diff[1].dot(n)>0) &&
@@ -71,7 +82,8 @@ namespace Vcl { namespace Geometry
 	//! \param f0 Face on the first tetrahedron
 	//! \param f1 Face on the second tetrahedron
 	//! \returns True if a separating edge between \p f0 and \p f1 exists
-	inline bool hasSeparatingEdge(HalfSpaceCoordinates& ctx, const int& f0, const int& f1)
+	template<typename Scalar>
+	inline bool hasSeparatingEdge(HalfSpaceCoordinates<Scalar> ctx, int f0, int f1)
 	{
 		const auto& coord_f0 = ctx.Coord[f0];
 		const auto& coord_f1 = ctx.Coord[f1];
@@ -117,7 +129,6 @@ namespace Vcl { namespace Geometry
 		if (((maskf0 & 004) && (maskf1 & 002)) && (((coord_f0[2] * coord_f1[1]) - (coord_f0[1] * coord_f1[2]))  < 0))
 			return false;
 
-
 		// edge 4: 1--3
 		if (((maskf0 & 002) && (maskf1 & 010)) && (((coord_f0[3] * coord_f1[1]) - (coord_f0[1] * coord_f1[3]))  > 0))
 			return false;
@@ -136,33 +147,29 @@ namespace Vcl { namespace Geometry
 		return true;
 	}
 
-	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1)
+	// Tet-tet intersection according to Fabio Ganovelli
+	//! \note Control flow of this function is implemented according to section 3 of the paper
+	template<typename Scalar>
+	bool tet_a_tet(const Tetrahedron<Scalar, 3>& V1, const Tetrahedron<Scalar, 3>& V2)
 	{
-		std::array<Eigen::Vector3d, 4> V1;
-		std::array<Eigen::Vector3d, 4> V2;
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 3; j++)
-			{
-				V1[i][j] = t0[i][j];
-				V2[i][j] = t1[i][j];
-			}
+		using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
 
-		HalfSpaceCoordinates ctx;
-		
+		HalfSpaceCoordinates<Scalar> ctx;
+
 		// Points of V2 relative to base of V1
-		std::array<Eigen::Vector3d, 4> diff = {
+		std::array<Vector3, 4> diff = {
 			V2[0] - V1[0],
 			V2[1] - V1[0],
 			V2[2] - V1[0],
 			V2[3] - V1[0]
 		};
-		const Eigen::Vector3d edge_v1_0 = V1[1] - V1[0];
-		const Eigen::Vector3d edge_v1_1 = V1[2] - V1[0];
-		Eigen::Vector3d n = edge_v1_0.cross(edge_v1_1);
+		const Vector3 edge_v1_0 = V1[1] - V1[0];
+		const Vector3 edge_v1_1 = V1[2] - V1[0];
+		Vector3 n = edge_v1_0.cross(edge_v1_1);
 		if (detHalfSpace(diff, n, ctx.Coord[0], ctx.Masks[0]))
 			return false;
 
-		const Eigen::Vector3d edge_v1_2 = V1[3] - V1[0];
+		const Vector3 edge_v1_2 = V1[3] - V1[0];
 		n = edge_v1_2.cross(edge_v1_0);
 		if (detHalfSpace(diff, n, ctx.Coord[1], ctx.Masks[1]))
 			return false;
@@ -183,8 +190,8 @@ namespace Vcl { namespace Geometry
 			V2[2] - V1[1],
 			V2[3] - V1[1]
 		};
-		const Eigen::Vector3d edge_v1_4 = V1[3] - V1[1];
-		const Eigen::Vector3d edge_v1_3 = V1[2] - V1[1];
+		const Vector3 edge_v1_4 = V1[3] - V1[1];
+		const Vector3 edge_v1_3 = V1[2] - V1[1];
 		n = edge_v1_4.cross(edge_v1_3);
 		if (detHalfSpace(diff, n, ctx.Coord[3], ctx.Masks[3]))
 			return false;
@@ -193,6 +200,8 @@ namespace Vcl { namespace Geometry
 		if (hasSeparatingEdge(ctx, 1, 3)) return false;
 		if (hasSeparatingEdge(ctx, 2, 3)) return false;
 
+		// Check if a vertex of the second tet is inside the first
+		// PointInside() in the paper
 		if ((ctx.Masks[0] | ctx.Masks[1] | ctx.Masks[2] | ctx.Masks[3]) != 017)
 			return true;
 
@@ -206,13 +215,13 @@ namespace Vcl { namespace Geometry
 			V1[2] - V2[0],
 			V1[3] - V2[0]
 		};
-		const Eigen::Vector3d edge_v2_0 = V2[1] - V2[0];
-		const Eigen::Vector3d edge_v2_1 = V2[2] - V2[0];
+		const Vector3 edge_v2_0 = V2[1] - V2[0];
+		const Vector3 edge_v2_1 = V2[2] - V2[0];
 		n = edge_v2_0.cross(edge_v2_1);
 		if (detHalfSpace(diff, n))
 			return false;
 
-		const Eigen::Vector3d edge_v2_2 = V2[3] - V2[0];
+		const Vector3 edge_v2_2 = V2[3] - V2[0];
 		n = edge_v2_2.cross(edge_v2_0);
 		if (detHalfSpace(diff, n))
 			return false;
@@ -227,12 +236,17 @@ namespace Vcl { namespace Geometry
 			V1[2] - V2[1],
 			V1[3] - V2[1]
 		};
-		const Eigen::Vector3d edge_v2_4 = V2[3] - V2[1];
-		const Eigen::Vector3d edge_v2_3 = V2[2] - V2[1];
+		const Vector3 edge_v2_4 = V2[3] - V2[1];
+		const Vector3 edge_v2_3 = V2[2] - V2[1];
 		n = edge_v2_4.cross(edge_v2_3);
 		if (detHalfSpace(diff, n))
 			return false;
 
 		return true;
+	}
+
+	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1)
+	{
+		return tet_a_tet(t0, t1);
 	}
 }}
