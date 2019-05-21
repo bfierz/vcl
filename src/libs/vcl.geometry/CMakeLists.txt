@@ -61,7 +61,7 @@ SET(VCL_GEOMETRY_SRC
 	vcl/geometry/distance_ray3ray3.cpp
 	vcl/geometry/distancePoint3Triangle3.cpp
 	vcl/geometry/distanceTriangle3Triangle3.cpp
-	vcl/geometry/intersect.cpp
+	vcl/geometry/intersect_tet_tet.cpp
 
 	vcl/geometry/meshfactory.cpp	
 
