@@ -33,6 +33,8 @@ SET(VCL_MATH_SOLVER_SRC
 
 # VCL / MATH
 SET(VCL_MATH_INC
+	vcl/math/apd33.h
+	vcl/math/apd33_impl.h
 	vcl/math/jacobieigen33_selfadjoint_impl.h
 	vcl/math/jacobieigen33_selfadjoint.h
 	vcl/math/jacobieigen33_selfadjoint_quat_impl.h
@@ -52,6 +54,7 @@ SET(VCL_MATH_INC
 
 )
 SET(VCL_MATH_SRC
+	vcl/math/apd33.cpp
 	vcl/math/jacobieigen33_selfadjoint.cpp
 	vcl/math/jacobieigen33_selfadjoint_quat.cpp
 	vcl/math/jacobisvd33_mcadams_mat.cpp

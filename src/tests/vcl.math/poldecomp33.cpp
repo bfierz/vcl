@@ -32,6 +32,7 @@
 
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
+#include <vcl/math/apd33.h>
 #include <vcl/math/math.h>
 #include <vcl/math/polardecomposition.h>
 
@@ -44,7 +45,7 @@ VCL_END_EXTERNAL_HEADERS
 namespace
 {
 	template<typename Scalar>
-	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
+	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createRandomProblems(size_t nr_problems)
 	{
 		// Random number generator
 		std::mt19937_64 rng;
@@ -60,6 +61,27 @@ namespace
 				   d(rng), d(rng), d(rng),
 				   d(rng), d(rng), d(rng);
 			F.template at<Scalar>(i) = rnd;
+		}
+
+		return std::move(F);
+	}
+
+	template<typename Scalar>
+	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createMaxAngleProblems(size_t nr_problems, float max_angle)
+	{
+		// Random number generator
+		std::mt19937_64 rng;
+		std::uniform_real_distribution<float> dv;
+		std::uniform_real_distribution<float> da{ -max_angle, max_angle };
+
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
+
+		// Initialize data
+		for (int i = 0; i < (int)nr_problems; i++)
+		{
+			Eigen::Vector3f v{ dv(rng), dv(rng), dv(rng) };
+			Eigen::AngleAxisf aa{ da(rng), v.normalized() };
+			F.template at<Scalar>(i) = aa.toRotationMatrix();
 		}
 
 		return std::move(F);
@@ -165,7 +187,7 @@ void runPolDecompTest(float tol)
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refS(nr_problems);
 
-	auto F = createProblems<scalar_t>(nr_problems);
+	auto F = createRandomProblems<scalar_t>(nr_problems);
 	computeReferenceSolution(nr_problems, F, refR, refS);
 
 	// Strides
@@ -202,4 +224,56 @@ TEST(PolarDecomposition33, PolDecompFloat8)
 TEST(PolarDecomposition33, PolDecompFloat16)
 {
 	runPolDecompTest<Vcl::float16>(5e-5f);
+}
+
+template<typename WideScalar>
+void runAPDTest(float tol)
+{
+	using scalar_t = float;
+	using real_t = WideScalar;
+	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
+	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
+	using quaternion_t = Eigen::Quaternion<real_t>;
+
+	size_t nr_problems = 128;
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resS(nr_problems);
+
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refS(nr_problems);
+
+	auto F = createMaxAngleProblems<scalar_t>(nr_problems, Vcl::Mathematics::pi<float>());
+	computeReferenceSolution(nr_problems, F, refR, refS);
+
+	// Strides
+	size_t stride = nr_problems;
+	size_t width = sizeof(real_t) / sizeof(scalar_t);
+
+	for (int i = 0; i < static_cast<int>(stride / width); i++)
+	{
+		matrix3_t A = F.at<real_t>(i);
+		
+		quaternion_t q = quaternion_t::Identity();
+		Vcl::Mathematics::AnalyticPolarDecomposition(A, q);
+
+		matrix3_t R = q.toRotationMatrix();
+		resR.at<real_t>(i) = R;
+		resS.at<real_t>(i) = R.transpose() * A;
+	}
+
+	// Check against reference solution
+	checkSolution(nr_problems, tol, refR, refS, resR, resS);
+}
+
+TEST(PolarDecomposition33, APDFloat)
+{
+	runAPDTest<float>(1e-5f);
+}
+TEST(PolarDecomposition33, APDFloat4)
+{
+	runAPDTest<Vcl::float4>(5e-5f);
+}
+TEST(PolarDecomposition33, APDFloat8)
+{
+	runAPDTest<Vcl::float8>(5e-5f);
 }
