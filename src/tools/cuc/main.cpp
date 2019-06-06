@@ -39,6 +39,9 @@
 // CxxOpts
 #include <vcl/core/3rdparty/cxxopts.hpp>
 
+// Local
+#include "kernelwrapper.h"
+
 // Windows API
 #ifdef VCL_ABI_WINAPI
 #	include <Windows.h>
@@ -391,6 +394,18 @@ int main(int argc, char* argv [])
 
 		// Invoke the binary file translator
 		exec("bin2c", bin2c_cmdbuilder.str().c_str());
+		
+		std::vector<std::string> params;
+		if (parsed_options.count("include"))
+		{
+			for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
+			{
+				params.emplace_back("-I");
+				params.emplace_back("\"" + inc + "\"");
+			}
+		}
+		params.emplace_back(parsed_options["input-file"].as<std::string>());
+		generateKernelCallWrappers(nvcc_bin_path.parent_path().string(), params);
 	}
 	catch (const cxxopts::OptionException& e)
 	{
