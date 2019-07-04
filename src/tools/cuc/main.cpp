@@ -32,6 +32,8 @@
 #elif defined(VCL_ABI_POSIX)
 #include <boost/filesystem.hpp>
 #endif
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -238,6 +240,11 @@ int main(int argc, char* argv [])
 			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
 			nvcc_bin_path = exe_path.parent_path();
 		}
+		else
+		{
+			nvcc_bin_path = getenv("CUDA_PATH");
+			nvcc_bin_path.append("bin");
+		}
 
 		if (parsed_options.count("symbol") == 0 || parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
 		{
@@ -390,11 +397,13 @@ int main(int argc, char* argv [])
 		}
 
 		bin2c_cmdbuilder << "-o " << parsed_options["output-file"].as<std::string>() << " ";
-		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
+		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin)";
 
 		// Invoke the binary file translator
-		exec("bin2c", bin2c_cmdbuilder.str().c_str());
+		//exec("bin2c", bin2c_cmdbuilder.str().c_str());
 		
+		std::cout << "Generate wrapper\n";
+
 		std::vector<std::string> params;
 		if (parsed_options.count("include"))
 		{
@@ -405,7 +414,132 @@ int main(int argc, char* argv [])
 			}
 		}
 		params.emplace_back(parsed_options["input-file"].as<std::string>());
-		generateKernelCallWrappers(nvcc_bin_path.parent_path().string(), params);
+		const auto kernels = generateKernelCallWrappers(nvcc_bin_path.parent_path().string(), params);
+		
+		// Open the output file
+		std::ofstream ww;
+		ww.open(parsed_options["output-file"].as<std::string>(), std::ios_base::binary);
+
+		// Read the fat binary and convert it
+		std::ifstream fatbin_reader;
+		fatbin_reader.open(tmp_file_base + R"(.fatbin)", std::ios_base::binary);
+		if (!fatbin_reader.is_open())
+			std::cout << "Couldn't open fatbin" << std::endl;
+		std::istream_iterator<unsigned char> begin(fatbin_reader);
+		std::istream_iterator<unsigned char> end;
+
+		ww << "#include <cuda.h>\n";
+		ww << "#include <memory>\n";
+		ww << "#include <string.h>\n";
+		ww << "#include <tuple>\n";
+		ww << "#include <cuda_runtime.h>\n";
+		ww << "static unsigned char fatbin_data[] = {\n\t";
+		for (; begin != end; ++begin)
+		{
+			ww << "0x" << std::setfill('0') << std::hex << std::setw(2) << static_cast<int>(*begin) << ", ";
+		}
+		ww << "\n};\n";
+		fatbin_reader.close();
+
+		ww << R"(
+static CUmodule loadModule(const void* data)
+{
+	static const auto module = [](const void* data)
+	{
+		CUmodule mod = 0;
+		CUresult err = cuModuleLoadData(&mod, data);
+		std::unique_ptr<struct CUmod_st, CUresult(*)(CUmodule)> module(mod, cuModuleUnload);
+		return module;
+	}(data);
+
+	return module.get();
+}
+static CUfunction loadFunction(CUmodule mod, const char* name)
+{
+	CUfunction func;
+	cuModuleGetFunction(&func, mod, name);
+	return func;
+}
+)";
+
+		//ww << "const auto module = [](void* data){\n";
+		//ww << "\tCUmodule mod = 0;\n";
+		//ww << "\tCUresult err = cuModuleLoadData(&mod, data); std::unique_ptr<struct CUmod_st, CUresult(*)(CUmodule)> module(mod, cuModuleUnload); \n";
+		//int kernel_idx = 0;
+		//for (auto& kernel : kernels)
+		//{
+		//	ww << "\tCUfunction func" << std::to_string(kernel_idx) << ";";
+		//	ww << "\tcuModuleGetFunction(&func" << std::to_string(kernel_idx) << ", mod, \"" << kernel.Name << "\");\n";
+		//	kernel_idx++;
+		//}
+		//
+		//std::string kernel_funcs;
+		//for (int i = 0; i < kernels.size(); i++)
+		//{
+		//	kernel_funcs += ", ";
+		//	kernel_funcs += "func";
+		//	kernel_funcs += std::to_string(i);
+		//}
+		//ww << "\treturn std::make_tuple(std::move(module)" << kernel_funcs << ");\n";
+		//ww << "}(fatbin_data);\n";
+
+		//int kernel_idx = 0;
+		for (auto& kernel : kernels)
+		{
+#define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
+
+			// Compute the size of the kernel parameter buffer
+			long long param_set_size = 0;
+			std::vector<std::string> param_set;
+			param_set.reserve(kernel.Parameters.size());
+			for (auto& param : kernel.Parameters)
+			{
+				// Update alignment for current parameter
+				param_set_size = ALIGN_UP(param_set_size, param.Alignment);
+
+				// Write the param to the transfer buffer
+				std::string copy_param = "memcpy(param_buffer + ";
+				copy_param += std::to_string(param_set_size);
+				copy_param += ", &";
+				copy_param += param.Name;
+				copy_param += ", ";
+				copy_param += std::to_string(param.Size);
+				copy_param += ");";
+				param_set.emplace_back(std::move(copy_param));
+
+				// Increment to next parameter
+				param_set_size += param.Size;
+			}
+
+			ww << "CUresult " << kernel.Name << "(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream";
+			for (auto& param : kernel.Parameters)
+			{
+				ww << ", " << param.TypeName << " " << param.Name;
+			}
+			ww << ")\n{\n";
+
+			ww << "\tstatic const CUmodule module = loadModule(fatbin_data);\n";
+			ww << "\tstatic const CUfunction func = loadFunction(module, \"" << kernel.Name << "\");\n";
+
+			ww << "\tunsigned char param_buffer[" << std::to_string(param_set_size) << "];\n";
+			ww << "\tlong long param_buffer_size = " << std::to_string(param_set_size) << ";\n";
+			for (const auto& param : param_set)
+			{
+				ww << "\t" << param << "\n";
+			}
+			ww << "\tvoid* params[] =\n";
+			ww << "\t{\n";
+			ww << "\t\tCU_LAUNCH_PARAM_BUFFER_POINTER, param_buffer,\n";
+			ww << "\t\tCU_LAUNCH_PARAM_BUFFER_SIZE,    &param_buffer_size,\n";
+			ww << "\t\tCU_LAUNCH_PARAM_END\n";
+			ww << "\t};\n";
+			//ww << "\treturn cuLaunchKernel(std::get<" << std::to_string(kernel_idx + 1) << ">(module), gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);\n";
+			ww << "\treturn cuLaunchKernel(func, gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);\n";
+			ww << "}\n";
+
+			//kernel_idx++;
+		}
+		ww.close();
 	}
 	catch (const cxxopts::OptionException& e)
 	{

@@ -28,4 +28,24 @@
 #include <string>
 #include <vector>
 
-std::string generateKernelCallWrappers(std::string cuda_toolkit_root, const std::vector<std::string>& params);
+struct Parameter
+{
+	std::string Name;
+	std::string TypeName;
+	long long Alignment;
+	long long Size;
+	bool IsConst;
+	bool IsRestricted;
+	bool IsPointer;
+};
+
+struct Kernel
+{
+	std::string Name;
+	std::vector<Parameter> Parameters;
+
+	Kernel(std::string name, std::vector<Parameter> parameters)
+		: Name(std::move(name)), Parameters(std::move(parameters)) {}
+};
+
+std::vector<Kernel> generateKernelCallWrappers(std::string cuda_toolkit_root, const std::vector<std::string>& params);

@@ -26,12 +26,16 @@
 
 // C++ standard library
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <vector>
 
 // libclang
 #include <clang-c/Index.h>
+
+// Test call
+// D:\DevTools\LLVM-8.0.0\bin\clang -Xclang -ast-dump -fsyntax-only -nocudainc -nocudalib -include cuda_runtime.h -I "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\include" -I "D:/projects/vcl/src/libs/vcl.math.cuda" -I "D:/projects/vcl/src/libs/vcl.core.cuda" -I "D:/projects/vcl/src/libs/vcl.math" -D__CUDA_LIBDEVICE__ .\jacobisvd33_mcadams.cu > ast2.txt
 
 enum class CudaFunctionType
 {
@@ -40,11 +44,39 @@ enum class CudaFunctionType
 	GlobalFunction = 4
 };
 
+static std::string readDisplayName(CXCursor cursor)
+{
+	auto name = clang_getCursorDisplayName(cursor);
+	std::string result = clang_getCString(name);
+	clang_disposeString(name);
+
+	return result;
+}
+
+static std::string readCursorName(CXCursor cursor)
+{
+	auto name = clang_getCursorSpelling(cursor);
+	std::string result = clang_getCString(name);
+	clang_disposeString(name);
+
+	return result;
+}
+
+static std::string readTypeName(CXType type)
+{
+	auto name = clang_getTypeSpelling(type);
+	std::string result = clang_getCString(name);
+	clang_disposeString(name);
+
+	return result;
+}
+
 class FunctionDeclaration
 {
 public:
 	FunctionDeclaration(CXCursor c, const std::string& ns)
 		: _cursor(c)
+		, _cudaType(CudaFunctionType::DeviceFunction)
 	{
 		// Store the type of the cursor
 		_kind = clang_getCursorKind(_cursor);
@@ -72,9 +104,7 @@ public:
 		_mangledName = clang_getCString(mangledName);
 		clang_disposeString(mangledName);
 
-		auto name = clang_getCursorSpelling(_cursor);
-		_name = ns + "::" + clang_getCString(name);
-		clang_disposeString(name);
+		_name = readCursorName(_cursor);
 	}
 
 	const CXCursor& cursor() const
@@ -102,10 +132,17 @@ public:
 		_cudaType = type;
 	}
 
+	void addParameter(Parameter param)
+	{
+		_parameters.emplace_back(std::move(param));
+	}
+
 	bool isGlobalFunction() const
 	{
 		return (static_cast<int>(_cudaType) & static_cast<int>(CudaFunctionType::GlobalFunction)) != 0;
 	}
+
+	std::vector<Parameter> parameters() const { return _parameters; }
 
 private:
 	/// Human readable type name
@@ -125,6 +162,9 @@ private:
 
 	/// Conviently store the kind of the cursor
 	CXCursorKind _kind;
+
+	/// Parameters of the function
+	std::vector<Parameter> _parameters;
 };
 
 struct TraversalCtx
@@ -158,18 +198,18 @@ static enum CXChildVisitResult parseFunction(CXCursor cursor, CXCursor parent, C
 		return CXChildVisit_Recurse;
 	case CXCursor_ParmDecl:
 	{
-		auto _name = clang_getCString(clang_getCursorDisplayName(cursor));
-		auto _type = clang_getCursorType(cursor);
-		auto _type_name = clang_getCString(clang_getTypeSpelling(_type));
+		auto type = clang_getCursorType(cursor);
 
-		// Determine qualifiers
-		bool _is_const = clang_isConstQualifiedType(_type);
-		bool _is_restricted = clang_isRestrictQualifiedType(_type);
-		bool _is_volatile = clang_isVolatileQualifiedType(_type);
+		Parameter param;
+		param.Name = readDisplayName(cursor);
+		param.TypeName = readTypeName(type);
+		param.Alignment = clang_Type_getAlignOf(type);
+		param.Size = clang_Type_getSizeOf(type);
+		param.IsConst = clang_isConstQualifiedType(type);
+		param.IsRestricted = clang_isRestrictQualifiedType(type);
+		param.IsPointer = type.kind == CXType_Pointer;
 
-		bool _is_ptr = _type.kind == CXType_Pointer;
-		bool _is_lref = _type.kind == CXType_LValueReference;
-		bool _is_rref = _type.kind == CXType_RValueReference;
+		func_decl->addParameter(std::move(param));
 
 		return CXChildVisit_Recurse;
 	}
@@ -194,8 +234,6 @@ static enum CXChildVisitResult parseFunction(CXCursor cursor, CXCursor parent, C
 
 static enum CXChildVisitResult gather(CXCursor cursor, CXCursor parent, CXClientData client_data)
 {
-	CXChildVisitResult result = CXChildVisit_Continue;
-
 	auto ctx = reinterpret_cast<TraversalCtx*>(client_data);
 	auto functions = &ctx->Functions;
 
@@ -206,26 +244,27 @@ static enum CXChildVisitResult gather(CXCursor cursor, CXCursor parent, CXClient
 		ctx->Namespace.push_back(cursor);
 		clang_visitChildren(cursor, gather, client_data);
 		ctx->Namespace.pop_back();
-		result = CXChildVisit_Continue;
 		break;
 	case CXCursor_FunctionDecl:
 
 		functions->emplace_back(std::make_unique<FunctionDeclaration>(cursor, toString(ctx->Namespace)));
-		result = CXChildVisit_Continue;
 		break;
 	}
 
-	return result;
+	return CXChildVisit_Recurse;
 }
 
-std::string generateKernelCallWrappers(std::string cuda_toolkit_root, const std::vector<std::string>& params)
+std::vector<Kernel> generateKernelCallWrappers(std::string cuda_toolkit_root, const std::vector<std::string>& params)
 {
 	// Check minimal version
 	auto version = clang_getClangVersion();
 	clang_disposeString(version);
 
 	std::vector<const char*> parser_params = {
-		"-nocudainc", "-nocudalib", "-D__CUDA_LIBDEVICE__", "-include", "cuda_runtime.h", "-I"
+		"-nocudainc", "-nocudalib",
+		"-D__CUDA_LIBDEVICE__", // Required to have the location specifiers resolved correctly on Windows
+		"-include", "cuda_runtime.h", // Default include of CUDA applications
+		"-I" // Include command for CUDA runtime
 	};
 	cuda_toolkit_root.append("\\include");
 	parser_params.emplace_back(cuda_toolkit_root.c_str());
@@ -242,16 +281,19 @@ std::string generateKernelCallWrappers(std::string cuda_toolkit_root, const std:
 	TraversalCtx type_ctx;
 	clang_visitChildren(clang_getTranslationUnitCursor(translation_unit), gather, &type_ctx);
 
-	// Parse the individual types
+	// Parse the individual function and collect kernels
+	std::vector<Kernel> kernels;
 	for (auto& func : type_ctx.Functions)
 	{
 		clang_visitChildren(func->cursor(), parseFunction, func.get());
+		if (func->isGlobalFunction())
+		{
+			kernels.emplace_back(func->name(), func->parameters());
+		}
 	}
 
 	clang_disposeTranslationUnit(translation_unit);
 	clang_disposeIndex(index);
 
-	return {};
+	return kernels;
 }
-
-// "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\include" 
