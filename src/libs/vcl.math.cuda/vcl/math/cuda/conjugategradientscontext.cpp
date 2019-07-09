@@ -29,11 +29,14 @@
 #include <vcl/compute/cuda/kernel.h>
 #include <vcl/math/ceil.h>
 
-// Kernels
-extern uint32_t CGCtxCU[];
-extern size_t CGCtxCUSize;
-
 #ifdef VCL_CUDA_SUPPORT
+CUresult CGComputeReductionBegin(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, unsigned int n, const float* __restrict g_r, const float* __restrict g_d, const float* __restrict g_q, float* __restrict d_r, float* __restrict d_g, float* __restrict d_b, float* __restrict d_a);
+CUresult CGComputeReductionContinue(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, unsigned int n, const float* __restrict in_d_r, const float* __restrict in_d_g, const float* __restrict in_d_b, const float* __restrict in_d_a, float* __restrict out_d_r, float* __restrict out_d_g, float* __restrict out_d_b, float* __restrict out_d_a);
+CUresult CGComputeReductionShuffleBegin(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, unsigned int n, const float* __restrict g_r, const float* __restrict g_d, const float* __restrict g_q, float* __restrict d_r, float* __restrict d_g, float* __restrict d_b, float* __restrict d_a);
+CUresult CGComputeReductionShuffleContinue(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, unsigned int n, const float* __restrict in_d_r, const float* __restrict in_d_g, const float* __restrict in_d_b, const float* __restrict in_d_a, float* __restrict out_d_r, float* __restrict out_d_g, float* __restrict out_d_b, float* __restrict out_d_a);
+CUresult CGComputeReductionShuffleAtomics(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, unsigned int n, const float* __restrict g_r, const float* __restrict g_d, const float* __restrict g_q, float* __restrict d_r, float* __restrict d_g, float* __restrict d_b, float* __restrict d_a);
+CUresult CGUpdateVectorsEx(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int n, const float* __restrict d_r_ptr, const float* __restrict d_g_ptr, const float* __restrict d_b_ptr, const float* __restrict d_a_ptr, float* __restrict vX, float* __restrict vD, float* __restrict vQ, float* __restrict vR);
+
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
 	ConjugateGradientsContext::ConjugateGradientsContext
@@ -46,23 +49,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	, _queue(queue)
 	, _size(size)
 	{
-		using namespace Vcl::Mathematics;
-		
-		// Load the module
-		_reduceUpdateModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(CGCtxCU), CGCtxCUSize * sizeof(uint32_t));
-
-		// Load kernels
-#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
-		_reduceKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleAtomics"));
-#elif VCL_MATH_CG_CUDA_SHUFFLE
-		_reduceBeginKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleBegin"));
-		_reduceContinueKernel = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionShuffleContinue"));
-#elif VCL_MATH_CG_CUDA_BASIC
-		_reduceBeginKernel    = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionBegin"));
-		_reduceContinueKernel = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGComputeReductionContinue"));
-#endif
-		_updateKernel         = static_pointer_cast<Compute::Cuda::Kernel>(_reduceUpdateModule->kernel("CGUpdateVectorsEx"));
-		
 		init();
 	}
 
@@ -174,40 +160,44 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 #endif
 		// Initialise the reduction
 #if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
-		_reduceKernel->run
+		CGComputeReductionShuffleAtomics
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			gridSize,
 			blockSize,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			
 			// Kernel parameters
 			_size,
-			_devResidual,
-			_devDirection,
-			_devQ,
-			_reduceBuffersR[0],
-			_reduceBuffersG[0],
-			_reduceBuffersB[0],
-			_reduceBuffersA[0]
+			(float*)_devResidual->devicePtr(),
+			(float*)_devDirection->devicePtr(),
+			(float*)_devQ->devicePtr(),
+			(float*)_reduceBuffersR[0]->devicePtr(),
+			(float*)_reduceBuffersG[0]->devicePtr(),
+			(float*)_reduceBuffersB[0]->devicePtr(),
+			(float*)_reduceBuffersA[0]->devicePtr()
 		);
 #elif VCL_MATH_CG_CUDA_SHUFFLE || VCL_MATH_CG_CUDA_BASIC
-		_reduceBeginKernel->run
+#	ifdef VCL_MATH_CG_CUDA_SHUFFLE
+		CGComputeReductionShuffleBegin
+#	elif defined VCL_MATH_CG_CUDA_BASIC
+		CGComputeReductionBegin
+#	endif
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			gridSize,
 			blockSize,
 			dynamicSharedMemory,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			
 			// Kernel parameters
 			_size,
-			_devResidual,
-			_devDirection,
-			_devQ,
-			_reduceBuffersR[0],
-			_reduceBuffersG[0],
-			_reduceBuffersB[0],
-			_reduceBuffersA[0]
+			(float*)_devResidual->devicePtr(),
+			(float*)_devDirection->devicePtr(),
+			(float*)_devQ->devicePtr(),
+			(float*)_reduceBuffersR[0]->devicePtr(),
+			(float*)_reduceBuffersG[0]->devicePtr(),
+			(float*)_reduceBuffersB[0]->devicePtr(),
+			(float*)_reduceBuffersA[0]->devicePtr()
 		);
 		
 		// Reduce the array of partial results to a scalar.
@@ -217,17 +207,27 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		while (nrPartialResults > 1)
 		{
 			unsigned int currGridSize = ceil(nrPartialResults, elemPerBlock) / elemPerBlock;
-			_reduceContinueKernel->run
+#	ifdef VCL_MATH_CG_CUDA_SHUFFLE
+			CGComputeReductionShuffleContinue
+#	elif defined VCL_MATH_CG_CUDA_BASIC
+			CGComputeReductionContinue
+#	endif
 			(
-				*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 				currGridSize,
 				blockSize,
 				dynamicSharedMemory,
+				*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 				
 				// Kernel parameters
 				nrPartialResults,
-				_reduceBuffersR[0], _reduceBuffersG[0], _reduceBuffersB[0], _reduceBuffersA[0],
-				_reduceBuffersR[1], _reduceBuffersG[1], _reduceBuffersB[1], _reduceBuffersA[1]
+				(float*)_reduceBuffersR[0]->devicePtr(),
+				(float*)_reduceBuffersG[0]->devicePtr(),
+				(float*)_reduceBuffersB[0]->devicePtr(),
+				(float*)_reduceBuffersA[0]->devicePtr(),
+				(float*)_reduceBuffersR[1]->devicePtr(),
+				(float*)_reduceBuffersG[1]->devicePtr(),
+				(float*)_reduceBuffersB[1]->devicePtr(),
+				(float*)_reduceBuffersA[1]->devicePtr()
 			);
 
 			// Update next loop.
@@ -255,15 +255,22 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		const unsigned int gridSize = ceil(_size, elemPerBlock) / elemPerBlock;
 
 		// Update the vectors
-		static_pointer_cast<Compute::Cuda::Kernel>(_updateKernel)->run
+		CGUpdateVectorsEx
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			gridSize,
 			blockSize,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
+
 			_size,
-			_reduceBuffersR[0], _reduceBuffersG[0], _reduceBuffersB[0], _reduceBuffersA[0],
-			_devX, _devDirection, _devQ, _devResidual
+			(float*)_reduceBuffersR[0]->devicePtr(),
+			(float*)_reduceBuffersG[0]->devicePtr(),
+			(float*)_reduceBuffersB[0]->devicePtr(),
+			(float*)_reduceBuffersA[0]->devicePtr(),
+			(float*)_devX->devicePtr(),
+			(float*)_devDirection->devicePtr(),
+			(float*)_devQ->devicePtr(),
+			(float*)_devResidual->devicePtr()
 		);
 	}
 

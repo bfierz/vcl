@@ -51,6 +51,26 @@
 VCL_ERROR("No compatible process API found.")
 #endif
 
+// Copy entire file to container
+// Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
+template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+static std::basic_string<Char, Traits, Allocator> read_stream_into_string
+(
+	std::basic_istream<Char, Traits>& in,
+	Allocator alloc = {}
+)
+{
+	std::basic_ostringstream<Char, Traits, Allocator> ss
+	(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
+	);
+
+	if (!(ss << in.rdbuf()))
+		throw std::ios_base::failure{ "error" };
+
+	return ss.str();
+}
+
 namespace Vcl { namespace Tools { namespace Cuc
 {
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
@@ -385,23 +405,6 @@ int main(int argc, char* argv [])
 
 		exec((nvcc_bin_path / "fatbinary.exe").string().c_str(), fatbin_cmdbuilder.str().c_str());
 
-		// Create a source file with the binary 
-		std::stringstream bin2c_cmdbuilder;
-		bin2c_cmdbuilder.str("");
-		bin2c_cmdbuilder.clear();
-		bin2c_cmdbuilder << "--group 4 ";
-
-		if (parsed_options.count("symbol"))
-		{
-			bin2c_cmdbuilder << "--symbol " << parsed_options["symbol"].as<std::string>() << " ";
-		}
-
-		bin2c_cmdbuilder << "-o " << parsed_options["output-file"].as<std::string>() << " ";
-		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin)";
-
-		// Invoke the binary file translator
-		//exec("bin2c", bin2c_cmdbuilder.str().c_str());
-		
 		std::cout << "Generate wrapper\n";
 
 		std::vector<std::string> params;
@@ -425,8 +428,8 @@ int main(int argc, char* argv [])
 		fatbin_reader.open(tmp_file_base + R"(.fatbin)", std::ios_base::binary);
 		if (!fatbin_reader.is_open())
 			std::cout << "Couldn't open fatbin" << std::endl;
-		std::istream_iterator<unsigned char> begin(fatbin_reader);
-		std::istream_iterator<unsigned char> end;
+		std::string tmp_buffer = read_stream_into_string(fatbin_reader);
+		fatbin_reader.close();
 
 		ww << "#include <cuda.h>\n";
 		ww << "#include <memory>\n";
@@ -434,12 +437,11 @@ int main(int argc, char* argv [])
 		ww << "#include <tuple>\n";
 		ww << "#include <cuda_runtime.h>\n";
 		ww << "static unsigned char fatbin_data[] = {\n\t";
-		for (; begin != end; ++begin)
+		for (const auto byte : tmp_buffer)
 		{
-			ww << "0x" << std::setfill('0') << std::hex << std::setw(2) << static_cast<int>(*begin) << ", ";
+			ww << "0x" << std::setfill('0') << std::hex << std::setw(2) << (unsigned int)(unsigned char) byte << ", ";
 		}
 		ww << "\n};\n";
-		fatbin_reader.close();
 
 		ww << R"(
 static CUmodule loadModule(const void* data)
@@ -462,28 +464,6 @@ static CUfunction loadFunction(CUmodule mod, const char* name)
 }
 )";
 
-		//ww << "const auto module = [](void* data){\n";
-		//ww << "\tCUmodule mod = 0;\n";
-		//ww << "\tCUresult err = cuModuleLoadData(&mod, data); std::unique_ptr<struct CUmod_st, CUresult(*)(CUmodule)> module(mod, cuModuleUnload); \n";
-		//int kernel_idx = 0;
-		//for (auto& kernel : kernels)
-		//{
-		//	ww << "\tCUfunction func" << std::to_string(kernel_idx) << ";";
-		//	ww << "\tcuModuleGetFunction(&func" << std::to_string(kernel_idx) << ", mod, \"" << kernel.Name << "\");\n";
-		//	kernel_idx++;
-		//}
-		//
-		//std::string kernel_funcs;
-		//for (int i = 0; i < kernels.size(); i++)
-		//{
-		//	kernel_funcs += ", ";
-		//	kernel_funcs += "func";
-		//	kernel_funcs += std::to_string(i);
-		//}
-		//ww << "\treturn std::make_tuple(std::move(module)" << kernel_funcs << ");\n";
-		//ww << "}(fatbin_data);\n";
-
-		//int kernel_idx = 0;
 		for (auto& kernel : kernels)
 		{
 #define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
@@ -533,11 +513,8 @@ static CUfunction loadFunction(CUmodule mod, const char* name)
 			ww << "\t\tCU_LAUNCH_PARAM_BUFFER_SIZE,    &param_buffer_size,\n";
 			ww << "\t\tCU_LAUNCH_PARAM_END\n";
 			ww << "\t};\n";
-			//ww << "\treturn cuLaunchKernel(std::get<" << std::to_string(kernel_idx + 1) << ">(module), gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);\n";
 			ww << "\treturn cuLaunchKernel(func, gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);\n";
 			ww << "}\n";
-
-			//kernel_idx++;
 		}
 		ww.close();
 	}

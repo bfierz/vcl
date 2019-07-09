@@ -27,9 +27,8 @@
  // VCL
 #include <vcl/math/ceil.h>
 
- // Kernels
-extern uint32_t Poisson3DJacobiCU[];
-extern size_t Poisson3DJacobiCUSize;
+CUresult MakePoissonStencil2(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, dim3 dim, float h, float a, float offset, float* __restrict Ac, float* __restrict Ax_l, float* __restrict Ax_r, float* __restrict Ay_l, float* __restrict Ay_r, float* __restrict Az_l, float* __restrict Az_r, const unsigned char* __restrict skip);
+CUresult PoissonUpdateSolution(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, float* __restrict unknowns, float* __restrict next, float* __restrict error);
 
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
@@ -46,11 +45,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	, _rhs(nullptr, map_t{nullptr, 0})
 	{
 		using namespace Vcl::Mathematics;
-
-		// Load the module
-		_poissonModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(Poisson3DJacobiCU), Poisson3DJacobiCUSize * sizeof(uint32_t));
-		_makeStencilKernel = static_pointer_cast<Compute::Cuda::Kernel>(_poissonModule->kernel("MakePoissonStencil"));
-		_updateKernel = static_pointer_cast<Compute::Cuda::Kernel>(_poissonModule->kernel("PoissonUpdateSolution"));
 
 		// Create buffers
 		size_t size = dim.x()*dim.y()*dim.z();
@@ -144,26 +138,26 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		_makeStencilKernel->run
+		MakePoissonStencil2
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			grid_size,
 			block_size,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 
 			// Kernel parameters
-			_dim,
+			dim3(_dim.x(), _dim.y(), _dim.z()),
 			h,
 			k,
-			o, 
-			_laplacian[0],
-			_laplacian[1],
-			_laplacian[2],
-			_laplacian[3],
-			_laplacian[4],
-			_laplacian[5],
-			_laplacian[6],
-			skip
+			o,
+			(float*)_laplacian[0]->devicePtr(),
+			(float*)_laplacian[1]->devicePtr(),
+			(float*)_laplacian[2]->devicePtr(),
+			(float*)_laplacian[3]->devicePtr(),
+			(float*)_laplacian[4]->devicePtr(),
+			(float*)_laplacian[5]->devicePtr(),
+			(float*)_laplacian[6]->devicePtr(),
+			(const unsigned char*)skip.devicePtr()
 		);
 	}
 
@@ -193,29 +187,29 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		float zero = 0.0f;
 		_queue->fill(_dev_error, &zero, sizeof(float));
 
-		_updateKernel->run
+		PoissonUpdateSolution
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			grid_size,
 			block_size,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 
 			// Kernel parameters
 			_dim.x(),
 			_dim.y(),
 			_dim.z(),
-			_laplacian[0],
-			_laplacian[1],
-			_laplacian[2],
-			_laplacian[3],
-			_laplacian[4],
-			_laplacian[5],
-			_laplacian[6],
-			std::get<0>(_rhs),
+			(float*)_laplacian[0]->devicePtr(),
+			(float*)_laplacian[1]->devicePtr(),
+			(float*)_laplacian[2]->devicePtr(),
+			(float*)_laplacian[3]->devicePtr(),
+			(float*)_laplacian[4]->devicePtr(),
+			(float*)_laplacian[5]->devicePtr(),
+			(float*)_laplacian[6]->devicePtr(),
+			(float*)std::get<0>(_rhs)->devicePtr(),
 
-			std::get<0>(_unknowns),
-			_next,
-			_dev_error
+			(float*)std::get<0>(_unknowns)->devicePtr(),
+			(float*)_next->devicePtr(),
+			(float*)_dev_error->devicePtr()
 		);
 
 		_queue->copy(std::get<0>(_unknowns), _next);

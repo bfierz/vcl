@@ -43,7 +43,7 @@ __device__ void updateStencil
 }
 
 extern "C"
-__global__ void MakePoissonStencil
+__global__ void MakePoissonStencil2
 (
 	dim3 dim,
 	float h,

@@ -57,13 +57,6 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		// Device context
 		Core::ref_ptr<Compute::Context> _ownerCtx;
 
-	private:
-		// Module
-		Core::ref_ptr<Compute::Module> _svdModule;
-
-		// Kernel performing the SVD computation
-		Core::ref_ptr<Compute::Kernel> _svdKernel;
-
 	private: // Buffers
 
 		//! Number of allocated entries
