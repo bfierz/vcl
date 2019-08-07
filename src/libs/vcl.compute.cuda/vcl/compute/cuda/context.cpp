@@ -102,6 +102,10 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	Context::~Context()
 	{
+		_buffers.clear();
+		_modules.clear();
+		_queues.clear();
+
 		if (_context)
 		{
 			VCL_CU_SAFE_CALL(cuCtxDestroy(_context));

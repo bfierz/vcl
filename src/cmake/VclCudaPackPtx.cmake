@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2017 Basil Fierz
+# Copyright (c) 2019 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl.math.cuda.test)
+set(file_contents)
 
-include(../../cmake/VCLTest.cmake)
+# Process include folders
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+foreach(dir ${INCLUDE_DIRS})
+    list(APPEND include_dir_param "-I")
+    list(APPEND include_dir_param "\"${dir}\"")
+endforeach()
 
-set(SOURCE_FILES
-	cg_add.cpp
-	main.cpp
-	poisson3d.cpp
-	poisson.h
-	redux.cpp
-)
-vcl_add_test(vcl.math.cuda.test)
-vcl_target_sources(vcl.math.cuda.test "" ${SOURCE_FILES})
-target_link_libraries(vcl.math.cuda.test
-	vcl_math_cuda
-)
+list(LENGTH OBJECTS file_count)
+math(EXPR file_indexer "${file_count} - 1")
+
+foreach(idx RANGE ${file_indexer})
+  list(GET OBJECTS ${idx} obj)
+  list(GET SOURCES ${idx} src)
+  list(GET OUTPUTS ${idx} out)
+
+  get_filename_component(obj_ext ${obj} EXT)
+  get_filename_component(obj_name ${obj} NAME_WE)
+  get_filename_component(obj_dir ${obj} DIRECTORY)
+
+  if(obj_ext MATCHES ".ptx")
+    set(args ${include_dir_param} -m ${obj} -o ${out} ${src})
+    execute_process(COMMAND "${CUC_COMMAND}" ${args}
+                    WORKING_DIRECTORY ${WORK_DIR}
+                    RESULT_VARIABLE result
+                    OUTPUT_VARIABLE output
+                    ERROR_VARIABLE error_var
+                    )
+  endif()
+endforeach()

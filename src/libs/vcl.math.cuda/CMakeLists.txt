@@ -1,90 +1,105 @@
-PROJECT(vcl_math_cuda)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl_math_cuda LANGUAGES CXX CUDA)
+cmake_minimum_required(VERSION 3.9)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCUDA.cmake)
+# Configure the VCL compilation environment
+include(../../cmake/VCLLibrary.cmake)
 
-# VCL / MATH / SOLVER / CUDA
-SET(VCL_MATH_SOLVER_CUDA_INC
+# Source files
+set(VCL_MATH_CUDA_SRC
+	vcl/math/cuda/conjugategradientscontext.h
+	vcl/math/cuda/conjugategradientscontext.cpp
+	vcl/math/cuda/jacobisvd33_mcadams.h
+	vcl/math/cuda/jacobisvd33_mcadams.cpp
 	vcl/math/solver/cuda/poisson3dsolver_cg.h
-	vcl/math/solver/cuda/poisson3dsolver_jacobi.h
-)
-SET(VCL_MATH_SOLVER_CUDA_SRC
 	vcl/math/solver/cuda/poisson3dsolver_cg.cpp
+	vcl/math/solver/cuda/poisson3dsolver_jacobi.h
 	vcl/math/solver/cuda/poisson3dsolver_jacobi.cpp
 )
-SET(VCL_MATH_SOLVER_CUDA_CU
+set(VCL_MATH_CUDA_CU
+	vcl/math/cuda/conjugategradientscontext.cu
+	vcl/math/cuda/jacobisvd33_mcadams.cu
+	vcl/math/solver/cuda/poisson3dsolver.cu
 	vcl/math/solver/cuda/poisson3dsolver_cg.cu
 	vcl/math/solver/cuda/poisson3dsolver_jacobi.cu
 )
 
-# VCL / MATH / CUDA
-SET(VCL_MATH_CUDA_INC
-	vcl/math/cuda/jacobisvd33_mcadams.h
-	vcl/math/cuda/conjugategradientscontext.h
-)
-SET(VCL_MATH_CUDA_SRC
-	vcl/math/cuda/jacobisvd33_mcadams.cpp
-	vcl/math/cuda/conjugategradientscontext.cpp
-)
-SET(VCL_MATH_CUDA_CU
-	vcl/math/cuda/jacobisvd33_mcadams.cu
-	vcl/math/cuda/conjugategradientscontext.cu
+# Compile CUDA kernels
+add_library(vcl_math_cuda_kernels OBJECT "")
+vcl_configure(vcl_math_cuda_kernels)
+vcl_target_sources(vcl_math_cuda_kernels "vcl/math" ${VCL_MATH_CUDA_CU})
+set_target_properties(vcl_math_cuda_kernels PROPERTIES FOLDER libs)
+set_target_properties(vcl_math_cuda_kernels PROPERTIES CUDA_PTX_COMPILATION ON)
+target_link_libraries(vcl_math_cuda_kernels
+	vcl_core
+	vcl_core_cuda
+	vcl_math
 )
 
-# Access the include directories in order to compile the CUDA code
-GET_PROPERTY(CURR_INC_DIRS_0 TARGET vcl_core_cuda PROPERTY INCLUDE_DIRECTORIES)
-GET_PROPERTY(CURR_INC_DIRS_1 TARGET vcl.math PROPERTY INCLUDE_DIRECTORIES)
-LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0} ${CURR_INC_DIRS_1})
+get_target_property(cu_files vcl_math_cuda_kernels SOURCES)
+foreach(src ${cu_files})
+  get_filename_component(src_ext ${src} EXT)
+  get_filename_component(src_name ${src} NAME_WE)
+  get_filename_component(src_dir ${src} DIRECTORY)
 
-VCLCOMPILECU(
-	${PROJECT_SOURCE_DIR}/vcl/math/cuda/conjugategradientscontext.cu
-	"CGCtxCU"
-	"${CURR_INC_DIRS}"
-	COMPILEDKERNELS_0
-)
-VCLCOMPILECU(
-	${PROJECT_SOURCE_DIR}/vcl/math/cuda/jacobisvd33_mcadams.cu
-	"JacobiSVD33McAdamsCU"
-	"${CURR_INC_DIRS}"
-	COMPILEDKERNELS_1
-)
-VCLCOMPILECU(
-	${PROJECT_SOURCE_DIR}/vcl/math/solver/cuda/poisson3dsolver_jacobi.cu
-	"Poisson3DJacobiCU"
-	"${CURR_INC_DIRS}"
-	COMPILEDKERNELS_2
-)
-VCLCOMPILECU(
-	${PROJECT_SOURCE_DIR}/vcl/math/solver/cuda/poisson3dsolver_cg.cu
-	"Poisson3DCgCU"
-	"${CURR_INC_DIRS}"
-	COMPILEDKERNELS_3
-)
-SET(COMPILEDKERNELS ${COMPILEDKERNELS_0} ${COMPILEDKERNELS_1} ${COMPILEDKERNELS_2} ${COMPILEDKERNELS_3})
+  set(module_file ${CMAKE_CURRENT_BINARY_DIR}/${src_name}_module.cpp)
+  list(APPEND module_files ${module_file})
+endforeach()
 
-SOURCE_GROUP("cuc" FILES ${COMPILEDKERNELS})
-SOURCE_GROUP("solver" FILES ${VCL_MATH_SOLVER_CUDA_SRC} ${VCL_MATH_SOLVER_CUDA_INC} ${VCL_MATH_SOLVER_CUDA_CU})
-SOURCE_GROUP("" FILES ${VCL_MATH_CUDA_SRC} ${VCL_MATH_CUDA_INC} ${VCL_MATH_CUDA_CU})
-
-SET(SOURCE
-	${COMPILEDKERNELS}
-	${VCL_MATH_SOLVER_CUDA_SRC} ${VCL_MATH_SOLVER_CUDA_INC} ${VCL_MATH_SOLVER_CUDA_CU}
-	${VCL_MATH_CUDA_SRC} ${VCL_MATH_CUDA_INC} ${VCL_MATH_CUDA_CU}
+add_custom_command(
+  OUTPUT ${module_files}
+  COMMAND ${CMAKE_COMMAND}
+    "-DCUC_COMMAND=${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/cui"
+    "-DWORK_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
+    "-DINCLUDE_DIRS=$<TARGET_PROPERTY:vcl_math_cuda_kernels,INCLUDE_DIRECTORIES>"
+    "-DSOURCES=${cu_files}"
+    "-DOBJECTS=$<TARGET_OBJECTS:vcl_math_cuda_kernels>"
+    "-DOUTPUTS=${module_files}"
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VclCudaPackPtx.cmake
+  VERBATIM
+  DEPENDS vcl_math_cuda_kernels
+  COMMENT "Generate CUDA kernel C++ bindings"
 )
 
-ADD_LIBRARY(vcl_math_cuda STATIC ${SOURCE})
-SET_TARGET_PROPERTIES(vcl_math_cuda PROPERTIES FOLDER libs)
-if(WIN32)
-	SET_TARGET_PROPERTIES(vcl_math_cuda PROPERTIES DEBUG_POSTFIX _d)
-endif()
-TARGET_INCLUDE_DIRECTORIES(vcl_math_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Add dependencies
-TARGET_LINK_LIBRARIES(vcl_math_cuda
+vcl_add_library(vcl_math_cuda)
+vcl_target_sources(vcl_math_cuda "vcl/math" ${VCL_MATH_CUDA_SRC})
+
+target_sources(vcl_math_cuda PRIVATE ${module_files})
+source_group("generated" FILES ${module_files})
+
+add_dependencies(vcl_math_cuda vcl_math_cuda_kernels)
+target_include_directories(vcl_math_cuda PRIVATE ${CMAKE_CURRENT_BINARY_DIR} )
+
+target_link_libraries(vcl_math_cuda
 	vcl_core
 	vcl.math
 	vcl_compute_cuda
 )
 
 # Setup installation
-INSTALL(FILES ${VCL_MATH_CUDA_INC} DESTINATION include/vcl/math/cuda)
-INSTALL(TARGETS vcl_math_cuda ARCHIVE DESTINATION lib)
+install(FILES ${VCL_MATH_CUDA_INC} DESTINATION include/vcl/math/cuda)
+install(TARGETS vcl_math_cuda ARCHIVE DESTINATION lib)

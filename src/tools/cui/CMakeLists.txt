@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2017 Basil Fierz
+# Copyright (c) 2019 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl.math.cuda.test)
+project(cui)
 
-include(../../cmake/VCLTest.cmake)
+# Status message
+message(STATUS "Configuring 'cui'")
 
-set(SOURCE_FILES
-	cg_add.cpp
+# Configure libclang
+set(LIBCLANG_INCLUDE_DIR CACHE PATH "Path to the include directory for libclang")
+set(LIBCLANG_LIBRARY CACHE FILEPATH "Path to the libclang library")
+
+# Source code
+set(CUI_SRC
 	main.cpp
-	poisson3d.cpp
-	poisson.h
-	redux.cpp
+	kernelwrapper.cpp
+	kernelwrapper.h
 )
-vcl_add_test(vcl.math.cuda.test)
-vcl_target_sources(vcl.math.cuda.test "" ${SOURCE_FILES})
-target_link_libraries(vcl.math.cuda.test
-	vcl_math_cuda
+source_group("" FILES ${CUI_SRC})
+
+# Generate library
+add_executable(cui ${CUI_SRC})
+set_target_properties(cui PROPERTIES FOLDER tools)
+target_include_directories(cui PRIVATE ${LIBCLANG_INCLUDE_DIR})
+
+target_link_libraries(cui
+	vcl_core
+	${LIBCLANG_LIBRARY}
 )

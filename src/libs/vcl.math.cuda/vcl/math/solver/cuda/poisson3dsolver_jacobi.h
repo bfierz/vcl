@@ -94,15 +94,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Commandqueue the execution uses
 		ref_ptr<Compute::CommandQueue> _queue;
 
-		//! Module
-		ref_ptr<Compute::Module> _poissonModule;
-
-		//! Kernel used to make the solver stencil
-		ref_ptr<Compute::Cuda::Kernel> _makeStencilKernel;
-
-		//! Kernel used to update the solution
-		ref_ptr<Compute::Cuda::Kernel> _updateKernel;
-
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
 		

@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,54 +24,31 @@
  */
 #pragma once
 
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-#include <vcl/config/cuda.h>
+// C++ standard library
+#include <fstream>
+#include <string>
+#include <vector>
 
-// VCL
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/context.h>
-#include <vcl/compute/kernel.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/interleavedarray.h>
-
-namespace Vcl { namespace Mathematics { namespace Cuda
+struct Parameter
 {
-	class JacobiSVD33
-	{
-	public:
-		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
+	std::string Name;
+	std::string TypeName;
+	long long Alignment;
+	long long Size;
+	bool IsConst;
+	bool IsRestricted;
+	bool IsPointer;
+};
 
-	public:
-		void operator()
-		(
-			Vcl::Compute::CommandQueue& queue,
-			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-		);
+struct Kernel
+{
+	std::string Name;
+	std::vector<Parameter> Parameters;
 
-	private:
-		// Device context
-		Core::ref_ptr<Compute::Context> _ownerCtx;
+	Kernel(std::string name, std::vector<Parameter> parameters)
+		: Name(std::move(name)), Parameters(std::move(parameters)) {}
+};
 
-	private: // Buffers
+std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::vector<std::string>& params);
 
-		//! Number of allocated entries
-		size_t _capacity = 0;
-
-		//! Input buffer 
-		Core::ref_ptr<Compute::Buffer> _A;
-
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _U;
-
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _V;
-
-		//! Singular value buffer 
-		Core::ref_ptr<Compute::Buffer> _S;
-	};
-}}}
+void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, const std::string& module);

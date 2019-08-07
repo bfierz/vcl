@@ -50,13 +50,7 @@ TEST(Poisson3DCuda, MakeStencil)
 	using Vcl::Compute::BufferAccess;
 	using Vcl::Compute::BufferView;
 
-	Platform::initialise();
-	Platform* platform = Platform::instance();
-	const Device& device = platform->device(0);
-	auto dev_ctx = Vcl::make_owner<Context>(device);
-	dev_ctx->bind();
-
-	auto queue = dev_ctx->createCommandQueue();
+	auto queue = default_ctx->defaultQueue();
 
 	std::vector<unsigned char> skip_cpu(10 * 10 * 10, 0);
 	for (int z = 0; z < 10; z++)
@@ -69,13 +63,13 @@ TEST(Poisson3DCuda, MakeStencil)
 			(x > 0 && x < 4) || (x > 5 && x < 9))
 			skip_cpu[idx] = 1;
 	}
-	auto skip_dev = static_pointer_cast<Buffer>(dev_ctx->createBuffer(BufferAccess::None, 10 * 10 * 10 * sizeof(unsigned char)));
-	dev_ctx->defaultQueue()->write(BufferView{ skip_dev }, skip_cpu.data(), true);
+	auto skip_dev = static_pointer_cast<Buffer>(default_ctx->createBuffer(BufferAccess::None, 10 * 10 * 10 * sizeof(unsigned char)));
+	queue->write(BufferView{ skip_dev }, skip_cpu.data(), false);
 
-	Cuda::Poisson3DJacobiCtx ctx_cpu{ dev_ctx, queue, { 10, 10, 10} };
+	Cuda::Poisson3DJacobiCtx ctx_cpu{ default_ctx, queue, { 10, 10, 10} };
 	ctx_cpu.updatePoissonStencil(0.1f, -1, 0, { skip_cpu.data(), (int64_t)skip_cpu.size() });
 	
-	Cuda::Poisson3DJacobiCtx ctx_dev{ dev_ctx, queue, { 10, 10, 10} };
+	Cuda::Poisson3DJacobiCtx ctx_dev{ default_ctx, queue, { 10, 10, 10} };
 	ctx_dev.updatePoissonStencil(0.1f, -1, 0, *skip_dev);
 	
 	const auto matrix_cpu = ctx_cpu.matrix();
@@ -85,13 +79,13 @@ TEST(Poisson3DCuda, MakeStencil)
 	{
 		std::vector<float> buf_cpu(10 * 10 * 10, 0);
 		std::vector<float> buf_dev(10 * 10 * 10, 0);
-		dev_ctx->defaultQueue()->read(buf_cpu.data(), matrix_cpu[i], false);
-		dev_ctx->defaultQueue()->read(buf_dev.data(), matrix_dev[i], true);
+		queue->read(buf_cpu.data(), matrix_cpu[i], false);
+		queue->read(buf_dev.data(), matrix_dev[i], true);
 
 		EXPECT_TRUE(std::equal(std::begin(buf_cpu), std::end(buf_cpu), std::begin(buf_dev), [](float a, float b) { return Vcl::Mathematics::equal(a, b); }));
 	}
 
-	dev_ctx->release(skip_dev);
+	default_ctx->release(skip_dev);
 }
 
 TEST(Poisson3DCuda, SimpleJacobiNoBlockerIdentity)
