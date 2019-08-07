@@ -23,28 +23,25 @@
 # SOFTWARE.
 #
 
-# Path to the vcl cl compiler
-SET(VCL_CLC_DIR CACHE PATH "Directory of clc")
+function(VclCompileCL file_to_compile symbol include_paths compiled_files)
 
-FUNCTION(VclCompileCL file_to_compile symbol include_paths compiled_files)
-
-	FOREACH(dir ${include_paths})
-		LIST(APPEND include_dir_param -I "\"${dir}\"")
-	ENDFOREACH()
+	foreach(dir ${include_paths})
+		list(APPEND include_dir_param -I "\"${dir}\"")
+	endforeach()
 
 	# Remove the directories from the path and append ".cpp"
-	GET_FILENAME_COMPONENT(output_file ${file_to_compile} NAME)
-	SET(output_file "${output_file}.cpp")
+	get_filename_component(output_file ${file_to_compile} NAME)
+	set(output_file "${output_file}.cpp")
 	
 	# Append the name to the output
-	SET(${compiled_files} ${output_file} PARENT_SCOPE)
+	set(${compiled_files} ${output_file} PARENT_SCOPE)
 
-	ADD_CUSTOM_COMMAND(
+	add_custom_command(
 		OUTPUT ${output_file}
 
-		COMMAND "${VCL_CLC_DIR}/clc.exe" --symbol ${symbol} ${include_dir_param} -o ${output_file} ${file_to_compile}
+		COMMAND "${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/clc.exe" --symbol ${symbol} ${include_dir_param} -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)
 
-ENDFUNCTION(VclCompileCL)
+endfunction(VclCompileCL)

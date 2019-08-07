@@ -121,22 +121,22 @@ function(vcl_configure tgt)
 		# * Exceptions
 		# * RTTI
 		# * Don't be permissive
-		target_compile_options(${tgt} PUBLIC "/EHsc" "/GR")
-		target_compile_options(${tgt} PRIVATE "/W4")
+		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/EHsc>" "$<$<COMPILE_LANGUAGE:CXX>:/GR>")
+		target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/W4>")
 		if (MSVC_VERSION GREATER 1900)
-			target_compile_options(${tgt} PRIVATE "/permissive-")
+			target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/permissive->")
 		endif()
 	
 		# Make AVX available
 		if(VCL_VECTORIZE_AVX2)
-			target_compile_options(${tgt} PUBLIC "/arch:AVX2")
+			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:AVX2>")
 		elseif(VCL_VECTORIZE_AVX)
-			target_compile_options(${tgt} PUBLIC "/arch:AVX")
+			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:AVX>")
 		elseif(VCL_VECTORIZE_SSE2 AND VCL_ADDRESS_SIZE EQUAL "32")
 			# All x64 bit machine come with SSE2, thus it's defined as default
-			target_compile_options(${tgt} PUBLIC "/arch:SSE2")
+			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:SSE2>")
 		elseif(VCL_VECTORIZE_NEON)
-			target_compile_options(${tgt} PUBLIC "/arch:VFPv4")
+			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:VFPv4>")
 		endif()
 
 		# Enable compilation time tracing

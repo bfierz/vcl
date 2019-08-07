@@ -46,6 +46,7 @@ TARGET_LINK_LIBRARIES(vcl_compute_opencl
 	vcl_compute
 	${OPENCL_LIBRARIES}
 )
+add_dependencies(vcl_compute_opencl clc)
 
 # Setup installation
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)

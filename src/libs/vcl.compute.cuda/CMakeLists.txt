@@ -57,6 +57,7 @@ TARGET_LINK_LIBRARIES(vcl_compute_cuda
 	vcl_compute
 	${CUDA_CUDA_LIBRARY}
 )
+add_dependencies(vcl_compute_cuda cuc)
 
 # Setup installation
 INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
