@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 - 2015 Basil Fierz
+ * Copyright (c) 2014 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,10 @@
 #include <sstream>
 #include <vector>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // CxxOpts
 #include <vcl/core/3rdparty/cxxopts.hpp>
+VCL_END_EXTERNAL_HEADERS
 
 // Windows API
 #ifdef VCL_ABI_WINAPI
@@ -137,7 +139,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
 		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-		
+
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -192,7 +194,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 	}
 }}}
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Cuc;
 
@@ -209,6 +211,7 @@ int main(int argc, char* argv [])
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
+			("nvcc", "Specify which nvcc should be used.", cxxopts::value<std::string>())
 			("m64", "Specify that this should be compiled in 64bit.")
 			("profile", "Target compute architectures (sm_30, sm_35, sm_50, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
 			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
@@ -226,6 +229,18 @@ int main(int argc, char* argv [])
 		{
 			std::cout << options.help({ "" }) << std::endl;
 			return 1;
+		}
+
+		fs::path nvcc_bin_path;
+		if (parsed_options.count("nvcc"))
+		{
+			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
+			nvcc_bin_path = exe_path.parent_path();
+		}
+		else
+		{
+			nvcc_bin_path = getenv("CUDA_PATH");
+			nvcc_bin_path.append("bin");
 		}
 
 		if (parsed_options.count("symbol") == 0 || parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
@@ -264,6 +279,9 @@ int main(int argc, char* argv [])
 		{
 			std::stringstream cmd_compile;
 			std::stringstream cmd_link;
+
+			// Verbose compiler output
+			//cmd_compile << R"(--verbose )";
 
 			// Force a compiler version
 			//cmd_compile << R"(--use-local-env --cl-version 2013 )";
@@ -315,7 +333,7 @@ int main(int argc, char* argv [])
 			{
 				for (auto& lib : parsed_options["library"].as<std::vector<std::string>>())
 				{
-					cmd_link << "-l\"" << lib<< "\" ";
+					cmd_link << "-l\"" << lib << "\" ";
 				}
 			}
 			cmd_compile << "-dc -rdc=true ";
@@ -325,10 +343,10 @@ int main(int argc, char* argv [])
 			cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
 
 			// Compile the code
-			exec("nvcc.exe", cmd_compile.str().c_str());
+			exec((nvcc_bin_path / "nvcc.exe").string().c_str(), cmd_compile.str().c_str());
 
 			// Link the code
-			exec("nvlink.exe", cmd_link.str().c_str());
+			exec((nvcc_bin_path / "nvlink.exe").string().c_str(), cmd_link.str().c_str());
 		}
 
 		// Create a fat binary from the compiled files 
@@ -350,9 +368,9 @@ int main(int argc, char* argv [])
 			fatbin_cmdbuilder << "-32 ";
 		}
 
-		// We are compiling cuda
-		fatbin_cmdbuilder << R"(--cuda )";
-		
+		// We are compiling cuda (not supported since 10.1), doesn't seem to affect the output
+		//fatbin_cmdbuilder << R"(--cuda )";
+
 		// Add the orignal filename as identifier
 		fatbin_cmdbuilder << R"(--ident=")" << parsed_options["symbol"].as<std::string>() << R"(" )";
 
@@ -362,7 +380,7 @@ int main(int argc, char* argv [])
 			fatbin_cmdbuilder << R"("--image=profile=)" << profile_file.first << R"(,file=)" << profile_file.second << R"(" )";
 		}
 
-		exec("fatbinary.exe", fatbin_cmdbuilder.str().c_str());
+		exec((nvcc_bin_path / "fatbinary.exe").string().c_str(), fatbin_cmdbuilder.str().c_str());
 
 		// Create a source file with the binary 
 		std::stringstream bin2c_cmdbuilder;
@@ -376,7 +394,7 @@ int main(int argc, char* argv [])
 		}
 
 		bin2c_cmdbuilder << "-o " << parsed_options["output-file"].as<std::string>() << " ";
-		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin" )";
+		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin)";
 
 		// Invoke the binary file translator
 		exec("bin2c", bin2c_cmdbuilder.str().c_str());
