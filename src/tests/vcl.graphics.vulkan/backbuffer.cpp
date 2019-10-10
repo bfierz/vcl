@@ -128,7 +128,7 @@ public:
 		wc.lpszClassName = "VulkanContextWindowClass";
 		wc.style = CS_OWNDC;
 		RegisterClass(&wc);
-		_window_handle = CreateWindowEx(0, wc.lpszClassName, "VulkanContextWindow", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, 0, 0);
+		_window_handle = CreateWindowEx(0, wc.lpszClassName, "VulkanContextWindow", 0, 0, 0, 512, 512, HWND_MESSAGE, 0, 0, 0);
 
 		// Create a WSI surface for the window
 		vkWin32CreateWindowSurface(*_platform, _window_handle, nullptr, &_surface_ctx);
@@ -166,8 +166,6 @@ TEST_F(VulkanBackbufferTest, Create)
 	desc.NumberOfImages = 4;
 	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
 	desc.DepthFormat = VK_FORMAT_D32_SFLOAT;
-	desc.Width = 1280;
-	desc.Height = 720;
 	auto surface = createBasicSurface(*_platform, *_context, queue, desc);
 
 	// Iterate through all images in the swap chain and present them

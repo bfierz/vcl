@@ -75,6 +75,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkSurfaceCapabilitiesKHR surface_caps;
 		res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &surface_caps);
 		VclCheck(res == VK_SUCCESS, "Surface capabilities are queried.");
+		_surfaceExtent = surface_caps.currentExtent;
 
 		// Query available present modes
 		uint32_t nr_present_modes;
@@ -356,8 +357,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		sc_desc.NumberOfImages = desc.NumberOfImages;
 		sc_desc.ColourFormat = desc.ColourFormat;
 		sc_desc.ColourSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-		sc_desc.Width = desc.Width;
-		sc_desc.Height = desc.Height;
+		sc_desc.Width = surface->surfaceExtent().width;
+		sc_desc.Height = surface->surfaceExtent().height;
 		sc_desc.PresentMode = VK_PRESENT_MODE_FIFO_KHR;
 		sc_desc.PreTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
@@ -365,7 +366,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		surface->setSwapChain(std::move(swapchain));
 
 		// Create a back-buffer object for the surface
-		auto backbuffer = std::make_unique<Backbuffer>(surface->swapChain(), cmd_buffer, desc.Width, desc.Height, desc.DepthFormat);
+		auto backbuffer = std::make_unique<Backbuffer>(surface->swapChain(), cmd_buffer, sc_desc.Width, sc_desc.Height, desc.DepthFormat);
 		surface->setBackbuffer(std::move(backbuffer));
 
 		// Submit the image create to the driver
