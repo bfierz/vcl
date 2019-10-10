@@ -208,6 +208,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		//! Set the default back-buffer
 		void setBackbuffer(std::unique_ptr<Backbuffer> buffer);
 
+		//! Access the surface extent
+		VkExtent2D surfaceExtent() const { return _surfaceExtent; }
+
 	private:
 		//! Owner instance
 		VkInstance _instance{ nullptr };
@@ -217,6 +220,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 		//! Surface of this swap chain
 		VkSurfaceKHR _surface{ nullptr };
+
+		//! Surface extent
+		VkExtent2D _surfaceExtent;
 
 		//! Swap-chain used to render to the surface
 		std::unique_ptr<SwapChain> _swapChain;
@@ -244,12 +250,6 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 		//! Depth-format
 		VkFormat DepthFormat;
-
-		//! Requested width
-		uint32_t Width;
-
-		//! Requested height
-		uint32_t Height;
 	};
 
 	std::unique_ptr<Surface> createBasicSurface(Platform& platform, Context& context, CommandQueue& queue, const BasicSurfaceDescription& desc);
