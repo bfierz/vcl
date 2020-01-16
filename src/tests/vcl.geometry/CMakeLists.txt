@@ -40,5 +40,5 @@ set(SOURCE_FILES
 vcl_add_test(vcl.geometry.test)
 vcl_target_sources(vcl.geometry.test "" ${SOURCE_FILES})
 target_link_libraries(vcl.geometry.test
-	vcl_geometry
+	vcl.geometry
 )

@@ -32,5 +32,5 @@ set(SOURCE_FILES
 vcl_add_test(vcl.components.test)
 vcl_target_sources(vcl.components.test "" ${SOURCE_FILES})
 target_link_libraries(vcl.components.test
-	vcl_components
+	vcl.components
 )

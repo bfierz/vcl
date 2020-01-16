@@ -1,22 +1,47 @@
-PROJECT(vcl_math)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl.math)
 
 # Configure the VCL compilation environment
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 
-# VCL / MATH / MCADAMS
-SET(VCL_MATH_MCADAMS_INC
+# Generate library
+vcl_add_library(vcl.math)
+
+set(SOURCE
 	vcl/math/mcadams/Singular_Value_Decomposition_Givens_QR_Factorization_Kernel.hpp
 	vcl/math/mcadams/Singular_Value_Decomposition_Jacobi_Conjugation_Kernel.hpp
 	vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp
 	vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp
 	vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp
-)
 
-# VCL / MATH / SOLVER
-SET(VCL_MATH_SOLVER_INC
+	vcl/math/solver/conjugategradients.cpp
 	vcl/math/solver/conjugategradients.h
 	vcl/math/solver/eigenconjugategradientscontext.h
 	vcl/math/solver/eigenjacobicontext.h
+	vcl/math/solver/jacobi.cpp
 	vcl/math/solver/jacobi.h
 	vcl/math/solver/poisson.h
 	vcl/math/solver/poisson1dsolver_cg.h
@@ -25,38 +50,17 @@ SET(VCL_MATH_SOLVER_INC
 	vcl/math/solver/poisson2dsolver_jacobi.h
 	vcl/math/solver/poisson3dsolver_cg.h
 	vcl/math/solver/poisson3dsolver_jacobi.h
-)
-SET(VCL_MATH_SOLVER_SRC
-	vcl/math/solver/conjugategradients.cpp
-	vcl/math/solver/jacobi.cpp
-)
 
-# VCL / MATH
-SET(VCL_MATH_INC
+	vcl/math/apd33.cpp
 	vcl/math/apd33.h
 	vcl/math/apd33_impl.h
-	vcl/math/jacobieigen33_selfadjoint_impl.h
-	vcl/math/jacobieigen33_selfadjoint.h
-	vcl/math/jacobieigen33_selfadjoint_quat_impl.h
-	vcl/math/jacobieigen33_selfadjoint_quat.h
-	vcl/math/jacobisvd33_mcadams.h
-	vcl/math/jacobisvd33_qr_impl.h
-	vcl/math/jacobisvd33_qr.h
-	vcl/math/jacobisvd33_twosided.h
-	vcl/math/jacobisvd33_twosided_impl.h
-	vcl/math/polardecomposition.h
-	vcl/math/polardecomposition_impl.h
-	vcl/math/qr33.h
-	vcl/math/qr33_impl.h
-	vcl/math/rotation33_torque.h
-	vcl/math/rotation33_torque_impl.h
-	vcl/math/waveletstack3d.h
-
-)
-SET(VCL_MATH_SRC
-	vcl/math/apd33.cpp
 	vcl/math/jacobieigen33_selfadjoint.cpp
+	vcl/math/jacobieigen33_selfadjoint.h
+	vcl/math/jacobieigen33_selfadjoint_impl.h
 	vcl/math/jacobieigen33_selfadjoint_quat.cpp
+	vcl/math/jacobieigen33_selfadjoint_quat.h
+	vcl/math/jacobieigen33_selfadjoint_quat_impl.h
+	vcl/math/jacobisvd33_mcadams.h
 	vcl/math/jacobisvd33_mcadams_mat.cpp
 	vcl/math/jacobisvd33_mcadams_mat_sse.cpp
 	vcl/math/jacobisvd33_mcadams_mat_avx.cpp
@@ -64,32 +68,28 @@ SET(VCL_MATH_SRC
 	vcl/math/jacobisvd33_mcadams_quat_sse.cpp
 	vcl/math/jacobisvd33_mcadams_quat_avx.cpp
 	vcl/math/jacobisvd33_qr.cpp
+	vcl/math/jacobisvd33_qr.h
+	vcl/math/jacobisvd33_qr_impl.h
 	vcl/math/jacobisvd33_twosided.cpp
+	vcl/math/jacobisvd33_twosided.h
+	vcl/math/jacobisvd33_twosided_impl.h
 	vcl/math/polardecomposition.cpp
+	vcl/math/polardecomposition.h
+	vcl/math/polardecomposition_impl.h
 	vcl/math/qr33.cpp
+	vcl/math/qr33.h
+	vcl/math/qr33_impl.h
 	vcl/math/rotation33_torque.cpp
+	vcl/math/rotation33_torque.h
+	vcl/math/rotation33_torque_impl.h
 	vcl/math/waveletstack3d.cpp
+	vcl/math/waveletstack3d.h
 )
+vcl_target_sources(vcl.math "vcl" ${SOURCE})
 
-SOURCE_GROUP("McAdams" FILES ${VCL_MATH_MCADAMS_INC})
-SOURCE_GROUP("solver" FILES ${VCL_MATH_SOLVER_SRC} ${VCL_MATH_SOLVER_INC})
-SOURCE_GROUP("" FILES ${VCL_MATH_SRC} ${VCL_MATH_INC})
-
-SET(SOURCE
-	${VCL_MATH_MCADAMS_INC}
-	${VCL_MATH_SOLVER_SRC} ${VCL_MATH_SOLVER_INC}
-	${VCL_MATH_SRC} ${VCL_MATH_INC}
-)
-
-# Generate library
-add_library(vcl_math STATIC ${SOURCE})
-vcl_configure(vcl_math)
-
-SET_TARGET_PROPERTIES(vcl_math PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_math PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-TARGET_LINK_LIBRARIES(vcl_math
-	vcl_core
+target_link_libraries(vcl.math
+	PUBLIC
+		vcl_core
 )
 
 # Setup installation

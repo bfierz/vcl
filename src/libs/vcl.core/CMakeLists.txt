@@ -41,7 +41,7 @@ configure_file("${PROJECT_SOURCE_DIR}/vcl/config/config.h.in" "${PROJECT_BINARY_
 # Summarize configuration
 message(STATUS "Writing configuration file")
 
-set(SOURCE	
+set(SOURCE
 	vcl/config/compiler.h
 	vcl/config/eigen.h
 	vcl/config/global.h
