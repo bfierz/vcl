@@ -82,7 +82,7 @@ before_build:
   - cmd: cd build
   - cmd: if "%platform%"=="Win32" if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
   - cmd: if "%platform%"=="x64"   if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  - cmd: 'cmake -G "%CMAKE_GENERATOR_NAME%" -T "%tool_set%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ../src'
+  - cmd: 'cmake -G "%CMAKE_GENERATOR_NAME%" -T "%tool_set%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ..'
 
 build_script:
   - cmd: cd C:\projects\vcl
@@ -92,7 +92,7 @@ build_script:
   - cmd: cmake --build build --config %configuration% --target vcl.math.test
 
 test_script:
-  - cmd: cd C:\projects\vcl\build\tests
+  - cmd: cd C:\projects\vcl\build\src\tests
   - cmd: ctest --no-compress-output -T Test || verify > NUL
 
 on_finish:
