@@ -202,8 +202,6 @@ int main(int argc, char* argv[])
 	desc.NumberOfImages = 4;
 	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
 	desc.DepthFormat = VK_FORMAT_D32_SFLOAT;
-	desc.Width = 1280;
-	desc.Height = 720;
 	auto surface = createBasicSurface(*platform, *context, queue, desc);
 
 	const std::array<AttachmentDescription, 2> attachments =

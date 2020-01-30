@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	std::vector<const char*> context_extensions = { };
 
 	// Initialize the Vulkan platform
-	auto platform = std::make_unique<Platform>(platform_extensions);
+	auto platform = std::make_unique<Platform>(stdext::make_span(platform_extensions));
 	for (auto& device : platform->devices())
 	{
 		std::cout << "Device: " << device.name() << "\n";
