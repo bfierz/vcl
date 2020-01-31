@@ -204,7 +204,7 @@ TEST_P(Torque, Float16)
 {
 	run<Vcl::float16>(TorqueRotation<Vcl::float16>{}, 2e-5f);
 }
-INSTANTIATE_TEST_CASE_P(Rotation33, Torque, ::testing::Values(30, 60, 90, 120, 180));
+INSTANTIATE_TEST_SUITE_P(Rotation33, Torque, ::testing::Values(30, 60, 90, 120, 180));
 
 using APD = Rotation33;
 TEST_P(APD, Float)
@@ -223,4 +223,4 @@ TEST_P(APD, Float16)
 {
 	run<Vcl::float16>(AnalyticPolarDecomposition<Vcl::float16>{}, 2e-5f);
 }
-INSTANTIATE_TEST_CASE_P(Rotation33, APD, ::testing::Values(30, 60, 90, 120, 180));
+INSTANTIATE_TEST_SUITE_P(Rotation33, APD, ::testing::Values(30, 60, 90, 120, 180));
