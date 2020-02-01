@@ -1,36 +1,54 @@
-PROJECT(vcl_geometry)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl.geometry)
 
 # Configure the VCL compilation environment
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 
-# VCL / GEOMETRY / IO
-SET(VCL_GEOMETRY_IO_INC
+# Generate library
+vcl_add_library(vcl.geometry)
+
+set(SOURCE
 	vcl/geometry/io/serialiser.h
 	
-	vcl/geometry/io/tetramesh_serialiser.h	
-
-	vcl/geometry/io/serialiser_nvidia_tet_file.h
-	vcl/geometry/io/serialiser_tetgen.h
-)
-SET(VCL_GEOMETRY_IO_SRC
 	vcl/geometry/io/tetramesh_serialiser.cpp
-
+	vcl/geometry/io/tetramesh_serialiser.h	
 	vcl/geometry/io/serialiser_nvidia_tet_file.cpp
+	vcl/geometry/io/serialiser_nvidia_tet_file.h
 	vcl/geometry/io/serialiser_tetgen.cpp
-)
+	vcl/geometry/io/serialiser_tetgen.h
 
-# VCL / GEOMETRY / PRIMITIVES
-SET(VCL_GEOMETRY_PRIMITIVES_INC
 	vcl/geometry/primitives/obb.h
-)
-SET(VCL_GEOMETRY_PRIMITIVES_SRC
-)
 
-# VCL / GEOMETRY
-SET(VCL_GEOMETRY_INC
+	vcl/geometry/distance_ray3ray3.cpp
 	vcl/geometry/distance_ray3ray3.h
+	vcl/geometry/distancePoint3Triangle3.cpp
 	vcl/geometry/distancePoint3Triangle3.h
+	vcl/geometry/distanceTriangle3Triangle3.cpp
 	vcl/geometry/distanceTriangle3Triangle3.h
+	vcl/geometry/intersect_tet_tet.cpp
 	vcl/geometry/intersect.h
 
 	vcl/geometry/quad.h
@@ -46,51 +64,27 @@ SET(VCL_GEOMETRY_INC
 	vcl/geometry/property.h
 	vcl/geometry/propertygroup.h
 
+	vcl/geometry/meshfactory.cpp
 	vcl/geometry/meshfactory.h
 
 	vcl/geometry/simplex.h
+	vcl/geometry/multiindextrimesh.cpp
 	vcl/geometry/multiindextrimesh.h
+	vcl/geometry/tetramesh.cpp
 	vcl/geometry/tetramesh.h
+	vcl/geometry/trimesh.cpp
 	vcl/geometry/trimesh.h
 	
+	vcl/geometry/marchingcubestables.cpp
 	vcl/geometry/marchingcubestables.h
 
 	vcl/geometry/meshoperations.h
 )
-SET(VCL_GEOMETRY_SRC
-	vcl/geometry/distance_ray3ray3.cpp
-	vcl/geometry/distancePoint3Triangle3.cpp
-	vcl/geometry/distanceTriangle3Triangle3.cpp
-	vcl/geometry/intersect_tet_tet.cpp
+vcl_target_sources(vcl.geometry "vcl" ${SOURCE})
 
-	vcl/geometry/meshfactory.cpp	
-
-	vcl/geometry/multiindextrimesh.cpp
-	vcl/geometry/tetramesh.cpp
-	vcl/geometry/trimesh.cpp
-	
-	vcl/geometry/marchingcubestables.cpp
-)
-
-SOURCE_GROUP("io" FILES ${VCL_GEOMETRY_IO_SRC} ${VCL_GEOMETRY_IO_INC})
-SOURCE_GROUP("primitives" FILES ${VCL_GEOMETRY_PRIMITIVES_SRC} ${VCL_GEOMETRY_PRIMITIVES_INC})
-SOURCE_GROUP("" FILES ${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC})
-
-SET(SOURCE
-	${VCL_GEOMETRY_IO_SRC} ${VCL_GEOMETRY_IO_INC}
-	${VCL_GEOMETRY_PRIMITIVES_SRC} ${VCL_GEOMETRY_PRIMITIVES_INC}
-	${VCL_GEOMETRY_SRC} ${VCL_GEOMETRY_INC}
-)
-
-# Generate library
-add_library(vcl_geometry STATIC ${SOURCE})
-vcl_configure(vcl_geometry)
-
-SET_TARGET_PROPERTIES(vcl_geometry PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_geometry PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-TARGET_LINK_LIBRARIES(vcl_geometry
-	vcl_core
+target_link_libraries(vcl.geometry
+	PUBLIC
+		vcl_core
 )
 
 # Setup installation

@@ -12,7 +12,7 @@ then
   ../ci/codecov.sh vcl.geometry.test.coverage || exit 1
   ../ci/codecov.sh vcl.math.test.coverage || exit 1
 else
-  pushd tests
+  pushd src/tests
   ctest --no-compress-output -T Test || /bin/true
   popd
 fi

@@ -1,32 +1,51 @@
-PROJECT(vcl_components)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl.components)
 
-# VCL  / COMPONENTS
-SET(VCL_COMPONENTS_INC
-	./vcl/components/componentstore.h
-	./vcl/components/entity.h
-	./vcl/components/entitymanager.h
-	./vcl/components/system.h
-	./vcl/components/systemmanager.h
-)
-SET(VCL_COMPONENTS_SRC
-	./vcl/components/componentstore.cpp
-	./vcl/components/entitymanager.cpp
-	./vcl/components/system.cpp
-	./vcl/components/systemmanager.cpp
-)
-
-SET(SOURCE
-	${VCL_COMPONENTS_SRC} ${VCL_COMPONENTS_INC}
-)
-SOURCE_GROUP("" FILES ${SOURCE})
+# Configure the VCL compilation environment
+include(../../cmake/VCLLibrary.cmake)
 
 # Generate library
-ADD_LIBRARY(vcl_components STATIC ${SOURCE})
-SET_TARGET_PROPERTIES(vcl_components PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_components PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+vcl_add_library(vcl.components)
 
-TARGET_LINK_LIBRARIES(vcl_components
-	vcl_core
+set(SOURCE
+	vcl/components/componentstore.cpp
+	vcl/components/componentstore.h
+	vcl/components/entity.h
+	vcl/components/entitymanager.cpp
+	vcl/components/entitymanager.h
+	vcl/components/system.cpp
+	vcl/components/system.h
+	vcl/components/systemmanager.cpp
+	vcl/components/systemmanager.h
+)
+vcl_target_sources(vcl.components "vcl" ${SOURCE})
+
+target_link_libraries(vcl.components
+	PUBLIC
+		vcl_core
 )
 
 # Setup installation

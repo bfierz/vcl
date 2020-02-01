@@ -29,18 +29,17 @@ project(VisualComputingLibrary)
 # Determine whether this is a standalone project or included by other projects
 set(VCL_STANDALONE_PROJECT OFF)
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  set(VCL_STANDALONE_PROJECT ON)
-  
+	set(VCL_STANDALONE_PROJECT ON)
+
 	# Configure all projects
 	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 endif ()
 
-
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
 # Conan setup
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/VCLTargets.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
 
 # Define C++ standard, minimum requirement is C++14
 # As MSVC is not able to define the minimum level, software needs
@@ -68,7 +67,7 @@ endif(EMSCRIPTEN)
 # Add the externals
 ################################################################################
 if (NOT vcl_ext_eigen)
-	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/externals/eigen")
+	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/eigen")
 	find_package(Eigen3 3.3 QUIET)
 	vcl_copy_target(vcl_ext_eigen_tgt Eigen3)
 	set(vcl_ext_eigen "vcl_ext_eigen_tgt")
@@ -77,7 +76,7 @@ endif()
 if (NOT vcl_ext_absl)
 	option(BUILD_TESTING "" OFF)
 	option(BUILD_EXAMPLES "" OFF)
-	add_subdirectory(externals/abseil EXCLUDE_FROM_ALL)
+	add_subdirectory(src/externals/abseil EXCLUDE_FROM_ALL)
 	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast)
 	set(vcl_ext_absl "vcl_ext_absl_tgt")
 	
@@ -92,23 +91,23 @@ endif()
 if (NOT vcl_ext_fmt)
 	option(FMT_TEST "" OFF)
 	option(FMT_USE_CPP11 "" ON)
-	add_subdirectory(externals/fmtlib EXCLUDE_FROM_ALL)
+	add_subdirectory(src/externals/fmtlib EXCLUDE_FROM_ALL)
 	vcl_copy_target(vcl_ext_fmt_tgt fmt::fmt-header-only)
 	set(vcl_ext_fmt "vcl_ext_fmt_tgt")
 endif()
 
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/externals/memory")
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/memory")
 	option(FOONATHAN_MEMORY_BUILD_EXAMPLES "" OFF)
 	option(FOONATHAN_MEMORY_BUILD_TESTS "" OFF)
-	add_subdirectory(externals/memory EXCLUDE_FROM_ALL)
+	add_subdirectory(src/externals/memory EXCLUDE_FROM_ALL)
 	set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
 	set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
 endif()
 
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/externals/json")
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json")
 	option(JSON_BuildTests "" OFF)
 	option(JSON_Install "" OFF)
-	add_subdirectory(externals/json)
+	add_subdirectory(src/externals/json)
 endif()
 
 find_package(OPENGL QUIET)
@@ -119,8 +118,8 @@ if(OPENGL_FOUND AND NOT EMSCRIPTEN)
 		set_property(TARGET vcl_ext_egl_tgt PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}")
 		set_property(TARGET vcl_ext_egl_tgt PROPERTY IMPORTED_LOCATION "${EGL_LIBRARY}")
 		set(vcl_ext_egl "vcl_ext_egl_tgt")
-	elseif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/externals/EGL")
-		add_subdirectory(externals/EGL/EGL EXCLUDE_FROM_ALL)
+	elseif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/EGL")
+		add_subdirectory(src/externals/EGL/EGL EXCLUDE_FROM_ALL)
 		set_property(TARGET egl PROPERTY FOLDER 3rd-party)
 		set_property(TARGET glew_s PROPERTY FOLDER 3rd-party)
 		set(vcl_ext_egl "egl")
@@ -148,32 +147,32 @@ if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
 	append_coverage_compiler_flags()
 endif()
 
-add_subdirectory(libs)
+add_subdirectory(src/libs)
 
 # Benchmarks
 option(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
 if(VCL_BUILD_BENCHMARKS)
 	option(BENCHMARK_ENABLE_TESTING "" OFF)
 	option(BENCHMARK_ENABLE_GTEST_TESTS "" OFF)
-	add_subdirectory(externals/gbenchmark)
+	add_subdirectory(src/externals/gbenchmark)
 	set_property(TARGET benchmark PROPERTY FOLDER 3rd-party)
 	set_property(TARGET benchmark_main PROPERTY FOLDER 3rd-party)
 	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 		set_property(TARGET benchmark PROPERTY COMPILE_OPTIONS "/W4")
 	endif()
-	add_subdirectory(benchmarks)
+	add_subdirectory(src/benchmarks)
 endif()
 
 # Examples
 option(VCL_BUILD_EXAMPLES "Build the examples" ON)
 if(VCL_BUILD_EXAMPLES)
-	add_subdirectory(examples)
+	add_subdirectory(src/examples)
 endif()
 
 # Tools
 option(VCL_BUILD_TOOLS "Build the tools" ON)
 if(VCL_BUILD_TOOLS)
-	add_subdirectory(tools)
+	add_subdirectory(src/tools)
 endif()
 
 # Unit tests
@@ -182,7 +181,7 @@ if(VCL_BUILD_TESTS)
 	option(gtest_build_samples "" OFF)
 	option(gtest_build_tests "" OFF)
 	option(gtest_force_shared_crt "" ON)
-	add_subdirectory(externals/googletest EXCLUDE_FROM_ALL)
+	add_subdirectory(src/externals/googletest EXCLUDE_FROM_ALL)
 	set_property(TARGET gtest PROPERTY FOLDER 3rd-party)
 	set_property(TARGET gtest_main PROPERTY FOLDER 3rd-party)
 
@@ -195,5 +194,5 @@ if(VCL_BUILD_TESTS)
 	endif()
 	
 	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
-	add_subdirectory(tests)
+	add_subdirectory(src/tests)
 endif()

@@ -48,7 +48,7 @@ add_executable(vcl.math.eigen33.correctness "")
 vcl_target_sources(vcl.math.eigen33.correctness "" ${COMMON_FILES} ${EIGEN33_CORRECTNESS_SOURCE_FILES})
 set_target_properties(vcl.math.eigen33.correctness PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.eigen33.correctness
-	vcl_math
+	vcl.math
 )
 
 # Performance benchmarks for 3x3 Eigen deompositions
@@ -59,7 +59,7 @@ add_executable(vcl.math.eigen33.performance "")
 vcl_target_sources(vcl.math.eigen33.performance "" ${COMMON_FILES} ${EIGEN33_PERF_SOURCE_FILES})
 set_target_properties(vcl.math.eigen33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.eigen33.performance
-	vcl_math
+	vcl.math
 	benchmark
 )
 
@@ -71,7 +71,7 @@ add_executable(vcl.math.rotation33.correctness "")
 vcl_target_sources(vcl.math.rotation33.correctness "" ${COMMON_FILES} ${ROTATION33_CORRECTNESS_SOURCE_FILES})
 set_target_properties(vcl.math.rotation33.correctness PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.rotation33.correctness
-	vcl_math
+	vcl.math
 )
 
 # Performance benchmarks for 3x3 rotation computation
@@ -82,7 +82,7 @@ add_executable(vcl.math.rotation33.performance "")
 vcl_target_sources(vcl.math.rotation33.performance "" ${COMMON_FILES} ${ROTATION33_PERF_SOURCE_FILES})
 set_target_properties(vcl.math.rotation33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.rotation33.performance
-	vcl_math
+	vcl.math
 	benchmark
 )
 
@@ -94,7 +94,7 @@ add_executable(vcl.math.svd33.correctness "")
 vcl_target_sources(vcl.math.svd33.correctness "" ${COMMON_FILES} ${SVD33_CORRECTNESS_SOURCE_FILES})
 set_target_properties(vcl.math.svd33.correctness PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.svd33.correctness
-	vcl_math
+	vcl.math
 )
 if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	target_link_libraries(vcl.math.svd33.correctness
@@ -115,7 +115,7 @@ add_executable(vcl.math.svd33.performance "")
 vcl_target_sources(vcl.math.svd33.performance "" ${COMMON_FILES} ${SVD33_PERF_SOURCE_FILES})
 set_target_properties(vcl.math.svd33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.svd33.performance
-	vcl_math
+	vcl.math
 	benchmark
 )
 if(CUDA_FOUND AND VCL_CUDA_SUPPORT)

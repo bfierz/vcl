@@ -22,7 +22,7 @@ steps:
 - task: CMake@1
   inputs:
     workingDirectory: 'build'
-    cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ../src
+    cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
 
 - powershell: |
     cmake --build build --config $(buildConfig) --target vcl.core.test
@@ -40,9 +40,9 @@ steps:
     $runTestSuccess=$?
     # Convert ctest output to junit-format
     # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
-    pushd build/tests
+    pushd build/src/tests
     if (Test-Path "Testing/TAG") {
-      python ../../ci/ctest2junit.py . ../../ci/ctest2junit.xsl > JUnitResults.xml
+      python ../../../ci/ctest2junit.py . ../../../ci/ctest2junit.xsl > JUnitResults.xml
       if (!(Test-Path "JUnitResults.xml")) {
         echo '##vso[task.complete result=Failed;]FAILED'
         exit 1
@@ -61,7 +61,7 @@ steps:
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
-    testResultsFiles: 'build/tests/**/JUnitResults.xml'
+    testResultsFiles: 'build/src/tests/**/JUnitResults.xml'
     #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
     mergeTestResults: true # Optional
     #testRunTitle: # Optional

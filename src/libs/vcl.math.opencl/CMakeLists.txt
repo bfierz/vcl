@@ -14,7 +14,7 @@ SET(VCL_MATH_OPENCL_CL
 )
 
 # Access the include directories in order to compile the OpenCL code
-GET_PROPERTY(CURR_INC_DIRS TARGET vcl_math PROPERTY INCLUDE_DIRECTORIES)
+GET_PROPERTY(CURR_INC_DIRS TARGET vcl.math PROPERTY INCLUDE_DIRECTORIES)
 LIST(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
 VCLCOMPILECL(
@@ -38,4 +38,4 @@ SET_TARGET_PROPERTIES(vcl_math_opencl PROPERTIES FOLDER libs)
 TARGET_INCLUDE_DIRECTORIES(vcl_math_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add dependencies
-TARGET_LINK_LIBRARIES(vcl_math_opencl vcl_core vcl_math vcl_compute_opencl)
+TARGET_LINK_LIBRARIES(vcl_math_opencl vcl_core vcl.math vcl_compute_opencl)
