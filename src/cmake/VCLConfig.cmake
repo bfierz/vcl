@@ -24,7 +24,7 @@
 #
 
 # Determine the compiler vendor
-message(STATUS "Detecting compiler: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Detected compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
 	set(VCL_COMPILER_ICC ON)
@@ -83,6 +83,11 @@ message(STATUS "Compiling for ${VCL_VECTORIZE}")
 set(VCL_USE_CONTRACTS CACHE BOOL "Enable contracts")
 message(STATUS "Using contracts ${VCL_USE_CONTRACTS}")
 
+# Set whether contracts should be used
+option(VCL_ENABLE_COMPILETIME_TRACING "Enable compilation time tracing" OFF)
+mark_as_advanced(VCL_ENABLE_COMPILETIME_TRACING)
+message(STATUS "Using compilation time tracing ${VCL_ENABLE_COMPILETIME_TRACING}")
+
 # Enable Visual Studio solution folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -134,6 +139,11 @@ function(vcl_configure tgt)
 			target_compile_options(${tgt} PUBLIC "/arch:VFPv4")
 		endif()
 
+		# Enable compilation time tracing
+		if(${VCL_ENABLE_COMPILETIME_TRACING} AND NOT (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "19.14"))
+			target_compile_options(${tgt} PRIVATE "/Bt+" "/d2cgsummary" "/d1reportTime")
+		endif()
+
 	endif(VCL_COMPILER_MSVC)
 
 	# Configure GCC and CLANG
@@ -164,6 +174,23 @@ function(vcl_configure tgt)
 			target_compile_options(${tgt} PUBLIC "-mfloat-abi=hard" "-mfpu=neon")
 		endif()
 	endif(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
+
+	if(VCL_COMPILER_CLANG)
+		if("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 16 2019")
+			set(VCL_VS_CUSTOM_CLANG_PATH "" CACHE PATH "Path to the custom Clang installation for the Visual Studio ClangCl target")
+			if(EXISTS "${VCL_VS_CUSTOM_CLANG_PATH}/bin/clang-cl.exe")
+				execute_process(COMMAND ${VCL_VS_CUSTOM_CLANG_PATH}/bin/clang-cl.exe --version OUTPUT_VARIABLE clang_full_version_string)
+				string(REGEX REPLACE ".*clang version ([0-9]+\\.[0-9]+).*" "\\1" CLANG_VERSION_STRING ${clang_full_version_string})
+				message(STATUS "Actual ClangCl version: ${CLANG_VERSION_STRING}")
+				if(${VCL_ENABLE_COMPILETIME_TRACING} AND NOT (CLANG_VERSION_STRING VERSION_LESS "9.0.0"))
+					target_compile_options(${tgt} PRIVATE "-ftime-trace")
+				endif()
+				set_target_properties(${tgt} PROPERTIES VS_GLOBAL_LLVMInstallDir ${VCL_VS_CUSTOM_CLANG_PATH})
+			endif()
+		elseif(${VCL_ENABLE_COMPILETIME_TRACING} AND NOT (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "9.0.0"))
+			target_compile_options(${tgt} PRIVATE "-ftime-trace")
+		endif()
+	endif(VCL_COMPILER_CLANG)
 endfunction()
 
 # Travers all targets
