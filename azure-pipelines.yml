@@ -24,21 +24,21 @@ jobs:
     vmImage: 'ubuntu-16.04'
   steps:
   - template: ci/azure-pipeline-linux.yml
-#- job: Linux_ARM
-#  strategy:
-#    matrix:
-#      Debug_NEON:
-#        buildConfig: 'Debug'
-#        configVectorization: 'NEON'
-#        configCodeCoverage: 'off'
-#      Release_NEON:
-#        buildConfig: 'Release'
-#        configVectorization: 'NEON'
-#        configCodeCoverage: 'off'
-#  pool:
-#    name: 'Linux ARM32'
-#  steps:
-#  - template: ci/azure-pipeline-linux.yml
+- job: Linux_ARM
+  strategy:
+    matrix:
+      Debug_NEON:
+        buildConfig: 'Debug'
+        configVectorization: 'NEON'
+        configCodeCoverage: 'off'
+      Release_NEON:
+        buildConfig: 'Release'
+        configVectorization: 'NEON'
+        configCodeCoverage: 'off'
+  pool:
+    name: 'Linux ARM32'
+  steps:
+  - template: ci/azure-pipeline-linux.yml
 - job: MacOS
   strategy:
     matrix:
