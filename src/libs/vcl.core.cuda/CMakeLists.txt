@@ -1,7 +1,5 @@
 PROJECT(vcl_core_cuda)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCUDA.cmake)
-
 # VCL / CORE / CUDA
 SET(VCL_CORE_CUDA_INC
 )

@@ -56,7 +56,7 @@ set_target_properties(vcl_math_cuda_kernels PROPERTIES CUDA_PTX_COMPILATION ON)
 target_link_libraries(vcl_math_cuda_kernels
 	vcl_core
 	vcl_core_cuda
-	vcl_math
+	vcl.math
 )
 
 get_target_property(cu_files vcl_math_cuda_kernels SOURCES)
@@ -72,7 +72,7 @@ endforeach()
 add_custom_command(
   OUTPUT ${module_files}
   COMMAND ${CMAKE_COMMAND}
-    "-DCUC_COMMAND=${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/cui"
+    "-DCUI_COMMAND=${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/cui"
     "-DWORK_DIR=${CMAKE_CURRENT_SOURCE_DIR}"
     "-DINCLUDE_DIRS=$<TARGET_PROPERTY:vcl_math_cuda_kernels,INCLUDE_DIRECTORIES>"
     "-DSOURCES=${cu_files}"

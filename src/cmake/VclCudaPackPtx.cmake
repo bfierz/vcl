@@ -45,7 +45,7 @@ foreach(idx RANGE ${file_indexer})
 
   if(obj_ext MATCHES ".ptx")
     set(args ${include_dir_param} -m ${obj} -o ${out} ${src})
-    execute_process(COMMAND "${CUC_COMMAND}" ${args}
+    execute_process(COMMAND "${CUI_COMMAND}" ${args}
                     WORKING_DIRECTORY ${WORK_DIR}
                     RESULT_VARIABLE result
                     OUTPUT_VARIABLE output
