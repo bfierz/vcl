@@ -33,6 +33,7 @@ set(LIBCLANG_LIBRARY CACHE FILEPATH "Path to the libclang library")
 
 # Source code
 set(CUI_SRC
+	3rdparty/mustache.hpp
 	main.cpp
 	kernelwrapper.cpp
 	kernelwrapper.h

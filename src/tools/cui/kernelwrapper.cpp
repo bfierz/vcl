@@ -35,8 +35,8 @@
 // libclang
 #include <clang-c/Index.h>
 
-// Test call
-// D:\DevTools\LLVM-8.0.0\bin\clang -Xclang -ast-dump -fsyntax-only -nocudainc -nocudalib -include cuda_runtime.h -I "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\include" -I "D:/projects/vcl/src/libs/vcl.math.cuda" -I "D:/projects/vcl/src/libs/vcl.core.cuda" -I "D:/projects/vcl/src/libs/vcl.math" -D__CUDA_LIBDEVICE__ .\jacobisvd33_mcadams.cu > ast2.txt
+// Templating library
+#include "3rdparty/mustache.hpp"
 
 enum class CudaFunctionType
 {
@@ -299,33 +299,24 @@ std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::v
 	return kernels;
 }
 
-void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, const std::string& module)
-{
-	ofs << "#include <cuda.h>\n";
-	ofs << "#include <memory>\n";
-	ofs << "#include <string.h>\n";
-	ofs << "#include <tuple>\n";
-	ofs << "#include <cuda_runtime.h>\n";
-	ofs << "static unsigned char fatbin_data[] = {\n\t";
+constexpr char module_template[] = R"(
+#include <cuda.h>
+#include <memory>
+#include <string.h>
+#include <tuple>
+#include <cuda_runtime.h>
+static unsigned char fatbin_data[] = {
+	{{module_binary}}
+};
 
-	int cnt = 0;
-	for (const auto byte : module)
-	{
-		ofs << "0x" << std::setfill('0') << std::hex << std::setw(2) << (unsigned int)(unsigned char)byte << ", ";
-		if (++cnt % 16 == 0)
-			ofs << "\n\t";
-	}
-	ofs << "\n};\n";
-
-	ofs << R"(
 static CUmodule loadModule(const void* data)
 {
 	static const auto module = [](const void* data)
 	{
 		CUmodule mod = 0;
 		CUresult err = cuModuleLoadData(&mod, data);
-		std::unique_ptr<struct CUmod_st, CUresult(*)(CUmodule)> module(mod, cuModuleUnload);
-		return module;
+		std::unique_ptr<struct CUmod_st, CUresult(*)(CUmodule)> module_ptr(mod, cuModuleUnload);
+		return module_ptr;
 	}(data);
 
 	return module.get();
@@ -335,59 +326,84 @@ static CUfunction loadFunction(CUmodule mod, const char* name)
 	CUfunction func;
 	cuModuleGetFunction(&func, mod, name);
 	return func;
+})";
+
+constexpr char function_template[] = R"(
+CUresult {{kernel_name}}(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream{{#func_params}}, {{{func_param_type}}} {{{func_param_name}}}{{/func_params}})
+{
+	static const CUmodule module = loadModule(fatbin_data);
+	static const CUfunction func = loadFunction(module, "{{kernel_name}}");
+	
+	unsigned char param_buffer[{{cu_param_set_size}}];
+	long long param_buffer_size = sizeof(param_buffer);
+	{{#cu_params}}
+	memcpy(param_buffer + {{{cu_param_offset}}}, &{{{cu_param_name}}}, {{{cu_param_size}}});
+	{{/cu_params}}
+	void* params[] =
+	{
+		CU_LAUNCH_PARAM_BUFFER_POINTER, param_buffer,
+		CU_LAUNCH_PARAM_BUFFER_SIZE,    &param_buffer_size,
+		CU_LAUNCH_PARAM_END
+	};
+	return cuLaunchKernel(func, gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);
 }
 )";
 
+void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, const std::string& module)
+{
+	using namespace kainjow::mustache;
+
+	mustache mod{module_template};
+
+	std::stringstream ss;
+	int cnt = 0;
+	for (const auto byte : module)
+	{
+		ss << "0x" << std::setfill('0') << std::hex << std::setw(2) << (unsigned int)(unsigned char)byte << ", ";
+		if (++cnt % 16 == 0)
+			ss << "\n\t";
+	}
+	ofs << mod.render({ "module_binary", ss.str().c_str() });
+
 	for (auto& kernel : kernels)
 	{
+		mustache func{ function_template };
+		data func_data;
+		func_data.set("kernel_name", kernel.Name);
+		data func_params{ data::type::list };
+		for (const auto& param : kernel.Parameters)
+		{
+			data d;
+			d.set("func_param_type", param.TypeName);
+			d.set("func_param_name", param.Name);
+			func_params << d;
+		}
+		func_data.set("func_params", func_params);
+
 #define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
 
 		// Compute the size of the kernel parameter buffer
 		long long param_set_size = 0;
-		std::vector<std::string> param_set;
-		param_set.reserve(kernel.Parameters.size());
+
+		data cu_params{ data::type::list };
 		for (auto& param : kernel.Parameters)
 		{
 			// Update alignment for current parameter
 			param_set_size = ALIGN_UP(param_set_size, param.Alignment);
 
 			// Write the param to the transfer buffer
-			std::string copy_param = "memcpy(param_buffer + ";
-			copy_param += std::to_string(param_set_size);
-			copy_param += ", &";
-			copy_param += param.Name;
-			copy_param += ", ";
-			copy_param += std::to_string(param.Size);
-			copy_param += ");";
-			param_set.emplace_back(std::move(copy_param));
+			data d;
+			d.set("cu_param_offset", std::to_string(param_set_size));
+			d.set("cu_param_name", param.Name);
+			d.set("cu_param_size", std::to_string(param.Size));
+			cu_params << d;
 
 			// Increment to next parameter
 			param_set_size += param.Size;
 		}
+		func_data.set("cu_param_set_size", std::to_string(param_set_size));
+		func_data.set("cu_params", cu_params);
 
-		ofs << "CUresult " << kernel.Name << "(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream";
-		for (auto& param : kernel.Parameters)
-		{
-			ofs << ", " << param.TypeName << " " << param.Name;
-		}
-		ofs << ")\n{\n";
-
-		ofs << "\tstatic const CUmodule module = loadModule(fatbin_data);\n";
-		ofs << "\tstatic const CUfunction func = loadFunction(module, \"" << kernel.Name << "\");\n";
-
-		ofs << "\tunsigned char param_buffer[" << std::to_string(param_set_size) << "];\n";
-		ofs << "\tlong long param_buffer_size = " << std::to_string(param_set_size) << ";\n";
-		for (const auto& param : param_set)
-		{
-			ofs << "\t" << param << "\n";
-		}
-		ofs << "\tvoid* params[] =\n";
-		ofs << "\t{\n";
-		ofs << "\t\tCU_LAUNCH_PARAM_BUFFER_POINTER, param_buffer,\n";
-		ofs << "\t\tCU_LAUNCH_PARAM_BUFFER_SIZE,    &param_buffer_size,\n";
-		ofs << "\t\tCU_LAUNCH_PARAM_END\n";
-		ofs << "\t};\n";
-		ofs << "\treturn cuLaunchKernel(func, gridDim.x, gridDim.y, gridDim.z, blockDim.x, blockDim.y, blockDim.z, dynamicSharedMemory, stream, nullptr, params);\n";
-		ofs << "}\n";
+		ofs << func.render(func_data);
 	}
 }
