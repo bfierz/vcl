@@ -94,6 +94,22 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 	};
 	template<>
+	struct SimdRegister<short, SimdExt::None>
+	{
+		using Scalar = short;
+		using Type = short;
+		static const int Width = 1;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return s0;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		{
+			return vec;
+		}
+	};
+	template<>
 	struct SimdRegister<bool, SimdExt::None>
 	{
 		using Scalar = bool;
@@ -157,6 +173,30 @@ namespace Vcl { namespace Core { namespace Simd
 		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
 		{
 			return _mmVCL_extract_epi32(vec, i);
+		}
+	};
+	template<>
+	struct SimdRegister<short, SimdExt::SSE>
+	{
+		using Scalar = short;
+		using Type = __m128i;
+		static const int Width = 8;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return _mm_set1_epi16(s0);
+		}
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7)
+		{
+			return _mm_set_epi16(s7, s6, s5, s4, s3, s2, s1, s0);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi16(vec, i);
 		}
 	};
 	template<>

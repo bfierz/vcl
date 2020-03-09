@@ -49,6 +49,8 @@ namespace Vcl
 #	include <vcl/core/simd/bool4_sse.h>
 #	include <vcl/core/simd/float4_sse.h>
 #	include <vcl/core/simd/int4_sse.h>
+
+#	include <vcl/core/simd/fixed8_sse.h>
 #endif
 
 #if defined VCL_VECTORIZE_AVX

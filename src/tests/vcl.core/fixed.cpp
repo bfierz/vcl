@@ -27,6 +27,7 @@
 #include <vcl/config/global.h>
 
 // Include the relevant parts from the library
+#include <vcl/core/simd/vectorscalar.h>
 #include <vcl/math/fixed.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
@@ -94,4 +95,28 @@ TEST(FixedPointMathTest, Negate_Should_Fail_When_Unsigned)
 
 	fixed<unsigned short, 11> f15{1.5f};
 	fail(-f15, -1.5f);
+}
+
+TEST(VectorFixedPointMathTest, Add_Should_Succeed_When_SumInRange)
+{
+	using namespace Vcl::Mathematics;
+	using namespace Vcl;
+
+	VectorScalar<fixed<short, 11>, 8> f1{ fixed < short, 11>{1.0f} };
+	//success(f1 + f1, 2.0f);
+	auto val = (f1 + f1)[0];
+	auto ref = fixed<short, 11>(2.0f).data();
+	EXPECT_EQ(val, ref);
+
+	//fixed<short, 11> f2{ 1.0f };
+	//f2 += f1;
+	//success(f2, 2.0f);
+	//
+	//fixed<short, 11> f15{ 1.5f };
+	//fixed<short, 11> f12{ 1.2f };
+	//success(f15 + f12, static_cast<float>(f15) + static_cast<float>(f12));
+	//
+	//fixed<short, 11> f27{ 1.5f };
+	//f27 += f12;
+	//success(f27, static_cast<float>(f15) + static_cast<float>(f12));
 }

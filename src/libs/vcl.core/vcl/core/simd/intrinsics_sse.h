@@ -384,5 +384,16 @@ namespace Vcl
 #endif
 #endif
 	}
+
+	VCL_STRONG_INLINE int _mmVCL_extract_epi16(__m128i v, int i)
+	{
+		typedef union
+		{
+			__m128i x;
+			int16_t a[8];
+		} U16;
+
+		return U16{ v }.a[i];
+	}
 }
 #endif // defined(VCL_VECTORIZE_SSE)
