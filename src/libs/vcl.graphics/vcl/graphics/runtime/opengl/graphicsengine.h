@@ -34,6 +34,7 @@
 #include <unordered_map>
 
 // VCL
+#include <vcl/core/span.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
@@ -71,8 +72,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void transfer();
 
 	public:
-		BufferView copyFrom(const BufferView& view);
-		BufferView copyFrom(const TextureView& view);
+		stdext::span<uint8_t> copyFrom(BufferRange view);
+		stdext::span<uint8_t> copyFrom(const TextureView& view);
 
 	private:
 		void updateIfNeeded(size_t size);
@@ -95,7 +96,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		//! List of read-back requrests
-		std::vector<BufferView> _requests;
+		std::vector<BufferRange> _requests;
 	};
 
 	class Frame final
@@ -117,7 +118,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		ref_ptr<Buffer> linearMemoryBuffer() const { return _linearMemoryBuffer; }
 		void* mappedLinearMemoryBuffer() const { return _mappedLinearMemory; }
 
-		void enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback)
 		{
 			// Enqueue the copy command
 			auto memory_range = _readBackStage.copyFrom(tex);
@@ -172,7 +173,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		StagingArea _readBackStage;
 		
 		//! Read-back requests
-		std::vector<std::pair<BufferView, std::function<void(const BufferView&)>>> _readBackCallbacks;
+		std::vector<std::pair<stdext::span<uint8_t>, std::function<void(stdext::span<uint8_t>)>>> _readBackCallbacks;
 
 		//! Queue buffers for deletion
 		std::vector<owner_ptr<Buffer>> _bufferRecycleQueue;
@@ -183,7 +184,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		GraphicsEngine();
 
-	public:		
+	public:
 		owner_ptr<Runtime::Texture> createResource(const Texture2DDescription& desc) override;
 		owner_ptr<Runtime::Buffer> createResource(const BufferDescription& desc) override;
 		
@@ -194,7 +195,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 		BufferView requestPerFrameLinearMemory(size_t size) override;
 
-		void enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback) override;
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) override;
 
 		void enqueueCommand(std::function<void(void)>) override;
 

@@ -128,7 +128,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_requests.clear();
 	}
 
-	BufferView StagingArea::copyFrom(const BufferView& view)
+	stdext::span<uint8_t> StagingArea::copyFrom(BufferRange view)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -142,16 +142,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		dynamic_cast<const OpenGL::Buffer&>(view.owner()).copyTo(*_stagingBuffer, 0, _stagingBufferOffset, view.size());
 
 		// View on the copied data
-		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.size(), _hostBuffer.get() };
+		BufferRange staged_area{ _stagingBuffer, _stagingBufferOffset, view.size() };
 		_stagingBufferOffset += size_incr;
 
 		// Store the request
-		_requests.emplace_back(staged_area);
+		_requests.emplace_back(std::move(staged_area));
 
-		return staged_area;
+		return stdext::span<uint8_t>(reinterpret_cast<uint8_t*>(_hostBuffer.get()) + _stagingBufferOffset, view.size());
 	}
 
-	BufferView StagingArea::copyFrom(const TextureView& view)
+	stdext::span<uint8_t> StagingArea::copyFrom(const TextureView& view)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -165,13 +165,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		dynamic_cast<const OpenGL::Texture&>(view).copyTo(*_stagingBuffer, _stagingBufferOffset);
 
 		// View on the copied data
-		BufferView staged_area{ _stagingBuffer, _stagingBufferOffset, view.sizeInBytes(), _hostBuffer.get() };
+		BufferRange staged_area{ _stagingBuffer, _stagingBufferOffset, view.sizeInBytes() };
 		_stagingBufferOffset += size_incr;
 
 		// Store the request
 		_requests.emplace_back(staged_area);
 
-		return staged_area;
+		return stdext::span<uint8_t>(reinterpret_cast<uint8_t*>(_hostBuffer.get()) + staged_area.offset(), staged_area.size());
 	}
 
 	void StagingArea::updateIfNeeded(size_t size)
@@ -391,7 +391,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		BufferView view{ _currentFrame->constantBuffer(), _cbufferOffset, size, _currentFrame->mappedConstantBuffer() };
 
-		// Calculate the next offset		
+		// Calculate the next offset
 		size_t aligned_size =  ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
 		_cbufferOffset += aligned_size;
 
@@ -402,14 +402,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		BufferView view{ _currentFrame->linearMemoryBuffer(), _linearBufferOffset, size, _currentFrame->mappedLinearMemoryBuffer() };
 
-		// Calculate the next offset		
+		// Calculate the next offset
 		size_t aligned_size = ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
 		_linearBufferOffset += aligned_size;
 
 		return view;
 	}
 
-	void GraphicsEngine::enqueueReadback(const Runtime::Texture& tex, std::function<void(const BufferView&)> callback)
+	void GraphicsEngine::enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback)
 	{
 		_currentFrame->enqueueReadback(tex, std::move(callback));
 	}
@@ -483,7 +483,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		auto buffer = requestPerFrameConstantBuffer(size);
 		memcpy(buffer.data(), data, size);
 
-		setConstantBuffer(_pushConstantBufferIndex, buffer);
+		setConstantBuffer(_pushConstantBufferIndex, std::move(buffer));
 	}
 	
 	void GraphicsEngine::clear(int idx, const Eigen::Vector4f& colour)

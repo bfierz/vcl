@@ -279,7 +279,6 @@ FboRenderer::FboRenderer()
 void FboRenderer::render()
 {
 	_engine->beginFrame();
-
 	if (_owner)
 	{
 		auto scene = _owner->scene();
@@ -297,7 +296,7 @@ void FboRenderer::render()
 		cbuffer_cam->ViewMatrix = V;
 		cbuffer_cam->ProjectionMatrix = P;
 
-		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
+		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, std::move(cbuffer_cam));
 
 		// Common components
 		auto transforms = scene->entityManager()->get<System::Components::Transform>();
@@ -355,7 +354,7 @@ void FboRenderer::render()
 			_posManip->drawIds(_engine, pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
-			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
+			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](stdext::span<uint8_t> view)
 			{
 				if (_idBuffer->width()*_idBuffer->height()*sizeof(Eigen::Vector2i) == view.size())
 					std::memcpy(_idBufferHost.get(), view.data(), view.size());
@@ -365,7 +364,6 @@ void FboRenderer::render()
 		// Reset the render target
 		_engine->setRenderTargets({}, nullptr);
 		this->framebufferObject()->bind();
-
 		_engine->clear(0, Eigen::Vector4f{ 0, 0, 0, 1 });
 		_engine->clear(1.0f);
 
