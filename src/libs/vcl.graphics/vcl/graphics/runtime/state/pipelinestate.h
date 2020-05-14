@@ -56,8 +56,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct InputAssemblyDescription
 	{
-		PrimitiveType Topology;
-		bool PrimitiveRestartEnable;
+		PrimitiveType Topology{ PrimitiveType::Undefined };
+		bool PrimitiveRestartEnable{ false };
 	};
 
 	struct PipelineStateDescription
