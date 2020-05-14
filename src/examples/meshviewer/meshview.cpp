@@ -494,11 +494,12 @@ void FboRenderer::render()
 	// Render the ID map
 	if (true)
 	{
-		_rtDebugger->draw(_engine, _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
+		//_rtDebugger->draw(_engine, _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
 	}
 
 	_engine->endFrame();
-	_owner->window()->resetOpenGLState();
+	if (_owner)
+		_owner->window()->resetOpenGLState();
 	update();
 }
 
@@ -598,7 +599,7 @@ void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 void FboRenderer::synchronize(QQuickFramebufferObject* item)
 {
 	auto* view = dynamic_cast<MeshView*>(item);
-	if (view)
+	if (view && view->scene())
 	{
 		_owner = view;
 		_owner->scene()->setEngine(_engine.get());

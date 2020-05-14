@@ -34,9 +34,7 @@ ColumnLayout
 	{
 		id: transformLabelId
 	
-		anchors.top: parent.top
-		anchors.left: parent.left
-		anchors.right: parent.right
+		Layout.alignment : Qt.AlignLeft
 
 		text: modelData.name
 		font.pixelSize: 24
