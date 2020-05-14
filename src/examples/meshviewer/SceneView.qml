@@ -30,7 +30,7 @@ import QtQuick.Controls.Styles 1.4
 import MeshViewerRendering 1.0
 
 MeshView
-{				
+{
 	MouseArea
 	{
 		CheckBox

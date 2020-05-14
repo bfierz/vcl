@@ -47,9 +47,9 @@ namespace Vcl { namespace IO
 			// Bmp Header
 			struct Header
 			{
-				short type;                 
-				int size;                       
-				short reserved1, 
+				short type;
+				int size;
+				short reserved1,
 					  reserved2;
 				int offset; 
 			};

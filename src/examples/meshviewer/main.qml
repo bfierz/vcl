@@ -136,7 +136,6 @@ ApplicationWindow
 			Layout.fillWidth: true
 		}
 
-		
 		SplitView
 		{
 			orientation: Qt.Vertical

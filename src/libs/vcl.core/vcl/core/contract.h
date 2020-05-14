@@ -33,7 +33,7 @@
 #	endif
 #else
 #	ifdef VCL_CHECK_CONTRACTS
-#		define VCL_CONTRACT        
+#		define VCL_CONTRACT
 #	endif
 #endif
 

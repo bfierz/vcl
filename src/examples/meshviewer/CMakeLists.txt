@@ -165,8 +165,8 @@ ADD_EXECUTABLE(meshviewer
 SET_TARGET_PROPERTIES(meshviewer PROPERTIES FOLDER examples)
 
 TARGET_LINK_LIBRARIES(meshviewer
-	vcl_components
-	vcl_geometry
+	vcl.components
+	vcl.geometry
 	vcl_graphics
 	Qt5::Core
 	Qt5::Gui
