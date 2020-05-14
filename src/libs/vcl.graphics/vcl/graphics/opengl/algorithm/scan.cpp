@@ -61,8 +61,7 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc =
 		{
 			std::max(1u, maxElements / MaxWorkgroupInclusiveScanSize) * static_cast<unsigned int>(sizeof(unsigned int)),
-			ResourceUsage::Default,
-			{}
+			BufferUsage::Storage
 		};
 
 		_workSpace = make_owner<Runtime::OpenGL::Buffer>(desc);

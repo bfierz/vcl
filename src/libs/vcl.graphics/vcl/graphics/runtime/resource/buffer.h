@@ -33,49 +33,43 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	enum class ResourceUsage
-	{
-		/*! 
-		 * The resource is readable and writeable by the client.
-		 * This buffer is not mappable.
-		 */
-		Default = 0,
-		
-		/*! 
-		 * The resource is not accessible by the CPU.
-		 * And cannot be updated by the GPU (it can only be read by it). 
-		 */
-		Immutable = 1,
+	VCL_DECLARE_FLAGS(BufferUsage,
 
-		/*!
-		 * The resource can be mapped to CPU memory to be frequently written to.
-		 */
-		Dynamic = 2,
+		//! Buffer is mappable so the it is readable by the CPU
+		MapRead,
 
-		/*!
-		 * Use this buffer to copy data from the GPU to the CPU and between GPU resources.
-		 */
-		Staging = 3
-	};
-	
-	VCL_DECLARE_FLAGS(ResourceAccess,
+		//! Buffer is mappable so the it is writable by the CPU
+		MapWrite,
 
-		/*!
-		 * The resource is to be mappable so that the CPU can change its contents.
-		 */
-		Write,
+		//! Buffer can be the source of copy opertions
+		CopySrc,
 
-		/*!
-		 * The resource is to be mappable so that the CPU can read its contents.
-		 */
-		Read
+		//! Buffer can be the destination of copy opertions
+		CopyDst,
+
+		//! Buffer can be used as index buffer
+		Index,
+
+		//! Buffer can be used as vertex buffer
+		Vertex,
+
+		//! Buffer can be used as uniform buffer
+		Uniform,
+
+		//! Buffer can be used as generic buffer in shaders
+		Storage,
+
+		//! Buffer can be used as source for indirect draw calls
+		Indirect,
+
+		//! Buffer can be used to stream data out
+		StreamOut
 	)
 
 	struct BufferDescription
 	{
 		uint32_t SizeInBytes;
-		ResourceUsage Usage;
-		Flags<ResourceAccess> CPUAccess;
+		Flags<BufferUsage> Usage;
 	};
 
 	struct BufferInitData
@@ -90,17 +84,14 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class Buffer
 	{
 	protected:
-		Buffer(size_t size, ResourceUsage usage, Flags<ResourceAccess> cpuAccess);
+		Buffer(size_t size, Flags<BufferUsage> usage);
 
 	public:
 		virtual ~Buffer() = default;
 
 	public:
 		//! \returns the assigned usage of the buffer
-		ResourceUsage usage() const { return _usage; }
-
-		//! \returns the valid CPU access
-		Flags<ResourceAccess> cpuAccess() const { return _cpuAccess; }
+		Flags<BufferUsage> usage() const { return _usage2; }
 
 	public:
 		//! \returns the size in bytes
@@ -111,9 +102,6 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		size_t _sizeInBytes{ 0 };
 
 		//! Buffer usage
-		ResourceUsage _usage;
-
-		//! Valid CPU access pattern
-		Flags<ResourceAccess> _cpuAccess;
+		Flags<BufferUsage> _usage2;
 	};
 }}}

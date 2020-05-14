@@ -88,13 +88,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	class Buffer : public Runtime::Buffer, public Resource
 	{
 	public:
-		Buffer(const BufferDescription& desc, bool allowPersistentMapping = false, bool allowCoherentMapping = false, const BufferInitData* init_data = nullptr);
+		Buffer(const BufferDescription& desc, const BufferInitData* init_data = nullptr);
 		virtual ~Buffer();
 
 		//! Bind the buffer to the GL pipeline
 		BufferBindPoint bind(GLenum target);
 
-		void* map(size_t offset, size_t length, Flags<ResourceAccess> access = ResourceAccess::Write, Flags<MapOptions> options = {});
+		void* map(size_t offset, size_t length, Flags<MapOptions> options = {});
 		void unmap();
 
 		/*!
@@ -140,16 +140,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		//! Flags indicating with which host access the buffer was mapped
-		Flags<ResourceAccess> _mappedAccess;
-
-		//! Flags indicating with which host access the buffer was mapped
 		Flags<MapOptions> _mappedOptions;
 
 		//! Offset of the mapped memory region
-		size_t _mappedOffset;
+		size_t _mappedOffset{ 0 };
 
 		//! Size of the mapped memory region
-		size_t _mappedSize;
+		size_t _mappedSize{ 0 };
 	};
+
+	void flushBufferRange(Runtime::Buffer&, size_t, size_t);
 }}}}
 #endif // VCL_OPENGL_SUPPORT

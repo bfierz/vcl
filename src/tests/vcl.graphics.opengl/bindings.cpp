@@ -149,7 +149,6 @@ TEST(OpenGL, MaxBindingPoints)
 	BufferDescription buf_desc =
 	{
 		1024,
-		ResourceUsage::Default,
 		{}
 	};
 	Runtime::OpenGL::Buffer buf(buf_desc);

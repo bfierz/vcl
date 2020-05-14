@@ -112,10 +112,10 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
 	using Vcl::Graphics::Runtime::BufferDescription;
 	using Vcl::Graphics::Runtime::BufferInitData;
+	using Vcl::Graphics::Runtime::BufferUsage;
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
-	using Vcl::Graphics::Runtime::ResourceUsage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
@@ -248,18 +248,18 @@ FboRenderer::FboRenderer()
 	memcpy(mcTables.edgeVertexList, Vcl::Geometry::edgeVertexList, sizeof(Vcl::Geometry::edgeVertexList));
 
 	BufferDescription mcDesc;
-	mcDesc.Usage = ResourceUsage::Default;
+	mcDesc.Usage = BufferUsage::Uniform;
 	mcDesc.SizeInBytes = sizeof(MarchingCubesTables);
 
 	BufferInitData mcData;
 	mcData.Data = &mcTables;
 	mcData.SizeInBytes = sizeof(MarchingCubesTables);
 
-	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, false, false, &mcData);
+	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, &mcData);
 
 	// Buffer for the ground plane
 	BufferDescription planeDesc;
-	planeDesc.Usage = ResourceUsage::Default;
+	planeDesc.Usage = BufferUsage::Vertex;
 	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	Eigen::Vector4f grouldPlane{ 0, 1, 0, -2 };
@@ -267,7 +267,7 @@ FboRenderer::FboRenderer()
 	planeData.Data = grouldPlane.data();
 	planeData.SizeInBytes = sizeof(Eigen::Vector4f);
 
-	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, false, false, &planeData);
+	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, &planeData);
 
 	// Initialize the position manipulator
 	_posManip = std::make_unique<Vcl::Editor::Util::PositionManipulator>();

@@ -46,14 +46,12 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc_large =
 		{
 			maxElements * static_cast<unsigned int>(sizeof(unsigned int)),
-			ResourceUsage::Default,
-			{}
+			BufferUsage::Storage
 		};
 		BufferDescription desc_small =
 		{
 			32 * numBlocks * static_cast<unsigned int>(sizeof(unsigned int)),
-			ResourceUsage::Default,
-			{}
+			BufferUsage::Storage
 		};
 		
 		_tmpKeys      = make_owner<Runtime::OpenGL::Buffer>(desc_large);
