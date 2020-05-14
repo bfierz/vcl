@@ -10,6 +10,9 @@ INCLUDE(${CMAKE_SOURCE_DIR}/src/cmake/VCLCompileGLSL.cmake)
 SET(VCL_NANOGUI_INCLUDE CACHE PATH "Include directory of NanoGUI")
 SET(VCL_NANOGUI_DEBUG_LIBRARY CACHE FILEPATH "NanoGUI library")
 SET(VCL_NANOGUI_RELEASE_LIBRARY CACHE FILEPATH "NanoGUI library")
+if (NOT VCL_NANOGUI_INCLUDE)
+	return()
+endif()
 
 # Find includes in corresponding build directories
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
