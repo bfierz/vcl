@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2020 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,33 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/graphics/runtime/resource/texture.h>
-
-// VCL library
-#include <vcl/core/contract.h>
-#include <vcl/graphics/surfaceformat.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime
+struct PixelShaderInput
 {
-	void TextureView::initializeView
-	(
-		TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
-		int firstLvl, int nrLvls,
-		int firstLayer, int nrLayers,
-		int width, int height, int depth
-	)
-	{
-		_type = t;
-		_format = f;
-		_usage = usage;
-		_level = firstLvl;
-		_nrLevels = nrLvls;
-		_layer = firstLayer;
-		_nrLayers = nrLayers;
-		_width = width;
-		_height = height;
-		_depth = depth;
+	float4 Color    : COLOR;
+	float2 TexCoord : TEXCOORD0;
+};
 
-		_sizeInBytes = width * height * depth * Vcl::Graphics::sizeInBytes(f);
-	}
-}}}
+Texture2D<float4> Albedo : register(t0);
+SamplerState LinearClampSampler : register(s0);
+
+float4 main(PixelShaderInput IN) : SV_Target
+{
+	float4 albedo = Albedo.Sample(LinearClampSampler, IN.TexCoord);
+	return IN.Color * albedo;
+}

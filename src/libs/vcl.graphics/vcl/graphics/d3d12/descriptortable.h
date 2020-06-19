@@ -43,6 +43,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/d3d12/semaphore.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
+#include <vcl/graphics/runtime/d3d12/resource/texture.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12
 {
@@ -144,6 +145,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		void setToGraphics(ID3D12GraphicsCommandList* cmd_list);
 
 		void addResource(int descriptor_index, Runtime::D3D12::Buffer* buffer, uint64_t first, uint32_t count, uint32_t stride);
+		void addResource(int descriptor_index, Runtime::D3D12::Texture* texture);
 
 	private:
 		//! Associated device

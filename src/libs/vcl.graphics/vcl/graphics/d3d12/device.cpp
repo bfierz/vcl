@@ -127,19 +127,19 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			};
 
 			// Suppress individual messages by their ID
-			D3D12_MESSAGE_ID DenyIds[] = {
-				D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
-				D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
-				D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
-			};
+			//D3D12_MESSAGE_ID DenyIds[] = {
+			//	D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
+			//	D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
+			//	D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
+			//};
 
 			D3D12_INFO_QUEUE_FILTER NewFilter = {};
 			//NewFilter.DenyList.NumCategories = _countof(Categories);
 			//NewFilter.DenyList.pCategoryList = Categories;
 			NewFilter.DenyList.NumSeverities = _countof(Severities);
 			NewFilter.DenyList.pSeverityList = Severities;
-			NewFilter.DenyList.NumIDs = _countof(DenyIds);
-			NewFilter.DenyList.pIDList = DenyIds;
+			//NewFilter.DenyList.NumIDs = _countof(DenyIds);
+			//NewFilter.DenyList.pIDList = DenyIds;
 
 			VCL_DIRECT3D_SAFE_CALL(info_queue->PushStorageFilter(&NewFilter));
 		}

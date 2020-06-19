@@ -46,8 +46,6 @@ namespace Vcl { namespace Graphics { namespace D3D12
 	: _dynamicResources{ std::move(entries) }
 	, _staticSamplers{ std::move(static_samplers) }
 	{
-		VclCheck(_staticSamplers.empty(), "Static samples is not implented.");
-
 		auto& descriptor_ranges = _rangeDescriptors;
 		int num_range_descr = std::accumulate(std::begin(_dynamicResources), std::end(_dynamicResources), 0,
 			[](int sum, const DescriptorTableLayoutEntry& entry) -> int
@@ -119,7 +117,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC sig_desc = {};
 		sig_desc.Init_1_1(
 			root_params.size(), root_params.data(),
-			0, nullptr,
+			_staticSamplers.size(), _staticSamplers.data(),
 			use_input_assembler ? D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT : D3D12_ROOT_SIGNATURE_FLAG_NONE);
 		_d3d12RootSignature = device->createRootSignature(sig_desc);
 	}
@@ -183,7 +181,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
 			if (type == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
 			{
-				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Resource requires storage binding setting");
+				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_UNORDERED_ACCESS| D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, "Resource requires storage binding setting");
 				state = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 			}
 			else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_UAV)
@@ -251,6 +249,33 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
 				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
 			d3d12_device->CreateUnorderedAccessView(buffer->handle(), nullptr, &desc, handle);
+		}
+	}
+
+	void DescriptorTable::addResource(int descriptor_index, Runtime::D3D12::Texture* texture)
+	{
+		auto d3d12_device = _device->nativeDevice();
+		const auto increment = _heapIncrements[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
+
+		_resources[descriptor_index] = texture;
+		const auto type = _layout->rangeDescriptors()[descriptor_index].RangeType;
+		if (type == D3D12_DESCRIPTOR_RANGE_TYPE_CBV)
+		{
+			VclDebugError("Binding textures to CBV is not supported");
+		}
+		else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
+		{
+			const auto desc = texture->srv();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
+				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+			d3d12_device->CreateShaderResourceView(texture->handle(), &desc, handle);
+		}
+		else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_UAV)
+		{
+			const auto desc = texture->uav();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
+				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+			d3d12_device->CreateUnorderedAccessView(texture->handle(), nullptr, &desc, handle);
 		}
 	}
 }}}

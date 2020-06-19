@@ -22,26 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl.graphics.d3d12.test)
+project(texturedcube)
 
-include(../../cmake/VCLCompileHLSL.cmake)
-include(../../cmake/VCLTest.cmake)
+include(../../../cmake/VCLCompileHLSL.cmake)
+
+# Status message
+message(STATUS "Configuring 'D3D12 TexturedCube'")
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(SOURCE_FILES
-	buffers.cpp
-	compute.cpp
-	engine.cpp
-	main.cpp
-	rendering.cpp
-	swapchain.cpp
-	textures.cpp
+set(COMMON
+	../common/app.cpp
+	../common/app.h
+	../common/xortexture.h
+)
 
-	quad.vs.hlsl
-	quad.ps.hlsl
-	saxpy.cs.hlsl
+set(SOURCE_FILES
+	main.cpp
+
+	cube.vs.hlsl
+	cube.ps.hlsl
 )
 
 # Access the include directories in order to compile the HLSL shaders
@@ -49,35 +50,28 @@ get_property(CURR_INC_DIRS_0 TARGET vcl_graphics PROPERTY INCLUDE_DIRECTORIES)
 list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 vclcompilehlsl(
-	${PROJECT_SOURCE_DIR}/quad.vs.hlsl
+	${PROJECT_SOURCE_DIR}/cube.vs.hlsl
 	"vs_6_0"
 	"main"
-	"QuadCsoVS"
+	"CubeCsoVS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_0
 )
 vclcompilehlsl(
-	${PROJECT_SOURCE_DIR}/quad.ps.hlsl
+	${PROJECT_SOURCE_DIR}/cube.ps.hlsl
 	"ps_6_0"
 	"main"
-	"QuadCsoPS"
+	"CubeCsoPS"
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_1
 )
-vclcompilehlsl(
-	${PROJECT_SOURCE_DIR}/saxpy.cs.hlsl
-	"cs_6_0"
-	"main"
-	"SaxpyCsoCS"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_2
-)
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
-vcl_add_test(vcl.graphics.d3d12.test)
-vcl_target_sources(vcl.graphics.d3d12.test "" ${SOURCE_FILES})
-target_sources(vcl.graphics.d3d12.test PRIVATE ${COMPILEDSHADERS})
-target_link_libraries(vcl.graphics.d3d12.test
+add_executable(d3d12_texturedcube "")
+vcl_target_sources(d3d12_texturedcube ".." ${COMMON})
+vcl_target_sources(d3d12_texturedcube "" ${SOURCE_FILES})
+target_sources(d3d12_texturedcube PRIVATE ${COMPILEDSHADERS})
+source_group("generated" FILES ${COMPILEDSHADERS})
+target_link_libraries(d3d12_texturedcube
 	vcl_graphics
 )
-add_dependencies(vcl.graphics.d3d12.test bin2c)

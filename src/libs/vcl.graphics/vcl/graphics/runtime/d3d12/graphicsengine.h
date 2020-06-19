@@ -263,7 +263,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 		BufferView requestPerFrameLinearMemory(size_t size) override;
-		void enqueueReadback(const Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) override;
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) override;
 		void enqueueCommand(std::function<void(void)>) override;
 
 	private:

@@ -124,10 +124,12 @@ SET(VCL_GRAPHICS_OPENGL_SRC
 SET(VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_INC
 	vcl/graphics/runtime/d3d12/resource/buffer.h
 	vcl/graphics/runtime/d3d12/resource/shader.h
+	vcl/graphics/runtime/d3d12/resource/texture.h
 )
 SET(VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_SRC
 	vcl/graphics/runtime/d3d12/resource/buffer.cpp
 	vcl/graphics/runtime/d3d12/resource/shader.cpp
+	vcl/graphics/runtime/d3d12/resource/texture.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / D3D12 / STATE

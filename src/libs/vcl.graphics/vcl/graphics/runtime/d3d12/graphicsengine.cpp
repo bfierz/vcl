@@ -309,7 +309,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		return view;
 	}
 
-	void GraphicsEngine::enqueueReadback(const Texture& tex, std::function<void(stdext::span<uint8_t>)> callback)
+	void GraphicsEngine::enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback)
 	{
 
 	}

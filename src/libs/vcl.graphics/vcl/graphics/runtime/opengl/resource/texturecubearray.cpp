@@ -34,12 +34,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	TextureCubeArray::TextureCubeArray
 	(
 		const TextureCubeDescription& desc,
-		const TextureResource* init_data /* = nullptr */
+		const TextureResource* init_data
 	)
 	{
 		initializeView
 		(
-			TextureType::TextureCubeArray, desc.Format,
+			TextureType::TextureCubeArray, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
 			desc.Width, desc.Height, 1
