@@ -26,4 +26,31 @@
       </ArrayItems>
     </Expand>
   </Type>
+  <Type Name="absl::container_internal::raw_hash_set&lt;*,*,*,*&gt;">
+    <DisplayString>{{ size = {size_} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size_</Item>
+      <Item Name="[capacity]" ExcludeView="simple">capacity_</Item>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="ctrl" InitialValue="ctrl_" />
+        <Variable Name="slot" InitialValue="slots_" />
+        <Size>size_</Size>
+        <Loop>
+          <If Condition="*ctrl&gt;0">
+            <Item>*slot</Item>
+          </If>
+          <Exec>ctrl++</Exec>
+          <Exec>slot++</Exec>
+          <Break Condition="ctrl-ctrl_==capacity_"/>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="absl::container_internal::slot_type&lt;*,*&gt;">
+    <DisplayString>{{ key = {value.first}, value = {value.second} }}</DisplayString>
+    <Expand>
+      <Item Name="[key]" ExcludeView="simple">value.first</Item>
+      <Item Name="[value]" ExcludeView="simple">value.second</Item>
+    </Expand>
+  </Type>
 </AutoVisualizer>
