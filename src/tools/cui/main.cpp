@@ -28,7 +28,12 @@
 
 // C++ Standard Library
 #ifdef VCL_ABI_WINAPI
-#include <filesystem>
+#	if VCL_HAS_STDCXX17
+#		include <filesystem>
+#	else
+#	define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#		include <experimental/filesystem>
+#	endif
 #elif defined(VCL_ABI_POSIX)
 #include <boost/filesystem.hpp>
 #endif
@@ -221,7 +226,11 @@ int main(int argc, char* argv [])
 	using namespace Vcl::Tools::Cui;
 
 #ifdef VCL_ABI_WINAPI
-	namespace fs = std::tr2::sys;
+#	if VCL_HAS_STDCXX17
+	namespace fs = std::filesystem;
+#	else
+	namespace fs = std::experimental::filesystem;
+#	endif
 #elif defined(VCL_ABI_POSIX)
 	namespace fs = boost::filesystem;
 #endif

@@ -1,6 +1,6 @@
 PROJECT(vcl_math_opencl)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCL.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/src/cmake/VCLCompileCL.cmake)
 
 # VCL / MATH / OPENCL
 SET(VCL_MATH_OPENCL_INC

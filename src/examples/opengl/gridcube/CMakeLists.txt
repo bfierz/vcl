@@ -4,7 +4,7 @@ PROJECT(glgridcube)
 MESSAGE(STATUS "Configuring 'glgridcube'")
 
 # GLSL compiler
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileGLSL.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/src/cmake/VCLCompileGLSL.cmake)
 
 # NanoGUI
 SET(VCL_NANOGUI_INCLUDE CACHE PATH "Include directory of NanoGUI")

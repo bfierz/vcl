@@ -65,8 +65,8 @@ namespace Vcl { namespace Geometry
 	}
 
 	TetraMesh::TetraMesh(TetraMesh&& rhs)
-	: SimplexLevel3(rhs)
-	, SimplexLevel0(rhs)
+	: SimplexLevel3(std::move(rhs))
+	, SimplexLevel0(std::move(rhs))
 	, _surfaceData(std::move(rhs._surfaceData))
 	{
 		rhs._surfaceFaces = nullptr;

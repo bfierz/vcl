@@ -27,8 +27,17 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
+#ifdef VCL_ABI_WINAPI
+#	if VCL_HAS_STDCXX17
+#		include <filesystem>
+#	else
+#	define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#		include <experimental/filesystem>
+#	endif
+#elif defined(VCL_ABI_POSIX)
+#include <boost/filesystem.hpp>
+#endif
 #include <fstream>
-#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -223,7 +232,16 @@ namespace Vcl { namespace Tools { namespace Clc
 int main(int argc, char* argv [])
 {
 	using namespace Vcl::Tools::Clc;
-	namespace fs = std::tr2::sys;
+
+#ifdef VCL_ABI_WINAPI
+#	if VCL_HAS_STDCXX17
+	namespace fs = std::filesystem;
+#	else
+	namespace fs = std::experimental::filesystem;
+#	endif
+#elif defined(VCL_ABI_POSIX)
+	namespace fs = boost::filesystem;
+#endif
 
 	cxxopts::Options options(argv[0], "clc - command line options");
 
@@ -287,11 +305,7 @@ int main(int argc, char* argv [])
 		}
 
 		// Generate intermediate file name
-#if (_MSC_VER < 1900)
-		std::string preprocess_file = fs::basename(fs::path{ parsed_options["input-file"].as<std::string>() }) + ".i";
-#else
 		std::string preprocess_file = fs::path{ parsed_options["input-file"].as<std::string>() }.stem().string() + ".i";
-#endif
 
 		// Preprocess the source file
 		std::stringstream cmd;

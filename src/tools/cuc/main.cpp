@@ -28,7 +28,12 @@
 
 // C++ Standard Library
 #ifdef VCL_ABI_WINAPI
-#include <filesystem>
+#	if VCL_HAS_STDCXX17
+#		include <filesystem>
+#	else
+#	define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#		include <experimental/filesystem>
+#	endif
 #elif defined(VCL_ABI_POSIX)
 #include <boost/filesystem.hpp>
 #endif
@@ -199,7 +204,11 @@ int main(int argc, char* argv[])
 	using namespace Vcl::Tools::Cuc;
 
 #ifdef VCL_ABI_WINAPI
-	namespace fs = std::tr2::sys;
+#	if VCL_HAS_STDCXX17
+	namespace fs = std::filesystem;
+#	else
+	namespace fs = std::experimental::filesystem;
+#	endif
 #elif defined(VCL_ABI_POSIX)
 	namespace fs = boost::filesystem;
 #endif
@@ -256,11 +265,7 @@ int main(int argc, char* argv[])
 		}
 
 		// Construct the base name for the intermediate files
-#if (_MSC_VER < 1900)
-		std::string tmp_file_base = fs::basename(fs::path(parsed_options["input-file"].as<std::string>()));
-#else
 		std::string tmp_file_base = fs::path(parsed_options["input-file"].as<std::string>()).stem().string();
-#endif
 
 		// Add the address 
 		if (parsed_options.count("m64"))

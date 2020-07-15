@@ -1,6 +1,6 @@
 PROJECT(vcl_core_opencl)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCL.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/src/cmake/VCLCompileCL.cmake)
 
 # VCL / CORE / OPENCL
 SET(VCL_CORE_OPENCL_INC

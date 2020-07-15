@@ -38,9 +38,9 @@
 #include <vcl/math/math.h>
 
 // Reference code
-#include <Mathematics/GteDistPointTriangle.h>
-#include <Mathematics/GteDistTriangle3Triangle3.h>
-#include <Mathematics/GteIntrRay3AlignedBox3.h>
+#include <Mathematics/DistPointTriangle.h>
+#include <Mathematics/DistTriangle3Triangle3.h>
+#include <Mathematics/IntrRay3AlignedBox3.h>
 
 // Tests the distance functions.
 gte::Vector3<float> cast(const Eigen::Vector3f& vec)

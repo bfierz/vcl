@@ -61,13 +61,7 @@
       "inheritEnvironments": [ "linux_clang_x64" ],
       "wslPath": "${defaultWSLPath}",
       "addressSanitizerRuntimeFlags": "detect_leaks=0",
-      "variables": [
-        {
-          "name": "VCL_BUILD_TESTS",
-          "value": "True",
-          "type": "BOOL"
-        }
-      ]
+      "variables": []
     }
   ]
 }

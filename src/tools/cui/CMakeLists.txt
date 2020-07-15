@@ -28,8 +28,23 @@ project(cui)
 message(STATUS "Configuring 'cui'")
 
 # Configure libclang
-set(LIBCLANG_INCLUDE_DIR CACHE PATH "Path to the include directory for libclang")
-set(LIBCLANG_LIBRARY CACHE FILEPATH "Path to the libclang library")
+find_path(
+	LIBCLANG_INCLUDE_DIR clang-c/Index.h
+	REQUIRED
+	PATHS
+		"C:/Program Files/LLVM/include"
+)
+find_library(
+	LIBCLANG_LIBRARY libclang
+	REQUIRED
+	HINTS
+		"C:/Program Files/LLVM/lib"
+)
+find_package_handle_standard_args(LIBCLANG
+	DEFAULT_MSG
+		LIBCLANG_INCLUDE_DIR
+		LIBCLANG_LIBRARY
+)
 
 # Source code
 set(CUI_SRC

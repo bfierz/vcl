@@ -1,25 +1,43 @@
-PROJECT(vcl_core_cuda)
+#
+# This file is part of the Visual Computing Library (VCL) release under the
+# MIT license.
+#
+# Copyright (c) 2015 Basil Fierz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+project(vcl_core_cuda)
 
-# VCL / CORE / CUDA
-SET(VCL_CORE_CUDA_INC
+set(SOURCE
+	vcl/core/cuda/common.inc
+	vcl/core/cuda/math.inc
 )
-SET(VCL_CORE_CUDA_SRC
-)
-SET(VCL_CORE_CUDA_CU
-	./vcl/core/cuda/common.inc
-	./vcl/core/cuda/math.inc
-)
-
-SOURCE_GROUP("" FILES ${VCL_CORE_CUDA_SRC} ${VCL_CORE_CUDA_INC} ${VCL_CORE_CUDA_CU})
-
-SET(SOURCE
-	${VCL_CORE_CUDA_SRC} ${VCL_CORE_CUDA_INC} ${VCL_CORE_CUDA_CU}
-)
+source_group("" FILES ${SOURCE})
 
 # Generate library
-ADD_LIBRARY(vcl_core_cuda OBJECT ${SOURCE})
-SET_TARGET_PROPERTIES(vcl_core_cuda PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_core_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(vcl_core_cuda OBJECT ${SOURCE})
+set_target_properties(vcl_core_cuda PROPERTIES FOLDER libs)
+target_include_directories(vcl_core_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add dependencies
-TARGET_LINK_LIBRARIES(vcl_core_cuda vcl_core vcl_compute_cuda)
+target_link_libraries(vcl_core_cuda
+	PUBLIC
+		vcl_core
+		vcl_compute_cuda
+)
