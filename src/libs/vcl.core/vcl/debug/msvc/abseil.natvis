@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="absl::InlinedVector&lt;*,*,*&gt;">
+    <DisplayString>{{ size = {allocator_and_tag_.tag_.size_ &gt;&gt; 1} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">allocator_and_tag_.tag_.size_ &gt;&gt; 1</Item>
+      <Item Name="[capacity]" ExcludeView="simple" Condition="!(allocator_and_tag_.tag_.size_&amp;1)">$T2</Item>
+      <Item Name="[capacity]" ExcludeView="simple" Condition=" (allocator_and_tag_.tag_.size_&amp;1)">reinterpret_cast&lt;absl::InlinedVector&lt;$T1,$T2,$T3&gt;::Allocation*&gt;(&amp;rep_.allocation_storage.allocation)->capacity_</Item>
+      <ArrayItems Condition="!(allocator_and_tag_.tag_.size_&amp;1)">
+        <Size>allocator_and_tag_.tag_.size_ &gt;&gt; 1</Size>
+        <ValuePointer>reinterpret_cast&lt;absl::InlinedVector&lt;$T1,$T2,$T3&gt;::value_type*&gt;(&amp;rep_.inlined_storage.inlined)</ValuePointer>
+      </ArrayItems>
+      <ArrayItems Condition="allocator_and_tag_.tag_.size_&amp;1">
+        <Size>allocator_and_tag_.tag_.size_ &gt;&gt; 1</Size>
+        <ValuePointer>reinterpret_cast&lt;absl::InlinedVector&lt;$T1,$T2,$T3&gt;::Allocation*&gt;(&amp;rep_.allocation_storage.allocation)->buffer_</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="absl::Span&lt;*&gt;">
+    <DisplayString>{{ size = {len_} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">len_</Item>
+      <ArrayItems>
+        <Size>len_</Size>
+        <ValuePointer>ptr_</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="absl::container_internal::raw_hash_set&lt;*,*,*,*&gt;">
+    <DisplayString>{{ size = {size_} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size_</Item>
+      <Item Name="[capacity]" ExcludeView="simple">capacity_</Item>
+      <CustomListItems MaxItemsPerView="1000">
+        <Variable Name="ctrl" InitialValue="ctrl_" />
+        <Variable Name="slot" InitialValue="slots_" />
+        <Size>size_</Size>
+        <Loop>
+          <If Condition="*ctrl&gt;0">
+            <Item>*slot</Item>
+          </If>
+          <Exec>ctrl++</Exec>
+          <Exec>slot++</Exec>
+          <Break Condition="ctrl-ctrl_==capacity_"/>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="absl::container_internal::slot_type&lt;*,*&gt;">
+    <DisplayString>{{ key = {value.first}, value = {value.second} }}</DisplayString>
+    <Expand>
+      <Item Name="[key]" ExcludeView="simple">value.first</Item>
+      <Item Name="[value]" ExcludeView="simple">value.second</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

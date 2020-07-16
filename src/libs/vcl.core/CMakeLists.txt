@@ -123,6 +123,7 @@ set(SOURCE
 	vcl/core/simd/memory_sse.h
 	vcl/core/simd/memory_neon.h
 
+	vcl/debug/msvc/abseil.natvis
 	vcl/debug/msvc/eigen.natvis
 	vcl/debug/msvc/qt5.natvis
 
