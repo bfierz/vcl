@@ -110,8 +110,8 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json")
 	add_subdirectory(src/externals/json)
 endif()
 
-find_package(OPENGL QUIET)
-if(OPENGL_FOUND AND NOT EMSCRIPTEN)
+find_package(OpenGL QUIET)
+if(OpenGL_FOUND AND NOT EMSCRIPTEN)
 	find_package(EGL QUIET)
 	if(EGL_FOUND)
 		add_library(vcl_ext_egl_tgt UNKNOWN IMPORTED)
@@ -128,11 +128,10 @@ if(OPENGL_FOUND AND NOT EMSCRIPTEN)
 	if (NOT vcl_ext_glew)
 		find_package(GLEW QUIET)
 		if(GLEW_FOUND)
-			add_library(vcl_ext_glew_tgt UNKNOWN IMPORTED)
-			set_property(TARGET vcl_ext_glew_tgt PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${GLEW_INCLUDE_DIR}")
-			set_property(TARGET vcl_ext_glew_tgt PROPERTY IMPORTED_LOCATION "${GLEW_LIBRARY}")
+			set(vcl_ext_glew GLEW::glew)
+		else()
+			set(vcl_ext_glew)
 		endif()
-		set(vcl_ext_glew "vcl_ext_glew_tgt")
 	endif()
 endif()
 
@@ -149,8 +148,20 @@ endif()
 
 add_subdirectory(src/libs)
 
+# Build options
+if("^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
+	option(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
+	option(VCL_BUILD_EXAMPLES "Build the examples" OFF)
+	option(VCL_BUILD_TESTS "Build the unit tests" ON)
+	option(VCL_BUILD_TOOLS "Build the tools" ON)
+else()
+	option(VCL_BUILD_BENCHMARKS "Build the benchmarks" OFF)
+	option(VCL_BUILD_EXAMPLES "Build the examples" OFF)
+	option(VCL_BUILD_TESTS "Build the unit tests" OFF)
+	option(VCL_BUILD_TOOLS "Build the tools" ON)
+endif()
+
 # Benchmarks
-option(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
 if(VCL_BUILD_BENCHMARKS)
 	option(BENCHMARK_ENABLE_TESTING "" OFF)
 	option(BENCHMARK_ENABLE_GTEST_TESTS "" OFF)
@@ -164,19 +175,16 @@ if(VCL_BUILD_BENCHMARKS)
 endif()
 
 # Examples
-option(VCL_BUILD_EXAMPLES "Build the examples" ON)
 if(VCL_BUILD_EXAMPLES)
 	add_subdirectory(src/examples)
 endif()
 
 # Tools
-option(VCL_BUILD_TOOLS "Build the tools" ON)
 if(VCL_BUILD_TOOLS)
 	add_subdirectory(src/tools)
 endif()
 
 # Unit tests
-option(VCL_BUILD_TESTS "Build the unit tests" OFF)
 if(VCL_BUILD_TESTS)
 	option(gtest_build_samples "" OFF)
 	option(gtest_build_tests "" OFF)

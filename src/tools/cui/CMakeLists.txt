@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2015 Basil Fierz
+# Copyright (c) 2019 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,45 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(vcl_core_cuda)
+project(cui)
 
-set(SOURCE
-	vcl/core/cuda/common.inc
-	vcl/core/cuda/math.inc
+# Status message
+message(STATUS "Configuring 'cui'")
+
+# Configure libclang
+find_path(
+	LIBCLANG_INCLUDE_DIR clang-c/Index.h
+	REQUIRED
+	PATHS
+		"C:/Program Files/LLVM/include"
 )
-source_group("" FILES ${SOURCE})
+find_library(
+	LIBCLANG_LIBRARY libclang
+	REQUIRED
+	HINTS
+		"C:/Program Files/LLVM/lib"
+)
+find_package_handle_standard_args(LIBCLANG
+	DEFAULT_MSG
+		LIBCLANG_INCLUDE_DIR
+		LIBCLANG_LIBRARY
+)
+
+# Source code
+set(CUI_SRC
+	3rdparty/mustache.hpp
+	main.cpp
+	kernelwrapper.cpp
+	kernelwrapper.h
+)
+source_group("" FILES ${CUI_SRC})
 
 # Generate library
-add_library(vcl_core_cuda OBJECT ${SOURCE})
-set_target_properties(vcl_core_cuda PROPERTIES FOLDER libs)
-target_include_directories(vcl_core_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(cui ${CUI_SRC})
+set_target_properties(cui PROPERTIES FOLDER tools)
+target_include_directories(cui PRIVATE ${LIBCLANG_INCLUDE_DIR})
 
-# Add dependencies
-target_link_libraries(vcl_core_cuda
-	PUBLIC
-		vcl_core
-		vcl_compute_cuda
+target_link_libraries(cui
+	vcl_core
+	${LIBCLANG_LIBRARY}
 )

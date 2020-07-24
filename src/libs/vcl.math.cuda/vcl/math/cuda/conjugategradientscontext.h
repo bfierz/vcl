@@ -101,21 +101,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Commandqueue the execution uses
 		ref_ptr<Compute::CommandQueue> _queue;
 
-	private:
-		// Module
-		ref_ptr<Compute::Module> _reduceUpdateModule;
-
-		//! Kernel used in the vector update step
-		ref_ptr<Compute::Cuda::Kernel> _updateKernel;
-		
-	protected: // Kernel performing the dot-product
-#if VCL_MATH_CG_CUDA_SHUFFLE_ATOMICS
-		ref_ptr<Compute::Cuda::Kernel> _reduceKernel;
-#elif VCL_MATH_CG_CUDA_SHUFFLE || VCL_MATH_CG_CUDA_BASIC
-		ref_ptr<Compute::Cuda::Kernel> _reduceBeginKernel;
-		ref_ptr<Compute::Cuda::Kernel> _reduceContinueKernel;
-#endif
-
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersR;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersG;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersB;

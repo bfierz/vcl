@@ -49,7 +49,7 @@ struct SharedMemory<double>
 #define VCL_CUDA_STRIDED_SM_ACCESS(bank_ptr, idx) (bank_ptr)[VCL_CUDA_NR_SM_BANKS*idx]
 
 // Translate thread idx to Shared Memory address
-__device__ int tidtosmaddr(int tid)
+__device__ inline int tidtosmaddr(int tid)
 {
 	int n = tid >> 4;
 	int m = tid & 15;

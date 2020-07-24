@@ -84,18 +84,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		//! Current error
 		float _error{ 0 };
 
-		//! Module with the cuda fluid 3d poisson cg kernel functions
-		ref_ptr<Vcl::Compute::Cuda::Module> _cgModule;
-		
-		//! Kernel used to make the solver stencil
-		ref_ptr<Compute::Cuda::Kernel> _makeStencilKernel;
-
-		//! Device function initializing the conjugate gradients solver
-		ref_ptr<Vcl::Compute::Cuda::Kernel> _cgInit{ nullptr };
-
-		//! Device function compute the Q vector
-		ref_ptr<Vcl::Compute::Cuda::Kernel> _cgComputeQ{ nullptr };
-
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
 		

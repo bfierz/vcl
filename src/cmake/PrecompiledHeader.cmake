@@ -48,7 +48,7 @@ macro(add_precompiled_header TARGET_NAME PRECOMPILED_HEADER PRECOMPILED_SOURCE)
         target_include_directories(${TARGET_NAME} PRIVATE ${PRECOMPILED_HEADER_PATH}) # fixes occasional IntelliSense glitches
 
         get_filename_component(PRECOMPILED_HEADER_WE ${PRECOMPILED_HEADER} NAME_WE)
-        set(PRECOMPILED_BINARY "$(IntDir)/${PRECOMPILED_HEADER_WE}.pch")
+        set(PRECOMPILED_BINARY "${PROJECT_BINARY_DIR}/${PRECOMPILED_HEADER_WE}.pch")
 
         get_target_property(SOURCE_FILES ${TARGET_NAME} SOURCES)
         set(SOURCE_FILE_FOUND FALSE)

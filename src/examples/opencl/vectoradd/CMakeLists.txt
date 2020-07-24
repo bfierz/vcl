@@ -1,6 +1,6 @@
 PROJECT(vectoraddcl)
 
-INCLUDE(${CMAKE_SOURCE_DIR}/cmake/VCLCompileCL.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/src/cmake/VCLCompileCL.cmake)
 
 SET(SRC
 	main.cpp

@@ -127,25 +127,19 @@ private:
 
 };
 
+extern Vcl::owner_ptr<Vcl::Compute::Cuda::Context> default_ctx;
+
 TEST(Cuda, Reduction)
 {
 	using namespace Vcl::Compute::Cuda;
 
 	const size_t problem_size = 400000;
 
-	Platform::initialise();
-	Platform* platform = Platform::instance();
-	const Device& device = platform->device(0);
-	auto ctx = Vcl::make_owner<Context>(device);
-	ctx->bind();
+	auto queue = default_ctx->defaultQueue();
 
-	auto queue = ctx->createCommandQueue();
-
-	CgContextMock cg_ctx(ctx, queue, problem_size);
+	CgContextMock cg_ctx(default_ctx, queue, problem_size);
 	cg_ctx.setupProblem();
 	cg_ctx.reduceVectors();
 	cg_ctx.testResults();
-
-	Platform::dispose();
 }
 

@@ -17,6 +17,6 @@ SET_TARGET_PROPERTIES(vcl_geometry_benchmarks PROPERTIES FOLDER benchmarks)
 
 TARGET_LINK_LIBRARIES(vcl_geometry_benchmarks
 	vcl_core
-	vcl_geometry
+	vcl.geometry
 	benchmark
 )

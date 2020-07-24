@@ -33,9 +33,7 @@
 #include <vcl/compute/cuda/module.h>
 #include <vcl/math/ceil.h>
 
-// Kernels
-extern uint32_t JacobiSVD33McAdamsCU[];
-extern size_t JacobiSVD33McAdamsCUSize;
+CUresult JacobiSVD33McAdams(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, int size, int capacity, const float* __restrict memA, float* __restrict memU, float* __restrict memV, float* __restrict memS);
 
 namespace Vcl { namespace Mathematics { namespace Cuda
 {
@@ -48,17 +46,6 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		_U = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
 		_V = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 9 * sizeof(float));
 		_S = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 3 * sizeof(float));
-
-		// Load the module
-		_svdModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(JacobiSVD33McAdamsCU), JacobiSVD33McAdamsCUSize * sizeof(uint32_t));
-
-		if (_svdModule)
-		{
-			// Load the jacobi SVD kernel
-			_svdKernel = _svdModule->kernel("JacobiSVD33McAdams");
-		}
-
-		VclEnsure(implies(_svdModule, _svdKernel), "SVD kernel is valid.");
 	}
 
 	void JacobiSVD33::operator()
@@ -94,18 +81,19 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		// Perform the SVD computation
 		dim3 grid{ static_cast<unsigned int>(ceil<128>(size)) / 128 };
 		dim3 block{ 128 };
-		static_cast<Compute::Cuda::Kernel*>(_svdKernel.get())->run
+		JacobiSVD33McAdams
 		(
-			static_cast<Compute::Cuda::CommandQueue&>(queue),
 			grid,
 			block,
 			0,
+			static_cast<Compute::Cuda::CommandQueue&>(queue),
+
 			(int) size,
 			(int) _capacity,
-			A,
-			U,
-			V,
-			S
+			(float*)A->devicePtr(),
+			(float*)U->devicePtr(),
+			(float*)V->devicePtr(),
+			(float*)S->devicePtr()
 		);
 
 		queue.read(outU.data(), U);

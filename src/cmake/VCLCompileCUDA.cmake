@@ -23,19 +23,18 @@
 # SOFTWARE.
 #
 
-# Path to the vcl cu compiler
-SET(VCL_CUC_DIR CACHE PATH "Directory of cuc")
+set(VCL_CUC_NVCC_PATH CACHE FILEPATH "Path to the CUDA compiler to use")
 
-FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
+function(VclCompileCU file_to_compile symbol include_paths compiled_files)
 
-	IF (CUDA_VERSION_MAJOR LESS 8)
-		MESSAGE(ERROR "Require at least CUDA 8")
+	if (CUDA_VERSION_MAJOR LESS 8)
+		message(ERROR "Require at least CUDA 8")
 		return()
-	ENDIF()
+	endif()
 
-	FOREACH(dir ${include_paths})
-		LIST(APPEND include_dir_param -I "\"${dir}\"")
-	ENDFOREACH()
+	foreach(dir ${include_paths})
+		list(APPEND include_dir_param -I "\"${dir}\"")
+	endforeach()
 
 	# Remove the directories from the path and append ".fatbin.cpp"
 	GET_FILENAME_COMPONENT(output_file ${file_to_compile} NAME_WE)
@@ -52,40 +51,68 @@ FUNCTION(VclCompileCU file_to_compile symbol include_paths compiled_files)
 	GET_FILENAME_COMPONENT(RT_DIR  ${CUDA_cudadevrt_LIBRARY} DIRECTORY)
 	GET_FILENAME_COMPONENT(RT_FILE ${CUDA_cudadevrt_LIBRARY} NAME_WE)
 
-	# Load old environment if necessary
-	SET(VCVARS "")
-	IF (CUDA_VERSION_MAJOR EQUAL 8)
-		IF (MSVC_VERSION GREATER 1900)
-			IF (CMAKE_CL_64)
-				SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat")
-			ELSE()
-				SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat")
-			ENDIF()
-		ENDIF ()
-	ELSEIF(CUDA_VERSION_MAJOR EQUAL 9)
-		IF (MSVC_VERSION GREATER 1911)
-			FILE(GLOB compilers RELATIVE "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC" "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC/*")
-			FOREACH(compiler ${compilers})
-				IF (compiler MATCHES "14\.11.+")
-					IF (CMAKE_CL_64)
-						SET(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars64.bat" -vcvars_ver=14.11)
-					ELSE()
-						SET(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars32.bat" -vcvars_ver=14.11)
-					ENDIF()
-				ENDIF()
-			ENDFOREACH()
-		ENDIF()
-	ENDIF()
+	# Compiler flag
+	set(CUSTOM_NVCC "")
+	if (EXISTS "${VCL_CUC_NVCC_PATH}")
+		set(CUSTOM_NVCC --nvcc "\"${VCL_CUC_NVCC_PATH}\"")
+	endif()
 
-	ADD_CUSTOM_COMMAND(
+	# Load old environment if necessary
+	# CUDA Toolkit 	              | MSVC       | GCC | Clang
+	# CUDA 10.1.105               | 1900..1920 |
+	# CUDA 10.0.130               | 1900..1916 |
+	# CUDA 9.2 (9.2.148 Update 1) | 1900..1913 |
+	# CUDA 9.2 (9.2.88)           | 1900..1913 |
+	# CUDA 9.1 (9.1.85)           | 1900..1910 |
+	# CUDA 9.0 (9.0.76)           | 1900..1910 |
+	# CUDA 8.0 (8.0.61 GA2)       | 1900	   |
+	# CUDA 8.0 (8.0.44)           | 1900	   |
+	set(MSVC_MAX_VERSION MSVC_VERSION)
+	if(CUDA_VERSION_MAJOR LESS 9)
+		set(MSVC_MAX_VERSION 1900)
+	elseif(CUDA_VERSION_MAJOR LESS 10)
+		if(CUDA_VERSION_MINOR LESS 2)
+			set(MSVC_MAX_VERSION 1910)
+		else()
+			set(MSVC_MAX_VERSION 1913)
+		endif()
+	elseif(CUDA_VERSION_MAJOR EQUAL 10)
+		if(CUDA_VERSION_MINOR EQUAL 0)
+			set(MSVC_MAX_VERSION 1916)
+		endif()
+	endif()
+
+	set(VCVARS "")
+	# Find existing visual studio installations
+	# .\vswhere.exe -legacy -prerelease -format json
+	if (MSVC_MAX_VERSION EQUAL 1900)
+		if(CMAKE_CL_64)
+			SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat")
+		else()
+			SET(VCVARS "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\vcvars32.bat")
+		endif()
+	elseif(MSVC_MAX_VERSION LESS 1920)
+		file(GLOB compilers RELATIVE "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC" "$ENV{VS2017INSTALLDIR}\\VC\\Tools\\MSVC/*")
+		foreach(compiler ${compilers})
+			if(compiler MATCHES "14\.11.+")
+				if(CMAKE_CL_64)
+					set(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars64.bat" -vcvars_ver=14.11)
+				else()
+					set(VCVARS "$ENV{VS2017INSTALLDIR}\\VC\\Auxiliary\\Build\\vcvars32.bat" -vcvars_ver=14.11)
+				endif()
+			endif()
+		endforeach()
+	endif()
+
+	add_custom_command(
 		OUTPUT ${output_file}
 
 		COMMAND set curr_dir=%__CD__%
 		COMMAND ${VCVARS}
 		COMMAND cd /d %curr_dir%
-		COMMAND "${VCL_CUC_DIR}/cuc.exe" --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
+		COMMAND "${EXECUTABLE_OUTPUT_PATH}/$<CONFIG>/cuc.exe" ${CUSTOM_NVCC} --symbol ${symbol} --profile sm_30 --profile sm_50 --profile sm_60 --m64 ${include_dir_param} -L "${RT_DIR}" -l "${RT_FILE}" -o ${output_file} ${file_to_compile}
 		MAIN_DEPENDENCY ${file_to_compile}
 		COMMENT "Compiling ${file_to_compile} to ${output_file}"
 	)
 
-ENDFUNCTION(VclCompileCU)
+endfunction(VclCompileCU)

@@ -28,6 +28,7 @@ include(../../cmake/VCLTest.cmake)
 
 set(SOURCE_FILES
 	cg_add.cpp
+	main.cpp
 	poisson3d.cpp
 	poisson.h
 	redux.cpp

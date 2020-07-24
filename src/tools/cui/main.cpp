@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,13 +38,15 @@
 #include <boost/filesystem.hpp>
 #endif
 #include <iostream>
-#include <sstream>
 #include <vector>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // CxxOpts
 #include <vcl/core/3rdparty/cxxopts.hpp>
 VCL_END_EXTERNAL_HEADERS
+
+// Local
+#include "kernelwrapper.h"
 
 // Windows API
 #ifdef VCL_ABI_WINAPI
@@ -53,7 +55,27 @@ VCL_END_EXTERNAL_HEADERS
 VCL_ERROR("No compatible process API found.")
 #endif
 
-namespace Vcl { namespace Tools { namespace Cuc
+// Copy entire file to container
+// Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
+template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+static std::basic_string<Char, Traits, Allocator> read_stream_into_string
+(
+	std::basic_istream<Char, Traits>& in,
+	Allocator alloc = {}
+)
+{
+	std::basic_ostringstream<Char, Traits, Allocator> ss
+	(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
+	);
+
+	if (!(ss << in.rdbuf()))
+		throw std::ios_base::failure{ "error" };
+
+	return ss.str();
+}
+
+namespace Vcl { namespace Tools { namespace Cui
 {
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
@@ -144,7 +166,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
 		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-
+		
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -199,9 +221,9 @@ namespace Vcl { namespace Tools { namespace Cuc
 	}
 }}}
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv [])
 {
-	using namespace Vcl::Tools::Cuc;
+	using namespace Vcl::Tools::Cui;
 
 #ifdef VCL_ABI_WINAPI
 #	if VCL_HAS_STDCXX17
@@ -213,7 +235,7 @@ int main(int argc, char* argv[])
 	namespace fs = boost::filesystem;
 #endif
 
-	cxxopts::Options options(argv[0], "cuc - command line options");
+	cxxopts::Options options(argv[0], "cui - command line options");
 
 	try
 	{
@@ -221,12 +243,8 @@ int main(int argc, char* argv[])
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
 			("nvcc", "Specify which nvcc should be used.", cxxopts::value<std::string>())
-			("m64", "Specify that this should be compiled in 64bit.")
-			("profile", "Target compute architectures (sm_30, sm_35, sm_50, compute_30, compute_35, compute_50)", cxxopts::value<std::vector<std::string>>())
 			("I,include", "Additional include directory", cxxopts::value<std::vector<std::string>>())
-			("L,library-path", "Additional library directory (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
-			("l,library", "Additional library (passed to nvcc)", cxxopts::value<std::vector<std::string>>())
-			("symbol", "Name of the symbol used for the compiled module", cxxopts::value<std::string>())
+			("m,module-file", "Specify the module file to pack.", cxxopts::value<std::string>())
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
 			;
@@ -252,157 +270,50 @@ int main(int argc, char* argv[])
 			nvcc_bin_path.append("bin");
 		}
 
-		if (parsed_options.count("symbol") == 0 || parsed_options.count("input-file") == 0 || parsed_options.count("output-file") == 0)
+		if (parsed_options.count("input-file") == 0)
 		{
 			std::cout << options.help({ "" }) << std::endl;
 			return -1;
 		}
-
-		std::vector<std::string> profiles;
-		if (parsed_options.count("profile"))
+		if (parsed_options.count("module-file") == 0)
 		{
-			profiles = parsed_options["profile"].as<std::vector<std::string>>();
+			std::cout << options.help({ "" }) << std::endl;
+			return -2;
+		}
+		if (parsed_options.count("output-file") == 0)
+		{
+			std::cout << options.help({ "" }) << std::endl;
+			return -3;
 		}
 
-		// Construct the base name for the intermediate files
-		std::string tmp_file_base = fs::path(parsed_options["input-file"].as<std::string>()).stem().string();
-
-		// Add the address 
-		if (parsed_options.count("m64"))
+		std::vector<std::string> params;
+		if (parsed_options.count("include"))
 		{
-			tmp_file_base += "_m64";
-		}
-		else
-		{
-			tmp_file_base += "_m32";
-		}
-
-		// Invoke the cuda compiler for each profile
-		std::vector<std::pair<std::string, std::string>> compiled_files;
-		compiled_files.reserve(profiles.size());
-		for (auto& p : profiles)
-		{
-			std::stringstream cmd_compile;
-			std::stringstream cmd_link;
-
-			// Verbose compiler output
-			//cmd_compile << R"(--verbose )";
-
-			// Force a compiler version
-			//cmd_compile << R"(--use-local-env --cl-version 2013 )";
-
-			if (parsed_options.count("include"))
+			for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
 			{
-				for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
-				{
-					cmd_compile << "-I \"" << inc << "\" ";
-				}
+				params.emplace_back("-I");
+				params.emplace_back("\"" + inc + "\"");
 			}
-
-			cmd_compile << "-gencode=arch=";
-			cmd_link << "-arch ";
-
-			// Generate the output filename for intermediate file
-			std::string tmp_file = tmp_file_base + "_";
-			std::string cc_file  = tmp_file_base + "_compiled_";
-
-			auto sm = p.find("sm");
-			if (sm != p.npos)
-			{
-				cmd_compile << "compute" << p.substr(2, p.npos) << ",code=" << p;
-				cmd_compile << " -cubin ";
-				tmp_file += p + ".cubin";
-
-				cmd_link << p << " ";
-				cc_file  += p + ".cubin";
-			}
-			else
-			{
-				cmd_compile << p << ",code=" << p;
-				cmd_compile << " -ptx ";
-				tmp_file += p + ".ptx";
-
-				cmd_link << p << " ";
-				cc_file  += p + ".ptx";
-			}
-
-			// Link against CUDA libraries
-			if (parsed_options.count("library-path"))
-			{
-				for (auto& path : parsed_options["library-path"].as<std::vector<std::string>>())
-				{
-					cmd_link << "-L\"" << path << "\" ";
-				}
-			}
-			if (parsed_options.count("library"))
-			{
-				for (auto& lib : parsed_options["library"].as<std::vector<std::string>>())
-				{
-					cmd_link << "-l\"" << lib << "\" ";
-				}
-			}
-			cmd_compile << "-dc -rdc=true ";
-
-			compiled_files.emplace_back(p, tmp_file);
-			cmd_compile << "-o \"" << cc_file << "\" \"" << parsed_options["input-file"].as<std::string>() << "\"";
-			cmd_link << "-o \"" << tmp_file << "\" \"" << cc_file << "\"";
-
-			// Compile the code
-			exec((nvcc_bin_path / "nvcc.exe").string().c_str(), cmd_compile.str().c_str());
-
-			// Link the code
-			exec((nvcc_bin_path / "nvlink.exe").string().c_str(), cmd_link.str().c_str());
 		}
+		params.emplace_back(parsed_options["input-file"].as<std::string>());
+		const auto kernels = parseCudaKernels(nvcc_bin_path.parent_path().string(), params);
 
-		// Create a fat binary from the compiled files 
-		std::stringstream fatbin_cmdbuilder;
-
-		// Create a new fatbin
-		fatbin_cmdbuilder << R"(--create=")" << tmp_file_base << R"(.fatbin" )";
-
-		// We want to create an embedded file
-		//fatbin_cmdbuilder << R"(--embedded-fatbin=")" << tmp_file_base << R"(.fatbin.c" )";
-
-		// Set the bitness
-		if (parsed_options.count("m64"))
+		// Read the binary module
+		std::ifstream fatbin_reader;
+		fatbin_reader.open(parsed_options["module-file"].as<std::string>(), std::ios_base::binary);
+		if (!fatbin_reader.is_open())
 		{
-			fatbin_cmdbuilder << "-64 ";
+			std::cout << "Couldn't open module file: " << parsed_options["module-file"].as<std::string>() << std::endl;
+			return -1;
 		}
-		else
-		{
-			fatbin_cmdbuilder << "-32 ";
-		}
+		std::string module_buffer = read_stream_into_string(fatbin_reader);
+		fatbin_reader.close();
 
-		// We are compiling cuda (not supported since 10.1), doesn't seem to affect the output
-		//fatbin_cmdbuilder << R"(--cuda )";
-
-		// Add the orignal filename as identifier
-		fatbin_cmdbuilder << R"(--ident=")" << parsed_options["symbol"].as<std::string>() << R"(" )";
-
-		// Add all the created files
-		for (auto& profile_file : compiled_files)
-		{
-			fatbin_cmdbuilder << R"("--image=profile=)" << profile_file.first << R"(,file=)" << profile_file.second << R"(" )";
-		}
-
-		exec((nvcc_bin_path / "fatbinary.exe").string().c_str(), fatbin_cmdbuilder.str().c_str());
-
-		// Create a source file with the binary 
-		std::stringstream bin2c_cmdbuilder;
-		bin2c_cmdbuilder.str("");
-		bin2c_cmdbuilder.clear();
-		bin2c_cmdbuilder << "--group 4 ";
-
-		if (parsed_options.count("symbol"))
-		{
-			bin2c_cmdbuilder << "--symbol " << parsed_options["symbol"].as<std::string>() << " ";
-		}
-
-		bin2c_cmdbuilder << "-o " << parsed_options["output-file"].as<std::string>() << " ";
-		bin2c_cmdbuilder << tmp_file_base << R"(.fatbin)";
-
-		// Invoke the binary file translator
-		exec("bin2c", bin2c_cmdbuilder.str().c_str());
+		// Open the output file
+		std::ofstream ww;
+		ww.open(parsed_options["output-file"].as<std::string>(), std::ios_base::binary);
+		createWrappers(ww, kernels, module_buffer);
+		ww.close();
 	}
 	catch (const cxxopts::OptionException& e)
 	{

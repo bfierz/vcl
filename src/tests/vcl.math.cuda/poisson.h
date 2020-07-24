@@ -72,23 +72,20 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 
 	return nr_pts;
 }
+
+extern Vcl::owner_ptr<Vcl::Compute::Cuda::Context> default_ctx;
+
 template<typename Solver, typename Ctx, typename Dim>
 void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs, const Eigen::VectorXf& sol, const std::vector<unsigned char>& skip, int max_iters, float eps)
 {
 	using namespace Vcl::Compute::Cuda;
 
-	Platform::initialise();
-	Platform* platform = Platform::instance();
-	const Device& device = platform->device(0);
-	auto dev_ctx = Vcl::make_owner<Context>(device);
-	dev_ctx->bind();
-
-	auto queue = dev_ctx->createCommandQueue();
+	auto queue = default_ctx->defaultQueue();
 
 	Eigen::Map<Eigen::VectorXf> x(lhs.data(), lhs.size());
 	Eigen::Map<const Eigen::VectorXf> y(rhs.data(), rhs.size());
 
-	Ctx ctx{ dev_ctx, queue, dim };
+	Ctx ctx{ default_ctx, queue, dim };
 	ctx.updatePoissonStencil(h, -1, 0, { skip.data(), (int64_t)skip.size() });
 	ctx.setData(x, y);
 

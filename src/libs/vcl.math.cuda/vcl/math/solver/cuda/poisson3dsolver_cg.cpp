@@ -28,9 +28,9 @@
 #include <vcl/math/solver/poisson.h>
 #include <vcl/math/ceil.h>
 
- // Kernels
-extern uint32_t Poisson3DCgCU[];
-extern size_t Poisson3DCgCUSize;
+CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, dim3 dim, float h, float a, float offset, float* __restrict Ac, float* __restrict Ax_l, float* __restrict Ax_r, float* __restrict Ay_l, float* __restrict Ay_r, float* __restrict Az_l, float* __restrict Az_r, const unsigned char* __restrict skip);
+CUresult ComputeInitialResidual(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, const float* __restrict unknowns, float* __restrict residual, float* __restrict direction);
+CUresult ComputeQ(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict direction, float* __restrict q);
 
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 {
@@ -46,15 +46,6 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	, _rhs(nullptr, map_t{nullptr, 0})
 	{
 		using namespace Vcl::Mathematics;
-
-		_cgModule = static_pointer_cast<Compute::Cuda::Module>(ctx->createModuleFromSource((int8_t*)Poisson3DCgCU, Poisson3DCgCUSize * sizeof(uint32_t)));
-
-		if (_cgModule)
-		{
-			_makeStencilKernel = static_pointer_cast<Compute::Cuda::Kernel>(_cgModule->kernel("MakePoissonStencil"));
-			_cgInit = static_pointer_cast<Compute::Cuda::Kernel>(_cgModule->kernel("ComputeInitialResidual"));
-			_cgComputeQ = static_pointer_cast<Compute::Cuda::Kernel>(_cgModule->kernel("ComputeQ"));
-		}
 
 		// Create buffers
 		size_t size = dim.x()*dim.y()*dim.z();
@@ -146,27 +137,27 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		_makeStencilKernel->run
+		VCL_CU_SAFE_CALL(MakePoissonStencil
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			grid_size,
 			block_size,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 
 			// Kernel parameters
-			_dim,
+			dim3(_dim.x(), _dim.y(), _dim.z()),
 			h,
 			k,
-			o, 
-			_laplacian[0],
-			_laplacian[1],
-			_laplacian[2],
-			_laplacian[3],
-			_laplacian[4],
-			_laplacian[5],
-			_laplacian[6],
-			skip
-		);
+			o,
+			(float*) _laplacian[0]->devicePtr(),
+			(float*) _laplacian[1]->devicePtr(),
+			(float*) _laplacian[2]->devicePtr(),
+			(float*) _laplacian[3]->devicePtr(),
+			(float*) _laplacian[4]->devicePtr(),
+			(float*) _laplacian[5]->devicePtr(),
+			(float*) _laplacian[6]->devicePtr(),
+			(const unsigned char*) skip.devicePtr()
+		));
 	}
 
 	void Poisson3DCgCtx::computeInitialResidual()
@@ -181,29 +172,29 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		_cgInit->run
+		VCL_CU_SAFE_CALL(ComputeInitialResidual
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			grid_size,
 			block_size,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 
 			// Kernel parameters
 			_dim.x(),
 			_dim.y(),
 			_dim.z(),
-			_laplacian[0],
-			_laplacian[1],
-			_laplacian[2],
-			_laplacian[3],
-			_laplacian[4],
-			_laplacian[5],
-			_laplacian[6],
-			std::get<0>(_rhs),
-			std::get<0>(_unknowns),
-			_devResidual,
-			_devDirection
-		);
+			(float*) _laplacian[0]->devicePtr(),
+			(float*) _laplacian[1]->devicePtr(),
+			(float*) _laplacian[2]->devicePtr(),
+			(float*) _laplacian[3]->devicePtr(),
+			(float*) _laplacian[4]->devicePtr(),
+			(float*) _laplacian[5]->devicePtr(),
+			(float*) _laplacian[6]->devicePtr(),
+			(float*) std::get<0>(_rhs)->devicePtr(),
+			(float*) std::get<0>(_unknowns)->devicePtr(),
+			(float*) _devResidual->devicePtr(),
+			(float*) _devDirection->devicePtr()
+		));
 
 //#define VCL_PHYSICS_FLUID_CUDA_CG_INIT_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_CG_INIT_VERIFY
@@ -285,27 +276,27 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		_cgComputeQ->run
+		VCL_CU_SAFE_CALL(ComputeQ
 		(
-			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 			grid_size,
 			block_size,
 			0,
+			*static_pointer_cast<Compute::Cuda::CommandQueue>(_queue),
 
 			// Kernel parameters
 			_dim.x(),
 			_dim.y(),
 			_dim.z(),
-			_laplacian[0],
-			_laplacian[1],
-			_laplacian[2],
-			_laplacian[3],
-			_laplacian[4],
-			_laplacian[5],
-			_laplacian[6],
-			_devDirection,
-			_devQ
-		);
+			(float*)_laplacian[0]->devicePtr(),
+			(float*)_laplacian[1]->devicePtr(),
+			(float*)_laplacian[2]->devicePtr(),
+			(float*)_laplacian[3]->devicePtr(),
+			(float*)_laplacian[4]->devicePtr(),
+			(float*)_laplacian[5]->devicePtr(),
+			(float*)_laplacian[6]->devicePtr(),
+			(float*)_devDirection->devicePtr(),
+			(float*)_devQ->devicePtr()
+		));
 
 //#define VCL_PHYSICS_FLUID_CUDA_CG_Q_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_CG_Q_VERIFY

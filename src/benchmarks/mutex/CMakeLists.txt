@@ -29,13 +29,13 @@ message(STATUS "Configuring 'mutexperformance'")
 
 # Boost dependency
 set(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.55 COMPONENTS chrono date_time system thread)
+find_package(Boost 1.55 QUIET COMPONENTS chrono date_time system thread)
 
 # Find the thread library
 find_package(Threads REQUIRED)
 
 # Find the QtCore library
-find_package(Qt5Core)
+find_package(Qt5Core QUIET)
 
 if (Boost_FOUND AND Qt5Core_FOUND)
 	set(SRC

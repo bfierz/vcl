@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2019 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,56 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
-// VCL configuration
-#include <vcl/config/global.h>
-#include <vcl/config/eigen.h>
-#include <vcl/config/cuda.h>
+#include <gtest/gtest.h>
 
 // VCL
-#include <vcl/compute/buffer.h>
-#include <vcl/compute/context.h>
-#include <vcl/compute/kernel.h>
-#include <vcl/compute/module.h>
-#include <vcl/core/interleavedarray.h>
+#include <vcl/compute/cuda/context.h>
+#include <vcl/compute/cuda/platform.h>
+#include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Mathematics { namespace Cuda
+Vcl::owner_ptr<Vcl::Compute::Cuda::Context> default_ctx;
+
+int main(int argc, char **argv)
 {
-	class JacobiSVD33
-	{
-	public:
-		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
+	using namespace Vcl::Compute::Cuda;
 
-	public:
-		void operator()
-		(
-			Vcl::Compute::CommandQueue& queue,
-			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-		);
+	Platform::initialise();
 
-	private:
-		// Device context
-		Core::ref_ptr<Compute::Context> _ownerCtx;
+	Platform* platform = Platform::instance();
+	const Device& device = platform->device(0);
+	default_ctx = Vcl::make_owner<Context>(device);
+	default_ctx->bind();
 
-	private: // Buffers
+	// Run the tests
+	::testing::InitGoogleTest(&argc, argv);
+	const int ret_code = RUN_ALL_TESTS();
 
-		//! Number of allocated entries
-		size_t _capacity = 0;
+	default_ctx.reset();
 
-		//! Input buffer 
-		Core::ref_ptr<Compute::Buffer> _A;
+	Platform::dispose();
 
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _U;
-
-		//! Output buffer 
-		Core::ref_ptr<Compute::Buffer> _V;
-
-		//! Singular value buffer 
-		Core::ref_ptr<Compute::Buffer> _S;
-	};
-}}}
+	return ret_code;
+}
