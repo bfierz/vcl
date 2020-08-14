@@ -50,6 +50,12 @@ if(VCL_OPENGL_SUPPORT)
 	endif()
 endif()
 
+# WebGPU related tests
+if(VCL_WEBGPU_SUPPORT)
+	add_subdirectory(vcl.graphics.webgpu)
+	list(APPEND test_project vcl.graphics.webgpu)
+endif()
+
 # CUDA related tests
 if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	add_subdirectory(vcl.compute.cuda)

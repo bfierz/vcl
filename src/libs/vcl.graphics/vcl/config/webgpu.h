@@ -24,28 +24,15 @@
  */
 #pragma once
 
-// C++ standard library
-#include <vector>
+ // VCL configuration
+#include <vcl/config/global.h>
 
-/// @brief Create a new XOR texture
-/// @param width Width of the texture
-/// @param height Height of the texture
-/// @returns the new texture object
-/// @note https://lodev.org/cgtutor/xortexture.html 
-std::vector<uint32_t> createXorTexture(unsigned int width, unsigned int height)
+VCL_BEGIN_EXTERNAL_HEADERS
+#ifdef VCL_WEBGPU_SUPPORT
+extern "C"
 {
-	std::vector<uint32_t> texture;
-	texture.reserve(width*height);
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
-		{
-			uint8_t v = static_cast<uint8_t>(x ^ y);
-			uint32_t col = 0;
-			col |= v;
-			col |= v << 8;
-			col |= v << 16;
-			texture.emplace_back(col);
-		}
-
-	return texture;
+#	include <webgpu/webgpu.h>
 }
+#endif
+VCL_END_EXTERNAL_HEADERS
+

@@ -26,10 +26,43 @@
 
  // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
+#include <vcl/config/webgpu.h>
 
-VCL_BEGIN_EXTERNAL_HEADERS
-#ifdef VCL_D3D12_SUPPORT
-#	include <d3d12.h>
-#endif
-VCL_END_EXTERNAL_HEADERS
+// VCL
+#include <vcl/core/flags.h>
+#include <vcl/graphics/runtime/resource/buffer.h>
 
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
+{
+	class Buffer : public Runtime::Buffer
+	{
+	public:
+		Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data = nullptr, WGPUQueue queue_id = 0);
+		virtual ~Buffer();
+
+		//! Resource handle
+		WGPUBuffer handle() const { return _resource; }
+
+		//! Map the device memory to a host visible address
+		void* map() const;
+
+		//! Unmap the buffer
+		void unmap() const;
+		
+		//void write(Graphics::D3D12::Device* device, ID3D12GraphicsCommandList* cmd_list, const void* data, size_t offset_in_bytes, size_t size_in_bytes);
+
+		//! \defgroup Data copy methods
+		//! \{
+
+		void copyTo(WGPUCommandEncoder cmd_encoder, Buffer tgt);
+		//void copyTo(ID3D11DeviceContext* ctx, void* dst, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
+		//void copyTo(ID3D11DeviceContext* ctx, Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
+
+		//! \}
+
+	private:
+		//! 
+		WGPUBuffer _resource;
+	};
+}}}}
