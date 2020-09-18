@@ -232,10 +232,18 @@ SET(VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_SRC
 
 # VCL / GRAPHICS / RUNTIME / WEBGPU / STATE
 SET(VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_INC
+	vcl/graphics/runtime/webgpu/state/blendstate.h
+	vcl/graphics/runtime/webgpu/state/depthstencilstate.h
+	vcl/graphics/runtime/webgpu/state/inputlayout.h
 	vcl/graphics/runtime/webgpu/state/pipelinestate.h
+	vcl/graphics/runtime/webgpu/state/rasterizerstate.h
 )
 SET(VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_SRC
+	vcl/graphics/runtime/webgpu/state/blendstate.cpp
+	vcl/graphics/runtime/webgpu/state/depthstencilstate.cpp
+	vcl/graphics/runtime/webgpu/state/inputlayout.cpp
 	vcl/graphics/runtime/webgpu/state/pipelinestate.cpp
+	vcl/graphics/runtime/webgpu/state/rasterizerstate.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / RESOURCE

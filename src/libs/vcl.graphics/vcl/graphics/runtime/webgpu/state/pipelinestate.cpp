@@ -29,10 +29,10 @@
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/graphics/runtime/webgpu/resource/shader.h>
-//#include <vcl/graphics/runtime/d3d12/state/blendstate.h>
-//#include <vcl/graphics/runtime/d3d12/state/depthstencilstate.h>
-//#include <vcl/graphics/runtime/d3d12/state/inputlayout.h>
-//#include <vcl/graphics/runtime/d3d12/state/rasterizerstate.h>
+#include <vcl/graphics/runtime/webgpu/state/blendstate.h>
+#include <vcl/graphics/runtime/webgpu/state/depthstencilstate.h>
+#include <vcl/graphics/runtime/webgpu/state/inputlayout.h>
+#include <vcl/graphics/runtime/webgpu/state/rasterizerstate.h>
 #include <vcl/graphics/webgpu/webgpu.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
@@ -55,6 +55,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		}
 
 		return WGPUPrimitiveTopology_Force32;
+	}
+
+	bool isListFormat(PrimitiveType type)
+	{
+		switch (type)
+		{
+		case PrimitiveType::Pointlist:
+		case PrimitiveType::Linelist:
+		case PrimitiveType::Trianglelist:
+			return true;
+		default:
+			return false;
+		}
 	}
 
 	WGPUProgrammableStageDescriptor getProgammableStageDesc(const Runtime::Shader* shader)
@@ -84,6 +97,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		VclRequire(desc.TessControlShader == nullptr, "Tessellation Control Shader not supported");
 		VclRequire(desc.TessEvalShader == nullptr, "Tessellation Evaluation Shader not supported");
 		VclRequire(desc.GeometryShader == nullptr, "Geometry Shader not supported");
+		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending")
+		VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported")
 
 		WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
 
@@ -92,46 +107,40 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		graphics_pipeline_desc.vertexStage = getProgammableStageDesc(desc.VertexShader);
 		const auto frag_shader_stage = getProgammableStageDesc(desc.FragmentShader);
 		graphics_pipeline_desc.fragmentStage = &frag_shader_stage;
-		//WGPUVertexStateDescriptor const* vertexState;
+
+		WGPUVertexStateDescriptor vertex_state_desc = {};
+		vertex_state_desc.indexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
+		auto vertex_buffer_desc = toWebGPU(desc.InputLayout);
+		auto* attrib_base = vertex_buffer_desc.second.data();
+		for (auto& vb : vertex_buffer_desc.first)
+		{
+			vb.attributes = attrib_base;
+			attrib_base += vb.attributeCount;
+		}
+		vertex_state_desc.vertexBufferCount = vertex_buffer_desc.first.size();
+		vertex_state_desc.vertexBuffers = vertex_buffer_desc.first.data();
+		graphics_pipeline_desc.vertexState = &vertex_state_desc;
+
 		graphics_pipeline_desc.primitiveTopology = convert(desc.InputAssembly.Topology);
-		//WGPURasterizationStateDescriptor const* rasterizationState;
+		const auto rasterization_state = toWebGPU(desc.Rasterizer);
+		graphics_pipeline_desc.rasterizationState = &rasterization_state;
 		graphics_pipeline_desc.sampleCount = 1;
-		//WGPUDepthStencilStateDescriptor const* depthStencilState;
+		auto depth_stencil_state = toWebGPU(desc.DepthStencil);
+		depth_stencil_state.format = toWebGPUEnum(rt_formats.DepthStencilFormat);
+		if (rt_formats.DepthStencilFormat == SurfaceFormat::Unknown)
+			graphics_pipeline_desc.depthStencilState = nullptr;
+		else
+			graphics_pipeline_desc.depthStencilState = &depth_stencil_state;
 
-		std::array<WGPUColorStateDescriptor, 8> colour_states = {};
-		colour_states[0].format = toWebGPUEnum(rt_formats.ColourFormats[0]);
-		colour_states[0].alphaBlend.operation = WGPUBlendOperation_Add;
-		colour_states[0].alphaBlend.srcFactor = WGPUBlendFactor_One;
-		colour_states[0].alphaBlend.dstFactor = WGPUBlendFactor_Zero;
-		colour_states[0].colorBlend.operation = WGPUBlendOperation_Add;
-		colour_states[0].colorBlend.srcFactor = WGPUBlendFactor_One;
-		colour_states[0].colorBlend.dstFactor = WGPUBlendFactor_Zero;
-		colour_states[0].writeMask = WGPUColorWriteMask_All;
-
-		graphics_pipeline_desc.colorStateCount = 1;
+		auto colour_states = toWebGPU(desc.Blend);
+		for (size_t i = 0; i < rt_formats.ColourFormats.size(); i++)
+		{
+			colour_states[i].format = toWebGPUEnum(rt_formats.ColourFormats[i]);
+		}
+		graphics_pipeline_desc.colorStateCount = rt_formats.ColourFormats.size();
 		graphics_pipeline_desc.colorStates = colour_states.data();
 		graphics_pipeline_desc.sampleMask = UINT_MAX;
 		graphics_pipeline_desc.alphaToCoverageEnabled = desc.Blend.AlphaToCoverageEnable;
-
-
-
-
-		//graphics_pipeline_desc.BlendState = toD3D12(desc.Blend);
-		//graphics_pipeline_desc.RasterizerState = toD3D12(desc.Rasterizer);
-		//graphics_pipeline_desc.DepthStencilState = toD3D12(desc.DepthStencil);
-
-		//const auto input_layout = toD3D12(desc.InputLayout);
-		//graphics_pipeline_desc.InputLayout.NumElements = input_layout.size();
-		//graphics_pipeline_desc.InputLayout.pInputElementDescs = input_layout.data();
-		
-		//graphics_pipeline_desc.IBStripCutValue = desc.InputAssembly.PrimitiveRestartEnable ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
-		//if (rt_layout)
-		//{
-		//	graphics_pipeline_desc.NumRenderTargets = rt_layout->NumRenderTargets;
-		//	memcpy(graphics_pipeline_desc.RTVFormats, rt_layout->RTVFormats, rt_layout->NumRenderTargets*sizeof(DXGI_FORMAT));
-		//	graphics_pipeline_desc.DSVFormat = rt_layout->DSVFormat;
-		//}
-		//graphics_pipeline_desc.SampleDesc = { 1, 0 };
 
 		_pipeline = wgpuDeviceCreateRenderPipeline(device, &graphics_pipeline_desc);
 	}
