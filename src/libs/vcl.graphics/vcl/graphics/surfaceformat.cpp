@@ -71,6 +71,8 @@ namespace Vcl { namespace Graphics
 		case SurfaceFormat::R32_SINT            :
 		case SurfaceFormat::D24_UNORM_S8_UINT   :
 			return 4;
+		case SurfaceFormat::R8G8B8_UNORM        :
+			return 3;
 		case SurfaceFormat::R8G8_UNORM          :
 		case SurfaceFormat::R8G8_UINT           :
 		case SurfaceFormat::R8G8_SNORM          :

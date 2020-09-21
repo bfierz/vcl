@@ -89,13 +89,13 @@ namespace Vcl { namespace Util { namespace Details
 
 	//! Downsample values according to the wavelet coefficients
 	template<int N>
-	void downsample(stdext::span<const float> from, stdext::span<float> to, int n, int stride) noexcept
+	void downsample(stdext::span<const float> from, stdext::span<float> to, unsigned int n, unsigned int stride) noexcept
 	{
 		const stdext::span<const float> a = ACoeffs;
-		for (int i = 0; i < n / 2; i++)
+		for (unsigned int i = 0; i < n / 2; i++)
 		{
 			to[i * stride] = 0;
-			for (int k = 2 * i - 16; k < 2 * i + 16; k++)
+			for (unsigned int k = 2 * i - 16; k < 2 * i + 16; k++)
 			{
 				to[i * stride] += a[16 + k - 2 * i] * from[Vcl::Util::FastMath<N>::modulo(k) * stride];
 			}
@@ -104,13 +104,13 @@ namespace Vcl { namespace Util { namespace Details
 
 	//! Upsample values according to the wavelet coefficients
 	template<int N>
-	void upsample(stdext::span<const float> from, stdext::span<float> to, int n, int stride) noexcept
+	void upsample(stdext::span<const float> from, stdext::span<float> to, unsigned int n, unsigned int stride) noexcept
 	{
 		const stdext::span<const float> p = PCoeffs;
-		for (int i = 0; i < n; i++)
+		for (unsigned int i = 0; i < n; i++)
 		{
 			to[i * stride] = 0;
-			for (int k = i / 2; k <= i / 2 + 1; k++)
+			for (unsigned int k = i / 2; k <= i / 2 + 1; k++)
 			{
 				to[i * stride] += p[2 + i - 2 * k] * from[Vcl::Util::FastMath<N / 2>::modulo(k) * stride];
 			}

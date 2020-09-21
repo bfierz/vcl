@@ -36,7 +36,6 @@ if(VCL_ENABLE_CLANG_TIDY AND NOT CLANG_TIDY_EXE)
 		message(STATUS "clang-tidy not found.")
 	else()
 		message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-		set(DO_CLANG_TIDY "${CLANG_TIDY_EXE}" "-config=")
 	endif()
 endif()
 	
@@ -46,12 +45,12 @@ function(enable_clang_tidy target)
 		message(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
 	endif()
 	
-	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Generate compilation database" FORCE)
 	if(VCL_ENABLE_CLANG_TIDY AND CLANG_TIDY_EXE)
 		message(STATUS "Enable clang-tidy on ${target}")
 		set_target_properties(
 			${target} PROPERTIES
-			CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+			CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
 		)
 	endif()
 endfunction()

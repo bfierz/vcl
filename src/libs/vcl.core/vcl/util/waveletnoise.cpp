@@ -31,6 +31,7 @@
 #include <vcl/util/waveletnoise_modulo.h>
 
  // C++ standard library
+#include <array>
 #include <cmath>
 
 // Disable the core-guideline checker until this file is refactored
@@ -61,7 +62,7 @@ namespace
 	xC = Vcl::Util::FastMath<N>::modulo(mid_x + (x));\
 	yC = Vcl::Util::FastMath<N>::modulo(mid_y + (y));\
 	zC = Vcl::Util::FastMath<N>::modulo(mid_z + (z));\
-	result += weight * data[(zC * N + yC) * N + xC];
+	result += weight * data[(zC * N + yC) * N + xC]
 
 	template<int N>
 	float interpolate
@@ -260,7 +261,7 @@ namespace Vcl { namespace Util
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
-		int mid[3];
+		std::array<int, 3> mid;
 		evaluateQuadraticSplineBasis(p[0], w[0], mid[0]);
 		evaluateQuadraticSplineBasis(p[1], w[1], mid[1]);
 		evaluateQuadraticSplineBasis(p[2], w[2], mid[2]);
@@ -272,7 +273,7 @@ namespace Vcl { namespace Util
 	template<int N>
 	float WaveletNoise<N>::evaluate(const Vec3& p, const Vec3& normal) const
 	{
-		int c[3], minimum[3], maximum[3];
+		std::array<int, 3> c, minimum, maximum;
 		float result = 0.0f;
 
 		// Bound the support of the basis functions for this projection direction
@@ -320,7 +321,7 @@ namespace Vcl { namespace Util
 			Vec3 q;
 			for (int i = 0; i <= 2; i++)
 			{
-				q[i] = 2.0f * p[i] * std::pow(2.0f, first_band + b);
+				q[i] = 2.0f * p[i] * static_cast<float>(std::pow(2.0f, first_band + b));
 			}
 			result += (normal != nullptr) ? w[b] * evaluate(q, *normal) : w[b] * evaluate(q);
 		}
@@ -345,7 +346,7 @@ namespace Vcl { namespace Util
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
-		int mid[3];
+		std::array<int, 3> mid;
 		evaluateDQuadraticSplineBasis(p[0], w[0], mid[0]);
 		evaluateQuadraticSplineBasis (p[1], w[1], mid[1]);
 		evaluateQuadraticSplineBasis (p[2], w[2], mid[2]);
@@ -359,7 +360,7 @@ namespace Vcl { namespace Util
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
-		int mid[3];
+		std::array<int, 3> mid;
 		evaluateQuadraticSplineBasis (p[0], w[0], mid[0]);
 		evaluateDQuadraticSplineBasis(p[1], w[1], mid[1]);
 		evaluateQuadraticSplineBasis (p[2], w[2], mid[2]);
@@ -373,7 +374,7 @@ namespace Vcl { namespace Util
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
-		int mid[3];
+		std::array<int, 3> mid;
 		evaluateQuadraticSplineBasis (p[0], w[0], mid[0]);
 		evaluateQuadraticSplineBasis (p[1], w[1], mid[1]);
 		evaluateDQuadraticSplineBasis(p[2], w[2], mid[2]);
@@ -437,17 +438,17 @@ namespace Vcl { namespace Util
 		// x derivative
 		///////////////////////////////////////////////////////////////////////////////////////
 		result2 = result3 = 0.0f;
-		ADD_WEIGHTED_EXTDX(-1,-1,-1); ADD_WEIGHTED_EXTDX(0,-1,-1); ADD_WEIGHTED_EXTDX(1,-1,-1);
-		ADD_WEIGHTED_EXTDX(-1, 0,-1); ADD_WEIGHTED_EXTDX(0, 0,-1); ADD_WEIGHTED_EXTDX(1, 0,-1);
-		ADD_WEIGHTED_EXTDX(-1, 1,-1); ADD_WEIGHTED_EXTDX(0, 1,-1); ADD_WEIGHTED_EXTDX(1, 1,-1);
+		ADD_WEIGHTED_EXTDX(-1,-1,-1) ADD_WEIGHTED_EXTDX(0,-1,-1) ADD_WEIGHTED_EXTDX(1,-1,-1)
+		ADD_WEIGHTED_EXTDX(-1, 0,-1) ADD_WEIGHTED_EXTDX(0, 0,-1) ADD_WEIGHTED_EXTDX(1, 0,-1)
+		ADD_WEIGHTED_EXTDX(-1, 1,-1) ADD_WEIGHTED_EXTDX(0, 1,-1) ADD_WEIGHTED_EXTDX(1, 1,-1)
 
-		ADD_WEIGHTED_EXTDX(-1,-1, 0); ADD_WEIGHTED_EXTDX(0,-1, 0); ADD_WEIGHTED_EXTDX(1,-1, 0);
-		ADD_WEIGHTED_EXTDX(-1, 0, 0); ADD_WEIGHTED_EXTDX(0, 0, 0); ADD_WEIGHTED_EXTDX(1, 0, 0);
-		ADD_WEIGHTED_EXTDX(-1, 1, 0); ADD_WEIGHTED_EXTDX(0, 1, 0); ADD_WEIGHTED_EXTDX(1, 1, 0);
+		ADD_WEIGHTED_EXTDX(-1,-1, 0) ADD_WEIGHTED_EXTDX(0,-1, 0) ADD_WEIGHTED_EXTDX(1,-1, 0)
+		ADD_WEIGHTED_EXTDX(-1, 0, 0) ADD_WEIGHTED_EXTDX(0, 0, 0) ADD_WEIGHTED_EXTDX(1, 0, 0)
+		ADD_WEIGHTED_EXTDX(-1, 1, 0) ADD_WEIGHTED_EXTDX(0, 1, 0) ADD_WEIGHTED_EXTDX(1, 1, 0)
 
-		ADD_WEIGHTED_EXTDX(-1,-1, 1); ADD_WEIGHTED_EXTDX(0,-1, 1); ADD_WEIGHTED_EXTDX(1,-1, 1);
-		ADD_WEIGHTED_EXTDX(-1, 0, 1); ADD_WEIGHTED_EXTDX(0, 0, 1); ADD_WEIGHTED_EXTDX(1, 0, 1);
-		ADD_WEIGHTED_EXTDX(-1, 1, 1); ADD_WEIGHTED_EXTDX(0, 1, 1); ADD_WEIGHTED_EXTDX(1, 1, 1);
+		ADD_WEIGHTED_EXTDX(-1,-1, 1) ADD_WEIGHTED_EXTDX(0,-1, 1) ADD_WEIGHTED_EXTDX(1,-1, 1)
+		ADD_WEIGHTED_EXTDX(-1, 0, 1) ADD_WEIGHTED_EXTDX(0, 0, 1) ADD_WEIGHTED_EXTDX(1, 0, 1)
+		ADD_WEIGHTED_EXTDX(-1, 1, 1) ADD_WEIGHTED_EXTDX(0, 1, 1) ADD_WEIGHTED_EXTDX(1, 1, 1)
 		final[1][0] = result2;
 		final[2][0] = result3;
 
@@ -455,17 +456,17 @@ namespace Vcl { namespace Util
 		// y derivative
 		///////////////////////////////////////////////////////////////////////////////////////
 		result1 = result3 = 0.0f;
-		ADD_WEIGHTED_EXTDY(-1,-1,-1); ADD_WEIGHTED_EXTDY(0,-1,-1); ADD_WEIGHTED_EXTDY(1,-1,-1);
-		ADD_WEIGHTED_EXTDY(-1, 0,-1); ADD_WEIGHTED_EXTDY(0, 0,-1); ADD_WEIGHTED_EXTDY(1, 0,-1);
-		ADD_WEIGHTED_EXTDY(-1, 1,-1); ADD_WEIGHTED_EXTDY(0, 1,-1); ADD_WEIGHTED_EXTDY(1, 1,-1);
+		ADD_WEIGHTED_EXTDY(-1,-1,-1) ADD_WEIGHTED_EXTDY(0,-1,-1) ADD_WEIGHTED_EXTDY(1,-1,-1)
+		ADD_WEIGHTED_EXTDY(-1, 0,-1) ADD_WEIGHTED_EXTDY(0, 0,-1) ADD_WEIGHTED_EXTDY(1, 0,-1)
+		ADD_WEIGHTED_EXTDY(-1, 1,-1) ADD_WEIGHTED_EXTDY(0, 1,-1) ADD_WEIGHTED_EXTDY(1, 1,-1)
 
-		ADD_WEIGHTED_EXTDY(-1,-1, 0); ADD_WEIGHTED_EXTDY(0,-1, 0); ADD_WEIGHTED_EXTDY(1,-1, 0);
-		ADD_WEIGHTED_EXTDY(-1, 0, 0); ADD_WEIGHTED_EXTDY(0, 0, 0); ADD_WEIGHTED_EXTDY(1, 0, 0);
-		ADD_WEIGHTED_EXTDY(-1, 1, 0); ADD_WEIGHTED_EXTDY(0, 1, 0); ADD_WEIGHTED_EXTDY(1, 1, 0);
+		ADD_WEIGHTED_EXTDY(-1,-1, 0) ADD_WEIGHTED_EXTDY(0,-1, 0) ADD_WEIGHTED_EXTDY(1,-1, 0)
+		ADD_WEIGHTED_EXTDY(-1, 0, 0) ADD_WEIGHTED_EXTDY(0, 0, 0) ADD_WEIGHTED_EXTDY(1, 0, 0)
+		ADD_WEIGHTED_EXTDY(-1, 1, 0) ADD_WEIGHTED_EXTDY(0, 1, 0) ADD_WEIGHTED_EXTDY(1, 1, 0)
 
-		ADD_WEIGHTED_EXTDY(-1,-1, 1); ADD_WEIGHTED_EXTDY(0,-1, 1); ADD_WEIGHTED_EXTDY(1,-1, 1);
-		ADD_WEIGHTED_EXTDY(-1, 0, 1); ADD_WEIGHTED_EXTDY(0, 0, 1); ADD_WEIGHTED_EXTDY(1, 0, 1);
-		ADD_WEIGHTED_EXTDY(-1, 1, 1); ADD_WEIGHTED_EXTDY(0, 1, 1); ADD_WEIGHTED_EXTDY(1, 1, 1);
+		ADD_WEIGHTED_EXTDY(-1,-1, 1) ADD_WEIGHTED_EXTDY(0,-1, 1) ADD_WEIGHTED_EXTDY(1,-1, 1)
+		ADD_WEIGHTED_EXTDY(-1, 0, 1) ADD_WEIGHTED_EXTDY(0, 0, 1) ADD_WEIGHTED_EXTDY(1, 0, 1)
+		ADD_WEIGHTED_EXTDY(-1, 1, 1) ADD_WEIGHTED_EXTDY(0, 1, 1) ADD_WEIGHTED_EXTDY(1, 1, 1)
 		final[0][1] = result1;
 		final[2][1] = result3;
 
@@ -473,17 +474,17 @@ namespace Vcl { namespace Util
 		// z derivative
 		///////////////////////////////////////////////////////////////////////////////////////
 		result1 = result2 = 0.0f;
-		ADD_WEIGHTED_EXTDZ(-1,-1,-1); ADD_WEIGHTED_EXTDZ(0,-1,-1); ADD_WEIGHTED_EXTDZ(1,-1,-1);
-		ADD_WEIGHTED_EXTDZ(-1, 0,-1); ADD_WEIGHTED_EXTDZ(0, 0,-1); ADD_WEIGHTED_EXTDZ(1, 0,-1);
-		ADD_WEIGHTED_EXTDZ(-1, 1,-1); ADD_WEIGHTED_EXTDZ(0, 1,-1); ADD_WEIGHTED_EXTDZ(1, 1,-1);
+		ADD_WEIGHTED_EXTDZ(-1,-1,-1) ADD_WEIGHTED_EXTDZ(0,-1,-1) ADD_WEIGHTED_EXTDZ(1,-1,-1)
+		ADD_WEIGHTED_EXTDZ(-1, 0,-1) ADD_WEIGHTED_EXTDZ(0, 0,-1) ADD_WEIGHTED_EXTDZ(1, 0,-1)
+		ADD_WEIGHTED_EXTDZ(-1, 1,-1) ADD_WEIGHTED_EXTDZ(0, 1,-1) ADD_WEIGHTED_EXTDZ(1, 1,-1)
 
-		ADD_WEIGHTED_EXTDZ(-1,-1, 0); ADD_WEIGHTED_EXTDZ(0,-1, 0); ADD_WEIGHTED_EXTDZ(1,-1, 0);
-		ADD_WEIGHTED_EXTDZ(-1, 0, 0); ADD_WEIGHTED_EXTDZ(0, 0, 0); ADD_WEIGHTED_EXTDZ(1, 0, 0);
-		ADD_WEIGHTED_EXTDZ(-1, 1, 0); ADD_WEIGHTED_EXTDZ(0, 1, 0); ADD_WEIGHTED_EXTDZ(1, 1, 0);
+		ADD_WEIGHTED_EXTDZ(-1,-1, 0) ADD_WEIGHTED_EXTDZ(0,-1, 0) ADD_WEIGHTED_EXTDZ(1,-1, 0)
+		ADD_WEIGHTED_EXTDZ(-1, 0, 0) ADD_WEIGHTED_EXTDZ(0, 0, 0) ADD_WEIGHTED_EXTDZ(1, 0, 0)
+		ADD_WEIGHTED_EXTDZ(-1, 1, 0) ADD_WEIGHTED_EXTDZ(0, 1, 0) ADD_WEIGHTED_EXTDZ(1, 1, 0)
 
-		ADD_WEIGHTED_EXTDZ(-1,-1, 1); ADD_WEIGHTED_EXTDZ(0,-1, 1); ADD_WEIGHTED_EXTDZ(1,-1, 1);
-		ADD_WEIGHTED_EXTDZ(-1, 0, 1); ADD_WEIGHTED_EXTDZ(0, 0, 1); ADD_WEIGHTED_EXTDZ(1, 0, 1);
-		ADD_WEIGHTED_EXTDZ(-1, 1, 1); ADD_WEIGHTED_EXTDZ(0, 1, 1); ADD_WEIGHTED_EXTDZ(1, 1, 1);
+		ADD_WEIGHTED_EXTDZ(-1,-1, 1) ADD_WEIGHTED_EXTDZ(0,-1, 1) ADD_WEIGHTED_EXTDZ(1,-1, 1)
+		ADD_WEIGHTED_EXTDZ(-1, 0, 1) ADD_WEIGHTED_EXTDZ(0, 0, 1) ADD_WEIGHTED_EXTDZ(1, 0, 1)
+		ADD_WEIGHTED_EXTDZ(-1, 1, 1) ADD_WEIGHTED_EXTDZ(0, 1, 1) ADD_WEIGHTED_EXTDZ(1, 1, 1)
 		final[0][2] = result1;
 		final[1][2] = result2;
 		// clang-format on

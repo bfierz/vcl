@@ -26,8 +26,15 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // Google benchmark
 #include "benchmark/benchmark.h"
+
+// Reference code
+#include <Mathematics/DistPointTriangle.h>
+#include <Mathematics/DistTriangle3Triangle3.h>
+#include <Mathematics/IntrRay3AlignedBox3.h>
+VCL_END_EXTERNAL_HEADERS
 
 // Include the relevant parts from the library
 #include <vcl/core/simd/vectorscalar.h>
@@ -37,18 +44,13 @@
 #include <vcl/geometry/intersect.h>
 #include <vcl/math/math.h>
 
-// Reference code
-#include <Mathematics/DistPointTriangle.h>
-#include <Mathematics/DistTriangle3Triangle3.h>
-#include <Mathematics/IntrRay3AlignedBox3.h>
-
 // Tests the distance functions.
-gte::Vector3<float> cast(const Eigen::Vector3f& vec)
+static gte::Vector3<float> cast(const Eigen::Vector3f& vec)
 {
 	return{ vec.x(), vec.y(), vec.z() };
 }
 
-Eigen::Vector3f cast(const gte::Vector3<float>& vec)
+static Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 {
 	return{ vec[0], vec[1], vec[2] };
 }
@@ -57,9 +59,9 @@ Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 // Triangle-Triangle distance
 ////////////////////////////////////////////////////////////////////////////////
 
-void BM_Dist_TriTriEberly(benchmark::State& state)
+static void BM_Dist_TriTriEberly(benchmark::State& state)
 {
-	const int problem_size = 64;
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_a(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_b(problem_size);
@@ -68,7 +70,7 @@ void BM_Dist_TriTriEberly(benchmark::State& state)
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_B(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_C(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		points_a.at<float>(i) = Eigen::Vector3f::Random();
 		points_b.at<float>(i) = Eigen::Vector3f::Random();
@@ -83,7 +85,7 @@ void BM_Dist_TriTriEberly(benchmark::State& state)
 
 	while (state.KeepRunning())
 	{
-		for (int i = 0; i < problem_size; i++)
+		for (size_t i = 0; i < problem_size; i++)
 		{
 			Eigen::Vector3f triA_0 = points_a.at<float>(i);
 			Eigen::Vector3f triA_1 = points_b.at<float>(i);
@@ -114,8 +116,8 @@ void BM_Dist_TriTri(benchmark::State& state)
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 	using vector3i_t = Eigen::Matrix<int_t, 3, 1>;
 
-	const int width = sizeof(real_t) / sizeof(float);
-	const int problem_size = 64;
+	const size_t width = sizeof(real_t) / sizeof(float);
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_a(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_b(problem_size);
@@ -124,7 +126,7 @@ void BM_Dist_TriTri(benchmark::State& state)
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_B(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_C(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		points_a.at<float>(i) = Eigen::Vector3f::Random();
 		points_b.at<float>(i) = Eigen::Vector3f::Random();
@@ -136,7 +138,7 @@ void BM_Dist_TriTri(benchmark::State& state)
 
 	while (state.KeepRunning())
 	{
-		for (int i = 0; i < problem_size / width; i++)
+		for (size_t i = 0; i < problem_size / width; i++)
 		{
 			vector3_t triA_0 = points_a.at<real_t>(i);
 			vector3_t triA_1 = points_b.at<real_t>(i);
@@ -165,13 +167,13 @@ BENCHMARK_TEMPLATE2(BM_Dist_TriTri, Vcl::float16, Vcl::int16)->ThreadRange(1, 16
 
 void BM_Int_RayBoxEberly(benchmark::State& state)
 {
-	const int problem_size = 64;
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_min(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_max(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> ray_dir(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		box_min.at<float>(i) = Eigen::Vector3f::Random().cwiseAbs();
 		box_max.at<float>(i) = box_min.at<float>(i) + Eigen::Vector3f::Random().cwiseAbs();
@@ -212,14 +214,14 @@ void BM_Int_RayBox(benchmark::State& state)
 	using box_t = Eigen::AlignedBox<real_t, 3>;
 	using ray_t = Ray<real_t, 3>;
 
-	const int width = sizeof(real_t) / sizeof(float);
-	const int problem_size = 64;
+	const size_t width = sizeof(real_t) / sizeof(float);
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_min(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_max(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> ray_dir(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		box_min.at<float>(i) = Eigen::Vector3f::Random().cwiseAbs();
 		box_max.at<float>(i) = box_min.at<float>(i) + Eigen::Vector3f::Random().cwiseAbs();
@@ -229,7 +231,7 @@ void BM_Int_RayBox(benchmark::State& state)
 
 	while (state.KeepRunning())
 	{
-		for (int i = 0; i < problem_size / width; i++)
+		for (size_t i = 0; i < problem_size / width; i++)
 		{
 			vector3_t bmin = box_min.at<real_t>(i);
 			vector3_t bmax = box_max.at<real_t>(i);
@@ -255,14 +257,14 @@ void BM_Int_RayBox_MaxMult(benchmark::State& state)
 	using box_t = Eigen::AlignedBox<real_t, 3>;
 	using ray_t = Ray<real_t, 3>;
 
-	const int width = sizeof(real_t) / sizeof(float);
-	const int problem_size = 64;
+	const size_t width = sizeof(real_t) / sizeof(float);
+	const size_t problem_size = 64;
 
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_min(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> box_max(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> ray_dir(problem_size);
 
-	for (int i = 0; i < problem_size; i++)
+	for (size_t i = 0; i < problem_size; i++)
 	{
 		box_min.at<float>(i) = Eigen::Vector3f::Random().cwiseAbs();
 		box_max.at<float>(i) = box_min.at<float>(i) + Eigen::Vector3f::Random().cwiseAbs();
@@ -272,7 +274,7 @@ void BM_Int_RayBox_MaxMult(benchmark::State& state)
 
 	while (state.KeepRunning())
 	{
-		for (int i = 0; i < problem_size / width; i++)
+		for (size_t i = 0; i < problem_size / width; i++)
 		{
 			vector3_t bmin = box_min.at<real_t>(i);
 			vector3_t bmax = box_max.at<real_t>(i);

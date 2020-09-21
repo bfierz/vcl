@@ -45,11 +45,11 @@ Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 
 void perfEigenSVD(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range(0));
 
 	for (auto _ : state)
 	{
-		for (int i = 0; i < state.range_x(); ++i)
+		for (int i = 0; i < state.range(0); ++i)
 		{
 			// Map data
 			auto R = resR.at<float>(i);
@@ -65,13 +65,13 @@ void perfEigenSVD(benchmark::State& state)
 
 	benchmark::DoNotOptimize(resR);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar>
 void perfPolarDecomposition(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -80,7 +80,7 @@ void perfPolarDecomposition(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto R = resR.at<real_t>(i);
@@ -98,13 +98,13 @@ void perfPolarDecomposition(benchmark::State& state)
 
 	benchmark::DoNotOptimize(resR);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar>
 void perfRotationTorque(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resR(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -113,7 +113,7 @@ void perfRotationTorque(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto R = resR.at<real_t>(i);
@@ -131,13 +131,13 @@ void perfRotationTorque(benchmark::State& state)
 
 	benchmark::DoNotOptimize(resR);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar>
 void perfRotationAPD(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 4, 1, -1> resR(state.range_x());
+	Vcl::Core::InterleavedArray<float, 4, 1, -1> resR(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -146,7 +146,7 @@ void perfRotationAPD(benchmark::State& state)
 
 	while (state.KeepRunning())
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto R = resR.at<real_t>(i);
@@ -164,7 +164,7 @@ void perfRotationAPD(benchmark::State& state)
 
 	benchmark::DoNotOptimize(resR);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 using Vcl::float4;

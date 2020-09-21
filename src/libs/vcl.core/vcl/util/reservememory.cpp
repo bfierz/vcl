@@ -41,7 +41,7 @@ namespace Vcl { namespace Util
 	{
 #ifdef _WIN64
 		static bool s_initialized = false;
-		if ( s_initialized )
+		if (s_initialized)
 			return;
 		s_initialized = true;
  
@@ -59,7 +59,7 @@ namespace Vcl { namespace Util
 		{
 			for (;;)
 			{
-				void* p = VirtualAlloc(0, size, MEM_RESERVE, PAGE_NOACCESS);
+				void* p = VirtualAlloc(nullptr, size, MEM_RESERVE, PAGE_NOACCESS);
 				if (!p)
 					break;
  
