@@ -22,7 +22,47 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(webgpu_samples)
 
-add_subdirectory(drawquad)
-add_subdirectory(imgui)
+# Status message
+message(STATUS "Configuring 'WebGPU ImGui'")
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(IMGUI
+	../../graphics/imgui/backends/imgui_impl_wgpu.cpp
+	../../graphics/imgui/backends/imgui_impl_wgpu.h
+	../../graphics/imgui/backends/imgui_impl_win32.cpp
+	../../graphics/imgui/backends/imgui_impl_win32.h
+	../../graphics/imgui/imconfig.h
+	../../graphics/imgui/imgui.cpp
+	../../graphics/imgui/imgui.h
+	../../graphics/imgui/imgui_demo.cpp
+	../../graphics/imgui/imgui_draw.cpp
+	../../graphics/imgui/imgui_internal.h
+	../../graphics/imgui/imgui_widgets.cpp
+)
+
+set(COMMON
+	../common/app.cpp
+	../common/app.h
+	../common/imguiapp.cpp
+	../common/imguiapp.h
+)
+
+set(SOURCE_FILES
+	main.cpp
+)
+
+add_executable(webgpu_imgui "")
+vcl_target_sources(webgpu_imgui "../../graphics" ${IMGUI})
+vcl_target_sources(webgpu_imgui ".." ${COMMON})
+vcl_target_sources(webgpu_imgui "" ${SOURCE_FILES})
+target_include_directories(webgpu_imgui
+	PRIVATE
+		../../graphics/imgui
+		../../graphics/imgui/backends
+)
+target_link_libraries(webgpu_imgui
+	vcl_graphics
+)
