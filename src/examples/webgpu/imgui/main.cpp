@@ -25,10 +25,6 @@
 
 #include "../common/imguiapp.h"
 
-// VCL
-#include <vcl/graphics/d3d12/device.h>
-#include <vcl/graphics/d3d12/swapchain.h>
-
 class DemoImGuiApplication final : public ImGuiApplication
 {
 public:

@@ -16,6 +16,7 @@ if(VCL_D3D12_SUPPORT)
 endif()
 
 if(VCL_WEBGPU_SUPPORT)
+	add_subdirectory(glfw EXCLUDE_FROM_ALL)
 	add_subdirectory(webgpu)
 endif()
 

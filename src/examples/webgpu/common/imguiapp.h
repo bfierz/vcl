@@ -40,7 +40,6 @@ protected:
 	void renderFrame(WGPUTextureView back_buffer) override;
 
 private:
-	LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 	void invalidateDeviceObjects() override;
 	void createDeviceObjects() override;
 };

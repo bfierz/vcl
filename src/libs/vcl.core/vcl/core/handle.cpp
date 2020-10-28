@@ -37,7 +37,7 @@ namespace Vcl
 
 #if defined VCL_ARCH_X64
 		return static_cast<uint32_t>(tagId) ^ static_cast<uint32_t>(tagId >> 32);
-#elif defined VCL_ARCH_X86 || defined VCL_ARCH_ARM
+#elif defined VCL_ARCH_X86 || defined VCL_ARCH_ARM || defined VCL_ARCH_WEBASM
 		return tagId;
 #else
 		VCL_ERROR("Unknown platform")

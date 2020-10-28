@@ -29,7 +29,6 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/d3d.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 {

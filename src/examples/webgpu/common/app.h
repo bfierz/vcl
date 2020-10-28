@@ -33,6 +33,9 @@
 #include <tchar.h>
 #include <windows.h>
 
+// GLFW
+#include <GLFW/glfw3.h>
+
 // Dawn
 #include <dawn_native/D3D12Backend.h>
 #include <dawn_native/DawnNative.h>
@@ -47,13 +50,12 @@ public:
 	Application(LPCSTR title);
 	virtual ~Application();
 
-	HWND windowHandle() const { return _windowHandle; }
+	GLFWwindow* windowHandle() const { return _windowHandle; }
 
 	int run();
 
 protected:
 	bool initWebGpu(HWND hWnd);
-	virtual LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) { return 0; }
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
@@ -63,10 +65,11 @@ protected:
 	static const int NumberOfFrames;
 
 private:
-	static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	//! Resize the swapchain
+	void resizeSwapChain(HWND hWnd, unsigned int width, unsigned int height);
 
-	//! Handle to the Win32 window
-	HWND _windowHandle{ nullptr };
+	//! Handle to the GLFW window
+	GLFWwindow* _windowHandle{ nullptr };
 
 	//! Dawn WebGPU instance
 	std::unique_ptr<dawn_native::Instance> _wgpuInstance;

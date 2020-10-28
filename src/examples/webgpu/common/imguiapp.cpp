@@ -27,11 +27,8 @@
 
  // IMGUI
 #define NOMINMAX
-#include "imgui_impl_win32.h"
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_wgpu.h"
-
- // Forward declare message handler from imgui_impl_win32.cpp
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 ImGuiApplication::ImGuiApplication(LPCSTR title)
 	: Application(title)
@@ -48,7 +45,7 @@ ImGuiApplication::ImGuiApplication(LPCSTR title)
 	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplWin32_Init(windowHandle());
+	ImGui_ImplGlfw_InitForVulkan(windowHandle(), true);
 	ImGui_ImplWGPU_Init(_wgpuDevice, NumberOfFrames, WGPUTextureFormat_RGBA8Unorm);
 
 	// Load Fonts
@@ -70,27 +67,17 @@ ImGuiApplication::ImGuiApplication(LPCSTR title)
 ImGuiApplication::~ImGuiApplication()
 {
 	ImGui_ImplWGPU_Shutdown();
-	ImGui_ImplWin32_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 }
 
 void ImGuiApplication::updateFrame()
 {
 	ImGui_ImplWGPU_NewFrame();
-	ImGui_ImplWin32_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 }
 
-LRESULT ImGuiApplication::msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
-		return true;
-
-	if (Application::msgHandler(hWnd, msg, wParam, lParam))
-		return true;
-
-	return false;
-}
 void ImGuiApplication::invalidateDeviceObjects()
 {
 	Application::invalidateDeviceObjects();

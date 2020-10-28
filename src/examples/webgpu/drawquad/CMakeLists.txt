@@ -71,5 +71,5 @@ target_sources(webgpu_drawquad PRIVATE ${COMPILEDSHADERS})
 source_group("generated" FILES ${COMPILEDSHADERS})
 target_link_libraries(webgpu_drawquad
 	vcl_graphics
+	glfw
 )
-add_dependencies(webgpu_drawquad bin2c)

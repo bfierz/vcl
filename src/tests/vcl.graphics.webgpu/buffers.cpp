@@ -37,7 +37,7 @@
 
 extern WGPUDevice device;
 
-TEST(D3D12Buffer, Create)
+TEST(WebGPUBuffer, Create)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -54,7 +54,7 @@ TEST(D3D12Buffer, Create)
 	EXPECT_TRUE(buf.handle() != 0) << "Buffer not created.";
 }
 
-/*TEST(D3D12Buffer, Clear)
+/*TEST(WebGPUBuffer, Clear)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -89,7 +89,7 @@ TEST(D3D12Buffer, Create)
 	EXPECT_TRUE(equal) << "Buffer not cleared: " << std::hex << "0x" << fault;
 }
 
-TEST(D3D12Buffer, SetValue)
+TEST(WebGPUBuffer, SetValue)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -120,7 +120,7 @@ TEST(D3D12Buffer, SetValue)
 	EXPECT_TRUE(equal) << "Buffer not set. Ref: 0x" << std::hex << ref_data << ", actual: 0x" << fault;
 }*/
 
-/*TEST(D3D12Buffer, InitWithValues)
+/*TEST(WebGPUBuffer, InitWithValues)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -168,7 +168,7 @@ TEST(D3D12Buffer, SetValue)
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
 }*/
 
-TEST(D3D12Buffer, ReadWrite)
+TEST(WebGPUBuffer, ReadWrite)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -221,11 +221,11 @@ TEST(D3D12Buffer, ReadWrite)
 	WGPUFence fence = wgpuQueueCreateFence(queue, &fence_desc);
 	wgpuQueueSignal(queue, fence, 1);
 
-	while (wgpuFenceGetCompletedValue(fence) < 1)
-	{
-		// Emulate a device tick...
-		wgpuQueueSubmit(queue, 0, nullptr);
-	}
+	//while (wgpuFenceGetCompletedValue(fence) < 1)
+	//{
+	//	// Emulate a device tick...
+	//	wgpuQueueSubmit(queue, 0, nullptr);
+	//}
 
 	auto readPtr = (float*)buf1.map();
 	bool equal = true;
@@ -241,7 +241,7 @@ TEST(D3D12Buffer, ReadWrite)
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
 }
 
-/*TEST(D3D12Buffer, DoubleMap)
+/*TEST(WebGPUBuffer, DoubleMap)
 {
 	using namespace Vcl::Graphics::Runtime;
 
@@ -291,7 +291,7 @@ TEST(D3D12Buffer, ReadWrite)
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
 }
 
-TEST(D3D12Buffer, DynamicUpdate)
+TEST(WebGPUBuffer, DynamicUpdate)
 {
 	using namespace Vcl::Graphics::Runtime;
 

@@ -30,17 +30,17 @@ message(STATUS "Configuring 'WebGPU ImGui'")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(IMGUI
-	../../graphics/imgui/backends/imgui_impl_wgpu.cpp
-	../../graphics/imgui/backends/imgui_impl_wgpu.h
-	../../graphics/imgui/backends/imgui_impl_win32.cpp
-	../../graphics/imgui/backends/imgui_impl_win32.h
-	../../graphics/imgui/imconfig.h
-	../../graphics/imgui/imgui.cpp
-	../../graphics/imgui/imgui.h
-	../../graphics/imgui/imgui_demo.cpp
-	../../graphics/imgui/imgui_draw.cpp
-	../../graphics/imgui/imgui_internal.h
-	../../graphics/imgui/imgui_widgets.cpp
+	../../3rdparty/imgui/backends/imgui_impl_wgpu.cpp
+	../../3rdparty/imgui/backends/imgui_impl_wgpu.h
+	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
+	../../3rdparty/imgui/backends/imgui_impl_glfw.h
+	../../3rdparty/imgui/imconfig.h
+	../../3rdparty/imgui/imgui.cpp
+	../../3rdparty/imgui/imgui.h
+	../../3rdparty/imgui/imgui_demo.cpp
+	../../3rdparty/imgui/imgui_draw.cpp
+	../../3rdparty/imgui/imgui_internal.h
+	../../3rdparty/imgui/imgui_widgets.cpp
 )
 
 set(COMMON
@@ -55,14 +55,15 @@ set(SOURCE_FILES
 )
 
 add_executable(webgpu_imgui "")
-vcl_target_sources(webgpu_imgui "../../graphics" ${IMGUI})
+vcl_target_sources(webgpu_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(webgpu_imgui ".." ${COMMON})
 vcl_target_sources(webgpu_imgui "" ${SOURCE_FILES})
 target_include_directories(webgpu_imgui
 	PRIVATE
-		../../graphics/imgui
-		../../graphics/imgui/backends
+		../../3rdparty/imgui
+		../../3rdparty/imgui/backends
 )
 target_link_libraries(webgpu_imgui
 	vcl_graphics
+	glfw
 )

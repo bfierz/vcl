@@ -24,7 +24,7 @@
 #
 project(vcl.graphics.webgpu.test)
 
-INCLUDE(../../cmake/VCLCompileGLSL.cmake)
+include(../../cmake/VCLCompileGLSL.cmake)
 include(../../cmake/VCLTest.cmake)
 
 # Find includes in corresponding build directories
@@ -64,4 +64,6 @@ target_sources(vcl.graphics.webgpu.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.webgpu.test
 	vcl_graphics
 )
-add_dependencies(vcl.graphics.webgpu.test bin2c)
+if (EMSCRIPTEN)
+    set_target_properties(vcl.graphics.webgpu.test PROPERTIES LINK_FLAGS "-s USE_WEBGPU=1")
+endif()

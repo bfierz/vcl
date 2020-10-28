@@ -27,23 +27,23 @@
 // VCL
 #include <vcl/config/webgpu.h>
 
+#ifndef VCL_ARCH_WEBASM
 #include <dawn_native/DawnNative.h>
 #include <dawn/dawn_proc.h>
 
 std::unique_ptr<dawn_native::Instance> instance;
-//WGPUInstance instance;
-WGPUDevice device;
 
-//void request_adapter_callback(WGPUAdapter received, void* userdata)
-//{
-//	*(WGPUAdapter*)userdata = received;
-//}
+#else
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <emscripten/html5_webgpu.h>
+#endif
+
+WGPUDevice device;
 
 int main(int argc, char **argv)
 {
-	//WGPUInstanceDescriptor inst_desc = {};
-	//instance = wgpuCreateInstance(&inst_desc);
-
+#ifndef VCL_ARCH_WEBASM
 	instance = std::make_unique<dawn_native::Instance>();
 	instance->DiscoverDefaultAdapters();
 	dawn_native::Adapter adapter = instance->GetDefaultAdapter();
@@ -51,18 +51,9 @@ int main(int argc, char **argv)
 
 	DawnProcTable procs = dawn_native::GetProcs();
 	dawnProcSetProcs(&procs);
-
-	/*WGPUAdapterId adapter = { 0 };
-	wgpu_request_adapter_async(
-		nullptr,
-		2 | 4 | 8,
-		request_adapter_callback,
-		(void*)&adapter
-	);
-	WGPUDeviceDescriptor adapter_desc = {};
-	adapter_desc.extensions.anisotropic_filtering = false;
-	adapter_desc.limits.max_bind_groups = 1;
-	device = wgpu_adapter_request_device(adapter, &adapter_desc, nullptr);*/
+#else
+	device = emscripten_webgpu_get_device();
+#endif
 
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
