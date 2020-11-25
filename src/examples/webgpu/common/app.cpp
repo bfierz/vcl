@@ -29,12 +29,19 @@
 #include <exception>
 #include <stdexcept>
 
+#ifndef VCL_ARCH_WEBASM
 // GLFW
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
 
 // Dawn
 #include <dawn/dawn_proc.h>
+#else
+// Emscripten
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <emscripten/html5_webgpu.h>
+#endif
 
 // VCL
 
@@ -69,7 +76,7 @@ static void printDeviceError(WGPUErrorType errorType, const char* message, void*
 }
 
 
-Application::Application(LPCSTR title)
+Application::Application(const char* title)
 {
 	glfwSetErrorCallback(printGlfwError);
 	glfwInit();
@@ -77,44 +84,62 @@ Application::Application(LPCSTR title)
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	_windowHandle = glfwCreateWindow(1280, 720, title, NULL, NULL);
 
-	if (!initWebGpu(glfwGetWin32Window(_windowHandle)))
+	if (!initWebGpu(_windowHandle))
 	{
-		glfwDestroyWindow(_windowHandle);
+		if (_windowHandle)
+			glfwDestroyWindow(_windowHandle);
 		glfwTerminate();
-		throw std::runtime_error("D3D12 failed to initialize");
+		throw std::runtime_error("WebGPU failed to initialize");
 	}
 }
 
 Application::~Application()
 {
-	glfwDestroyWindow(_windowHandle);
+	if (_windowHandle)
+		glfwDestroyWindow(_windowHandle);
 	glfwTerminate();
+}
+
+void Application::step()
+{
+	glfwPollEvents();
+
+	int width, height;
+	glfwGetFramebufferSize(_windowHandle, &width, &height);
+
+	if (width != _swapChainSize.first && height != _swapChainSize.second)
+	{
+		resizeSwapChain(_windowHandle, width, height);
+	}
+
+	// Allow to update the state of objects before waiting for the GPU
+	updateFrame();
+	
+	auto back_buffer = _swapChain.GetCurrentTextureView();
+	renderFrame(back_buffer.Get());
+#ifndef VCL_ARCH_WEBASM
+	_swapChain.Present();
+#endif
+	wgpuQueueSignal(wgpuDeviceGetDefaultQueue(_wgpuDevice), _swapChainFence, ++_frameCounter);
+}
+
+void mainLoop(void* self)
+{
+	reinterpret_cast<Application*>(self)->step();
 }
 
 int Application::run()
 {
 	// Show the window
-	glfwShowWindow(_windowHandle);
+	if (_windowHandle)
+		glfwShowWindow(_windowHandle);
 
+#ifdef VCL_ARCH_WEBASM
+	emscripten_set_main_loop_arg(mainLoop, this, 0, false);
+#else
 	while (!glfwWindowShouldClose(_windowHandle))
-	{
-		glfwPollEvents();
-
-		int width, height;
-		glfwGetFramebufferSize(_windowHandle, &width, &height);
-		if (width != _swapChainSize.first && height != _swapChainSize.second)
-		{
-			resizeSwapChain(glfwGetWin32Window(_windowHandle), width, height);
-		}
-
-		// Allow to update the state of objects before waiting for the GPU
-		updateFrame();
-
-		auto back_buffer = wgpuSwapChainGetCurrentTextureView(_swapChain);
-		renderFrame(back_buffer);
-		wgpuSwapChainPresent(_swapChain);
-		wgpuQueueSignal(wgpuDeviceGetDefaultQueue(_wgpuDevice), _swapChainFence, ++_frameCounter);
-	}
+		step();
+#endif
 
 	return EXIT_SUCCESS;
 }
@@ -127,8 +152,25 @@ void Application::createDeviceObjects()
 {
 }
 
-bool Application::initWebGpu(HWND hWnd)
+bool Application::initWebGpu(GLFWwindow* window)
 {
+#ifdef VCL_ARCH_WEBASM
+	_wgpuDevice = emscripten_webgpu_get_device();
+	wgpuDeviceSetUncapturedErrorCallback(_wgpuDevice, printDeviceError, nullptr);
+
+	// Use C++ wrapper due to malbehaviour in Emscripten.
+	// Some offset computation for wgpuInstanceCreateSurface in JavaScript
+	// seem to be inline with struct alignments in the C++ structure
+	wgpu::SurfaceDescriptorFromCanvasHTMLSelector html_surface_desc{};
+	html_surface_desc.selector = "#canvas";
+
+	wgpu::SurfaceDescriptor surface_desc{};
+	surface_desc.nextInChain = &html_surface_desc;
+
+	// Use 'null' instance
+	wgpu::Instance instance{};
+	_wgpuSurface = instance.CreateSurface(&surface_desc).Release();
+#else
 	_wgpuInstance = std::make_unique<dawn_native::Instance>();
 #ifdef VCL_DEBUG
 	_wgpuInstance->EnableBackendValidation(true);
@@ -139,7 +181,9 @@ bool Application::initWebGpu(HWND hWnd)
 
 	DawnProcTable procs = dawn_native::GetProcs();
 	dawnProcSetProcs(&procs);
-	procs.deviceSetUncapturedErrorCallback(_wgpuDevice, printDeviceError, nullptr);
+	wgpuDeviceSetUncapturedErrorCallback(_wgpuDevice, printDeviceError, nullptr);
+
+	HWND hWnd = glfwGetWin32Window(window);
 
 	WGPUSurfaceDescriptorFromWindowsHWND hwnd_surface_desc = {};
 	hwnd_surface_desc.chain.sType = WGPUSType_SurfaceDescriptorFromWindowsHWND;
@@ -149,12 +193,7 @@ bool Application::initWebGpu(HWND hWnd)
 	WGPUSurfaceDescriptor surface_desc = {};
 	surface_desc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&hwnd_surface_desc);
 	_wgpuSurface = wgpuInstanceCreateSurface(_wgpuInstance->Get(), &surface_desc);
-
-	_swapChainImpl = dawn_native::d3d12::CreateNativeSwapChainImpl(_wgpuDevice, hWnd);
-
-	WGPUSwapChainDescriptor desc;
-	desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
-	_swapChain = wgpuDeviceCreateSwapChain(_wgpuDevice, nullptr, &desc);
+#endif
 
 	WGPUFenceDescriptor fence_desc = { nullptr, nullptr, 0 };
 	_swapChainFence = wgpuQueueCreateFence(wgpuDeviceGetDefaultQueue(_wgpuDevice), &fence_desc);
@@ -162,36 +201,40 @@ bool Application::initWebGpu(HWND hWnd)
 	return true;
 }
 
-void Application::resizeSwapChain(HWND hWnd, unsigned int width, unsigned int height)
+void Application::resizeSwapChain(GLFWwindow* window, unsigned int width, unsigned int height)
 {
+#ifndef VCL_ARCH_WEBASM
 	// Wait for the last pending presentation
 	while (wgpuFenceGetCompletedValue(_swapChainFence) < _frameCounter)
-	{
-		// Emulate a device tick...
-		wgpuQueueSubmit(wgpuDeviceGetDefaultQueue(_wgpuDevice), 0, nullptr);
-	}
+		wgpuDeviceTick(_wgpuDevice);
+#endif
 
 	invalidateDeviceObjects();
 
-	// Create new swap-chain for proper size
-	wgpuSwapChainRelease(_swapChain);
-
-	// Emulate a device tick...
-	wgpuQueueSubmit(wgpuDeviceGetDefaultQueue(_wgpuDevice), 0, nullptr);
-
-	_swapChainImpl = dawn_native::d3d12::CreateNativeSwapChainImpl(_wgpuDevice, hWnd);
-	WGPUSwapChainDescriptor desc;
-	desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
-	_swapChain = wgpuDeviceCreateSwapChain(_wgpuDevice, nullptr, &desc);
-
 	_swapChainSize = { width, height };
+
+#ifdef VCL_ARCH_WEBASM
+	WGPUSwapChainDescriptor desc = {};
+	desc.usage = WGPUTextureUsage_OutputAttachment;
+	desc.format = WGPUTextureFormat_RGBA8Unorm;
+	desc.width = width;
+	desc.height = height;
+	desc.presentMode = WGPUPresentMode_Fifo;
+	_swapChain = wgpu::SwapChain::Acquire(wgpuDeviceCreateSwapChain(_wgpuDevice, _wgpuSurface, &desc));
+
+#else
+	_swapChainImpl = dawn_native::d3d12::CreateNativeSwapChainImpl(_wgpuDevice, glfwGetWin32Window(window));
+	WGPUSwapChainDescriptor desc = {};
+	desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
+	_swapChain = wgpu::SwapChain::Acquire(wgpuDeviceCreateSwapChain(_wgpuDevice, nullptr, &desc));
 
 	wgpuSwapChainConfigure
 	(
-		_swapChain,
+		_swapChain.Get(),
 		dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
 		WGPUTextureUsage_OutputAttachment,
 		_swapChainSize.first, _swapChainSize.second
 	);
+#endif
 	createDeviceObjects();
 }

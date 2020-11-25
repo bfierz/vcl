@@ -97,12 +97,15 @@ private:
 			wgpuRenderPassEncoderSetPipeline(pass, _gps->handle());
 			wgpuRenderPassEncoderDraw(pass, 6, 1, 0, 0);
 			wgpuRenderPassEncoderEndPass(pass);
+			wgpuRenderPassEncoderRelease(pass);
 		}
-
+		
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
+		wgpuCommandEncoderRelease(encoder);
 		WGPUQueue queue = wgpuDeviceGetDefaultQueue(_wgpuDevice);
 		wgpuQueueSubmit(queue, 1, &cmd_buffer);
+		wgpuCommandBufferRelease(cmd_buffer);
 	}
 
 	std::unique_ptr<Vcl::Graphics::Runtime::WebGPU::Shader> _vs;
@@ -111,8 +114,12 @@ private:
 	std::unique_ptr<Vcl::Graphics::Runtime::WebGPU::GraphicsPipelineState> _gps;
 };
 
+// Declare application as global object instead of stack object in main
+// in order to prevent it to be cleaned up,
+// when 'emscripten_set_main_loop' exists.
+DrawQuadApplication app;
+
 int main(int argc, char** argv)
 {
-	DrawQuadApplication app;
 	return app.run();
 }

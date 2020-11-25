@@ -49,6 +49,9 @@ set(COMMON
 	../common/imguiapp.cpp
 	../common/imguiapp.h
 )
+set(WEBGPU
+	${DAWN_INCLUDE_DIR}/../dawn/webgpu_cpp.cpp
+)
 
 set(SOURCE_FILES
 	main.cpp
@@ -65,5 +68,15 @@ target_include_directories(webgpu_imgui
 )
 target_link_libraries(webgpu_imgui
 	vcl_graphics
-	glfw
 )
+if (EMSCRIPTEN)
+	set_target_properties(webgpu_imgui PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_WEBGPU=1")
+	set(EXECUTABLE "webgpu_imgui.js")
+	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_imgui.html @ONLY)
+else()
+	vcl_target_sources(webgpu_imgui ".." ${WEBGPU})
+	target_link_libraries(webgpu_imgui
+		glfw
+	)
+endif()
+

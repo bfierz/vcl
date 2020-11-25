@@ -36,6 +36,9 @@ set(COMMON
 	../common/app.cpp
 	../common/app.h
 )
+set(WEBGPU
+	${DAWN_INCLUDE_DIR}/../dawn/webgpu_cpp.cpp
+)
 
 set(SOURCE_FILES
 	main.cpp
@@ -71,5 +74,16 @@ target_sources(webgpu_drawquad PRIVATE ${COMPILEDSHADERS})
 source_group("generated" FILES ${COMPILEDSHADERS})
 target_link_libraries(webgpu_drawquad
 	vcl_graphics
-	glfw
 )
+
+if (EMSCRIPTEN)
+	set_target_properties(webgpu_drawquad PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_WEBGPU=1")
+	set(EXECUTABLE "webgpu_drawquad.js")
+	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_drawquad.html @ONLY)
+else()
+	vcl_target_sources(webgpu_drawquad ".." ${WEBGPU})
+	target_link_libraries(webgpu_drawquad
+		glfw
+	)
+endif()
+

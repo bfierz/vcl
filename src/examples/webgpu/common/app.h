@@ -24,22 +24,23 @@
  */
 #pragma once
 
+#include <vcl/config/global.h>
+
 // C++ Standard Library
 #include <array>
 #include <memory>
 
- // Windows Runtime Library
-#define NOMINMAX
-#include <tchar.h>
-#include <windows.h>
-
 // GLFW
 #include <GLFW/glfw3.h>
 
+#ifndef VCL_ARCH_WEBASM
 // Dawn
 #include <dawn_native/D3D12Backend.h>
 #include <dawn_native/DawnNative.h>
-#include <dawn/webgpu_cpp.h>
+#endif
+
+// WebGPU
+#include <webgpu/webgpu_cpp.h>
 
 // VCL
 #include <vcl/config/webgpu.h>
@@ -47,15 +48,16 @@
 class Application
 {
 public:
-	Application(LPCSTR title);
+	Application(const char* title);
 	virtual ~Application();
 
 	GLFWwindow* windowHandle() const { return _windowHandle; }
 
 	int run();
+	void step();
 
 protected:
-	bool initWebGpu(HWND hWnd);
+	bool initWebGpu(GLFWwindow* window);
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
@@ -66,34 +68,38 @@ protected:
 
 private:
 	//! Resize the swapchain
-	void resizeSwapChain(HWND hWnd, unsigned int width, unsigned int height);
+	void resizeSwapChain(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	//! Handle to the GLFW window
 	GLFWwindow* _windowHandle{ nullptr };
 
+#ifndef VCL_ARCH_WEBASM
 	//! Dawn WebGPU instance
 	std::unique_ptr<dawn_native::Instance> _wgpuInstance;
+#endif
 
 	//! WebGPU surface
-	WGPUSurface _wgpuSurface;
+	WGPUSurface _wgpuSurface{ nullptr };
 	
 protected:
 	//! WebGPU device
-	WGPUDevice _wgpuDevice;
+	WGPUDevice _wgpuDevice{ nullptr };
 
 	//! SwapChain size
 	std::pair<uint32_t, uint32_t> _swapChainSize;
 
 private:
 	//! WebGPU SwapChain
-	WGPUSwapChain _swapChain;
+	wgpu::SwapChain _swapChain;
 
+#ifndef VCL_ARCH_WEBASM
 	//! Dawn swap-chain
 	DawnSwapChainImplementation _swapChainImpl = {};
+#endif
 
 	//! Swap-chain completion fence
-	WGPUFence _swapChainFence;
+	WGPUFence _swapChainFence{ nullptr };
 
 	//! Frame presentation counter
-	uint64_t _frameCounter = 0;
+	uint64_t _frameCounter{ 0 };
 };

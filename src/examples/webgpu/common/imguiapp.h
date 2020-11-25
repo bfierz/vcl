@@ -32,7 +32,7 @@
 class ImGuiApplication : public Application
 {
 public:
-	ImGuiApplication(LPCSTR title);
+	ImGuiApplication(const char* title);
 	~ImGuiApplication();
 
 protected:

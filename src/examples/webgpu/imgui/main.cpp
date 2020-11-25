@@ -102,8 +102,12 @@ private:
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 };
 
+// Declare application as global object instead of stack object in main
+// in order to prevent it to be cleaned up,
+// when 'emscripten_set_main_loop' exists.
+DemoImGuiApplication app{"ImGui Demo"};
+
 int main(int argc, char** argv)
 {
-	DemoImGuiApplication app{"ImGui Demo"};
 	return app.run();
 }

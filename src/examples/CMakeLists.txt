@@ -6,7 +6,7 @@ include(../cmake/VCLOpenCLSupport.cmake)
 add_subdirectory(rtti)
 add_subdirectory(simd)
 
-if(VCL_OPENGL_SUPPORT)
+if((VCL_OPENGL_SUPPORT OR VCL_WEBGPU_SUPPORT) AND NOT EMSCRIPTEN)
 	add_subdirectory(3rdparty/glfw EXCLUDE_FROM_ALL)
 	set_property(TARGET glfw PROPERTY FOLDER 3rd-party)
 endif()
@@ -16,7 +16,6 @@ if(VCL_D3D12_SUPPORT)
 endif()
 
 if(VCL_WEBGPU_SUPPORT)
-	add_subdirectory(glfw EXCLUDE_FROM_ALL)
 	add_subdirectory(webgpu)
 endif()
 

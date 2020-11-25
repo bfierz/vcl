@@ -30,7 +30,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_wgpu.h"
 
-ImGuiApplication::ImGuiApplication(LPCSTR title)
+ImGuiApplication::ImGuiApplication(const char* title)
 	: Application(title)
 {
 	// Setup Dear ImGui context
