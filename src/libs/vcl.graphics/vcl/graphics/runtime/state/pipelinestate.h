@@ -94,6 +94,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	};
 
+	struct ComputePipelineStateDescription
+	{
+		// Compute shader
+		Runtime::Shader* ComputeShader{ nullptr };
+	};
+
 	/*!
 	 *	\brief Abstraction of the global states the render pipeline uses
 	 */
