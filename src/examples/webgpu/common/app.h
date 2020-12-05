@@ -44,6 +44,7 @@
 
 // VCL
 #include <vcl/config/webgpu.h>
+#include <vcl/graphics/webgpu/swapchain.h>
 
 class Application
 {
@@ -90,16 +91,5 @@ protected:
 
 private:
 	//! WebGPU SwapChain
-	wgpu::SwapChain _swapChain;
-
-#ifndef VCL_ARCH_WEBASM
-	//! Dawn swap-chain
-	DawnSwapChainImplementation _swapChainImpl = {};
-#endif
-
-	//! Swap-chain completion fence
-	WGPUFence _swapChainFence{ nullptr };
-
-	//! Frame presentation counter
-	uint64_t _frameCounter{ 0 };
+	std::unique_ptr<Vcl::Graphics::WebGPU::SwapChain> _swapChain;
 };

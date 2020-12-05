@@ -115,12 +115,9 @@ void Application::step()
 	// Allow to update the state of objects before waiting for the GPU
 	updateFrame();
 	
-	auto back_buffer = _swapChain.GetCurrentTextureView();
-	renderFrame(back_buffer.Get());
-#ifndef VCL_ARCH_WEBASM
-	_swapChain.Present();
-#endif
-	wgpuQueueSignal(wgpuDeviceGetDefaultQueue(_wgpuDevice), _swapChainFence, ++_frameCounter);
+	auto back_buffer = _swapChain->currentBackBuffer();
+	renderFrame(back_buffer);
+	_swapChain->present(wgpuDeviceGetDefaultQueue(_wgpuDevice), false);
 }
 
 void mainLoop(void* self)
@@ -195,46 +192,30 @@ bool Application::initWebGpu(GLFWwindow* window)
 	_wgpuSurface = wgpuInstanceCreateSurface(_wgpuInstance->Get(), &surface_desc);
 #endif
 
-	WGPUFenceDescriptor fence_desc = { nullptr, nullptr, 0 };
-	_swapChainFence = wgpuQueueCreateFence(wgpuDeviceGetDefaultQueue(_wgpuDevice), &fence_desc);
-
 	return true;
 }
 
 void Application::resizeSwapChain(GLFWwindow* window, unsigned int width, unsigned int height)
 {
-#ifndef VCL_ARCH_WEBASM
-	// Wait for the last pending presentation
-	while (wgpuFenceGetCompletedValue(_swapChainFence) < _frameCounter)
-		wgpuDeviceTick(_wgpuDevice);
-#endif
+	if (_swapChain)
+		_swapChain->wait();
 
 	invalidateDeviceObjects();
 
 	_swapChainSize = { width, height };
 
-#ifdef VCL_ARCH_WEBASM
-	WGPUSwapChainDescriptor desc = {};
-	desc.usage = WGPUTextureUsage_OutputAttachment;
-	desc.format = WGPUTextureFormat_RGBA8Unorm;
-	desc.width = width;
-	desc.height = height;
-	desc.presentMode = WGPUPresentMode_Fifo;
-	_swapChain = wgpu::SwapChain::Acquire(wgpuDeviceCreateSwapChain(_wgpuDevice, _wgpuSurface, &desc));
-
-#else
-	_swapChainImpl = dawn_native::d3d12::CreateNativeSwapChainImpl(_wgpuDevice, glfwGetWin32Window(window));
-	WGPUSwapChainDescriptor desc = {};
-	desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
-	_swapChain = wgpu::SwapChain::Acquire(wgpuDeviceCreateSwapChain(_wgpuDevice, nullptr, &desc));
-
-	wgpuSwapChainConfigure
-	(
-		_swapChain.Get(),
-		dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
-		WGPUTextureUsage_OutputAttachment,
-		_swapChainSize.first, _swapChainSize.second
-	);
+	Vcl::Graphics::WebGPU::SwapChainDescription swap_chain_desc = {};
+	swap_chain_desc.Surface = _wgpuSurface;
+#ifndef VCL_ARCH_WEBASM
+	swap_chain_desc.NativeSurfaceHandle = reinterpret_cast<uint64_t>(glfwGetWin32Window(window));
 #endif
+	swap_chain_desc.NumberOfImages = NumberOfFrames;
+	swap_chain_desc.ColourFormat = Vcl::Graphics::SurfaceFormat::Unknown;
+	swap_chain_desc.Width = width;
+	swap_chain_desc.Height = height;
+	swap_chain_desc.PresentMode = Vcl::Graphics::WebGPU::PresentMode::Fifo;
+	swap_chain_desc.VSync = true;
+	_swapChain = std::make_unique<Vcl::Graphics::WebGPU::SwapChain>(_wgpuDevice, swap_chain_desc);
+
 	createDeviceObjects();
 }

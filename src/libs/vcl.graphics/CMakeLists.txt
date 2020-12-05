@@ -122,9 +122,11 @@ SET(VCL_GRAPHICS_OPENGL_SRC
 # VCL / GRAPHICS / WEBGPU
 SET(VCL_GRAPHICS_WEBGPU_INC
 	vcl/graphics/webgpu/webgpu.h
+	vcl/graphics/webgpu/swapchain.h
 )
 SET(VCL_GRAPHICS_WEBGPU_SRC
 	vcl/graphics/webgpu/webgpu.cpp
+	vcl/graphics/webgpu/swapchain.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / D3D12 / RESOURCE
