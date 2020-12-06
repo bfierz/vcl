@@ -43,8 +43,7 @@ TEST(OpenGL, CreateBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		{}
+		BufferUsage::Storage
 	};
 
 	OpenGL::Buffer buf(desc);
@@ -61,8 +60,7 @@ TEST(OpenGL, ClearBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		{}
+		BufferUsage::CopySrc | BufferUsage::MapRead
 	};
 	
 	std::vector<int> read_back(1024 / sizeof(int), 0xDEADC0DE);
@@ -72,9 +70,8 @@ TEST(OpenGL, ClearBuffer)
 		1024
 	};
 
-	OpenGL::Buffer buf(desc, false, false, &data);
+	OpenGL::Buffer buf(desc, &data);
 	buf.clear();
-
 	buf.copyTo(read_back.data(), 0, 0, 1024);
 	
 	// Verify the result
@@ -96,8 +93,7 @@ TEST(OpenGL, SetBufferValue)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Default,
-		{}
+		BufferUsage::CopySrc | BufferUsage::MapRead
 	};
 
 	OpenGL::Buffer buf(desc);
@@ -131,8 +127,7 @@ TEST(OpenGL, CheckBufferInit)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		ResourceAccess::Read | ResourceAccess::Write
+		BufferUsage::MapRead
 	};
 
 	BufferInitData data =
@@ -141,10 +136,10 @@ TEST(OpenGL, CheckBufferInit)
 		1024
 	};
 
-	OpenGL::Buffer buf(desc, true, true, &data);
+	OpenGL::Buffer buf(desc, &data);
 
 	bool equal = true;
-	auto ptr = (float*) buf.map(0, 1024, ResourceAccess::Read);
+	auto ptr = (float*) buf.map(0, 1024);
 	for (int i = 0; i < 256; i++)
 	{
 		equal = equal && (ptr[i] == numbers[i]);
@@ -172,8 +167,7 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		ResourceAccess::Read | ResourceAccess::Write
+		BufferUsage::MapWrite
 	};
 
 	BufferInitData data =
@@ -182,18 +176,18 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 		1024
 	};
 
-	OpenGL::Buffer buf0(desc, false, false, &data);
+	OpenGL::Buffer buf0(desc, &data);
 
 	EXPECT_TRUE(buf0.id() != 0) << "Buffer not created.";
 
-	auto writePtr = (float*) buf0.map(0, 1024, ResourceAccess::Write);
+	auto writePtr = (float*) buf0.map(0, 1024);
 	for (int i = 0; i < 95; i++)
 	{
 		writePtr[i] = numbers[i];
 	}
 	buf0.unmap();
 
-	auto readPtr = (float*) buf0.map(0, 1024, ResourceAccess::Read);
+	auto readPtr = (float*) buf0.map(0, 1024);
 	bool equal = true;
 	for (int i = 0; i < 95; i++)
 	{

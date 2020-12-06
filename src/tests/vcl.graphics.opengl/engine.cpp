@@ -95,19 +95,19 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_0 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
-	engine.enqueueReadback(*rt_0, [&b_rt_0](const BufferView& view) { memcpy(b_rt_0.data(), view.data(), view.size()); });
+	engine.enqueueReadback(*rt_0, [&b_rt_0](stdext::span<uint8_t> view) { memcpy(b_rt_0.data(), view.data(), view.size()); });
 	engine.endFrame();
 	
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_1 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(0.5f).eval());
-	engine.enqueueReadback(*rt_1, [&b_rt_1](const BufferView& view) { memcpy(b_rt_1.data(), view.data(), view.size()); });
+	engine.enqueueReadback(*rt_1, [&b_rt_1](stdext::span<uint8_t> view) { memcpy(b_rt_1.data(), view.data(), view.size()); });
 	engine.endFrame();
 	
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_2 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(1.0f).eval());
-	engine.enqueueReadback(*rt_2, [&b_rt_2](const BufferView& view) { memcpy(b_rt_2.data(), view.data(), view.size()); });
+	engine.enqueueReadback(*rt_2, [&b_rt_2](stdext::span<uint8_t> view) { memcpy(b_rt_2.data(), view.data(), view.size()); });
 	engine.endFrame();
 	
 	// Run three more frames in order to execute the read-back requests
@@ -140,4 +140,63 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	EXPECT_TRUE(std::all_of(d_rt_0.cbegin(), d_rt_0.cend(), [](uint32_t v) { return v == 0xffffffff; }));
 	EXPECT_TRUE(std::all_of(d_rt_1.cbegin(), d_rt_1.cend(), [](uint32_t v) { return v == 0x7f7f7f7f; }));
 	EXPECT_TRUE(std::all_of(d_rt_2.cbegin(), d_rt_2.cend(), [](uint32_t v) { return v == 0x40404040; }));
+}
+
+TEST(OpenGL, ConstantBufferUsage)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	// Engine executing the rendering commands
+	Runtime::OpenGL::GraphicsEngine engine;
+
+	struct ShaderConstants
+	{
+		float value;
+	};
+
+	// Base address of constants. Must be the same at the start of the next cycle
+	void* base_address{ nullptr };
+
+	engine.beginFrame();
+	{
+		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		base_address = memory.data();
+
+		engine.setConstantBuffer(0, std::move(memory));
+	}
+	engine.endFrame();
+	glFinish();
+
+	engine.beginFrame();
+	{
+		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		engine.setConstantBuffer(0, std::move(memory));
+	}
+	engine.endFrame();
+	glFinish();
+
+	engine.beginFrame();
+	{
+		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		engine.setConstantBuffer(0, std::move(memory));
+	}
+	engine.endFrame();
+	glFinish();
+
+	engine.beginFrame();
+	{
+		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		const void* new_base_address = memory.data();
+
+		engine.setConstantBuffer(0, std::move(memory));
+
+		EXPECT_EQ(base_address, new_base_address);
+	}
+	engine.endFrame();
+	glFinish();
 }

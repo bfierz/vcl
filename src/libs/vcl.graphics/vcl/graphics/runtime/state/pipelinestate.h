@@ -56,8 +56,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct InputAssemblyDescription
 	{
-		PrimitiveType Topology;
-		bool PrimitiveRestartEnable;
+		PrimitiveType Topology{ PrimitiveType::Undefined };
+		bool PrimitiveRestartEnable{ false };
 	};
 
 	struct PipelineStateDescription
@@ -92,6 +92,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		// Depth stencil state
 		Runtime::DepthStencilDescription DepthStencil;
 
+	};
+
+	struct ComputePipelineStateDescription
+	{
+		// Compute shader
+		Runtime::Shader* ComputeShader{ nullptr };
 	};
 
 	/*!

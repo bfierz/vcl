@@ -51,8 +51,7 @@ namespace Vcl { namespace Graphics
 		BufferDescription desc =
 		{
 			totalBlocks * nr_buckets * static_cast<unsigned int>(sizeof(unsigned int)),
-			ResourceUsage::Default,
-			ResourceAccess::Read
+			BufferUsage::Storage
 		};
 		
 		_partialHistograms = make_owner<Runtime::OpenGL::Buffer>(desc);

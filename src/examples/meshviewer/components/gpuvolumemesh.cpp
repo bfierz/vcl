@@ -35,14 +35,14 @@ namespace
 		using namespace Vcl::Graphics::Runtime;
 
 		BufferDescription desc;
-		desc.Usage = ResourceUsage::Default;
+		desc.Usage = BufferUsage::Vertex | BufferUsage::Index;
 		desc.SizeInBytes = static_cast<uint32_t>(nr_elements * stride);
 
 		BufferInitData data;
 		data.Data = buffer;
 		data.SizeInBytes = static_cast<uint32_t>(nr_elements * stride);
 
-		return std::make_unique<Vcl::Graphics::Runtime::OpenGL::Buffer>(desc, false, false, &data);
+		return std::make_unique<Vcl::Graphics::Runtime::OpenGL::Buffer>(desc, &data);
 	}
 }
 

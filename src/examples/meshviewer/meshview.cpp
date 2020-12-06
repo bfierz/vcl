@@ -112,10 +112,10 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
 	using Vcl::Graphics::Runtime::BufferDescription;
 	using Vcl::Graphics::Runtime::BufferInitData;
+	using Vcl::Graphics::Runtime::BufferUsage;
 	using Vcl::Graphics::Runtime::InputLayoutDescription;
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
-	using Vcl::Graphics::Runtime::ResourceUsage;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
 	using Vcl::Graphics::SurfaceFormat;
 
@@ -248,18 +248,18 @@ FboRenderer::FboRenderer()
 	memcpy(mcTables.edgeVertexList, Vcl::Geometry::edgeVertexList, sizeof(Vcl::Geometry::edgeVertexList));
 
 	BufferDescription mcDesc;
-	mcDesc.Usage = ResourceUsage::Default;
+	mcDesc.Usage = BufferUsage::Uniform;
 	mcDesc.SizeInBytes = sizeof(MarchingCubesTables);
 
 	BufferInitData mcData;
 	mcData.Data = &mcTables;
 	mcData.SizeInBytes = sizeof(MarchingCubesTables);
 
-	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, false, false, &mcData);
+	_marchingCubesTables = Vcl::make_owner<Buffer>(mcDesc, &mcData);
 
 	// Buffer for the ground plane
 	BufferDescription planeDesc;
-	planeDesc.Usage = ResourceUsage::Default;
+	planeDesc.Usage = BufferUsage::Vertex;
 	planeDesc.SizeInBytes = sizeof(Eigen::Vector4f);
 
 	Eigen::Vector4f grouldPlane{ 0, 1, 0, -2 };
@@ -267,7 +267,7 @@ FboRenderer::FboRenderer()
 	planeData.Data = grouldPlane.data();
 	planeData.SizeInBytes = sizeof(Eigen::Vector4f);
 
-	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, false, false, &planeData);
+	_planeBuffer = Vcl::make_owner<Buffer>(planeDesc, &planeData);
 
 	// Initialize the position manipulator
 	_posManip = std::make_unique<Vcl::Editor::Util::PositionManipulator>();
@@ -279,7 +279,6 @@ FboRenderer::FboRenderer()
 void FboRenderer::render()
 {
 	_engine->beginFrame();
-
 	if (_owner)
 	{
 		auto scene = _owner->scene();
@@ -297,7 +296,7 @@ void FboRenderer::render()
 		cbuffer_cam->ViewMatrix = V;
 		cbuffer_cam->ProjectionMatrix = P;
 
-		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, cbuffer_cam);
+		_engine->setConstantBuffer(PER_FRAME_CAMERA_DATA_LOC, std::move(cbuffer_cam));
 
 		// Common components
 		auto transforms = scene->entityManager()->get<System::Components::Transform>();
@@ -355,7 +354,7 @@ void FboRenderer::render()
 			_posManip->drawIds(_engine, pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
-			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](const Vcl::Graphics::Runtime::BufferView& view)
+			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](stdext::span<uint8_t> view)
 			{
 				if (_idBuffer->width()*_idBuffer->height()*sizeof(Eigen::Vector2i) == view.size())
 					std::memcpy(_idBufferHost.get(), view.data(), view.size());
@@ -365,7 +364,6 @@ void FboRenderer::render()
 		// Reset the render target
 		_engine->setRenderTargets({}, nullptr);
 		this->framebufferObject()->bind();
-
 		_engine->clear(0, Eigen::Vector4f{ 0, 0, 0, 1 });
 		_engine->clear(1.0f);
 
@@ -494,11 +492,12 @@ void FboRenderer::render()
 	// Render the ID map
 	if (true)
 	{
-		_rtDebugger->draw(_engine, _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
+		//_rtDebugger->draw(_engine, _idBuffer->renderTarget(0), _owner->scene()->entityManager()->size(), { 0.75f, 0.75f, 0.2f, 0.2f });
 	}
 
 	_engine->endFrame();
-	_owner->window()->resetOpenGLState();
+	if (_owner)
+		_owner->window()->resetOpenGLState();
 	update();
 }
 
@@ -598,7 +597,7 @@ void FboRenderer::renderTetMesh(const GPUVolumeMesh* mesh, Vcl::ref_ptr<Vcl::Gra
 void FboRenderer::synchronize(QQuickFramebufferObject* item)
 {
 	auto* view = dynamic_cast<MeshView*>(item);
-	if (view)
+	if (view && view->scene())
 	{
 		_owner = view;
 		_owner->scene()->setEngine(_engine.get());

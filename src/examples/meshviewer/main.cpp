@@ -49,9 +49,12 @@ extern "C"
 int main(int argc, char **argv)
 {
 	QGuiApplication app(argc, argv);
+	app.setOrganizationName("");
+	app.setOrganizationDomain("");
 
 	// Make types accessible in QML
 	qmlRegisterType<MeshView>("MeshViewerRendering", 1, 0, "MeshView");
+	qmlRegisterType<Scene>("MeshViewerRendering", 1, 0, "Scene");
 
 	// Configure the default OpenGL format
 	auto gl_fmt = QSurfaceFormat::defaultFormat();

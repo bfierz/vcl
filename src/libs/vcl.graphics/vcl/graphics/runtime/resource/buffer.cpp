@@ -24,12 +24,16 @@
  */
 #include <vcl/graphics/runtime/resource/buffer.h>
 
+// VCL
+#include <vcl/core/contract.h>
+
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	Buffer::Buffer(size_t size, ResourceUsage usage, Flags<ResourceAccess> cpuAccess)
+	Buffer::Buffer(size_t size, Flags<BufferUsage> usage)
 	: _sizeInBytes(size)
-	, _usage(usage)
-	, _cpuAccess(cpuAccess)
+	, _usage2(usage)
 	{
+		VclRequire(implies(usage.isSet(BufferUsage::MapWrite), !usage.isSet(BufferUsage::MapRead)),  "Map read and write are mutually exclusive");
+		VclRequire(implies(usage.isSet(BufferUsage::MapRead),  !usage.isSet(BufferUsage::MapWrite)), "Map read and write are mutually exclusive");
 	}
 }}}

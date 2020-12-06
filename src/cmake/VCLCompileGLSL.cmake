@@ -25,6 +25,7 @@
 
 # Path to the glslc compiler
 set(VCL_GLSLC_PATH CACHE FILEPATH "Path to glslc")
+set(VCLCOMPILEGLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled_files)
 
@@ -41,15 +42,23 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 	# Append the name to the output
 	set(${compiled_files} ${output_cpp_file} ${output_h_file} PARENT_SCOPE)
 
+	set(bin2c_cmdline
+		-DSYMBOL=${symbol}
+		-DOUTPUT_C=${output_cpp_file}
+		-DOUTPUT_H=${output_h_file}
+		-DINPUT_FILE="${tmp_file}"
+		-P "${VCLCOMPILEGLSL_DIR}/bin2c.cmake")
+
 	add_custom_command(
 		OUTPUT
 			${output_cpp_file}
+			${output_h_file}
 
 		COMMAND
 			"${VCL_GLSLC_PATH}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
 			
 		COMMAND
-			bin2c --group 1 --symbol "${symbol}Data" -o ${output_cpp_file} ${tmp_file}
+			${CMAKE_COMMAND} ARGS ${bin2c_cmdline}
 		
 		MAIN_DEPENDENCY
 			${file_to_compile}
@@ -57,15 +66,5 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 		COMMENT
 			"Compiling ${file_to_compile} to ${output_cpp_file} and ${output_h_file}"
 	)
-
-	# Create a header file
-	file(WRITE  ${output_h_file} "")
-	file(APPEND ${output_h_file} "#pragma once\n")
-	file(APPEND ${output_h_file} "#include <cstddef>\n")
-	file(APPEND ${output_h_file} "#include <cstdint>\n")
-	file(APPEND ${output_h_file} "#include <vcl/core/span.h>\n")
-	file(APPEND ${output_h_file} "extern uint8_t ${symbol}Data[];\n")
-	file(APPEND ${output_h_file} "extern size_t ${symbol}DataSize;\n")
-	file(APPEND ${output_h_file} "const stdext::span<const uint8_t> ${symbol}{${symbol}Data, ${symbol}DataSize};\n")
 
 endfunction(VclCompileGLSL)

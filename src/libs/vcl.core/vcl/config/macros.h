@@ -52,8 +52,8 @@
 #define VCL_SAFE_DELETE(ptr) if (ptr != NULL) { delete(ptr); ptr = NULL; }
 #define VCL_SAFE_DELETE_ARRAY(ptr) if (ptr != NULL) { delete[](ptr); ptr = NULL; }
 
-#define VCL_EVAL_TRUE  (std::sqrt(2.0f) > 0.0f)
-#define VCL_EVAL_FALSE (std::sqrt(2.0f) < 0.0f)
+#define VCL_EVAL_TRUE  (::strlen("") == 0)
+#define VCL_EVAL_FALSE (::strlen("") > 0)
 
 // Stringizes a string, even macros
 #define VCL_PP_STRINGIZE_HELPER(token)    #token

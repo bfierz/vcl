@@ -104,14 +104,14 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		// Allocate the head-buffer
 		BufferDescription headDesc;
-		headDesc.Usage = ResourceUsage::Default;
+		headDesc.Usage = BufferUsage::Storage;
 		headDesc.SizeInBytes = (2 + desc.Width * desc.Height) * sizeof(uint32_t);
 
 		_headBuffer = engine->createResource(headDesc);
 
 		// Allocate the fragment pool
 		BufferDescription poolDesc;
-		poolDesc.Usage = ResourceUsage::Default;
+		poolDesc.Usage = BufferUsage::Storage;
 		poolDesc.SizeInBytes = (1 + desc.Width * desc.Height) * 8 * (2 * sizeof(uint32_t));
 
 		_headBuffer = engine->createResource(poolDesc);

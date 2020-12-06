@@ -50,8 +50,7 @@ void ExecuteRadixSortTest(unsigned int size)
 	Runtime::BufferDescription desc =
 	{
 		num_keys * static_cast<unsigned int>(sizeof(int)),
-		Runtime::ResourceUsage::Staging,
-		Runtime::ResourceAccess::Read | Runtime::ResourceAccess::Write
+		Runtime::BufferUsage::MapRead | Runtime::BufferUsage::Storage
 	};
 
 	Runtime::BufferInitData data =
@@ -60,11 +59,11 @@ void ExecuteRadixSortTest(unsigned int size)
 		num_keys * static_cast<unsigned int>(sizeof(int))
 	};
 
-	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, true, true, &data);
+	auto keys = Vcl::make_owner<Runtime::OpenGL::Buffer>(desc, &data);
 
 	sort(keys, num_keys, 20);
 
-	int* ptr = (int*)keys->map(0, num_keys * sizeof(int), Runtime::ResourceAccess::Read);
+	int* ptr = (int*)keys->map(0, num_keys * sizeof(int));
 
 	int last = std::numeric_limits<int>::min();
 	for (int i = 0; i < num_keys; i++)

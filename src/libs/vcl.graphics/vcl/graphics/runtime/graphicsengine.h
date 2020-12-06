@@ -40,29 +40,18 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
-	class BufferView
+	class BufferRange
 	{
 	public:
-		BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size, void* base_data_ptr = nullptr)
+		BufferRange(ref_ptr<Buffer> buf, size_t offset, size_t size)
 		: _owner(buf), _offsetInBytes(offset), _sizeInBytes(size)
 		{
-			if (base_data_ptr)
-			{
-				char* ptr = reinterpret_cast<char*>(base_data_ptr);
-				ptr += offset;
-				_data = ptr;
-			}
 		}
 
-	public:
+		const Buffer& owner() const { return *_owner; }
+
 		size_t offset() const { return _offsetInBytes; }
 		size_t size() const { return _sizeInBytes; }
-
-	public:
-		void* data() const { return _data; }
-
-	public:
-		const Buffer& owner() const { return *_owner; }
 
 	protected:
 		//! Buffer to which the view belongs
@@ -73,21 +62,48 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		//! Size in bytes
 		size_t _sizeInBytes{ 0 };
+	};
 
+	class BufferView : public BufferRange
+	{
+	public:
+		BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size, void* base_data_ptr = nullptr, std::function<void(Buffer&, size_t, size_t)> release = nullptr)
+		: BufferRange(buf, offset, size), _release(std::move(release))
+		{
+			if (base_data_ptr)
+			{
+				char* ptr = reinterpret_cast<char*>(base_data_ptr);
+				ptr += offset;
+				_data = ptr;
+			}
+		}
+		~BufferView()
+		{
+			if (_release)
+				_release(*_owner, _offsetInBytes, _sizeInBytes);
+		}
+
+		BufferView(const BufferView&) = delete;
+		BufferView(BufferView&&) = default;
+		BufferView& operator =(const BufferView&) = delete;
+		BufferView& operator =(BufferView&&) = default;
+
+		void* data() const { return _data; }
+
+	protected:
 		//! Pointer to mapped data
 		void* _data{ nullptr };
+
+		//! Release the buffer view
+		std::function<void(Buffer&, size_t, size_t)> _release;
 	};
 
 	template<typename T>
-	class ConstantBufferView
+	class ConstantBufferView : public BufferView
 	{
 	public:
-		ConstantBufferView(BufferView&& view) : _view(std::move(view)) {}
-		operator const BufferView&() const { return _view; }
-		T* operator->() { return reinterpret_cast<T*>(_view.data()); }
-
-	private:
-		BufferView _view;
+		ConstantBufferView(BufferView&& view) : BufferView(std::move(view)) {}
+		T* operator->() { return reinterpret_cast<T*>(data()); }
 	};
 
 	class GraphicsEngine
@@ -132,7 +148,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual BufferView requestPerFrameLinearMemory(size_t size) = 0;
 
 		//! Enque a read-back command which will be executed at beginning of the frame where the data is ready
-		virtual void enqueueReadback(const Texture& tex, std::function<void(const BufferView&)> callback) = 0;
+		virtual void enqueueReadback(const Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) = 0;
 
 		//! Enque a generic command which will be executed next frame
 		virtual void enqueueCommand(std::function<void(void)>) = 0;

@@ -69,8 +69,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	struct DepthStencilDescription
 	{
 		bool                             DepthEnable{ true };
-		DepthWriteMethod			     DepthWriteMask{ DepthWriteMethod::All };
-		ComparisonFunction				 DepthFunc{ ComparisonFunction::Less };
+		DepthWriteMethod                 DepthWriteMask{ DepthWriteMethod::All };
+		ComparisonFunction               DepthFunc{ ComparisonFunction::Less };
 		bool                             StencilEnable{ false };
 		uint8_t                          StencilReadMask{ 0xff };
 		uint8_t                          StencilWriteMask{ 0xff };
