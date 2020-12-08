@@ -31,3 +31,6 @@
 [submodule "src/examples/3rdparty/glfw"]
 	path = src/examples/3rdparty/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "src/examples/3rdparty/implot"]
+	path = src/examples/3rdparty/implot
+	url = https://github.com/epezent/implot.git
