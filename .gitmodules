@@ -22,9 +22,12 @@
 [submodule "src/externals/json"]
 	path = src/externals/json
 	url = https://github.com/nlohmann/json
-[submodule "src/externals/EGL"]
-	path = src/externals/EGL
-	url = https://github.com/bfierz/EGL
 [submodule "src/examples/graphics/imgui"]
 	path = src/examples/3rdparty/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "src/examples/3rdparty/glfw"]
+	path = src/examples/3rdparty/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "src/examples/3rdparty/implot"]
+	path = src/examples/3rdparty/implot
+	url = https://github.com/epezent/implot.git

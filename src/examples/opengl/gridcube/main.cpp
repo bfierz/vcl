@@ -25,18 +25,11 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 #include <vcl/config/opengl.h>
 
 // C++ standard library
 #include <iostream>
-
-// NanoGUI
-#include <nanogui/label.h>
-#include <nanogui/layout.h>
-#include <nanogui/screen.h>
-#include <nanogui/slider.h>
-#include <nanogui/textbox.h>
-#include <nanogui/window.h>
 
 // VCL
 #include <vcl/graphics/opengl/glsl/uniformbuffer.h>
@@ -52,19 +45,27 @@
 #include "boundinggrid.geom.spv.h"
 #include "boundinggrid.frag.spv.h"
 
+#include "../common/imguiapp.h"
+
 // Force the use of the NVIDIA GPU in an Optimus system
 extern "C"
 {
 	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
 
-class DynamicBoundingGridExample : public nanogui::Screen
+bool InputUInt(const char* label, unsigned int* v, int step, int step_fast, ImGuiInputTextFlags flags)
+{
+	// Hexadecimal input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle prefixes.
+	const char* format = (flags & ImGuiInputTextFlags_CharsHexadecimal) ? "%08X" : "%d";
+	return ImGui::InputScalar(label, ImGuiDataType_U32, (void*)v, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), format, flags);
+}
+
+class DynamicBoundingGridExample final : public ImGuiApplication
 {
 public:
 	DynamicBoundingGridExample()
-	: nanogui::Screen(Eigen::Vector2i(768, 768), "VCL Dynamic Bounding Grid Example")
+	: ImGuiApplication("Grid Cube")
 	{
-		using namespace nanogui;
 
 		using Vcl::Graphics::Runtime::OpenGL::PipelineState;
 		using Vcl::Graphics::Runtime::OpenGL::Shader;
@@ -84,30 +85,6 @@ public:
 		if (!Shader::isSpirvSupported())
 			throw std::runtime_error("SPIR-V is not supported.");
 
-		Window *window = new Window(this, "Grid parameters");
-		window->setPosition(Vector2i(15, 15));
-		window->setLayout(new GroupLayout());
-
-		Widget *panel = new Widget(window);
-		panel->setLayout(new BoxLayout(Orientation::Horizontal, Alignment::Middle, 0, 20));
-
-		new Label(panel, "Resolution", "sans-bold");
-
-		TextBox *textBox = new TextBox(panel);
-		textBox->setEditable(true);
-		textBox->setValue(std::to_string(_gridResolution));
-		textBox->setFormat("[1-9][0-9]*");
-		textBox->setFontSize(20);
-		textBox->setFixedSize(Vector2i(60, 25));
-		textBox->setAlignment(TextBox::Alignment::Right);
-		textBox->setCallback([this](const std::string& txt) -> bool
-		{
-			_gridResolution = std::atoi(txt.c_str());
-			return true;
-		});
-		
-		performLayout();
-
 		// Initialize content
 		_camera = std::make_unique<Camera>(std::make_shared<Vcl::Graphics::OpenGL::MatrixFactory>());
 		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, -1, 0 }, 20.0f, { 0, 0, 1 });
@@ -123,37 +100,45 @@ public:
 		boxPSDesc.GeometryShader = &boxGeom;
 		boxPSDesc.FragmentShader = &boxFrag;
 		_boxPipelineState = std::make_unique<PipelineState>(boxPSDesc);
+
+		const auto size = std::make_pair(1280, 720);
+		_camera->setViewport(size.first, size.second);
+		_camera->setFieldOfView((float)size.first / (float)size.second);
+		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, -1, 0 }, 15.0f, { 0, 0, 1 });
 	}
 
 public:
-	bool mouseButtonEvent(const nanogui::Vector2i &p, int button, bool down, int modifiers) override
+	void updateFrame() override
 	{
-		if (Widget::mouseButtonEvent(p, button, down, modifiers))
-			return true;
+		ImGuiApplication::updateFrame();
 
-		if (down)
+		// Update UI
+		ImGui::Begin("Grid parameters");
+		InputUInt("Resolution", &_gridResolution, 1, 10, ImGuiInputTextFlags_None);
+		ImGui::End();
+
+		// Update camera
+		ImGuiIO& io = ImGui::GetIO();
+		const auto size = std::make_pair(1280, 720);
+		const auto x = io.MousePos.x;
+		const auto y = io.MousePos.y;
+		const auto w = size.first;
+		const auto h = size.second;
+		if (io.MouseClicked[0] && !io.WantCaptureMouse)
 		{
-			_cameraController->startRotate((float) p.x() / (float) width(), (float) p.y() / (float) height());
+			_cameraController->startRotate((float)x / (float)w, (float)y / (float)h);
 		}
-		else
+		else if (io.MouseDown[0])
+		{
+			_cameraController->rotate((float)x / (float)w, (float)y / (float)h);
+		}
+		else if (io.MouseReleased[0])
 		{
 			_cameraController->endRotate();
 		}
-
-		return true;
 	}
 
-	bool mouseMotionEvent(const nanogui::Vector2i &p, const nanogui::Vector2i &rel, int button, int modifiers) override
-	{
-		if (Widget::mouseMotionEvent(p, rel, button, modifiers))
-			return true;
-
-		_cameraController->rotate((float)p.x() / (float)width(), (float)p.y() / (float)height());
-		return true;
-	}
-
-public:
-	void drawContents() override
+	void renderFrame() override
 	{
 		_engine->beginFrame();
 
@@ -164,6 +149,8 @@ public:
 		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
 		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
 		renderBoundingBox(_engine.get(), bb, _gridResolution, _boxPipelineState, m, vp);
+
+		ImGuiApplication::renderFrame();
 
 		_engine->endFrame();
 	}
@@ -187,7 +174,7 @@ private:
 		cbuf_transform->ModelMatrix = M;
 		cbuf_transform->ViewProjectionMatrix = VP;
 		
-		cmd_queue->setConstantBuffer(0, cbuf_transform);
+		cmd_queue->setConstantBuffer(0, std::move(cbuf_transform));
 
 		// Compute the grid paramters
 		float maxSize = bb.diagonal().maxCoeff();
@@ -204,7 +191,7 @@ private:
 		cbuf_config->StepSize = maxSize / (float)resolution;
 		cbuf_config->Resolution = (float)resolution;
 
-		cmd_queue->setConstantBuffer(1, cbuf_config);
+		cmd_queue->setConstantBuffer(1, std::move(cbuf_config));
 		
 		// Render the grid
 		// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
@@ -226,27 +213,10 @@ private:
 	unsigned int _gridResolution{ 10 };
 };
 
-int main(int /* argc */, char ** /* argv */)
+int main(int argc, char** argv)
 {
-	try
-	{
-		nanogui::init();
-
-		{
-			nanogui::ref<DynamicBoundingGridExample> app = new DynamicBoundingGridExample();
-			app->drawAll();
-			app->setVisible(true);
-			nanogui::mainloop();
-		}
-
-		nanogui::shutdown();
-	}
-	catch (const std::runtime_error &e)
-	{
-		std::string error_msg = std::string("Caught a fatal error: ") + std::string(e.what());
-		std::cerr << error_msg << std::endl;
-		return -1;
-	}
+	DynamicBoundingGridExample app;
+	return app.run();
 
 	return 0;
 }

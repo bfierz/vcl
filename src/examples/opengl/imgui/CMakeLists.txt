@@ -2,7 +2,7 @@
 # This file is part of the Visual Computing Library (VCL) release under the
 # MIT license.
 #
-# Copyright (c) 2016 Basil Fierz
+# Copyright (c) 2020 Basil Fierz
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-project(gridcube)
-
-include(../../../cmake/VCLCompileGLSL.cmake)
 
 # Status message
-message(STATUS "Configuring 'OpenGL GridCube'")
+message(STATUS "Configuring 'OpenGL ImGui'")
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -40,6 +37,7 @@ set(IMGUI
 	../../3rdparty/imgui/imconfig.h
 	../../3rdparty/imgui/imgui.cpp
 	../../3rdparty/imgui/imgui.h
+	../../3rdparty/imgui/imgui_demo.cpp
 	../../3rdparty/imgui/imgui_draw.cpp
 	../../3rdparty/imgui/imgui_internal.h
 	../../3rdparty/imgui/imgui_widgets.cpp
@@ -54,52 +52,18 @@ set(COMMON
 
 set(SOURCE_FILES
 	main.cpp
-
-	shaders/boundinggrid.h
-	shaders/boundinggrid.vert
-	shaders/boundinggrid.geom
-	shaders/boundinggrid.frag
 )
 
-# Access the include directories in order to compile the HLSL shaders
-get_property(CURR_INC_DIRS_0 TARGET vcl_graphics PROPERTY INCLUDE_DIRECTORIES)
-list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
-
-vclcompileglsl(
-	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.vert
-	"opengl"
-	"BoundingGridVert"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_0
-)
-vclcompileglsl(
-	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.geom
-	"opengl"
-	"BoundingGridGeom"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_1
-)
-vclcompileglsl(
-	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.frag
-	"opengl"
-	"BoundingGridFrag"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_2
-)
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
-
-add_executable(opengl_gridcube "")
-vcl_target_sources(opengl_gridcube "../../3rdparty" ${IMGUI})
-vcl_target_sources(opengl_gridcube ".." ${COMMON})
-vcl_target_sources(opengl_gridcube "" ${SOURCE_FILES})
-target_sources(opengl_gridcube PRIVATE ${COMPILEDSHADERS})
-source_group("generated" FILES ${COMPILEDSHADERS})
-target_include_directories(opengl_gridcube
+add_executable(opengl_imgui "")
+vcl_target_sources(opengl_imgui "../../3rdparty" ${IMGUI})
+vcl_target_sources(opengl_imgui ".." ${COMMON})
+vcl_target_sources(opengl_imgui "" ${SOURCE_FILES})
+target_include_directories(opengl_imgui
 	PRIVATE
 		../../3rdparty/imgui
 		../../3rdparty/imgui/backends
 )
-target_link_libraries(opengl_gridcube
+target_link_libraries(opengl_imgui
 	vcl_graphics
 	glfw
 )
