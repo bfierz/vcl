@@ -58,6 +58,7 @@ set(SOURCE_FILES
 )
 
 add_executable(webgpu_imgui "")
+set_target_properties(webgpu_imgui PROPERTIES FOLDER examples/webgpu)
 vcl_target_sources(webgpu_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(webgpu_imgui ".." ${COMMON})
 vcl_target_sources(webgpu_imgui "" ${SOURCE_FILES})

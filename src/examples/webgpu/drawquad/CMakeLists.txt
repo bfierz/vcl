@@ -68,6 +68,7 @@ vclcompileglsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
 add_executable(webgpu_drawquad "")
+set_target_properties(webgpu_drawquad PROPERTIES FOLDER examples/webgpu)
 vcl_target_sources(webgpu_drawquad ".." ${COMMON})
 vcl_target_sources(webgpu_drawquad "" ${SOURCE_FILES})
 target_sources(webgpu_drawquad PRIVATE ${COMPILEDSHADERS})

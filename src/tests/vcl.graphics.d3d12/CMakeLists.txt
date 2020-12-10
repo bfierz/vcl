@@ -80,4 +80,3 @@ target_sources(vcl.graphics.d3d12.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.d3d12.test
 	vcl_graphics
 )
-add_dependencies(vcl.graphics.d3d12.test bin2c)

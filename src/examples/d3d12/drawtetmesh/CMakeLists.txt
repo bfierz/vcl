@@ -95,6 +95,7 @@ vclcompilehlsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_9})
 
 add_executable(d3d12_drawtetmesh "")
+set_target_properties(d3d12_drawtetmesh PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_drawtetmesh ".." ${COMMON})
 vcl_target_sources(d3d12_drawtetmesh "" ${SOURCE_FILES})
 target_sources(d3d12_drawtetmesh PRIVATE ${COMPILEDSHADERS})

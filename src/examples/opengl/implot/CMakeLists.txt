@@ -63,6 +63,7 @@ set(SOURCE_FILES
 )
 
 add_executable(opengl_implot "")
+set_target_properties(opengl_implot PROPERTIES FOLDER examples/opengl)
 vcl_target_sources(opengl_implot "../../3rdparty" ${IMGUI})
 vcl_target_sources(opengl_implot "../../3rdparty" ${IMPLOT})
 vcl_target_sources(opengl_implot ".." ${COMMON})
