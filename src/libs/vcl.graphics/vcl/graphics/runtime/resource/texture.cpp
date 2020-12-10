@@ -32,7 +32,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 {
 	void TextureView::initializeView
 	(
-		TextureType t, SurfaceFormat f,
+		TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
 		int firstLvl, int nrLvls,
 		int firstLayer, int nrLayers,
 		int width, int height, int depth
@@ -40,6 +40,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 		_type = t;
 		_format = f;
+		_usage = usage;
 		_level = firstLvl;
 		_nrLevels = nrLvls;
 		_layer = firstLayer;

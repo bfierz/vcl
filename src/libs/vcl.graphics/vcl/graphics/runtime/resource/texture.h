@@ -32,11 +32,30 @@
 #include <memory>
 
 // VCL
+#include <vcl/core/flags.h>
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime
 {
+	VCL_DECLARE_FLAGS(TextureUsage,
+
+		//! Texture can be the source of copy opertions
+		CopySrc,
+
+		//! Texture can be the destination of copy opertions
+		CopyDst,
+
+		//! Texture can be used to sample texels from in the shader
+		Sampled,
+
+		//! Texture can be read as image (e.g. in compute shader)
+		Storage,
+
+		//! Texture can be used as render-target
+		OutputAttachment
+	)
+
 	enum class TextureCubeFace
 	{
 		PositiveX = 0,
@@ -50,6 +69,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	struct TextureBaseDescription
 	{
 		SurfaceFormat Format;
+		Flags<TextureUsage> Usage;
 	};
 
 	struct Texture1DDescription : public TextureBaseDescription
@@ -103,7 +123,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Width of the image data
 		int Width{ 0 };
 		//! Height of the image data
-		int Height{ 0 };
+		int Height{ 1 };
 		//! Number of depth-layers in the image data
 		int Depth{ 1 };
 		//! Number of array-layers in the image data
@@ -174,6 +194,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		SurfaceFormat format() const { return _format; }
 
+		Flags<TextureUsage> usage() const { return _usage; }
+
 		int width() const { return _width; }
 		int height() const { return _height; }
 		int depth() const { return _depth; }
@@ -189,7 +211,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	protected:
 		void initializeView
 		(
-			TextureType t, SurfaceFormat f,
+			TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
 			int firstLvl, int nrLvls,
 			int firstLayer, int nrLayers,
 			int width, int height = 1, int depth = 1
@@ -201,6 +223,9 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		//! Surface format
 		SurfaceFormat _format;
+
+		//! Configured texture usages
+		Flags<TextureUsage> _usage;
 
 		int  _level;
 		int  _nrLevels;
@@ -227,8 +252,5 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		virtual std::unique_ptr<Texture> clone() const = 0;
-
-	public:
-		virtual void clear(SurfaceFormat fmt, const void* data) = 0;
 	};
 }}}

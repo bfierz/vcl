@@ -86,6 +86,7 @@ if (NOT vcl_ext_absl)
 	set_property(TARGET absl_dynamic_annotations PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_internal_spinlock_wait PROPERTY FOLDER 3rd-party/absl)
 	set_property(TARGET absl_utility PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
 endif()
 
 if (NOT vcl_ext_fmt)

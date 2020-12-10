@@ -11,6 +11,10 @@ if(VCL_OPENGL_SUPPORT)
 	set_property(TARGET glfw PROPERTY FOLDER 3rd-party)
 endif()
 
+if(VCL_D3D12_SUPPORT)
+	add_subdirectory(d3d12)
+endif()
+
 IF(VCL_OPENGL_SUPPORT)
 	SUBDIRS(meshviewer)
 	SUBDIRS(opengl)

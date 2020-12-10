@@ -36,6 +36,12 @@ add_subdirectory(vcl.math)
 add_subdirectory(vcl.components)
 set(test_project vcl.core.test vcl.geometry.test vcl.math.test vcl.components.test)
 
+# D3D12 related tests
+if(VCL_D3D12_SUPPORT)
+	add_subdirectory(vcl.graphics.d3d12)
+	list(APPEND test_project vcl.graphics.d3d12)
+endif()
+
 # OpenGL related tests
 if(VCL_OPENGL_SUPPORT)
 	if(TARGET ${vcl_ext_glew})

@@ -27,6 +27,7 @@ PROJECT(vcl_graphics)
 # VCL / CONFIG
 SET(VCL_CONFIG_INC
 	vcl/config/opengl.h
+	vcl/config/direct3d12.h
 )
 
 # VCL / GRAPHICS / IMAGEPROCESSING / OPENGL
@@ -70,6 +71,25 @@ SET(VCL_GRAPHICS_IMAGEPROCESSING_SRC
 	vcl/graphics/imageprocessing/tonemap.cpp
 )
 
+# VCL / GRAPHICS / D3D12
+SET(VCL_GRAPHICS_D3D12_INC
+	vcl/graphics/d3d12/commandqueue.h
+	vcl/graphics/d3d12/d3d.h
+	vcl/graphics/d3d12/descriptortable.h
+	vcl/graphics/d3d12/device.h
+	vcl/graphics/d3d12/semaphore.h
+	vcl/graphics/d3d12/swapchain.h
+)
+SET(VCL_GRAPHICS_D3D12_SRC
+	vcl/graphics/d3d12/commandqueue.cpp
+	vcl/graphics/d3d12/d3d.cpp
+	vcl/graphics/d3d12/descriptortable.cpp
+	vcl/graphics/d3d12/device.cpp
+	vcl/graphics/d3d12/semaphore.cpp
+	vcl/graphics/d3d12/swapchain.cpp
+)
+
+
 # VCL / GRAPHICS / OPENGL / ALGORITHM
 FILE(GLOB VCL_GRAPHICS_OPENGL_ALGORITHM_INC
 	vcl/graphics/opengl/algorithm/*.h
@@ -98,6 +118,42 @@ SET(VCL_GRAPHICS_OPENGL_SRC
 	vcl/graphics/opengl/context.cpp
 	vcl/graphics/opengl/gl.cpp
 	vcl/graphics/opengl/type_traits.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME / D3D12 / RESOURCE
+SET(VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_INC
+	vcl/graphics/runtime/d3d12/resource/buffer.h
+	vcl/graphics/runtime/d3d12/resource/shader.h
+	vcl/graphics/runtime/d3d12/resource/texture.h
+)
+SET(VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_SRC
+	vcl/graphics/runtime/d3d12/resource/buffer.cpp
+	vcl/graphics/runtime/d3d12/resource/shader.cpp
+	vcl/graphics/runtime/d3d12/resource/texture.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME / D3D12 / STATE
+SET(VCL_GRAPHICS_RUNTIME_D3D12_STATE_INC
+	vcl/graphics/runtime/d3d12/state/blendstate.h
+	vcl/graphics/runtime/d3d12/state/depthstencilstate.h
+	vcl/graphics/runtime/d3d12/state/inputlayout.h
+	vcl/graphics/runtime/d3d12/state/pipelinestate.h
+	vcl/graphics/runtime/d3d12/state/rasterizerstate.h
+)
+SET(VCL_GRAPHICS_RUNTIME_D3D12_STATE_SRC
+	vcl/graphics/runtime/d3d12/state/blendstate.cpp
+	vcl/graphics/runtime/d3d12/state/depthstencilstate.cpp
+	vcl/graphics/runtime/d3d12/state/inputlayout.cpp
+	vcl/graphics/runtime/d3d12/state/pipelinestate.cpp
+	vcl/graphics/runtime/d3d12/state/rasterizerstate.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME / D3D12
+SET(VCL_GRAPHICS_RUNTIME_D3D12_INC
+	vcl/graphics/runtime/d3d12/graphicsengine.h
+)
+SET(VCL_GRAPHICS_RUNTIME_D3D12_SRC
+	vcl/graphics/runtime/d3d12/graphicsengine.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / OPENGL / RESOURCE
@@ -225,9 +281,13 @@ SET(VCL_GRAPHICS_SRC
 SOURCE_GROUP("config" FILES ${VCL_CONFIG_INC})
 SOURCE_GROUP("imageprocessing\\opengl" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_OPENGL_INC})
 SOURCE_GROUP("imageprocessing" FILES ${VCL_GRAPHICS_IMAGEPROCESSING_SRC} ${VCL_GRAPHICS_IMAGEPROCESSING_INC})
+SOURCE_GROUP("d3d12" FILES ${VCL_GRAPHICS_D3D12_SRC} ${VCL_GRAPHICS_D3D12_INC})
 SOURCE_GROUP("opengl\\algorithm" FILES ${VCL_GRAPHICS_OPENGL_ALGORITHM_SRC} ${VCL_GRAPHICS_OPENGL_ALGORITHM_INC})
 SOURCE_GROUP("opengl\\glsl" FILES ${VCL_GRAPHICS_OPENGL_GLSL_INC})
 SOURCE_GROUP("opengl" FILES ${VCL_GRAPHICS_OPENGL_SRC} ${VCL_GRAPHICS_OPENGL_INC})
+SOURCE_GROUP("runtime\\d3d12\\resource" FILES ${VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_INC})
+SOURCE_GROUP("runtime\\d3d12\\state" FILES ${VCL_GRAPHICS_RUNTIME_D3D12_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_STATE_INC})
+SOURCE_GROUP("runtime\\d3d12" FILES ${VCL_GRAPHICS_RUNTIME_D3D12_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_INC})
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
 SOURCE_GROUP("runtime\\opengl" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC})
@@ -262,9 +322,18 @@ SET(OPENGL_SOURCE
 	${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC}
 )
 
-# Control OpenGL support
+SET(D3D12_SOURCE
+	${VCL_GRAPHICS_D3D12_SRC} ${VCL_GRAPHICS_D3D12_INC}
+
+	${VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_RESOURCE_INC}
+	${VCL_GRAPHICS_RUNTIME_D3D12_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_STATE_INC}
+	${VCL_GRAPHICS_RUNTIME_D3D12_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_INC}
+)
+
+# Control graphics backend support
 SET(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
 SET(VCL_EGL_SUPPORT CACHE BOOL "Enable EGL support")
+SET(VCL_D3D12_SUPPORT CACHE BOOL "Enable Direct3D 12 support")
 
 # Generate library
 ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
@@ -272,6 +341,16 @@ ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
 IF(VCL_OPENGL_SUPPORT)
 	TARGET_SOURCES(vcl_graphics PRIVATE ${OPENGL_SOURCE})
 ENDIF()
+
+if(VCL_D3D12_SUPPORT)
+	target_sources(vcl_graphics PRIVATE ${D3D12_SOURCE})
+
+	target_compile_definitions(vcl_graphics PUBLIC VCL_D3D12_SUPPORT)
+	target_link_libraries(vcl_graphics
+		absl_variant
+		d3d12.lib dxgi.lib d3dcompiler.lib dxguid.lib
+	)
+endif()
 
 SET_TARGET_PROPERTIES(vcl_graphics PROPERTIES FOLDER libs)
 TARGET_INCLUDE_DIRECTORIES(vcl_graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -75,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual void copyTo(Buffer& target, size_t dstOffset = 0) const;
 
 	public:
-		void clear(SurfaceFormat fmt, const void* data) override;
+		void clear(SurfaceFormat fmt, const void* data);
 
 	public:
 		void initialise(const TextureResource* init_data = nullptr);
