@@ -80,7 +80,7 @@ set(SOURCE
 
 	vcl/geometry/meshoperations.h
 )
-vcl_target_sources(vcl.geometry "vcl" ${SOURCE})
+vcl_target_sources(vcl.geometry "vcl/geometry" ${SOURCE})
 
 target_link_libraries(vcl.geometry
 	PUBLIC

@@ -262,15 +262,23 @@ endfunction()
 # Add files to target
 # 'files' are supposed to be defined relative to where the target is defined
 function(vcl_target_sources tgt prefix)
-	
+
+	if(NOT "${prefix}" STREQUAL "")
+		string(REPLACE "." "\\." prefix ${prefix})
+	endif()
+
 	# Configure the VS project file filters
 	foreach(file ${ARGN})
 		get_filename_component(dir_ "${file}" DIRECTORY)
-		if(dir_)
+		if(NOT "${dir_}" STREQUAL "" AND NOT "${prefix}" STREQUAL "")
 			# Remove the prefix and an optional '/'
-			string(REGEX REPLACE "^${prefix}[/]" "" dir_ ${dir_})
+			string(REGEX REPLACE "^${prefix}/?" "" dir_ ${dir_})
 			# Replace the path separator with filter separators
-			string(REGEX REPLACE "/" "\\\\" dir_ ${dir_})
+			if("${dir_}" STREQUAL "")
+				set(dir_ "\\\\")
+			else()
+				string(REPLACE "/" "\\\\" dir_ ${dir_})
+			endif()
 		else()
 			set(dir_ "\\\\")
 		endif()

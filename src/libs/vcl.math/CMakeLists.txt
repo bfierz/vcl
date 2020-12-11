@@ -85,7 +85,7 @@ set(SOURCE
 	vcl/math/waveletstack3d.cpp
 	vcl/math/waveletstack3d.h
 )
-vcl_target_sources(vcl.math "vcl" ${SOURCE})
+vcl_target_sources(vcl.math "vcl/math" ${SOURCE})
 
 target_link_libraries(vcl.math
 	PUBLIC
