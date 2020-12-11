@@ -152,7 +152,7 @@ namespace Vcl { namespace Geometry
 			if (elem != _data.end())
 			{
 				elem->second->clear();
-				VCL_SAFE_DELETE(elem->second);
+				elem->second.reset();
 
 				_data.erase(elem);
 			}

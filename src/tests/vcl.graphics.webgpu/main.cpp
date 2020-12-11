@@ -22,30 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <gtest/gtest.h>
 
-// C++ standard library
-#include <vector>
+// VCL
+#include <vcl/config/webgpu.h>
 
-/// @brief Create a new XOR texture
-/// @param width Width of the texture
-/// @param height Height of the texture
-/// @returns the new texture object
-/// @note https://lodev.org/cgtutor/xortexture.html 
-std::vector<uint32_t> createXorTexture(unsigned int width, unsigned int height)
+#ifndef VCL_ARCH_WEBASM
+#include <dawn_native/DawnNative.h>
+#include <dawn/dawn_proc.h>
+
+std::unique_ptr<dawn_native::Instance> instance;
+
+#else
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <emscripten/html5_webgpu.h>
+#endif
+
+WGPUDevice device;
+
+int main(int argc, char **argv)
 {
-	std::vector<uint32_t> texture;
-	texture.reserve(width*height);
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
-		{
-			uint8_t v = static_cast<uint8_t>(x ^ y);
-			uint32_t col = 0;
-			col |= v;
-			col |= v << 8;
-			col |= v << 16;
-			texture.emplace_back(col);
-		}
+#ifndef VCL_ARCH_WEBASM
+	instance = std::make_unique<dawn_native::Instance>();
+	instance->DiscoverDefaultAdapters();
+	dawn_native::Adapter adapter = instance->GetDefaultAdapter();
+	device = adapter.CreateDevice();
 
-	return texture;
+	DawnProcTable procs = dawn_native::GetProcs();
+	dawnProcSetProcs(&procs);
+#else
+	device = emscripten_webgpu_get_device();
+#endif
+
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }

@@ -22,30 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#include <vcl/graphics/runtime/webgpu/resource/shader.h>
 
 // C++ standard library
+#include <regex>
 #include <vector>
 
-/// @brief Create a new XOR texture
-/// @param width Width of the texture
-/// @param height Height of the texture
-/// @returns the new texture object
-/// @note https://lodev.org/cgtutor/xortexture.html 
-std::vector<uint32_t> createXorTexture(unsigned int width, unsigned int height)
-{
-	std::vector<uint32_t> texture;
-	texture.reserve(width*height);
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
-		{
-			uint8_t v = static_cast<uint8_t>(x ^ y);
-			uint32_t col = 0;
-			col |= v;
-			col |= v << 8;
-			col |= v << 16;
-			texture.emplace_back(col);
-		}
+// C runtime
+#include <cmath>
+#include <cstring>
 
-	return texture;
-}
+// VCL
+#include <vcl/core/contract.h>
+
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
+{
+	Shader::Shader
+	(
+		WGPUDevice device,
+		ShaderType type, int tag,
+		stdext::span<const uint8_t> binary_data
+	)
+	: Runtime::Shader(type, tag)
+	{
+		WGPUShaderModuleSPIRVDescriptor spirv_desc = {};
+		spirv_desc.chain.sType = WGPUSType_ShaderModuleSPIRVDescriptor;
+		spirv_desc.codeSize = static_cast<uint32_t>(binary_data.size()) / sizeof(uint32_t);
+		spirv_desc.code = reinterpret_cast<const uint32_t*>(binary_data.data());
+
+		WGPUShaderModuleDescriptor desc;
+		desc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&spirv_desc);
+
+		_module = wgpuDeviceCreateShaderModule(device, &desc);
+		VclEnsure(_module, "Shader is created");
+	}
+}}}}

@@ -22,30 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#version 450 core
 
-// C++ standard library
-#include <vector>
+layout(location = 0) in vec4 InColor;
 
-/// @brief Create a new XOR texture
-/// @param width Width of the texture
-/// @param height Height of the texture
-/// @returns the new texture object
-/// @note https://lodev.org/cgtutor/xortexture.html 
-std::vector<uint32_t> createXorTexture(unsigned int width, unsigned int height)
+layout(location = 0) out vec4 OutColor;
+
+void main()
 {
-	std::vector<uint32_t> texture;
-	texture.reserve(width*height);
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
-		{
-			uint8_t v = static_cast<uint8_t>(x ^ y);
-			uint32_t col = 0;
-			col |= v;
-			col |= v << 8;
-			col |= v << 16;
-			texture.emplace_back(col);
-		}
-
-	return texture;
+	OutColor = InColor;
 }

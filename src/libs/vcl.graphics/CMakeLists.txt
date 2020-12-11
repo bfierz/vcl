@@ -89,7 +89,6 @@ SET(VCL_GRAPHICS_D3D12_SRC
 	vcl/graphics/d3d12/swapchain.cpp
 )
 
-
 # VCL / GRAPHICS / OPENGL / ALGORITHM
 FILE(GLOB VCL_GRAPHICS_OPENGL_ALGORITHM_INC
 	vcl/graphics/opengl/algorithm/*.h
@@ -118,6 +117,16 @@ SET(VCL_GRAPHICS_OPENGL_SRC
 	vcl/graphics/opengl/context.cpp
 	vcl/graphics/opengl/gl.cpp
 	vcl/graphics/opengl/type_traits.cpp
+)
+
+# VCL / GRAPHICS / WEBGPU
+SET(VCL_GRAPHICS_WEBGPU_INC
+	vcl/graphics/webgpu/webgpu.h
+	vcl/graphics/webgpu/swapchain.h
+)
+SET(VCL_GRAPHICS_WEBGPU_SRC
+	vcl/graphics/webgpu/webgpu.cpp
+	vcl/graphics/webgpu/swapchain.cpp
 )
 
 # VCL / GRAPHICS / RUNTIME / D3D12 / RESOURCE
@@ -213,6 +222,32 @@ SET(VCL_GRAPHICS_RUNTIME_OPENGL_SRC
 	vcl/graphics/runtime/opengl/graphicsengine.cpp
 )
 
+# VCL / GRAPHICS / RUNTIME / WEBGPU / RESOURCE
+SET(VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_INC
+	vcl/graphics/runtime/webgpu/resource/buffer.h
+	vcl/graphics/runtime/webgpu/resource/shader.h
+)
+SET(VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_SRC
+	vcl/graphics/runtime/webgpu/resource/buffer.cpp
+	vcl/graphics/runtime/webgpu/resource/shader.cpp
+)
+
+# VCL / GRAPHICS / RUNTIME / WEBGPU / STATE
+SET(VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_INC
+	vcl/graphics/runtime/webgpu/state/blendstate.h
+	vcl/graphics/runtime/webgpu/state/depthstencilstate.h
+	vcl/graphics/runtime/webgpu/state/inputlayout.h
+	vcl/graphics/runtime/webgpu/state/pipelinestate.h
+	vcl/graphics/runtime/webgpu/state/rasterizerstate.h
+)
+SET(VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_SRC
+	vcl/graphics/runtime/webgpu/state/blendstate.cpp
+	vcl/graphics/runtime/webgpu/state/depthstencilstate.cpp
+	vcl/graphics/runtime/webgpu/state/inputlayout.cpp
+	vcl/graphics/runtime/webgpu/state/pipelinestate.cpp
+	vcl/graphics/runtime/webgpu/state/rasterizerstate.cpp
+)
+
 # VCL / GRAPHICS / RUNTIME / RESOURCE
 SET(VCL_GRAPHICS_RUNTIME_RESOURCE_INC
 	vcl/graphics/runtime/resource/buffer.h
@@ -291,10 +326,13 @@ SOURCE_GROUP("runtime\\d3d12" FILES ${VCL_GRAPHICS_RUNTIME_D3D12_SRC} ${VCL_GRAP
 SOURCE_GROUP("runtime\\opengl\\resource" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_RESOURCE_INC})
 SOURCE_GROUP("runtime\\opengl\\state" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_STATE_INC})
 SOURCE_GROUP("runtime\\opengl" FILES ${VCL_GRAPHICS_RUNTIME_OPENGL_SRC} ${VCL_GRAPHICS_RUNTIME_OPENGL_INC})
+SOURCE_GROUP("runtime\\webgpu\\resource" FILES ${VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_INC})
+SOURCE_GROUP("runtime\\webgpu\\state" FILES ${VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_INC})
 SOURCE_GROUP("runtime\\resource" FILES ${VCL_GRAPHICS_RUNTIME_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_RESOURCE_INC})
 SOURCE_GROUP("runtime\\state" FILES ${VCL_GRAPHICS_RUNTIME_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_STATE_INC})
 SOURCE_GROUP("runtime" FILES ${VCL_GRAPHICS_RUNTIME_SRC} ${VCL_GRAPHICS_RUNTIME_INC})
 SOURCE_GROUP("shadows" FILES ${VCL_GRAPHICS_SHADOWS_SRC} ${VCL_GRAPHICS_SHADOWS_INC})
+SOURCE_GROUP("webgpu" FILES ${VCL_GRAPHICS_WEBGPU_SRC} ${VCL_GRAPHICS_WEBGPU_INC})
 SOURCE_GROUP("" FILES ${VCL_GRAPHICS_SRC} ${VCL_GRAPHICS_INC})
 
 SET(SOURCE
@@ -330,10 +368,19 @@ SET(D3D12_SOURCE
 	${VCL_GRAPHICS_RUNTIME_D3D12_SRC} ${VCL_GRAPHICS_RUNTIME_D3D12_INC}
 )
 
+SET(WEBGPU_SOURCE
+	${VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_SRC} ${VCL_GRAPHICS_RUNTIME_WEBGPU_RESOURCE_INC}
+	${VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_SRC} ${VCL_GRAPHICS_RUNTIME_WEBGPU_STATE_INC}
+	${VCL_GRAPHICS_WEBGPU_SRC} ${VCL_GRAPHICS_WEBGPU_INC}
+)
+
 # Control graphics backend support
 SET(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
 SET(VCL_EGL_SUPPORT CACHE BOOL "Enable EGL support")
 SET(VCL_D3D12_SUPPORT CACHE BOOL "Enable Direct3D 12 support")
+
+SET(VCL_DAWN_WEBGPU_SUPPORT CACHE BOOL "Enable Google Dawn WebGPU support")
+SET(VCL_WEBGPU_SUPPORT CACHE BOOL "Enable WebGPU support")
 
 # Generate library
 ADD_LIBRARY(vcl_graphics STATIC ${SOURCE})
@@ -349,6 +396,22 @@ if(VCL_D3D12_SUPPORT)
 	target_link_libraries(vcl_graphics
 		absl_variant
 		d3d12.lib dxgi.lib d3dcompiler.lib dxguid.lib
+	)
+endif()
+
+if(VCL_WEBGPU_SUPPORT)
+	set(DAWN_INCLUDE_DIR CACHE PATH "Dawn WebGPU include path")
+	set(DAWN_LIBRARY CACHE FILEPATH "Dawn WebGPU library")
+
+	set(WEBGPU_INCLUDE_DIR CACHE PATH "WebGPU include path")
+	set(WEBGPU_LIBRARY CACHE FILEPATH "WebGPU library")
+
+	target_sources(vcl_graphics PRIVATE ${WEBGPU_SOURCE})
+	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
+	target_include_directories(vcl_graphics PUBLIC ${WEBGPU_INCLUDE_DIR} ${DAWN_INCLUDE_DIR})
+	target_link_libraries(vcl_graphics
+		${WEBGPU_LIBRARY}
+		${DAWN_LIBRARY}
 	)
 endif()
 

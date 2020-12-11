@@ -22,30 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#version 450 core
 
-// C++ standard library
-#include <vector>
+layout(location = 0) out vec4 Color;
 
-/// @brief Create a new XOR texture
-/// @param width Width of the texture
-/// @param height Height of the texture
-/// @returns the new texture object
-/// @note https://lodev.org/cgtutor/xortexture.html 
-std::vector<uint32_t> createXorTexture(unsigned int width, unsigned int height)
+void main()
 {
-	std::vector<uint32_t> texture;
-	texture.reserve(width*height);
-	for (int y = 0; y < height; y++)
-		for (int x = 0; x < width; x++)
-		{
-			uint8_t v = static_cast<uint8_t>(x ^ y);
-			uint32_t col = 0;
-			col |= v;
-			col |= v << 8;
-			col |= v << 16;
-			texture.emplace_back(col);
-		}
+	int id = gl_VertexIndex;
 
-	return texture;
+	// (0, 1, 2) -> (0, 1, 2)
+	// (3, 4, 5) -> (2, 3, 0)
+	vec2 TexCoord;
+	if (id == 0 || id == 5) {
+		TexCoord = vec2(0, 0);
+		Color = vec4(0.8f, 0.2f, 0.2f, 1.0f);
+	}
+	else if (id == 1) {
+		TexCoord = vec2(1, 0);
+		Color = vec4(0.2f, 0.8f, 0.2f, 1.0f);
+	}
+	else if (id == 2 || id == 3) {
+		TexCoord = vec2(1, 1);
+		Color = vec4(0.2f, 0.2f, 0.8f, 1.0f);
+	}
+	else if (id == 4) {
+		TexCoord = vec2(0, 1);
+		Color = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
+	gl_Position = vec4(TexCoord * vec2(2, 2) + vec2(-1, -1), 0, 1);
 }

@@ -1,12 +1,12 @@
 
 # Configure the VCL libraries
-INCLUDE(../cmake/VCLCudaSupport.cmake)
-INCLUDE(../cmake/VCLOpenCLSupport.cmake)
+include(../cmake/VCLCudaSupport.cmake)
+include(../cmake/VCLOpenCLSupport.cmake)
 
-SUBDIRS(rtti)
-SUBDIRS(simd)
+add_subdirectory(rtti)
+add_subdirectory(simd)
 
-if(VCL_OPENGL_SUPPORT)
+if((VCL_OPENGL_SUPPORT OR VCL_WEBGPU_SUPPORT) AND NOT EMSCRIPTEN)
 	add_subdirectory(3rdparty/glfw EXCLUDE_FROM_ALL)
 	set_property(TARGET glfw PROPERTY FOLDER 3rd-party)
 endif()
@@ -15,11 +15,16 @@ if(VCL_D3D12_SUPPORT)
 	add_subdirectory(d3d12)
 endif()
 
-IF(VCL_OPENGL_SUPPORT)
-	SUBDIRS(meshviewer)
-	SUBDIRS(opengl)
-ENDIF()
+if(VCL_WEBGPU_SUPPORT)
+	add_subdirectory(webgpu)
+endif()
 
-IF(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
-	SUBDIRS(opencl)
-ENDIF()
+
+if(VCL_OPENGL_SUPPORT)
+	add_subdirectory(meshviewer)
+	add_subdirectory(opengl)
+endif()
+
+if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)
+	add_subdirectory(opencl)
+endif()

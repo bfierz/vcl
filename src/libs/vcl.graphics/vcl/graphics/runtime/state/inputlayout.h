@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <algorithm>
+#include <string>
 #include <vector>
 
 // VCL
