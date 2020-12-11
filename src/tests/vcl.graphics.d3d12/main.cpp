@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 {
 	using namespace Vcl::Graphics::D3D12;
 
-	device = std::make_unique<Device>(DeviceType::Hardware);
+	device = std::make_unique<Device>(DeviceType::Warp);
 	std::wcout << L"Running tests on graphics adapter: " << device->adapterName() << std::endl;
 
 	::testing::InitGoogleTest(&argc, argv);
