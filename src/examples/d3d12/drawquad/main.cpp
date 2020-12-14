@@ -46,11 +46,12 @@ public:
 	{
 		using Vcl::Graphics::D3D12::DescriptorTableLayout;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
+		using Vcl::Graphics::SurfaceFormat;
 
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, QuadCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, QuadCsoPS);
@@ -62,10 +63,9 @@ public:
 		psd.FragmentShader = _ps.get();
 		psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, _tableLayout.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tableLayout.get());
 	}
 
 private:

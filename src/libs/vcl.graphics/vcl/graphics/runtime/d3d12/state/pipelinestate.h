@@ -37,13 +37,6 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 {
-	struct RenderTargetLayout
-	{
-		UINT NumRenderTargets;
-		DXGI_FORMAT RTVFormats[8];
-		DXGI_FORMAT DSVFormat;
-	};
-
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:
@@ -54,8 +47,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		(
 			Graphics::D3D12::Device* device,
 			const PipelineStateDescription& desc,
-			const Graphics::D3D12::DescriptorTableLayout* layout,
-			const RenderTargetLayout* rt_layout
+			const RenderTargetLayout& rt_layout,
+			const Graphics::D3D12::DescriptorTableLayout* layout
 		);
 
 		//! D3D12 handle

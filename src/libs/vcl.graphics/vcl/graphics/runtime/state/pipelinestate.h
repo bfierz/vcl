@@ -30,6 +30,9 @@
 // C++ standard library
 #include <vector>
 
+// Abseil
+#include <absl/container/inlined_vector.h>
+
 // VCL
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
@@ -58,6 +61,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 		PrimitiveType Topology{ PrimitiveType::Undefined };
 		bool PrimitiveRestartEnable{ false };
+	};
+
+	struct RenderTargetLayout
+	{
+		absl::InlinedVector<SurfaceFormat, 8> ColourFormats;
+		SurfaceFormat DepthStencilFormat;
 	};
 
 	struct PipelineStateDescription

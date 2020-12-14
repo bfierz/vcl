@@ -149,12 +149,12 @@ private:
 		using namespace Vcl::Graphics::D3D12;
 		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 		using Vcl::Graphics::SurfaceFormat;
@@ -205,10 +205,9 @@ private:
 		psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
 		psd.InputLayout = input_layout;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _tetToTriMeshCtx.TableLayoutGraphics.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tetToTriMeshCtx.TableLayoutGraphics.get());
 	}
 
 	void createDirectTetMeshPipeline()
@@ -217,12 +216,12 @@ private:
 		using namespace Vcl::Graphics::D3D12;
 		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 		using Vcl::Graphics::SurfaceFormat;
@@ -258,10 +257,9 @@ private:
 		psd.InputAssembly.Topology = PrimitiveType::Pointlist;
 		psd.InputLayout = input_layout;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _directTetMeshCtx.TableLayoutGraphics.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _directTetMeshCtx.TableLayoutGraphics.get());
 	}
 
 	void renderFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)

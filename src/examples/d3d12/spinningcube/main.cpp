@@ -58,7 +58,6 @@ public:
 		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::Runtime::D3D12::Buffer;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
@@ -66,6 +65,7 @@ public:
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 
@@ -97,10 +97,9 @@ public:
 		psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
 		psd.InputLayout = input_layout;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, _tableLayout.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tableLayout.get());
 
 		_camera.setNearPlane(0.01f);
 		_camera.setFarPlane(10.0f);

@@ -85,12 +85,12 @@ public:
 		using Vcl::Graphics::D3D12::InlineDescriptor;
 		using Vcl::Graphics::Runtime::D3D12::Buffer;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferUsage;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Camera;
 		using Vcl::Graphics::SurfaceFormat;
@@ -117,10 +117,9 @@ public:
 		boxPSDesc.FragmentShader = &boxFrag;
 		boxPSDesc.InputAssembly.Topology = PrimitiveType::LinelistAdj;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, _tableLayout.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, rtd, _tableLayout.get());
 
 		// Allocate a junk of 512 KB for constant buffers per frame
 		BufferDescription cbuffer_desc;
