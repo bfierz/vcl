@@ -68,6 +68,7 @@ vclcompileglsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
 add_executable(webgpu_drawquad "")
+set_target_properties(webgpu_drawquad PROPERTIES FOLDER examples/webgpu)
 vcl_target_sources(webgpu_drawquad ".." ${COMMON})
 vcl_target_sources(webgpu_drawquad "" ${SOURCE_FILES})
 target_sources(webgpu_drawquad PRIVATE ${COMPILEDSHADERS})
@@ -81,7 +82,7 @@ if (EMSCRIPTEN)
 	set(EXECUTABLE "webgpu_drawquad.js")
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_drawquad.html @ONLY)
 else()
-	vcl_target_sources(webgpu_drawquad ".." ${WEBGPU})
+	vcl_target_sources(webgpu_drawquad "${DAWN_INCLUDE_DIR}/.." ${WEBGPU})
 	target_link_libraries(webgpu_drawquad
 		glfw
 	)

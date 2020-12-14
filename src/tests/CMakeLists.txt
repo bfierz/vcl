@@ -117,3 +117,4 @@ else()
 			vcl.components.test
 	)
 endif()
+set_target_properties(vcl.test PROPERTIES FOLDER tests)

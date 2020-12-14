@@ -67,6 +67,7 @@ vclcompilehlsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
 add_executable(d3d12_drawquad "")
+set_target_properties(d3d12_drawquad PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_drawquad ".." ${COMMON})
 vcl_target_sources(d3d12_drawquad "" ${SOURCE_FILES})
 target_sources(d3d12_drawquad PRIVATE ${COMPILEDSHADERS})

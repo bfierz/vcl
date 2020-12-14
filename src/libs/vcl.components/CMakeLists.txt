@@ -41,7 +41,7 @@ set(SOURCE
 	vcl/components/systemmanager.cpp
 	vcl/components/systemmanager.h
 )
-vcl_target_sources(vcl.components "vcl" ${SOURCE})
+vcl_target_sources(vcl.components "vcl/components" ${SOURCE})
 
 target_link_libraries(vcl.components
 	PUBLIC

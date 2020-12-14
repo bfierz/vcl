@@ -55,6 +55,7 @@ set(SOURCE_FILES
 )
 
 add_executable(d3d12_imgui "")
+set_target_properties(d3d12_imgui PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(d3d12_imgui ".." ${COMMON})
 vcl_target_sources(d3d12_imgui "" ${SOURCE_FILES})

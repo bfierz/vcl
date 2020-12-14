@@ -68,6 +68,7 @@ vclcompilehlsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
 add_executable(d3d12_texturedcube "")
+set_target_properties(d3d12_texturedcube PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_texturedcube ".." ${COMMON})
 vcl_target_sources(d3d12_texturedcube "" ${SOURCE_FILES})
 target_sources(d3d12_texturedcube PRIVATE ${COMPILEDSHADERS})

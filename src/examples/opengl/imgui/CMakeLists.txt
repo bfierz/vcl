@@ -55,6 +55,7 @@ set(SOURCE_FILES
 )
 
 add_executable(opengl_imgui "")
+set_target_properties(opengl_imgui PROPERTIES FOLDER examples/opengl)
 vcl_target_sources(opengl_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(opengl_imgui ".." ${COMMON})
 vcl_target_sources(opengl_imgui "" ${SOURCE_FILES})
