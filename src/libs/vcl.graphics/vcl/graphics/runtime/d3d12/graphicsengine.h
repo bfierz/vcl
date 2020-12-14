@@ -244,7 +244,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 			unsigned int thread_group_count_z);
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> _cmdList;
 
 		PipelineState* _currentGraphicsPipeline{ nullptr };
 	};
