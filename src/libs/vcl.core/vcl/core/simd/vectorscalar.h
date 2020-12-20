@@ -420,17 +420,14 @@ namespace Vcl
 	typedef VectorScalar<float,  4> float4;
 	typedef VectorScalar<float,  8> float8;
 	typedef VectorScalar<float, 16> float16;
-	typedef VectorScalar<float, 32> float32;
 
 	typedef VectorScalar<int,  4> int4;
 	typedef VectorScalar<int,  8> int8;
 	typedef VectorScalar<int, 16> int16;
-	typedef VectorScalar<int, 32> int32;
 	
 	typedef VectorScalar<bool,  4> bool4;
 	typedef VectorScalar<bool,  8> bool8;
 	typedef VectorScalar<bool, 16> bool16;
-	typedef VectorScalar<bool, 32> bool32;
 }
 
 namespace Eigen
@@ -448,7 +445,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static float dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float4 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float4 highest() { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 lowest() { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 infinity() { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 	template<> struct NumTraits<Vcl::float8> : GenericNumTraits<Vcl::float8>
 	{
@@ -463,7 +466,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static float dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float8 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float8 highest() { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 lowest() { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 infinity() { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 	template<> struct NumTraits<Vcl::float16> : GenericNumTraits<Vcl::float16>
 	{
@@ -478,22 +487,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static float dummy_precision() { return 1e-5f; }
-	};
-	template<> struct NumTraits<Vcl::float32> : GenericNumTraits<Vcl::float32>
-	{
-		enum
-		{
-			IsInteger = std::numeric_limits<float>::is_integer,
-			IsSigned = std::numeric_limits<float>::is_signed,
-			IsComplex = 0,
-			RequireInitialization = internal::is_arithmetic<float>::value ? 0 : 1,
-			ReadCost = 1,
-			AddCost = 1,
-			MulCost = 1
-		};
-
-		EIGEN_STRONG_INLINE static float dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float16 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 dummy_precision() { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float16 highest() { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 lowest() { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 infinity() { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 }
 
