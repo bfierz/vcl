@@ -33,8 +33,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	Sampler::Sampler(const SamplerDescription& desc)
 	: Runtime::Sampler(desc)
 	{
-		// TextureAddressMode::MirrorOnce (GL_MIRROR_CLAMP_TO_EDGE) requires
-		// GL_ARB_texture_mirror_clamp_to_edge
+		const bool supports_anisotropic_filtering = glewIsExtensionSupported("GL_ARB_texture_filter_anisotropic") || glewIsExtensionSupported("GL_EXT_texture_filter_anisotropic");
+		VclRequire(implies(desc.Filter == FilterType::Anisotropic || desc.Filter == FilterType::ComparisonAnisotropic, supports_anisotropic_filtering), "Anisotropic filtering is supported");
+		VclRequire(implies(desc.AddressU == TextureAddressMode::MirrorOnce || desc.AddressV == TextureAddressMode::MirrorOnce || desc.AddressW == TextureAddressMode::MirrorOnce, glewIsExtensionSupported("GL_ARB_texture_mirror_clamp_to_edge")), "Mirror once address mode is supported");
 
 		glGenSamplers(1, &_glId);
 		
@@ -50,12 +51,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glSamplerParameteri(_glId, GL_TEXTURE_MIN_FILTER, min);
 		glSamplerParameteri(_glId, GL_TEXTURE_MAG_FILTER, mag);
 
-		if (desc.Filter == FilterType::Anisotropic || desc.Filter == FilterType::ComparisonAnisotropic)
-			glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat) desc.MaxAnisotropy);
-		else
-			glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
+		if (supports_anisotropic_filtering)
+		{
+			if (desc.Filter == FilterType::Anisotropic || desc.Filter == FilterType::ComparisonAnisotropic)
+				glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY, (GLfloat)desc.MaxAnisotropy);
+			else
+				glSamplerParameterf(_glId, GL_TEXTURE_MAX_ANISOTROPY, 1);
+		}
 
-        // Set GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS
+		// Set GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS
 		glSamplerParameterf(_glId, GL_TEXTURE_MIN_LOD, desc.MinLOD);
 		glSamplerParameterf(_glId, GL_TEXTURE_MAX_LOD, desc.MaxLOD);
 		glSamplerParameterf(_glId, GL_TEXTURE_LOD_BIAS, desc.MipLODBias);
@@ -63,7 +67,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Set GL_TEXTURE_BORDER_COLOR
 		glSamplerParameterfv(_glId, GL_TEXTURE_BORDER_COLOR, desc.BorderColor.data());
 
-        // Set GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
+		// Set GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
 		glSamplerParameteri(_glId, GL_TEXTURE_COMPARE_MODE, compare_mode);
 		glSamplerParameteri(_glId, GL_TEXTURE_COMPARE_FUNC, convert(desc.ComparisonFunc));
 

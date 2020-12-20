@@ -35,6 +35,8 @@ extern "C"
 }
 #endif
 
+bool isLlvmPipe = false;
+
 int main(int argc, char **argv)
 {
 	// OpenGL context used during the unit-tests
@@ -44,6 +46,9 @@ int main(int argc, char **argv)
 	ctx_desc.Type = Vcl::Graphics::OpenGL::ContextType::Core;
 	ctx_desc.Debug = true;
 	Vcl::Graphics::OpenGL::Context ctx(ctx_desc);
+
+	// Check if we're running on MESAs LLVMPipe
+	isLlvmPipe = strncmp((const char*)glGetString(GL_RENDERER), "llvmpipe", 8) == 0;
 
 	// Run the tests
 	::testing::InitGoogleTest(&argc, argv);
