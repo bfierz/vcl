@@ -111,20 +111,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 		if (usage().isSet(BufferUsage::Storage))
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		const auto heap_props = CD3DX12_HEAP_PROPERTIES(heap_type);
+		const auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes, flags);
 		VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(heap_type),
+			&heap_props,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes, flags),
+			&buffer_desc,
 			_currentStates,
 			nullptr,
 			IID_PPV_ARGS(&_resource)));
 
 		if (init_data)
 		{
+			const auto upload_heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+			const auto upload_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes);
 			VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				&upload_heap_props,
 				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes),
+				&upload_buffer_desc,
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(&_uploadResource)));
@@ -172,10 +176,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		{
 			if (!_uploadResource)
 			{
+				const auto upload_heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+				const auto upload_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(sizeInBytes());
 				VCL_DIRECT3D_SAFE_CALL(device->nativeDevice()->CreateCommittedResource(
-					&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+					&upload_heap_props,
 					D3D12_HEAP_FLAG_NONE,
-					&CD3DX12_RESOURCE_DESC::Buffer(sizeInBytes()),
+					&upload_buffer_desc,
 					D3D12_RESOURCE_STATE_GENERIC_READ,
 					nullptr,
 					IID_PPV_ARGS(&_uploadResource)));

@@ -90,6 +90,11 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(width);
+		VCL_UNREFERENCED_PARAMETER(height);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}
@@ -174,6 +179,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(left);
+		VCL_UNREFERENCED_PARAMETER(right);
+		VCL_UNREFERENCED_PARAMETER(bottom);
+		VCL_UNREFERENCED_PARAMETER(top);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}
@@ -258,6 +270,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(left);
+		VCL_UNREFERENCED_PARAMETER(right);
+		VCL_UNREFERENCED_PARAMETER(bottom);
+		VCL_UNREFERENCED_PARAMETER(top);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}
@@ -285,6 +304,11 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(width);
+		VCL_UNREFERENCED_PARAMETER(height);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}
@@ -369,6 +393,13 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(left);
+		VCL_UNREFERENCED_PARAMETER(right);
+		VCL_UNREFERENCED_PARAMETER(bottom);
+		VCL_UNREFERENCED_PARAMETER(top);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}
@@ -453,6 +484,13 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		Handedness handedness
 	) const
 	{
+		VCL_UNREFERENCED_PARAMETER(left);
+		VCL_UNREFERENCED_PARAMETER(right);
+		VCL_UNREFERENCED_PARAMETER(bottom);
+		VCL_UNREFERENCED_PARAMETER(top);
+		VCL_UNREFERENCED_PARAMETER(near_plane);
+		VCL_UNREFERENCED_PARAMETER(far_plane);
+
 		if (handedness == Handedness::RightHanded)
 		{
 		}

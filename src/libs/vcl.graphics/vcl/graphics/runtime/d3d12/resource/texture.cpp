@@ -150,8 +150,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		};
 
 		ID3D12Device* d3d12_dev = device->nativeDevice();
+		const auto heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			&heap_props,
 			D3D12_HEAP_FLAG_NONE,
 			&d3d12_desc,
 			_currentStates,
@@ -166,10 +167,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		if (init_data)
 		{
+			const auto upload_heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+			const auto upload_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(std::max(init_data->Data.size(), textureMemorySize));
 			VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
-				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+				&upload_heap_props,
 				D3D12_HEAP_FLAG_NONE,
-				&CD3DX12_RESOURCE_DESC::Buffer(std::max(init_data->Data.size(), textureMemorySize)),
+				&upload_buffer_desc,
 				D3D12_RESOURCE_STATE_GENERIC_READ,
 				nullptr,
 				IID_PPV_ARGS(&_uploadResource)));
