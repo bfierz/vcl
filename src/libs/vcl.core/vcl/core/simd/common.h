@@ -300,7 +300,7 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
 		{
-			alignas(16) float data[4] = { s0, s1, s2, s3 };
+			alignas(8) float data[4] = { s0, s1, s2, s3 };
 			return vld1q_f32(data);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
@@ -336,7 +336,7 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
 		{
-			alignas(16) int data[4] = { s0, s1, s2, s3 };
+			alignas(8) int data[4] = { s0, s1, s2, s3 };
 			return vld1q_s32(data);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
@@ -378,7 +378,7 @@ namespace Vcl { namespace Core { namespace Simd
 			const uint32_t m2 = s2 ? uint32_t(-1) : 0;
 			const uint32_t m3 = s3 ? uint32_t(-1) : 0;
 
-			alignas(16) uint32_t data[4] = { m0, m1, m2, m3 };
+			alignas(8) uint32_t data[4] = { m0, m1, m2, m3 };
 			return vld1q_u32(data);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)

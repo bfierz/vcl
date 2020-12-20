@@ -93,7 +93,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)
 	{
-		alignas(16) float vars[4];
+		alignas(8) float vars[4];
 		vst1q_f32(vars + 0, rhs.get(0));
 		
 		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3] << "'";
