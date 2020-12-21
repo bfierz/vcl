@@ -189,6 +189,11 @@ namespace Vcl { namespace Graphics { namespace D3D12
 				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Resource requires storage binding setting");
 				state = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 			}
+			else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_CBV)
+			{
+				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, "Resource requires constant buffer binding setting");
+				state = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+			}
 			else
 				VclDebugError("State not implemented");
 
