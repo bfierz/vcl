@@ -22,10 +22,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-
-# Path to the glslc compiler
-set(VCL_DXC_PATH CACHE FILEPATH "Path to DXC")
 set(VCLCOMPILEHLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
+    message(WARNING "Downloading DXC automatically requires CMake 3.11+")
+else()
+
+	include(FetchContent)
+
+	FetchContent_Declare(
+	  direct_x_shader_compiler
+	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.5.2010/dxc_2020_10-22.zip
+	  URL_HASH SHA256=b691f63778f470ebeb94874426779b2f60685fc8711adf1b1f9f01535d9b67f8
+	)
+	FetchContent_GetProperties(direct_x_shader_compiler)
+	if(NOT direct_x_shader_compiler_POPULATED)
+		FetchContent_Populate(direct_x_shader_compiler)
+	endif()
+
+	message(STATUS "Downloaded DXC to ${direct_x_shader_compiler_SOURCE_DIR}")
+
+endif()
+
+
+# Path to the dxc compiler
+set(VCL_DXC_ROOT CACHE PATH "Path to the root directory of the 'Microsoft DirectX Shader Compiler'")
+
+find_program(DXC dxc
+	HINTS
+		${VCL_DXC_ROOT}
+		${direct_x_shader_compiler_SOURCE_DIR}
+	PATH_SUFFIXES
+		"bin/x64"
+	REQUIRED
+)
 
 function(VclCompileHLSL file_to_compile profile main_method symbol include_paths compiled_files)
 
@@ -55,7 +85,7 @@ function(VclCompileHLSL file_to_compile profile main_method symbol include_paths
 			${output_h_file}
 
 		COMMAND
-			"${VCL_DXC_PATH}" -T ${profile} -E ${main_method} ${include_dir_param} -Fo ${tmp_file} ${file_to_compile}
+			"${DXC}" -T ${profile} -E ${main_method} ${include_dir_param} -Fo ${tmp_file} ${file_to_compile}
 		COMMAND
 			${CMAKE_COMMAND} ARGS ${bin2c_cmdline}
 		
