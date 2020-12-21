@@ -9,13 +9,15 @@ steps:
     # Install lxml for python
     sudo easy_install pip
     python -m pip install -U lxml --user
+    # Display MacOS SDK
+    xcrun --sdk macosx --show-sdk-path
   displayName: 'Prepare Environment'
 
 # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/cmake
 - task: CMake@1
   inputs:
     workingDirectory: 'build'
-    cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+    cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DCMAKE_OSX_SYSROOT=/Applications/Xcode_12.2.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
 
 - script: |
     cmake --build build --config $(buildConfig) --target vcl.core.test
@@ -26,7 +28,6 @@ steps:
   continueOnError: false
 
 - script: |
-    export CPATH="/Applications/Xcode_11.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/"
     cmake --build build --config $(buildConfig) --target vcl.test
     runTestSuccess=$?
     # Convert ctest output to junit-format
