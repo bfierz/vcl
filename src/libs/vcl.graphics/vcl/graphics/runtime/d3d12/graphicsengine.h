@@ -218,8 +218,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		void reset(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> allocator);
 
 		void bindPipeline(PipelineState* pipeline);
-		void bindDescriptorTable(PipelineBindPoint bp, Graphics::D3D12::DescriptorTable* table);
-		void bindDescriptorTables(PipelineBindPoint bp, stdext::span<Graphics::D3D12::DescriptorTable*> tables);
+		void bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table);
+		void bindDescriptorTables(PipelineBindPoint bp, uint32_t root_index, stdext::span<Graphics::D3D12::DescriptorTable*> tables);
 
 		void bindIndexBuffer(Buffer* buffer);
 		void bindVertexBuffer(Buffer* buffer);
@@ -257,6 +257,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		using SwapChain = Graphics::D3D12::SwapChain;
 
 		GraphicsEngine(ref_ptr<Device> device, const SwapChainDescription& swap_chain_desc);
+		virtual ~GraphicsEngine();
 
 		void beginFrame() override;
 		void endFrame() override;

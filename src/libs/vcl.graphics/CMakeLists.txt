@@ -269,6 +269,14 @@ endif()
 if(VCL_D3D12_SUPPORT)
 	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_D3D12})
 
+	if(VCL_COMPILER_MSVC AND
+	   ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER "19.11" AND
+	   "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}" VERSION_LESS "10.0.18362.0"
+	)
+		message(WARNING "Enable two-phase lookup for templates due to incompatible WindowsSDK")
+		target_compile_options(vcl_graphics PUBLIC "/Zc:twoPhase-")
+	endif()
+
 	target_compile_definitions(vcl_graphics PUBLIC VCL_D3D12_SUPPORT)
 	target_link_libraries(vcl_graphics
 		PUBLIC

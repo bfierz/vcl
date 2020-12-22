@@ -26,10 +26,15 @@ steps:
 
 - powershell: |
     cmake --build build --config $(buildConfig) --target vcl.core.test
+    if ($LastExitCode -ne "0") { exit $LastExitCode }
     cmake --build build --config $(buildConfig) --target vcl.components.test
+    if ($LastExitCode -ne "0") { exit $LastExitCode }
     cmake --build build --config $(buildConfig) --target vcl.geometry.test
+    if ($LastExitCode -ne "0") { exit $LastExitCode }
     cmake --build build --config $(buildConfig) --target vcl.graphics.d3d12.test
+    if ($LastExitCode -ne "0") { exit $LastExitCode }
     cmake --build build --config $(buildConfig) --target vcl.math.test
+    if ($LastExitCode -ne "0") { exit $LastExitCode }
   displayName: 'Build'
   continueOnError: false
 

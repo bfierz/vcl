@@ -311,7 +311,7 @@ TEST(D3D12Buffer, DynamicUpdate)
 	auto cmd_queue = device->createCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 	cmd_list->SetGraphicsRootSignature(signature);
-	table.setToGraphics(cmd_list.Get());
+	table.setToGraphics(cmd_list.Get(), 0);
 
 	cmd_list->Close();
 	ID3D12CommandList* const generic_list = cmd_list.Get();

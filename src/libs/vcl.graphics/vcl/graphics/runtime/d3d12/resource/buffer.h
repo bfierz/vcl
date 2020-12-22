@@ -55,6 +55,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		//! Configured resource states
 		D3D12_RESOURCE_STATES resourcesStates() const { return _targetStates; }
 
+		//! Heap type on which the resource is allocated
+		D3D12_HEAP_TYPE heapType() const { return _heapType; }
+
 		//! Transition to desired state
 		void transition(ID3D12GraphicsCommandList* cmd_list, D3D12_RESOURCE_STATES target_state);
 
@@ -67,6 +70,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		//! Currently used resource states
 		D3D12_RESOURCE_STATES _currentStates;
+
+		//! Heap on which the resource is allocated
+		D3D12_HEAP_TYPE _heapType;
 	};
 
 	class Buffer : public Runtime::Buffer, public Resource

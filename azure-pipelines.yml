@@ -70,6 +70,6 @@ jobs:
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
   steps:
   - template: ci/azure-pipeline-windows.yml
