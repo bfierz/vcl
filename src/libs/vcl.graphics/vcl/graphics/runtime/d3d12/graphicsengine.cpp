@@ -130,12 +130,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		else if (dynamic_cast<ComputePipelineState*>(pipeline))
 				_cmdList->SetPipelineState(static_cast<ComputePipelineState*>(pipeline)->handle());
 	}
-	void CommandBuffer::bindDescriptorTable(PipelineBindPoint bp, Graphics::D3D12::DescriptorTable* table)
+	void CommandBuffer::bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table)
 	{
 		std::array<Graphics::D3D12::DescriptorTable*, 1> tables = { table };
-		bindDescriptorTables(bp, stdext::make_span(tables));
+		bindDescriptorTables(bp, root_index, stdext::make_span(tables));
 	}
-	void CommandBuffer::bindDescriptorTables(PipelineBindPoint bp, stdext::span<Graphics::D3D12::DescriptorTable*> tables)
+	void CommandBuffer::bindDescriptorTables(PipelineBindPoint bp, uint32_t root_index, stdext::span<Graphics::D3D12::DescriptorTable*> tables)
 	{
 		VclRequire(std::all_of(tables.begin(), tables.end(), [](auto* table) { return table->layout(); }), "All tables bind to the same layout.");
 		if (tables.empty())
@@ -143,11 +143,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		if (bp == PipelineBindPoint::Graphics)
 		{
-			tables[0]->setToGraphics(_cmdList.Get());
+			tables[0]->setToGraphics(_cmdList.Get(), root_index);
 		}
 		else if (bp == PipelineBindPoint::Compute)
 		{
-			tables[0]->setToCompute(_cmdList.Get());
+			tables[0]->setToCompute(_cmdList.Get(), root_index);
 		}
 		else
 		{
@@ -240,6 +240,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		{
 			_depthSurface.create(_device->nativeDevice(), swap_chain_desc.Width, swap_chain_desc.Height);
 		}
+	}
+	GraphicsEngine::~GraphicsEngine()
+	{
+		_swapChain->wait();
 	}
 
 	void GraphicsEngine::beginFrame()

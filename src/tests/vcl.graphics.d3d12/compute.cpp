@@ -117,7 +117,7 @@ TEST(D3D12Compute, Saxpy)
 
 	// Dispatch computation
 	cmd_list->SetPipelineState(pso.Get());
-	table.setToCompute(cmd_list_ptr);
+	table.setToCompute(cmd_list_ptr, 1);
 
 	SaxpyKernelParameters kernel_params = {16, 16, 2.0f};
 	cmd_list->SetComputeRoot32BitConstants(0, 3, &kernel_params, 0);

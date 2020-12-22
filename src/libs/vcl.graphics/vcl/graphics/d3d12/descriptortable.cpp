@@ -137,7 +137,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		_resources.resize(_layout->numberOfRangeDescriptors());
 	}
 
-	void DescriptorTable::setToCompute(ID3D12GraphicsCommandList* cmd_list)
+	void DescriptorTable::setToCompute(ID3D12GraphicsCommandList* cmd_list, uint32_t root_index)
 	{
 		// Transition the resources that are bound here
 		for (size_t i = 0; i < _resources.size(); ++i)
@@ -168,10 +168,10 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 		const auto increment = _heapIncrements[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(_d3d12DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), _offset, increment);
-		cmd_list->SetComputeRootDescriptorTable(1, handle);
+		cmd_list->SetComputeRootDescriptorTable(root_index, handle);
 	}
 
-	void DescriptorTable::setToGraphics(ID3D12GraphicsCommandList* cmd_list)
+	void DescriptorTable::setToGraphics(ID3D12GraphicsCommandList* cmd_list, uint32_t root_index)
 	{
 		// Transition the resources that are bound here
 		for (size_t i = 0; i < _resources.size(); ++i)
@@ -179,7 +179,12 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			auto resource = _resources[i];
 			const auto type = _layout->rangeDescriptors()[i].RangeType;
 			D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
-			if (type == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
+			if (resource->heapType() == D3D12_HEAP_TYPE_UPLOAD)
+			{
+				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_GENERIC_READ, "Resource requires generic read binding setting");
+				state = D3D12_RESOURCE_STATE_GENERIC_READ;
+			}
+			else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
 			{
 				VclCheck(resource->resourcesStates() & D3D12_RESOURCE_STATE_UNORDERED_ACCESS| D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, "Resource requires storage binding setting");
 				state = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
@@ -207,7 +212,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 		const auto increment = _heapIncrements[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
 		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(_d3d12DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), _offset, increment);
-		cmd_list->SetGraphicsRootDescriptorTable(1, handle);
+		cmd_list->SetGraphicsRootDescriptorTable(root_index, handle);
 	}
 
 	void DescriptorTable::addResource(int descriptor_index, Runtime::D3D12::Buffer* buffer, uint64_t first, uint32_t count, uint32_t stride)

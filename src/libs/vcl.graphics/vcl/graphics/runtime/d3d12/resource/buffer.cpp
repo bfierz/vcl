@@ -86,14 +86,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		// D3D12_HEAP_TYPE_READBACK and D3D12_HEAP_TYPE_UPLOAD require specific usage flags
 		// https://docs.microsoft.com/en-us/windows/win32/api/d3d12/ne-d3d12-d3d12_heap_type
-		const D3D12_HEAP_TYPE heap_type = determineHeapType(usage());
+		_heapType = determineHeapType(usage());
 		D3D12_RESOURCE_STATES buffer_usage;
-		if (heap_type == D3D12_HEAP_TYPE_READBACK)
+		if (_heapType == D3D12_HEAP_TYPE_READBACK)
 		{
 			buffer_usage = D3D12_RESOURCE_STATE_COPY_DEST;
 			_targetStates = buffer_usage;
 		}
-		else if (heap_type == D3D12_HEAP_TYPE_UPLOAD)
+		else if (_heapType == D3D12_HEAP_TYPE_UPLOAD)
 
 		{
 			buffer_usage = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -111,7 +111,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 		if (usage().isSet(BufferUsage::Storage))
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		const auto heap_props = CD3DX12_HEAP_PROPERTIES(heap_type);
+		const auto heap_props = CD3DX12_HEAP_PROPERTIES(_heapType);
 		const auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes, flags);
 		VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
 			&heap_props,

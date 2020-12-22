@@ -141,8 +141,8 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		DescriptorTable(Device* device, DescriptorTableLayout* layout);
 
 		DescriptorTableLayout* layout() { return _layout; }
-		void setToCompute(ID3D12GraphicsCommandList* cmd_list);
-		void setToGraphics(ID3D12GraphicsCommandList* cmd_list);
+		void setToCompute(ID3D12GraphicsCommandList* cmd_list, uint32_t root_index);
+		void setToGraphics(ID3D12GraphicsCommandList* cmd_list, uint32_t root_index);
 
 		void addResource(int descriptor_index, Runtime::D3D12::Buffer* buffer, uint64_t first, uint32_t count, uint32_t stride);
 		void addResource(int descriptor_index, Runtime::D3D12::Texture* texture);
