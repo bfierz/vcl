@@ -138,7 +138,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 
 	BufferDescription read_back_desc =
 	{
-		desc.Width* desc.Width * 4,
+		desc.Width* desc.Height * 4,
 		BufferUsage::MapRead | BufferUsage::CopyDst
 	};
 	D3D12::Buffer read_back(device.get(), read_back_desc);
@@ -157,6 +157,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	psd.VertexShader = &vs;
 	psd.FragmentShader = &ps;
 	psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
+	psd.Rasterizer.CullMode = Vcl::Graphics::Runtime::CullModeMethod::None;
 	D3D12::RenderTargetLayout rtd = {};
 	rtd.NumRenderTargets = 1;
 	rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -215,8 +216,8 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	cmd_list->Reset(cmd_allocator.Get(), nullptr);
 
 	bool equal = true;
-	auto ptr = (std::array<uint8_t, 4>*)read_back.map({ 0, desc.Width * desc.Width * 4 });
-	for (int i = 0; i < desc.Width * desc.Width; i++)
+	auto ptr = (std::array<uint8_t, 4>*)read_back.map({ 0, desc.Width * desc.Height * 4 });
+	for (int i = 0; i < desc.Width * desc.Height; i++)
 	{
 		const bool r = ptr[i][0] == 255;
 		const bool g = ptr[i][1] == 0;
