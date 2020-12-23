@@ -395,9 +395,17 @@ TEST(OpenGL, ImageProcessingTaskGaussian)
 	{
 		for (int x = 0; x < 81; x++)
 		{
-			bool r = blurred_image[y * 81 + x][0] == blurred_image_ref[y * 81 + x][0];
-			bool g = blurred_image[y * 81 + x][1] == blurred_image_ref[y * 81 + x][1];
-			bool b = blurred_image[y * 81 + x][2] == blurred_image_ref[y * 81 + x][2];
+			// Account for off-by-one OpenGL implementation based differences
+			const auto cmp = [](unsigned char a, unsigned char b)
+			{
+				unsigned char res = 0;
+				if (a >= b) res = a - b;
+				else res = b - a;
+				return res == 0 || res == 1;
+			};
+			bool r = cmp(blurred_image[y * 81 + x][0], blurred_image_ref[y * 81 + x][0]);
+			bool g = cmp(blurred_image[y * 81 + x][1], blurred_image_ref[y * 81 + x][1]);
+			bool b = cmp(blurred_image[y * 81 + x][2], blurred_image_ref[y * 81 + x][2]);
 
 			equal = equal && r && g && b;
 		}
@@ -472,9 +480,17 @@ TEST(OpenGL, ImageProcessingSimpleGraph)
 	{
 		for (int x = 0; x < 81; x++)
 		{
-			bool r = blurred_image[y * 81 + x][0] == blurred_image_ref[y * 81 + x][0];
-			bool g = blurred_image[y * 81 + x][1] == blurred_image_ref[y * 81 + x][1];
-			bool b = blurred_image[y * 81 + x][2] == blurred_image_ref[y * 81 + x][2];
+			// Account for off-by-one OpenGL implementation based differences
+			const auto cmp = [](unsigned char a, unsigned char b)
+			{
+				unsigned char res = 0;
+				if (a >= b) res = a - b;
+				else res = b - a;
+				return res == 0 || res == 1;
+			};
+			bool r = cmp(blurred_image[y * 81 + x][0], blurred_image_ref[y * 81 + x][0]);
+			bool g = cmp(blurred_image[y * 81 + x][1], blurred_image_ref[y * 81 + x][1]);
+			bool b = cmp(blurred_image[y * 81 + x][2], blurred_image_ref[y * 81 + x][2]);
 
 			equal = equal && r && g && b;
 		}
