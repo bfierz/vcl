@@ -46,14 +46,33 @@
 #		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
 #	else
 #		define glCreateFramebuffersVCL glGenFramebuffers
-#		define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
-#		define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
-#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
-#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
+#		define glNamedFramebufferDrawBuffersVCL(fb, n, bufs)                            [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glDrawBuffers(n, bufs); }()
+#		define glNamedFramebufferTextureVCL(fb, attachment, texture, level)             [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, texture, level); }()
+#		define glNamedFramebufferTextureLayerVCL(fb, attachment, texture, level, layer) [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, level, layer); }()
+#		define glCheckNamedFramebufferStatusVCL(fb, target)                             [&] { FbBindPoint bp(target, fb); return glCheckFramebufferStatus(target); }()
 #	endif
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
+	class FbBindPoint
+	{
+	public:
+		FbBindPoint(GLenum target, GLuint id)
+			: _target(target)
+			, _id(id)
+		{
+			glBindFramebuffer(_target, _id);
+		}
+		~FbBindPoint()
+		{
+			glBindFramebuffer(_target, GL_NONE);
+		}
+
+	private:
+		GLenum _target;
+		GLuint _id;
+	};
+
 	Framebuffer::Framebuffer
 	(
 		const Runtime::Texture** colourTargets, size_t nrColourTargets,
