@@ -39,6 +39,12 @@ bool isLlvmPipe = false;
 
 int main(int argc, char **argv)
 {
+	if (std::any_of(argv, argv + argc, [](const char* arg) { return strcmp(arg, "--gtest_list_tests") == 0; }))
+	{
+		::testing::InitGoogleTest(&argc, argv);
+		return 0;
+	}
+
 	// OpenGL context used during the unit-tests
 	Vcl::Graphics::OpenGL::ContextDesc ctx_desc;
 	ctx_desc.MajorVersion = 4;

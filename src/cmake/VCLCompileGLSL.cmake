@@ -22,10 +22,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
+set(VCLCOMPILEGLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
+    message(WARNING "Downloading Shaderc automatically requires CMake 3.11+")
+else()
+
+	include(FetchContent)
+
+	FetchContent_Declare(
+	  glsl_shader_compiler
+	  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/350/20201209-133315/install.tgz
+	  URL_HASH SHA256=2ac04e790ea0ae569c643d697c2cd0349bd037b9238b240761270df15573573a
+	)
+	FetchContent_GetProperties(glsl_shader_compiler)
+	if(NOT glsl_shader_compiler_POPULATED)
+		FetchContent_Populate(glsl_shader_compiler)
+		message(STATUS "Downloaded Shaderc to ${glsl_shader_compiler_SOURCE_DIR}")
+	endif()
+endif()
 
 # Path to the glslc compiler
-set(VCL_GLSLC_PATH CACHE FILEPATH "Path to glslc")
-set(VCLCOMPILEGLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(VCL_SHADERC_ROOT CACHE PATH "Path to the root directory of glslc")
+
+find_program(GLSLC glslc
+	HINTS
+		${VCL_SHADERC_ROOT}
+		${glsl_shader_compiler_SOURCE_DIR}
+	PATH_SUFFIXES
+		"bin"
+	REQUIRED
+)
 
 function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled_files)
 
@@ -55,7 +82,7 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 			${output_h_file}
 
 		COMMAND
-			"${VCL_GLSLC_PATH}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
+			"${GLSLC}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
 			
 		COMMAND
 			${CMAKE_COMMAND} ARGS ${bin2c_cmdline}
