@@ -30,11 +30,18 @@ else()
 
 	include(FetchContent)
 
-	FetchContent_Declare(
-	  glsl_shader_compiler
-	  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/350/20201209-133315/install.tgz
-	  URL_HASH SHA256=2ac04e790ea0ae569c643d697c2cd0349bd037b9238b240761270df15573573a
-	)
+	# Binary GLSLC releases: https://github.com/google/shaderc/blob/main/downloads.md
+	if(WIN32)
+		FetchContent_Declare(
+		  glsl_shader_compiler
+		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/354/20210106-080226/install.zip
+		)
+	elseif(UNIX)
+		FetchContent_Declare(
+		  glsl_shader_compiler
+		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/351/20210106-080034/install.tgz
+		)
+	endif()
 	FetchContent_GetProperties(glsl_shader_compiler)
 	if(NOT glsl_shader_compiler_POPULATED)
 		FetchContent_Populate(glsl_shader_compiler)
