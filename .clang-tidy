@@ -1,7 +1,16 @@
 ---
-Checks:                '-*,coreguidelines-*,misc-*,modernize-*,performance-*,readability-*'
+Checks: >
+    -*,
+    coreguidelines-*,
+    misc-*,
+    modernize-*,
+    -modernize-use-trailing-return-type,
+    performance-*,
+    readability-*,
+    -readability-magic-numbers,
+    -readability-uppercase-literal-suffix
 WarningsAsErrors:      ''
-HeaderFilterRegex:     'src/externals/.*'
+HeaderFilterRegex:     '.*/src/libs/.*'
 AnalyzeTemporaryDtors: true
 CheckOptions:
   - key:               modernize-use-nullptr.NullMacros

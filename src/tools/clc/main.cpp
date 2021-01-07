@@ -42,6 +42,7 @@
 #include <sstream>
 #include <vector>
 
+VCL_BEGIN_EXTERNAL_HEADERS
 // CxxOpts
 #include <vcl/core/3rdparty/cxxopts.hpp>
 
@@ -51,6 +52,7 @@
 #else
 VCL_ERROR("No compatible process API found.")
 #endif
+VCL_END_EXTERNAL_HEADERS
 
 // CLC
 #include "nvidia.h"
