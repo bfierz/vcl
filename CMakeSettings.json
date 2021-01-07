@@ -1,7 +1,7 @@
 ﻿{
   "configurations": [
     {
-      "name": "msvc-x64-debug",
+      "name": "win-msvc-x64-debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
@@ -13,9 +13,9 @@
       "variables": []
     },
     {
-      "name": "msvc-x64-release",
+      "name": "win-msvc-x64-release",
       "generator": "Ninja",
-      "configurationType": "Release",
+      "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
@@ -25,7 +25,7 @@
       "variables": []
     },
     {
-      "name": "clang-cl-x64-debug",
+      "name": "win-clang-cl-x64-debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\build\\${name}",
@@ -37,7 +37,7 @@
       "variables": []
     },
     {
-      "name": "msvc-arm64-debug",
+      "name": "win-msvc-arm64-debug",
       "generator": "Ninja",
       "configurationType": "Debug",
       "buildRoot": "${projectDir}\\build\\${name}",
