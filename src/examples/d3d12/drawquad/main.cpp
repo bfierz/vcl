@@ -71,13 +71,23 @@ public:
 private:
 	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
 	{
+		using namespace Vcl::Graphics::Runtime;
+
+		RenderPassDescription rp_desc = {};
+		rp_desc.RenderTargetAttachments.resize(1);
+		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+		rp_desc.RenderTargetAttachments[0].ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
+		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
+		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
+		cmd_buffer->beginRenderPass(rp_desc);
+
 		const auto size = swapChain()->bufferSize();
 		const auto x = size.first / 4;
 		const auto y = size.second / 4;
 		const auto w = size.first / 2;
 		const auto h = size.second / 2;
-
-		cmd_buffer->handle()->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
 
 		D3D12_VIEWPORT vp{ x, y, w, h, 0, 1 };
 		cmd_buffer->handle()->RSSetViewports(1, &vp);
@@ -88,6 +98,8 @@ private:
 		cmd_buffer->handle()->SetGraphicsRootSignature(_tableLayout->rootSignature());
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmd_buffer->draw(6, 1, 0, 0);
+
+		cmd_buffer->endRenderPass();
 	}
 
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _vs;

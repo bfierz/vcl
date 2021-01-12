@@ -109,11 +109,18 @@ void ImGuiApplication::createDeviceObjects()
 	ImGui_ImplDX12_CreateDeviceObjects();
 }
 
-void ImGuiApplication::renderFrame(ID3D12GraphicsCommandList* cmd_list, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
+void ImGuiApplication::renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
 {
-	cmd_list->OMSetRenderTargets(1, &rtv, FALSE, NULL);
+	using namespace Vcl::Graphics::Runtime;
+
+	RenderPassDescription rp_desc = {};
+	rp_desc.RenderTargetAttachments.resize(1);
+	rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+	rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Load;
+	cmd_buffer->beginRenderPass(rp_desc);
 	ID3D12DescriptorHeap* heaps[] = { imGuiDescriptorHeap() };
-	cmd_list->SetDescriptorHeaps(1, heaps);
+	cmd_buffer->handle()->SetDescriptorHeaps(1, heaps);
 	ImGui::Render();
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd_list);
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd_buffer->handle());
+	cmd_buffer->endRenderPass();
 }

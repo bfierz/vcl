@@ -217,6 +217,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		//! Reset the command-buffer to reuse with a new allocator
 		void reset(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> allocator);
 
+		void beginRenderPass(const RenderPassDescription& desc);
+		void endRenderPass();
+
 		void bindPipeline(PipelineState* pipeline);
 		void bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table);
 		void bindDescriptorTables(PipelineBindPoint bp, uint32_t root_index, stdext::span<Graphics::D3D12::DescriptorTable*> tables);

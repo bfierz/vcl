@@ -179,13 +179,25 @@ private:
 			_cubeRotation -= two_pi;
 	}
 
-	void renderFrame(ID3D12GraphicsCommandList* cmd_list, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
+	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
 	{
+		using namespace Vcl::Graphics::Runtime;
+
+		RenderPassDescription rp_desc = {};
+		rp_desc.RenderTargetAttachments.resize(1);
+		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+		rp_desc.RenderTargetAttachments[0].ClearColor = { 0, 0, 0, 1 };
+		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
+		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
+		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
+		cmd_buffer->beginRenderPass(rp_desc);
+
 		const auto size = swapChain()->bufferSize();
 		const auto w = size.first;
 		const auto h = size.second;
+		auto cmd_list = cmd_buffer->handle();
 
-		cmd_list->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
 		D3D12_VIEWPORT viewport{ 0, 0, w, h, 0, 1 };
 		cmd_list->RSSetViewports(1, &viewport);
 		D3D12_RECT sr{ 0, 0, w, h };
@@ -209,6 +221,8 @@ private:
 		cmd_list->SetGraphicsRoot32BitConstants(0, 16, mvp.data(), 0);
 
 		cmd_list->DrawIndexedInstanced(36, 1, 0, 0, 0);
+
+		cmd_buffer->endRenderPass();
 	}
 
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _vs;

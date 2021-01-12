@@ -38,7 +38,7 @@ public:
 protected:
 	ID3D12DescriptorHeap* imGuiDescriptorHeap() const { return _imguiDescrHeap.Get(); }
 	void updateFrame() override;
-	void renderFrame(ID3D12GraphicsCommandList* cmd_list, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override;
+	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override;
 
 private:
 	LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;

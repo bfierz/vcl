@@ -76,11 +76,22 @@ private:
 			ImGui::End();
 		}
 	}
-	void renderFrame(ID3D12GraphicsCommandList* cmd_list, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
+	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
 	{
-		cmd_list->ClearRenderTargetView(rtv, (float*)&clear_color, 0, NULL);
+		using namespace Vcl::Graphics::Runtime;
 
-		ImGuiApplication::renderFrame(cmd_list, rtv, dsv);
+		RenderPassDescription rp_desc = {};
+		rp_desc.RenderTargetAttachments.resize(1);
+		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+		rp_desc.RenderTargetAttachments[0].ClearColor = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
+		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
+		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
+		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
+		cmd_buffer->beginRenderPass(rp_desc);
+		cmd_buffer->endRenderPass();
+
+		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
 
 	bool show_demo_window = true;
