@@ -27,6 +27,9 @@
 
 #include "../../3rdparty/imguizmo/ImGuizmo.h"
 
+// C++ standard library
+#include <utility>
+
 // VCL
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/d3d12/swapchain.h>
@@ -268,7 +271,6 @@ private:
 		if (ImGui::RadioButton("Window", useWindow)) useWindow = true;
 
 		ImGui::Text("Camera");
-		bool viewDirty = false;
 		if (ImGui::RadioButton("Perspective", isPerspective)) isPerspective = true;
 		ImGui::SameLine();
 		if (ImGui::RadioButton("Orthographic", !isPerspective)) isPerspective = false;
@@ -280,15 +282,17 @@ private:
 		{
 			ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
 		}
+		bool viewDirty = false;
 		viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
 		ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
 
 		if (viewDirty || firstFrame)
 		{
-			float eye[] = { cosf(camYAngle) * cosf(camXAngle) * camDistance, sinf(camXAngle) * camDistance, sinf(camYAngle) * cosf(camXAngle) * camDistance };
-			float at[] = { 0.f, 0.f, 0.f };
-			float up[] = { 0.f, 1.f, 0.f };
-			LookAt(eye, at, up, cameraView);
+			Eigen::Vector3f eye{ cosf(camYAngle) * cosf(camXAngle) * camDistance, sinf(camXAngle) * camDistance, sinf(camYAngle) * cosf(camXAngle) * camDistance };
+			Eigen::Vector3f at{ 0.f, 0.f, 0.f };
+			Eigen::Vector3f up{ 0.f, 1.f, 0.f };
+			Eigen::Matrix4f view = _matrixFactory.createLookAt(eye, -eye.normalized(), up);
+			std::copy(view.data(), view.data() + 16, _view.data());
 			firstFrame = false;
 		}
 
@@ -312,7 +316,7 @@ private:
 		{
 			ImGuizmo::SetID(matId);
 
-			EditTransform(cameraView, cameraProjection, objectMatrix[matId], lastUsing == matId);
+			EditTransform(_view.data(), cameraProjection, objectMatrix[matId], lastUsing == matId);
 			if (ImGuizmo::IsUsing())
 			{
 				lastUsing = matId;
@@ -338,6 +342,11 @@ private:
 
 		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
+
+	Vcl::Graphics::OpenGL::MatrixFactory _matrixFactory;
+
+	//! Current view matrix
+	std::array<float, 16> _view;
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -386,12 +395,6 @@ private:
 
 	bool firstFrame = true;
 	int lastUsing = 0;
-
-	float cameraView[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-	  0.f, 1.f, 0.f, 0.f,
-	  0.f, 0.f, 1.f, 0.f,
-	  0.f, 0.f, 0.f, 1.f };
 
 	float cameraProjection[16];
 
