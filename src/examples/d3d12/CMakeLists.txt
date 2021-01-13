@@ -25,6 +25,7 @@
 project(d3d12_samples)
 
 add_subdirectory(imgui)
+add_subdirectory(imguizmo)
 add_subdirectory(drawquad)
 add_subdirectory(drawtetmesh)
 add_subdirectory(gridcube)

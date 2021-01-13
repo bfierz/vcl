@@ -31,3 +31,6 @@
 [submodule "src/examples/3rdparty/implot"]
 	path = src/examples/3rdparty/implot
 	url = https://github.com/epezent/implot.git
+[submodule "src/examples/3rdparty/imguizmo"]
+	path = src/examples/3rdparty/imguizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
