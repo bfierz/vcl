@@ -227,7 +227,7 @@ private:
 			ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 		}
 
-		ImGuizmo::DrawGrid(cameraView, cameraProjection, identityMatrix, 100.f);
+		ImGuizmo::DrawGrid(cameraView, cameraProjection, Eigen::Matrix4f::Identity().eval().data(), 100.f);
 		ImGuizmo::DrawCubes(cameraView, cameraProjection, &objectMatrix[0][0], gizmoCount);
 		ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
 
@@ -383,13 +383,6 @@ private:
   0.f, 0.f, 1.f, 0.f,
   0.f, 0.f, 2.f, 1.f }
 	};
-
-	const float identityMatrix[16] =
-	{ 1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f };
-
 
 	bool firstFrame = true;
 	int lastUsing = 0;
