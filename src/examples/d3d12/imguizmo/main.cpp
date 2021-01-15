@@ -35,113 +35,6 @@
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/matrixfactory.h>
 
-void Frustum(float left, float right, float bottom, float top, float znear, float zfar, float* m16)
-{
-	float temp, temp2, temp3, temp4;
-	temp = 2.0f * znear;
-	temp2 = right - left;
-	temp3 = top - bottom;
-	temp4 = zfar - znear;
-	m16[0] = temp / temp2;
-	m16[1] = 0.0;
-	m16[2] = 0.0;
-	m16[3] = 0.0;
-	m16[4] = 0.0;
-	m16[5] = temp / temp3;
-	m16[6] = 0.0;
-	m16[7] = 0.0;
-	m16[8] = (right + left) / temp2;
-	m16[9] = (top + bottom) / temp3;
-	m16[10] = (-zfar - znear) / temp4;
-	m16[11] = -1.0f;
-	m16[12] = 0.0;
-	m16[13] = 0.0;
-	m16[14] = (-temp * zfar) / temp4;
-	m16[15] = 0.0;
-}
-
-void Perspective(float fovyInDegrees, float aspectRatio, float znear, float zfar, float* m16)
-{
-	float ymax, xmax;
-	ymax = znear * tanf(fovyInDegrees * 3.141592f / 180.0f);
-	xmax = ymax * aspectRatio;
-	Frustum(-xmax, xmax, -ymax, ymax, znear, zfar, m16);
-}
-
-void Cross(const float* a, const float* b, float* r)
-{
-	r[0] = a[1] * b[2] - a[2] * b[1];
-	r[1] = a[2] * b[0] - a[0] * b[2];
-	r[2] = a[0] * b[1] - a[1] * b[0];
-}
-
-float Dot(const float* a, const float* b)
-{
-	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-void Normalize(const float* a, float* r)
-{
-	float il = 1.f / (sqrtf(Dot(a, a)) + FLT_EPSILON);
-	r[0] = a[0] * il;
-	r[1] = a[1] * il;
-	r[2] = a[2] * il;
-}
-
-void LookAt(const float* eye, const float* at, const float* up, float* m16)
-{
-	float X[3], Y[3], Z[3], tmp[3];
-
-	tmp[0] = eye[0] - at[0];
-	tmp[1] = eye[1] - at[1];
-	tmp[2] = eye[2] - at[2];
-	Normalize(tmp, Z);
-	Normalize(up, Y);
-
-	Cross(Y, Z, tmp);
-	Normalize(tmp, X);
-
-	Cross(Z, X, tmp);
-	Normalize(tmp, Y);
-
-	m16[0] = X[0];
-	m16[1] = Y[0];
-	m16[2] = Z[0];
-	m16[3] = 0.0f;
-	m16[4] = X[1];
-	m16[5] = Y[1];
-	m16[6] = Z[1];
-	m16[7] = 0.0f;
-	m16[8] = X[2];
-	m16[9] = Y[2];
-	m16[10] = Z[2];
-	m16[11] = 0.0f;
-	m16[12] = -Dot(X, eye);
-	m16[13] = -Dot(Y, eye);
-	m16[14] = -Dot(Z, eye);
-	m16[15] = 1.0f;
-}
-
-void OrthoGraphic(const float l, float r, float b, const float t, float zn, const float zf, float* m16)
-{
-	m16[0] = 2 / (r - l);
-	m16[1] = 0.0f;
-	m16[2] = 0.0f;
-	m16[3] = 0.0f;
-	m16[4] = 0.0f;
-	m16[5] = 2 / (t - b);
-	m16[6] = 0.0f;
-	m16[7] = 0.0f;
-	m16[8] = 0.0f;
-	m16[9] = 0.0f;
-	m16[10] = 1.0f / (zf - zn);
-	m16[11] = 0.0f;
-	m16[12] = (l + r) / (l - r);
-	m16[13] = (t + b) / (b - t);
-	m16[14] = zn / (zn - zf);
-	m16[15] = 1.0f;
-}
-
 class DemoImGuiApplication final : public ImGuiApplication
 {
 public:
@@ -231,7 +124,7 @@ private:
 		}
 
 		ImGuizmo::DrawGrid(cameraView, cameraProjection, Eigen::Matrix4f::Identity().eval().data(), 100.f);
-		ImGuizmo::DrawCubes(cameraView, cameraProjection, &objectMatrix[0][0], gizmoCount);
+		ImGuizmo::DrawCubes(cameraView, cameraProjection, _objectTransforms[0].data(), gizmoCount);
 		ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
 
 		ImGuizmo::ViewManipulate(cameraView, camDistance, ImVec2(viewManipulateRight - 128, viewManipulateTop), ImVec2(128, 128), 0x10101010);
@@ -249,12 +142,15 @@ private:
 		const ImGuiIO& io = ImGui::GetIO();
 		if (isPerspective)
 		{
-			Perspective(fov, io.DisplaySize.x / io.DisplaySize.y, 0.1f, 100.f, cameraProjection);
+			//Perspective(fov, io.DisplaySize.x / io.DisplaySize.y, 0.1f, 100.f, cameraProjection);
+			const float full_fov_rad = 2.0f * fov * 3.141592f / 180.0f;
+			_projection = _matrixFactory.createPerspectiveFov(0.1f, 100.f, io.DisplaySize.x / io.DisplaySize.y, full_fov_rad, Vcl::Graphics::Handedness::RightHanded);
 		}
 		else
 		{
 			float viewHeight = viewWidth * io.DisplaySize.y / io.DisplaySize.x;
-			OrthoGraphic(-viewWidth, viewWidth, -viewHeight, viewHeight, 1000.f, -1000.f, cameraProjection);
+			//OrthoGraphic(-viewWidth, viewWidth, -viewHeight, viewHeight, 1000.f, -1000.f, cameraProjection);
+			_projection = _matrixFactory.createOrtho(2 * viewWidth, 2 * viewHeight, -1000.0f, 1000.0f, Vcl::Graphics::Handedness::RightHanded);
 		}
 		ImGuizmo::SetOrthographic(!isPerspective);
 		ImGuizmo::BeginFrame();
@@ -316,7 +212,7 @@ private:
 		{
 			ImGuizmo::SetID(matId);
 
-			EditTransform(_view.data(), cameraProjection, objectMatrix[matId], lastUsing == matId);
+			EditTransform(_view.data(), _projection.data(), _objectTransforms[matId].data(), lastUsing == matId);
 			if (ImGuizmo::IsUsing())
 			{
 				lastUsing = matId;
@@ -343,11 +239,21 @@ private:
 		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
 
-	Vcl::Graphics::OpenGL::MatrixFactory _matrixFactory;
+	Vcl::Graphics::Direct3D::MatrixFactory _matrixFactory;
+
+	//! Projection matrix
+	Eigen::Matrix4f _projection;
 
 	//! Current view matrix
 	std::array<float, 16> _view;
 
+	//! Object states
+	std::array<Eigen::Matrix4f, 4> _objectTransforms = {
+		Eigen::Affine3f(Eigen::Translation3f(0, 0, 0)).matrix(),
+		Eigen::Affine3f(Eigen::Translation3f(2, 0, 0)).matrix(),
+		Eigen::Affine3f(Eigen::Translation3f(2, 0, 2)).matrix(),
+		Eigen::Affine3f(Eigen::Translation3f(0, 0, 2)).matrix()
+	};
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
@@ -370,34 +276,8 @@ private:
 	bool boundSizing = false;
 	bool boundSizingSnap = false;
 
-	// Statics
-	float objectMatrix[4][16] = {
-  { 1.f, 0.f, 0.f, 0.f,
-	0.f, 1.f, 0.f, 0.f,
-	0.f, 0.f, 1.f, 0.f,
-	0.f, 0.f, 0.f, 1.f },
-
-  { 1.f, 0.f, 0.f, 0.f,
-  0.f, 1.f, 0.f, 0.f,
-  0.f, 0.f, 1.f, 0.f,
-  2.f, 0.f, 0.f, 1.f },
-
-  { 1.f, 0.f, 0.f, 0.f,
-  0.f, 1.f, 0.f, 0.f,
-  0.f, 0.f, 1.f, 0.f,
-  2.f, 0.f, 2.f, 1.f },
-
-  { 1.f, 0.f, 0.f, 0.f,
-  0.f, 1.f, 0.f, 0.f,
-  0.f, 0.f, 1.f, 0.f,
-  0.f, 0.f, 2.f, 1.f }
-	};
-
 	bool firstFrame = true;
 	int lastUsing = 0;
-
-	float cameraProjection[16];
-
 };
 
 int main(int argc, char** argv)
