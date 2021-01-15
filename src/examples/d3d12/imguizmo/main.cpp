@@ -38,9 +38,21 @@
 class DemoImGuiApplication final : public ImGuiApplication
 {
 public:
-	using ImGuiApplication::ImGuiApplication;
+	DemoImGuiApplication(LPCSTR title)
+	: ImGuiApplication(title)
+	{
+		computeViewMatrix();
+	}
 
 private:
+	void computeViewMatrix()
+	{
+		Eigen::Vector3f eye{ cosf(camYAngle) * cosf(camXAngle) * camDistance, sinf(camXAngle) * camDistance, sinf(camYAngle) * cosf(camXAngle) * camDistance };
+		Eigen::Vector3f at{ 0.f, 0.f, 0.f };
+		Eigen::Vector3f up{ 0.f, 1.f, 0.f };
+		Eigen::Matrix4f view = _matrixFactory.createLookAt(eye, -eye.normalized(), up);
+		std::copy(view.data(), view.data() + 16, _view.data());
+	}
 	void EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition)
 	{
 		if (editTransformDecomposition)
@@ -178,19 +190,11 @@ private:
 		{
 			ImGui::SliderFloat("Ortho width", &viewWidth, 1, 20);
 		}
-		bool viewDirty = false;
-		viewDirty |= ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f);
-		ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
-
-		if (viewDirty || firstFrame)
+		if (ImGui::SliderFloat("Distance", &camDistance, 1.f, 10.f))
 		{
-			Eigen::Vector3f eye{ cosf(camYAngle) * cosf(camXAngle) * camDistance, sinf(camXAngle) * camDistance, sinf(camYAngle) * cosf(camXAngle) * camDistance };
-			Eigen::Vector3f at{ 0.f, 0.f, 0.f };
-			Eigen::Vector3f up{ 0.f, 1.f, 0.f };
-			Eigen::Matrix4f view = _matrixFactory.createLookAt(eye, -eye.normalized(), up);
-			std::copy(view.data(), view.data() + 16, _view.data());
-			firstFrame = false;
+			computeViewMatrix();
 		}
+		ImGui::SliderInt("Gizmo count", &gizmoCount, 1, 4);
 
 		ImGui::Text("X: %f Y: %f", io.MousePos.x, io.MousePos.y);
 		if (ImGuizmo::IsUsing())
@@ -254,11 +258,12 @@ private:
 		Eigen::Affine3f(Eigen::Translation3f(2, 0, 2)).matrix(),
 		Eigen::Affine3f(Eigen::Translation3f(0, 0, 2)).matrix()
 	};
+
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	ImGuizmo::OPERATION mCurrentGizmoOperation{ ImGuizmo::TRANSLATE };
 
-	bool isPerspective = true;
+	// View/Camera configuration
 	float fov = 27.f;
 	float viewWidth = 10.f; // for orthographic
 	float camYAngle = 165.f / 180.f * 3.14159f;
@@ -266,6 +271,7 @@ private:
 
 	// UI states
 	bool useWindow = true;
+	bool isPerspective = true;
 	int gizmoCount = 1;
 	float camDistance = 8.f;
 	ImGuizmo::MODE mCurrentGizmoMode{ ImGuizmo::LOCAL };
@@ -276,7 +282,6 @@ private:
 	bool boundSizing = false;
 	bool boundSizingSnap = false;
 
-	bool firstFrame = true;
 	int lastUsing = 0;
 };
 
