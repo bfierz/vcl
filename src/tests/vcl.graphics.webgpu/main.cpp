@@ -46,13 +46,30 @@ int main(int argc, char **argv)
 #ifndef VCL_ARCH_WEBASM
 	instance = std::make_unique<dawn_native::Instance>();
 	instance->DiscoverDefaultAdapters();
-	dawn_native::Adapter adapter = instance->GetDefaultAdapter();
-	device = adapter.CreateDevice();
+	auto adapters = instance->GetAdapters();
+	if (adapters.empty())
+		return 1;
+
+	// Run tests using CPU emulation
+	for (auto& adapter : adapters)
+	{
+		if (adapter.GetDeviceType() == dawn_native::DeviceType::CPU)
+		{
+			device = adapter.CreateDevice();
+			break;
+		}
+	}
+	if (!device)
+	{
+		device = adapters[0].CreateDevice();
+	}
 
 	DawnProcTable procs = dawn_native::GetProcs();
 	dawnProcSetProcs(&procs);
 #else
 	device = emscripten_webgpu_get_device();
+	if (!device)
+		return 1;
 #endif
 
 	::testing::InitGoogleTest(&argc, argv);

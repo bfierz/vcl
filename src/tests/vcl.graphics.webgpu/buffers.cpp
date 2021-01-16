@@ -221,11 +221,10 @@ TEST(WebGPUBuffer, ReadWrite)
 	WGPUFence fence = wgpuQueueCreateFence(queue, &fence_desc);
 	wgpuQueueSignal(queue, fence, 1);
 
-	//while (wgpuFenceGetCompletedValue(fence) < 1)
-	//{
-	//	// Emulate a device tick...
-	//	wgpuQueueSubmit(queue, 0, nullptr);
-	//}
+#ifndef VCL_ARCH_WEBASM
+	while (wgpuFenceGetCompletedValue(fence) < 1)
+		wgpuDeviceTick(device);
+#endif
 
 	auto readPtr = (float*)buf1.map();
 	bool equal = true;
