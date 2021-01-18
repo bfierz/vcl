@@ -103,6 +103,18 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		HRESULT hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_d3dDevice));
 		VclEnsure(SUCCEEDED(hr) && _d3dDevice, "Native device is allocated.");
 
+		// Query raytracing capabilities
+		ComPtr<ID3D12Device5> device5;
+		VCL_DIRECT3D_SAFE_CALL(_d3dDevice.As(&device5));
+		if (device5)
+		{
+			D3D12_FEATURE_DATA_D3D12_OPTIONS5 caps = {};
+			if (SUCCEEDED(device5->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &caps, sizeof(caps))))
+			{
+				_raytracingTier = caps.RaytracingTier;
+			}
+		}
+
 		// Store adapter information
 		DXGI_ADAPTER_DESC3 adapter_desc;
 		adapter->GetDesc3(&adapter_desc);
@@ -198,9 +210,9 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		return cmd_allocator;
 	}
 
-	ComPtr<ID3D12GraphicsCommandList> Device::createCommandList(ID3D12CommandAllocator* cmd_allocator, D3D12_COMMAND_LIST_TYPE type)
+	ComPtr<ID3D12GraphicsCommandList4> Device::createCommandList(ID3D12CommandAllocator* cmd_allocator, D3D12_COMMAND_LIST_TYPE type)
 	{
-		ComPtr<ID3D12GraphicsCommandList> cmd_list;
+		ComPtr<ID3D12GraphicsCommandList4> cmd_list;
 		VCL_DIRECT3D_SAFE_CALL(_d3dDevice->CreateCommandList(0, type, cmd_allocator, nullptr, IID_PPV_ARGS(&cmd_list)));
 
 		return cmd_list;

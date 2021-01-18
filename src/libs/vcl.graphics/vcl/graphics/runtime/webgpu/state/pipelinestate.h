@@ -28,21 +28,12 @@
 #include <vcl/config/global.h>
 #include <vcl/config/webgpu.h>
 
-// Abseil
-#include <absl/container/inlined_vector.h>
-
 // VCL
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 {
-	struct RenderTargetLayout
-	{
-		absl::InlinedVector<SurfaceFormat, 8> ColourFormats;
-		SurfaceFormat DepthStencilFormat;
-	};
-
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:

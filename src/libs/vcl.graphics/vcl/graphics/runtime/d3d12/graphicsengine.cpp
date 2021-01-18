@@ -105,6 +105,30 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		DepthBuffer.Reset();
 	}
 
+	D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert(AttachmentStoreOp op)
+	{
+		switch (op)
+		{
+		case AttachmentStoreOp::Clear:
+			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
+		case AttachmentStoreOp::Store:
+			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		}
+	}
+
+	D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert(AttachmentLoadOp op)
+	{
+		switch (op)
+		{
+		case AttachmentLoadOp::DontCare:
+			return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
+		case AttachmentLoadOp::Clear:
+			return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		case AttachmentLoadOp::Load:
+			return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+		}
+	}
+
 	CommandBuffer::CommandBuffer(ref_ptr<Device> device, ID3D12CommandAllocator* allocator)
 	{
 		_cmdList = device->createCommandList(allocator, D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -114,6 +138,38 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	void CommandBuffer::reset(Microsoft::WRL::ComPtr<ID3D12CommandAllocator> allocator)
 	{
 		_cmdList->Reset(allocator.Get(), nullptr);
+	}
+
+	void CommandBuffer::beginRenderPass(const RenderPassDescription& desc)
+	{
+		static_assert(sizeof(D3D12_CPU_DESCRIPTOR_HANDLE) == sizeof(void*), "Texture view size is compatible");
+
+		std::array<D3D12_RENDER_PASS_RENDER_TARGET_DESC, 8> rts;
+		for (size_t i = 0; i < desc.RenderTargetAttachments.size(); i++)
+		{
+			rts[i].cpuDescriptor.ptr = reinterpret_cast<SIZE_T>(desc.RenderTargetAttachments[i].Attachment);
+			rts[i].BeginningAccess.Type = convert(desc.RenderTargetAttachments[i].LoadOp);
+			rts[i].BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			std::copy(std::begin(desc.RenderTargetAttachments[i].ClearColor), std::end(desc.RenderTargetAttachments[i].ClearColor), rts[i].BeginningAccess.Clear.ClearValue.Color);
+			rts[i].EndingAccess.Type = convert(desc.RenderTargetAttachments[i].StoreOp);
+		}
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC dsv = {};
+		dsv.cpuDescriptor.ptr = reinterpret_cast<SIZE_T>(desc.DepthStencilTargetAttachment.Attachment);
+		dsv.DepthBeginningAccess.Type = convert(desc.DepthStencilTargetAttachment.DepthLoadOp);
+		dsv.DepthBeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		dsv.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = desc.DepthStencilTargetAttachment.ClearDepth;
+		dsv.DepthEndingAccess.Type = convert(desc.DepthStencilTargetAttachment.DepthStoreOp);
+		dsv.StencilBeginningAccess.Type = convert(desc.DepthStencilTargetAttachment.StencilLoadOp);
+		dsv.StencilBeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_UNKNOWN;
+		dsv.StencilBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = desc.DepthStencilTargetAttachment.ClearStencil;
+		dsv.StencilEndingAccess.Type = convert(desc.DepthStencilTargetAttachment.StencilStoreOp);
+
+		auto dsv_ptr = desc.DepthStencilTargetAttachment.Attachment ? &dsv : nullptr;
+		_cmdList->BeginRenderPass(desc.RenderTargetAttachments.size(), rts.data(), dsv_ptr, D3D12_RENDER_PASS_FLAG_NONE);
+	}
+	void CommandBuffer::endRenderPass()
+	{
+		_cmdList->EndRenderPass();
 	}
 
 	void CommandBuffer::bindPipeline(PipelineState* pipeline)

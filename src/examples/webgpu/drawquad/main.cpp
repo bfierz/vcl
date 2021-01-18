@@ -42,10 +42,10 @@ public:
 	: Application("DrawQuads")
 	{
 		using Vcl::Graphics::Runtime::WebGPU::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::WebGPU::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::WebGPU::Shader;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::SurfaceFormat;
 

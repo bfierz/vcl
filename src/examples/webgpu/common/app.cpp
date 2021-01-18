@@ -173,7 +173,7 @@ bool Application::initWebGpu(GLFWwindow* window)
 	_wgpuInstance->EnableBackendValidation(true);
 #endif
 	_wgpuInstance->DiscoverDefaultAdapters();
-	dawn_native::Adapter adapter = _wgpuInstance->GetDefaultAdapter();
+	dawn_native::Adapter adapter = _wgpuInstance->GetAdapters()[0];
 	_wgpuDevice = adapter.CreateDevice();
 
 	DawnProcTable procs = dawn_native::GetProcs();

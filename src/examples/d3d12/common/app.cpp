@@ -91,13 +91,7 @@ int Application::run()
 		auto rtv = _swapChain->prepareFrame(_graphicsCommandBuffer->handle());
 		auto dsv = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-		// Clear the back-buffer
-		float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		_graphicsCommandBuffer->handle()->ClearRenderTargetView(rtv, clearColor, 0, nullptr);
-		_graphicsCommandBuffer->handle()->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
 		renderFrame(_graphicsCommandBuffer.get(), rtv, dsv);
-		renderFrame(_graphicsCommandBuffer->handle(), rtv, dsv);
 		_swapChain->present(_device->defaultQueue(), _graphicsCommandBuffer->handle(), false);
 	}
 

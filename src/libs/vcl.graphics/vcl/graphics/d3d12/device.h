@@ -61,15 +61,22 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 		CommandQueue* defaultQueue() const { return _defaultQueue.get(); }
 
+		//! \name Query feature support
+		//! \{
+		//! \returns the D3D12 raytracing support level
+		D3D12_RAYTRACING_TIER raytracingSupport() const { return _raytracingTier; }
+		//! \}
+
 		//! \name D3D12 Helpers
 		//! \{
 		ComPtr<ID3D12Fence> createFence();
+
 		//! Create a new command queue
 		ComPtr<ID3D12CommandQueue> createCommandQueue(D3D12_COMMAND_LIST_TYPE type);
 
 		ComPtr<ID3D12CommandAllocator> createCommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
-		ComPtr<ID3D12GraphicsCommandList> createCommandList(ID3D12CommandAllocator* cmd_allocator, D3D12_COMMAND_LIST_TYPE type);
+		ComPtr<ID3D12GraphicsCommandList4> createCommandList(ID3D12CommandAllocator* cmd_allocator, D3D12_COMMAND_LIST_TYPE type);
 
 		ComPtr<ID3D12RootSignature> createRootSignature(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& desc);
 
@@ -88,5 +95,10 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		std::wstring _adapterName;
 
 		std::unique_ptr<CommandQueue> _defaultQueue;
+
+		//! \name Feature Support
+		//! \{
+		D3D12_RAYTRACING_TIER _raytracingTier{ D3D12_RAYTRACING_TIER_NOT_SUPPORTED };
+		//! \}
 	};
 }}}

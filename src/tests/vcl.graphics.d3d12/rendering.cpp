@@ -157,12 +157,10 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	psd.VertexShader = &vs;
 	psd.FragmentShader = &ps;
 	psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
-	psd.Rasterizer.CullMode = Vcl::Graphics::Runtime::CullModeMethod::None;
-	D3D12::RenderTargetLayout rtd = {};
-	rtd.NumRenderTargets = 1;
-	rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	D3D12::GraphicsPipelineState gps{device.get(), psd, &table_layout, &rtd};
+	RenderTargetLayout rtd = {};
+	rtd.ColourFormats = { Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM };
+	rtd.DepthStencilFormat = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
+	D3D12::GraphicsPipelineState gps{device.get(), psd, rtd, &table_layout};
 
 	// Prepare a blank screen
 	swap_chain.waitForNextFrame();

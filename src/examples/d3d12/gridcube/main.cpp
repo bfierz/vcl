@@ -85,12 +85,12 @@ public:
 		using Vcl::Graphics::D3D12::InlineDescriptor;
 		using Vcl::Graphics::Runtime::D3D12::Buffer;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferUsage;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Camera;
 		using Vcl::Graphics::SurfaceFormat;
@@ -117,10 +117,9 @@ public:
 		boxPSDesc.FragmentShader = &boxFrag;
 		boxPSDesc.InputAssembly.Topology = PrimitiveType::LinelistAdj;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, _tableLayout.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, rtd, _tableLayout.get());
 
 		// Allocate a junk of 512 KB for constant buffers per frame
 		BufferDescription cbuffer_desc;
@@ -176,24 +175,37 @@ private:
 		}
 	}
 
-	void renderFrame(ID3D12GraphicsCommandList* cmd_list, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
+	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
 	{
+		using namespace Vcl::Graphics::Runtime;
+
+		RenderPassDescription rp_desc = {};
+		rp_desc.RenderTargetAttachments.resize(1);
+		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+		rp_desc.RenderTargetAttachments[0].ClearColor = { 0, 0, 0, 1 };
+		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
+		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
+		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
+		cmd_buffer->beginRenderPass(rp_desc);
+
 		const auto size = swapChain()->bufferSize();
 		const auto w = size.first;
 		const auto h = size.second;
 
 		D3D12_VIEWPORT viewport{ 0, 0, w, h, 0, 1 };
 		D3D12_RECT sr{ 0, 0, w, h };
-		cmd_list->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
-		cmd_list->RSSetViewports(1, &viewport);
-		cmd_list->RSSetScissorRects(1, &sr);
+		cmd_buffer->handle()->RSSetViewports(1, &viewport);
+		cmd_buffer->handle()->RSSetScissorRects(1, &sr);
 
 		Eigen::Matrix4f vp = _camera->projection() * _camera->view();
 		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
 		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
-		renderBoundingBox(cmd_list, bb, _gridResolution, _boxPipelineState.get(), m, vp);
+		renderBoundingBox(cmd_buffer->handle(), bb, _gridResolution, _boxPipelineState.get(), m, vp);
 
-		ImGuiApplication::renderFrame(cmd_list, rtv, dsv);
+		cmd_buffer->endRenderPass();
+
+		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
 
 	void renderBoundingBox

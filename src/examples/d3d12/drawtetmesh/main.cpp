@@ -149,12 +149,12 @@ private:
 		using namespace Vcl::Graphics::D3D12;
 		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 		using Vcl::Graphics::SurfaceFormat;
@@ -205,10 +205,9 @@ private:
 		psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
 		psd.InputLayout = input_layout;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _tetToTriMeshCtx.TableLayoutGraphics.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tetToTriMeshCtx.TableLayoutGraphics.get());
 	}
 
 	void createDirectTetMeshPipeline()
@@ -217,12 +216,12 @@ private:
 		using namespace Vcl::Graphics::D3D12;
 		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
+		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
 		using Vcl::Graphics::SurfaceFormat;
@@ -258,18 +257,17 @@ private:
 		psd.InputAssembly.Topology = PrimitiveType::Pointlist;
 		psd.InputLayout = input_layout;
 		RenderTargetLayout rtd = {};
-		rtd.NumRenderTargets = 1;
-		rtd.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		rtd.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _directTetMeshCtx.TableLayoutGraphics.get(), &rtd);
+		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
+		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _directTetMeshCtx.TableLayoutGraphics.get());
 	}
 
-	void renderFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)
+	void prepareFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)
 	{
 		using Vcl::Graphics::Runtime::D3D12::PipelineBindPoint;
 
 		cmd_buffer->bindPipeline(_tetToTriMeshCtx.TetToTriMeshPS.get());
-		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Compute, _tetToTriMeshCtx.TableCompute.get());
+		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Compute, 1, _tetToTriMeshCtx.TableCompute.get());
 
 		struct TetToTriMeshConversionParameters
 		{
@@ -278,11 +276,13 @@ private:
 
 			// Scaling of the generated tets
 			float Scale;
-		} tet_to_tri_params = {4*_mesh->nrVolumes(), 0.9f};
+		} tet_to_tri_params = { 4 * _mesh->nrVolumes(), 0.9f };
 		cmd_buffer->handle()->SetComputeRoot32BitConstants(0, 2, &tet_to_tri_params, 0);
 		cmd_buffer->dispatch(4 * _mesh->nrVolumes(), 1, 1);
+	}
 
-
+	void renderFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)
+	{
 		cmd_buffer->bindPipeline(_tetToTriMeshCtx.RenderTriMeshPS.get());
 		cmd_buffer->handle()->SetGraphicsRootSignature(_tetToTriMeshCtx.TableLayoutGraphics->rootSignature());
 
@@ -303,7 +303,7 @@ private:
 		using Vcl::Graphics::Runtime::D3D12::PipelineBindPoint;
 
 		cmd_buffer->bindPipeline(_directTetMeshCtx.RenderTetMeshPS.get());
-		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Graphics, _directTetMeshCtx.TableGraphics.get());
+		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Graphics, 1, _directTetMeshCtx.TableGraphics.get());
 
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		cmd_buffer->bindVertexBuffer(_tetMeshIndices.get());
@@ -335,11 +335,25 @@ private:
 
 	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
 	{
+		using namespace Vcl::Graphics::Runtime;
+
+		RenderPassDescription rp_desc = {};
+		rp_desc.RenderTargetAttachments.resize(1);
+		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
+		rp_desc.RenderTargetAttachments[0].ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
+		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
+		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
+
 		const auto size = swapChain()->bufferSize();
 		const auto w = size.first / 2;
 		const auto h = size.second;
 
-		cmd_buffer->handle()->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
+		prepareFrameTetToTriMesh(cmd_buffer);
+
+		cmd_buffer->beginRenderPass(rp_desc);
+
 		D3D12_VIEWPORT vp{ 0, 0, w, h, 0, 1 };
 		cmd_buffer->handle()->RSSetViewports(1, &vp);
 		D3D12_RECT sr{ 0, 0, w, h };
@@ -347,13 +361,14 @@ private:
 
 		renderFrameTetToTriMesh(cmd_buffer);
 
-		cmd_buffer->handle()->OMSetRenderTargets(1, &rtv, FALSE, &dsv);
 		D3D12_VIEWPORT vp2{ w, 0, w, h, 0, 1 };
 		cmd_buffer->handle()->RSSetViewports(1, &vp2);
 		D3D12_RECT sr2{ w, 0, w+w, h };
 		cmd_buffer->handle()->RSSetScissorRects(1, &sr2);
 
 		renderFrameDirectTetMesh(cmd_buffer);
+
+		cmd_buffer->endRenderPass();
 	}
 
 	TetToTriMeshContext _tetToTriMeshCtx;

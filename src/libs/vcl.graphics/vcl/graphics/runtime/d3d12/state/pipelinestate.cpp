@@ -72,8 +72,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	(
 		Graphics::D3D12::Device* device,
 		const PipelineStateDescription& desc,
-		const Graphics::D3D12::DescriptorTableLayout* layout,
-		const RenderTargetLayout* rt_layout
+		const RenderTargetLayout& rt_layout,
+		const Graphics::D3D12::DescriptorTableLayout* layout
 	)
 	: _inputLayout{desc.InputLayout}
 	{
@@ -101,12 +101,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		
 		graphics_pipeline_desc.IBStripCutValue = desc.InputAssembly.PrimitiveRestartEnable ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 		graphics_pipeline_desc.PrimitiveTopologyType = convert(desc.InputAssembly.Topology);
-		if (rt_layout)
+		graphics_pipeline_desc.NumRenderTargets = rt_layout.ColourFormats.size();
+		for (size_t i = 0; i < rt_layout.ColourFormats.size(); i++)
 		{
-			graphics_pipeline_desc.NumRenderTargets = rt_layout->NumRenderTargets;
-			memcpy(graphics_pipeline_desc.RTVFormats, rt_layout->RTVFormats, rt_layout->NumRenderTargets*sizeof(DXGI_FORMAT));
-			graphics_pipeline_desc.DSVFormat = rt_layout->DSVFormat;
+			graphics_pipeline_desc.RTVFormats[i] = Graphics::D3D12::D3D::toD3Denum(rt_layout.ColourFormats[i]);
 		}
+		graphics_pipeline_desc.DSVFormat = Graphics::D3D12::D3D::toD3Denum(rt_layout.DepthStencilFormat);
 		graphics_pipeline_desc.SampleDesc = { 1, 0 };
 		//UINT NodeMask;
 		//D3D12_CACHED_PIPELINE_STATE CachedPSO;

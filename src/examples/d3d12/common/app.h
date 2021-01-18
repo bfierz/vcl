@@ -62,7 +62,6 @@ protected:
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
-	virtual void renderFrame(ID3D12GraphicsCommandList*, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) {}
 	virtual void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) {}
 
 	ID3D12GraphicsCommandList* cmdList() const { return _graphicsCommandBuffer->handle(); }

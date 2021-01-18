@@ -27,6 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <array>
+
+// Abseil
+#include <absl/container/inlined_vector.h>
+
 namespace Vcl { namespace Graphics { namespace Runtime
 {
 	enum class ComparisonFunction
@@ -39,5 +45,41 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		NotEqual = 6,
 		GreaterEqual = 7,
 		Always = 8
+	};
+
+	enum class AttachmentLoadOp {
+		DontCare,
+		Clear,
+		Load
+	};
+
+	enum class AttachmentStoreOp {
+		Store,
+		Clear
+	};
+
+	struct RenderTargetAttachmentDescription
+	{
+		void* Attachment = nullptr;
+		AttachmentLoadOp LoadOp = AttachmentLoadOp::DontCare;
+		AttachmentStoreOp StoreOp = AttachmentStoreOp::Store;
+		std::array<float, 4> ClearColor = { 0, 0, 0, 0 };
+	};
+
+	struct DepthStencilAttachmentTargetDescription
+	{
+		void* Attachment = nullptr;
+		AttachmentLoadOp DepthLoadOp = AttachmentLoadOp::DontCare;
+		AttachmentStoreOp DepthStoreOp = AttachmentStoreOp::Store;
+		float ClearDepth = 1.0f;
+		AttachmentLoadOp StencilLoadOp = AttachmentLoadOp::DontCare;
+		AttachmentStoreOp StencilStoreOp = AttachmentStoreOp::Store;
+		uint32_t ClearStencil = 0;
+	};
+
+	struct RenderPassDescription
+	{
+		absl::InlinedVector<RenderTargetAttachmentDescription, 8> RenderTargetAttachments;
+		DepthStencilAttachmentTargetDescription DepthStencilTargetAttachment;
 	};
 }}}
