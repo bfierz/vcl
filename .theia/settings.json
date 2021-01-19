@@ -1,0 +1,26 @@
+{
+  "cpp.buildConfigurations": [
+    {
+      "name": "Release",
+      "directory": "${workspaceRoot}/build/release"
+    },
+    {
+      "name": "Debug",
+      "directory": "${workspaceRoot}/build/debug"
+    }
+  ],
+  "cpp.clangdArgs": "--background-index",
+  "cpp.clangdExecutable": "/usr/bin/clangd",
+  "cpp.clangTidy": true,
+  "cpp.clangTidyChecks": "*",
+  "cpp.trace.server": "verbose",
+  "clangd.arguments": [
+      "--include-directory ${workspaceRoot}/src"
+  ],
+  "cmake.configureArgs": [
+      "-G", "Ninja",
+      "-DVCL_BUILD_BENCHMARKS=Off",
+      "-DVCL_BUILD_TOOLS=Off",
+      "-DVCL_OPENGL_SUPPORT=On"
+  ]
+}

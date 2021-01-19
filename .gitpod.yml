@@ -1,0 +1,9 @@
+image:
+    file: .gitpod.dockerfile
+
+vscode:
+    extensions:
+        - ms-vscode.cmake-tools@1.5.3:QI2POGDzx7mhyCmZyf/3vg==
+
+tasks:
+    - init: git submodule update --init --recursive
