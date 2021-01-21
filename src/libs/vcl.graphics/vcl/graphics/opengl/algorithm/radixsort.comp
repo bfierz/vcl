@@ -53,7 +53,7 @@ uniform uint startbit;
 shared uint l_numTrue;
 
 // Local data
-uvec4 key;
+uvec4 key = uvec4(0);
 
 uvec4 rank4(uvec4 preds)
 {
@@ -88,18 +88,18 @@ void radixSortBlockKeysOnly(uint nbits, uint startbit)
 	for (uint shift = startbit; shift < (startbit + nbits); ++shift)
 	{
 		uvec4 lsb;
-		lsb.y = ((key.y >> shift) & 0x1) ^ 0x1;
-		lsb.x = ((key.x >> shift) & 0x1) ^ 0x1;
-        lsb.z = ((key.z >> shift) & 0x1) ^ 0x1;
-        lsb.w = ((key.w >> shift) & 0x1) ^ 0x1;
+		lsb.y = ((key.y >> shift) & 0x1u) ^ 0x1u;
+		lsb.x = ((key.x >> shift) & 0x1u) ^ 0x1u;
+        lsb.z = ((key.z >> shift) & 0x1u) ^ 0x1u;
+        lsb.w = ((key.w >> shift) & 0x1u) ^ 0x1u;
         
 		uvec4 r = rank4(lsb);
 
         // This arithmetic strides the ranks across 4 CTA_SIZE regions
-        l_data[(r.x & 3) * localSize + (r.x >> 2)] = key.x;
-        l_data[(r.y & 3) * localSize + (r.y >> 2)] = key.y;
-        l_data[(r.z & 3) * localSize + (r.z >> 2)] = key.z;
-        l_data[(r.w & 3) * localSize + (r.w >> 2)] = key.w;
+        l_data[(r.x & 0x3u) * localSize + (r.x >> 2)] = key.x;
+        l_data[(r.y & 0x3u) * localSize + (r.y >> 2)] = key.y;
+        l_data[(r.z & 0x3u) * localSize + (r.z >> 2)] = key.z;
+        l_data[(r.w & 0x3u) * localSize + (r.w >> 2)] = key.w;
 		memoryBarrierShared();
 		barrier();
 
@@ -181,8 +181,8 @@ void main()
 
     uvec2 radix2 = keys[globalId];
 
-    l_radix1[2 * localId + 0] = (radix2.x >> startbit) & 0xF;
-    l_radix1[2 * localId + 1] = (radix2.y >> startbit) & 0xF;
+    l_radix1[2 * localId + 0] = (radix2.x >> startbit) & 0xFu;
+    l_radix1[2 * localId + 1] = (radix2.y >> startbit) & 0xFu;
 
     // Finds the position where the l_radix1 entries differ and stores start 
     // index for each radix.
@@ -319,7 +319,7 @@ void main()
 	barrier();
 	
 	uint key = l_keys[localId];
-    uint radix = (key >> startbit) & 0xF;
+    uint radix = (key >> startbit) & 0xFu;
     uint globalOffset = l_offsets[radix] + localId - l_blockOffsets[radix];
     if (globalOffset < numElements)
     {
@@ -327,7 +327,7 @@ void main()
     }
 	
 	key = l_keys[localId + groupSize];
-    radix = (key >> startbit) & 0xF;
+    radix = (key >> startbit) & 0xFu;
     globalOffset = l_offsets[radix] + localId + groupSize - l_blockOffsets[radix];
     if (globalOffset < numElements)
     {

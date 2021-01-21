@@ -52,9 +52,17 @@ TEST(OpenGL, CreateBuffer)
 	EXPECT_TRUE(buf.id() != 0) << "Buffer not created.";
 }
 
+extern bool isLlvmPipe;
+
 TEST(OpenGL, ClearBuffer)
 {
 	using namespace Vcl::Graphics::Runtime;
+
+	if (isLlvmPipe)
+	{
+		std::cout << "[ SKIPPED  ] Test does not work under LLVM-pipe" << std::endl;
+		return;
+	}
 
 	// Define the buffer
 	BufferDescription desc =

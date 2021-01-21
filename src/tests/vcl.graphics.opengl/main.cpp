@@ -35,8 +35,16 @@ extern "C"
 }
 #endif
 
+bool isLlvmPipe = false;
+
 int main(int argc, char **argv)
 {
+	if (std::any_of(argv, argv + argc, [](const char* arg) { return strcmp(arg, "--gtest_list_tests") == 0; }))
+	{
+		::testing::InitGoogleTest(&argc, argv);
+		return 0;
+	}
+
 	// OpenGL context used during the unit-tests
 	Vcl::Graphics::OpenGL::ContextDesc ctx_desc;
 	ctx_desc.MajorVersion = 4;
@@ -44,6 +52,9 @@ int main(int argc, char **argv)
 	ctx_desc.Type = Vcl::Graphics::OpenGL::ContextType::Core;
 	ctx_desc.Debug = true;
 	Vcl::Graphics::OpenGL::Context ctx(ctx_desc);
+
+	// Check if we're running on MESAs LLVMPipe
+	isLlvmPipe = strncmp((const char*)glGetString(GL_RENDERER), "llvmpipe", 8) == 0;
 
 	// Run the tests
 	::testing::InitGoogleTest(&argc, argv);

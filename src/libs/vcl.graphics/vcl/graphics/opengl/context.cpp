@@ -158,7 +158,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		if (!display)
 		{
 			_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-			_allocated_display = true;
+			_allocated_display = _display != nullptr;
 
 			EGLint major, minor;
 			eglInitialize(_display, &major, &minor);
@@ -192,11 +192,18 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 				EGL_NONE,
 			};
 
-			EGLint num_configs;	  
-			eglChooseConfig(_display, surface_config_attribs, &egl_config, 1, &num_configs);
-	  
-			_surface = eglCreatePbufferSurface(_display, egl_config, pbuffer_attribs);
-			_allocated_surface = true;	  
+			EGLint num_configs = 0;
+			eglChooseConfig(_display, surface_config_attribs, nullptr, 0, &num_configs);
+
+			if (num_configs > 0)
+			{
+				std::vector<EGLConfig> configs(num_configs);
+				eglChooseConfig(_display, surface_config_attribs, configs.data(), num_configs, &num_configs);
+
+				egl_config = configs[0];
+				_surface = eglCreatePbufferSurface(_display, egl_config, pbuffer_attribs);
+				_allocated_surface = _surface != nullptr;
+			}
 		}
 
 		// 4. Bind the API
@@ -384,7 +391,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		// Initialize glew
 		glewExperimental = GL_TRUE;
 		GLenum err = glewInit();
-		if (GLEW_OK != err)
+		if (GLEW_OK != err && err != GLEW_ERROR_NO_GLX_DISPLAY)
 		{
 			std::cout << "Error initializing GLEW: " << glewGetErrorString(err) << std::endl;
 			std::terminate();

@@ -46,7 +46,7 @@ ImGuiApplication::ImGuiApplication(const char* title)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(windowHandle(), true);
-	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init("#version 430");
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

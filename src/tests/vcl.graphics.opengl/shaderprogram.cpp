@@ -25,6 +25,7 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/opengl.h>
 
 // C++ Standard Library
 
@@ -131,6 +132,8 @@ void main()
 }
 )";
 
+extern bool isLlvmPipe;
+
 TEST(OpenGL, CompileShaderError)
 {
 	using namespace Vcl::Graphics::Runtime;
@@ -215,21 +218,20 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	desc.FragmentShader = &fs;
 
 	// Create the shader program
-	Runtime::OpenGL::ShaderProgram prog{ desc };
-
-	// Verify the result
-	GLint linked = 0, valid = 0;
-	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
-	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
-
-	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
-	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+	auto prog = Runtime::OpenGL::makeShaderProgram(desc);
+	EXPECT_TRUE(prog) << prog.error();
 }
 
 TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 {
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
+
+	if (!glewIsExtensionSupported("GL_ARB_gl_spirv") || isLlvmPipe)
+	{
+		std::cout << "[ SKIPPED  ] SPIR-V not supported" << std::endl;
+		return;
+	}
 
 	// Compile the shader stages
 	Runtime::OpenGL::Shader vs(ShaderType::VertexShader, 0, QuadSpirvVS);
@@ -256,15 +258,8 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	desc.FragmentShader = &fs;
 
 	// Create the shader program
-	Runtime::OpenGL::ShaderProgram prog{ desc };
-
-	// Verify the result
-	GLint linked = 0, valid = 0;
-	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
-	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
-
-	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
-	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+	auto prog = Runtime::OpenGL::makeShaderProgram(desc);
+	EXPECT_TRUE(prog) << prog.error();
 }
 
 TEST(OpenGL, BuildSimpleComputeShaderProgram)
@@ -273,22 +268,16 @@ TEST(OpenGL, BuildSimpleComputeShaderProgram)
 	using namespace Vcl::Graphics;
 
 	// Compile the shader
-	Runtime::OpenGL::Shader cs(ShaderType::ComputeShader, 0, SimpleCS);
+	auto cs = Runtime::OpenGL::makeShader(ShaderType::ComputeShader, 0, SimpleCS);
+	EXPECT_TRUE(cs) << cs.error();
 
 	// Create the program descriptor
 	Runtime::OpenGL::ShaderProgramDescription desc;
-	desc.ComputeShader = &cs;
+	desc.ComputeShader = &cs.value();
 
 	// Create the shader program
-	Runtime::OpenGL::ShaderProgram prog{ desc };
-
-	// Verify the result
-	GLint linked = 0, valid = 0;
-	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
-	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
-
-	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
-	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
+	auto prog = Runtime::OpenGL::makeShaderProgram(desc);
+	EXPECT_TRUE(prog) << prog.error();
 }
 
 TEST(OpenGL, RunSimpleComputeShaderProgram)

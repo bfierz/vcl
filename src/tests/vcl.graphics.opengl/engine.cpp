@@ -124,10 +124,16 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
 	engine.endFrame();
 
+	constexpr uint32_t quarter_0 = 0x3f3f3f3f;
+	constexpr uint32_t quarter_1 = 0x40404040;
+	constexpr uint32_t half_0 = 0x7f7f7f7f;
+	constexpr uint32_t half_1 = 0x80808080;
+	constexpr uint32_t one = 0xffffffff;
+
 	// Check read values from each frame
-	EXPECT_TRUE(std::all_of(b_rt_0.cbegin(), b_rt_0.cend(), [](uint32_t v) { return v == 0x40404040; }));
-	EXPECT_TRUE(std::all_of(b_rt_1.cbegin(), b_rt_1.cend(), [](uint32_t v) { return v == 0x7f7f7f7f; }));
-	EXPECT_TRUE(std::all_of(b_rt_2.cbegin(), b_rt_2.cend(), [](uint32_t v) { return v == 0xffffffff; }));
+	EXPECT_TRUE(std::all_of(b_rt_0.cbegin(), b_rt_0.cend(), [=](uint32_t v) { return v == quarter_0 || v == quarter_1; }));
+	EXPECT_TRUE(std::all_of(b_rt_1.cbegin(), b_rt_1.cend(), [=](uint32_t v) { return v == half_0 || v == half_1; }));
+	EXPECT_TRUE(std::all_of(b_rt_2.cbegin(), b_rt_2.cend(), [=](uint32_t v) { return v == 0xffffffff; }));
 
 	// Check the values of each frame
 	std::vector<uint32_t> d_rt_0(32 * 32, 0);
@@ -137,9 +143,9 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	static_pointer_cast<Runtime::OpenGL::Texture2D>(rt_1)->read(d_rt_1.size() * sizeof(uint32_t), d_rt_1.data());
 	static_pointer_cast<Runtime::OpenGL::Texture2D>(rt_2)->read(d_rt_2.size() * sizeof(uint32_t), d_rt_2.data());
 
-	EXPECT_TRUE(std::all_of(d_rt_0.cbegin(), d_rt_0.cend(), [](uint32_t v) { return v == 0xffffffff; }));
-	EXPECT_TRUE(std::all_of(d_rt_1.cbegin(), d_rt_1.cend(), [](uint32_t v) { return v == 0x7f7f7f7f; }));
-	EXPECT_TRUE(std::all_of(d_rt_2.cbegin(), d_rt_2.cend(), [](uint32_t v) { return v == 0x40404040; }));
+	EXPECT_TRUE(std::all_of(d_rt_0.cbegin(), d_rt_0.cend(), [=](uint32_t v) { return v == 0xffffffff; }));
+	EXPECT_TRUE(std::all_of(d_rt_1.cbegin(), d_rt_1.cend(), [=](uint32_t v) { return v == half_0 || v == half_1; }));
+	EXPECT_TRUE(std::all_of(d_rt_2.cbegin(), d_rt_2.cend(), [=](uint32_t v) { return v == quarter_0 || v == quarter_1; }));
 }
 
 TEST(OpenGL, ConstantBufferUsage)

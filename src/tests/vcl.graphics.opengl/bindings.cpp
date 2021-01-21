@@ -56,13 +56,10 @@ layout(std430, binding =  4) buffer B04 { float b04; };
 layout(std430, binding =  5) buffer B05 { float b05; };
 layout(std430, binding =  6) buffer B06 { float b06; };
 layout(std430, binding =  7) buffer B07 { float b07; };
-layout(std430, binding =  8) buffer B08 { float b08; };
-layout(std430, binding =  9) buffer B09 { float b09; };
-layout(std430, binding = 10) buffer B10 { float b10; };
 
 void main()
 {
-	float b = u00 + b00 + b01 + b02 + b03 + b04 + b05 + b06 + b07 + b08 + b09 + b10;
+	float b = u00 + b00 + b01 + b02 + b03 + b04 + b05 + b06 + b07;
 	gl_Position = vec4(Position, b, 1);
 }
 )";
@@ -77,20 +74,18 @@ layout(location = 0) in PerVertexData
 } In;
 layout(location = 0) out vec4 Colour;
 
-layout(std430, binding = 10) buffer B10 { float b10; };
-layout(std430, binding = 41) buffer B11 { float b11; };
-layout(std430, binding = 42) buffer B12 { float b12; };
-layout(std430, binding = 43) buffer B13 { float b13; };
-layout(std430, binding = 44) buffer B14 { float b14; };
-layout(std430, binding = 45) buffer B15 { float b15; };
-layout(std430, binding = 46) buffer B16 { float b16; };
-layout(std430, binding = 47) buffer B17 { float b17; };
-layout(std430, binding = 48) buffer B18 { float b18; };
-layout(std430, binding = 49) buffer B19 { float b19; };
+layout(std430, binding =  8) buffer B10 { float b10; };
+layout(std430, binding = 31) buffer B11 { float b11; };
+layout(std430, binding = 32) buffer B12 { float b12; };
+layout(std430, binding = 33) buffer B13 { float b13; };
+layout(std430, binding = 34) buffer B14 { float b14; };
+layout(std430, binding = 35) buffer B15 { float b15; };
+layout(std430, binding = 36) buffer B16 { float b16; };
+layout(std430, binding = 37) buffer B17 { float b17; };
 
 void main()
 {	
-	float b = b10 + b11 + b12 + b13 + b14 + b15 + b16 + b17 + b18 + b19;
+	float b = b10 + b11 + b12 + b13 + b14 + b15 + b16 + b17;
 	Colour = vec4(b);
 }
 )";
@@ -134,17 +129,10 @@ TEST(OpenGL, MaxBindingPoints)
 	desc.FragmentShader = &*fs;
 
 	// Create the shader program
-	Runtime::OpenGL::ShaderProgram prog{ desc };
+	auto prog = Runtime::OpenGL::makeShaderProgram(desc);
+	EXPECT_TRUE(prog) << prog.error();
 
-	// Verify the result
-	GLint linked = 0, valid = 0;
-	glGetProgramiv(prog.id(), GL_LINK_STATUS, &linked);
-	glGetProgramiv(prog.id(), GL_VALIDATE_STATUS, &valid);
-
-	EXPECT_TRUE(linked != 0) << "Shader program not linked.";
-	EXPECT_TRUE(valid != 0) << "Shader program not valid.";
-
-	prog.bind();
+	prog.value()->bind();
 
 	BufferDescription buf_desc =
 	{
@@ -153,19 +141,19 @@ TEST(OpenGL, MaxBindingPoints)
 	};
 	Runtime::OpenGL::Buffer buf(buf_desc);
 	std::vector<GLuint> ids(max_bindings, buf.id());
-	glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 11, ids.data());
-	glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 41, 10, ids.data());
+	glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 0, 8, ids.data());
+	glBindBuffersBase(GL_SHADER_STORAGE_BUFFER, 31, 8, ids.data());
 
-	for (int i = 0; i < 11; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		GLint id = 0;
 		glGetIntegeri_v(GL_SHADER_STORAGE_BUFFER_BINDING, i, &id);
 		EXPECT_EQ(id, buf.id());
 	}
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		GLint id = 0;
-		glGetIntegeri_v(GL_SHADER_STORAGE_BUFFER_BINDING, i + 41, &id);
+		glGetIntegeri_v(GL_SHADER_STORAGE_BUFFER_BINDING, i + 31, &id);
 		EXPECT_EQ(id, buf.id());
 	}
 }
