@@ -20,7 +20,9 @@
   "cmake.configureArgs": [
       "-G", "Ninja",
       "-DVCL_BUILD_BENCHMARKS=Off",
+      "-DVCL_BUILD_EXAMPLES=On",
       "-DVCL_BUILD_TOOLS=Off",
+      "-DVCL_EGL_SUPPORT=On",
       "-DVCL_OPENGL_SUPPORT=On"
   ]
 }
