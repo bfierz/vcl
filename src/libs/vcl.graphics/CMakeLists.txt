@@ -246,7 +246,7 @@ if(VCL_OPENGL_SUPPORT)
 	if(NOT EMSCRIPTEN)
 		target_link_libraries(vcl_graphics
 			PUBLIC
-				${OPENGL_gl_LIBRARY}
+				OpenGL::GL
 		)
 	
 		if(TARGET ${vcl_ext_glew})
