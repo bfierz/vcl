@@ -286,19 +286,66 @@ if(VCL_D3D12_SUPPORT)
 endif()
 
 if(VCL_WEBGPU_SUPPORT)
-	set(DAWN_INCLUDE_DIR CACHE PATH "Dawn WebGPU include path")
-	set(DAWN_LIBRARY CACHE FILEPATH "Dawn WebGPU library")
+	if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
+		message(WARNING "Downloading Google Dawn automatically requires CMake 3.11+")
 
-	set(WEBGPU_INCLUDE_DIR CACHE PATH "WebGPU include path")
-	set(WEBGPU_LIBRARY CACHE FILEPATH "WebGPU library")
+		set(DAWN_INCLUDE_DIR CACHE PATH "Dawn WebGPU include path")
+		set(DAWN_NATIVE_LIBRARY CACHE FILEPATH "Dawn WebGPU library")
+		set(DAWN_PROC_LIBRARY CACHE FILEPATH "Dawn WebGPU procedure hooks library")
+
+		set(WEBGPU_INCLUDE_DIR CACHE PATH "WebGPU include path")
+		set(WEBGPU_CPP_LIBRARY CACHE FILEPATH "WebGPU C++ library")
+	else()
+		include(FetchContent)
+		if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+			FetchContent_Declare(
+				webgpu_library
+				URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210122-72cd1a5e/dawn_win_x64_debug.zip
+			)
+		elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+			#FetchContent_Declare(
+			#	webgpu_library
+			#	URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210122-72cd1a5e/dawn_win_x64_debug.zip
+			#)
+		endif()
+		FetchContent_GetProperties(webgpu_library)
+		if(NOT webgpu_library)
+			FetchContent_Populate(webgpu_library)
+			message(STATUS "Downloaded Google Dawn to ${webgpu_library_SOURCE_DIR}")
+
+			set(DAWN_INCLUDE_DIR "${webgpu_library_SOURCE_DIR}/include" CACHE PATH "Dawn WebGPU include path")
+			set(DAWN_NATIVE_LIBRARY "${webgpu_library_SOURCE_DIR}/lib/dawn_native.dll.lib" CACHE FILEPATH "Dawn WebGPU library")
+			set(DAWN_PROC_LIBRARY "${webgpu_library_SOURCE_DIR}/lib/dawn_proc.dll.lib" CACHE FILEPATH "Dawn WebGPU procedure hooks library")
+
+			set(WEBGPU_INCLUDE_DIR "${webgpu_library_SOURCE_DIR}/include" CACHE PATH "WebGPU include path")
+			set(WEBGPU_CPP_LIBRARY "${webgpu_library_SOURCE_DIR}/lib/webgpu_cpp.lib" CACHE FILEPATH "WebGPU C++ library")
+
+			add_custom_command(
+				TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${webgpu_library_SOURCE_DIR}/bin/dawn_native.dll
+					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+			add_custom_command(
+				TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${webgpu_library_SOURCE_DIR}/bin/dawn_platform.dll
+					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+			add_custom_command(
+				TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${webgpu_library_SOURCE_DIR}/bin/dawn_proc.dll
+					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+		endif()
+	endif()
 
 	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
 	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
 	target_include_directories(vcl_graphics PUBLIC ${WEBGPU_INCLUDE_DIR} ${DAWN_INCLUDE_DIR})
 	target_link_libraries(vcl_graphics
 		PUBLIC
-			${WEBGPU_LIBRARY}
-			${DAWN_LIBRARY}
+			${DAWN_NATIVE_LIBRARY}
+			${DAWN_PROC_LIBRARY}
+			${WEBGPU_CPP_LIBRARY}
 	)
 endif()
 

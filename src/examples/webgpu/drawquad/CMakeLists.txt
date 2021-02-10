@@ -36,9 +36,6 @@ set(COMMON
 	../common/app.cpp
 	../common/app.h
 )
-set(WEBGPU
-	${DAWN_INCLUDE_DIR}/../dawn/webgpu_cpp.cpp
-)
 
 set(SOURCE_FILES
 	main.cpp
@@ -82,7 +79,7 @@ if (EMSCRIPTEN)
 	set(EXECUTABLE "webgpu_drawquad.js")
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_drawquad.html @ONLY)
 else()
-	vcl_target_sources(webgpu_drawquad "${DAWN_INCLUDE_DIR}/.." ${WEBGPU})
+	vcl_target_sources(webgpu_drawquad "${DAWN_INCLUDE_DIR}/..")
 	target_link_libraries(webgpu_drawquad
 		glfw
 	)
