@@ -40,6 +40,7 @@ set(IMGUI
 	../../3rdparty/imgui/imgui_demo.cpp
 	../../3rdparty/imgui/imgui_draw.cpp
 	../../3rdparty/imgui/imgui_internal.h
+	../../3rdparty/imgui/imgui_tables.cpp
 	../../3rdparty/imgui/imgui_widgets.cpp
 )
 

@@ -40,6 +40,7 @@ set(IMGUI
 	../../3rdparty/imgui/imgui_demo.cpp
 	../../3rdparty/imgui/imgui_draw.cpp
 	../../3rdparty/imgui/imgui_internal.h
+	../../3rdparty/imgui/imgui_tables.cpp
 	../../3rdparty/imgui/imgui_widgets.cpp
 )
 
@@ -48,9 +49,6 @@ set(COMMON
 	../common/app.h
 	../common/imguiapp.cpp
 	../common/imguiapp.h
-)
-set(WEBGPU
-	${DAWN_INCLUDE_DIR}/../dawn/webgpu_cpp.cpp
 )
 
 set(SOURCE_FILES
@@ -75,7 +73,7 @@ if (EMSCRIPTEN)
 	set(EXECUTABLE "webgpu_imgui.js")
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_imgui.html @ONLY)
 else()
-	vcl_target_sources(webgpu_imgui "${DAWN_INCLUDE_DIR}/.." ${WEBGPU})
+	vcl_target_sources(webgpu_imgui "${DAWN_INCLUDE_DIR}/..")
 	target_link_libraries(webgpu_imgui
 		glfw
 	)

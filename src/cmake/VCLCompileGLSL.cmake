@@ -31,12 +31,12 @@ else()
 	include(FetchContent)
 
 	# Binary GLSLC releases: https://github.com/google/shaderc/blob/main/downloads.md
-	if(WIN32)
+	if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 		FetchContent_Declare(
 		  glsl_shader_compiler
 		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/354/20210106-080226/install.zip
 		)
-	elseif(UNIX)
+	elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 		FetchContent_Declare(
 		  glsl_shader_compiler
 		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/351/20210106-080034/install.tgz
