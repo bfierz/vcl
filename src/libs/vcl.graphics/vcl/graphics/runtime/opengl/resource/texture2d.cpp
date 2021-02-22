@@ -47,6 +47,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		initialise(init_data);
 	}
 
+	Texture2D::Texture2D(Texture2D&& rhs)
+	: Texture(std::move(rhs))
+	{
+	}
+
 	Texture2D::Texture2D(const Texture2D& rhs)
 	: Texture(rhs)
 	{

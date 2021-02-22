@@ -75,7 +75,7 @@ private:
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
 		color_attachments[0].clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
-		color_attachments[0].attachment = back_buffer;
+		color_attachments[0].view = back_buffer;
 		WGPURenderPassDepthStencilAttachmentDescriptor depth_attachment = {};
 		depth_attachment.clearDepth = 1.0f;
 		depth_attachment.clearStencil = 0;
@@ -103,7 +103,7 @@ private:
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
 		wgpuCommandEncoderRelease(encoder);
-		WGPUQueue queue = wgpuDeviceGetDefaultQueue(_wgpuDevice);
+		WGPUQueue queue = wgpuDeviceGetQueue(_wgpuDevice);
 		wgpuQueueSubmit(queue, 1, &cmd_buffer);
 		wgpuCommandBufferRelease(cmd_buffer);
 	}

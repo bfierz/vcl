@@ -117,7 +117,7 @@ void Application::step()
 	
 	auto back_buffer = _swapChain->currentBackBuffer();
 	renderFrame(back_buffer);
-	_swapChain->present(wgpuDeviceGetDefaultQueue(_wgpuDevice), false);
+	_swapChain->present(wgpuDeviceGetQueue(_wgpuDevice), false);
 }
 
 void mainLoop(void* self)
@@ -201,6 +201,7 @@ void Application::resizeSwapChain(GLFWwindow* window, unsigned int width, unsign
 		_swapChain->wait();
 
 	invalidateDeviceObjects();
+	_swapChain.reset();
 
 	_swapChainSize = { width, height };
 

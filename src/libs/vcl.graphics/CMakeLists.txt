@@ -168,6 +168,7 @@ set(SOURCE_WEBGPU
 	vcl/graphics/runtime/webgpu/state/pipelinestate.h
 	vcl/graphics/runtime/webgpu/state/rasterizerstate.cpp
 	vcl/graphics/runtime/webgpu/state/rasterizerstate.h
+	vcl/graphics/webgpu/helpers.h
 	vcl/graphics/webgpu/swapchain.cpp
 	vcl/graphics/webgpu/swapchain.h
 	vcl/graphics/webgpu/webgpu.cpp
@@ -322,7 +323,7 @@ if(VCL_D3D12_SUPPORT)
 	)
 endif()
 
-if(VCL_WEBGPU_SUPPORT)
+if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 	if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
 		message(WARNING "Downloading Google Dawn automatically requires CMake 3.11+")
 
@@ -383,6 +384,9 @@ if(VCL_WEBGPU_SUPPORT)
 			${DAWN_PROC_LIBRARY}
 			${WEBGPU_CPP_LIBRARY}
 	)
+elseif(VCL_WEBGPU_SUPPORT)
+	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
+	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
 endif()
 
 # Setup installation

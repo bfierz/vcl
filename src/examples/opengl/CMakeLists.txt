@@ -25,5 +25,6 @@
 project(opengl_samples)
 
 add_subdirectory(gridcube)
+add_subdirectory(imfiledialog)
 add_subdirectory(imgui)
 add_subdirectory(implot)

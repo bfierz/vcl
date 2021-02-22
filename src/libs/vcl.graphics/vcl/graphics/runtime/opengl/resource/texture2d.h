@@ -39,6 +39,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 	public:
 		Texture2D(const Texture2DDescription& desc, const TextureResource* init_data = nullptr);
+		Texture2D(Texture2D&&);
 		Texture2D(const Texture2D&);
 
 		std::unique_ptr<Runtime::Texture> clone() const override;

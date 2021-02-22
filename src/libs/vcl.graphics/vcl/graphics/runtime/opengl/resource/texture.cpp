@@ -180,6 +180,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
+	Texture::Texture(Texture&& rhs)
+	: Runtime::Texture(std::move(rhs))
+	, Resource(std::move(rhs))
+	{
+	}
+
 	Texture::Texture(const Texture& rhs)
 	: Runtime::Texture(rhs)
 	, Resource()
