@@ -39,6 +39,7 @@
 // Google test
 #include <gtest/gtest.h>
 
+namespace {
 std::array<Eigen::Vector3f, 8> large_positions = {
 	Eigen::Vector3f(0, 0, 0),
 	Eigen::Vector3f(1, 0, 0),
@@ -66,6 +67,7 @@ std::array<std::array<int, 4>, 5> tetrahedra = {
 	std::make_array(0, 6, 5, 4),
 	std::make_array(3, 6, 5, 7),
 };
+}
 
 TEST(TetTetIntersection, Same)
 {
