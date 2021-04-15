@@ -192,4 +192,54 @@ namespace Vcl { namespace Geometry
 	 * https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h
 	 */
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1);
+
+	/*!
+	* \brief Ray-Tetrahedron intersection
+	*
+	* Based on scalar triple products from http://realtimecollisiondetection.net/blog/?p=13
+	* as implemented in https://stackoverflow.com/a/35419670
+	*/
+	inline bool intersects
+	(
+		const Tetrahedron<float, 3>& tet,
+		const Ray<float, 3>& ray
+	)
+	{
+		using namespace Vcl::Mathematics;
+
+		// translate Ray to origin and vertices same as ray
+		const auto& q = ray.direction();
+
+		const auto& v0 = tet[0]; // A
+		const auto& v1 = tet[1]; // B
+		const auto& v2 = tet[2]; // C
+		const auto& v3 = tet[3]; // D
+
+		auto p0 = (v0 - ray.origin()).eval();
+		auto p1 = (v1 - ray.origin()).eval();
+		auto p2 = (v2 - ray.origin()).eval();
+		auto p3 = (v3 - ray.origin()).eval();
+
+		// Scalar triple products
+		const float QAB = q.dot(p0.cross(p1)); // A B
+		const float QBC = q.dot(p1.cross(p2)); // B C
+		const float QAC = q.dot(p0.cross(p2)); // A C
+		const float QAD = q.dot(p0.cross(p3)); // A D
+		const float QBD = q.dot(p1.cross(p3)); // B D
+		const float QCD = q.dot(p2.cross(p3)); // C D
+
+		const float sQAB = sgn(QAB); // A B
+		const float sQBC = sgn(QBC); // B C
+		const float sQAC = sgn(QAC); // A C
+		const float sQAD = sgn(QAD); // A D
+		const float sQBD = sgn(QBD); // B D
+		const float sQCD = sgn(QCD); // C D
+
+		if (sQAB > 0 && sQAC < 0 && sQBC > 0) { return true; } // ABC
+		if (sQAB < 0 && sQAD > 0 && sQBD < 0) { return true; } // ABD
+		if (sQAD < 0 && sQAC > 0 && sQCD > 0) { return true; } // ACD
+		if (sQBC < 0 && sQBD > 0 && sQCD < 0) { return true; } // BCD
+
+		return false;
+	}
 }}

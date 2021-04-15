@@ -39,36 +39,39 @@
 // Google test
 #include <gtest/gtest.h>
 
-std::array<Eigen::Vector3f, 8> large_positions =
+namespace
 {
-	Eigen::Vector3f(0, 0, 0),
-	Eigen::Vector3f(1, 0, 0),
-	Eigen::Vector3f(0, 1, 0),
-	Eigen::Vector3f(1, 1, 0),
-	Eigen::Vector3f(0, 0, 1),
-	Eigen::Vector3f(1, 0, 1),
-	Eigen::Vector3f(0, 1, 1),
-	Eigen::Vector3f(1, 1, 1),
-};
-std::array<Eigen::Vector3f, 8> small_positions =
-{
-	Eigen::Vector3f(0.25f, 0.25f, 0.25f),
-	Eigen::Vector3f(0.75f, 0.25f, 0.25f),
-	Eigen::Vector3f(0.25f, 0.75f, 0.25f),
-	Eigen::Vector3f(0.75f, 0.75f, 0.25f),
-	Eigen::Vector3f(0.25f, 0.25f, 0.75f),
-	Eigen::Vector3f(0.75f, 0.25f, 0.75f),
-	Eigen::Vector3f(0.25f, 0.75f, 0.75f),
-	Eigen::Vector3f(0.75f, 0.75f, 0.75f),
-};
-std::array<std::array<int, 4>, 5> tetrahedra =
-{
-	std::make_array(0, 5, 3, 6),
-	std::make_array(0, 1, 3, 5),
-	std::make_array(0, 2, 3, 6),
-	std::make_array(0, 6, 5, 4),
-	std::make_array(3, 6, 5, 7),
-};
+	std::array<Eigen::Vector3f, 8> large_positions =
+	{
+		Eigen::Vector3f(0, 0, 0),
+		Eigen::Vector3f(1, 0, 0),
+		Eigen::Vector3f(0, 1, 0),
+		Eigen::Vector3f(1, 1, 0),
+		Eigen::Vector3f(0, 0, 1),
+		Eigen::Vector3f(1, 0, 1),
+		Eigen::Vector3f(0, 1, 1),
+		Eigen::Vector3f(1, 1, 1),
+	};
+	std::array<Eigen::Vector3f, 8> small_positions =
+	{
+		Eigen::Vector3f(0.25f, 0.25f, 0.25f),
+		Eigen::Vector3f(0.75f, 0.25f, 0.25f),
+		Eigen::Vector3f(0.25f, 0.75f, 0.25f),
+		Eigen::Vector3f(0.75f, 0.75f, 0.25f),
+		Eigen::Vector3f(0.25f, 0.25f, 0.75f),
+		Eigen::Vector3f(0.75f, 0.25f, 0.75f),
+		Eigen::Vector3f(0.25f, 0.75f, 0.75f),
+		Eigen::Vector3f(0.75f, 0.75f, 0.75f),
+	};
+	std::array<std::array<int, 4>, 5> tetrahedra =
+	{
+		std::make_array(0, 5, 3, 6),
+		std::make_array(0, 1, 3, 5),
+		std::make_array(0, 2, 3, 6),
+		std::make_array(0, 6, 5, 4),
+		std::make_array(3, 6, 5, 7),
+	};
+}
 
 TEST(TetTetIntersection, Same)
 {
