@@ -24,6 +24,8 @@
 #
 project(vcl_graphics)
 
+include(FetchContent)
+
 # Configure the VCL compilation environment
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 
@@ -248,11 +250,46 @@ if(VCL_OPENGL_SUPPORT)
 			PUBLIC
 				OpenGL::GL
 		)
-	
+
+		if (NOT vcl_ext_glew)
+			find_package(GLEW QUIET)
+			if(GLEW_FOUND)
+				set(vcl_ext_glew GLEW::glew)
+			else()
+				set(vcl_ext_glew)
+			endif()
+		endif()
+
 		if(TARGET ${vcl_ext_glew})
 			target_link_libraries(vcl_graphics
 				PUBLIC
 					${vcl_ext_glew}
+			)
+		elseif(WIN32)
+			FetchContent_Declare(
+				glew
+				URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip
+			)
+			FetchContent_GetProperties(glew)
+			if(NOT glew_POPULATED)
+				FetchContent_Populate(glew)
+				message(STATUS "Downloaded GLEW to ${glew_SOURCE_DIR}")
+			endif()
+
+			set(GLEW_DIR "${glew_SOURCE_DIR}")
+			set(GLEW_INCLUDE_DIR "${glew_SOURCE_DIR}/include")
+			set(GLEW_SHARED_LIBRARY_DEBUG "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
+			set(GLEW_SHARED_LIBRARY_RELEASE "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
+			add_custom_command(
+				TARGET ${PROJECT_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+					${glew_SOURCE_DIR}/bin/Release/x64/glew32.dll
+					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+
+			find_package(GLEW QUIET)
+			target_link_libraries(vcl_graphics
+				PUBLIC
+					GLEW::glew
 			)
 		endif()
 	
@@ -296,7 +333,6 @@ if(VCL_WEBGPU_SUPPORT)
 		set(WEBGPU_INCLUDE_DIR CACHE PATH "WebGPU include path")
 		set(WEBGPU_CPP_LIBRARY CACHE FILEPATH "WebGPU C++ library")
 	else()
-		include(FetchContent)
 		if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 			FetchContent_Declare(
 				webgpu_library
@@ -309,7 +345,7 @@ if(VCL_WEBGPU_SUPPORT)
 			#)
 		endif()
 		FetchContent_GetProperties(webgpu_library)
-		if(NOT webgpu_library)
+		if(NOT webgpu_library_POPULATED)
 			FetchContent_Populate(webgpu_library)
 			message(STATUS "Downloaded Google Dawn to ${webgpu_library_SOURCE_DIR}")
 

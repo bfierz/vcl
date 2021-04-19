@@ -44,10 +44,8 @@ endif()
 
 # OpenGL related tests
 if(VCL_OPENGL_SUPPORT)
-	if(TARGET ${vcl_ext_glew})
-		add_subdirectory(vcl.graphics.opengl)
-		list(APPEND test_project vcl.graphics.opengl)
-	endif()
+	add_subdirectory(vcl.graphics.opengl)
+	list(APPEND test_project vcl.graphics.opengl)
 endif()
 
 # WebGPU related tests

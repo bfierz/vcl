@@ -123,15 +123,6 @@ if(OpenGL_FOUND AND NOT EMSCRIPTEN)
 		set_property(TARGET vcl_ext_egl_tgt PROPERTY IMPORTED_LOCATION "${EGL_LIBRARY}")
 		set(vcl_ext_egl "vcl_ext_egl_tgt")
 	endif()
-
-	if (NOT vcl_ext_glew)
-		find_package(GLEW QUIET)
-		if(GLEW_FOUND)
-			set(vcl_ext_glew GLEW::glew)
-		else()
-			set(vcl_ext_glew)
-		endif()
-	endif()
 endif()
 
 ################################################################################

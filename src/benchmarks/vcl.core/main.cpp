@@ -46,7 +46,7 @@ VCL_END_EXTERNAL_HEADERS
 template<class T>
 using StdTempAllocator = memory::std_allocator<T, memory::temporary_allocator>;
 template<class T>
-using NoMutexStdTempAllocator = memory::std_allocator<T, memory::temporary_allocator, memory::no_mutex>;
+using NoMutexStdTempAllocator = memory::std_allocator<T, memory::temporary_allocator>;
 
 template<class T>
 using StdPmrAllocator = memory::std_allocator<T, memory::memory_resource_allocator>;
