@@ -1,6 +1,6 @@
 [submodule "src/externals/eigen"]
 	path = src/externals/eigen
-	url = https://github.com/eigenteam/eigen-git-mirror
+	url = https://gitlab.com/libeigen/eigen.git
 [submodule "src/externals/abseil"]
 	path = src/externals/abseil
 	url = https://github.com/abseil/abseil-cpp.git
