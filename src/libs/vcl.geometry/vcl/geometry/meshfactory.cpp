@@ -594,8 +594,7 @@ namespace Vcl { namespace Geometry
 		using face_t = std::array<unsigned int, 3>;
 		std::vector<face_t> triangles(nr_triangles);
 
-		uint32_t i = 0;
-		for (uint32_t seg = 0; seg <= nr_radial_segments; seg++)
+		for (uint32_t i = 0, seg = 0; seg <= nr_radial_segments; seg++)
 		{
 			for (uint32_t side = 0; side <= nr_sides - 1; side++)
 			{
