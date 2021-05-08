@@ -93,27 +93,28 @@ void ImGuiApplication::createDeviceObjects()
 
 void ImGuiApplication::renderFrame(WGPUTextureView back_buffer)
 {
-	WGPURenderPassColorAttachmentDescriptor color_attachments = {};
-	color_attachments.loadOp = WGPULoadOp_Load;
-	color_attachments.storeOp = WGPUStoreOp_Store;
+	wgpu::Device device{ _wgpuDevice };
+
+	auto color_attachments = wgpu::RenderPassColorAttachmentDescriptor{};
+	color_attachments.loadOp = wgpu::LoadOp::Load;
+	color_attachments.storeOp = wgpu::StoreOp::Store;
 	color_attachments.clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
-	color_attachments.attachment = back_buffer;
-	WGPURenderPassDescriptor render_pass_desc = {};
+	color_attachments.view = wgpu::TextureView{ back_buffer };
+	auto render_pass_desc = wgpu::RenderPassDescriptor{};
 	render_pass_desc.colorAttachmentCount = 1;
 	render_pass_desc.colorAttachments = &color_attachments;
 	render_pass_desc.depthStencilAttachment = nullptr;
 
-	WGPUCommandEncoderDescriptor enc_desc = {};
-	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(_wgpuDevice, &enc_desc);
-	WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
+	auto enc_desc = wgpu::CommandEncoderDescriptor{};
+	auto encoder = device.CreateCommandEncoder(&enc_desc);
+	auto pass = encoder.BeginRenderPass(&render_pass_desc);
 
 	ImGui::Render();
-	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass);
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
 
-	wgpuRenderPassEncoderEndPass(pass);
+	wgpuRenderPassEncoderEndPass(pass.Get());
 
-	WGPUCommandBufferDescriptor cmd_buffer_desc = {};
-	WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
-	WGPUQueue queue = wgpuDeviceGetDefaultQueue(_wgpuDevice);
-	wgpuQueueSubmit(queue, 1, &cmd_buffer);
+	auto cmd_buffer_desc = wgpu::CommandBufferDescriptor{};
+	auto cmd_buffer = encoder.Finish(&cmd_buffer_desc);
+	device.GetQueue().Submit(1, &cmd_buffer);
 }
