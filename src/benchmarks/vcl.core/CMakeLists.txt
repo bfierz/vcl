@@ -24,26 +24,21 @@
 #
 project(vcl_core_benchmarks)
 
-include(FetchContent)
+include(../../cmake/CPM.cmake)
 
 # Status message
 message(STATUS "Configuring 'vcl_core_benchmarks'")
 
-FetchContent_Declare(
-	foonathan_memory_library
-	GIT_REPOSITORY https://github.com/foonathan/memory.git
-	GIT_TAG        v0.7
+CPMAddPackage(
+	GITHUB_REPOSITORY foonathan/memory
+	VERSION 0.7
+	OPTIONS
+		"FOONATHAN_MEMORY_BUILD_EXAMPLES NO"
+		"FOONATHAN_MEMORY_BUILD_TESTS NO"
+	EXCLUDE_FROM_ALL
 )
-FetchContent_GetProperties(foonathan_memory_library)
-if(NOT foonathan_memory_library_POPULATED)
-	FetchContent_Populate(foonathan_memory_library)
-	message(STATUS "Downloaded Foonathan Memory to ${foonathan_memory_library_SOURCE_DIR}")
-	option(FOONATHAN_MEMORY_BUILD_EXAMPLES "" OFF)
-	option(FOONATHAN_MEMORY_BUILD_TESTS "" OFF)
-	add_subdirectory(${foonathan_memory_library_SOURCE_DIR} ${foonathan_memory_library_BINARY_DIR} EXCLUDE_FROM_ALL)
-	set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
-	set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
-endif()
+set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
+set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
 
 set(SRC
 	main.cpp

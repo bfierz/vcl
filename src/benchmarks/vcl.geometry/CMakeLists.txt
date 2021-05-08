@@ -24,27 +24,21 @@
 #
 project(vcl_geometry_benchmarks)
 
+include(../../cmake/CPM.cmake)
+
 # Status message
 message(STATUS "Configuring 'vcl_geometry_benchmarks'")
 
-FetchContent_Declare(
-	gte_library
-	GIT_REPOSITORY https://github.com/davideberly/GeometricTools.git
-	GIT_TAG        GTE-version-5.9
-)
-FetchContent_GetProperties(gte_library)
-if(NOT gte_library_POPULATED)
-	FetchContent_Populate(gte_library)
-	message(STATUS "Downloaded Geometric Tools Engine to ${gte_library_SOURCE_DIR}")
-
+CPMAddPackage("gh:davideberly/GeometricTools#GTE-version-5.9")
+if(GeometricTools_ADDED)
 	add_library(gte INTERFACE)
 	target_sources(gte
 		INTERFACE
-			${gte_library_SOURCE_DIR}/GTE/Mathematics/DistPointTriangle.h
-			${gte_library_SOURCE_DIR}/GTE/Mathematics/DistTriangle3Triangle3.h
-			${gte_library_SOURCE_DIR}/GTE/Mathematics/IntrRay3AlignedBox3.h
+			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/DistPointTriangle.h
+			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/DistTriangle3Triangle3.h
+			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/IntrRay3AlignedBox3.h
 	)
-	target_include_directories(gte INTERFACE "${gte_library_SOURCE_DIR}/GTE")
+	target_include_directories(gte INTERFACE "${GeometricTools_SOURCE_DIR}/GTE")
 endif()
 
 set(SRC
