@@ -45,8 +45,6 @@ VCL_END_EXTERNAL_HEADERS
 
 template<class T>
 using StdTempAllocator = memory::std_allocator<T, memory::temporary_allocator>;
-template<class T>
-using NoMutexStdTempAllocator = memory::std_allocator<T, memory::temporary_allocator, memory::no_mutex>;
 
 template<class T>
 using StdPmrAllocator = memory::std_allocator<T, memory::memory_resource_allocator>;
@@ -58,7 +56,7 @@ class OpaqueObject
 
 const int kMemorySize = 512;
 
-void BM_InitTempThreadSafeAllocator(benchmark::State& state)
+void BM_InitTempThread(benchmark::State& state)
 {
 	memory::temporary_stack stack{4096};
 	while (state.KeepRunning())
@@ -70,37 +68,13 @@ void BM_InitTempThreadSafeAllocator(benchmark::State& state)
 	}
 }
 
-void BM_InitTempAllocator(benchmark::State& state)
-{
-	memory::temporary_stack stack{ 4096 };
-	while (state.KeepRunning())
-	{
-		memory::temporary_allocator alloc(stack);
-		std::vector<OpaqueObject, NoMutexStdTempAllocator<OpaqueObject>> vec(alloc);
-		vec.resize(kMemorySize);
-		benchmark::DoNotOptimize(vec.size());
-	}
-}
-
-void BM_PodTempThreadSafeAllocator(benchmark::State& state)
+void BM_PodTempThread(benchmark::State& state)
 {
 	memory::temporary_stack stack{ 4096 };
 	while (state.KeepRunning())
 	{
 		memory::temporary_allocator alloc(stack);
 		std::vector<int, StdTempAllocator<int>> vec(alloc);
-		vec.resize(kMemorySize);
-		benchmark::DoNotOptimize(vec.size());
-	}
-}
-
-void BM_PodTempAllocator(benchmark::State& state)
-{
-	memory::temporary_stack stack{ 4096 };
-	while (state.KeepRunning())
-	{
-		memory::temporary_allocator alloc(stack);
-		std::vector<int, NoMutexStdTempAllocator<int>> vec(alloc);
 		vec.resize(kMemorySize);
 		benchmark::DoNotOptimize(vec.size());
 	}
@@ -195,10 +169,8 @@ void BM_NoInitCustomAllocator(benchmark::State& state)
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_InitTempThreadSafeAllocator);
-BENCHMARK(BM_InitTempAllocator);
-BENCHMARK(BM_PodTempThreadSafeAllocator);
-BENCHMARK(BM_PodTempAllocator);
+BENCHMARK(BM_InitTempThread);
+BENCHMARK(BM_PodTempThread);
 
 BENCHMARK(BM_PodPmrAllocator);
 BENCHMARK(BM_InitPmrAllocator);

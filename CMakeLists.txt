@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.11.0)
 
 project(VisualComputingLibrary)
 
@@ -97,14 +97,6 @@ if (NOT vcl_ext_fmt)
 	set(vcl_ext_fmt "vcl_ext_fmt_tgt")
 endif()
 
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/memory/CMakeLists.txt")
-	option(FOONATHAN_MEMORY_BUILD_EXAMPLES "" OFF)
-	option(FOONATHAN_MEMORY_BUILD_TESTS "" OFF)
-	add_subdirectory(src/externals/memory EXCLUDE_FROM_ALL)
-	set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
-	set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
-endif()
-
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json/CMakeLists.txt")
 	option(JSON_BuildTests "" OFF)
 	option(JSON_Install "" OFF)
@@ -122,15 +114,6 @@ if(OpenGL_FOUND AND NOT EMSCRIPTEN)
 		set_property(TARGET vcl_ext_egl_tgt PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}")
 		set_property(TARGET vcl_ext_egl_tgt PROPERTY IMPORTED_LOCATION "${EGL_LIBRARY}")
 		set(vcl_ext_egl "vcl_ext_egl_tgt")
-	endif()
-
-	if (NOT vcl_ext_glew)
-		find_package(GLEW QUIET)
-		if(GLEW_FOUND)
-			set(vcl_ext_glew GLEW::glew)
-		else()
-			set(vcl_ext_glew)
-		endif()
 	endif()
 endif()
 
