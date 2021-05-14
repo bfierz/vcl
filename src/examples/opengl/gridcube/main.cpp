@@ -48,10 +48,12 @@
 #include "../common/imguiapp.h"
 
 // Force the use of the NVIDIA GPU in an Optimus system
+#ifdef VCL_ABI_WINAPI
 extern "C"
 {
 	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
+#endif
 
 bool InputUInt(const char* label, unsigned int* v, int step, int step_fast, ImGuiInputTextFlags flags)
 {
@@ -173,7 +175,7 @@ private:
 		auto cbuf_transform = cmd_queue->requestPerFrameConstantBuffer<TransformData>();
 		cbuf_transform->ModelMatrix = M;
 		cbuf_transform->ViewProjectionMatrix = VP;
-		
+
 		cmd_queue->setConstantBuffer(0, std::move(cbuf_transform));
 
 		// Compute the grid paramters
@@ -192,7 +194,7 @@ private:
 		cbuf_config->Resolution = (float)resolution;
 
 		cmd_queue->setConstantBuffer(1, std::move(cbuf_config));
-		
+
 		// Render the grid
 		// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
 		cmd_queue->setPrimitiveType(Vcl::Graphics::Runtime::PrimitiveType::LinelistAdj);

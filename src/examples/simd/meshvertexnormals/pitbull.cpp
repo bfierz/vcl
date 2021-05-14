@@ -22,8 +22,6 @@
  * OUT O	OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
 float pitbull_core_points[] =
 {
 	54.843079f, -45.140915f, 5.875645f,
