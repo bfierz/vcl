@@ -1,8 +1,8 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2021 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,58 +22,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <vcl/core/simd/intrinsics_sse.h>
+#include <vcl/core/simd/intrinsics_avx512.h>
 
-#if defined(VCL_VECTORIZE_SSE)
+#if defined VCL_VECTORIZE_AVX512
 VCL_BEGIN_EXTERNAL_HEADERS
-#define USE_SSE2
-#include <vcl/core/simd/detail/sse_mathfun.h>
-
+#if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
+#	define __AVX2__
+#endif
+#include <vcl/core/simd/detail/avx512_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
+#include <vcl/core/simd/bool16_avx512.h>
+#include <vcl/core/simd/float16_avx512.h>
 
 namespace Vcl
 {
-#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
-	__m128 _mm_sin_ps(__m128 v) noexcept
+#if !defined(VCL_COMPILER_MSVC)
+	__m512 _mm512_sin_ps(__m512 v)
 	{
-		return sin_ps(v);
+		return sin512_ps(v);
 	}
 
-	__m128 _mm_cos_ps(__m128 v) noexcept
+	__m512 _mm512_cos_ps(__m512 v)
 	{
-		return cos_ps(v);
+		return cos512_ps(v);
 	}
 
-	__m128 _mm_log_ps(__m128 v) noexcept
+	__m512 _mm512_log_ps(__m512 v)
 	{
-		return log_ps(v);
+		return log512_ps(v);
 	}
 
-	__m128 _mm_exp_ps(__m128 v) noexcept
+	__m512 _mm512_exp_ps(__m512 v)
 	{
-		return exp_ps(v);
-	}
-	
-	__m128 _mm_pow_ps(__m128 x, __m128 y) noexcept
-	{
-		return _mm_exp_ps(_mm_mul_ps(_mm_log_ps(x), y));
+		return exp512_ps(v);
 	}
 
 	// Handbook of Mathematical Functions
 	// M. Abramowitz and I.A. Stegun, Ed.
-	__m128 _mm_acos_ps(__m128 v) noexcept
+	__m512 _mm512_acos_ps(__m512 v)
 	{
-		float4 x{ v };
+		float16 x{ v };
 
 		// Absolute error <= 6.7e-5
-		const float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
+		float16 negate = select(x < 0, float16{ 1 }, float16{ 0 });
 
 		x = x.abs();
 
-		float4 ret = -0.0187293f;
+		float16 ret = -0.0187293f;
 		ret = ret * x;
 		ret = ret + 0.0742610f;
 		ret = ret * x;
@@ -87,14 +85,14 @@ namespace Vcl
 
 	// Handbook of Mathematical Functions
 	// M. Abramowitz and I.A. Stegun, Ed.
-	__m128 _mm_asin_ps(__m128 v) noexcept
+	__m512 _mm512_asin_ps(__m512 v)
 	{
-		float4 x{ v };
+		float16 x{ v };
 
-		const float4 negate = select(x < 0, float4{ 1 }, float4{ 0 });
+		float16 negate = select(x < 0, float16{ 1 }, float16{ 0 });
 
 		x = abs(x);
-		float4 ret = -0.0187293f;
+		float16 ret = -0.0187293f;
 		ret *= x;
 		ret += 0.0742610f;
 		ret *= x;
@@ -105,13 +103,12 @@ namespace Vcl
 		return (ret - 2.0f * negate * ret).get(0);
 	}
 
-
-	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x) noexcept
+	__m512 _mm512_atan2_ps(__m512 in_y, __m512 in_x)
 	{
-		float4 t0, t1, t3, t4;
+		float16 t0, t1, t3, t4;
 
-		float4 x{ in_x };
-		float4 y{ in_y };
+		float16 x{ in_x };
+		float16 y{ in_y };
 
 		t3 = abs(x);
 		t1 = abs(y);
@@ -135,26 +132,11 @@ namespace Vcl
 
 		return t3.get(0);
 	}
-#endif
-	
-	__m128 _mmVCL_floor_ps(__m128 x) noexcept
-	{
-#ifdef VCL_VECTORIZE_SSE4_1
-		return _mm_floor_ps(x);
-#else
-		// The following implementations are taken from:
-		// http://dss.stephanierct.com/DevBlog/?p=8
 
-		__m128i v0 = _mm_setzero_si128();
-		__m128i v1 = _mm_cmpeq_epi32(v0,v0);
-		__m128i ji = _mm_srli_epi32( v1, 25);
-		__m128 j = _mm_castsi128_ps(_mm_slli_epi32(ji, 23)); //create vector 1.0f
-		__m128i i = _mm_cvttps_epi32(x);
-		__m128 fi = _mm_cvtepi32_ps(i);
-		__m128 igx = _mm_cmpgt_ps(fi, x);
-		j = _mm_and_ps(igx, j);
-		return _mm_sub_ps(fi, j);
-#endif
+	__m512 _mm512_pow_ps(__m512 x, __m512 y)
+	{
+		return _mm512_exp_ps(_mm512_mul_ps(_mm512_log_ps(x), y));
 	}
+#endif
 }
-#endif // defined(VCL_VECTORIZE_SSE)
+#endif // VCL_VECTORIZE_AVX

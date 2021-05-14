@@ -54,3 +54,5 @@ Most, however, are managed as linked submodule.
 | Google Benchmark              | Apache-2.0 | 1.5.5    | https://github.com/google/benchmark          |                           |
 | JSON for Modern C++           | MIT        | 3.6.1    | https://github.com/nlohmann/json             |                           |
 | Tet-tet intersection          | Custom     |          | https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h | Refactored implementation. The license is included [here](./doc/license_ganovelli_tet_a_tet.md) |
+
+The SIMD module uses support library to provide trigonometry, logarithm and power functions. The SSE and NEON implementations are taken directly from [Julien Pommier's homepage](http://gruntthepeon.free.fr/ssemath/). The AVX version is thanks to Giovanni Garberoglio and the AVX512 to [JishinMaster](https://github.com/JishinMaster/simd_utils).

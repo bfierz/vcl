@@ -29,7 +29,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__ 
 #	define __AVX2__
 #endif
-#include <vcl/core/simd/avx_mathfun.h>
+#include <vcl/core/simd/detail/avx_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL

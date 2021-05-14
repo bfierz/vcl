@@ -51,7 +51,7 @@ namespace Vcl { namespace Core
 	template<typename SCALAR, int ROWS = 0, int COLS = 0, int STRIDE = 0>
 	class InterleavedArray
 	{
-	public:	
+	public:
 		static const int Cols = COLS;
 		static const int Rows = ROWS;
 		static const int Stride = ((STRIDE == 0) || (STRIDE == 1)) ? 1 : STRIDE;
@@ -76,12 +76,12 @@ namespace Vcl { namespace Core
 			// Template configuration checks
 			static_assert(COLS == DynamicStride || COLS > 0, "Width of a data member is either dynamic or fixed sized.");
 			static_assert(ROWS == DynamicStride || ROWS > 0, "Height of a data member is either dynamic or fixed sized.");
-			
+
 			// Initialisation checks
 			VclRequire(rows > 0, "Number of rows is positive.");
 			VclRequire(cols > 0, "Number of cols is positive.");
 			VclRequire(stride == DynamicStride || stride >= 0, "Stride is Dynamic, 0 or greater 0");
-			
+
 			// Pad the requested size to the alignment
 			// Note: This is done in order to support optimaly sized vector operations
 			mAllocated = mSize;
@@ -93,12 +93,12 @@ namespace Vcl { namespace Core
 					mAllocated += mStride - mAllocated % mStride;
 			}
 
-			const size_t alignment = 32;
+			const size_t alignment = 64;
 			if (mAllocated % alignment > 0)
 				mAllocated += alignment - mAllocated % alignment;
 
 			// Allocate initial memory
-			AlignedAllocPolicy<SCALAR, 32> alloc;
+			AlignedAllocPolicy<SCALAR, 64> alloc;
 			mData = alloc.allocate(mAllocated*mRows*mCols);
 		}
 
@@ -122,11 +122,11 @@ namespace Vcl { namespace Core
 		{
 			if (mData)
 			{
-				AlignedAllocPolicy<SCALAR, 32> alloc;
+				AlignedAllocPolicy<SCALAR, 64> alloc;
 				alloc.deallocate(mData, mAllocated*mRows*mCols);
 			}
 		}
-		
+
 	public:
 		SCALAR* data() const
 		{
@@ -177,7 +177,7 @@ namespace Vcl { namespace Core
 				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
 				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
 			> StrideType;
-			
+
 			VclRequire
 			(
 				implies(Stride == DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= mAllocated) && (mAllocated % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
@@ -243,7 +243,7 @@ namespace Vcl { namespace Core
 		{
 			return const_cast<InterleavedArray*>(this)->at<SCALAR_OUT>(idx);
 		}
-		
+
 	private:
 		//! Pointer to the allocated memory
 		SCALAR* mData;

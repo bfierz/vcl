@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -51,7 +51,14 @@ namespace Vcl
 #	include <vcl/core/simd/int4_sse.h>
 #endif
 
-#if defined VCL_VECTORIZE_AVX
+#if defined VCL_VECTORIZE_AVX512
+#	include <vcl/core/simd/bool8_avx.h>
+#	include <vcl/core/simd/bool16_avx512.h>
+#	include <vcl/core/simd/float8_avx.h>
+#	include <vcl/core/simd/float16_avx512.h>
+#	include <vcl/core/simd/int8_avx.h>
+#	include <vcl/core/simd/int16_avx512.h>
+#elif defined VCL_VECTORIZE_AVX
 #	include <vcl/core/simd/bool8_avx.h>
 #	include <vcl/core/simd/bool16_avx.h>
 #	include <vcl/core/simd/float8_avx.h>
@@ -98,7 +105,7 @@ namespace Vcl
 		VectorScalar<Scalar, Width> res;
 		for (int i = 0; i < Width; i++)
 			res[i] = mask[i] ? a[i] : b[i];
-		
+
 		return res;
 	}
 
@@ -108,7 +115,7 @@ namespace Vcl
 		bool res = false;
 		for (int i = 0; i < Width; i++)
 			res = res || x[i];
-		
+
 		return res;
 	}
 	template<int Width>
@@ -129,10 +136,10 @@ namespace Vcl
 
 		return !res;
 	}
-	
+
 	template<typename Scalar, int Width>
 	std::ostream& operator<< (std::ostream &s, const VectorScalar<Scalar, Width>& rhs)
-	{		
+	{
 		s << "'" << rhs[0];
 		for (int i = 1; i < Width; i++)
 			s << ", " << rhs[1];
@@ -221,7 +228,7 @@ namespace Vcl
 		using wide_t = float32x4_t;
 #endif
 	};
-	
+
 	//! Component-wise negation
 	template<int Width>
 	VCL_STRONG_INLINE VectorScalar<float, Width> operator-(const VectorScalar<float, Width>& a)
@@ -341,7 +348,7 @@ namespace Vcl
 
 		return selected;
 	}
-	
+
 	template<typename Scalar, int Width, size_t N>
 	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select
 	(
@@ -381,7 +388,7 @@ namespace Vcl
 		a = c;
 		b = d;
 	}
-	
+
 	template<typename Scalar, int Width>
 	VCL_STRONG_INLINE void cnswap(const VectorScalar<bool, Width>& mask, VectorScalar<Scalar, Width>& a, VectorScalar<Scalar, Width>& b)
 	{
@@ -389,7 +396,7 @@ namespace Vcl
 		a = select(mask, b, a);
 		b = select(mask, c, b);
 	}
-	
+
 	template<typename Scalar, int Width>
 	VCL_STRONG_INLINE void cswap(const VectorScalar<bool, Width>& mask, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& a, Eigen::Matrix<VectorScalar<Scalar, Width>, 3, 1>& b)
 	{
@@ -424,7 +431,7 @@ namespace Vcl
 	typedef VectorScalar<int,  4> int4;
 	typedef VectorScalar<int,  8> int8;
 	typedef VectorScalar<int, 16> int16;
-	
+
 	typedef VectorScalar<bool,  4> bool4;
 	typedef VectorScalar<bool,  8> bool8;
 	typedef VectorScalar<bool, 16> bool16;
