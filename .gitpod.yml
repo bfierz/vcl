@@ -1,20 +1,19 @@
 image:
-    file: .gitpod.dockerfile
+  file: .gitpod.dockerfile
 
 vscode:
-    extensions:
-        - eamodio.gitlens
-        - github.vscode-pull-request-github
-        - ms-azuretools.vscode-docker
-        - ms-vscode.cmake-tools
-
-        - editorconfig.editorconfig
+  extensions:
+    - eamodio.gitlens
+    - editorconfig.editorconfig
+    - github.vscode-pull-request-github
+    - ms-azuretools.vscode-docker
+    - ms-vscode.cmake-tools
 
 tasks:
-    - init: git submodule update --init --recursive
+  - init: git submodule update --init --recursive
 
 ports:
-    - port: 6080
-        onOpen: open-preview
-    - port: 5900
-        onOpen: ignore
+  - port: 6080
+    onOpen: open-preview
+  - port: 5900
+    onOpen: ignore
