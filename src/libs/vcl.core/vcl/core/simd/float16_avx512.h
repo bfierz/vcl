@@ -29,13 +29,12 @@
 
 // VCL
 #include <vcl/core/simd/bool16_avx.h>
-#include <vcl/core/simd/intrinsics_avx.h>
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
 {
 	template<>
-	class alignas(32) VectorScalar<float, 16> : protected Core::Simd::VectorScalarBase<float, 16, Core::Simd::SimdExt::AVX512>
+	class alignas(64) VectorScalar<float, 16> : protected Core::Simd::VectorScalarBase<float, 16, Core::Simd::SimdExt::AVX512>
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX512)
@@ -91,19 +90,19 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<float, 16>
 		(
-			_mm512_blendv_ps(b.get(0), a.get(0), mask.get(0)),
-			_mm512_blendv_ps(b.get(1), a.get(1), mask.get(1))
+			_mm512_blendv_ps(b.get(0), a.get(0), mask.get(0))
 		);
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
 		alignas(32) float vars[16];
-		_mm512_store_ps(vars + 0, rhs.get(0));
-		_mm512_store_ps(vars + 8, rhs.get(1));
+		_mm512_store_ps(vars + 0, rhs.get(0))
 
-		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
-				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
+		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
+				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]
+				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11]
+				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
 	}

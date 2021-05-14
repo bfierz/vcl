@@ -36,6 +36,7 @@
 // VCL
 #include <vcl/core/simd/intrinsics_sse.h>
 #include <vcl/core/simd/intrinsics_avx.h>
+#include <vcl/core/simd/intrinsics_avx512.h>
 
 namespace Vcl { namespace Core { namespace Simd
 {
@@ -301,11 +302,13 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Type set
 		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
+			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
+			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
+			Scalar s12, Scalar s13, Scalar s14, Scalar s15
 		)
 		{
-			return _mm512_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
+			return _mm512_set_ps(s15, s14, s13, s12, s11, s10, s9, s8, s7, s6, s5, s4, s3, s2, s1, s0);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
 		{
@@ -329,11 +332,13 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Type set
 		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
+			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
+			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
+			Scalar s12, Scalar s13, Scalar s14, Scalar s15
 		)
 		{
-			return _mm512_set_epi32(s7, s6, s5, s4, s3, s2, s1, s0);
+			return _mm512_set_epi32(s15, s14, s13, s12, s11, s10, s9, s8, s7, s6, s5, s4, s3, s2, s1, s0);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
 		{
@@ -358,19 +363,29 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Type set
 		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
+			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
+			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
+			Scalar s12, Scalar s13, Scalar s14, Scalar s15
 		)
 		{
-			const int m0 = s0 ? -1 : 0;
-			const int m1 = s1 ? -1 : 0;
-			const int m2 = s2 ? -1 : 0;
-			const int m3 = s3 ? -1 : 0;
-			const int m4 = s4 ? -1 : 0;
-			const int m5 = s5 ? -1 : 0;
-			const int m6 = s6 ? -1 : 0;
-			const int m7 = s7 ? -1 : 0;
-			return _mm512_castsi512_ps(_mm512_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0));
+			const int m0  = s0  ? -1 : 0;
+			const int m1  = s1  ? -1 : 0;
+			const int m2  = s2  ? -1 : 0;
+			const int m3  = s3  ? -1 : 0;
+			const int m4  = s4  ? -1 : 0;
+			const int m5  = s5  ? -1 : 0;
+			const int m6  = s6  ? -1 : 0;
+			const int m7  = s7  ? -1 : 0;
+			const int m8  = s8  ? -1 : 0;
+			const int m9  = s9  ? -1 : 0;
+			const int m10 = s10 ? -1 : 0;
+			const int m11 = s11 ? -1 : 0;
+			const int m12 = s12 ? -1 : 0;
+			const int m13 = s13 ? -1 : 0;
+			const int m14 = s14 ? -1 : 0;
+			const int m15 = s15 ? -1 : 0;
+			return _mm512_castsi512_ps(_mm512_set_epi32(m15, m14, m13, m12, m11, m10, m9, m8, m7, m6, m5, m4, m3, m2, m1, m0));
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
 		{
