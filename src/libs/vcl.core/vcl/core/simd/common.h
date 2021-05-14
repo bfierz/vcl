@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -42,12 +42,13 @@ namespace Vcl { namespace Core { namespace Simd
 	//! Type of vectorization extension
 	enum class SimdExt
 	{
-		None, //!< No vectorization
-		SSE,  //!< Intel SSE (128 bits)
-		AVX,  //!< Intel AVX (256 bits)
-		NEON, //!< ARM NEON (128 bits)
+		None,   //!< No vectorization
+		SSE,    //!< Intel SSE (128 bits)
+		AVX,    //!< Intel AVX (256 bits)
+		AVX512, //!< Intel AVX512 (512 bits)
+		NEON,   //!< ARM NEON (128 bits)
 	};
-	
+
 	template<typename, SimdExt>
 	struct SimdRegister
 	{
@@ -117,7 +118,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = float;
 		using Type = __m128;
 		static const int Width = 4;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm_set1_ps(s0);
@@ -141,7 +142,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = int;
 		using Type = __m128i;
 		static const int Width = 4;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm_set1_epi32(s0);
@@ -165,7 +166,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = bool;
 		using Type = __m128;
 		static const int Width = 4;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
@@ -189,7 +190,7 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 	};
 #endif
-	
+
 #ifdef VCL_VECTORIZE_AVX
 	template<>
 	struct SimdRegister<float, SimdExt::AVX>
@@ -197,7 +198,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = float;
 		using Type = __m256;
 		static const int Width = 8;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm256_set1_ps(s0);
@@ -225,7 +226,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = int;
 		using Type = __m256i;
 		static const int Width = 8;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm256_set1_epi32(s0);
@@ -253,7 +254,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Scalar = bool;
 		using Type = __m256;
 		static const int Width = 8;
-		
+
 		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
@@ -282,6 +283,102 @@ namespace Vcl { namespace Core { namespace Simd
 		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_epi32(_mm256_castps_si256(vec), i) != 0;
+		}
+	};
+#endif
+
+#ifdef VCL_VECTORIZE_AVX512
+	template<>
+	struct SimdRegister<float, SimdExt::AVX512>
+	{
+		using Scalar = float;
+		using Type = __m512;
+		static const int Width = 16;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return _mm512_set1_ps(s0);
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			return _mm512_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_ps(vec, i);
+		}
+	};
+	template<>
+	struct SimdRegister<int, SimdExt::AVX512>
+	{
+		using Scalar = int;
+		using Type = __m512i;
+		static const int Width = 16;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			return _mm512_set1_epi32(s0);
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			return _mm512_set_epi32(s7, s6, s5, s4, s3, s2, s1, s0);
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(vec, i);
+		}
+	};
+	template<>
+	struct SimdRegister<bool, SimdExt::AVX512>
+	{
+		using Scalar = bool;
+		using Type = __m512;
+		static const int Width = 16;
+
+		VCL_STRONG_INLINE static Type set(Scalar s0)
+		{
+			const int m0 = s0 ? -1 : 0;
+			return _mm512_castsi512_ps(_mm512_set1_epi32(m0));
+		}
+		VCL_STRONG_INLINE static Type set
+		(
+			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
+			Scalar s4, Scalar s5, Scalar s6, Scalar s7
+		)
+		{
+			const int m0 = s0 ? -1 : 0;
+			const int m1 = s1 ? -1 : 0;
+			const int m2 = s2 ? -1 : 0;
+			const int m3 = s3 ? -1 : 0;
+			const int m4 = s4 ? -1 : 0;
+			const int m5 = s5 ? -1 : 0;
+			const int m6 = s6 ? -1 : 0;
+			const int m7 = s7 ? -1 : 0;
+			return _mm512_castsi512_ps(_mm512_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0));
+		}
+		VCL_STRONG_INLINE static Type set(Type vec)
+		{
+			return vec;
+		}
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		{
+			return _mmVCL_extract_epi32(_mm512_castps_si512(vec), i) != 0;
 		}
 	};
 #endif
@@ -415,7 +512,7 @@ namespace Vcl { namespace Core { namespace Simd
 
 		//! SIMD registers
 		RegType _data[NrRegs];
-		
+
 		VCL_STRONG_INLINE RegType get(int i) const noexcept
 		{
 			VclRequire(0 <= i && i < NrRegs, "Access is in range.");
@@ -444,7 +541,7 @@ namespace Vcl { namespace Core { namespace Simd
 		{
 			set(arr[Is]...);
 		}
-		
+
 		//! Assignment operator
 		//! Define a custom assignment in order to support the compiler generating
 		//! SIMD instructions for copying data
@@ -470,7 +567,7 @@ namespace Vcl { namespace Core { namespace Simd
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3);
 			setImpl(tag, i+1, vals...);
 		}
-		
+
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7);

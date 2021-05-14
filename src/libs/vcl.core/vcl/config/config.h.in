@@ -30,6 +30,7 @@
  */
 #pragma once
 
+#cmakedefine VCL_VECTORIZE_AVX512
 #cmakedefine VCL_VECTORIZE_AVX2
 #cmakedefine VCL_VECTORIZE_AVX
 
