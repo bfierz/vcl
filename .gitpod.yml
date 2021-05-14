@@ -8,6 +8,8 @@ vscode:
         - ms-azuretools.vscode-docker
         - ms-vscode.cmake-tools
 
+        - editorconfig.editorconfig
+
 tasks:
     - init: git submodule update --init --recursive
 
