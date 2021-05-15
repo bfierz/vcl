@@ -34,14 +34,105 @@
 
 #include <vcl/core/simd/intrinsics_avx.h>
 
+#define VCL_M512I_SIGNBIT _mm512_set1_epi32(int(0x80000000))
+#define VCL_M512I_ALLBITS _mm512_set1_epi32(int(0xffffffff))
+
 namespace Vcl
 {
+	VCL_STRONG_INLINE __m512 _mm512_sgn_ps(__m512 v)
+	{
+		//return _mm512_and_ps(_mm512_or_ps(_mm512_and_ps(v, _mm512_castsi512_ps(VCL_M512I_SIGNBIT)), _mm512_set1_ps(1.0f)), _mm512_cmp_ps(v, _mm512_setzero_ps(), _CMP_NEQ_OQ));
+		return _mm512_setzero_ps();
+	}
+
+#if !defined(VCL_COMPILER_MSVC)
+	__m512 _mm512_sin_ps(__m512 v);
+	__m512 _mm512_cos_ps(__m512 v);
+	__m512 _mm512_log_ps(__m512 v);
+	__m512 _mm512_exp_ps(__m512 v);
+
+	__m512 _mm512_acos_ps(__m512 v);
+	__m512 _mm512_asin_ps(__m512 v);
+	__m512 _mm512_atan2_ps(__m512 y, __m512 x);
+
+	__m512 _mm512_pow_ps(__m512 x, __m512 y);
+#endif
+
 	VCL_STRONG_INLINE __mmask16 _mm512_cmpeq_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_EQ_OQ); }
 	VCL_STRONG_INLINE __mmask16 _mm512_cmpneq_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_NEQ_OQ); }
 	VCL_STRONG_INLINE __mmask16 _mm512_cmplt_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_LT_OQ); }
 	VCL_STRONG_INLINE __mmask16 _mm512_cmple_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_LE_OQ); }
 	VCL_STRONG_INLINE __mmask16 _mm512_cmpgt_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_GT_OQ); }
 	VCL_STRONG_INLINE __mmask16 _mm512_cmpge_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_GE_OQ); }
+
+	VCL_STRONG_INLINE __mmask16 _mm512_isinf_ps(__m512 x)
+	{
+		const __m512 sign_mask = _mm512_set1_ps(-0.0);
+		const __m512 inf = _mm512_set1_ps(std::numeric_limits<float>::infinity());
+
+		x = _mm512_andnot_ps(sign_mask, x);
+		return _mm512_cmpeq_ps(x, inf);
+	}
+
+	VCL_STRONG_INLINE __m512 _mmVCL_rsqrt_ps(__m512 v)
+	{
+		const __m512 nr = _mm512_rsqrt14_ps(v);
+		const __m512 muls = _mm512_mul_ps(_mm512_mul_ps(nr, nr), v);
+		const __m512 beta = _mm512_mul_ps(_mm512_set1_ps(0.5f), nr);
+		const __m512 gamma = _mm512_sub_ps(_mm512_set1_ps(3.0f), muls);
+
+		return _mm512_mul_ps(beta, gamma);
+	}
+
+	VCL_STRONG_INLINE __m512 _mmVCL_rcp_ps(__m512 v)
+	{
+		const __m512 nr = _mm512_rcp14_ps(v);
+		const __m512 muls = _mm512_mul_ps(_mm512_mul_ps(nr, nr), v);
+		const __m512 dbl = _mm512_add_ps(nr, nr);
+
+		// Filter out zero input to ensure
+		//const __m512 mask = _mm512_cmpeq_ps(v, _mm512_setzero_ps());
+		//const __m512 filtered = _mm512_andnot_ps(mask, muls);
+		//const __m512 result = _mm512_sub_ps(dbl, filtered);
+
+		//return result;
+		return _mm512_setzero_ps();
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m512 v)
+	{
+		//const __m512 hilo = _mm512_permute2f128_ps(v, v, 0x81);
+		//__m512 redux = _mm512_min_ps(v, hilo);
+		//redux = _mm512_min_ps(redux, _mm512_shuffle_ps(redux, redux, 0x0e));
+		//redux = _mm512_min_ps(redux, _mm512_shuffle_ps(redux, redux, 0x01));
+//
+		//return _mm_cvtss_f32(_mm512_castps512_ps128(redux));
+		return 0.0f;
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m512 v)
+	{
+		//const __m512 hilo = _mm512_permute2f128_ps(v, v, 0x81);
+		//__m512 redux = _mm512_max_ps(v, hilo);
+		//redux = _mm512_max_ps(redux, _mm512_shuffle_ps(redux, redux, 0x0e));
+		//redux = _mm512_max_ps(redux, _mm512_shuffle_ps(redux, redux, 0x01));
+//
+		//return _mm_cvtss_f32(_mm512_castps512_ps128(redux));
+		return 0.0f;
+	}
+
+	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m512 a, __m512 b)
+	{
+		//typedef union
+		//{
+		//	__m512 x;
+		//	float a[8];
+		//} F32;
+//
+		//const __m512 dp = _mm512_dp_ps(a, b, 0xff);
+		//return F32{ dp }.a[0] + F32{ dp }.a[4];
+		return 0;
+	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m512 v, int i)
 	{

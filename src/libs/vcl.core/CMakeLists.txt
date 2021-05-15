@@ -94,11 +94,12 @@ set(SOURCE
 	vcl/core/simd/bool16_avx.h
 	vcl/core/simd/float8_avx.h
 	vcl/core/simd/float16_avx.h
-	vcl/core/simd/int4_neon.h
 	vcl/core/simd/int8_avx.h
-	vcl/core/simd/int8_neon.h
 	vcl/core/simd/int16_avx.h
-	vcl/core/simd/int16_neon.h
+
+	vcl/core/simd/bool16_avx512.h
+	vcl/core/simd/float16_avx512.h
+	#vcl/core/simd/int16_avx512.h
 
 	vcl/core/simd/bool4_neon.h
 	vcl/core/simd/bool8_neon.h
@@ -106,11 +107,16 @@ set(SOURCE
 	vcl/core/simd/float4_neon.h
 	vcl/core/simd/float8_neon.h
 	vcl/core/simd/float16_neon.h
-	
+	vcl/core/simd/int4_neon.h
+	vcl/core/simd/int8_neon.h
+	vcl/core/simd/int16_neon.h
+
 	vcl/core/simd/avx_mathfun.h
 	vcl/core/simd/sse_mathfun.h
 	vcl/core/simd/neon_mathfun.h
 
+	vcl/core/simd/intrinsics_avx512.cpp
+	vcl/core/simd/intrinsics_avx512.h
 	vcl/core/simd/intrinsics_avx.cpp
 	vcl/core/simd/intrinsics_avx.h
 	vcl/core/simd/intrinsics_sse.cpp

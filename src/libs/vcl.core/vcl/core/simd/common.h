@@ -353,13 +353,13 @@ namespace Vcl { namespace Core { namespace Simd
 	struct SimdRegister<bool, SimdExt::AVX512>
 	{
 		using Scalar = bool;
-		using Type = __m512;
+		using Type = __mmask16;
 		static const int Width = 16;
 
 		VCL_STRONG_INLINE static Type set(Scalar s0)
 		{
-			const int m0 = s0 ? -1 : 0;
-			return _mm512_castsi512_ps(_mm512_set1_epi32(m0));
+			const unsigned int mask = s0 ? 0xffffffff : 0;
+			return _cvtu32_mask16(mask);
 		}
 		VCL_STRONG_INLINE static Type set
 		(
@@ -369,23 +369,24 @@ namespace Vcl { namespace Core { namespace Simd
 			Scalar s12, Scalar s13, Scalar s14, Scalar s15
 		)
 		{
-			const int m0  = s0  ? -1 : 0;
-			const int m1  = s1  ? -1 : 0;
-			const int m2  = s2  ? -1 : 0;
-			const int m3  = s3  ? -1 : 0;
-			const int m4  = s4  ? -1 : 0;
-			const int m5  = s5  ? -1 : 0;
-			const int m6  = s6  ? -1 : 0;
-			const int m7  = s7  ? -1 : 0;
-			const int m8  = s8  ? -1 : 0;
-			const int m9  = s9  ? -1 : 0;
-			const int m10 = s10 ? -1 : 0;
-			const int m11 = s11 ? -1 : 0;
-			const int m12 = s12 ? -1 : 0;
-			const int m13 = s13 ? -1 : 0;
-			const int m14 = s14 ? -1 : 0;
-			const int m15 = s15 ? -1 : 0;
-			return _mm512_castsi512_ps(_mm512_set_epi32(m15, m14, m13, m12, m11, m10, m9, m8, m7, m6, m5, m4, m3, m2, m1, m0));
+			unsigned int mask = 0;
+			mask |= s0  ? 1 <<  0 : 0;
+			mask |= s1  ? 1 <<  1 : 0;
+			mask |= s2  ? 1 <<  2 : 0;
+			mask |= s3  ? 1 <<  3 : 0;
+			mask |= s4  ? 1 <<  4 : 0;
+			mask |= s5  ? 1 <<  5 : 0;
+			mask |= s6  ? 1 <<  6 : 0;
+			mask |= s7  ? 1 <<  7 : 0;
+			mask |= s8  ? 1 <<  8 : 0;
+			mask |= s9  ? 1 <<  9 : 0;
+			mask |= s10 ? 1 << 10 : 0;
+			mask |= s11 ? 1 << 11 : 0;
+			mask |= s12 ? 1 << 12 : 0;
+			mask |= s13 ? 1 << 13 : 0;
+			mask |= s14 ? 1 << 14 : 0;
+			mask |= s15 ? 1 << 15 : 0;
+			return _cvtu32_mask16(mask);
 		}
 		VCL_STRONG_INLINE static Type set(Type vec)
 		{
@@ -393,7 +394,7 @@ namespace Vcl { namespace Core { namespace Simd
 		}
 		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
 		{
-			return _mmVCL_extract_epi32(_mm512_castps_si512(vec), i) != 0;
+			return (_cvtmask16_u32(vec) & (1u << i)) != 0;
 		}
 	};
 #endif

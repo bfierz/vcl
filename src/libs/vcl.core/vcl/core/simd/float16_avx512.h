@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 
 // VCL
-#include <vcl/core/simd/bool16_avx.h>
+#include <vcl/core/simd/bool16_avx512.h>
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl
@@ -90,14 +90,14 @@ namespace Vcl
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<float, 16>
 		(
-			_mm512_blendv_ps(b.get(0), a.get(0), mask.get(0))
+			_mm512_mask_blend_ps(mask.get(0), b.get(0), a.get(0))
 		);
 	}
 
 	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
 	{
 		alignas(32) float vars[16];
-		_mm512_store_ps(vars + 0, rhs.get(0))
+		_mm512_store_ps(vars + 0, rhs.get(0));
 
 		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
 				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]

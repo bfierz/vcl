@@ -38,41 +38,30 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX512)
-		explicit VCL_STRONG_INLINE VectorScalar(__m512i I8_0, __m512i I8_1)
-		{
-			_data[0] = _mm512_castsi512_ps(I8_0);
-			_data[1] = _mm512_castsi512_ps(I8_1);
-		}
 
 	public:
-		VCL_SIMD_BINARY_OP(operator&&, _mm512_and_ps, 1)
-		VCL_SIMD_BINARY_OP(operator||, _mm512_or_ps, 1)
+		VCL_SIMD_BINARY_OP(operator&&, _mm512_kand, 1)
+		VCL_SIMD_BINARY_OP(operator||, _mm512_kor, 1)
 
-		VCL_SIMD_ASSIGN_OP(operator&=, _mm512_and_ps, 1)
-		VCL_SIMD_ASSIGN_OP(operator|=, _mm512_or_ps, 1)
+		VCL_SIMD_ASSIGN_OP(operator&=, _mm512_kand, 1)
+		VCL_SIMD_ASSIGN_OP(operator|=, _mm512_kor, 1)
 	};
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm512_movemask_ps(b.get(1)) << 8;
-		    mask |= _mm512_movemask_ps(b.get(0));
-
+		const auto mask = _cvtmask16_u32(b.get(0));
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm512_movemask_ps(b.get(1)) << 8;
-		    mask |= _mm512_movemask_ps(b.get(0));
-
-		return static_cast<unsigned int>(mask) == 0xffff;
+		const auto mask = _cvtmask16_u32(b.get(0));
+		return mask == 0xffff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
 	{
-		int mask  = _mm512_movemask_ps(b.get(1)) << 8;
-		    mask |= _mm512_movemask_ps(b.get(0));
-
-		return static_cast<unsigned int>(mask) == 0x0;
+		const auto mask = _cvtmask16_u32(b.get(0));
+		return mask == 0x0;
 	}
 }
