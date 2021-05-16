@@ -57,7 +57,7 @@ namespace Vcl
 #	include <vcl/core/simd/float8_avx.h>
 #	include <vcl/core/simd/float16_avx512.h>
 #	include <vcl/core/simd/int8_avx.h>
-//#	include <vcl/core/simd/int16_avx512.h>
+#	include <vcl/core/simd/int16_avx512.h>
 #elif defined VCL_VECTORIZE_AVX
 #	include <vcl/core/simd/bool8_avx.h>
 #	include <vcl/core/simd/bool16_avx.h>

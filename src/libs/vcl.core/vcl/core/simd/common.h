@@ -596,6 +596,33 @@ namespace Vcl { namespace Core { namespace Simd
 			setImpl(tag, i+1, vals...);
 		}
 
+		VCL_STRONG_INLINE void setImpl
+		(
+			SimdWidthTag<16>, int i,
+			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
+			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
+			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
+			Scalar s12, Scalar s13, Scalar s14, Scalar s15
+		)
+		{
+			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
+		}
+
+		template<typename... T>
+		VCL_STRONG_INLINE void setImpl
+		(
+			SimdWidthTag<16> tag, int i,
+			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
+			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
+			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
+			Scalar s12, Scalar s13, Scalar s14, Scalar s15,
+			T... vals
+		)
+		{
+			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
+			setImpl(tag, i+1, vals...);
+		}
+
 		template<int W>
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W>, int i, const RegType& v0) noexcept
 		{

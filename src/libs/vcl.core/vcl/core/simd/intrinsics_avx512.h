@@ -41,8 +41,16 @@ namespace Vcl
 {
 	VCL_STRONG_INLINE __m512 _mm512_sgn_ps(__m512 v)
 	{
-		//return _mm512_and_ps(_mm512_or_ps(_mm512_and_ps(v, _mm512_castsi512_ps(VCL_M512I_SIGNBIT)), _mm512_set1_ps(1.0f)), _mm512_cmp_ps(v, _mm512_setzero_ps(), _CMP_NEQ_OQ));
-		return _mm512_setzero_ps();
+		const __mmask16 is_eq_zero = _mm512_cmp_ps_mask(v, _mm512_setzero_ps(), _CMP_EQ_OQ);
+		return _mm512_castsi512_ps(_mm512_mask_set1_epi32
+		(
+			_mm512_or_epi32
+			(
+				_mm512_and_epi32(_mm512_castps_si512(v), VCL_M512I_SIGNBIT),
+				_mm512_castps_si512(_mm512_set1_ps(1.0f))
+			),
+			is_eq_zero, 0
+		));
 	}
 
 #if !defined(VCL_COMPILER_MSVC)
@@ -91,12 +99,10 @@ namespace Vcl
 		const __m512 dbl = _mm512_add_ps(nr, nr);
 
 		// Filter out zero input to ensure
-		//const __m512 mask = _mm512_cmpeq_ps(v, _mm512_setzero_ps());
-		//const __m512 filtered = _mm512_andnot_ps(mask, muls);
-		//const __m512 result = _mm512_sub_ps(dbl, filtered);
+		const __mmask16 is_neq_zero_mask = _mm512_cmpneq_ps_mask(v, _mm512_setzero_ps());
+		const __m512 result = _mm512_mask_sub_ps(dbl, is_neq_zero_mask, dbl, muls);
 
-		//return result;
-		return _mm512_setzero_ps();
+		return result;
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m512 v)

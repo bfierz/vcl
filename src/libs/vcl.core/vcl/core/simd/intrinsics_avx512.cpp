@@ -25,12 +25,12 @@
 #include <vcl/core/simd/intrinsics_avx512.h>
 
 #if defined VCL_VECTORIZE_AVX512
-//VCL_BEGIN_EXTERNAL_HEADERS
-//#if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
-//#	define __AVX2__
-//#endif
-//#include <vcl/core/simd/avx_mathfun.h>
-//VCL_END_EXTERNAL_HEADERS
+VCL_BEGIN_EXTERNAL_HEADERS
+#if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
+#	define __AVX2__
+#endif
+#include <vcl/core/simd/avx_mathfun.h>
+VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
@@ -41,22 +41,82 @@ namespace Vcl
 {
 	__m512 _mm512_sin_ps(__m512 v)
 	{
-		//return sin512_ps(v);
+		const __m128 v0 = _mm512_extractf32x4_ps(v, 0);
+		const __m128 v1 = _mm512_extractf32x4_ps(v, 1);
+		const __m128 v2 = _mm512_extractf32x4_ps(v, 2);
+		const __m128 v3 = _mm512_extractf32x4_ps(v, 3);
+
+		const __m256 v01 = _mm256_insertf128_ps(_mm256_castps128_ps256(v0), v1, 1);
+		const __m256 v23 = _mm256_insertf128_ps(_mm256_castps128_ps256(v2), v3, 1);
+		const __m256 r01 = sin256_ps(v01);
+		const __m256 r23 = sin256_ps(v23);
+
+		__m512 result = _mm512_undefined_ps();
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		return result;
 	}
 
 	__m512 _mm512_cos_ps(__m512 v)
 	{
-		//return cos512_ps(v);
+		const __m128 v0 = _mm512_extractf32x4_ps(v, 0);
+		const __m128 v1 = _mm512_extractf32x4_ps(v, 1);
+		const __m128 v2 = _mm512_extractf32x4_ps(v, 2);
+		const __m128 v3 = _mm512_extractf32x4_ps(v, 3);
+
+		const __m256 v01 = _mm256_insertf128_ps(_mm256_castps128_ps256(v0), v1, 1);
+		const __m256 v23 = _mm256_insertf128_ps(_mm256_castps128_ps256(v2), v3, 1);
+		const __m256 r01 = cos256_ps(v01);
+		const __m256 r23 = cos256_ps(v23);
+
+		__m512 result = _mm512_undefined_ps();
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		return result;
 	}
 
 	__m512 _mm512_log_ps(__m512 v)
 	{
-		//return log512_ps(v);
+		const __m128 v0 = _mm512_extractf32x4_ps(v, 0);
+		const __m128 v1 = _mm512_extractf32x4_ps(v, 1);
+		const __m128 v2 = _mm512_extractf32x4_ps(v, 2);
+		const __m128 v3 = _mm512_extractf32x4_ps(v, 3);
+
+		const __m256 v01 = _mm256_insertf128_ps(_mm256_castps128_ps256(v0), v1, 1);
+		const __m256 v23 = _mm256_insertf128_ps(_mm256_castps128_ps256(v2), v3, 1);
+		const __m256 r01 = log256_ps(v01);
+		const __m256 r23 = log256_ps(v23);
+
+		__m512 result = _mm512_undefined_ps();
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		return result;
 	}
 
 	__m512 _mm512_exp_ps(__m512 v)
 	{
-		//return exp512_ps(v);
+		const __m128 v0 = _mm512_extractf32x4_ps(v, 0);
+		const __m128 v1 = _mm512_extractf32x4_ps(v, 1);
+		const __m128 v2 = _mm512_extractf32x4_ps(v, 2);
+		const __m128 v3 = _mm512_extractf32x4_ps(v, 3);
+
+		const __m256 v01 = _mm256_insertf128_ps(_mm256_castps128_ps256(v0), v1, 1);
+		const __m256 v23 = _mm256_insertf128_ps(_mm256_castps128_ps256(v2), v3, 1);
+		const __m256 r01 = exp256_ps(v01);
+		const __m256 r23 = exp256_ps(v23);
+
+		__m512 result = _mm512_undefined_ps();
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		return result;
 	}
 
 	// Handbook of Mathematical Functions

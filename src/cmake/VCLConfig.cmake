@@ -161,7 +161,7 @@ function(vcl_configure tgt)
 		endif()
 
 		if(VCL_VECTORIZE_AVX512)
-			target_compile_options(${tgt} PUBLIC "-mavx512f")
+			target_compile_options(${tgt} PUBLIC "-mavx512f" "-mavx512vl")
 		elseif(VCL_VECTORIZE_AVX2)
 			target_compile_options(${tgt} PUBLIC "-mavx2")
 		elseif(VCL_VECTORIZE_AVX)

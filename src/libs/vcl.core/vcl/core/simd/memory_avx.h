@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -33,6 +33,13 @@
 #if defined(VCL_VECTORIZE_AVX)
 namespace Vcl
 {
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE __m512 gather(float const* base, __m512i vindex)
+	{
+		return _mm512_i32gather_ps(vindex, base, 4);
+	}
+#endif
+
 #ifdef VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex)
 	{
@@ -65,11 +72,11 @@ namespace Vcl
 		(
 			*(base + idx.a[7]), *(base + idx.a[6]),
 			*(base + idx.a[5]), *(base + idx.a[4]),
-		
+
 			*(base + idx.a[3]), *(base + idx.a[2]),
 			*(base + idx.a[1]), *(base + idx.a[0])
 		);
-		
+
 		return res;
 	}
 #endif
@@ -80,6 +87,12 @@ namespace Vcl
 		return VectorScalar<float, 8>(gather(base, idx));
 	}
 
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
+	{
+		return VectorScalar<float, 16>(gather(base, vindex.get(0)));
+	}
+#else
 	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
 	{
 		return VectorScalar<float, 16>
@@ -88,6 +101,7 @@ namespace Vcl
 			gather(base, vindex.get(1))
 		);
 	}
+#endif
 
 	VCL_STRONG_INLINE void load(float8& value, const float* base)
 	{
@@ -99,6 +113,23 @@ namespace Vcl
 		value = int8{ _mm256_loadu_si256(reinterpret_cast<const __m256i*>(base)) };
 	}
 
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE void load(float16& value, const float* base)
+	{
+		value = float16
+		{
+			_mm512_loadu_ps(base + 0)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(int16& value, const int* base)
+	{
+		value = int16
+		{
+			_mm512_loadu_si512(reinterpret_cast<const __m256i*>(base + 0))
+		};
+	}
+#else
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
 		value = float16
@@ -116,7 +147,33 @@ namespace Vcl
 			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(base + 8))
 		};
 	}
+#endif
 
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE void load
+	(
+		__m512& x, __m512& y, __m512& z,
+		const Eigen::Vector3f* base
+	)
+	{
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		__m512& x, __m512& y, __m512& z, __m512& w,
+		const Eigen::Vector4f* base
+	)
+	{
+	}
+
+	VCL_STRONG_INLINE void store
+	(
+		Eigen::Vector3f* base,
+		const __m512& x, const __m512& y, const __m512& z
+	)
+	{
+	}
+#endif
 	// The load/store implementation for vectors are directly from or based on:
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load
@@ -136,7 +193,7 @@ namespace Vcl
 		m14 = _mm256_insertf128_ps(m14, _mm_loadu_ps(p + 16), 1);
 		m25 = _mm256_insertf128_ps(m25, _mm_loadu_ps(p + 20), 1);
 
-		__m256 xy = _mm256_shuffle_ps(m14, m25, _MM_SHUFFLE(2, 1, 3, 2)); // upper x's and y's 
+		__m256 xy = _mm256_shuffle_ps(m14, m25, _MM_SHUFFLE(2, 1, 3, 2)); // upper x's and y's
 		__m256 yz = _mm256_shuffle_ps(m03, m14, _MM_SHUFFLE(1, 0, 2, 1)); // lower y's and z's
 		x = _mm256_shuffle_ps(m03, xy, _MM_SHUFFLE(2, 0, 3, 0));
 		y = _mm256_shuffle_ps(yz, xy, _MM_SHUFFLE(3, 1, 2, 0));
@@ -202,7 +259,7 @@ namespace Vcl
 		_mm_storeu_ps(p + 20, _mm256_extractf128_ps(r25, 1));
 	}
 
-	
+
 	VCL_STRONG_INLINE void load
 	(
 		Eigen::Matrix<float8, 3, 1>& loaded,
@@ -236,7 +293,7 @@ namespace Vcl
 			int8{ _mm256_castps_si256(z0) }
 		};
 	}
-	
+
 	VCL_STRONG_INLINE void load
 	(
 		Eigen::Matrix<float8, 4, 1>& loaded,
@@ -272,7 +329,7 @@ namespace Vcl
 			int8{ _mm256_castps_si256(w0) }
 		};
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
@@ -303,6 +360,42 @@ namespace Vcl
 		);
 	}
 
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float16, 3, 1>& loaded,
+		const Eigen::Vector3f* base
+	)
+	{
+		__m512 x0, y0, z0;
+		load(x0, y0, z0, base);
+
+		loaded =
+		{
+			float16(x0),
+			float16(y0),
+			float16(z0)
+		};
+	}
+
+	VCL_STRONG_INLINE void load
+	(
+		Eigen::Matrix<float16, 4, 1>& loaded,
+		const Eigen::Vector4f* base
+	)
+	{
+		__m512 x0, y0, z0, w0;
+		load(x0, y0, z0, w0, base);
+
+		loaded =
+		{
+			float16(x0),
+			float16(y0),
+			float16(z0),
+			float16(w0)
+		};
+	}
+#else
 	VCL_STRONG_INLINE void load
 	(
 		Eigen::Matrix<float16, 3, 1>& loaded,
@@ -338,7 +431,7 @@ namespace Vcl
 			int16{ _mm256_castps_si256(z0), _mm256_castps_si256(z1) }
 		};
 	}
-	
+
 	VCL_STRONG_INLINE void load
 	(
 		Eigen::Matrix<float16, 4, 1>& loaded,
@@ -376,7 +469,7 @@ namespace Vcl
 			int16{ _mm256_castps_si256(w0), _mm256_castps_si256(w1) }
 		};
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
@@ -400,7 +493,7 @@ namespace Vcl
 			_mm256_castsi256_ps(value(1).get(0)),
 			_mm256_castsi256_ps(value(2).get(0))
 		);
-		
+
 		store
 		(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 8,
@@ -409,6 +502,7 @@ namespace Vcl
 			_mm256_castsi256_ps(value(2).get(1))
 		);
 	}
+#endif
 
 	/*
 	VCL_STRONG_INLINE void load
@@ -466,7 +560,7 @@ namespace Vcl
 			loaded.z()[i] = base[i].z();
 		}
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
@@ -480,7 +574,7 @@ namespace Vcl
 			base[i].z() = value.z()[i];
 		}
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3i* base,
@@ -494,7 +588,7 @@ namespace Vcl
 			base[i].z() = value.z()[i];
 		}
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3f* base,
@@ -508,7 +602,7 @@ namespace Vcl
 			base[i].z() = value.z()[i];
 		}
 	}
-	
+
 	VCL_STRONG_INLINE void store
 	(
 		Eigen::Vector3i* base,

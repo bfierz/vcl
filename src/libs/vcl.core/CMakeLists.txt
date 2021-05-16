@@ -99,7 +99,7 @@ set(SOURCE
 
 	vcl/core/simd/bool16_avx512.h
 	vcl/core/simd/float16_avx512.h
-	#vcl/core/simd/int16_avx512.h
+	vcl/core/simd/int16_avx512.h
 
 	vcl/core/simd/bool4_neon.h
 	vcl/core/simd/bool8_neon.h
