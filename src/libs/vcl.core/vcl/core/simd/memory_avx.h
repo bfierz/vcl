@@ -156,6 +156,26 @@ namespace Vcl
 		const Eigen::Vector3f* base
 	)
 	{
+		const float* p = base->data();
+		const __m512 m0123 = _mm512_loadu_ps(p +  0); //     x0y0z0x1     y1z1x2y2     z2x3y3z3     x4y4z4x5
+		const __m512 m4567 = _mm512_loadu_ps(p + 16); //     y5z5x6y6     z6x7y7z7     x8y8z8x9   y9z9x10y10
+		const __m512 m89ab = _mm512_loadu_ps(p + 32); // z10x11y11z11 x12y12z12x13 y13z13x14y14 z14x15y15z15
+
+		const __m512 m679a = _mm512_shuffle_f32x4(m4567, m89ab, _MM_SHUFFLE(2, 1, 3, 2));
+		const __m512 m1245 = _mm512_shuffle_f32x4(m0123, m4567, _MM_SHUFFLE(1, 0, 2, 1));
+
+		const __m512 m0369 = _mm512_shuffle_f32x4(m0123, m679a, _MM_SHUFFLE(2, 0, 3, 0));
+		const __m512 m147a = _mm512_shuffle_f32x4(m1245, m679a, _MM_SHUFFLE(3, 1, 2, 0));
+		const __m512 m258b = _mm512_shuffle_f32x4(m1245, m89ab, _MM_SHUFFLE(3, 0, 3, 1));
+
+		const __m512 x0y0z0x1 = m0369;
+		const __m512 y1z1x2y2 = m147a;
+		const __m512 z2x3y3z3 = m258b;
+		const __m512 x2y2x3y3 = _mm512_shuffle_ps(y1z1x2y2, z2x3y3z3, _MM_SHUFFLE(2, 1, 3, 2));
+		const __m512 y0z0y1z1 = _mm512_shuffle_ps(x0y0z0x1, y1z1x2y2, _MM_SHUFFLE(1, 0, 2, 1));
+		x = _mm512_shuffle_ps(x0y0z0x1, x2y2x3y3, _MM_SHUFFLE(2, 0, 3, 0)); // x0x1x2x3
+		y = _mm512_shuffle_ps(y0z0y1z1, x2y2x3y3, _MM_SHUFFLE(3, 1, 2, 0)); // y0y1y2y3
+		z = _mm512_shuffle_ps(y0z0y1z1, z2x3y3z3, _MM_SHUFFLE(3, 0, 3, 1)); // z0z1z2z3
 	}
 
 	VCL_STRONG_INLINE void load
