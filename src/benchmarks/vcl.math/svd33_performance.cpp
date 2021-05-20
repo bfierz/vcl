@@ -152,19 +152,19 @@ void perfOpenCLMcAdamsSVD
 
 	// Test Performance: Eigen Jacobi SVD
 	perfEigenSVD(nr_problems, F, resU, resV, resS);
-	
+
 	// Test Performance: Two-sided Jacobi SVD (Brent)
 	perfTwoSidedSVD<float>(nr_problems, F, resU, resV, resS);
 	perfTwoSidedSVD<Vcl::float4>(nr_problems, F, resU, resV, resS);
 	perfTwoSidedSVD<Vcl::float8>(nr_problems, F, resU, resV, resS);
 	perfTwoSidedSVD<Vcl::float16>(nr_problems, F, resU, resV, resS);
-	
+
 	// Test Performance: Jacobi SVD with symmetric EV computation and QR decomposition
 	perfJacobiSVDQR<float>(nr_problems, F, resU, resV, resS);
 	perfJacobiSVDQR<Vcl::float4>(nr_problems, F, resU, resV, resS);
 	perfJacobiSVDQR<Vcl::float8>(nr_problems, F, resU, resV, resS);
 	perfJacobiSVDQR<Vcl::float16>(nr_problems, F, resU, resV, resS);
-	
+
 	// Test Performance: McAdams SVD solver
 	perfMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
 	perfMcAdamsSVD<Vcl::float4>(nr_problems, 4, F, resU, resV, resS);
@@ -179,11 +179,11 @@ void perfOpenCLMcAdamsSVD
 #ifdef VCL_VECTORIZE_AVX
 	perfMcAdamsSVD<Vcl::float8>(nr_problems, 5, F, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
-	
+
 #ifdef VCL_CUDA_SUPPORT
 	perfCudaMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
 #endif // defined VCL_CUDA_SUPPORT
-	
+
 #ifdef VCL_OPENCL_SUPPORT
 	perfOpenCLMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
 #endif // defined VCL_OPENCL_SUPPORT
@@ -198,13 +198,13 @@ Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 
 void perfEigenSVD(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
-	
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
+
 	for (auto _ : state)
 	{
-		for (int i = 0; i < state.range_x(); ++i)
+		for (int i = 0; i < state.range(0); ++i)
 		{
 			// Map data
 			auto U = resU.at<float>(i);
@@ -226,24 +226,24 @@ void perfEigenSVD(benchmark::State& state)
 	benchmark::DoNotOptimize(resV);
 	benchmark::DoNotOptimize(resS);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar>
 void perfTwoSidedSVD(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-	
+
 	for (auto _ : state)
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto U = resU.at<real_t>(i);
@@ -268,24 +268,24 @@ void perfTwoSidedSVD(benchmark::State& state)
 	benchmark::DoNotOptimize(resV);
 	benchmark::DoNotOptimize(resS);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar>
 void perfJacobiSVDQR(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-	
+
 	for (auto _ : state)
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto U = resU.at<real_t>(i);
@@ -310,15 +310,15 @@ void perfJacobiSVDQR(benchmark::State& state)
 	benchmark::DoNotOptimize(resV);
 	benchmark::DoNotOptimize(resS);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 template<typename WideScalar, int Iters>
 void perfMcAdamsSVD(benchmark::State& state)
 {
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range_x());
-	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range_x());
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(state.range(0));
+	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
 
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -327,7 +327,7 @@ void perfMcAdamsSVD(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		for (size_t i = 0; i < state.range_x() / width; i++)
+		for (size_t i = 0; i < state.range(0) / width; i++)
 		{
 			// Map data
 			auto U = resU.at<real_t>(i);
@@ -352,7 +352,7 @@ void perfMcAdamsSVD(benchmark::State& state)
 	benchmark::DoNotOptimize(resV);
 	benchmark::DoNotOptimize(resS);
 
-	state.SetItemsProcessed(state.iterations() * state.range_x());
+	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
 using Vcl::float4;
@@ -391,7 +391,7 @@ int main(int argc, char** argv)
 {
 	// Initialize data
 	createRandomProblems(nr_problems, F);
-	
+
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
 }
