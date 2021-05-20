@@ -107,37 +107,17 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m512 v)
 	{
-		//const __m512 hilo = _mm512_permute2f128_ps(v, v, 0x81);
-		//__m512 redux = _mm512_min_ps(v, hilo);
-		//redux = _mm512_min_ps(redux, _mm512_shuffle_ps(redux, redux, 0x0e));
-		//redux = _mm512_min_ps(redux, _mm512_shuffle_ps(redux, redux, 0x01));
-//
-		//return _mm_cvtss_f32(_mm512_castps512_ps128(redux));
-		return 0.0f;
+		return _mm512_reduce_min_ps(v);
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m512 v)
 	{
-		//const __m512 hilo = _mm512_permute2f128_ps(v, v, 0x81);
-		//__m512 redux = _mm512_max_ps(v, hilo);
-		//redux = _mm512_max_ps(redux, _mm512_shuffle_ps(redux, redux, 0x0e));
-		//redux = _mm512_max_ps(redux, _mm512_shuffle_ps(redux, redux, 0x01));
-//
-		//return _mm_cvtss_f32(_mm512_castps512_ps128(redux));
-		return 0.0f;
+		return _mm512_reduce_max_ps(v);
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m512 a, __m512 b)
 	{
-		//typedef union
-		//{
-		//	__m512 x;
-		//	float a[8];
-		//} F32;
-//
-		//const __m512 dp = _mm512_dp_ps(a, b, 0xff);
-		//return F32{ dp }.a[0] + F32{ dp }.a[4];
-		return 0;
+		return _mm512_reduce_add_ps(_mm512_mul_ps(a, b));
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m512 v, int i)

@@ -168,6 +168,7 @@ namespace Vcl
 		const __m512 m147a = _mm512_shuffle_f32x4(m1245, m679a, _MM_SHUFFLE(3, 1, 2, 0));
 		const __m512 m258b = _mm512_shuffle_f32x4(m1245, m89ab, _MM_SHUFFLE(3, 0, 3, 1));
 
+		// Same code as m128 case as _mm512_shuffle_ps works on 128-bit lanes
 		const __m512 x0y0z0x1 = m0369;
 		const __m512 y1z1x2y2 = m147a;
 		const __m512 z2x3y3z3 = m258b;
@@ -184,6 +185,37 @@ namespace Vcl
 		const Eigen::Vector4f* base
 	)
 	{
+		const float* p = base->data();
+		const __m512 m0123 = _mm512_loadu_ps(p +  0);
+		const __m512 m4567 = _mm512_loadu_ps(p + 16);
+		const __m512 m89ab = _mm512_loadu_ps(p + 32);
+		const __m512 mcdef = _mm512_loadu_ps(p + 48);
+
+		const __m512 m0145 = _mm512_shuffle_f32x4(m0123, m4567, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m89cd = _mm512_shuffle_f32x4(m89ab, mcdef, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m2367 = _mm512_shuffle_f32x4(m0123, m4567, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m512 mabef = _mm512_shuffle_f32x4(m89ab, mcdef, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m512 m048c = _mm512_shuffle_f32x4(m0145, m89cd, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 m159d = _mm512_shuffle_f32x4(m0145, m89cd, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m512 m26ae = _mm512_shuffle_f32x4(m2367, mabef, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 m37bf = _mm512_shuffle_f32x4(m2367, mabef, _MM_SHUFFLE(3, 1, 3, 1));
+
+		// Same code as m128 case as _mm512_shuffle_ps works on 128-bit lanes
+		const __m512 m0 = m048c;
+		const __m512 m1 = m159d;
+		const __m512 m2 = m26ae;
+		const __m512 m3 = m37bf;
+
+		const __m512 xy0 = _mm512_shuffle_ps(m0, m1, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 xy1 = _mm512_shuffle_ps(m2, m3, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 zw0 = _mm512_shuffle_ps(m0, m1, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m512 zw1 = _mm512_shuffle_ps(m2, m3, _MM_SHUFFLE(3, 2, 3, 2));
+
+		x = _mm512_shuffle_ps(xy0, xy1, _MM_SHUFFLE(2, 0, 2, 0));
+		y = _mm512_shuffle_ps(xy0, xy1, _MM_SHUFFLE(3, 1, 3, 1));
+		z = _mm512_shuffle_ps(zw0, zw1, _MM_SHUFFLE(2, 0, 2, 0));
+		w = _mm512_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
 	}
 
 	VCL_STRONG_INLINE void store
@@ -192,6 +224,26 @@ namespace Vcl
 		const __m512& x, const __m512& y, const __m512& z
 	)
 	{
+		const __m512 x0x2y0y2 = _mm512_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 y1y3z1z3 = _mm512_shuffle_ps(y, z, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m512 z0z2x1x3 = _mm512_shuffle_ps(z, x, _MM_SHUFFLE(3, 1, 2, 0));
+
+		const __m512 rx0y0z0x1 = _mm512_shuffle_ps(x0x2y0y2, z0z2x1x3, _MM_SHUFFLE(2, 0, 2, 0)); // m0369
+		const __m512 ry1z1x2y2 = _mm512_shuffle_ps(y1y3z1z3, x0x2y0y2, _MM_SHUFFLE(3, 1, 2, 0)); // m147a
+		const __m512 rz2x3y3z3 = _mm512_shuffle_ps(z0z2x1x3, y1y3z1z3, _MM_SHUFFLE(3, 1, 3, 1)); // m258b
+
+		const __m512 m0617 = _mm512_shuffle_f32x4(rx0y0z0x1, ry1z1x2y2, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 m4a5b = _mm512_shuffle_f32x4(ry1z1x2y2, rz2x3y3z3, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m512 m2839 = _mm512_shuffle_f32x4(rz2x3y3z3, rx0y0z0x1, _MM_SHUFFLE(3, 1, 2, 0));
+
+		const __m512 m0123 = _mm512_shuffle_f32x4(m0617, m2839, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 m4567 = _mm512_shuffle_f32x4(m4a5b, m0617, _MM_SHUFFLE(3, 1, 2, 0));
+		const __m512 m89ab = _mm512_shuffle_f32x4(m2839, m4a5b, _MM_SHUFFLE(3, 1, 3, 1));
+
+		float* p = base->data();
+		_mm512_storeu_ps(p +  0, m0123);
+		_mm512_storeu_ps(p + 16, m4567);
+		_mm512_storeu_ps(p + 32, m89ab);
 	}
 #endif
 	// The load/store implementation for vectors are directly from or based on:

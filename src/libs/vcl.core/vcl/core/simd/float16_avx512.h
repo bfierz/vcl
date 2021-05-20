@@ -79,10 +79,10 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(min, _mm512_min_ps, 1)
 		VCL_SIMD_BINARY_OP(max, _mm512_max_ps, 1)
 
-		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, Core::Simd::Details::add, 1)
+		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, VCL_UNUSED, 1)
 
-		VCL_SIMD_UNARY_REDUCTION_OP(min, _mmVCL_hmin_ps, Mathematics::min, 1)
-		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, Mathematics::max, 1)
+		VCL_SIMD_UNARY_REDUCTION_OP(min, _mmVCL_hmin_ps, VCL_UNUSED, 1)
+		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, VCL_UNUSED, 1)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b)
@@ -99,9 +99,9 @@ namespace Vcl
 		alignas(64) float vars[16];
 		_mm512_store_ps(vars + 0, rhs.get(0));
 
-		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
-				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]
-				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11]
+		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3] << ", "
+				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7] << ", "
+				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11] << ", "
 				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;

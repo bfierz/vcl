@@ -74,7 +74,7 @@ namespace Vcl
 	{
 		return VectorScalar<int, 16>
 		(
-			_mm512_mask_blend_epi32(mask.get(0), a.get(0), b.get(0))
+			_mm512_mask_blend_epi32(mask.get(0), b.get(0), a.get(0))
 		);
 	}
 
@@ -83,9 +83,9 @@ namespace Vcl
 		alignas(64) int vars[16];
 		_mm512_store_si512(reinterpret_cast<__m512i*>(vars + 0), rhs.get(0));
 
-		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
-				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]
-				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11]
+		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3] << ", "
+				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7] << ", "
+				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11] << ", "
 				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
