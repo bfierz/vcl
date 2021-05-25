@@ -49,7 +49,6 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		tex_desc.size.width = width;
 		tex_desc.size.height = height;
 		tex_desc.size.depthOrArrayLayers = 1;
-		tex_desc.size.depth = 1;
 		tex_desc.sampleCount = 1;
 		tex_desc.format = toWebGPUEnum(type);
 		tex_desc.mipLevelCount = 1;
@@ -79,7 +78,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 			layout.offset = 0;
 			layout.bytesPerRow = width * pp_size;
 			layout.rowsPerImage = height;
-			WGPUExtent3D size = { static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1, 1 };
+			WGPUExtent3D size = { static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1 };
 			wgpuQueueWriteTexture(wgpuDeviceGetQueue(device), &dst_view, data.data(), data.size(), &layout, &size);
 		}
 

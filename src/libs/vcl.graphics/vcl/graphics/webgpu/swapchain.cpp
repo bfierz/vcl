@@ -75,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		(
 			_swapChain,
 			dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
-			WGPUTextureUsage_OutputAttachment,
+			WGPUTextureUsage_RenderAttachment,
 			width, height
 		);
 #endif

@@ -32,36 +32,36 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 	{
 		switch (format)
 		{
-		case SurfaceFormat::R8G8_UINT:          return WGPUVertexFormat_UChar2;
-		case SurfaceFormat::R8G8B8A8_UINT:      return WGPUVertexFormat_UChar4;
-		case SurfaceFormat::R8G8_SINT:          return WGPUVertexFormat_Char2;
-		case SurfaceFormat::R8G8B8A8_SINT:      return WGPUVertexFormat_Char4;
-		case SurfaceFormat::R8G8_UNORM:         return WGPUVertexFormat_UChar2Norm;
-		case SurfaceFormat::R8G8B8A8_UNORM:     return WGPUVertexFormat_UChar4Norm;
-		case SurfaceFormat::R8G8_SNORM:         return WGPUVertexFormat_Char2Norm;
-		case SurfaceFormat::R8G8B8A8_SNORM:     return WGPUVertexFormat_Char4Norm;
-		case SurfaceFormat::R16G16_UINT:        return WGPUVertexFormat_UShort2;
-		case SurfaceFormat::R16G16B16A16_UINT:  return WGPUVertexFormat_UShort4;
-		case SurfaceFormat::R16G16_SINT:        return WGPUVertexFormat_Short2;
-		case SurfaceFormat::R16G16B16A16_SINT:  return WGPUVertexFormat_Short4;
-		case SurfaceFormat::R16G16_UNORM:       return WGPUVertexFormat_UShort2Norm;
-		case SurfaceFormat::R16G16B16A16_UNORM: return WGPUVertexFormat_UShort4Norm;
-		case SurfaceFormat::R16G16_SNORM:       return WGPUVertexFormat_Short2Norm;
-		case SurfaceFormat::R16G16B16A16_SNORM: return WGPUVertexFormat_Short4Norm;
-		case SurfaceFormat::R16G16_FLOAT:       return WGPUVertexFormat_Half2;
-		case SurfaceFormat::R16G16B16A16_FLOAT: return WGPUVertexFormat_Half4;
-		case SurfaceFormat::R32_FLOAT:          return WGPUVertexFormat_Float;
-		case SurfaceFormat::R32G32_FLOAT:       return WGPUVertexFormat_Float2;
-		case SurfaceFormat::R32G32B32_FLOAT:    return WGPUVertexFormat_Float3;
-		case SurfaceFormat::R32G32B32A32_FLOAT: return WGPUVertexFormat_Float4;
-		case SurfaceFormat::R32_UINT:           return WGPUVertexFormat_UInt;
-		case SurfaceFormat::R32G32_UINT:        return WGPUVertexFormat_UInt2;
-		case SurfaceFormat::R32G32B32_UINT:     return WGPUVertexFormat_UInt3;
-		case SurfaceFormat::R32G32B32A32_UINT:  return WGPUVertexFormat_UInt4;
-		case SurfaceFormat::R32_SINT:           return WGPUVertexFormat_Int;
-		case SurfaceFormat::R32G32_SINT:        return WGPUVertexFormat_Int2;
-		case SurfaceFormat::R32G32B32_SINT:     return WGPUVertexFormat_Int3;
-		case SurfaceFormat::R32G32B32A32_SINT:  return WGPUVertexFormat_Int4;
+		case SurfaceFormat::R8G8_UINT:          return WGPUVertexFormat_Uint8x2;
+		case SurfaceFormat::R8G8B8A8_UINT:      return WGPUVertexFormat_Uint8x4;
+		case SurfaceFormat::R8G8_SINT:          return WGPUVertexFormat_Sint8x2;
+		case SurfaceFormat::R8G8B8A8_SINT:      return WGPUVertexFormat_Sint8x4;
+		case SurfaceFormat::R8G8_UNORM:         return WGPUVertexFormat_Unorm8x2;
+		case SurfaceFormat::R8G8B8A8_UNORM:     return WGPUVertexFormat_Unorm8x4;
+		case SurfaceFormat::R8G8_SNORM:         return WGPUVertexFormat_Snorm8x2;
+		case SurfaceFormat::R8G8B8A8_SNORM:     return WGPUVertexFormat_Snorm8x4;
+		case SurfaceFormat::R16G16_UINT:        return WGPUVertexFormat_Uint16x2;
+		case SurfaceFormat::R16G16B16A16_UINT:  return WGPUVertexFormat_Uint16x4;
+		case SurfaceFormat::R16G16_SINT:        return WGPUVertexFormat_Sint16x2;
+		case SurfaceFormat::R16G16B16A16_SINT:  return WGPUVertexFormat_Sint16x4;
+		case SurfaceFormat::R16G16_UNORM:       return WGPUVertexFormat_Unorm16x2;
+		case SurfaceFormat::R16G16B16A16_UNORM: return WGPUVertexFormat_Unorm16x4;
+		case SurfaceFormat::R16G16_SNORM:       return WGPUVertexFormat_Snorm16x2;
+		case SurfaceFormat::R16G16B16A16_SNORM: return WGPUVertexFormat_Snorm16x4;
+		case SurfaceFormat::R16G16_FLOAT:       return WGPUVertexFormat_Float16x2;
+		case SurfaceFormat::R16G16B16A16_FLOAT: return WGPUVertexFormat_Float16x4;
+		case SurfaceFormat::R32_FLOAT:          return WGPUVertexFormat_Float32;
+		case SurfaceFormat::R32G32_FLOAT:       return WGPUVertexFormat_Float32x2;
+		case SurfaceFormat::R32G32B32_FLOAT:    return WGPUVertexFormat_Float32x3;
+		case SurfaceFormat::R32G32B32A32_FLOAT: return WGPUVertexFormat_Float32x4;
+		case SurfaceFormat::R32_UINT:           return WGPUVertexFormat_Uint32;
+		case SurfaceFormat::R32G32_UINT:        return WGPUVertexFormat_Uint32x2;
+		case SurfaceFormat::R32G32B32_UINT:     return WGPUVertexFormat_Uint32x3;
+		case SurfaceFormat::R32G32B32A32_UINT:  return WGPUVertexFormat_Uint32x4;
+		case SurfaceFormat::R32_SINT:           return WGPUVertexFormat_Sint32;
+		case SurfaceFormat::R32G32_SINT:        return WGPUVertexFormat_Sint32x2;
+		case SurfaceFormat::R32G32B32_SINT:     return WGPUVertexFormat_Sint32x3;
+		case SurfaceFormat::R32G32B32A32_SINT:  return WGPUVertexFormat_Sint32x4;
 		}
 
 		return WGPUVertexFormat_Force32;

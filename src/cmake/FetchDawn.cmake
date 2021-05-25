@@ -29,7 +29,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 	if ((IS_MULTI_CONFIG AND "Debug" IN_LIST CMAKE_CONFIGURATION_TYPES) OR ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		FetchContent_Declare(
 			webgpu_library_debug
-			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210511-f0fdfa0d/dawn_win_x64_debug.zip
+			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210521-41c87d97/dawn_win_x64_debug.zip
 		)
 		FetchContent_GetProperties(webgpu_library_debug)
 		if(NOT webgpu_library_debug_POPULATED)
@@ -40,7 +40,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 	if (IS_MULTI_CONFIG OR NOT ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		FetchContent_Declare(
 			webgpu_library_release
-			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210511-f0fdfa0d/dawn_win_x64_release.zip
+			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210521-41c87d97/dawn_win_x64_release.zip
 		)
 		FetchContent_GetProperties(webgpu_library_release)
 		if(NOT webgpu_library_release_POPULATED)
@@ -51,7 +51,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 	FetchContent_Declare(
 		webgpu_library_release
-		URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210511-f0fdfa0d/dawn_linux_x64_release.zip
+		URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210521-41c87d97/dawn_linux_x64_release.zip
 	)
 	FetchContent_GetProperties(webgpu_library_release)
 	if(NOT webgpu_library_release_POPULATED)

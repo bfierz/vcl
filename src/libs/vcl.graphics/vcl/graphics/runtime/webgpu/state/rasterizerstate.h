@@ -33,5 +33,6 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 {
-	WGPURasterizationStateDescriptor toWebGPU(const RasterizerDescription& desc);
+	WGPUCullMode toWebGPU(CullModeMethod op);
+	void toWebGPU(const RasterizerDescription& desc, WGPUDepthStencilState* dss);
 }}}}

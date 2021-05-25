@@ -33,5 +33,5 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 {
-	WGPUDepthStencilStateDescriptor toWebGPU(const DepthStencilDescription& desc);
+	WGPUDepthStencilState toWebGPU(const DepthStencilDescription& desc);
 }}}}

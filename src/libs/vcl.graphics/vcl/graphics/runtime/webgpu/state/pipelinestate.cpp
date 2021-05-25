@@ -104,12 +104,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 
 		WGPUPipelineLayoutDescriptor layout_desc = {};
 		graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
-		graphics_pipeline_desc.vertexStage = getProgammableStageDesc(desc.VertexShader);
-		const auto frag_shader_stage = getProgammableStageDesc(desc.FragmentShader);
-		graphics_pipeline_desc.fragmentStage = &frag_shader_stage;
 
-		WGPUVertexStateDescriptor vertex_state_desc = {};
-		vertex_state_desc.indexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
+		WGPUVertexState vertex_state_desc = {};
 		auto vertex_buffer_desc = toWebGPU(desc.InputLayout);
 		auto* attrib_base = vertex_buffer_desc.second.data();
 		for (auto& vb : vertex_buffer_desc.first)
@@ -117,30 +113,43 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 			vb.attributes = attrib_base;
 			attrib_base += vb.attributeCount;
 		}
-		vertex_state_desc.vertexBufferCount = vertex_buffer_desc.first.size();
-		vertex_state_desc.vertexBuffers = vertex_buffer_desc.first.data();
-		graphics_pipeline_desc.vertexState = &vertex_state_desc;
+		vertex_state_desc.bufferCount = vertex_buffer_desc.first.size();
+		vertex_state_desc.buffers = vertex_buffer_desc.first.data();
+		const auto vertex_shader_desc = getProgammableStageDesc(desc.VertexShader);
+		graphics_pipeline_desc.vertex.module = vertex_shader_desc.module;
+		graphics_pipeline_desc.vertex.entryPoint = vertex_shader_desc.entryPoint;
 
-		graphics_pipeline_desc.primitiveTopology = convert(desc.InputAssembly.Topology);
-		const auto rasterization_state = toWebGPU(desc.Rasterizer);
-		graphics_pipeline_desc.rasterizationState = &rasterization_state;
-		graphics_pipeline_desc.sampleCount = 1;
+		graphics_pipeline_desc.primitive.topology = convert(desc.InputAssembly.Topology);
+		graphics_pipeline_desc.primitive.stripIndexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
+		graphics_pipeline_desc.primitive.frontFace = desc.Rasterizer.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;;
+		graphics_pipeline_desc.primitive.cullMode = toWebGPU(desc.Rasterizer.CullMode);
+		graphics_pipeline_desc.multisample.count = 1;
+		graphics_pipeline_desc.multisample.mask = UINT_MAX;
+		graphics_pipeline_desc.multisample.alphaToCoverageEnabled = desc.Blend.AlphaToCoverageEnable;
 		auto depth_stencil_state = toWebGPU(desc.DepthStencil);
+		toWebGPU(desc.Rasterizer, &depth_stencil_state);
 		depth_stencil_state.format = toWebGPUEnum(rt_formats.DepthStencilFormat);
 		if (rt_formats.DepthStencilFormat == SurfaceFormat::Unknown)
-			graphics_pipeline_desc.depthStencilState = nullptr;
+			graphics_pipeline_desc.depthStencil = nullptr;
 		else
-			graphics_pipeline_desc.depthStencilState = &depth_stencil_state;
+			graphics_pipeline_desc.depthStencil = &depth_stencil_state;
 
-		auto colour_states = toWebGPU(desc.Blend);
+		const auto frag_shader_stage = getProgammableStageDesc(desc.FragmentShader);
+		std::array<WGPUColorTargetState, 8> colour_states = {};
+		const auto blend_states = toWebGPU(desc.Blend);
 		for (size_t i = 0; i < rt_formats.ColourFormats.size(); i++)
 		{
 			colour_states[i].format = toWebGPUEnum(rt_formats.ColourFormats[i]);
+			colour_states[i].blend = &blend_states[i];
+			colour_states[i].writeMask = desc.Blend.RenderTarget[i].RenderTargetWriteMask.bits();
 		}
-		graphics_pipeline_desc.colorStateCount = rt_formats.ColourFormats.size();
-		graphics_pipeline_desc.colorStates = colour_states.data();
-		graphics_pipeline_desc.sampleMask = UINT_MAX;
-		graphics_pipeline_desc.alphaToCoverageEnabled = desc.Blend.AlphaToCoverageEnable;
+
+		WGPUFragmentState fragment_state = {};
+		fragment_state.module = frag_shader_stage.module;
+		fragment_state.entryPoint = frag_shader_stage.entryPoint;
+		fragment_state.targetCount = rt_formats.ColourFormats.size();
+		fragment_state.targets = colour_states.data();
+		graphics_pipeline_desc.fragment = &fragment_state;
 
 		_pipeline = wgpuDeviceCreateRenderPipeline(device, &graphics_pipeline_desc);
 	}

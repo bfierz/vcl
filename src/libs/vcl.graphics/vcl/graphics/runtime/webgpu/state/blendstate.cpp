@@ -75,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		return WGPUBlendFactor_Force32;
 	}
 
-	std::array<WGPUColorStateDescriptor, 8> toWebGPU(const BlendDescription& desc)
+	std::array<WGPUBlendState, 8> toWebGPU(const BlendDescription& desc)
 	{
 		VclRequire(desc.LogicOpEnable == false, "WebGPU does not support logic ops");
 
@@ -88,30 +88,29 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		VclRequire(desc.RenderTarget[6].BlendOp < BlendOperation::Multiply, "Advanced blending operations are not supported");
 		VclRequire(desc.RenderTarget[7].BlendOp < BlendOperation::Multiply, "Advanced blending operations are not supported");
 
-		std::array<WGPUColorStateDescriptor, 8> webgpu_desc = {};
+		std::array<WGPUBlendState, 8> webgpu_desc = {};
 		int i = 0;
 		for (const auto& rt : desc.RenderTarget)
 		{
 			auto& tgt = webgpu_desc[i];
 			if (rt.BlendEnable)
 			{
-				tgt.alphaBlend.operation = toWebGPU(rt.BlendOpAlpha);
-				tgt.alphaBlend.srcFactor = toWebGPU(rt.SrcBlendAlpha);
-				tgt.alphaBlend.dstFactor = toWebGPU(rt.DestBlendAlpha);
-				tgt.colorBlend.operation = toWebGPU(rt.BlendOp);
-				tgt.colorBlend.srcFactor = toWebGPU(rt.SrcBlend);
-				tgt.colorBlend.dstFactor = toWebGPU(rt.DestBlend);
+				tgt.alpha.operation = toWebGPU(rt.BlendOpAlpha);
+				tgt.alpha.srcFactor = toWebGPU(rt.SrcBlendAlpha);
+				tgt.alpha.dstFactor = toWebGPU(rt.DestBlendAlpha);
+				tgt.color.operation = toWebGPU(rt.BlendOp);
+				tgt.color.srcFactor = toWebGPU(rt.SrcBlend);
+				tgt.color.dstFactor = toWebGPU(rt.DestBlend);
 			}
 			else
 			{
-				tgt.alphaBlend.operation = WGPUBlendOperation_Add;
-				tgt.alphaBlend.srcFactor = WGPUBlendFactor_One;
-				tgt.alphaBlend.dstFactor = WGPUBlendFactor_Zero;
-				tgt.colorBlend.operation = WGPUBlendOperation_Add;
-				tgt.colorBlend.srcFactor = WGPUBlendFactor_One;
-				tgt.colorBlend.dstFactor = WGPUBlendFactor_Zero;
+				tgt.alpha.operation = WGPUBlendOperation_Add;
+				tgt.alpha.srcFactor = WGPUBlendFactor_One;
+				tgt.alpha.dstFactor = WGPUBlendFactor_Zero;
+				tgt.color.operation = WGPUBlendOperation_Add;
+				tgt.color.srcFactor = WGPUBlendFactor_One;
+				tgt.color.dstFactor = WGPUBlendFactor_Zero;
 			}
-			tgt.writeMask = rt.RenderTargetWriteMask.bits();
 			i++;
 		}
 		

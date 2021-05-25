@@ -79,11 +79,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		return webgpu_desc;
 	}
 
-	WGPUDepthStencilStateDescriptor toWebGPU(const DepthStencilDescription& desc)
+	WGPUDepthStencilState toWebGPU(const DepthStencilDescription& desc)
 	{
 		VclRequire(desc.DepthEnable, "WebGPU requires enabled depth test");
 
-		WGPUDepthStencilStateDescriptor webgpu_desc = {};
+		WGPUDepthStencilState webgpu_desc = {};
 
 		webgpu_desc.depthWriteEnabled = desc.DepthWriteMask == DepthWriteMethod::All ? true : false;
 		webgpu_desc.depthCompare = toWebGPU(desc.DepthFunc);
