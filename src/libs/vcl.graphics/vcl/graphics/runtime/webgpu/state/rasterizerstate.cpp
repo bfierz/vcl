@@ -45,20 +45,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		return WGPUCullMode_Force32;
 	}
 
-	WGPURasterizationStateDescriptor toWebGPU(const RasterizerDescription& desc)
+	void toWebGPU(const RasterizerDescription& desc, WGPUDepthStencilState* dss)
 	{
 		VclRequire(desc.FillMode == FillModeMethod::Solid, "WebGPU requires solid fill mode");
 		VclRequire(desc.DepthClipEnable, "WebGPU requires enabled depth clipping");
-		VclRequire(desc.AntialiasedLineEnable, "WebGPU requires disabled anti-aliased line rendering");
+		VclRequire(desc.AntialiasedLineEnable == false, "WebGPU requires disabled anti-aliased line rendering");
 
-		WGPURasterizationStateDescriptor webgpu_desc = {};
-
-		webgpu_desc.cullMode = toWebGPU(desc.CullMode);
-		webgpu_desc.frontFace = desc.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;
-		webgpu_desc.depthBias = desc.DepthBias;
-		webgpu_desc.depthBiasClamp = desc.SlopeScaledDepthBias;
-		webgpu_desc.depthBiasSlopeScale = desc.SlopeScaledDepthBias;
-
-		return webgpu_desc;
+		dss->depthBias = desc.DepthBias;
+		dss->depthBiasClamp = desc.SlopeScaledDepthBias;
+		dss->depthBiasSlopeScale = desc.SlopeScaledDepthBias;
 	}
 }}}}

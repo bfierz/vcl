@@ -90,10 +90,11 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		WGPUTextureView currentBackBuffer() { return wgpuSwapChainGetCurrentTextureView(_swapChain); }
 
 		void present(WGPUQueue queue, bool blocking);
-		void resize(WGPUQueue queue, uint32_t width, uint32_t height);
+		void resize(uint32_t width, uint32_t height);
 		void wait();
 
 	private:
+		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc);
 		
 		//! Associated device
 		WGPUDevice _device;
@@ -101,11 +102,11 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		//! Description
 		SwapChainDescription _desc;
 
-		//! Synchronization primitive
-		WGPUFence _syncPrimitive;
+		//! Count frame completion requests
+		uint64_t _requestedFrame{ 0 };
 
-		//! Frame presentation counter
-		uint64_t _frameCounter{ 0 };
+		//! Completed frames
+		uint64_t _completedFrames{ 0 };
 
 		//! Native swap-chain object
 		WGPUSwapChain _swapChain{};

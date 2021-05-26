@@ -61,6 +61,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 	protected:
 		Texture() = default;
+		Texture(Texture&&);
 		Texture(const Texture&);
 
 	public:

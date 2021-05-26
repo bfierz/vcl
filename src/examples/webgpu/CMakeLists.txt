@@ -26,3 +26,4 @@ project(webgpu_samples)
 
 add_subdirectory(drawquad)
 add_subdirectory(imgui)
+add_subdirectory(imfiledialog)

@@ -36,5 +36,5 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 {
-	std::array<WGPUColorStateDescriptor, 8> toWebGPU(const BlendDescription& desc);
+	std::array<WGPUBlendState, 8> toWebGPU(const BlendDescription& desc);
 }}}}

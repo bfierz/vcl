@@ -34,10 +34,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 	: _device{ device }
 	, _desc{ desc }
 	{
-		WGPUFenceDescriptor fence_desc = { nullptr, nullptr, 0 };
-		_syncPrimitive = wgpuQueueCreateFence(wgpuDeviceGetDefaultQueue(_device), &fence_desc);
-
-		resize(wgpuDeviceGetDefaultQueue(_device), desc.Width, desc.Height);
+		resize(desc.Width, desc.Height);
 	}
 
 	SwapChain::~SwapChain()
@@ -50,10 +47,11 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 #ifndef VCL_ARCH_WEBASM
 		wgpuSwapChainPresent(_swapChain);
 #endif
-		wgpuQueueSignal(queue, _syncPrimitive, ++_frameCounter);
+		++_requestedFrame;
+		wgpuQueueOnSubmittedWorkDone(queue, 0, swapChainWorkSubmittedCallback, this);
 	}
 
-	void SwapChain::resize(WGPUQueue queue, uint32_t width, uint32_t height)
+	void SwapChain::resize(uint32_t width, uint32_t height)
 	{
 		if (_swapChain)
 			wgpuSwapChainRelease(_swapChain);
@@ -77,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		(
 			_swapChain,
 			dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
-			WGPUTextureUsage_OutputAttachment,
+			WGPUTextureUsage_RenderAttachment,
 			width, height
 		);
 #endif
@@ -87,8 +85,14 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 	{
 #ifndef VCL_ARCH_WEBASM
 		// Wait for the last pending presentation
-		while (wgpuFenceGetCompletedValue(_syncPrimitive) < _frameCounter)
+		while (_completedFrames < _requestedFrame)
 			wgpuDeviceTick(_device);
 #endif
+	}
+
+	void SwapChain::swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc)
+	{
+		auto swap_chain = reinterpret_cast<SwapChain*>(sc);
+		swap_chain->_completedFrames = swap_chain->_requestedFrame;
 	}
 }}}

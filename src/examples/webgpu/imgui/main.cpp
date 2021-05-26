@@ -78,7 +78,7 @@ private:
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
 		color_attachments[0].clearColor = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-		color_attachments[0].attachment = back_buffer;
+		color_attachments[0].view = back_buffer;
 		WGPURenderPassDescriptor render_pass_desc = {};
 		render_pass_desc.colorAttachmentCount = static_cast<uint32_t>(color_attachments.size());
 		render_pass_desc.colorAttachments = color_attachments.data();
@@ -91,7 +91,7 @@ private:
 
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
-		WGPUQueue queue = wgpuDeviceGetDefaultQueue(_wgpuDevice);
+		WGPUQueue queue = wgpuDeviceGetQueue(_wgpuDevice);
 		wgpuQueueSubmit(queue, 1, &cmd_buffer);
 
 		ImGuiApplication::renderFrame(back_buffer);

@@ -31,3 +31,9 @@
 [submodule "src/examples/3rdparty/imguizmo"]
 	path = src/examples/3rdparty/imguizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "src/examples/3rdparty/imfiledialog"]
+	path = src/examples/3rdparty/imfiledialog
+	url = https://github.com/dfranx/ImFileDialog.git
+[submodule "src/examples/3rdparty/stb"]
+	path = src/examples/3rdparty/stb
+	url = https://github.com/nothings/stb.git
