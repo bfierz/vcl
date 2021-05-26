@@ -1,0 +1,16 @@
+root = true
+
+[{CMakeLists.txt,*.cmake}]
+indent_style = tab
+insert_final_newline = true
+tab_width = 4
+trim_trailing_whitespace = true
+
+[*.{c++,cc,cpp,cxx,h,h++,hh,hpp,hxx,inl,ipp,tlh,tli}]
+indent_style = tab
+insert_final_newline = true
+tab_width = 4
+trim_trailing_whitespace = true
+
+# https://docs.microsoft.com/en-us/visualstudio/ide/cpp-editorconfig-properties
+vc_generate_documentation_comments = doxygen_triple_slash

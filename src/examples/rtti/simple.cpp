@@ -41,6 +41,8 @@
 class AdditionalBase
 {
 	VCL_DECLARE_ROOT_METAOBJECT(AdditionalBase)
+public:
+	virtual ~AdditionalBase() = default;
 
 private:
 	std::string _additionalName{ "NoValue" };
