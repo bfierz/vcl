@@ -127,9 +127,9 @@ namespace Vcl { namespace RTTI
 
 	bool Type::hasAttribute(const stdext::string_view name) const
 	{
-		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
+		const size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
-		auto* attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash] (const AttributeBase* attrib)
+		const auto* attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash] (const AttributeBase* attrib)
 		{
 			return attrib->hash() == hash;
 		});
@@ -150,7 +150,7 @@ namespace Vcl { namespace RTTI
 	{
 		VclRequire(hasAttribute(name), "Attribute exists.");
 
-		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
+		const size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
 		const auto* attribIt = std::find_if(_attributes.cbegin(), _attributes.cend(), [hash] (const AttributeBase* attrib)
 		{

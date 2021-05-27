@@ -46,8 +46,10 @@
 
 namespace Vcl
 {
-	VCL_STRONG_INLINE void load(float& value, const float* base)
+	VCL_STRONG_INLINE void load(float& value, const float* base) noexcept
 	{
+		VclRequire(base, "Load memory location is not null");
+
 		value = base[0];
 	}
 
@@ -82,7 +84,7 @@ namespace Vcl
 	}
 
 	template<typename Scalar>
-	Scalar gather(Scalar const * base, int vindex)
+	Scalar gather(Scalar const * base, int vindex)  noexcept
 	{
 		return *(base + vindex * 1);
 	}
@@ -105,9 +107,9 @@ namespace Vcl
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				wideint_t scale = wideint_t(Rows*Cols);
-				wideint_t offset = wideint_t(Rows*c + r);
-				wideint_t idx = scale*vindex + offset;
+				const wideint_t scale = wideint_t(Rows*Cols);
+				const wideint_t offset = wideint_t(Rows*c + r);
+				const wideint_t idx = scale*vindex + offset;
 				res(r, c) = gather(base->data(), idx);
 			}
 		}
@@ -153,19 +155,19 @@ namespace Vcl
 
 
 	template<typename Scalar>
-	void scatter(Scalar value, Scalar * base, int vindex)
+	void scatter(Scalar value, Scalar * base, int vindex) noexcept
 	{
 		*(base + vindex * 1) = value;
 	}
 
 	template<typename Scalar, int Rows, int Cols>
-	void scatter(Eigen::Matrix<Scalar, Rows, Cols> value, Eigen::Matrix<Scalar, Rows, Cols>* base, int vindex)
+	void scatter(Eigen::Matrix<Scalar, Rows, Cols> value, Eigen::Matrix<Scalar, Rows, Cols>* base, int vindex) noexcept
 	{
 		*(base + vindex * 1) = value;
 	}
 
 	template<typename Scalar, int Width>
-	void scatter(const VectorScalar<Scalar, Width>& value, Scalar* base, VectorScalar<int, Width>& vindex)
+	void scatter(const VectorScalar<Scalar, Width>& value, Scalar* base, const VectorScalar<int, Width>& vindex) noexcept
 	{
 		for (int i = 0; i < Width; i++)
 		{
@@ -188,9 +190,9 @@ namespace Vcl
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				intN_t scale  = intN_t(Rows*Cols);
-				intN_t offset = intN_t(Rows*c + r);
-				intN_t idx = scale*vindex + offset;
+				const intN_t scale  = intN_t(Rows*Cols);
+				const intN_t offset = intN_t(Rows*c + r);
+				const intN_t idx = scale*vindex + offset;
 				scatter(value(r, c), base->data(), idx);
 			}
 		}

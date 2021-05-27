@@ -50,7 +50,7 @@ namespace Vcl { namespace RTTI
 		TypeMap& metas = instance();
 
 		// Only add the entry if it is not yet added
-		auto itr = metas.find(meta->hash());
+		const auto itr = metas.find(meta->hash());
 		if (itr == metas.end())
 		{
 			metas.emplace(meta->hash(), meta);
@@ -62,7 +62,7 @@ namespace Vcl { namespace RTTI
 		TypeMap& metas = instance();
 
 		// Only remove the type, if it is the one stored
-		auto itr = metas.find(meta->hash());
+		const auto itr = metas.find(meta->hash());
 		if (itr != metas.end() && itr->second == meta)
 		{
 			metas.erase(itr);
@@ -74,9 +74,9 @@ namespace Vcl { namespace RTTI
 		const TypeMap& metas = instance();
 
 		// Compute hash
-		size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
+		const size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
-		auto meta = metas.find(hash);
+		const auto meta = metas.find(hash);
 		return (meta == metas.end()) ? nullptr : meta->second;
 	}
 }}

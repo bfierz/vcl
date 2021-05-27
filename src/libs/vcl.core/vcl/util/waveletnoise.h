@@ -49,21 +49,21 @@ namespace Vcl { namespace Util
 		using Mat33 = std::array<std::array<float, 3>, 3>;
 
 	public:
-		WaveletNoise();
+		WaveletNoise() noexcept;
 		WaveletNoise(unsigned int seed);
 		WaveletNoise(std::mt19937& rnd_gen);
 
 	public: // Evaluation
-		float evaluate(const Vec3& p) const;
+		float evaluate(const Vec3& p) const noexcept;
 		float evaluate(const Vec3& p, const Vec3& normal) const;
 		float evaluate(const Vec3& p, float s, const Vec3* normal, int first_band, int nr_bands, stdext::span<const float> w) const;
 
-		float dx(const Vec3& p) const;
-		float dy(const Vec3& p) const;
-		float dz(const Vec3& p) const;
-		void dxDyDz(const Vec3& p, Mat33& final) const;
+		float dx(const Vec3& p) const noexcept;
+		float dy(const Vec3& p) const noexcept;
+		float dz(const Vec3& p) const noexcept;
+		void dxDyDz(const Vec3& p, Mat33& final) const noexcept;
 
-		Vec3 velocity(const Vec3& p) const;
+		Vec3 velocity(const Vec3& p) const noexcept;
 
 	public: // Properties
 		float minValue() const noexcept { return _min; }

@@ -29,141 +29,141 @@
 
 namespace Vcl { namespace Mathematics
 {
-	inline uint32_t ceil(uint32_t val, uint32_t N)
+	inline constexpr uint32_t ceil(uint32_t val, uint32_t N) noexcept
 	{
-		uint32_t div = (val + (N - 1)) / N;
+		const uint32_t div = (val + (N - 1)) / N;
 		return div * N;
 	}
 
 	template<int N>
-	inline uint32_t ceil(uint32_t val)
+	inline uint32_t ceil(uint32_t val) noexcept
 	{
-		uint32_t div = (val + (N-1)) / N;
+		const uint32_t div = (val + (N-1)) / N;
 		return div * N;
 	}
 
 	template<>
-	inline uint32_t ceil<8>(uint32_t val)
+	inline uint32_t ceil<8>(uint32_t val) noexcept
 	{
-		uint32_t res = (val +   7) & 0xfffffff8;
+		const uint32_t res = (val +   7) & 0xfffffff8;
 		return res;
 	}
 
 	template<>
-	inline uint32_t ceil<16>(uint32_t val)
+	inline uint32_t ceil<16>(uint32_t val) noexcept
 	{
-		uint32_t res = (val +  15) & 0xfffffff0;
+		const uint32_t res = (val +  15) & 0xfffffff0;
 		return res;
 	}
 
 	template<>
-	inline uint32_t ceil<32>(uint32_t val)
+	inline uint32_t ceil<32>(uint32_t val) noexcept
 	{
-		uint32_t res = (val +  31) & 0xffffffe0;
+		const uint32_t res = (val +  31) & 0xffffffe0;
 		return res;
 	}
 
 	template<>
-	inline uint32_t ceil<64>(uint32_t val)
+	inline uint32_t ceil<64>(uint32_t val) noexcept
 	{
-		uint32_t res = (val +  63) & 0xffffffc0;
+		const uint32_t res = (val +  63) & 0xffffffc0;
 		return res;
 	}
 
 	template<>
-	inline uint32_t ceil<128>(uint32_t val)
+	inline uint32_t ceil<128>(uint32_t val) noexcept
 	{
-		uint32_t res = (val + 127) & 0xffffff80;
+		const uint32_t res = (val + 127) & 0xffffff80;
 		return res;
 	}
 	
 	template<>
-	inline uint32_t ceil<256>(uint32_t val)
+	inline uint32_t ceil<256>(uint32_t val) noexcept
 	{
-		uint32_t res = (val + 255) & 0xffffff00;
+		const uint32_t res = (val + 255) & 0xffffff00;
 		return res;
 	}
 	
 	template<>
-	inline uint32_t ceil<512>(uint32_t val)
+	inline uint32_t ceil<512>(uint32_t val) noexcept
 	{
-		uint32_t res = (val + 511) & 0xfffffe00;
+		const uint32_t res = (val + 511) & 0xfffffe00;
 		return res;
 	}
 
 	template<>
-	inline uint32_t ceil<1024>(uint32_t val)
+	inline uint32_t ceil<1024>(uint32_t val) noexcept
 	{
-		uint32_t res = (val + 1023) & 0xfffffC00;
+		const uint32_t res = (val + 1023) & 0xfffffC00;
 		return res;
 	}
 
-	inline uint64_t ceil(uint64_t val, uint64_t N)
+	inline constexpr uint64_t ceil(uint64_t val, uint64_t N) noexcept
 	{
-		uint64_t div = (val + (N - 1)) / N;
+		const uint64_t div = (val + (N - 1)) / N;
 		return div * N;
 	}
 
 	template<int N>
-	inline uint64_t ceil(uint64_t val)
+	inline uint64_t ceil(uint64_t val) noexcept
 	{
-		uint64_t div = (val + (N - 1)) / N;
+		const uint64_t div = (val + (N - 1)) / N;
 		return div * N;
 	}
 
 	template<>
-	inline uint64_t ceil<8>(uint64_t val)
+	inline uint64_t ceil<8>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 7) & 0xfffffffffffffff8;
+		const uint64_t res = (val + 7) & 0xfffffffffffffff8;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<16>(uint64_t val)
+	inline uint64_t ceil<16>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 15) & 0xfffffffffffffff0;
+		const uint64_t res = (val + 15) & 0xfffffffffffffff0;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<32>(uint64_t val)
+	inline uint64_t ceil<32>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 31) & 0xffffffffffffffe0;
+		const uint64_t res = (val + 31) & 0xffffffffffffffe0;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<64>(uint64_t val)
+	inline uint64_t ceil<64>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 63) & 0xffffffffffffffc0;
+		const uint64_t res = (val + 63) & 0xffffffffffffffc0;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<128>(uint64_t val)
+	inline uint64_t ceil<128>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 127) & 0xffffffffffffff80;
+		const uint64_t res = (val + 127) & 0xffffffffffffff80;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<256>(uint64_t val)
+	inline uint64_t ceil<256>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 255) & 0xffffffffffffff00;
+		const uint64_t res = (val + 255) & 0xffffffffffffff00;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<512>(uint64_t val)
+	inline uint64_t ceil<512>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 511) & 0xfffffffffffffe00;
+		const uint64_t res = (val + 511) & 0xfffffffffffffe00;
 		return res;
 	}
 
 	template<>
-	inline uint64_t ceil<1024>(uint64_t val)
+	inline uint64_t ceil<1024>(uint64_t val) noexcept
 	{
-		uint64_t res = (val + 1023) & 0xfffffffffffffC00;
+		const uint64_t res = (val + 1023) & 0xfffffffffffffC00;
 		return res;
 	}
 }}

@@ -48,7 +48,7 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, vorrq_u32, 4)
 	};
 
-	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = vmovemaskq_u32(b.get(3)) << 12;
 			mask |= vmovemaskq_u32(b.get(2)) <<  8;
@@ -58,7 +58,7 @@ namespace Vcl
 		return mask != 0;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = vmovemaskq_u32(b.get(3)) << 12;
 			mask |= vmovemaskq_u32(b.get(2)) <<  8;
@@ -68,7 +68,7 @@ namespace Vcl
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
-	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = vmovemaskq_u32(b.get(3)) << 12;
 			mask |= vmovemaskq_u32(b.get(2)) <<  8;

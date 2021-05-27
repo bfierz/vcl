@@ -129,9 +129,9 @@ namespace
 		{
 			int xC = 0, yC = 0, zC = 0;
 			float weight = 1;
-			int x = xIndices[i];
-			int y = yIndices[i];
-			int z = zIndices[i];
+			const int x = xIndices[i];
+			const int y = yIndices[i];
+			const int z = zIndices[i];
 			ADD_WEIGHTED(x, y, z);
 		}
 
@@ -145,7 +145,7 @@ namespace Vcl { namespace Util
 	using namespace Details;
 
 	template<int N>
-	WaveletNoise<N>::WaveletNoise()
+	WaveletNoise<N>::WaveletNoise() noexcept
 		: WaveletNoise(std::random_device{}())
 	{
 	}
@@ -159,7 +159,7 @@ namespace Vcl { namespace Util
 	template<int N>
 	WaveletNoise<N>::WaveletNoise(std::mt19937& rnd_gen)
 	{
-		const int n3 = N * N*N;
+		VCL_CPP_CONSTEXPR_11 int n3 = N * N * N;
 
 		std::normal_distribution<float> normal;
 		std::vector<float> noise_data_base;
@@ -186,7 +186,7 @@ namespace Vcl { namespace Util
 		static_assert(N >= 0, "N >= 0");
 		static_assert(N % 2 == 0, "N is even");
 		
-		const int n3 = N*N*N;
+		VCL_CPP_CONSTEXPR_11 int n3 = N * N * N;
 
 		std::vector<float> temp1(n3, 0);
 		std::vector<float> temp2(n3, 0);
@@ -257,7 +257,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	float WaveletNoise<N>::evaluate(const Vec3& p) const
+	float WaveletNoise<N>::evaluate(const Vec3& p) const noexcept
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
@@ -342,7 +342,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	float WaveletNoise<N>::dx(const Vec3& p) const
+	float WaveletNoise<N>::dx(const Vec3& p) const noexcept
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
@@ -356,7 +356,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	float WaveletNoise<N>::dy(const Vec3& p) const
+	float WaveletNoise<N>::dy(const Vec3& p) const noexcept
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
@@ -370,7 +370,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	float WaveletNoise<N>::dz(const Vec3& p) const
+	float WaveletNoise<N>::dz(const Vec3& p) const noexcept
 	{
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
@@ -384,7 +384,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	void WaveletNoise<N>::dxDyDz(const Vec3& p, Mat33& final) const
+	void WaveletNoise<N>::dxDyDz(const Vec3& p, Mat33& final) const noexcept
 	{
 		const stdext::span<const float> data = _noiseTileData;
 
@@ -495,7 +495,7 @@ namespace Vcl { namespace Util
 	}
 
 	template<int N>
-	typename WaveletNoise<N>::Vec3 WaveletNoise<N>::velocity(const Vec3& p) const
+	typename WaveletNoise<N>::Vec3 WaveletNoise<N>::velocity(const Vec3& p) const noexcept
 	{
 		// clang-format off
 		const Vec3 p1 = { p[0] + N/2, p[1]      , p[2]       };

@@ -38,7 +38,7 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
-		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8_0, __m256i I8_1)
+		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8_0, __m256i I8_1) noexcept
 		{
 			_data[0] = _mm256_castsi256_ps(I8_0);
 			_data[1] = _mm256_castsi256_ps(I8_1);
@@ -52,7 +52,7 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, _mm256_or_ps, 2)
 	};
 
-	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
 		    mask |= _mm256_movemask_ps(b.get(0));
@@ -60,7 +60,7 @@ namespace Vcl
 		return mask != 0;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
 		    mask |= _mm256_movemask_ps(b.get(0));
@@ -68,7 +68,7 @@ namespace Vcl
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
-	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b) noexcept
 	{
 		int mask  = _mm256_movemask_ps(b.get(1)) << 8;
 		    mask |= _mm256_movemask_ps(b.get(0));

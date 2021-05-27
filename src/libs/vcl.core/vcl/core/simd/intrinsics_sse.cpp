@@ -37,34 +37,34 @@ VCL_END_EXTERNAL_HEADERS
 namespace Vcl
 {
 #if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
-	__m128 _mm_sin_ps(__m128 v)
+	__m128 _mm_sin_ps(__m128 v) noexcept
 	{
 		return sin_ps(v);
 	}
 
-	__m128 _mm_cos_ps(__m128 v)
+	__m128 _mm_cos_ps(__m128 v) noexcept
 	{
 		return cos_ps(v);
 	}
 
-	__m128 _mm_log_ps(__m128 v)
+	__m128 _mm_log_ps(__m128 v) noexcept
 	{
 		return log_ps(v);
 	}
 
-	__m128 _mm_exp_ps(__m128 v)
+	__m128 _mm_exp_ps(__m128 v) noexcept
 	{
 		return exp_ps(v);
 	}
 	
-	__m128 _mm_pow_ps(__m128 x, __m128 y)
+	__m128 _mm_pow_ps(__m128 x, __m128 y) noexcept
 	{
 		return _mm_exp_ps(_mm_mul_ps(_mm_log_ps(x), y));
 	}
 
 	// Handbook of Mathematical Functions
 	// M. Abramowitz and I.A. Stegun, Ed.
-	__m128 _mm_acos_ps(__m128 v)
+	__m128 _mm_acos_ps(__m128 v) noexcept
 	{
 		float4 x{ v };
 
@@ -87,7 +87,7 @@ namespace Vcl
 
 	// Handbook of Mathematical Functions
 	// M. Abramowitz and I.A. Stegun, Ed.
-	__m128 _mm_asin_ps(__m128 v)
+	__m128 _mm_asin_ps(__m128 v) noexcept
 	{
 		float4 x{ v };
 
@@ -106,7 +106,7 @@ namespace Vcl
 	}
 
 
-	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x)
+	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x) noexcept
 	{
 		float4 t0, t1, t3, t4;
 
@@ -137,7 +137,7 @@ namespace Vcl
 	}
 #endif
 	
-	__m128 _mmVCL_floor_ps(__m128 x)
+	__m128 _mmVCL_floor_ps(__m128 x) noexcept
 	{
 #ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_floor_ps(x);
