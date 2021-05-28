@@ -40,6 +40,7 @@ set(SOURCE_FILES
 	flags.cpp
 	fnv1a.cpp
 	gather.cpp
+	interleave.cpp
 	interleavedarray.cpp
 	load.cpp
 	math.cpp

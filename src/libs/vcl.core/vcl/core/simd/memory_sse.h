@@ -230,6 +230,14 @@ namespace Vcl
 			_mm_castsi128_ps(value(2).get(0))
 		);
 	}
+
+	VCL_STRONG_INLINE std::array<float4, 2> interleave(const float4& a, const float4& b) noexcept
+	{
+		float4 low{ _mm_unpacklo_ps(a.get(0), b.get(0)) };
+		float4 high{ _mm_unpackhi_ps(a.get(0), b.get(0)) };
+		return { low, high };
+	}
+
 #endif // defined VCL_VECTORIZE_SSE
 
 #if defined VCL_VECTORIZE_SSE && !defined VCL_VECTORIZE_AVX
@@ -503,6 +511,19 @@ namespace Vcl
 			_mm_castsi128_ps(value(1).get(3)),
 			_mm_castsi128_ps(value(2).get(3))
 		);
+	}
+
+	VCL_STRONG_INLINE std::array<float8, 2> interleave(const float8& a, const float8& b)
+	{
+		const float8 low{ _mm_unpacklo_ps(a.get(0), b.get(0)), _mm_unpackhi_ps(a.get(0), b.get(0)) };
+		const float8 high{ _mm_unpacklo_ps(a.get(1), b.get(1)), _mm_unpackhi_ps(a.get(1), b.get(1)) };
+		return { low, high };
+	}
+	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b)
+	{
+		const float16 low{ _mm_unpacklo_ps(a.get(0), b.get(0)), _mm_unpackhi_ps(a.get(0), b.get(0)), _mm_unpacklo_ps(a.get(1), b.get(1)), _mm_unpackhi_ps(a.get(1), b.get(1)) };
+		const float16 high{ _mm_unpacklo_ps(a.get(2), b.get(2)), _mm_unpackhi_ps(a.get(2), b.get(2)), _mm_unpacklo_ps(a.get(3), b.get(3)), _mm_unpackhi_ps(a.get(3), b.get(3)) };
+		return { low, high };
 	}
 #endif // defined VCL_VECTORIZE_SSE && !defined VCL_VECTORIZE_AVX
 }

@@ -219,6 +219,21 @@ namespace Vcl
 		);
 	}
 
+	VCL_STRONG_INLINE std::array<float4, 2> interleave(const float4& a, const float4& b) noexcept
+	{
+		float32x2_t a1 = vget_low_f32(a.get(0));
+		float32x2_t b1 = vget_low_f32(b.get(0));
+		float32x2x2_t r1 = vzip_f32(a1, b1);
+		float4 low{ vcombine_f32(r1.val[0], r1.val[1]) };
+
+		float32x2_t a2 = vget_high_f32(a.get(0));
+		float32x2_t b2 = vget_high_f32(b.get(0));
+		float32x2x2_t r2 = vzip_f32(a2, b2);
+		float4 high{ vcombine_f32(r2.val[0], r2.val[1]) };
+
+		return { low, high };
+	}
+
 	VCL_STRONG_INLINE void load(float8& value, const float* base)
 	{
 		value = float8{ vld1q_f32(base), vld1q_f32(base + 4) };

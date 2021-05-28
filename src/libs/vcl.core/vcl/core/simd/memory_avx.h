@@ -522,5 +522,24 @@ namespace Vcl
 			base[i].z() = value.z()[i];
 		}
 	}*/
+
+	VCL_STRONG_INLINE std::array<float8, 2> interleave(const float8& a, const float8& b) noexcept
+	{
+		const __m256 low{ _mm256_unpacklo_ps(a.get(0), b.get(0)) };
+		const __m256 high{ _mm256_unpackhi_ps(a.get(0), b.get(0)) };
+		const __m256 l{ _mm256_permute2f128_ps(low, high, 0x20) };
+		const __m256 h{ _mm256_permute2f128_ps(low, high, 0x31) };
+
+		return { float8{l}, float8{h} };
+	}
+	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b) noexcept
+	{
+		const float16 low{ _mm256_unpacklo_ps(a.get(0), b.get(0)), _mm256_unpackhi_ps(a.get(0), b.get(0)) };
+		const float16 high{ _mm256_unpacklo_ps(a.get(1), b.get(1)), _mm256_unpackhi_ps(a.get(1), b.get(1)) };
+		const float16 l{ _mm256_permute2f128_ps(low.get(0), low.get(1), 0x20), _mm256_permute2f128_ps(low.get(0), low.get(1), 0x31) };
+		const float16 h{ _mm256_permute2f128_ps(high.get(0), high.get(1), 0x20), _mm256_permute2f128_ps(high.get(0), high.get(1), 0x31) };
+
+		return { l, h };
+	}
 }
 #endif // VCL_VECTORIZE_AVX

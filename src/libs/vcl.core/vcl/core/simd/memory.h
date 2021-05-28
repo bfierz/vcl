@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <array>
+
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
@@ -245,6 +248,25 @@ namespace Vcl
 
 		return gathered;
 	}
-	
+
+	template<typename T, int Width>
+	VCL_STRONG_INLINE std::array<VectorScalar<T, Width>, 2> interleave(const VectorScalar<T, Width>& a, const VectorScalar<T, Width>& b)
+	{
+		static_assert(Width % 2 == 0, "Interleaving requires even number of entries");
+
+		VectorScalar<T, Width> low, high;
+		for (size_t i = 0; i < Width/2; i++)
+		{
+			low[2*i+0] = a[i];
+			low[2*i+1] = b[i];
+		}
+		for (size_t i = 0; i < Width/2; i++)
+		{
+			high[2 * i + 0] = a[Width/2 + i];
+			high[2 * i + 1] = b[Width/2 + i];
+		}
+
+		return { low, high };
+	}
 #endif
 }
