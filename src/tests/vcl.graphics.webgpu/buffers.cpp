@@ -168,6 +168,17 @@ TEST(WebGPUBuffer, SetValue)
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
 }*/
 
+struct Fence
+{
+	int requestedValue;
+	int completedValue;
+};
+void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc)
+{
+	auto fence = reinterpret_cast<Fence*>(sc);
+	fence->completedValue = fence->requestedValue;
+}
+
 TEST(WebGPUBuffer, ReadWrite)
 {
 	using namespace Vcl::Graphics::Runtime;
@@ -212,17 +223,14 @@ TEST(WebGPUBuffer, ReadWrite)
 	buf_desc.label = "Default command buffer";
 	WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &buf_desc);
 
-	auto queue = wgpuDeviceGetDefaultQueue(device);
+	auto queue = wgpuDeviceGetQueue(device);
 	wgpuQueueSubmit(queue, 1, &cmd_buffer);
 
-	WGPUFenceDescriptor fence_desc = {};
-	fence_desc.initialValue = 0;
-	fence_desc.label = "Fence";
-	WGPUFence fence = wgpuQueueCreateFence(queue, &fence_desc);
-	wgpuQueueSignal(queue, fence, 1);
+	Fence fence = { 1, 0 };
+	wgpuQueueOnSubmittedWorkDone(queue, 0, swapChainWorkSubmittedCallback, &fence);
 
 #ifndef VCL_ARCH_WEBASM
-	while (wgpuFenceGetCompletedValue(fence) < 1)
+	while (fence.completedValue < fence.requestedValue)
 		wgpuDeviceTick(device);
 #endif
 

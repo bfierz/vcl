@@ -30,9 +30,6 @@ include(../../cmake/VCLTest.cmake)
 vcl_check_target(nlohmann_json)
 
 set(SOURCE_FILES
-	precompiled.cpp
-	precompiled.h
-
 	allocator.cpp
 	bitvector.cpp
 	convert.cpp
@@ -53,7 +50,12 @@ set(SOURCE_FILES
 )
 vcl_add_test(vcl.core.test)
 vcl_target_sources(vcl.core.test "" ${SOURCE_FILES})
-add_precompiled_header(vcl.core.test precompiled.h precompiled.cpp)
+if(${CMAKE_VERSION} VERSION_LESS "3.16.0")
+	target_sources(vcl.core.test PRIVATE precompiled.h precompiled.cpp)
+	add_precompiled_header(vcl.core.test precompiled.h precompiled.cpp)
+else()
+	target_precompile_headers(vcl.core.test PRIVATE precompiled.h)
+endif()
 target_link_libraries(vcl.core.test
 	vcl_core
 	nlohmann_json

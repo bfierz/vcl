@@ -88,9 +88,9 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// d = r = b - A*x
 		virtual void computeInitialResidual() override
 		{
-			const unsigned int X = _dim.x();
-			const unsigned int Y = _dim.y();
-			const unsigned int Z = _dim.z();
+			auto X = static_cast<const ptrdiff_t>(_dim.x());
+			auto Y = static_cast<const ptrdiff_t>(_dim.y());
+			auto Z = static_cast<const ptrdiff_t>(_dim.z());
 
 			const auto& Ac = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];

@@ -14,7 +14,7 @@ layout(binding = 1) uniform MatrixBlock0
   mat4 Modelview;
 };
 
-uniform MatrixBlock1
+layout(binding = 2) uniform MatrixBlock1
 {
   mat4 Projection;
 };

@@ -99,8 +99,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		// -> x^{n+1} = D^-1 (b - R x^{n})
 		virtual void updateSolution() override
 		{
-			const unsigned int X = _dim.x();
-			const unsigned int Y = _dim.y();
+			auto X = static_cast<const ptrdiff_t>(_dim.x());
+			auto Y = static_cast<const ptrdiff_t>(_dim.y());
 
 			const auto& Ac   = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];
