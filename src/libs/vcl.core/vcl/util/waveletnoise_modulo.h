@@ -41,7 +41,7 @@ namespace Vcl { namespace Util
 		template<typename T>
 		static T modulo(const T& x) noexcept
 		{
-			const int m = x % T(N);
+			const int m = x % static_cast<T>(N);
 			return select(m < 0, m + T(N), m);
 		}
 	};
@@ -51,7 +51,7 @@ namespace Vcl { namespace Util
 		template<typename T>
 		static T modulo(const T& x) noexcept
 		{
-			return x & T(15);
+			return x & static_cast<T>(15);
 		}
 	};
 	template<>
@@ -60,7 +60,7 @@ namespace Vcl { namespace Util
 		template<typename T>
 		static T modulo(const T& x) noexcept
 		{
-			return x & T(31);
+			return x & static_cast<T>(31);
 		}
 	};
 	template<>
@@ -69,7 +69,7 @@ namespace Vcl { namespace Util
 		template<typename T>
 		static T modulo(const T& x) noexcept
 		{
-			return x & T(63);
+			return x & static_cast<T>(63);
 		}
 	};
 	template<>
@@ -78,7 +78,7 @@ namespace Vcl { namespace Util
 		template<typename T>
 		static T modulo(const T& x) noexcept
 		{
-			return x & T(127);
+			return x & static_cast<T>(127);
 		}
 	};
 }}

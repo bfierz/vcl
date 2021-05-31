@@ -41,7 +41,7 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(None)
-		VCL_STRONG_INLINE Scalar& operator[] (int idx) { return _data[idx]; }
+		VCL_STRONG_INLINE Scalar& operator[] (int idx) noexcept { return _data[idx]; }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, Core::Simd::Details::conj, 8)

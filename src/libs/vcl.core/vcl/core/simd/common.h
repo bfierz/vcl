@@ -68,11 +68,11 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = float;
 		static const int Width = 1;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return s0;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int) noexcept
 		{
 			return vec;
 		}
@@ -84,11 +84,11 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = int;
 		static const int Width = 1;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return s0;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int) noexcept
 		{
 			return vec;
 		}
@@ -100,11 +100,11 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = bool;
 		static const int Width = 1;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return s0;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int) noexcept
 		{
 			return vec;
 		}
@@ -118,19 +118,19 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m128;
 		static const int Width = 4;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm_set1_ps(s0);
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			return _mm_set_ps(s3, s2, s1, s0);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_ps(vec, i);
 		}
@@ -142,19 +142,19 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m128i;
 		static const int Width = 4;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm_set1_epi32(s0);
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			return _mm_set_epi32(s3, s2, s1, s0);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_epi32(vec, i);
 		}
@@ -166,12 +166,12 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m128;
 		static const int Width = 4;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
 			return _mm_castsi128_ps(_mm_set1_epi32(m0));
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
 			const int m1 = s1 ? -1 : 0;
@@ -179,11 +179,11 @@ namespace Vcl { namespace Core { namespace Simd
 			const int m3 = s3 ? -1 : 0;
 			return _mm_castsi128_ps(_mm_set_epi32(m3, m2, m1, m0));
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_epi32(_mm_castps_si128(vec), i) != 0;
 		}
@@ -198,7 +198,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m256;
 		static const int Width = 8;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm256_set1_ps(s0);
 		}
@@ -206,15 +206,15 @@ namespace Vcl { namespace Core { namespace Simd
 		(
 			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
 			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		)
+		) noexcept
 		{
 			return _mm256_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_ps(vec, i);
 		}
@@ -226,7 +226,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m256i;
 		static const int Width = 8;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return _mm256_set1_epi32(s0);
 		}
@@ -234,15 +234,15 @@ namespace Vcl { namespace Core { namespace Simd
 		(
 			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
 			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		)
+		) noexcept
 		{
 			return _mm256_set_epi32(s7, s6, s5, s4, s3, s2, s1, s0);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_epi32(vec, i);
 		}
@@ -254,7 +254,7 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = __m256;
 		static const int Width = 8;
 		
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
 			return _mm256_castsi256_ps(_mm256_set1_epi32(m0));
@@ -263,7 +263,7 @@ namespace Vcl { namespace Core { namespace Simd
 		(
 			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
 			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		)
+		) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
 			const int m1 = s1 ? -1 : 0;
@@ -275,11 +275,11 @@ namespace Vcl { namespace Core { namespace Simd
 			const int m7 = s7 ? -1 : 0;
 			return _mm256_castsi256_ps(_mm256_set_epi32(m7, m6, m5, m4, m3, m2, m1, m0));
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			return _mmVCL_extract_epi32(_mm256_castps_si256(vec), i) != 0;
 		}
@@ -294,20 +294,20 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = float32x4_t;
 		static const int Width = 4;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return vdupq_n_f32(s0);
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			alignas(8) float data[4] = { s0, s1, s2, s3 };
 			return vld1q_f32(data);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			switch (i)
 			{
@@ -330,20 +330,20 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = int32x4_t;
 		static const int Width = 4;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			return vdupq_n_s32(s0);
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			alignas(8) int data[4] = { s0, s1, s2, s3 };
 			return vld1q_s32(data);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			switch (i)
 			{
@@ -366,12 +366,12 @@ namespace Vcl { namespace Core { namespace Simd
 		using Type = uint32x4_t;
 		static const int Width = 4;
 
-		VCL_STRONG_INLINE static Type set(Scalar s0)
+		VCL_STRONG_INLINE static Type set(Scalar s0) noexcept
 		{
 			const uint32_t m0 = s0 ? uint32_t(-1) : 0;
 			return vdupq_n_u32(m0);
 		}
-		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE static Type set(Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			const uint32_t m0 = s0 ? uint32_t(-1) : 0;
 			const uint32_t m1 = s1 ? uint32_t(-1) : 0;
@@ -381,11 +381,11 @@ namespace Vcl { namespace Core { namespace Simd
 			alignas(8) uint32_t data[4] = { m0, m1, m2, m3 };
 			return vld1q_u32(data);
 		}
-		VCL_STRONG_INLINE static Type set(Type vec)
+		VCL_STRONG_INLINE static Type set(Type vec) noexcept
 		{
 			return vec;
 		}
-		VCL_STRONG_INLINE static Scalar get(Type vec, int i)
+		VCL_STRONG_INLINE static Scalar get(Type vec, int i) noexcept
 		{
 			switch (i)
 			{
@@ -416,31 +416,31 @@ namespace Vcl { namespace Core { namespace Simd
 		//! SIMD registers
 		RegType _data[NrRegs];
 		
-		VCL_STRONG_INLINE RegType get(int i) const
+		VCL_STRONG_INLINE RegType get(int i) const noexcept
 		{
 			VclRequire(0 <= i && i < NrRegs, "Access is in range.");
 			return _data[i];
 		}
-		VCL_STRONG_INLINE Scalar operator[] (int idx) const
+		VCL_STRONG_INLINE Scalar operator[] (int idx) const noexcept
 		{
 			VclRequire(0 <= idx && idx < Width, "Access is in range.");
 			return SimdRegister<Scalar, Type>::get(get(idx / NrValuesPerReg), idx % NrValuesPerReg);
 		}
 
-		VCL_STRONG_INLINE void set(Scalar s)
+		VCL_STRONG_INLINE void set(Scalar s) noexcept
 		{
 			for (int i = 0; i < NrRegs; i++)
 				_data[i] = SimdRegister<Scalar, Type>::set(s);
 		}
 
 		template<typename... T>
-		VCL_STRONG_INLINE void set(T... vals)
+		VCL_STRONG_INLINE void set(T... vals) noexcept
 		{
 			setImpl(SimdWidthTag<NrValuesPerReg>{}, 0, vals...);
 		}
 
 		template<typename T, size_t N, size_t... Is>
-		VCL_STRONG_INLINE void set(const T (&arr)[N], absl::index_sequence<Is...>)
+		VCL_STRONG_INLINE void set(const T (&arr)[N], absl::index_sequence<Is...>) noexcept
 		{
 			set(arr[Is]...);
 		}
@@ -448,7 +448,7 @@ namespace Vcl { namespace Core { namespace Simd
 		//! Assignment operator
 		//! Define a custom assignment in order to support the compiler generating
 		//! SIMD instructions for copying data
-		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator= (const VectorScalarBase<Scalar, Width, Type>& rhs)
+		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator= (const VectorScalarBase<Scalar, Width, Type>& rhs) noexcept
 		{
 			set(rhs._data, absl::make_index_sequence<NrRegs>{});
 			return *this;
@@ -459,38 +459,38 @@ namespace Vcl { namespace Core { namespace Simd
 		struct SimdWidthTag
 		{};
 
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<4>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<4>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3);
 		}
 
 		template<typename... T>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<4> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, T... vals)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<4> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3);
 			setImpl(tag, i+1, vals...);
 		}
 		
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7);
 		}
 
 		template<typename... T>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7, T... vals)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7);
 			setImpl(tag, i+1, vals...);
 		}
 
 		template<int W>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W>, int i, const RegType& v0)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W>, int i, const RegType& v0) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(v0);
 		}
 
 		template<int W, typename... T>
-		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W> tag, int i, const RegType& v0, T... vals)
+		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W> tag, int i, const RegType& v0, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(v0);
 			setImpl(tag, i+1, vals...);
@@ -500,7 +500,7 @@ namespace Vcl { namespace Core { namespace Simd
 	namespace Details
 	{
 		template<typename T>
-		VCL_STRONG_INLINE T nop(T a)
+		VCL_STRONG_INLINE T nop(T a) noexcept
 		{
 			return a;
 		}
@@ -511,74 +511,74 @@ namespace Vcl { namespace Core { namespace Simd
 		//! \returns The sum of \a and \b
 		//! Helper function to allow for code generation in the VectorScalar specializations
 		template<typename T>
-		VCL_STRONG_INLINE T add(T a, T b)
+		VCL_STRONG_INLINE T add(T a, T b) noexcept
 		{
 			return a + b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE T sub(T a, T b)
+		VCL_STRONG_INLINE T sub(T a, T b) noexcept
 		{
 			return a - b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE T mul(T a, T b)
+		VCL_STRONG_INLINE T mul(T a, T b) noexcept
 		{
 			return a * b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE T div(T a, T b)
+		VCL_STRONG_INLINE T div(T a, T b) noexcept
 		{
 			return a / b;
 		}
 
 		template<typename T>
-		VCL_STRONG_INLINE bool cmpeq(T a, T b)
+		VCL_STRONG_INLINE bool cmpeq(T a, T b) noexcept
 		{
 			return a == b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE bool cmpne(T a, T b)
+		VCL_STRONG_INLINE bool cmpne(T a, T b) noexcept
 		{
 			return a != b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE bool cmplt(T a, T b)
+		VCL_STRONG_INLINE bool cmplt(T a, T b) noexcept
 		{
 			return a < b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE bool cmple(T a, T b)
+		VCL_STRONG_INLINE bool cmple(T a, T b) noexcept
 		{
 			return a <= b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE bool cmpgt(T a, T b)
+		VCL_STRONG_INLINE bool cmpgt(T a, T b) noexcept
 		{
 			return a > b;
 		}
 		template<typename T>
-		VCL_STRONG_INLINE bool cmpge(T a, T b)
+		VCL_STRONG_INLINE bool cmpge(T a, T b) noexcept
 		{
 			return a >= b;
 		}
 
 		//! Logical conjunction
-		VCL_STRONG_INLINE bool conj(bool a, bool b)
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool conj(bool a, bool b) noexcept
 		{
 			return a && b;
 		}
 		//! Bitwise conjunction
-		VCL_STRONG_INLINE int conj(int a, int b)
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int conj(int a, int b) noexcept
 		{
 			return a & b;
 		}
 		//! Logical disjunction
-		VCL_STRONG_INLINE bool disj(bool a, bool b)
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool disj(bool a, bool b) noexcept
 		{
 			return a || b;
 		}
 		//! Bitwise disjunction
-		VCL_STRONG_INLINE int disj(int a, int b)
+		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int disj(int a, int b) noexcept
 		{
 			return a | b;
 		}
@@ -591,13 +591,13 @@ namespace Vcl { namespace Core { namespace Simd
 	using Bool = VectorScalar<bool, NrValues>; \
 	using Base::operator[]; \
 	using Base::get; \
-	VCL_STRONG_INLINE VectorScalar() = default; \
-	VCL_STRONG_INLINE VectorScalar(Scalar s) { set(s); } \
-	template<typename... S> explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) { \
+	VCL_STRONG_INLINE VectorScalar() noexcept = default; \
+	VCL_STRONG_INLINE VectorScalar(Scalar s) noexcept { set(s); } \
+	template<typename... S> explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) noexcept { \
 		static_assert(absl::conjunction<std::is_convertible<S, Scalar>...>::value, "All parameters need to be convertible to the scalar base type"); \
 		static_assert(sizeof...(S) == NrValues-4, "Wrong number number of parameters"); \
 		set(s0, s1, s2, s3, static_cast<Scalar>(s)...); } \
-	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) { \
+	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) noexcept { \
 		static_assert(sizeof...(V) == NrRegs-1, "Wrong number number of parameters"); \
 		set(v0, v...); }
 
@@ -625,10 +625,10 @@ namespace Vcl { namespace Core { namespace Simd
 #define VCL_SIMD_RED_P2_8(op1, op2, i)  op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i+4))
 #define VCL_SIMD_RED_P2_16(op1, op2, i) op2(VCL_SIMD_RED_P2_8(op1, op2, i), VCL_SIMD_RED_P2_8(op1, op2, i+8))
 
-#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
-#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
-#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)); return *this; }
-#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
-#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
-#define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
-#define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }
+#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const noexcept { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
+#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const noexcept { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
+#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) noexcept { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)); return *this; }
+#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const noexcept { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
+#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const noexcept { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
+#define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const noexcept { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
+#define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const noexcept { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }

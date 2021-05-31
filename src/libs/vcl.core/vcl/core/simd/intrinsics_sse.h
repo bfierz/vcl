@@ -41,7 +41,7 @@ namespace Vcl
 	namespace Core { namespace Simd { namespace SSE
 	{
 		/// Per element absolut value
-		VCL_STRONG_INLINE __m128 abs_f32(__m128 a)
+		VCL_STRONG_INLINE __m128 abs_f32(__m128 a) noexcept
 		{
 			// Compute abs using logical operations
 			return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), a);
@@ -50,7 +50,7 @@ namespace Vcl
 			//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(a), 1), 1));
 		}
 
-		VCL_STRONG_INLINE __m128i abs_s32(__m128i a)
+		VCL_STRONG_INLINE __m128i abs_s32(__m128i a) noexcept
 		{
 #ifdef VCL_VECTORIZE_SSSE3
 			return _mm_abs_epi32(a);
@@ -63,7 +63,7 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128 blend_f32(__m128 a, __m128 b, __m128 mask)
+		VCL_STRONG_INLINE __m128 blend_f32(__m128 a, __m128 b, __m128 mask) noexcept
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_blendv_ps(a, b, mask);
@@ -78,7 +78,7 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128i blend_s32(__m128i a, __m128i b, __m128 mask)
+		VCL_STRONG_INLINE __m128i blend_s32(__m128i a, __m128i b, __m128 mask) noexcept
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), mask));
@@ -93,7 +93,7 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128i max_s32(__m128i a, __m128i b)
+		VCL_STRONG_INLINE __m128i max_s32(__m128i a, __m128i b) noexcept
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_max_epi32(a, b);
@@ -103,7 +103,7 @@ namespace Vcl
 			return a;
 #endif
 		}
-		VCL_STRONG_INLINE __m128i min_s32(__m128i a, __m128i b)
+		VCL_STRONG_INLINE __m128i min_s32(__m128i a, __m128i b) noexcept
 		{
 #ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_min_epi32(a, b);
@@ -114,26 +114,26 @@ namespace Vcl
 #endif
 		}
 
-		VCL_STRONG_INLINE __m128 sgn_f32(__m128 v)
+		VCL_STRONG_INLINE __m128 sgn_f32(__m128 v) noexcept
 		{
 			return _mm_and_ps(_mm_or_ps(_mm_and_ps(v, _mm_castsi128_ps(VCL_M128I_SIGNBIT)), _mm_set1_ps(1.0f)), _mm_cmpneq_ps(v, _mm_setzero_ps()));
 		}
 	}}}
 
-	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b)
+	VCL_STRONG_INLINE __m128i _mm_cmpneq_epi32(__m128i a, __m128i b) noexcept
 	{
 		return _mm_andnot_si128(_mm_cmpeq_epi32(a, b), VCL_M128I_ALLBITS);
 	}
-	VCL_STRONG_INLINE __m128i _mm_cmple_epi32(__m128i a, __m128i b)
+	VCL_STRONG_INLINE __m128i _mm_cmple_epi32(__m128i a, __m128i b) noexcept
 	{
 		return _mm_andnot_si128(_mm_cmpgt_epi32(a, b), VCL_M128I_ALLBITS);
 	}
-	VCL_STRONG_INLINE __m128i _mm_cmpge_epi32(__m128i a, __m128i b)
+	VCL_STRONG_INLINE __m128i _mm_cmpge_epi32(__m128i a, __m128i b) noexcept
 	{
 		return _mm_andnot_si128(_mm_cmplt_epi32(a, b), VCL_M128I_ALLBITS);
 	}
 
-	VCL_STRONG_INLINE __m128 _mm_isinf_ps(__m128 x)
+	VCL_STRONG_INLINE __m128 _mm_isinf_ps(__m128 x) noexcept
 	{
 		const __m128 sign_mask = _mm_set1_ps(-0.0);
 		const __m128 inf = _mm_set1_ps(std::numeric_limits<float>::infinity());
@@ -144,21 +144,21 @@ namespace Vcl
 	}
 
 #if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
-	__m128 _mm_sin_ps(__m128 v);	
-	__m128 _mm_cos_ps(__m128 v);
-	__m128 _mm_log_ps(__m128 v);
-	__m128 _mm_exp_ps(__m128 v);
+	__m128 _mm_sin_ps(__m128 v) noexcept;
+	__m128 _mm_cos_ps(__m128 v) noexcept;
+	__m128 _mm_log_ps(__m128 v) noexcept;
+	__m128 _mm_exp_ps(__m128 v) noexcept;
 
-	__m128 _mm_acos_ps(__m128 v);
-	__m128 _mm_asin_ps(__m128 v);
-	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x);
+	__m128 _mm_acos_ps(__m128 v) noexcept;
+	__m128 _mm_asin_ps(__m128 v) noexcept;
+	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x) noexcept;
 
-	__m128 _mm_pow_ps(__m128 x, __m128 y);
+	__m128 _mm_pow_ps(__m128 x, __m128 y) noexcept;
 #endif
 
-	__m128 _mmVCL_floor_ps(__m128 x);
+	__m128 _mmVCL_floor_ps(__m128 x) noexcept;
 
-	VCL_STRONG_INLINE __m128i _mmVCL_mullo_epi32(__m128i a, __m128i b)
+	VCL_STRONG_INLINE __m128i _mmVCL_mullo_epi32(__m128i a, __m128i b) noexcept
 	{
 #ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_mullo_epi32(a, b);
@@ -170,7 +170,7 @@ namespace Vcl
 	}
 
 	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
-	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v)
+	VCL_STRONG_INLINE __m128 _mmVCL_rsqrt_ps(__m128 v) noexcept
 	{
 		const __m128 nr = _mm_rsqrt_ps(v);
 		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
@@ -181,7 +181,7 @@ namespace Vcl
 	}
 
 	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
-	VCL_STRONG_INLINE __m128 _mmVCL_rcp_ps(__m128 v)
+	VCL_STRONG_INLINE __m128 _mmVCL_rcp_ps(__m128 v) noexcept
 	{
 		const __m128 nr = _mm_rcp_ps(v);
 		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
@@ -195,7 +195,7 @@ namespace Vcl
 		return result;
 	}
 
-	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m128 v)
+	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m128 v) noexcept
 	{
 		const __m128 data = v;             /* [0, 1, 2, 3] */
 		const __m128 low = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
@@ -205,7 +205,7 @@ namespace Vcl
 		return _mm_cvtss_f32(accum);
 	}
 
-	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m128 v)
+	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m128 v) noexcept
 	{
 		const __m128 data = v;             /* [0, 1, 2, 3] */
 		const __m128 high = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
@@ -215,7 +215,7 @@ namespace Vcl
 		return _mm_cvtss_f32(accum);
 	}
 
-	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m128 a, __m128 b)
+	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m128 a, __m128 b) noexcept
 	{
 		typedef union
 		{
@@ -235,7 +235,7 @@ namespace Vcl
 #endif
 	}
 
-	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m128 v, int i)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float _mmVCL_extract_ps(__m128 v, int i) noexcept
 	{
 #if 1
 		typedef union
@@ -297,7 +297,7 @@ namespace Vcl
 #ifdef VCL_VECTORIZE_SSE4_1
 #	define _mmVCL_insert_ps _mm_insert_ps
 #else
-	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel)
+	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel) noexcept
 	{
 		typedef union
 		{
@@ -326,7 +326,7 @@ namespace Vcl
 	}
 #endif
 
-	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m128i v, int i)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int _mmVCL_extract_epi32(__m128i v, int i) noexcept
 	{
 #if 1
 		typedef union

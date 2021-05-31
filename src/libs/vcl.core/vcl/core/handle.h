@@ -29,7 +29,7 @@
 
 namespace Vcl
 {
-	uint32_t createResourceHandleTag(void* owner);
+	uint32_t createResourceHandleTag(void* owner) noexcept;
 
 	template<typename T>
 	class Handle

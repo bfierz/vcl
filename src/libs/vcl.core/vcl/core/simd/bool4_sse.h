@@ -38,7 +38,7 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(SSE)
-		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) { set(_mm_castsi128_ps(I4)); }
+		explicit VCL_STRONG_INLINE VectorScalar(__m128i I4) noexcept { set(_mm_castsi128_ps(I4)); }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, _mm_and_ps, 1)
@@ -48,7 +48,7 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, _mm_or_ps, 1)
 	};
 
-	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b) noexcept
 	{
 		//int alignas(16) vars[4];
 		//_mm_store_ps((float*) vars, b.get(0));
@@ -58,7 +58,7 @@ namespace Vcl
 		return _mm_movemask_ps(b.get(0)) != 0;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b) noexcept
 	{
 		//int alignas(16) vars[4];
 		//_mm_store_ps((float*) vars, b.get(0));
@@ -68,7 +68,7 @@ namespace Vcl
 		return static_cast<unsigned int>(_mm_movemask_ps(b.get(0))) == 0xf;
 	}
 
-	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b) noexcept
 	{
 		//int alignas(16) vars[4];
 		//_mm_store_ps((float*) vars, b.get(0));

@@ -46,7 +46,7 @@ VCL_END_EXTERNAL_HEADERS
 class WaveletNoiseTest : public Vcl::Util::WaveletNoise<32>, public testing::Test
 {
 public:
-	WaveletNoiseTest()
+	WaveletNoiseTest() noexcept
 		: WaveletNoise(random_numbers)
 	{}
 };
@@ -56,7 +56,7 @@ bool equal
 	const std::array<float, 3>& x,
 	const std::array<float, 3>& y,
 	float tol = 0
-)
+) noexcept
 {
 	bool eq = true;
 	for (int i = 0; i < 3; i++)
@@ -73,37 +73,37 @@ TEST_F(WaveletNoiseTest, Modulo)
 {
 	using namespace Vcl::Util;
 
-	int m0 = 53 % 47;
+	const int m0 = 53 % 47;
 	EXPECT_EQ(m0, 6);
-	int m1 = FastMath<47>::modulo(53);
+	const int m1 = FastMath<47>::modulo(53);
 	EXPECT_EQ(m1, 6);
 
-	int m2 = -53 % 47;
+	const int m2 = -53 % 47;
 	EXPECT_EQ(m2, -6);
-	int m3 = FastMath<47>::modulo(-53);
+	const int m3 = FastMath<47>::modulo(-53);
 	EXPECT_EQ(m3, 41);
 
-	int m4 = -17 % 16;
+	const int m4 = -17 % 16;
 	EXPECT_EQ(m4, -1);
-	int m5 = FastMath<16>::modulo(-17);
+	const int m5 = FastMath<16>::modulo(-17);
 	EXPECT_EQ(m5, 15);
 
-	int m6 = -33 % 32;
+	const int m6 = -33 % 32;
 	EXPECT_EQ(m6, -1);
-	int m7 = FastMath<32>::modulo(-33);
+	const int m7 = FastMath<32>::modulo(-33);
 	EXPECT_EQ(m7, 31);
 
-	int m8 = -65 % 64;
+	const int m8 = -65 % 64;
 	EXPECT_EQ(m8, -1);
-	int m9 = FastMath<64>::modulo(-65);
+	const int m9 = FastMath<64>::modulo(-65);
 	EXPECT_EQ(m9, 63);
 
-	int m10 = -129 % 128;
+	const int m10 = -129 % 128;
 	EXPECT_EQ(m10, -1);
-	int m11 = FastMath<128>::modulo(-129);
+	const int m11 = FastMath<128>::modulo(-129);
 	EXPECT_EQ(m11, 127);
 
-	Vcl::int8 m12 = FastMath<64>::modulo(Vcl::int8(-65));
+	const Vcl::int8 m12 = FastMath<64>::modulo(Vcl::int8(-65));
 	EXPECT_TRUE(Vcl::all(m12 == Vcl::int8(63)));
 }
 
@@ -439,7 +439,7 @@ TEST_F(WaveletNoiseTest, EvaluateWithNormal)
 						for (int i = 0; i < 3; i++)
 						{
 							using namespace Vcl::Mathematics;
-							const auto n = Eigen::Vector3f(x, y, z).normalized();
+							const auto n = Eigen::Vector3f(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)).normalized();
 							const Vec3 normal = { n[0], n[1], n[2] };
 							float noise_value = evaluate({ offset[i], offset[j], offset[k] }, normal);
 							EXPECT_TRUE(equal(ref[27*(z*4 + y*2 + x) + k * 9 + j * 3 + i], noise_value, 1e-5f));

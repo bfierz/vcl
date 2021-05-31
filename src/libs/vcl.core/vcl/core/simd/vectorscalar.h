@@ -259,25 +259,25 @@ namespace Vcl
 
 	template<int Width> VCL_STRONG_INLINE Vcl::VectorScalar<bool, Width> isinf(const Vcl::VectorScalar<float, Width>& x) { return x.isinf(); }
 
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.abs(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs2 (const Vcl::VectorScalar<Scalar, Width>& x) { return x*x; }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sqrt (const Vcl::VectorScalar<Scalar, Width>& x) { return x.sqrt(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> exp  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.exp(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> log  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.log(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rcp  (const Vcl::VectorScalar<Scalar, Width>& x) { return x.rcp(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rsqrt(const Vcl::VectorScalar<Scalar, Width>& x) { return x.rsqrt(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs  (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.abs(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs2 (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x*x; }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sqrt (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.sqrt(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> exp  (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.exp(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> log  (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.log(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rcp  (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.rcp(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> rsqrt(const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.rsqrt(); }
 
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sin(const Vcl::VectorScalar<Scalar, Width>& x) { return x.sin(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> cos(const Vcl::VectorScalar<Scalar, Width>& x) { return x.cos(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> acos(const Vcl::VectorScalar<Scalar, Width>& x) { return x.acos(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> sin(const Vcl::VectorScalar<Scalar, Width>& x)  noexcept { return x.sin(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> cos(const Vcl::VectorScalar<Scalar, Width>& x)  noexcept { return x.cos(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> acos(const Vcl::VectorScalar<Scalar, Width>& x) noexcept  { return x.acos(); }
 
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> pow(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return exp(log(x) * y); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> pow(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y) noexcept { return exp(log(x) * y); }
 
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> min(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return x.min(y); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> max(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return x.max(y); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> min(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y) noexcept { return x.min(y); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> max(const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y) noexcept { return x.max(y); }
 
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar min(const Vcl::VectorScalar<Scalar, Width>& x)  { return x.min(); }
-	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar max(const Vcl::VectorScalar<Scalar, Width>& x)  { return x.max(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar min(const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.min(); }
+	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar max(const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.max(); }
 
 	template<int Width>
 	VCL_STRONG_INLINE Vcl::VectorScalar<float, Width> sgn(const Vcl::VectorScalar<float, Width>& x)
@@ -291,27 +291,27 @@ namespace Vcl
 		return select(int_t(0) < a, int_t(1), int_t(0)) - select(a < int_t(0), int_t(1), int_t(0));
 	}
 
-	VCL_STRONG_INLINE float min(float x)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float min(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE float max(float x)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float max(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE bool any(bool b)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool any(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE bool all(bool b)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool all(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE bool none(bool b)
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool none(bool b) noexcept
 	{
 		return !b;
 	}
@@ -445,13 +445,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static Vcl::float4 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 epsilon() noexcept { return std::numeric_limits<float>::epsilon(); }
 		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
-		EIGEN_STRONG_INLINE static Vcl::float4 dummy_precision() { return 1e-5f; }
-		EIGEN_STRONG_INLINE static Vcl::float4 highest() { return std::numeric_limits<float>::max(); }
-		EIGEN_STRONG_INLINE static Vcl::float4 lowest() { return std::numeric_limits<float>::lowest(); }
-		EIGEN_STRONG_INLINE static Vcl::float4 infinity() { return std::numeric_limits<float>::infinity(); }
-		EIGEN_STRONG_INLINE static Vcl::float4 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 dummy_precision() noexcept { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float4 highest() noexcept { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 lowest() noexcept { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 infinity() noexcept { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float4 quiet_NaN() noexcept { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 	template<> struct NumTraits<Vcl::float8> : GenericNumTraits<Vcl::float8>
 	{
@@ -466,13 +466,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static Vcl::float8 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 epsilon() noexcept { return std::numeric_limits<float>::epsilon(); }
 		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
-		EIGEN_STRONG_INLINE static Vcl::float8 dummy_precision() { return 1e-5f; }
-		EIGEN_STRONG_INLINE static Vcl::float8 highest() { return std::numeric_limits<float>::max(); }
-		EIGEN_STRONG_INLINE static Vcl::float8 lowest() { return std::numeric_limits<float>::lowest(); }
-		EIGEN_STRONG_INLINE static Vcl::float8 infinity() { return std::numeric_limits<float>::infinity(); }
-		EIGEN_STRONG_INLINE static Vcl::float8 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 dummy_precision() noexcept { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float8 highest() noexcept { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 lowest() noexcept { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 infinity() noexcept { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float8 quiet_NaN() noexcept { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 	template<> struct NumTraits<Vcl::float16> : GenericNumTraits<Vcl::float16>
 	{
@@ -487,13 +487,13 @@ namespace Eigen
 			MulCost = 1
 		};
 
-		EIGEN_STRONG_INLINE static Vcl::float16 epsilon() { return std::numeric_limits<float>::epsilon(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 epsilon() noexcept { return std::numeric_limits<float>::epsilon(); }
 		EIGEN_STRONG_INLINE static int digits10() { return GenericNumTraits<float>::digits10(); }
-		EIGEN_STRONG_INLINE static Vcl::float16 dummy_precision() { return 1e-5f; }
-		EIGEN_STRONG_INLINE static Vcl::float16 highest() { return std::numeric_limits<float>::max(); }
-		EIGEN_STRONG_INLINE static Vcl::float16 lowest() { return std::numeric_limits<float>::lowest(); }
-		EIGEN_STRONG_INLINE static Vcl::float16 infinity() { return std::numeric_limits<float>::infinity(); }
-		EIGEN_STRONG_INLINE static Vcl::float16 quiet_NaN() { return std::numeric_limits<float>::quiet_NaN(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 dummy_precision() noexcept { return 1e-5f; }
+		EIGEN_STRONG_INLINE static Vcl::float16 highest() noexcept { return std::numeric_limits<float>::max(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 lowest() noexcept { return std::numeric_limits<float>::lowest(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 infinity() noexcept { return std::numeric_limits<float>::infinity(); }
+		EIGEN_STRONG_INLINE static Vcl::float16 quiet_NaN() noexcept { return std::numeric_limits<float>::quiet_NaN(); }
 	};
 }
 

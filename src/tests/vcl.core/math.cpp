@@ -50,9 +50,13 @@ TEST(Math, FltSign)
 	{
 		const double d = dist_d(rnd);
 		if (d < 0)
+		{
 			EXPECT_EQ(sgn(d), -1.0);
+		}
 		else if (d > 0)
+		{
 			EXPECT_EQ(sgn(d), 1.0);
+		}
 	}
 }
 
@@ -66,9 +70,13 @@ TEST(Math, IntSign)
 	{
 		const int d = dist(rnd);
 		if (d < 0)
+		{
 			EXPECT_EQ(sgn(d), -1);
+		}
 		else if (d > 0)
+		{
 			EXPECT_EQ(sgn(d), 1);
+		}
 	}
 }
 
@@ -82,9 +90,13 @@ TEST(Math, Max)
 		const double d0 = dist_d(rnd);
 		const double d1 = dist_d(rnd);
 		if (d0 > d1)
+		{
 			EXPECT_EQ(max(d0, d1), d0);
+		}
 		else
+		{
 			EXPECT_EQ(max(d0, d1), d1);
+		}
 	}
 }
 
@@ -98,8 +110,12 @@ TEST(Math, Min)
 		const double d0 = dist_d(rnd);
 		const double d1 = dist_d(rnd);
 		if (d0 < d1)
+		{
 			EXPECT_EQ(min(d0, d1), d0);
+		}
 		else
+		{
 			EXPECT_EQ(min(d0, d1), d1);
+		}
 	}
 }

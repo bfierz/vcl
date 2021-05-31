@@ -34,24 +34,24 @@
 namespace Vcl
 {
 #if !defined VCL_VECTORIZE_AVX2
-	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex)
+	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex) noexcept
 	{
-		__m128 first  =                          _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 0)]);
-		__m128 second = _mmVCL_insert_ps(first,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 1)]), 0x10);
-		__m128 third  = _mmVCL_insert_ps(second, _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 2)]), 0x20);
-		__m128 fourth = _mmVCL_insert_ps(third,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 3)]), 0x30);
+		const __m128 first  =                          _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 0)]);
+		const __m128 second = _mmVCL_insert_ps(first,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 1)]), 0x10);
+		const __m128 third  = _mmVCL_insert_ps(second, _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 2)]), 0x20);
+		const __m128 fourth = _mmVCL_insert_ps(third,  _mm_set_ss(base[_mmVCL_extract_epi32(vindex, 3)]), 0x30);
 
 		return fourth;
 	}
 
-	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex) noexcept
 	{
 		return VectorScalar<float, 4>(gather(base, vindex.get(0)));
 	}
 #endif // !defined VCL_VECTORIZE_AVX2
 
 #if !defined VCL_VECTORIZE_AVX
-	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex) noexcept
 	{
 		return VectorScalar<float, 8>
 		(
@@ -59,7 +59,7 @@ namespace Vcl
 			gather(base, vindex.get(1))
 		);
 	}
-	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex) noexcept
 	{
 		return VectorScalar<float, 16>
 		(
@@ -73,12 +73,12 @@ namespace Vcl
 
 #if defined VCL_VECTORIZE_SSE
 
-	VCL_STRONG_INLINE void load(float4& value, const float* base)
+	VCL_STRONG_INLINE void load(float4& value, const float* base) noexcept
 	{
 		value = float4{ _mm_loadu_ps(base) };
 	}
 
-	VCL_STRONG_INLINE void load(int4& value, const int* base)
+	VCL_STRONG_INLINE void load(int4& value, const int* base) noexcept
 	{
 		value = int4{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(base)) };
 	}
@@ -88,14 +88,14 @@ namespace Vcl
 	(
 		__m128& x, __m128& y, __m128& z,
 		const Eigen::Vector3f* base
-	)
+	) noexcept
 	{
 		const float* p = base->data();
-		__m128 x0y0z0x1 = _mm_loadu_ps(p + 0);
-		__m128 y1z1x2y2 = _mm_loadu_ps(p + 4);
-		__m128 z2x3y3z3 = _mm_loadu_ps(p + 8);
-		__m128 x2y2x3y3 = _mm_shuffle_ps(y1z1x2y2, z2x3y3z3, _MM_SHUFFLE(2, 1, 3, 2));
-		__m128 y0z0y1z1 = _mm_shuffle_ps(x0y0z0x1, y1z1x2y2, _MM_SHUFFLE(1, 0, 2, 1));
+		const __m128 x0y0z0x1 = _mm_loadu_ps(p + 0);
+		const __m128 y1z1x2y2 = _mm_loadu_ps(p + 4);
+		const __m128 z2x3y3z3 = _mm_loadu_ps(p + 8);
+		const __m128 x2y2x3y3 = _mm_shuffle_ps(y1z1x2y2, z2x3y3z3, _MM_SHUFFLE(2, 1, 3, 2));
+		const __m128 y0z0y1z1 = _mm_shuffle_ps(x0y0z0x1, y1z1x2y2, _MM_SHUFFLE(1, 0, 2, 1));
 		x = _mm_shuffle_ps(x0y0z0x1, x2y2x3y3, _MM_SHUFFLE(2, 0, 3, 0)); // x0x1x2x3
 		y = _mm_shuffle_ps(y0z0y1z1, x2y2x3y3, _MM_SHUFFLE(3, 1, 2, 0)); // y0y1y2y3
 		z = _mm_shuffle_ps(y0z0y1z1, z2x3y3z3, _MM_SHUFFLE(3, 0, 3, 1)); // z0z1z2z3
@@ -105,18 +105,18 @@ namespace Vcl
 	(
 		__m128& x, __m128& y, __m128& z, __m128& w,
 		const Eigen::Vector4f* base
-	)
+	) noexcept
 	{
 		const float* p = base->data();
-		__m128 m0 = _mm_loadu_ps(p + 0);
-		__m128 m1 = _mm_loadu_ps(p + 4);
-		__m128 m2 = _mm_loadu_ps(p + 8);
-		__m128 m3 = _mm_loadu_ps(p + 12);
+		const __m128 m0 = _mm_loadu_ps(p + 0);
+		const __m128 m1 = _mm_loadu_ps(p + 4);
+		const __m128 m2 = _mm_loadu_ps(p + 8);
+		const __m128 m3 = _mm_loadu_ps(p + 12);
 
-		__m128 xy0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(1, 0, 1, 0));
-		__m128 xy1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(1, 0, 1, 0));
-		__m128 zw0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(3, 2, 3, 2));
-		__m128 zw1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m128 xy0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m128 xy1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m128 zw0 = _mm_shuffle_ps(m0, m1, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m128 zw1 = _mm_shuffle_ps(m2, m3, _MM_SHUFFLE(3, 2, 3, 2));
 
 		x = _mm_shuffle_ps(xy0, xy1, _MM_SHUFFLE(2, 0, 2, 0));
 		y = _mm_shuffle_ps(xy0, xy1, _MM_SHUFFLE(3, 1, 3, 1));
@@ -128,15 +128,15 @@ namespace Vcl
 	(
 		Eigen::Vector3f* base,
 		const __m128& x, const __m128& y, const __m128& z
-	)
+	) noexcept
 	{
-		__m128 x0x2y0y2 = _mm_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0));
-		__m128 y1y3z1z3 = _mm_shuffle_ps(y, z, _MM_SHUFFLE(3, 1, 3, 1));
-		__m128 z0z2x1x3 = _mm_shuffle_ps(z, x, _MM_SHUFFLE(3, 1, 2, 0));
+		const __m128 x0x2y0y2 = _mm_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m128 y1y3z1z3 = _mm_shuffle_ps(y, z, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m128 z0z2x1x3 = _mm_shuffle_ps(z, x, _MM_SHUFFLE(3, 1, 2, 0));
 
-		__m128 rx0y0z0x1 = _mm_shuffle_ps(x0x2y0y2, z0z2x1x3, _MM_SHUFFLE(2, 0, 2, 0));
-		__m128 ry1z1x2y2 = _mm_shuffle_ps(y1y3z1z3, x0x2y0y2, _MM_SHUFFLE(3, 1, 2, 0));
-		__m128 rz2x3y3z3 = _mm_shuffle_ps(z0z2x1x3, y1y3z1z3, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m128 rx0y0z0x1 = _mm_shuffle_ps(x0x2y0y2, z0z2x1x3, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m128 ry1z1x2y2 = _mm_shuffle_ps(y1y3z1z3, x0x2y0y2, _MM_SHUFFLE(3, 1, 2, 0));
+		const __m128 rz2x3y3z3 = _mm_shuffle_ps(z0z2x1x3, y1y3z1z3, _MM_SHUFFLE(3, 1, 3, 1));
 
 		float* p = base->data();
 		_mm_storeu_ps(p + 0, rx0y0z0x1);
@@ -242,7 +242,7 @@ namespace Vcl
 
 #if defined VCL_VECTORIZE_SSE && !defined VCL_VECTORIZE_AVX
 
-	VCL_STRONG_INLINE void load(float8& value, const float* base)
+	VCL_STRONG_INLINE void load(float8& value, const float* base) noexcept
 	{
 		value = float8
 		{
@@ -251,7 +251,7 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void load(int8& value, const int* base)
+	VCL_STRONG_INLINE void load(int8& value, const int* base) noexcept
 	{
 		value = int8
 		{
@@ -260,7 +260,7 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void load(float16& value, const float* base)
+	VCL_STRONG_INLINE void load(float16& value, const float* base) noexcept
 	{
 		value = float16
 		{
@@ -271,7 +271,7 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void load(int16& value, const int* base)
+	VCL_STRONG_INLINE void load(int16& value, const int* base) noexcept
 	{
 		value = int16
 		{
@@ -286,7 +286,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<float8, 3, 1>& loaded,
 		const Eigen::Vector3f* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, base);
@@ -303,7 +303,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<int8, 3, 1>& loaded,
 		const Eigen::Vector3i* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
@@ -352,7 +352,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<float16, 3, 1>& loaded,
 		const Eigen::Vector3f* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3;
 		load(x0, y0, z0, base);
@@ -372,7 +372,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<int16, 3, 1>& loaded,
 		const Eigen::Vector3i* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
@@ -392,7 +392,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<float16, 4, 1>& loaded,
 		const Eigen::Vector4f* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
 		load(x0, y0, z0, w0, base);
@@ -413,7 +413,7 @@ namespace Vcl
 	(
 		Eigen::Matrix<int16, 4, 1>& loaded,
 		const Eigen::Vector4i* base
-	)
+	) noexcept
 	{
 		__m128 x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));

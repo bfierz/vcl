@@ -87,7 +87,7 @@ namespace Vcl
 		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, VCL_UNUSED, 1)
 	};
 	
-	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b)
+	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b) noexcept
 	{
 		return VectorScalar<float, 8>(_mm256_blendv_ps(b.get(0), a.get(0), mask.get(0)));
 	}

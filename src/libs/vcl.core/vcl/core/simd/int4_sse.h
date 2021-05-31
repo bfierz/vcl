@@ -70,7 +70,7 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max_s32, 1)
 	};
 
-	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b)
+	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b) noexcept
 	{
 		return VectorScalar<int, 4>(Core::Simd::SSE::blend_s32(b.get(0), a.get(0), mask.get(0)));
 	}

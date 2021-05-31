@@ -38,7 +38,7 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
-		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) { set(_mm256_castsi256_ps(I8)); }
+		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) noexcept { set(_mm256_castsi256_ps(I8)); }
 		
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, _mm256_and_ps, 1)
@@ -48,17 +48,17 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, _mm256_or_ps, 1)
 	};
 
-	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b)
+	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b) noexcept
 	{
 		return _mm256_movemask_ps(b.get(0)) != 0;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 8>& b)
+	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 8>& b) noexcept
 	{
 		return static_cast<unsigned int>(_mm256_movemask_ps(b.get(0))) == 0xff;
 	}
 
-	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b) noexcept
 	{
 		return static_cast<unsigned int>(_mm256_movemask_ps(b.get(0))) == 0x0;
 	}

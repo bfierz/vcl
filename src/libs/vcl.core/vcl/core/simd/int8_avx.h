@@ -69,7 +69,7 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(max, _mmVCL_max_epi32, 1)
 	};
 
-	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b)
+	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b) noexcept
 	{
 		return VectorScalar<int, 8>(_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))));
 	}

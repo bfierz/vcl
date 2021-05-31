@@ -70,7 +70,7 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(max, vmaxq_s32, 1)
 	};
 
-	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b)
+	VCL_STRONG_INLINE VectorScalar<int, 4> select(const VectorScalar<bool, 4>& mask, const VectorScalar<int, 4>& a, const VectorScalar<int, 4>& b) noexcept
 	{
 		// (((b ^ a) & mask)^b)
 		return VectorScalar<int, 4>(vbslq_s32(mask.get(0), a.get(0), b.get(0)));

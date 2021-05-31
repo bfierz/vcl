@@ -48,17 +48,17 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, vorrq_u32, 1)
 	};
 
-	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 4>& b) noexcept
 	{
 		return vmovemaskq_u32(b.get(0)) != 0;
 	}
 
-	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 4>& b) noexcept
 	{
 		return static_cast<unsigned int>(vmovemaskq_u32(b.get(0))) == 0xf;
 	}
 
-	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b)
+	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 4>& b) noexcept
 	{
 		return static_cast<unsigned int>(vmovemaskq_u32(b.get(0))) == 0x0;
 	}

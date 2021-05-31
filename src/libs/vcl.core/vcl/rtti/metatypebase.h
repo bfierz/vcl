@@ -64,11 +64,11 @@ namespace Vcl { namespace RTTI
 		Type& operator= (const Type&) = delete;
 
 	public: // Properties
-		stdext::string_view name() const { return _name; }
-		size_t hash() const { return _hash; }
+		stdext::string_view name() const noexcept { return _name; }
+		size_t hash() const noexcept { return _hash; }
 
-		size_t nrParents() const { return static_cast<size_t>(_parents.size()); }
-		const Type* const* parents() const { return _parents.data(); }
+		size_t nrParents() const noexcept { return static_cast<size_t>(_parents.size()); }
+		const Type* const* parents() const noexcept { return _parents.data(); }
 
 		bool hasAttribute(const stdext::string_view name) const;
 		const AttributeBase* attribute(const stdext::string_view name) const;
@@ -76,9 +76,9 @@ namespace Vcl { namespace RTTI
 		/*!
 		 * \brief Access the list of all attributes
 		 */
-		stdext::span<const AttributeBase*> attributes() const { return _attributes; }
+		stdext::span<const AttributeBase*> attributes() const noexcept { return _attributes; }
 
-		const ConstructorSet& constructors() const { return _constructors; }
+		const ConstructorSet& constructors() const noexcept { return _constructors; }
 
 	public: // Queries
 		bool isA(const Type* base) const;
