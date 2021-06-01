@@ -39,6 +39,7 @@ VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl
 {
+#if !defined(VCL_COMPILER_MSVC)
 	__m512 _mm512_sin_ps(__m512 v)
 	{
 		const __m128 v0 = _mm512_extractf32x4_ps(v, 0);
@@ -52,10 +53,10 @@ namespace Vcl
 		const __m256 r23 = sin256_ps(v23);
 
 		__m512 result = _mm512_undefined_ps();
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
 		return result;
 	}
 
@@ -72,10 +73,10 @@ namespace Vcl
 		const __m256 r23 = cos256_ps(v23);
 
 		__m512 result = _mm512_undefined_ps();
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
 		return result;
 	}
 
@@ -92,10 +93,10 @@ namespace Vcl
 		const __m256 r23 = log256_ps(v23);
 
 		__m512 result = _mm512_undefined_ps();
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
 		return result;
 	}
 
@@ -112,10 +113,10 @@ namespace Vcl
 		const __m256 r23 = exp256_ps(v23);
 
 		__m512 result = _mm512_undefined_ps();
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
-		result = _mm512_inserti32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 0), 0);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r01, 1), 1);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 0), 2);
+		result = _mm512_insertf32x4(result, _mm256_extractf32x4_ps(r23, 1), 3);
 		return result;
 	}
 
@@ -196,5 +197,6 @@ namespace Vcl
 	{
 		return _mm512_exp_ps(_mm512_mul_ps(_mm512_log_ps(x), y));
 	}
+#endif
 }
 #endif // VCL_VECTORIZE_AVX

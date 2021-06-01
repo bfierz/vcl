@@ -698,6 +698,15 @@ namespace Vcl
 
 		return { float8{l}, float8{h} };
 	}
+#ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b) noexcept
+	{
+		const __m512 low{ _mm512_unpacklo_ps(a.get(0), b.get(0)) };
+		const __m512 high{ _mm512_unpackhi_ps(a.get(0), b.get(0)) };
+
+		return { float16{low}, float16{high} };
+	}
+#else
 	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b) noexcept
 	{
 		const float16 low{ _mm256_unpacklo_ps(a.get(0), b.get(0)), _mm256_unpackhi_ps(a.get(0), b.get(0)) };
@@ -707,5 +716,6 @@ namespace Vcl
 
 		return { l, h };
 	}
+#endif
 }
 #endif // VCL_VECTORIZE_AVX

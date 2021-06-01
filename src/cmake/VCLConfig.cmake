@@ -58,7 +58,7 @@ message(STATUS "Running on ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 
 # Define vectorisation
 set(VCL_VECTORIZE "SSE 4.1" CACHE STRING "Vectorization instruction set")
-set_property(CACHE VCL_VECTORIZE PROPERTY STRINGS "Generic" "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "NEON")
+set_property(CACHE VCL_VECTORIZE PROPERTY STRINGS "Generic" "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "AVX 512" "NEON")
 
 if(VCL_VECTORIZE STREQUAL "SSE 2")
 	set(VCL_VECTORIZE_SSE2 TRUE)
