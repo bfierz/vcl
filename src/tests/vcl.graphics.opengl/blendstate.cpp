@@ -46,7 +46,7 @@ TEST(OpenGL, ConfigureLogicOp)
 
 	BlendState state{ desc };
 	state.bind();
-	EXPECT_TRUE(state.isValid()) << "State is not valid";
+	EXPECT_TRUE(state.validate()) << "State is not valid";
 }
 
 TEST(OpenGL, ConfigureLogicOpCmds)
@@ -66,7 +66,7 @@ TEST(OpenGL, ConfigureLogicOpCmds)
 	state.record(cmds);
 
 	cmds.bind();
-	EXPECT_TRUE(state.isValid()) << "State is not valid";
+	EXPECT_TRUE(state.validate()) << "State is not valid";
 }
 
 TEST(OpenGL, IndependentBlending)
@@ -86,7 +86,37 @@ TEST(OpenGL, IndependentBlending)
 
 		BlendState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is not valid";
+		EXPECT_TRUE(state.validate()) << "State is not valid";
+	}
+	else
+	{
+		std::cout << "Independent blending is not supported on this platform!" << std::endl;
+	}
+}
+
+TEST(OpenGL, IndependentBlendingCmds)
+{
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	if (BlendState::isIndependentBlendingSupported())
+	{
+		BlendDescription desc;
+		desc.IndependentBlendEnable = true;
+		desc.RenderTarget[0].BlendEnable = true;
+		desc.RenderTarget[0].BlendOp = BlendOperation::Max;
+		desc.RenderTarget[1].BlendEnable = true;
+		desc.RenderTarget[1].BlendOp = BlendOperation::Min;
+
+		BlendState state{ desc };
+
+		// Command queue to test
+		Vcl::Graphics::OpenGL::CommandStream cmds;
+		state.record(cmds);
+
+		cmds.bind();
+		EXPECT_TRUE(state.validate()) << "State is not valid";
 	}
 	else
 	{
@@ -108,7 +138,34 @@ TEST(OpenGL, AdvancedBlendOp)
 
 		BlendState state{ desc };
 		state.bind();
-		EXPECT_TRUE(state.isValid()) << "State is not valid";
+		EXPECT_TRUE(state.validate()) << "State is not valid";
+	}
+	else
+	{
+		std::cout << "Advanced blend operations are not supported on this platform!" << std::endl;
+	}
+}
+
+TEST(OpenGL, AdvancedBlendOpCmds)
+{
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics;
+
+	if (BlendState::areAdvancedBlendOperationsSupported())
+	{
+		BlendDescription desc;
+		desc.RenderTarget[0].BlendEnable = true;
+		desc.RenderTarget[0].BlendOp = BlendOperation::Screen;
+
+		BlendState state{ desc };
+
+		// Command queue to test
+		Vcl::Graphics::OpenGL::CommandStream cmds;
+		state.record(cmds);
+
+		cmds.bind();
+		EXPECT_TRUE(state.validate()) << "State is not valid";
 	}
 	else
 	{

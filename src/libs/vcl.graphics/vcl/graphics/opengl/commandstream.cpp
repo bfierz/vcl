@@ -41,84 +41,178 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			switch ((CommandType) *tok)
 			{
 			case CommandType::Enable:
-				glEnable((GLenum) *++tok);
+			{
+				const auto cap = (GLenum) *++tok;
+				glEnable(cap);
 				break;
+			}
 			case CommandType::Disable:
-				glDisable((GLenum) *++tok);
+			{
+				const auto cap = (GLenum) *++tok;
+				glDisable(cap);
 				break;
+			}
 			case CommandType::Enablei:
-				glEnablei((GLenum) *++tok, (GLuint) *++tok);
+			{
+				const auto cap = (GLenum) *++tok;
+				const auto idx = (GLuint) *++tok;
+				glEnablei(cap, idx);
 				break;
+			}
 			case CommandType::Disablei:
-				glDisablei((GLenum) *++tok, (GLuint) *++tok);
+			{
+				const auto cap = (GLenum) *++tok;
+				const auto idx = (GLuint) *++tok;
+				glDisablei(cap, idx);
 				break;
+			}
 			case CommandType::LogicOp:
-				glLogicOp((GLenum) *++tok);
+			{
+				const auto op = (GLenum) *++tok;
+				glLogicOp(op);
 				break;
+			}
 			case CommandType::BlendFunc:
-				glBlendFunc((GLenum) *++tok, (GLenum) *++tok);
+			{
+				const auto sfactor = (GLenum) *++tok;
+				const auto dfactor = (GLenum) *++tok;
+				glBlendFunc(sfactor, dfactor);
 				break;
+			}
 			case CommandType::BlendEquation:
-				glBlendEquation((GLenum) *++tok);
+			{
+				const auto mode = (GLenum) *++tok;
+				glBlendEquation(mode);
 				break;
+			}
 			case CommandType::BlendFunci:
-				glBlendFunci((GLuint) *++tok, (GLenum) *++tok, (GLenum) *++tok);
+			{
+				const auto buf = (GLuint) *++tok;
+				const auto src = (GLenum) *++tok;
+				const auto dst = (GLenum) *++tok;
+				glBlendFunci(buf, src, dst);
 				break;
+			}
 			case CommandType::BlendEquationi:
-				glBlendEquationi((GLuint) *++tok, (GLenum) *++tok);
+			{
+				const auto buf  = (GLuint) *++tok;
+				const auto mode = (GLenum) *++tok;
+				glBlendEquationi(buf, mode);
 				break;
+			}
 			case CommandType::BlendColor:
-				glBlendColor
-				(
-					toFloat(*++tok),
-					toFloat(*++tok),
-					toFloat(*++tok),
-					toFloat(*++tok)
-				);
+			{
+				const auto r = toFloat(*++tok);
+				const auto g = toFloat(*++tok);
+				const auto b = toFloat(*++tok);
+				const auto a = toFloat(*++tok);
+
+				glBlendColor(r, g, b, a);
 				break;
+			}
 			case CommandType::ColorMask:
-				glColorMask((GLboolean)*++tok, (GLboolean)*++tok, (GLboolean)*++tok, (GLboolean)*++tok);
+			{
+				const auto r = (GLboolean)*++tok;
+				const auto g = (GLboolean)*++tok;
+				const auto b = (GLboolean)*++tok;
+				const auto a = (GLboolean)*++tok;
+				glColorMask(r, g, b, a);
 				break;
+			}
 			case CommandType::ColorMaskIndexed:
-				glColorMaski((GLuint)*++tok, (GLboolean)*++tok, (GLboolean)*++tok, (GLboolean)*++tok, (GLboolean)*++tok);
+			{
+				const auto buf = (GLuint) *++tok;
+				const auto r = (GLboolean)*++tok;
+				const auto g = (GLboolean)*++tok;
+				const auto b = (GLboolean)*++tok;
+				const auto a = (GLboolean)*++tok;
+				glColorMaski(buf, r, g, b, a);
 				break;
+			}
 			case CommandType::DepthMask:
-				glDepthMask((GLboolean) *++tok);
+			{
+				const auto flag = (GLboolean)*++tok;
+				glDepthMask(flag);
 				break;
+			}
 			case CommandType::DepthFunc:
-				glDepthFunc((GLenum) *++tok);
+			{
+				const auto func = (GLenum)*++tok;
+				glDepthFunc(func);
 				break;
+			}
 			case CommandType::StencilOpSeparate:
-				glStencilOpSeparate((GLenum) *++tok, (GLenum) *++tok, (GLenum) *++tok, (GLenum) *++tok);
+			{
+				const auto face   = (GLenum) *++tok;
+				const auto sfail  = (GLenum) *++tok;
+				const auto dpfail = (GLenum) *++tok;
+				const auto dppass = (GLenum) *++tok;
+				glStencilOpSeparate(face, sfail, dpfail, dppass);
 				break;
+			}
 			case CommandType::StencilMaskSeparate:
-				glStencilMaskSeparate((GLenum) *++tok, (GLuint) *++tok);
+			{
+				const auto face = (GLenum) *++tok;
+				const auto mask = (GLuint) *++tok;
+				glStencilMaskSeparate(face, mask);
 				break;
+			}
 			case CommandType::CullFace:
-				glCullFace((GLenum) *++tok);
+			{
+				const auto mode = (GLenum) *++tok;
+				glCullFace(mode);
 				break;
+			}
 			case CommandType::FrontFace:
-				glFrontFace((GLenum) *++tok);
+			{
+				const auto mode = (GLenum) *++tok;
+				glFrontFace(mode);
 				break;
+			}
 			case CommandType::PolygonMode:
-				glPolygonMode((GLenum) *++tok, (GLenum) *++tok);
+			{
+				const auto face = (GLenum) *++tok;
+				const auto mode = (GLenum) *++tok;
+				glPolygonMode(face, mode);
 				break;
+			}
 			case CommandType::PolygonOffsetClamp:
+			{
 				//glPolygonOffsetClampEXT();
 				break;
+			}
 			case CommandType::PolygonOffset:
+			{
 				//glPolygonOffset();
 				break;
+			}
 			case CommandType::PatchParameteri:
-				glPatchParameteri((GLenum) *++tok, (GLint) *++tok);
+			{
+				const auto pname = (GLenum) *++tok;
+				const auto value = (GLint) *++tok;
+				glPatchParameteri(pname, value);
 				break;
+			}
 			case CommandType::DrawArraysInstancedBaseInstance:
-				glDrawArraysInstancedBaseInstance((GLenum) *++tok,
-					(GLint) *++tok, (GLsizei) *++tok, (GLsizei) *++tok, (GLuint) *++tok);
+			{
+				const auto mode = (GLenum) *++tok;
+				const auto first = (GLint) *++tok;
+				const auto count = (GLsizei) *++tok;
+				const auto primcount = (GLsizei) *++tok;
+				const auto baseinstance = (GLuint) *++tok;
+				glDrawArraysInstancedBaseInstance(mode, first, count, primcount, baseinstance);
+			}
 			case CommandType::DrawElementsInstancedBaseInstance:
-				glDrawElementsInstancedBaseInstance((GLenum) *++tok,
-					(GLsizei) *++tok, (GLenum) *++tok, (const void*) *++tok, (GLsizei) *++tok, (GLuint) *++tok);
+			{
+				const auto mode = (GLenum) *++tok;
+				const auto count = (GLsizei) *++tok;
+				const auto type = (GLenum) *++tok;
+				const auto indices = (const void*) *++tok;
+				const auto primcount = (GLsizei) *++tok;
+				const auto baseinstance = (GLuint) *++tok;
+				glDrawElementsInstancedBaseInstance(mode, count, type, indices, primcount, baseinstance);
 				break;
+			}
 			}
 		}
 	}

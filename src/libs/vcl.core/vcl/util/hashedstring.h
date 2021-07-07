@@ -83,8 +83,21 @@ namespace Vcl { namespace Util
 	{
 		return Details::calculateFnv1a64(str, length, fnv1a_64_offset);
 	}
+#endif
 
-#else
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint32_t calculateFnv1a32(const char* str) noexcept
+	{
+		uint32_t hash = 0x811c9dc5;
+
+		while (*str != 0)
+		{
+			hash ^= uint32_t(*str++);
+			hash *= 0x01000193;
+		}
+ 
+		return hash;
+	}
+
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint32_t calculateFnv1a32(const char* str, size_t length) noexcept
 	{
 		uint32_t hash = 0x811c9dc5;
@@ -94,13 +107,21 @@ namespace Vcl { namespace Util
 			hash ^= uint32_t(*str++);
 			hash *= 0x01000193;
 		}
- 
+
 		return hash;
 	}
-	VCL_STRONG_INLINE uint32_t calculateFnv1a32(const char* str) noexcept
+
+	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint64_t calculateFnv1a64(const char* str) noexcept
 	{
-		const size_t length = strlen(str);
-		return calculateFnv1a32(str, length);
+		uint64_t hash = 0xcbf29ce484222325;
+
+		while (*str != 0)
+		{
+			hash ^= uint32_t(*str++);
+			hash *= 0x100000001b3;
+		}
+
+		return hash;
 	}
 
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint64_t calculateFnv1a64(const char* str, size_t length) noexcept
@@ -115,12 +136,6 @@ namespace Vcl { namespace Util
 
 		return hash;
 	}
-	VCL_STRONG_INLINE uint64_t calculateFnv1a64(const char* str) noexcept
-	{
-		const size_t length = strlen(str);
-		return calculateFnv1a64(str, length);
-	}
-#endif
 
 	template <unsigned int N, unsigned int I>
 	struct FnvHash

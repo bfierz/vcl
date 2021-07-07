@@ -59,6 +59,24 @@ TEST(OpenGL, EngineFrameCounter)
 	engine.endFrame();
 }
 
+TEST(OpenGL, EngineCommands)
+{
+	using namespace Vcl::Graphics::Runtime::OpenGL;
+
+	GraphicsEngine engine;
+
+	bool called = false;
+
+	engine.beginFrame();
+	engine.enqueueCommand([&called]() { called = true; });
+	engine.endFrame();
+
+	engine.beginFrame();
+	engine.endFrame();
+
+	EXPECT_TRUE(called);
+}
+
 TEST(OpenGL, EngineRenderTargetUsage)
 {
 	using namespace Vcl::Graphics::Runtime;
