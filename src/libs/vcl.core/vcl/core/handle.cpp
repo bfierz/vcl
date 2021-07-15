@@ -35,7 +35,7 @@ namespace Vcl
 		const auto now = std::chrono::steady_clock::now();
 		const size_t tagId = static_cast<size_t>(now.time_since_epoch().count()) ^ reinterpret_cast<size_t>(owner);
 
-#if defined VCL_ARCH_X64
+#if defined VCL_ARCH_X64 || defined VCL_ARCH_ARM64
 		return static_cast<uint32_t>(tagId) ^ static_cast<uint32_t>(tagId >> 32);
 #elif defined VCL_ARCH_X86 || defined VCL_ARCH_ARM || defined VCL_ARCH_WEBASM
 		return tagId;

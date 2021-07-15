@@ -142,6 +142,10 @@
 #		define VCL_ARCH_ARM
 #	endif
 
+#	if defined _M_ARM64
+#		define VCL_ARCH_ARM64
+#	endif
+
 #elif defined VCL_COMPILER_GNU || defined VCL_COMPILER_CLANG
 #	if defined __i386__ || defined __i686__
 #		define VCL_ARCH_X86
@@ -153,6 +157,10 @@
 
 #	if defined __arm__
 #		define VCL_ARCH_ARM
+#	endif
+
+#	if defined __aarch64__
+#		define VCL_ARCH_ARM64
 #	endif
 
 #	if defined EMSCRIPTEN
@@ -402,7 +410,7 @@
 		}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
-#elif defined VCL_ARCH_ARM && defined VCL_VECTORIZE_NEON
+#elif (defined(VCL_ARCH_ARM) || defined(VCL_ARCH_ARM64)) && defined VCL_VECTORIZE_NEON
 #	include <arm_neon.h>
 #endif
 
