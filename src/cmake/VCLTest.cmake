@@ -41,6 +41,8 @@ function(vcl_add_test tgt)
 	target_link_libraries(${tgt}
 		gtest
 		gtest_main
+		# ARM cross compilation support
+		$<$<PLATFORM_ID:Linux>:pthread>
 	)
 	
 	# Enable static code analysis
@@ -63,7 +65,7 @@ function(vcl_add_test tgt)
 	endif(NOT EMSCRIPTEN)
 
 	# For emscripten test targets, generate a basic html page executing the tests
-	if( EMSCRIPTEN)
+	if(EMSCRIPTEN)
 		set(EXECUTABLE "${tgt}.js")
 		configure_file(../vcl.test.html.in ${EXECUTABLE_OUTPUT_PATH}/${tgt}.html @ONLY)
 	endif(EMSCRIPTEN)
