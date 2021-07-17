@@ -63,7 +63,7 @@ namespace
 			F.template at<Scalar>(i) = rnd;
 		}
 
-		return std::move(F);
+		return F;
 	}
 
 	template<typename Scalar>
@@ -84,7 +84,7 @@ namespace
 			F.template at<Scalar>(i) = aa.toRotationMatrix();
 		}
 
-		return std::move(F);
+		return F;
 	}
 
 	template<typename Scalar>
