@@ -380,9 +380,13 @@ void fltSignumTest()
 	{
 		const float d = dist(rnd);
 		if (d < 0)
+		{
 			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(-1)));
+		}
 		else if (d > 0)
+		{
 			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(1)));
+		}
 	}
 }
 
@@ -773,9 +777,13 @@ void intSignumTest()
 	{
 		const int d = dist(rnd);
 		if (d < 0)
+		{
 			EXPECT_TRUE(all(sgn(intN(d)) == intN(-1))) << d;
+		}
 		else if (d > 0)
+		{
 			EXPECT_TRUE(all(sgn(intN(d)) == intN(1))) << d;
+		}
 	}
 }
 

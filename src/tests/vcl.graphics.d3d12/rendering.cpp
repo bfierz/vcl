@@ -157,6 +157,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	psd.VertexShader = &vs;
 	psd.FragmentShader = &ps;
 	psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
+	psd.Rasterizer.CullMode = CullModeMethod::None;
 	RenderTargetLayout rtd = {};
 	rtd.ColourFormats = { Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM };
 	rtd.DepthStencilFormat = Vcl::Graphics::SurfaceFormat::D32_FLOAT;

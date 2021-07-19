@@ -93,7 +93,7 @@ elseif(VCL_CODE_COVERAGE AND MSVC)
 	set(OPENCPPCOVERAGE_SOURCES "${CMAKE_SOURCE_DIR}")
 	string(REGEX REPLACE "/" "\\\\" OPENCPPCOVERAGE_SOURCES ${OPENCPPCOVERAGE_SOURCES})
 	add_custom_target(vcl.test
-		COMMAND ${OPENCPPCOVERAGE_PATH} --sources "${OPENCPPCOVERAGE_SOURCES}" --modules vcl* --export_type=cobertura --cover_children -- ctest --no-compress-output -T Test
+		COMMAND ${OPENCPPCOVERAGE_PATH} --sources "${OPENCPPCOVERAGE_SOURCES}" --modules vcl* --export_type=cobertura:vcl.test.xml --cover_children -- ctest --no-compress-output -T Test
 
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 		DEPENDS

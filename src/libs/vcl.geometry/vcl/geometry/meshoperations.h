@@ -43,19 +43,19 @@
 namespace Vcl { namespace Geometry
 {
 	template<typename VertexId>
-	size_t makeEdgeHash(VertexId p0, VertexId p1)
+	uint64_t makeEdgeHash(VertexId p0, VertexId p1)
 	{
 		static_assert(sizeof(VertexId) == 4, "Only 32-bit Ids are supported");
 
 		auto e = std::make_pair(std::min(p0, p1), std::max(p0, p1));
-		size_t v0 = e.first.id();
-		size_t v1 = e.second.id();
+		uint64_t v0 = e.first.id();
+		uint64_t v1 = e.second.id();
 
 		return (v1 << 32) | v0;
 	}
 
 	template<typename VertexId>
-	size_t makeFaceHash(VertexId p0, VertexId p1, VertexId p2)
+	uint64_t makeFaceHash(VertexId p0, VertexId p1, VertexId p2)
 	{
 		VclRequire(p0.id() < (1 << 21), "Index p0 is 21-bit.");
 		VclRequire(p1.id() < (1 << 21), "Index p1 is 21-bit.");
@@ -64,9 +64,9 @@ namespace Vcl { namespace Geometry
 		auto f = std::make_array(p0, p1, p2);
 		std::sort(std::begin(f), std::end(f));
 
-		size_t v0 = f[0].id();
-		size_t v1 = f[1].id();
-		size_t v2 = f[2].id();
+		uint64_t v0 = f[0].id();
+		uint64_t v1 = f[1].id();
+		uint64_t v2 = f[2].id();
 
 		return (v2 << 42) | (v1 << 21) | v0;
 	}
@@ -77,7 +77,7 @@ namespace Vcl { namespace Geometry
 		using tetra_traits = Vcl::Geometry::CellTraits<TetrahedralCell<VertexId>>;
 
 		// Face cache
-		std::unordered_map<size_t, std::array<VertexId, 3>> face_lut;
+		std::unordered_map<uint64_t, std::array<VertexId, 3>> face_lut;
 
 		// Find all the tet-faces without a neighbour
 		for (const auto& idx : indices)
@@ -106,7 +106,7 @@ namespace Vcl { namespace Geometry
 			return tri.second;
 		});
 
-		return std::move(tri_adjs);
+		return tri_adjs;
 	}
 
 	template<typename VertexId>
@@ -116,7 +116,7 @@ namespace Vcl { namespace Geometry
 		tri_adjs.reserve(triangles.size());
 
 		// Edge cache
-		std::unordered_multimap<size_t, size_t> edge_face_lut;
+		std::unordered_multimap<uint64_t, uint64_t> edge_face_lut;
 
 		// Initialize the adjacencies by building a cache for the second pass.
 		// For each edge it stores the third vertex
@@ -137,8 +137,8 @@ namespace Vcl { namespace Geometry
 		size_t idx = 0;
 		for (auto& tri_adj : tri_adjs)
 		{
-			size_t v[] = { tri_adj[4].id(), tri_adj[0].id(), tri_adj[2].id() };
-			size_t e[] =
+			uint64_t v[] = { tri_adj[4].id(), tri_adj[0].id(), tri_adj[2].id() };
+			uint64_t e[] =
 			{
 				makeEdgeHash(tri_adj[0], tri_adj[2]),
 				makeEdgeHash(tri_adj[2], tri_adj[4]),
@@ -147,7 +147,7 @@ namespace Vcl { namespace Geometry
 
 			for (int i = 0; i < 3; i++)
 			{
-				size_t o = v[i];
+				uint64_t o = v[i];
 				auto tri = edge_face_lut.equal_range(e[i]);
 				auto v = std::find_if_not(tri.first, tri.second, [o](const auto v) { return v.second == o; });
 				if (v != tri.second)
