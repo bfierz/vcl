@@ -27,6 +27,18 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+#if VCL_HAS_STL_ANY && !defined(VCL_ABI_APPLE)
+
+// C++ Standard Library
+#include <any>
+
+namespace stdext
+{
+	using std::any;
+	using std::any_cast;
+}
+
+#else
 // Abseil
 #include <absl/types/any.h>
 
@@ -35,4 +47,4 @@ namespace stdext
 	using absl::any;
 	using absl::any_cast;
 }
-
+#endif

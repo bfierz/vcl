@@ -117,6 +117,11 @@
 #	if defined(__unix) && __unix == 1
 #		define VCL_ABI_POSIX
 #	endif // __unix
+
+#	if defined(__APPLE__)
+#		define VCL_ABI_APPLE
+#	endif // __APPLE__
+
 #endif
 
 // Identify CPU instruction set
@@ -329,15 +334,61 @@
 // Evaluate standard library support
 ////////////////////////////////////////////////////////////////////////////////
 
-// chrono
-#if defined (VCL_COMPILER_MSVC)
+// std::any
+// std::optional
+// std::string_view
+// std::variant
+#if defined (VCL_COMPILER_MSVC) && VCL_HAS_STDCXX17
+#	if _MSC_VER >= 1910
+#		define VCL_HAS_STL_ANY 1
+#		define VCL_HAS_STL_OPTIONAL 1
+#		define VCL_HAS_STL_STRING_VIEW 1
+#		define VCL_HAS_STL_VARIANT 1
+#	else
+#		define VCL_HAS_STL_ANY 0
+#		define VCL_HAS_STL_OPTIONAL 0
+#		define VCL_HAS_STL_STRING_VIEW 0
+#		define VCL_HAS_STL_VARIANT 0
+#	endif
+#elif !defined(VCL_COMPILER_MSVC) && defined(__has_include) && VCL_HAS_STDCXX17
+#	if __has_include(<any>)
+#		define VCL_HAS_STL_ANY 1
+#	else
+#		define VCL_HAS_STL_ANY 0
+#	endif
+#	if __has_include(<optional>)
+#		define VCL_HAS_STL_OPTIONAL 1
+#	else
+#		define VCL_HAS_STL_OPTIONAL 0
+#	endif
+#	if __has_include(<string_view>)
+#		define VCL_HAS_STL_STRING_VIEW 1
+#	else
+#		define VCL_HAS_STL_STRING_VIEW 0
+#	endif
+#	if __has_include(<variant>)
+#		define VCL_HAS_STL_VARIANT 1
+#	else
+#		define VCL_HAS_STL_VARIANT 0
+#	endif
+#else
+#	define VCL_HAS_STL_ANY 0
+#	define VCL_HAS_STL_OPTIONAL 0
+#	define VCL_HAS_STL_STRING_VIEW 0
+#	define VCL_HAS_STL_VARIANT 0
+#endif
+
+// std::chrono
+#if defined (VCL_COMPILER_MSVC) && VCL_HAS_STDCXX11
 #	if _MSC_VER >= 1700
 #		define VCL_STL_CHRONO
+#		define VCL_HAS_STL_CHRONO 1
 #	endif
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
-#	if __cplusplus >= 201103L
-#		define VCL_STL_CHRONO
-#	endif
+#elif !defined(VCL_COMPILER_MSVC) && defined (__has_include) && VCL_HAS_STDCXX11
+#	define VCL_STL_CHRONO
+#	define VCL_HAS_STL_CHRONO 1
+#else
+#	define VCL_HAS_STL_CHRONO 0
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
