@@ -287,11 +287,12 @@ int main(int, char**)
 	computeSolution<float16>(nr_problems, jacobi_float16, F, resU, resV, resS); checkSolution("JacobiSVDQR - float16", "jacobi_svd_qr_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	
 	// Test correctness: McAdams SVD solver
+#ifdef VCL_VECTORIZE_SSE
 	auto mcadams_float   = static_cast<ComputeSvdFloat> (McAdamsJacobiSVD);
 	auto mcadams_float4  = static_cast<ComputeSvdFloat4>(McAdamsJacobiSVD);
 	computeSolution<float>  (nr_problems, mcadams_float,   F, resU, resV, resS); checkSolution("McAdamsSVD - float",   "mc_adams_svd_float_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 	computeSolution<float4> (nr_problems, mcadams_float4,  F, resU, resV, resS); checkSolution("McAdamsSVD - float4",  "mc_adams_svd_float4_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-	
+#endif	
 #ifdef VCL_VECTORIZE_AVX
 	auto mcadams_float8  = static_cast<ComputeSvdFloat8>(McAdamsJacobiSVD);
 	computeSolution<float8> (nr_problems, mcadams_float8,  F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
