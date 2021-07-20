@@ -50,7 +50,7 @@ Most, however, are managed as linked submodule.
 | C++ commandline parsing       | MIT        | 2.1.2    | https://github.com/jarro2783/cxxopts         | In source tree            |
 | Eigen 3                       | MPL2       | 3.3.7    | https://eigen.tuxfamily.org                  |                           |
 | Expected lite                 | BSL-1.0    | 0.2.0    | https://github.com/martinmoene/expected-lite | In source tree            |
-| Google Test                   | BSD-3      | 1.8.1    | https://github.com/google/googletest         |                           |
-| Google Benchmark              | Apache-2.0 | 1.4.1    | https://github.com/google/benchmark          |                           |
+| Google Test                   | BSD-3      | 1.11.0   | https://github.com/google/googletest         |                           |
+| Google Benchmark              | Apache-2.0 | 1.5.5    | https://github.com/google/benchmark          |                           |
 | JSON for Modern C++           | MIT        | 3.6.1    | https://github.com/nlohmann/json             |                           |
 | Tet-tet intersection          | Custom     |          | https://github.com/erich666/jgt-code/blob/master/Volume_07/Number_2/Ganovelli2002/tet_a_tet.h | Refactored implementation. The license is included [here](./doc/license_ganovelli_tet_a_tet.md) |
