@@ -23,6 +23,11 @@ jobs:
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+      Release_AVX2:
+        buildConfig: 'Release'
+        configVectorization: 'AVX 2'
+        configCodeCoverage: 'off'
+        configGraphicsD3D12: 'off'
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
@@ -98,6 +103,11 @@ jobs:
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'on'
+      Release_AVX512:
+        buildConfig: 'Release'
+        configVectorization: 'AVX 512'
+        configCodeCoverage: 'off'
+        configGraphicsD3D12: 'off'
   pool:
     vmImage: 'windows-2019'
   steps:
