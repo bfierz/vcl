@@ -5,7 +5,7 @@
  * Licence : BSD-2
  */
 
-/* 
+/*
    AVX implementation of sin, cos, sincos, exp and log
 
    Based on "sse_mathfun.h", by Julien Pommier
@@ -15,8 +15,14 @@
 #include <immintrin.h>
 
 /* yes I know, the top of this file is quite ugly */
-#define ALIGN64_BEG
-#define ALIGN64_END __attribute__((aligned(64)))
+
+#ifdef _MSC_VER /* visual c++ */
+# define ALIGN64_BEG __declspec(align(64))
+# define ALIGN64_END
+#else /* gcc or icc */
+# define ALIGN64_BEG
+# define ALIGN64_END __attribute__((aligned(64)))
+#endif
 
 /* __m128 is ugly to write */
 typedef __m512 v16sf;   // vector of 16 float (avx512)
@@ -97,7 +103,7 @@ _PS512_CONST(coscof_p2, 4.166664568298827E-002);
 _PS512_CONST(cephes_FOPI, 1.27323954473516);  // 4 / M_PI
 
 
-/* natural logarithm computed for 8 simultaneous float 
+/* natural logarithm computed for 8 simultaneous float
    return NaN for x <= 0
 */
 static inline v16sf log512_ps(v16sf x)
@@ -105,7 +111,7 @@ static inline v16sf log512_ps(v16sf x)
     v16si imm0;
     v16sf one = *(v16sf *) _ps512_1;
 
-    v16sf invalid_mask = (v16sf) _mm512_movm_epi32(_mm512_cmp_ps_mask(x, _mm512_setzero_ps(), _CMP_LE_OS));
+    v16sf invalid_mask = _mm512_castsi512_ps(_mm512_movm_epi32(_mm512_cmp_ps_mask(x, _mm512_setzero_ps(), _CMP_LE_OS)));
     x = _mm512_max_ps(x, *(v16sf *) _ps512_min_norm_pos); /* cut off denormalized stuff */
 
     // can be done with AVX2
@@ -121,7 +127,7 @@ static inline v16sf log512_ps(v16sf x)
 
     e = _mm512_add_ps(e, one);
 
-    v16sf mask = (v16sf) _mm512_movm_epi32(_mm512_cmp_ps_mask(x, *(v16sf *) _ps512_cephes_SQRTHF, _CMP_LT_OS));
+    v16sf mask = _mm512_castsi512_ps(_mm512_movm_epi32(_mm512_cmp_ps_mask(x, *(v16sf *) _ps512_cephes_SQRTHF, _CMP_LT_OS)));
 
     v16sf tmp = _mm512_and_ps(x, mask);
     x = _mm512_sub_ps(x, one);
@@ -167,7 +173,7 @@ static inline v16sf exp512_ps(v16sf x)
     tmp = _mm512_floor_ps(fx);
 
     /* if greater, substract 1 */
-    v16sf mask = (v16sf) _mm512_movm_epi32(_mm512_cmp_ps_mask(tmp, fx, _CMP_GT_OS));
+    v16sf mask = _mm512_castsi512_ps(_mm512_movm_epi32(_mm512_cmp_ps_mask(tmp, fx, _CMP_GT_OS)));
     mask = _mm512_and_ps(mask, one);
     fx = _mm512_sub_ps(tmp, mask);
 
@@ -208,7 +214,7 @@ static inline v16sf exp512_ps(v16sf x)
 */
 static inline v16sf sin512_ps(v16sf x)
 {  // any x
-    v16sf xmm1, xmm2 = _mm512_setzero_ps(), xmm3, sign_bit, y;
+    v16sf xmm3, sign_bit, y;
     v16si imm0, imm2;
 
 #ifndef __AVX2__
@@ -243,7 +249,7 @@ static inline v16sf sin512_ps(v16sf x)
     /* get the swap sign flag */
     imm0 = _mm512_and_si512(imm2, *(v16si *) _pi32_512_4);
     imm0 = _mm512_slli_epi32(imm0, 29);
-    /* get the polynom selection mask 
+    /* get the polynom selection mask
      there is one polynom for 0 <= x <= Pi/4
      and another one for Pi/4<x<=Pi/2
 
@@ -285,7 +291,7 @@ static inline v16sf sin512_ps(v16sf x)
     v16sf poly_mask = _mm512_castsi512_ps(imm2);
     sign_bit = _mm512_xor_ps(sign_bit, swap_sign_bit);
 
-    /* The magic pass: "Extended precision modular arithmetic" 
+    /* The magic pass: "Extended precision modular arithmetic"
      x = ((x - y * DP1) - y * DP2) - y * DP3; */
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP1, x);
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP2, x);
@@ -322,7 +328,7 @@ static inline v16sf sin512_ps(v16sf x)
 /* almost the same as sin_ps */
 static inline v16sf cos512_ps(v16sf x)
 {  // any x
-    v16sf xmm1, xmm2 = _mm512_setzero_ps(), xmm3, y;
+    v16sf xmm3, y;
     v16si imm0, imm2;
 
 #ifndef __AVX2__
@@ -388,7 +394,7 @@ static inline v16sf cos512_ps(v16sf x)
     v16sf sign_bit = _mm512_castsi512_ps(imm0);
     v16sf poly_mask = _mm512_castsi512_ps(imm2);
 
-    /* The magic pass: "Extended precision modular arithmetic" 
+    /* The magic pass: "Extended precision modular arithmetic"
      x = ((x - y * DP1) - y * DP2) - y * DP3; */
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP1, x);
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP2, x);
@@ -461,7 +467,7 @@ static inline void sincos512_ps(v16sf x, v16sf *s, v16sf *c)
     v16sf swap_sign_bit_sin = _mm512_castsi512_ps(imm0);
     v16sf poly_mask = _mm512_castsi512_ps(imm2);
 
-    /* The magic pass: "Extended precision modular arithmetic" 
+    /* The magic pass: "Extended precision modular arithmetic"
      x = ((x - y * DP1) - y * DP2) - y * DP3; */
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP1, x);
     x = _mm512_fmadd_ps(y, *(v16sf *) _ps512_minus_cephes_DP2, x);
