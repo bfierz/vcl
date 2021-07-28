@@ -26,7 +26,7 @@
 
 #if defined(VCL_VECTORIZE_NEON)
 VCL_BEGIN_EXTERNAL_HEADERS
-#include <vcl/core/simd/neon_mathfun.h>
+#include <vcl/core/simd/detail/neon_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL

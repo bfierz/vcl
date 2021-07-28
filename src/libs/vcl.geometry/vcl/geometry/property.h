@@ -90,7 +90,7 @@ namespace Vcl { namespace Geometry
 		{
 			using type = T;
 		};
-		
+
 		template<>
 		struct PropertyMemberType<bool>
 		{
@@ -118,8 +118,8 @@ namespace Vcl { namespace Geometry
 		, _defaultValue(init_value)
 		, _allocPolicy(nullptr)
 		{
-			_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 32>>();
-			
+			_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 64>>();
+
 			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
@@ -132,7 +132,7 @@ namespace Vcl { namespace Geometry
 
 			for (size_t i = 0; i < size(); i++)
 				_data[i] = rhs._data[i];
-			
+
 			VclRequire(size() <= _allocated, "Used size is smaller/equal to allocated size.");
 		}
 
@@ -167,22 +167,22 @@ namespace Vcl { namespace Geometry
 		{
 			auto prop = std::make_unique<Property<T, index_type>>(name());
 
-			prop->_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 32>>(*_allocPolicy);
+			prop->_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 64>>(*_allocPolicy);
 			prop->_data = prop->_allocPolicy->allocate(size());
 			prop->_allocated = size();
 			prop->setSize(size());
-			
+
 			for (size_t i = 0; i < size(); i++)
 				prop->_data[i] = _data[i];
 
 			return std::move(prop);
 		}
-		
+
 		virtual std::unique_ptr<PropertyBase> create() const override
 		{
 			auto prop = std::make_unique<Property<T, index_type>>(name());
 
-			prop->_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 32>>(*_allocPolicy);
+			prop->_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 64>>(*_allocPolicy);
 
 			return std::move(prop);
 		}
@@ -192,7 +192,7 @@ namespace Vcl { namespace Geometry
 			for (int i = 0; i < size(); i++)
 				_data[i] = v;
 		}
-		
+
 		void assign(rvalue_reference v)
 		{
 			for (int i = 0; i < size(); i++)
@@ -202,8 +202,8 @@ namespace Vcl { namespace Geometry
 		template<typename AllocPolicyT>
 		void setAllocator(AllocPolicyT& alloc_policy)
 		{
-			std::unique_ptr<Core::AlignedAllocPolicy<value_type, 32>> old_alloc_policy = std::move(_allocPolicy);
-			_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 32>>(alloc_policy);
+			std::unique_ptr<Core::AlignedAllocPolicy<value_type, 64>> old_alloc_policy = std::move(_allocPolicy);
+			_allocPolicy = std::make_unique<Core::AlignedAllocPolicy<value_type, 64>>(alloc_policy);
 
 			if (size() > 0)
 			{
@@ -218,7 +218,7 @@ namespace Vcl { namespace Geometry
 				_allocated = size();
 			}
 		}
-	
+
 	public:
 		//! Access the i'th element. No range check is performed!
 		inline reference operator[](size_t idx)
@@ -286,7 +286,7 @@ namespace Vcl { namespace Geometry
 		{
 			size_t count = size();
 			setSize(0);
-			
+
 			for (size_t i = 0; i < count; i++)
 				_data[i].~value_type();
 		}
@@ -317,7 +317,7 @@ namespace Vcl { namespace Geometry
 					//_data[i] = _defaultValue;
 					new (_data + i) value_type(_defaultValue);
 				}
-				
+
 				setSize(count);
 			}
 			else
@@ -326,7 +326,7 @@ namespace Vcl { namespace Geometry
 				pointer data = _allocPolicy->allocate(count);
 				for (size_t i = 0; i < size(); i++)
 					new (data + i) value_type(std::move(_data[i]));
-				
+
 				// Initialise the additional data
 				for (size_t i = size(); i < count; i++)
 					new (data + i) value_type(_defaultValue);
@@ -338,8 +338,8 @@ namespace Vcl { namespace Geometry
 				_allocated = count;
 			}
 		}
-		
-		// Reserve additional memory without resizing the property. 
+
+		// Reserve additional memory without resizing the property.
 		// This requires allocating a new block of new memory and copying the old elements.
 		virtual void reserve(size_t count) override
 		{
@@ -367,9 +367,9 @@ namespace Vcl { namespace Geometry
 		value_type _defaultValue;
 
 	private:
-		std::unique_ptr<Core::AlignedAllocPolicy<value_type, 32>> _allocPolicy;
+		std::unique_ptr<Core::AlignedAllocPolicy<value_type, 64>> _allocPolicy;
 	};
-	
+
 	template<typename ValueT, typename IndexT>
 	class PropertyPtr
 	{
@@ -433,7 +433,7 @@ namespace Vcl { namespace Geometry
 	private:
 		Property<value_type, index_type>* _property;
 	};
-	
+
 	template<typename ValueT, typename IndexT>
 	class ConstPropertyPtr
 	{
@@ -458,7 +458,7 @@ namespace Vcl { namespace Geometry
 		}
 	public:
 		operator const Property<value_type, index_type>* () const { return _property; }
-		
+
 		const Property<value_type, index_type>* ptr() const { return _property; }
 
 	public:

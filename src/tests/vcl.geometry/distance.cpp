@@ -70,7 +70,7 @@ void pointTriangleDistanceGeneric()
 	using Vcl::Mathematics::equal;
 
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
-	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t, 32>>>;
+	using WideVector = std::vector<real_t, Vcl::Core::Allocator<real_t, Vcl::Core::AlignedAllocPolicy<real_t, 64>>>;
 
 	// Reference triangle
 	Eigen::Vector3f ref_a{ 1, 0, 0 };
@@ -180,7 +180,7 @@ void triangleTriangleDistanceGeneric()
 	// Shortest distance
 	Vcl::Core::InterleavedArray<float, 1, 1, -1> ref_shortest_dist(problem_size);
 	Vcl::Core::InterleavedArray<float, 1, 1, -1> shortest_dist(problem_size);
-	
+
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_x(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_y(problem_size);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> points_X(problem_size);

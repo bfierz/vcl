@@ -58,7 +58,7 @@ message(STATUS "Running on ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}")
 
 # Define vectorisation
 set(VCL_VECTORIZE "SSE 4.1" CACHE STRING "Vectorization instruction set")
-set_property(CACHE VCL_VECTORIZE PROPERTY STRINGS "Generic" "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "NEON")
+set_property(CACHE VCL_VECTORIZE PROPERTY STRINGS "Generic" "SSE 2" "SSE 3" "SSSE 3" "SSE 4.1" "SSE 4.2" "AVX" "AVX 2" "AVX 512" "NEON")
 
 if(VCL_VECTORIZE STREQUAL "SSE 2")
 	set(VCL_VECTORIZE_SSE2 TRUE)
@@ -74,6 +74,8 @@ elseif(VCL_VECTORIZE STREQUAL "AVX")
 	set(VCL_VECTORIZE_AVX TRUE)
 elseif(VCL_VECTORIZE STREQUAL "AVX 2")
 	set(VCL_VECTORIZE_AVX2 TRUE)
+elseif(VCL_VECTORIZE STREQUAL "AVX 512")
+	set(VCL_VECTORIZE_AVX512 TRUE)
 elseif(VCL_VECTORIZE STREQUAL "NEON")
 	set(VCL_VECTORIZE_NEON TRUE)
 endif()
@@ -115,7 +117,7 @@ function(vcl_configure tgt)
 	if(VCL_COMPILER_MSVC)
 		# Configure release configuration
 		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->" "$<$<CONFIG:RELEASE>:/fp:fast>")
-	
+
 		# Configure all configuration
 		# * Enable all warnings
 		# * Exceptions
@@ -126,9 +128,11 @@ function(vcl_configure tgt)
 		if (MSVC_VERSION GREATER 1900)
 			target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/permissive->")
 		endif()
-	
+
 		# Make AVX available
-		if(VCL_VECTORIZE_AVX2)
+		if(VCL_VECTORIZE_AVX512)
+			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:AVX512>")
+		elseif(VCL_VECTORIZE_AVX2)
 			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:AVX2>")
 		elseif(VCL_VECTORIZE_AVX)
 			target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/arch:AVX>")
@@ -155,8 +159,10 @@ function(vcl_configure tgt)
 		if(VCL_COMPILER_CLANG)
 			target_compile_options(${tgt} PUBLIC "-Wno-ignored-attributes" "-D__STRICT_ANSI__" "-Wno-c++98-compat" "-Wno-c++98-compat-pedantic")
 		endif()
-	
-		if(VCL_VECTORIZE_AVX2)
+
+		if(VCL_VECTORIZE_AVX512)
+			target_compile_options(${tgt} PUBLIC "-mavx512f" "-mavx512vl" "-mavx512dq")
+		elseif(VCL_VECTORIZE_AVX2)
 			target_compile_options(${tgt} PUBLIC "-mavx2")
 		elseif(VCL_VECTORIZE_AVX)
 			target_compile_options(${tgt} PUBLIC "-mavx")
@@ -249,7 +255,7 @@ function(enable_vs_guideline_checker target)
 		VS_GLOBAL_CodeAnalysisRuleSet CppCoreCheckRules.ruleset
 		VS_GLOBAL_CAExcludePath "${target_include_paths}"
 		VS_GLOBAL_RunCodeAnalysis true)
-		
+
 	# Pass the information about the core guidelines checker to the target
 	target_compile_definitions(${target} PRIVATE VCL_CHECK_CORE_GUIDELINES)
 endfunction()
@@ -286,7 +292,7 @@ function(vcl_target_sources tgt prefix)
 		endif()
 		source_group(${dir_} FILES ${file})
 	endforeach()
-	
+
 	# Add the files to the target
 	target_sources(${tgt} PRIVATE ${ARGN})
 endfunction()

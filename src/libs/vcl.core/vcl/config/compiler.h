@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 // C++ standard library
@@ -58,7 +58,7 @@
 #   endif
 #elif defined __clang__
 #	define VCL_COMPILER_CLANG
-#   if (__clang_major__ < 3) || (__clang_major__ == 3 && __clang_minor__ < 5) 
+#   if (__clang_major__ < 3) || (__clang_major__ == 3 && __clang_minor__ < 5)
 #       warning "Minimum supported version is Clang 3.5. Good luck."
 #   endif
 #elif defined __GNUC__
@@ -345,11 +345,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if (defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64) || defined(VCL_ARCH_WEBASM))
 
+#	ifdef VCL_VECTORIZE_AVX512
+#		ifndef VCL_VECTORIZE_AVX2
+#			define VCL_VECTORIZE_AVX2
+#		endif
+#	endif
 #	ifdef VCL_VECTORIZE_AVX2
 #		ifndef VCL_VECTORIZE_AVX
 #			define VCL_VECTORIZE_AVX
 #		endif
-#	endif 
+#	endif
 #	ifdef VCL_VECTORIZE_AVX
 #		ifndef VCL_VECTORIZE_SSE4_2
 #			define VCL_VECTORIZE_SSE4_2
@@ -385,11 +390,7 @@
 #	if defined VCL_VECTORIZE_AVX
 		extern "C"
 		{
-#		ifdef VCL_VECTORIZE_AVX2
 #			include <immintrin.h>
-#		else
-#			include <immintrin.h>
-#		endif
 		}
 #	elif defined(VCL_VECTORIZE_SSE)
 		extern "C"

@@ -22,8 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
-
 #include "problems.h"
 
 // C++ standard library
@@ -45,7 +43,7 @@ void createRandomProblems
 	// Random number generator
 	std::mt19937_64 rng;
 	std::uniform_real_distribution<float> d;
-	
+
 	for (int i = 0; i < (int)nr_problems; i++)
 	{
 		// Rest-state
@@ -74,7 +72,7 @@ void createSymmetricProblems
 	// Random number generator
 	std::mt19937_64 rng;
 	std::uniform_real_distribution<float> d;
-	
+
 	for (int i = 0; i < (int)nr_problems; i++)
 	{
 		// Rest-state
@@ -107,7 +105,7 @@ void createRotationProblems
 	std::mt19937_64 rng;
 	std::uniform_real_distribution<float> d;
 	std::uniform_real_distribution<float> a{ -max_angle, max_angle };
-	
+
 	for (int i = 0; i < (int)nr_problems; i++)
 	{
 		// Rest-state
