@@ -53,20 +53,20 @@ namespace Vcl { namespace Core
 	class ObjectTraits
 	{
 	public: // Typedefs
-		typedef T value_type;
-		typedef value_type* pointer;
+		using value_type = T;
+		using pointer = value_type*;
 
 	public:
 		//! Convert an ObjectTraits<T> to ObjectTraits<U>
 		template<typename U>
 		struct rebind
 		{
-			typedef ObjectTraits<U> other;
+			using other = ObjectTraits<U>;
 		};
 
 	public:
 		//! Default constructor
-		explicit ObjectTraits() = default;
+		explicit ObjectTraits() noexcept = default;
 
 		//! Conversion constructor
 		template <typename U>
@@ -100,20 +100,20 @@ namespace Vcl { namespace Core
 	class NoInitObjectTraits
 	{
 	public: // Typedefs
-		typedef T value_type;
-		typedef value_type* pointer;
+		using value_type = T;
+		using pointer = value_type*;
 
 	public:
 		//! Convert an NoInitObjectTraits<T> to NoInitObjectTraits<U>
 		template<typename U>
 		struct rebind
 		{
-			typedef NoInitObjectTraits<U> other;
+			using other = NoInitObjectTraits<U>;
 		};
 
 	public:
 		//! Default constructor
-		explicit NoInitObjectTraits() = default;
+		explicit NoInitObjectTraits() noexcept = default;
 
 		//! Conversion constructor
 		template <typename U>
@@ -146,40 +146,39 @@ namespace Vcl { namespace Core
 	class StandardAllocPolicy
 	{
 	public: // Typedefs
-		typedef T value_type;
-		typedef value_type* pointer;
-		typedef const value_type* const_pointer;
-		typedef value_type& reference;
-		typedef const value_type& const_reference;
-		typedef std::size_t size_type;
-		typedef std::ptrdiff_t difference_type;
+		using value_type = T;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
 
 	public: // Convert an StandardAllocPolicy<T> to StandardAllocPolicy<U>
 		template<typename U>
 		struct rebind
 		{
-			typedef StandardAllocPolicy<U> other;
+			using other = StandardAllocPolicy<U>;
 		};
 
 	public:
-		inline explicit StandardAllocPolicy() {}
-		inline ~StandardAllocPolicy() {}
-		inline explicit StandardAllocPolicy(StandardAllocPolicy const&) {}
+		explicit StandardAllocPolicy() noexcept = default;
+		explicit StandardAllocPolicy(StandardAllocPolicy const&) noexcept = default;
 		template <typename U>
-		inline explicit StandardAllocPolicy(StandardAllocPolicy<U> const&) {}
+		explicit StandardAllocPolicy(StandardAllocPolicy<U> const&) {}
 
 	public: // Memory allocation
-		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr)
+		pointer allocate(size_type cnt, const_pointer = nullptr)
 		{
 			return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
 		}
-		inline void deallocate(pointer p, size_type)
+		void deallocate(pointer p, size_type)
 		{
 			::operator delete(p);
 		}
 
 	public: // Size
-		inline size_type max_size() const
+		size_type max_size() const
 		{
 			return std::numeric_limits<size_type>::max();
 		}
@@ -190,12 +189,12 @@ namespace Vcl { namespace Core
 	 *	allocator can be deallocated from this one
 	 */
 	template<typename T, typename T2>
-	inline bool operator==(StandardAllocPolicy<T> const&, StandardAllocPolicy<T2> const&)
+	bool operator==(StandardAllocPolicy<T> const&, StandardAllocPolicy<T2> const&)
 	{
 		return true;
 	}
 	template<typename T, typename OtherAllocator>
-	inline bool operator==(StandardAllocPolicy<T> const&, OtherAllocator const&)
+	bool operator==(StandardAllocPolicy<T> const&, OtherAllocator const&)
 	{
 		return false;
 	}
@@ -204,30 +203,29 @@ namespace Vcl { namespace Core
 	class AlignedAllocPolicy
 	{
 	public: // Typedefs
-		typedef T value_type;
-		typedef value_type* pointer;
-		typedef const value_type* const_pointer;
-		typedef value_type& reference;
-		typedef const value_type& const_reference;
-		typedef std::size_t size_type;
-		typedef std::ptrdiff_t difference_type;
+		using value_type = T;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
 
 	public: // Convert an AlignedAllocPolicy<T> to AlignedAllocPolicy<U>
 		template<typename U>
 		struct rebind
 		{
-			typedef AlignedAllocPolicy<U, Alignment> other;
+			using other = AlignedAllocPolicy<U, Alignment>;
 		};
 
 	public:
-		inline explicit AlignedAllocPolicy() {}
-		inline ~AlignedAllocPolicy() {}
-		inline explicit AlignedAllocPolicy(AlignedAllocPolicy const&) {}
+		explicit AlignedAllocPolicy() noexcept = default;
+		explicit AlignedAllocPolicy(AlignedAllocPolicy const&) noexcept = default;
 		template <typename U, int AlignmentRhs>
-		inline explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&) {}
+		explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&) {}
 
 	public: // Memory allocation
-		inline pointer allocate(size_type cnt, typename std::allocator<void>::const_pointer = nullptr)
+		pointer allocate(size_type cnt, const_pointer = nullptr)
 		{
 #if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 			return reinterpret_cast<pointer>(_mm_malloc(cnt * sizeof(T), Alignment));
@@ -235,7 +233,7 @@ namespace Vcl { namespace Core
 			return reinterpret_cast<pointer>(aligned_alloc(Alignment, cnt * sizeof(T)));
 #endif
 		}
-		inline void deallocate(pointer p, size_type)
+		void deallocate(pointer p, size_type)
 		{
 #if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
 			_mm_free(p);
@@ -245,7 +243,7 @@ namespace Vcl { namespace Core
 		}
 
 	public: // Size
-		inline size_type max_size() const
+		size_type max_size() const
 		{
 			return std::numeric_limits<size_type>::max();
 		}
@@ -256,13 +254,13 @@ namespace Vcl { namespace Core
 	 *	allocator can be deallocated from this one
 	 */
 	template<typename T, int Alignment, typename T2, int Alignment2>
-	inline bool operator==(AlignedAllocPolicy<T, Alignment> const&, AlignedAllocPolicy<T2, Alignment2> const&)
+	bool operator==(AlignedAllocPolicy<T, Alignment> const&, AlignedAllocPolicy<T2, Alignment2> const&)
 	{
 		return true;
 	}
 
 	template<typename T, int Alignment, typename OtherAllocator>
-	inline bool operator==(AlignedAllocPolicy<T, Alignment> const&, OtherAllocator const&)
+	bool operator==(AlignedAllocPolicy<T, Alignment> const&, OtherAllocator const&)
 	{
 		return false;
 	}
@@ -271,31 +269,30 @@ namespace Vcl { namespace Core
 	class Allocator : public Policy, public Traits
 	{
 	private: /* Typedefs */
-		typedef Policy AllocationPolicy;
-		typedef Traits TTraits;
+		using AllocationPolicy = Policy;
+		using TTraits = Traits;
 
 	public: /* Typedefs */
-		typedef typename AllocationPolicy::size_type size_type;
-		typedef typename AllocationPolicy::difference_type difference_type;
-		typedef typename AllocationPolicy::pointer pointer;
-		typedef typename AllocationPolicy::const_pointer const_pointer;
-		typedef typename AllocationPolicy::reference reference;
-		typedef typename AllocationPolicy::const_reference const_reference;
-		typedef typename AllocationPolicy::value_type value_type;
+		using size_type = typename AllocationPolicy::size_type;
+		using difference_type = typename AllocationPolicy::difference_type;
+		using pointer = typename AllocationPolicy::pointer;
+		using const_pointer = typename AllocationPolicy::const_pointer;
+		using reference = typename AllocationPolicy::reference;
+		using const_reference = typename AllocationPolicy::const_reference;
+		using value_type = typename AllocationPolicy::value_type;
 
 	public:
 		template <typename U>
 		struct rebind
 		{
-			typedef Allocator<U, typename AllocationPolicy::template rebind<U>::other, typename TTraits::template rebind<U>::other> other;
+			using other = Allocator<U, typename AllocationPolicy::template rebind<U>::other, typename TTraits::template rebind<U>::other>;
 		};
 
 	public:
-		inline explicit Allocator() {}
-		inline ~Allocator() {}
-		inline Allocator(Allocator const& rhs) : Policy(rhs), Traits(rhs) {}
+		explicit Allocator() noexcept = default;
+		Allocator(Allocator const& rhs) noexcept : Policy(rhs), Traits(rhs) {}
 		template <typename U, typename P, typename T2>
-		inline Allocator(Allocator<U, P, T2> const& rhs) : Policy(rhs), Traits(rhs) {}
+		Allocator(Allocator<U, P, T2> const& rhs) : Policy(rhs), Traits(rhs) {}
 	};
 
 	/*
@@ -303,32 +300,32 @@ namespace Vcl { namespace Core
 	 *	allocator can be deallocated from this one
 	 */
 	template<typename T, typename P, typename Tr>
-	inline bool operator==(Allocator<T, P, Tr> const& lhs, Allocator<T, P, Tr> const& rhs)
+	bool operator==(Allocator<T, P, Tr> const& lhs, Allocator<T, P, Tr> const& rhs)
 	{
 		return operator==(static_cast<P&>(lhs), static_cast<P&>(rhs));
 	}
 	template<typename T, typename P, typename Tr, typename T2, typename P2, typename Tr2>
-	inline bool operator==(Allocator<T, P, Tr> const& lhs, Allocator<T2, P2, Tr2> const& rhs)
+	bool operator==(Allocator<T, P, Tr> const& lhs, Allocator<T2, P2, Tr2> const& rhs)
 	{
 		return operator==(static_cast<P&>(lhs), static_cast<P2&>(rhs));
 	}
 	template<typename T, typename P, typename Tr, typename OtherAllocator>
-	inline bool operator==(Allocator<T, P, Tr> const& lhs, OtherAllocator const& rhs)
+	bool operator==(Allocator<T, P, Tr> const& lhs, OtherAllocator const& rhs)
 	{
 		return operator==(static_cast<P&>(lhs), rhs);
 	}
 	template<typename T, typename P, typename Tr>
-	inline bool operator!=(Allocator<T, P, Tr> const& lhs, Allocator<T, P, Tr> const& rhs)
+	bool operator!=(Allocator<T, P, Tr> const& lhs, Allocator<T, P, Tr> const& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
 	template<typename T, typename P, typename Tr, typename T2, typename P2, typename Tr2>
-	inline bool operator!=(Allocator<T, P, Tr> const& lhs, Allocator<T2, P2, Tr2> const& rhs)
+	bool operator!=(Allocator<T, P, Tr> const& lhs, Allocator<T2, P2, Tr2> const& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
 	template<typename T, typename P, typename Tr, typename OtherAllocator>
-	inline bool operator!=(Allocator<T, P, Tr> const& lhs, OtherAllocator const& rhs)
+	bool operator!=(Allocator<T, P, Tr> const& lhs, OtherAllocator const& rhs)
 	{
 		return !operator==(lhs, rhs);
 	}
