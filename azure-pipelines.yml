@@ -105,9 +105,9 @@ jobs:
         configGraphicsD3D12: 'on'
       Release_AVX512:
         buildConfig: 'Release'
-        configVectorization: 'AVX 512'
+        configVectorization: 'AVX 2'
         configCodeCoverage: 'off'
-        configGraphicsD3D12: 'off'
+        configGraphicsD3D12: 'on'
   pool:
     vmImage: 'windows-2019'
   steps:
