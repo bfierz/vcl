@@ -1,0 +1,69 @@
+﻿---
+BasedOnStyle: Chromium
+IndentWidth: '4'
+---
+Language: Cpp
+
+ColumnLimit: '0'
+TabWidth: '4'
+UseTab: ForContinuationAndIndentation
+
+SortIncludes: 'false'
+Cpp11BracedListStyle: 'false'
+
+# Make sure access modifiers are aligned to the left
+AccessModifierOffset: '-4'
+
+# BraceWrapping
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: 'true'
+  AfterClass: 'true'
+  AfterControlStatement: Always # Switch code style to 'Never'
+  AfterEnum: 'true'
+  AfterFunction: 'true'
+  AfterNamespace: 'false' # Must be 'false' in order that CompactNamespaces has an effect
+  AfterStruct: 'true'
+  AfterUnion: 'true'
+  AfterExternBlock: 'true'
+  BeforeCatch: 'false'
+  BeforeElse: 'false'
+  IndentBraces: 'false'
+  SplitEmptyFunction: 'false'
+  SplitEmptyRecord: 'false'
+  SplitEmptyNamespace: 'false'
+
+# Namespaces
+CompactNamespaces: 'true'
+FixNamespaceComments: 'false'
+NamespaceIndentation: All
+
+# Indentations
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 0
+IndentCaseLabels: 'false'
+
+# Macros
+IndentPPDirectives: AfterHash
+AlignEscapedNewlines: Right
+
+KeepEmptyLinesAtTheStartOfBlocks: 'true'
+AllowShortIfStatementsOnASingleLine: 'true'
+
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: 'true'
+AllowShortFunctionsOnASingleLine: All
+AllowShortLambdasOnASingleLine: All
+IndentWrappedFunctionNames: 'false'
+AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortBlocksOnASingleLine: 'true'
+
+# Spaces
+SpaceAfterTemplateKeyword: 'false'
+SpaceAfterCStyleCast: 'false'
+SpaceBeforeCpp11BracedList: 'false'
+SpaceInEmptyBlock: 'false'
+SpacesBeforeTrailingComments: 1
+SpacesInContainerLiterals: 'true'
+
+...
