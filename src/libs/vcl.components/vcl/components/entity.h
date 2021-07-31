@@ -53,39 +53,39 @@ namespace Vcl { namespace Core
 		bool isValid() const { return _id != InvalidId().id(); }
 
 	public:
-		GenericId<Derived, T>& operator = (const GenericId<Derived, T>& rhs)
+		GenericId<Derived, T>& operator=(const GenericId<Derived, T>& rhs)
 		{
 			_id = rhs._id;
 			return *this;
 		}
 
 	public:
-		bool operator < (const GenericId<Derived, T>& rhs) const
+		bool operator<(const GenericId<Derived, T>& rhs) const
 		{
 			return _id < rhs._id;
 		}
 
-		bool operator <= (const GenericId<Derived, T>& rhs) const
+		bool operator<=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id <= rhs._id;
 		}
 
-		bool operator > (const GenericId<Derived, T>& rhs) const
+		bool operator>(const GenericId<Derived, T>& rhs) const
 		{
 			return _id > rhs._id;
 		}
 
-		bool operator >= (const GenericId<Derived, T>& rhs) const
+		bool operator>=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id >= rhs._id;
 		}
 
-		bool operator == (const GenericId<Derived, T>& rhs) const
+		bool operator==(const GenericId<Derived, T>& rhs) const
 		{
 			return _id == rhs._id;
 		}
 
-		bool operator != (const GenericId<Derived, T>& rhs) const
+		bool operator!=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id != rhs._id;
 		}
@@ -120,32 +120,32 @@ namespace Vcl { namespace Core
 		bool isValid() const { return _id != InvalidId().id() && _generation != InvalidId().generation(); }
 
 	public:
-		bool operator < (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator<(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation < rhs._generation && _id < rhs._id;
 		}
 
-		bool operator <= (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator<=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation <= rhs._generation && _id <= rhs._id;
 		}
 
-		bool operator >(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator>(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation > rhs._generation && _id > rhs._id;
 		}
 
-		bool operator >= (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator>=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation >= rhs._generation && _id >= rhs._id;
 		}
 
-		bool operator == (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator==(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation == rhs._generation && _id == rhs._id;
 		}
 
-		bool operator != (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator!=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation != rhs._generation && _id != rhs._id;
 		}

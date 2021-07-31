@@ -50,21 +50,21 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		//	}
 			_inputSlots.push_back(std::make_unique<InputSlot>(_desc.Inputs[i].Name, this));
 		}
-		
+
 		_outputSlots.reserve(_desc.Outputs.size());
 		for (unsigned int o = 0; o < _desc.Outputs.size(); o++)
 		{
 			_outputSlots.push_back(std::make_unique<OutputSlot>(_desc.Outputs[o].Name, this));
 		}
 	}
-	
+
 	unsigned int Task::nrOutputSlots() const
 	{
-		return (unsigned int) _outputSlots.size();
+		return (unsigned int)_outputSlots.size();
 	}
 	unsigned int Task::nrInputSlots() const
 	{
-		return (unsigned int) _inputSlots.size();
+		return (unsigned int)_inputSlots.size();
 	}
 	OutputSlot* Task::outputSlot(unsigned int idx)
 	{
@@ -99,7 +99,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 				w = inputSlot(0)->width();
 				h = inputSlot(0)->height();
 
-				if (outputSlot(i)->resource() && w <= (unsigned int) outputSlot(i)->resource()->width() && h <= (unsigned int) outputSlot(i)->resource()->height())
+				if (outputSlot(i)->resource() && w <= (unsigned int)outputSlot(i)->resource()->width() && h <= (unsigned int)outputSlot(i)->resource()->height())
 					needs_new_image = false;
 			}
 

@@ -84,15 +84,13 @@ TEST(D3D12Compute, Saxpy)
 	auto cmd_list = device->createCommandList(cmd_allocator.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
 	auto cmd_list_ptr = cmd_list.Get();
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::Storage
 	};
 
 	std::vector<float> buffer_init(256, 1.0f);
-	BufferInitData buffer_init_data =
-	{
+	BufferInitData buffer_init_data = {
 		buffer_init.data(),
 		buffer_init.size() * sizeof(float)
 	};
@@ -102,8 +100,7 @@ TEST(D3D12Compute, Saxpy)
 	EXPECT_TRUE(x.handle());
 	EXPECT_TRUE(y.handle());
 
-	BufferDescription read_back_desc =
-	{
+	BufferDescription read_back_desc = {
 		1024,
 		BufferUsage::MapRead | BufferUsage::CopyDst
 	};
@@ -119,7 +116,7 @@ TEST(D3D12Compute, Saxpy)
 	cmd_list->SetPipelineState(pso.Get());
 	table.setToCompute(cmd_list_ptr, 1);
 
-	SaxpyKernelParameters kernel_params = {16, 16, 2.0f};
+	SaxpyKernelParameters kernel_params = { 16, 16, 2.0f };
 	cmd_list->SetComputeRoot32BitConstants(0, 3, &kernel_params, 0);
 	cmd_list->Dispatch(16, 16, 1);
 

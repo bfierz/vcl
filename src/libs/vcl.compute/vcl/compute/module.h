@@ -45,8 +45,8 @@ namespace Vcl { namespace Compute
 		Module(Module&&);
 		Module(const Module&) = delete;
 
-		Module& operator =(Module&&);
-		Module& operator =(const Module&) = delete;
+		Module& operator=(Module&&);
+		Module& operator=(const Module&) = delete;
 
 		virtual ~Module() = default;
 

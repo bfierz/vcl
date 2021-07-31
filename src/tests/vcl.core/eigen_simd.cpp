@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
 // Include the relevant parts from the library

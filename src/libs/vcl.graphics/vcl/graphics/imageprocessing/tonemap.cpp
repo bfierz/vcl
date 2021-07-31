@@ -36,7 +36,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		desc.Outputs.resize(1);
 		desc.Outputs[0].Name = "TonemappedScene";
 		desc.Outputs[0].Format = SurfaceFormat::R8G8B8A8_UNORM;
-		
+
 		initialize(desc);
 	}
 }}}

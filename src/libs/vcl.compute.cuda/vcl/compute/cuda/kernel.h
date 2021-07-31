@@ -40,7 +40,7 @@
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
-#define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
+#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment)-1) & ~((alignment)-1)
 
 namespace Vcl { namespace Compute { namespace Cuda
 {
@@ -158,7 +158,6 @@ namespace Vcl { namespace Compute { namespace Cuda
 		void runImpl(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, void** params);
 
 	private: // Kernel data
-
 		//! Pointer to the device kernel
 		CUfunction _func;
 

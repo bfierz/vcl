@@ -74,9 +74,9 @@ namespace Vcl { namespace Core { namespace OpenCL
 		const unsigned int bitStep = 4;
 
 		int i = 0;
-		while (keyBits > i*bitStep)
+		while (keyBits > i * bitStep)
 		{
-			radixSortStepKeysOnly(keys, bitStep, i*bitStep, numElements);
+			radixSortStepKeysOnly(keys, bitStep, i * bitStep, numElements);
 			i++;
 		}
 	}
@@ -102,7 +102,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		auto bufTmpKeys = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_tmpKeys);
 
 		unsigned int totalBlocks = numElements / 4 / LocalSize;
-		std::array<size_t, 3> globalWorkSize = { LocalSize*totalBlocks, 0, 0 };
+		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
 		_radixSortBlocksKeysOnlyKernel->run
@@ -131,7 +131,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		auto bufBlockOffsets = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_blockOffsets);
 
 		unsigned int totalBlocks = numElements / 2 / LocalSize;
-		std::array<size_t, 3> globalWorkSize = { LocalSize*totalBlocks, 0, 0 };
+		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
 		_findRadixOffsetsKernel->run
@@ -190,7 +190,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		auto bufCountersSum = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(_countersSum);
 
 		unsigned int totalBlocks = numElements / 2 / LocalSize;
-		std::array<size_t, 3> globalWorkSize = { LocalSize*totalBlocks, 0, 0 };
+		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
 		_reorderDataKeysOnlyKernel->run

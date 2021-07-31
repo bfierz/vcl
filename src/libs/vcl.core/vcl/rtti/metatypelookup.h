@@ -40,29 +40,32 @@ namespace Vcl { namespace RTTI
 
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
-	
-	template <typename MetaType>
+
+	template<typename MetaType>
 	struct MetaIsDynamic
 	{
 	private:
-		struct no_return {};
-		template <typename U> static char check(decltype(static_cast<U*>(0)->metaType()));
-		template <typename U> static no_return check(...);
+		struct no_return
+		{};
+		template<typename U>
+		static char check(decltype(static_cast<U*>(0)->metaType()));
+		template<typename U>
+		static no_return check(...);
 
 	public:
 		static const bool value = !std::is_same<no_return, decltype(check<MetaType>(0))>::value;
 	};
 
-	template <typename MetaType>
+	template<typename MetaType>
 	struct MetaLookup
 	{
-		template <typename U>
+		template<typename U>
 		static typename std::enable_if<MetaIsDynamic<U>::value, const Type*>::type resolve(const U& obj)
 		{
 			return obj.metaType();
 		}
 
-		template <typename U>
+		template<typename U>
 		static typename std::enable_if<!MetaIsDynamic<U>::value, const Type*>::type resolve(const U&)
 		{
 			return MetaTypeSingleton<U>::get();
@@ -74,16 +77,16 @@ namespace Vcl { namespace RTTI
 		}
 	};
 
-	template <typename MetaType>
+	template<typename MetaType>
 	struct MetaLookup<MetaType*>
 	{
 		static const Type* get(const MetaType* obj) { return MetaLookup<MetaType>::get(*obj); }
 	};
 
-	template <typename MetaType>
-	struct MetaLookup<const MetaType*> : public MetaLookup<MetaType*> {};
+	template<typename MetaType>
+	struct MetaLookup<const MetaType*> : public MetaLookup<MetaType*>
+	{};
 }}
-
 
 template<typename T>
 const Vcl::RTTI::Type* vcl_meta_type()
@@ -103,18 +106,18 @@ const Vcl::RTTI::Type* vcl_meta_type(const T& obj)
 	return Vcl::RTTI::MetaLookup<T>::get(obj);
 }
 
-template <typename TargetType, typename InputType>
+template<typename TargetType, typename InputType>
 TargetType* vcl_cast(InputType* input)
 {
-  const auto* meta = vcl_meta_type(input);
-  const auto* target = vcl_meta_type<TargetType>();
-  return meta != nullptr && meta->isA(target) ? static_cast<TargetType*>(input) : nullptr;
+	const auto* meta = vcl_meta_type(input);
+	const auto* target = vcl_meta_type<TargetType>();
+	return meta != nullptr && meta->isA(target) ? static_cast<TargetType*>(input) : nullptr;
 }
 
-template <typename TargetType, typename InputType>
+template<typename TargetType, typename InputType>
 const TargetType* vcl_cast(const InputType* input)
 {
-  const auto* meta = vcl_meta_type(input);
-  const auto* target = vcl_meta_type<TargetType>();
-  return meta != nullptr && meta->isA(target) ? static_cast<const TargetType*>(input) : nullptr;
+	const auto* meta = vcl_meta_type(input);
+	const auto* target = vcl_meta_type<TargetType>();
+	return meta != nullptr && meta->isA(target) ? static_cast<const TargetType*>(input) : nullptr;
 }

@@ -355,33 +355,33 @@ void perfMcAdamsSVD(benchmark::State& state)
 	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
+using Vcl::float16;
 using Vcl::float4;
 using Vcl::float8;
-using Vcl::float16;
 
 // Test Performance: Eigen Jacobi SVD
 BENCHMARK(perfEigenSVD)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: Two-sided Jacobi SVD (Brent)
-BENCHMARK_TEMPLATE(perfTwoSidedSVD, float)  ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfTwoSidedSVD, float4) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfTwoSidedSVD, float8) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfTwoSidedSVD, float8)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE(perfTwoSidedSVD, float16)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: Jacobi SVD with symmetric EV computation and QR decomposition
-BENCHMARK_TEMPLATE(perfJacobiSVDQR, float)  ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobiSVDQR, float4) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobiSVDQR, float8) ->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiSVDQR, float8)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE(perfJacobiSVDQR, float16)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: McAdams SVD solver
-BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float,  4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 #ifdef VCL_VECTORIZE_AVX
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 #endif // defined VCL_VECTORIZE_AVX
 
-BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float,  5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 #ifdef VCL_VECTORIZE_AVX
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);

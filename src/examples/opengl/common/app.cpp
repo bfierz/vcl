@@ -75,7 +75,7 @@ int Application::run()
 	{
 		glfwPollEvents();
 		updateFrame();
-		
+
 		glfwMakeContextCurrent(windowHandle());
 
 		renderFrame();

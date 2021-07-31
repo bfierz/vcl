@@ -42,7 +42,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	public:
 		Buffer(Context* owner, BufferAccess hostAccess, int size);
 		virtual ~Buffer();
-		
+
 	public:
 		void resize(size_t new_size);
 

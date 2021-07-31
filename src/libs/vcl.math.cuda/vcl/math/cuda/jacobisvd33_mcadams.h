@@ -58,20 +58,19 @@ namespace Vcl { namespace Mathematics { namespace Cuda
 		Core::ref_ptr<Compute::Context> _ownerCtx;
 
 	private: // Buffers
-
 		//! Number of allocated entries
 		size_t _capacity = 0;
 
-		//! Input buffer 
+		//! Input buffer
 		Core::ref_ptr<Compute::Buffer> _A;
 
-		//! Output buffer 
+		//! Output buffer
 		Core::ref_ptr<Compute::Buffer> _U;
 
-		//! Output buffer 
+		//! Output buffer
 		Core::ref_ptr<Compute::Buffer> _V;
 
-		//! Singular value buffer 
+		//! Singular value buffer
 		Core::ref_ptr<Compute::Buffer> _S;
 	};
 }}}

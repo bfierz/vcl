@@ -24,7 +24,7 @@
  */
 #include <vcl/geometry/distancePoint3Triangle3.h>
 
- // C++ standard library
+// C++ standard library
 #include <array>
 
 // VCL

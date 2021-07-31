@@ -41,7 +41,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	public:
 		SRGB(ImageProcessor* processor);
 		virtual ~SRGB() = default;
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 

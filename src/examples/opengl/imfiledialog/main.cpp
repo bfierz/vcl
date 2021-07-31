@@ -42,7 +42,6 @@ public:
 	{
 		// ImFileDialog requires you to set the CreateTexture and DeleteTexture
 		ifd::FileDialog::Instance().CreateTexture = [this](uint8_t* data, int w, int h, char fmt) -> void* {
-
 			/*Vcl::Graphics::Runtime::Texture2DDescription desc;
 			//desc.Format = (fmt == 0) ? Vcl::Graphics::SurfaceFormat::B8G8R8A8_UNORM : Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
 			desc.Format = Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM;
@@ -91,23 +90,29 @@ private:
 			ifd::FileDialog::Instance().Save("ShaderSaveDialog", "Save a shader", "*.sprj {.sprj}");
 		ImGui::End();
 
-		if (ifd::FileDialog::Instance().IsDone("ShaderOpenDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("ShaderOpenDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				const std::vector<std::filesystem::path>& res = ifd::FileDialog::Instance().GetResults();
 				for (const auto& r : res) // ShaderOpenDialog supports multiselection
 					printf("OPEN[%s]\n", r.u8string().c_str());
 			}
 			ifd::FileDialog::Instance().Close();
 		}
-		if (ifd::FileDialog::Instance().IsDone("DirectoryOpenDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("DirectoryOpenDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 				printf("DIRECTORY[%s]\n", res.c_str());
 			}
 			ifd::FileDialog::Instance().Close();
 		}
-		if (ifd::FileDialog::Instance().IsDone("ShaderSaveDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("ShaderSaveDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 				printf("SAVE[%s]\n", res.c_str());
 			}
@@ -116,7 +121,7 @@ private:
 	}
 	void renderFrame() override
 	{
-		glClearBufferfv(GL_COLOR, 0, (float*) &clear_color);
+		glClearBufferfv(GL_COLOR, 0, (float*)&clear_color);
 		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
 
 		ImGuiApplication::renderFrame();
@@ -129,6 +134,6 @@ private:
 
 int main(int argc, char** argv)
 {
-	DemoImGuiApplication app{"ImFileDialog Demo"};
+	DemoImGuiApplication app{ "ImFileDialog Demo" };
 	return app.run();
 }

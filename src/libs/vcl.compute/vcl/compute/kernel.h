@@ -37,7 +37,7 @@ namespace Vcl { namespace Compute
 	public:
 		Kernel(const std::string& name);
 		virtual ~Kernel() = default;
-		
+
 	private:
 		std::string _name;
 	};

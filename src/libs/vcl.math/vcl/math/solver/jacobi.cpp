@@ -62,7 +62,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			// x^{n+1} = c + C x^{n}
 			ctx->updateSolution();
-			
+
 			if (sub_iteration == _chunkSize)
 			{
 				if (_maxIterations == _chunkSize)

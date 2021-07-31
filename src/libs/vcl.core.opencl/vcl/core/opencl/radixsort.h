@@ -87,7 +87,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		Vcl::Compute::OpenCL::Context* _ownerCtx;
 
 	private: // Module, Kernels
-
 		//! Module with the radix sort code
 		ref_ptr<Compute::Module> _radixSortModule;
 
@@ -100,7 +99,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		ScanExclusiveLarge _scan;
 
 	private: // Buffers
-
 		//! Warp size
 		static const unsigned int WarpSize = 32;
 

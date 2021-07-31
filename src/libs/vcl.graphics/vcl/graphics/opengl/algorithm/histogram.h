@@ -69,7 +69,6 @@ namespace Vcl { namespace Graphics
 		);
 
 	private: // Limits
-
 		//! Warp size
 		static const unsigned int WarpSize = 32;
 
@@ -77,18 +76,15 @@ namespace Vcl { namespace Graphics
 		static const unsigned int LocalSize = 128;
 
 	private: // Configuration
-
 		unsigned int _maxNrElements{ 0 };
 
 		unsigned int _maxNrBuckets{ 0 };
 
 	private: // Module, Kernels
-
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _partialHistogramKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _collectPartialHistogramsKernel;
 
 	private: // Buffers
-
 		//! Buffer accumulating the partial results
 		owner_ptr<Runtime::OpenGL::Buffer> _partialHistograms;
 	};

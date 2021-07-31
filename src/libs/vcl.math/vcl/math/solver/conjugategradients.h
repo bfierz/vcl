@@ -83,7 +83,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual bool solve(ConjugateGradientsContext* ctx, double* residual = nullptr);
 
 	private: // Solver configuration
-
 		//! Maximum number of iterations
 		int _maxIterations = 0;
 		int _chunkSize = 1;

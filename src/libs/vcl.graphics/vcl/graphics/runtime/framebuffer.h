@@ -82,7 +82,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		const FramebufferDescription& description() const { return _desc; }
 
 	public:
-		uint32_t width()  const { return _desc.Width; }
+		uint32_t width() const { return _desc.Width; }
 		uint32_t height() const { return _desc.Height; }
 
 	private:
@@ -135,7 +135,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	private:
 		//! The link to the first fragment
 		owner_ptr<Vcl::Graphics::Runtime::Buffer> _headBuffer;
-		
+
 		//! Data targets
 		std::array<owner_ptr<Vcl::Graphics::Runtime::Texture>, 8> _fragmentPools;
 	};

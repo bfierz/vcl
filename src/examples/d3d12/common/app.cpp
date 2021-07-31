@@ -123,12 +123,10 @@ void Application::createDeviceObjects()
 	VCL_DIRECT3D_SAFE_CALL(dev->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, size.first, size.second,
-			1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, size.first, size.second, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		&optimizedClearValue,
-		IID_PPV_ARGS(&_depthBuffer)
-	));
+		IID_PPV_ARGS(&_depthBuffer)));
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
 	dsv.Format = DXGI_FORMAT_D32_FLOAT;
@@ -136,8 +134,7 @@ void Application::createDeviceObjects()
 	dsv.Texture2D.MipSlice = 0;
 	dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-	dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv,
-		_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, _dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 bool Application::initD3d12(HWND hWnd)

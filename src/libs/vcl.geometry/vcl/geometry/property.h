@@ -104,10 +104,10 @@ namespace Vcl { namespace Geometry
 	public:
 		using value_type = typename Internal::PropertyMemberType<T>::type;
 
-		using pointer =  value_type*;
+		using pointer = value_type*;
 		using reference = value_type&;
 		using rvalue_reference = value_type&&;
-		using const_reference =  const value_type&;
+		using const_reference = const value_type&;
 		using index_type = IndexT;
 
 	public:
@@ -260,14 +260,13 @@ namespace Vcl { namespace Geometry
 			{
 				_data[size()] = data;
 				setSize(size() + 1);
-			}
-			else
+			} else
 			{
 				// Copy the element in case the reference points to an element in this property
 				value_type copy = data;
 
 				// Reserve at least a minimum of 2 elements, else take the current allocation size times 1.5
-				reserve(std::max(static_cast<size_t>(_allocated*1.5), std::max(static_cast<size_t>(2), _allocated)));
+				reserve(std::max(static_cast<size_t>(_allocated * 1.5), std::max(static_cast<size_t>(2), _allocated)));
 				_data[size()] = std::move(copy);
 				setSize(size() + 1);
 			}
@@ -319,8 +318,7 @@ namespace Vcl { namespace Geometry
 				}
 
 				setSize(count);
-			}
-			else
+			} else
 			{
 				// Create a new buffer and move the data
 				pointer data = _allocPolicy->allocate(count);
@@ -374,23 +372,24 @@ namespace Vcl { namespace Geometry
 	class PropertyPtr
 	{
 	public:
-		typedef ValueT	value_type;
-		typedef IndexT	index_type;
+		typedef ValueT value_type;
+		typedef IndexT index_type;
+
 	public:
 		PropertyPtr() : _property(nullptr) {}
 		PropertyPtr(const PropertyPtr<value_type, index_type>& other) { _property = other._property; }
 		PropertyPtr(PropertyPtr<value_type, index_type>&& other) { _property = other._property; other._property = nullptr; }
 		PropertyPtr(Property<value_type, index_type>* p) : _property(p) {}
 
-		PropertyPtr& operator= (Property<value_type, index_type>* p)
+		PropertyPtr& operator=(Property<value_type, index_type>* p)
 		{
 			_property = p;
 			return *this;
 		}
 
 	public:
-		operator Property<value_type, index_type>* () const { return _property; }
-		operator const Property<value_type, index_type>* () const { return _property; }
+		operator Property<value_type, index_type>*() const { return _property; }
+		operator const Property<value_type, index_type>*() const { return _property; }
 
 		Property<value_type, index_type>* ptr() const { return _property; }
 
@@ -415,12 +414,12 @@ namespace Vcl { namespace Geometry
 			return _property->operator[](idx);
 		}
 
-		Property<value_type, index_type>* operator -> () const
+		Property<value_type, index_type>* operator->() const
 		{
 			return _property;
 		}
 
-		Property<value_type, index_type>& operator * () const
+		Property<value_type, index_type>& operator*() const
 		{
 			return *_property;
 		}
@@ -438,8 +437,8 @@ namespace Vcl { namespace Geometry
 	class ConstPropertyPtr
 	{
 	public:
-		typedef ValueT	value_type;
-		typedef IndexT	index_type;
+		typedef ValueT value_type;
+		typedef IndexT index_type;
 
 	public:
 		ConstPropertyPtr() : _property(nullptr) {}
@@ -452,12 +451,13 @@ namespace Vcl { namespace Geometry
 
 		ConstPropertyPtr(const Property<value_type, index_type>* p) : _property(p) {}
 
-		ConstPropertyPtr& operator= (Property<value_type, index_type>* p)
+		ConstPropertyPtr& operator=(Property<value_type, index_type>* p)
 		{
 			_property = p;
 		}
+
 	public:
-		operator const Property<value_type, index_type>* () const { return _property; }
+		operator const Property<value_type, index_type>*() const { return _property; }
 
 		const Property<value_type, index_type>* ptr() const { return _property; }
 
@@ -472,12 +472,12 @@ namespace Vcl { namespace Geometry
 			return _property->operator[](idx);
 		}
 
-		const Property<value_type, index_type>* operator -> () const
+		const Property<value_type, index_type>* operator->() const
 		{
 			return _property;
 		}
 
-		const Property<value_type, index_type>& operator * () const
+		const Property<value_type, index_type>& operator*() const
 		{
 			return *_property;
 		}

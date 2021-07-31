@@ -77,7 +77,7 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 	{
 #	ifdef VCL_ABI_WIN64
 		nvCompilerModule = LoadLibrary("nvcompiler.dll");
-#	else 
+#	else
 		nvCompilerModule = LoadLibrary("nvcompiler32.dll");
 #	endif
 		if (!nvCompilerModule)
@@ -86,21 +86,21 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 			return false;
 		}
 
-		nvCompileProgram = (tNvCliCompileProgram) GetProcAddress(nvCompilerModule, "NvCliCompileProgram");
+		nvCompileProgram = (tNvCliCompileProgram)GetProcAddress(nvCompilerModule, "NvCliCompileProgram");
 		if (!nvCompileProgram)
 		{
 			print_error();
 			return false;
 		}
 
-		nvCompileLogFree = (tNvCliCompileLogFree) GetProcAddress(nvCompilerModule, "NvCliCompileLogFree");
+		nvCompileLogFree = (tNvCliCompileLogFree)GetProcAddress(nvCompilerModule, "NvCliCompileLogFree");
 		if (!nvCompileLogFree)
 		{
 			print_error();
 			return false;
 		}
 
-		nvCompiledProgramFree = (tNvCliCompiledProgramFree) GetProcAddress(nvCompilerModule, "NvCliCompiledProgramFree");
+		nvCompiledProgramFree = (tNvCliCompiledProgramFree)GetProcAddress(nvCompilerModule, "NvCliCompiledProgramFree");
 		if (!nvCompiledProgramFree)
 		{
 			print_error();
@@ -109,7 +109,7 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 
 		return true;
 	}
-	
+
 	void releaseCompiler()
 	{
 		nvCompileProgram = nullptr;
@@ -122,7 +122,7 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 			nvCompilerModule = nullptr;
 		}
 	}
-	
+
 #elif defined(VCL_ABI_POSIX)
 #endif
 

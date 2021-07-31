@@ -39,7 +39,7 @@ TEST(ScopeGuardTest, ScopeGuardExit)
 	bool guard_triggered = false;
 
 	{
-		VCL_SCOPE_EXIT{ guard_triggered = true; };
+		VCL_SCOPE_EXIT { guard_triggered = true; };
 	}
 
 	EXPECT_TRUE(guard_triggered) << "Exit guard triggered.";
@@ -51,14 +51,12 @@ TEST(ScopeGuardTest, ScopeGuardFail)
 
 	try
 	{
-		VCL_SCOPE_FAIL{ guard_triggered = true; };
+		VCL_SCOPE_FAIL { guard_triggered = true; };
 		{
 			throw std::exception{};
 		}
-	}
-	catch (...)
+	} catch (...)
 	{
-
 	}
 
 	EXPECT_TRUE(guard_triggered) << "Failure guard triggered.";
@@ -69,7 +67,7 @@ TEST(ScopeGuardTest, ScopeGuardSuccess)
 	bool guard_triggered = false;
 
 	{
-		VCL_SCOPE_SUCCESS{ guard_triggered = true; };
+		VCL_SCOPE_SUCCESS { guard_triggered = true; };
 	}
 
 	EXPECT_TRUE(guard_triggered) << "Success guard triggered.";

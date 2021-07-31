@@ -65,8 +65,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		{
 			_kernels[name] = Core::make_owner<Kernel>(name, func);
 			return _kernels[name];
-		}
-		else
+		} else
 		{
 			return nullptr;
 		}

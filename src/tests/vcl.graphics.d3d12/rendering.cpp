@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
- // Google test
+// Google test
 #include <gtest/gtest.h>
 
 // Windows
@@ -94,12 +94,10 @@ protected:
 		VCL_DIRECT3D_SAFE_CALL(dev->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height,
-				1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&optimizedClearValue,
-			IID_PPV_ARGS(&_depthBuffer)
-		));
+			IID_PPV_ARGS(&_depthBuffer)));
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
 		dsv.Format = DXGI_FORMAT_D32_FLOAT;
@@ -107,8 +105,7 @@ protected:
 		dsv.Texture2D.MipSlice = 0;
 		dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-		dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv,
-			_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, _dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	//! Native window handle of the test window
@@ -136,9 +133,8 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	SwapChain swap_chain{ device.get(), device->defaultQueue(), desc };
 	createDepthBufferAndView(device->nativeDevice(), desc.Width, desc.Height);
 
-	BufferDescription read_back_desc =
-	{
-		desc.Width* desc.Height * 4,
+	BufferDescription read_back_desc = {
+		desc.Width * desc.Height * 4,
 		BufferUsage::MapRead | BufferUsage::CopyDst
 	};
 	D3D12::Buffer read_back(device.get(), read_back_desc);
@@ -161,7 +157,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	RenderTargetLayout rtd = {};
 	rtd.ColourFormats = { Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM };
 	rtd.DepthStencilFormat = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	D3D12::GraphicsPipelineState gps{device.get(), psd, rtd, &table_layout};
+	D3D12::GraphicsPipelineState gps{ device.get(), psd, rtd, &table_layout };
 
 	// Prepare a blank screen
 	swap_chain.waitForNextFrame();
@@ -183,8 +179,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	cmd_list->DrawInstanced(6, 1, 0, 0);
 
 	// Read back render target
-	CD3DX12_RESOURCE_BARRIER barriers[] =
-	{
+	CD3DX12_RESOURCE_BARRIER barriers[] = {
 		CD3DX12_RESOURCE_BARRIER::Transition(swap_chain.buffer(0), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE)
 	};
 	cmd_list->ResourceBarrier(1, barriers);
@@ -193,7 +188,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	bufferFootprint.Footprint.Width = static_cast<UINT>(desc.Width);
 	bufferFootprint.Footprint.Height = desc.Height;
 	bufferFootprint.Footprint.Depth = 1;
-	bufferFootprint.Footprint.RowPitch = static_cast<UINT>(desc.Width*4);
+	bufferFootprint.Footprint.RowPitch = static_cast<UINT>(desc.Width * 4);
 	bufferFootprint.Footprint.Format = desc.ColourFormat;
 
 	CD3DX12_TEXTURE_COPY_LOCATION copyDest(read_back.handle(), bufferFootprint);
@@ -202,7 +197,6 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	cmd_list->CopyTextureRegion(&copyDest, 0, 0, 0, &copySrc, nullptr);
 	barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(swap_chain.buffer(0), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	cmd_list->ResourceBarrier(1, barriers);
-
 
 	VCL_DIRECT3D_SAFE_CALL(cmd_list->Close());
 	ID3D12CommandList* const generic_lists[] = { cmd_list.Get() };

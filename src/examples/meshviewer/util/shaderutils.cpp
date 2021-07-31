@@ -24,7 +24,7 @@
  */
 #include "shaderutils.h"
 
- // Qt
+// Qt
 #include <QtCore/QFile>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QStringBuilder>
@@ -63,12 +63,10 @@ namespace Vcl { namespace Editor { namespace Util
 			{
 				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
 				builder = builder % included_file % "\n";
-			}
-			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
+			} else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
 			{
 				continue;
-			}
-			else
+			} else
 			{
 				builder = builder % curr_tok % "\n";
 			}
@@ -83,6 +81,6 @@ namespace Vcl { namespace Editor { namespace Util
 	{
 		QString data = resolveShaderFile(path);
 
-		return{ type, 0, data.toUtf8().data() };
+		return { type, 0, data.toUtf8().data() };
 	}
 }}}

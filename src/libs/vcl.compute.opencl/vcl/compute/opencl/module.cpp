@@ -87,21 +87,20 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		auto ker = _kernels.find(name);
 		if (ker != _kernels.end())
 			return ker->second;
-	
+
 		cl_int err;
 		cl_kernel func = clCreateKernel(_module, name.c_str(), &err);
 		if (err == CL_SUCCESS)
 		{
 			_kernels[name] = Core::make_owner<Kernel>(name, func);
 			return _kernels[name];
-		}
-		else
+		} else
 		{
 			return nullptr;
 		}
 	}
 
-	Module::operator cl_program () const
+	Module::operator cl_program() const
 	{
 		return _module;
 	}

@@ -47,7 +47,7 @@ class WaveletNoiseTest : public Vcl::Util::WaveletNoise<32>, public testing::Tes
 {
 public:
 	WaveletNoiseTest() noexcept
-		: WaveletNoise(random_numbers)
+	: WaveletNoise(random_numbers)
 	{}
 };
 
@@ -198,7 +198,7 @@ TEST_F(WaveletNoiseTest, Evaluate)
 			{
 				using namespace Vcl::Mathematics;
 				float noise_value = evaluate({ offset[i], offset[j], offset[k] });
-				EXPECT_TRUE(equal(ref[k*9 + j*3 + i], noise_value, 1e-5f));
+				EXPECT_TRUE(equal(ref[k * 9 + j * 3 + i], noise_value, 1e-5f));
 			}
 		}
 	}
@@ -207,7 +207,7 @@ TEST_F(WaveletNoiseTest, Evaluate)
 TEST_F(WaveletNoiseTest, EvaluateWithNormal)
 {
 	const std::array<float, 3> offset = { 0.25f, 0.5f, 0.75f };
-	const std::array<float, 8*27> ref = {
+	const std::array<float, 8 * 27> ref = {
 		0.692688227f,
 		0.662242115f,
 		0.564585209f,
@@ -442,7 +442,7 @@ TEST_F(WaveletNoiseTest, EvaluateWithNormal)
 							const auto n = Eigen::Vector3f(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)).normalized();
 							const Vec3 normal = { n[0], n[1], n[2] };
 							float noise_value = evaluate({ offset[i], offset[j], offset[k] }, normal);
-							EXPECT_TRUE(equal(ref[27*(z*4 + y*2 + x) + k * 9 + j * 3 + i], noise_value, 1e-5f));
+							EXPECT_TRUE(equal(ref[27 * (z * 4 + y * 2 + x) + k * 9 + j * 3 + i], noise_value, 1e-5f));
 						}
 					}
 				}
@@ -467,7 +467,7 @@ TEST_F(WaveletNoiseTest, DxDyDz)
 
 				Mat33 result;
 				dxDyDz(p, result);
-				
+
 				const float fx = dx(p);
 				const float fy = dy(p);
 				const float fz = dz(p);

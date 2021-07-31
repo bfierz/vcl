@@ -95,8 +95,8 @@ namespace Vcl { namespace Geometry
 		TetraMesh(TetraMesh&& rhs);
 
 	public:
-		TetraMesh& operator= (const TetraMesh& rhs) = default;
-		TetraMesh& operator= (TetraMesh&& rhs) = default;
+		TetraMesh& operator=(const TetraMesh& rhs) = default;
+		TetraMesh& operator=(TetraMesh&& rhs) = default;
 
 	public: // Construct meshes from data
 		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes);
@@ -128,7 +128,6 @@ namespace Vcl { namespace Geometry
 		}
 
 	public: // Surface
-
 		//! \returns the number of surface elements
 		unsigned int nrSurfaceFaces() const { return static_cast<unsigned int>(_surfaceData.propertySize()); }
 

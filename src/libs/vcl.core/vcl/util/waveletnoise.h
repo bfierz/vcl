@@ -79,12 +79,13 @@ namespace Vcl { namespace Util
 
 		//! Initialize the noise data
 		void initializeNoise(stdext::span<const float> noise_data_base);
+
 	private:
 		//! Noise data
 		std::vector<float> _noiseTileData;
 
 		float _min; //!< Minimum noise data
-		float _max;	//!< Maximum noise data
+		float _max; //!< Maximum noise data
 	};
 }}
 

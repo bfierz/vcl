@@ -44,14 +44,14 @@ public:
 	DrawQuadApplication()
 	: Application("DrawQuads")
 	{
+		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::D3D12::DescriptorTableLayout;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
-		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
 
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, QuadCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, QuadCsoPS);
@@ -91,7 +91,7 @@ private:
 
 		D3D12_VIEWPORT vp{ x, y, w, h, 0, 1 };
 		cmd_buffer->handle()->RSSetViewports(1, &vp);
-		D3D12_RECT sr{ x, y, x+w, y+h };
+		D3D12_RECT sr{ x, y, x + w, y + h };
 		cmd_buffer->handle()->RSSetScissorRects(1, &sr);
 
 		cmd_buffer->bindPipeline(_gps.get());

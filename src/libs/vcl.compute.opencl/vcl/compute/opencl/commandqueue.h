@@ -55,9 +55,9 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 	public:
 		using Compute::CommandQueue::copy;
+		using Compute::CommandQueue::fill;
 		using Compute::CommandQueue::read;
 		using Compute::CommandQueue::write;
-		using Compute::CommandQueue::fill;
 
 		virtual void copy(BufferView dst, ConstBufferView src) override;
 		virtual void read(void* dst, ConstBufferView src, bool blocking = false) override;

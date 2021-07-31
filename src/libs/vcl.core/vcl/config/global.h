@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 // Set up the environment
@@ -34,8 +34,8 @@
 
 #ifndef DebugBlock
 #	ifdef VCL_DEBUG
-#		define DebugBlock if(true)
+#		define DebugBlock if (true)
 #	else
-#		define DebugBlock if(false)
+#		define DebugBlock if (false)
 #	endif
 #endif

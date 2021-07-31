@@ -24,7 +24,7 @@
  */
 #include <vcl/compute/opencl/commandqueue.h>
 
-// VCL 
+// VCL
 #include <vcl/compute/opencl/buffer.h>
 #include <vcl/core/contract.h>
 
@@ -61,21 +61,21 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		auto& dstBuffer = static_cast<Buffer&>(dst.owner());
 		auto& srcBuffer = static_cast<const Buffer&>(src.owner());
 
-		VCL_CL_SAFE_CALL(clEnqueueCopyBuffer(_queue, (cl_mem) dstBuffer, (cl_mem) srcBuffer, src.offset(), src.offset(), src.size(), 0, nullptr, nullptr));
+		VCL_CL_SAFE_CALL(clEnqueueCopyBuffer(_queue, (cl_mem)dstBuffer, (cl_mem)srcBuffer, src.offset(), src.offset(), src.size(), 0, nullptr, nullptr));
 	}
 
 	void CommandQueue::read(void* dst, ConstBufferView src, bool blocking)
 	{
 		auto& clBuffer = static_cast<const Buffer&>(src.owner());
 
-		VCL_CL_SAFE_CALL(clEnqueueReadBuffer(_queue, (cl_mem) clBuffer, blocking, src.offset(), src.size(), dst, 0, nullptr, nullptr));
+		VCL_CL_SAFE_CALL(clEnqueueReadBuffer(_queue, (cl_mem)clBuffer, blocking, src.offset(), src.size(), dst, 0, nullptr, nullptr));
 	}
 
 	void CommandQueue::write(BufferView dst, const void* src, bool blocking)
 	{
 		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 
-		VCL_CL_SAFE_CALL(clEnqueueWriteBuffer(_queue, (cl_mem) clBuffer, blocking, dst.offset(), dst.size(), src, 0, nullptr, nullptr));
+		VCL_CL_SAFE_CALL(clEnqueueWriteBuffer(_queue, (cl_mem)clBuffer, blocking, dst.offset(), dst.size(), src, 0, nullptr, nullptr));
 	}
 
 	void CommandQueue::fill(BufferView dst, const void* pattern, size_t pattern_size)
@@ -85,6 +85,6 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 		auto& clBuffer = static_cast<Buffer&>(dst.owner());
 
-		VCL_CL_SAFE_CALL(clEnqueueFillBuffer(_queue, (cl_mem) clBuffer, pattern, pattern_size, dst.offset(), dst.size(), 0, nullptr, nullptr));
+		VCL_CL_SAFE_CALL(clEnqueueFillBuffer(_queue, (cl_mem)clBuffer, pattern, pattern_size, dst.offset(), dst.size(), 0, nullptr, nullptr));
 	}
 }}}

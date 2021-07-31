@@ -166,15 +166,13 @@ namespace Vcl { namespace Assert
 		return false;
 	}
 
-
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const char* note, bool& ignore)
 	{
 		if (note)
 		{
 			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n %s \n", type, file, line, expr, description, note);
 			return handleAssert("Contract Violation", msgbuf.data(), &ignore);
-		}
-		else
+		} else
 		{
 			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n", type, file, line, expr, description);
 			return handleAssert("Contract Violation", msgbuf.data(), &ignore);

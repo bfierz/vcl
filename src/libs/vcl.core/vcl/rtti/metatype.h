@@ -36,7 +36,7 @@ namespace Vcl { namespace RTTI
 {
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
-	template <typename MetaType>
+	template<typename MetaType>
 	class MetaTypeSingleton
 	{
 	public:
@@ -48,7 +48,7 @@ namespace Vcl { namespace RTTI
 		 *	\param str Readable name of the meta-type
 		 */
 		template<int N>
-		static ConstructableType<MetaType> init(const char(&str)[N]);
+		static ConstructableType<MetaType> init(const char (&str)[N]);
 
 		/*!
 		 *	\brief Configure a newly initialized meta-type
@@ -56,10 +56,10 @@ namespace Vcl { namespace RTTI
 		 */
 		static void construct(ConstructableType<MetaType>* type);
 	};
-  
+
 	template<typename MetaType>
 	template<int N>
-	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char(&str)[N])
+	ConstructableType<MetaType> MetaTypeSingleton<MetaType>::init(const char (&str)[N])
 	{
 		ConstructableType<MetaType> type{ str, sizeof(MetaType), alignof(MetaType) };
 
@@ -70,49 +70,65 @@ namespace Vcl { namespace RTTI
 	}
 
 	// Template specializations matching different type variations
-	template <typename MetaType>
-	class MetaTypeSingleton<const MetaType> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<const MetaType> : public MetaTypeSingleton<MetaType>
+	{};
 
-	template <typename MetaType>
-	class MetaTypeSingleton<MetaType&> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<MetaType&> : public MetaTypeSingleton<MetaType>
+	{};
 
-	template <typename MetaType>
-	class MetaTypeSingleton<const MetaType&> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<const MetaType&> : public MetaTypeSingleton<MetaType>
+	{};
 
-	template <typename MetaType>
-	class MetaTypeSingleton<MetaType&&> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<MetaType&&> : public MetaTypeSingleton<MetaType>
+	{};
 
-	template <typename MetaType>
-	class MetaTypeSingleton<MetaType*> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<MetaType*> : public MetaTypeSingleton<MetaType>
+	{};
 
-	template <typename MetaType>
-	class MetaTypeSingleton<const MetaType*> : public MetaTypeSingleton<MetaType> {};
+	template<typename MetaType>
+	class MetaTypeSingleton<const MetaType*> : public MetaTypeSingleton<MetaType>
+	{};
 }}
 
 #define VCL_METAOBJECT(name) Vcl::RTTI::MetaTypeSingleton<name>::get()
-#define VCL_DECLARE_PLAIN_METAOBJECT public: const Vcl::RTTI::Type* metaType() const;
-#define VCL_DECLARE_ROOT_METAOBJECT(name) public: virtual const Vcl::RTTI::Type* metaType() const;
-#define VCL_DECLARE_METAOBJECT(name) public: const Vcl::RTTI::Type* metaType() const override;
-#define VCL_DEFINE_METAOBJECT(name) \
-	namespace Vcl { namespace RTTI {                                          \
-	template <>                                                               \
-	class MetaTypeSingleton<name>                                             \
-	{                                                                         \
-	public:                                                                   \
-		static const Type* get() { return &_metatype; }                       \
-	private:                                                                  \
-		template<int N>                                                       \
-		static ConstructableType<name> init(const char(&str)[N])              \
-		{                                                                     \
-			ConstructableType<name> type{ str,                                \
-				sizeof(name), std::alignment_of<name>::value };               \
-			construct(&type);                                                 \
-			return type;                                                      \
-		}                                                                     \
-		static void construct(ConstructableType<name>* type);                 \
-	private:                                                                  \
-		static ConstructableType<name> _metatype;                             \
-	};}}                                                                      \
+#define VCL_DECLARE_PLAIN_METAOBJECT \
+public:                              \
+	const Vcl::RTTI::Type* metaType() const;
+#define VCL_DECLARE_ROOT_METAOBJECT(name) \
+public:                                   \
+	virtual const Vcl::RTTI::Type* metaType() const;
+#define VCL_DECLARE_METAOBJECT(name) \
+public:                              \
+	const Vcl::RTTI::Type* metaType() const override;
+#define VCL_DEFINE_METAOBJECT(name)                                                                                                     \
+	namespace Vcl { namespace RTTI {                                                                                                    \
+			template<>                                                                                                                  \
+			class MetaTypeSingleton<name>                                                                                               \
+			{                                                                                                                           \
+			public:                                                                                                                     \
+				static const Type* get() { return &_metatype; }                                                                         \
+                                                                                                                                        \
+			private:                                                                                                                    \
+				template<int N>                                                                                                         \
+				static ConstructableType<name> init(const char (&str)[N])                                                               \
+				{                                                                                                                       \
+					ConstructableType<name> type{ str,                                                                                  \
+												  sizeof(name), std::alignment_of<name>::value };                                       \
+					construct(&type);                                                                                                   \
+					return type;                                                                                                        \
+				}                                                                                                                       \
+				static void construct(ConstructableType<name>* type);                                                                   \
+                                                                                                                                        \
+			private:                                                                                                                    \
+				static ConstructableType<name> _metatype;                                                                               \
+			};                                                                                                                          \
+		}                                                                                                                               \
+	}                                                                                                                                   \
 	Vcl::RTTI::ConstructableType<name> Vcl::RTTI::MetaTypeSingleton<name>::_metatype = Vcl::RTTI::MetaTypeSingleton<name>::init(#name); \
-	const Vcl::RTTI::Type* name::metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); } \
+	const Vcl::RTTI::Type* name::metaType() const { return Vcl::RTTI::MetaTypeSingleton<name>::get(); }                                 \
 	void Vcl::RTTI::MetaTypeSingleton<name>::construct(Vcl::RTTI::ConstructableType<name>* type)

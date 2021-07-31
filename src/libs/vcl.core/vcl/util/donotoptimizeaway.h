@@ -36,26 +36,26 @@
  */
 #ifdef VCL_COMPILER_MSVC
 
-#pragma optimize("", off)
+#	pragma optimize("", off)
 
-template <class T>
+template<class T>
 void doNotOptimizeAway(T&& datum)
 {
-  datum = datum;
+	datum = datum;
 }
 
-#pragma optimize("", on)
+#	pragma optimize("", on)
 
 #elif defined(VCL_COMPILER_CLANG)
 
-template <class T>
+template<class T>
 __attribute__((__optnone__)) void doNotOptimizeAway(T&& datum)
 {
 }
 
 #else
 
-template <class T>
+template<class T>
 void doNotOptimizeAway(T&& datum)
 {
   asm volatile("" : "+r" (datum));

@@ -32,8 +32,8 @@
 #include <cmath>
 
 VCL_BEGIN_EXTERNAL_HEADERS
-#	include <fmt/format.h>
-#	include <fmt/ostream.h>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL library

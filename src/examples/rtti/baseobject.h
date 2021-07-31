@@ -36,11 +36,12 @@ class BaseObject
 
 public:
 	BaseObject() = default;
-	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const char* name)
+	: _name(name) {}
 	BaseObject(const BaseObject&) = delete;
 	virtual ~BaseObject() = default;
 
-	BaseObject& operator = (const BaseObject&) = delete;
+	BaseObject& operator=(const BaseObject&) = delete;
 
 public:
 	const std::string& name() const { return _name; }

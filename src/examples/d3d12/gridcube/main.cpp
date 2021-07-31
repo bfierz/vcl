@@ -77,23 +77,23 @@ public:
 	DynamicBoundingGridExample()
 	: ImGuiApplication("Grid Cube")
 	{
+		using Vcl::Graphics::Camera;
+		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::D3D12::ContantDescriptor;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
 		using Vcl::Graphics::D3D12::DescriptorTable;
+		using Vcl::Graphics::D3D12::DescriptorTableLayout;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
 		using Vcl::Graphics::D3D12::InlineDescriptor;
-		using Vcl::Graphics::Runtime::D3D12::Buffer;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferUsage;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
-		using Vcl::Graphics::Camera;
-		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::D3D12::Buffer;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
 
 		_camera = std::make_unique<Camera>(std::make_shared<Vcl::Graphics::OpenGL::MatrixFactory>());
 
@@ -108,7 +108,7 @@ public:
 		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
 		//_table = std::make_unique<DescriptorTable>(device(), _tableLayout.get());
 
-		Shader boxVert{ ShaderType::VertexShader,   0, GridCsoVS };
+		Shader boxVert{ ShaderType::VertexShader, 0, GridCsoVS };
 		Shader boxGeom{ ShaderType::GeometryShader, 0, GridCsoGS };
 		Shader boxFrag{ ShaderType::FragmentShader, 0, GridCsoPS };
 		PipelineStateDescription boxPSDesc;
@@ -164,12 +164,10 @@ private:
 		if (io.MouseClicked[0] && !io.WantCaptureMouse)
 		{
 			_cameraController->startRotate((float)x / (float)w, (float)y / (float)h);
-		}
-		else if (io.MouseDown[0])
+		} else if (io.MouseDown[0])
 		{
 			_cameraController->rotate((float)x / (float)w, (float)y / (float)h);
-		}
-		else if (io.MouseReleased[0])
+		} else if (io.MouseReleased[0])
 		{
 			_cameraController->endRotate();
 		}
@@ -200,7 +198,7 @@ private:
 
 		Eigen::Matrix4f vp = _camera->projection() * _camera->view();
 		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
-		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
+		Eigen::AlignedBox3f bb{ Eigen::Vector3f{ -10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f } };
 		renderBoundingBox(cmd_buffer->handle(), bb, _gridResolution, _boxPipelineState.get(), m, vp);
 
 		cmd_buffer->endRenderPass();
@@ -245,7 +243,7 @@ private:
 		cbuf_config->Resolution = (float)resolution;
 
 		cmd_list->SetGraphicsRootConstantBufferView(1, _constantBuffer[curr]->handle()->GetGPUVirtualAddress() + 1024);
-		
+
 		// Render the grid
 		// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
 		cmd_list->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
@@ -268,7 +266,6 @@ private:
 
 	unsigned int _gridResolution{ 10 };
 };
-
 
 int main(int argc, char** argv)
 {

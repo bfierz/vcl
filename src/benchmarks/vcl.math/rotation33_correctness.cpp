@@ -93,10 +93,10 @@ void runRotationTest(T&& functor, float max_angle, float tol)
 	using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
 	size_t nr_problems = 128;
-	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
+	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
 	Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
-	
+
 	createRotationProblems(nr_problems, max_angle * 3.14f / 180.0f, 0.7f, F, &refR);
 
 	// Strides
@@ -120,7 +120,7 @@ void runRotationTest(T&& functor, float max_angle, float tol)
 template<typename T>
 struct TorqueRotation
 {
-	int operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	int operator()(const Eigen::Matrix<T, 3, 3>& A, Eigen::Matrix<T, 3, 3>& R)
 	{
 		return Vcl::Mathematics::Rotation(A, R);
 	}
@@ -129,7 +129,7 @@ struct TorqueRotation
 template<typename T>
 struct AnalyticPolarDecomposition
 {
-	int operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	int operator()(const Eigen::Matrix<T, 3, 3>& A, Eigen::Matrix<T, 3, 3>& R)
 	{
 		Eigen::Quaternion<T> q = Eigen::Quaternion<T>::Identity();
 		int iterations = Vcl::Mathematics::AnalyticPolarDecomposition(A, q);

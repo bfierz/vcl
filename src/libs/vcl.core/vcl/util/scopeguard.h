@@ -91,7 +91,7 @@ namespace Vcl { namespace Util { namespace Detail
 		int _exceptionCount;
 	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	class ScopeGuard
 	{
 	public:
@@ -122,7 +122,7 @@ namespace Vcl { namespace Util { namespace Detail
 		FunctionType _function;
 	};
 
-	template <typename FunctionType, bool executeOnException>
+	template<typename FunctionType, bool executeOnException>
 	class ScopeGuardForNewException
 	{
 	public:
@@ -158,9 +158,11 @@ namespace Vcl { namespace Util { namespace Detail
 		UncaughtExceptionCounter _exceptionCounter;
 	};
 
-	enum class ScopeGuardOnFail {};
+	enum class ScopeGuardOnFail
+	{
+	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	ScopeGuardForNewException<typename std::decay<FunctionType>::type, true>
 		operator+(ScopeGuardOnFail, FunctionType&& fn)
 	{
@@ -170,9 +172,11 @@ namespace Vcl { namespace Util { namespace Detail
 		);
 	}
 
-	enum class ScopeGuardOnSuccess {};
+	enum class ScopeGuardOnSuccess
+	{
+	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	ScopeGuardForNewException<typename std::decay<FunctionType>::type, false>
 		operator+(ScopeGuardOnSuccess, FunctionType&& fn)
 	{
@@ -182,9 +186,11 @@ namespace Vcl { namespace Util { namespace Detail
 		);
 	}
 
-	enum class ScopeGuardOnExit {};
+	enum class ScopeGuardOnExit
+	{
+	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	ScopeGuard<typename std::decay<FunctionType>::type>
 		operator+(ScopeGuardOnExit, FunctionType&& fn)
 	{

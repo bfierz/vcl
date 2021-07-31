@@ -40,15 +40,12 @@ namespace Vcl { namespace Compute
 
 	void Context::release(ref_ptr<Module> h)
 	{
-
 	}
 	void Context::release(ref_ptr<Buffer> h)
 	{
-
 	}
 	void Context::release(ref_ptr<CommandQueue> h)
 	{
-
 	}
 
 }}

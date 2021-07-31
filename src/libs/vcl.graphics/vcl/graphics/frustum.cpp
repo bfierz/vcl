@@ -26,10 +26,10 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // Eigen library
-#	include <Eigen/Eigenvalues>
+#include <Eigen/Eigenvalues>
 
 // Fmt library
-#	include <fmt/format.h>
+#include <fmt/format.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
@@ -46,7 +46,7 @@ namespace Vcl { namespace Graphics
 {
 	template<typename Scalar>
 	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum()
-	: PerspectiveViewFrustum(0, 0, static_cast<Scalar>(M_PI / 4.0), static_cast<Scalar>(0.01), 100, {0, 0, 0}, {0, 0, 1}, {0, 1, 0}, {1, 0, 0})
+	: PerspectiveViewFrustum(0, 0, static_cast<Scalar>(M_PI / 4.0), static_cast<Scalar>(0.01), 100, { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 1, 0, 0 })
 	{
 	}
 
@@ -97,20 +97,19 @@ namespace Vcl { namespace Graphics
 	{
 		return _position;
 	}
-					
-		
+
 	template<typename Scalar>
 	const typename PerspectiveViewFrustum<Scalar>::vector3_t& PerspectiveViewFrustum<Scalar>::direction() const
 	{
 		return _direction;
 	}
-		
+
 	template<typename Scalar>
 	const typename PerspectiveViewFrustum<Scalar>::vector3_t& PerspectiveViewFrustum<Scalar>::up() const
 	{
 		return _up;
-	}	
-		
+	}
+
 	template<typename Scalar>
 	const typename PerspectiveViewFrustum<Scalar>::vector3_t& PerspectiveViewFrustum<Scalar>::right() const
 	{
@@ -122,7 +121,7 @@ namespace Vcl { namespace Graphics
 	{
 		return _x;
 	}
-	
+
 	template<typename Scalar>
 	typename PerspectiveViewFrustum<Scalar>::real_t PerspectiveViewFrustum<Scalar>::height() const
 	{
@@ -134,13 +133,13 @@ namespace Vcl { namespace Graphics
 	{
 		return _fov;
 	}
-	
+
 	template<typename Scalar>
 	typename PerspectiveViewFrustum<Scalar>::real_t PerspectiveViewFrustum<Scalar>::nearPlane() const
 	{
 		return _near;
 	}
-		
+
 	template<typename Scalar>
 	typename PerspectiveViewFrustum<Scalar>::real_t PerspectiveViewFrustum<Scalar>::farPlane() const
 	{
@@ -152,7 +151,7 @@ namespace Vcl { namespace Graphics
 	{
 		for (int i = 0; i < 6; i++)
 			if (_planes[i].signedDistance(p) < 0)
-				return false; 
+				return false;
 
 		return true;
 	}
@@ -170,15 +169,15 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		VclRequireEx(equal(_direction.norm(), 1, (Scalar) 1e-6), "Direction is unit length.", fmt::format("Length: %f", _direction.norm()));
-		VclRequireEx(equal(_up.norm(), 1, (Scalar) 1e-6), "Up is unit length.", fmt::format("Length: %f", _up.norm()));
-		VclRequireEx(equal(_right.norm(), 1, (Scalar) 1e-6), "Right is unit length.", fmt::format("Length: %f", _right.norm()));
-			
+		VclRequireEx(equal(_direction.norm(), 1, (Scalar)1e-6), "Direction is unit length.", fmt::format("Length: %f", _direction.norm()));
+		VclRequireEx(equal(_up.norm(), 1, (Scalar)1e-6), "Up is unit length.", fmt::format("Length: %f", _up.norm()));
+		VclRequireEx(equal(_right.norm(), 1, (Scalar)1e-6), "Right is unit length.", fmt::format("Length: %f", _right.norm()));
+
 		real_t ratio = _x / _y;
 
 		real_t near_height = real_t(2) * std::tan(real_t(0.5) * _fov) * _near;
 		real_t near_width = near_height * ratio;
-			
+
 		real_t far_height = real_t(2) * std::tan(real_t(0.5) * _fov) * _far;
 		real_t far_width = far_height * ratio;
 
@@ -186,20 +185,20 @@ namespace Vcl { namespace Graphics
 		vector3_t fc = _position + _direction * _far;
 
 		// Far plane (top, left/top, right/bottom, left/top, left)
-		vector3_t ftl = fc + (_up * far_height*real_t(0.5)) - (_right * far_width*real_t(0.5));
-		vector3_t ftr = fc + (_up * far_height*real_t(0.5)) + (_right * far_width*real_t(0.5));
-		vector3_t fbl = fc - (_up * far_height*real_t(0.5)) - (_right * far_width*real_t(0.5));
-		vector3_t fbr = fc - (_up * far_height*real_t(0.5)) + (_right * far_width*real_t(0.5));
-			
+		vector3_t ftl = fc + (_up * far_height * real_t(0.5)) - (_right * far_width * real_t(0.5));
+		vector3_t ftr = fc + (_up * far_height * real_t(0.5)) + (_right * far_width * real_t(0.5));
+		vector3_t fbl = fc - (_up * far_height * real_t(0.5)) - (_right * far_width * real_t(0.5));
+		vector3_t fbr = fc - (_up * far_height * real_t(0.5)) + (_right * far_width * real_t(0.5));
+
 		// Near plane center
 		vector3_t nc = _position + _direction * _near;
-			
+
 		// Near plane (top, left/top, right/bottom, left/top, left)
-		vector3_t ntl = nc + (_up * near_height*real_t(0.5)) - (_right * near_width*real_t(0.5));
-		vector3_t ntr = nc + (_up * near_height*real_t(0.5)) + (_right * near_width*real_t(0.5));
-		vector3_t nbl = nc - (_up * near_height*real_t(0.5)) - (_right * near_width*real_t(0.5));
-		vector3_t nbr = nc - (_up * near_height*real_t(0.5)) + (_right * near_width*real_t(0.5));
-			
+		vector3_t ntl = nc + (_up * near_height * real_t(0.5)) - (_right * near_width * real_t(0.5));
+		vector3_t ntr = nc + (_up * near_height * real_t(0.5)) + (_right * near_width * real_t(0.5));
+		vector3_t nbl = nc - (_up * near_height * real_t(0.5)) - (_right * near_width * real_t(0.5));
+		vector3_t nbr = nc - (_up * near_height * real_t(0.5)) + (_right * near_width * real_t(0.5));
+
 		// Store the corners
 		_corners[0] = nbl;
 		_corners[1] = nbr;
@@ -293,44 +292,43 @@ namespace Vcl { namespace Graphics
 	{
 		return _position;
 	}
-					
+
 	template<typename Scalar>
 	const typename OrthographicViewFrustum<Scalar>::vector3_t& OrthographicViewFrustum<Scalar>::direction() const
 	{
 		return _direction;
 	}
-		
+
 	template<typename Scalar>
 	const typename OrthographicViewFrustum<Scalar>::vector3_t& OrthographicViewFrustum<Scalar>::up() const
 	{
 		return _up;
 	}
-		
+
 	template<typename Scalar>
 	const typename OrthographicViewFrustum<Scalar>::vector3_t& OrthographicViewFrustum<Scalar>::right() const
 	{
 		return _right;
 	}
-			
-		
+
 	template<typename Scalar>
 	typename OrthographicViewFrustum<Scalar>::real_t OrthographicViewFrustum<Scalar>::nearPlane() const
 	{
 		return _near;
 	}
-		
+
 	template<typename Scalar>
 	typename OrthographicViewFrustum<Scalar>::real_t OrthographicViewFrustum<Scalar>::farPlane() const
 	{
 		return _far;
 	}
-					
+
 	template<typename Scalar>
 	typename OrthographicViewFrustum<Scalar>::real_t OrthographicViewFrustum<Scalar>::width() const
 	{
 		return _x;
 	}
-					
+
 	template<typename Scalar>
 	typename OrthographicViewFrustum<Scalar>::real_t OrthographicViewFrustum<Scalar>::height() const
 	{
@@ -342,7 +340,7 @@ namespace Vcl { namespace Graphics
 	{
 		for (int i = 0; i < 6; i++)
 			if (_planes[i].signedDistance(p) < 0)
-				return false; 
+				return false;
 
 		return true;
 	}
@@ -359,23 +357,23 @@ namespace Vcl { namespace Graphics
 	Eigen::Matrix<Scalar, 4, 4> OrthographicViewFrustum<Scalar>::computeViewMatrix(const MatrixFactory& factory) const
 	{
 		using Vcl::Mathematics::equal;
-			
-		VclRequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar) 1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", _direction.cross(_up).dot(_right)));
+
+		VclRequireEx(equal(_direction.cross(_up).dot(_right), 1, (Scalar)1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", _direction.cross(_up).dot(_right)));
 
 		return factory.createLookAt(_position.template cast<float>(), _direction.template cast<float>(), _up.template cast<float>(), Handedness::RightHanded).template cast<Scalar>();
 	}
 
 	template<typename Scalar>
 	Eigen::Matrix<Scalar, 4, 4> OrthographicViewFrustum<Scalar>::computeProjectionMatrix(const MatrixFactory& factory) const
-	{		
+	{
 		VclRequire(_x > 0, "Width is valid");
 		VclRequire(_y > 0, "Height is valid");
 		VclRequire(_near > 0, "Near plane is valid");
 		VclRequire(_far > 0, "Far plane is valid");
-		
-		return factory.createOrtho((float) _x, (float) _y, (float) nearPlane(), (float) farPlane(), Handedness::RightHanded).cast<Scalar>();
+
+		return factory.createOrtho((float)_x, (float)_y, (float)nearPlane(), (float)farPlane(), Handedness::RightHanded).cast<Scalar>();
 	}
-	
+
 	template<typename Scalar>
 	OrthographicViewFrustum<Scalar> OrthographicViewFrustum<Scalar>::enclose(const PerspectiveViewFrustum<real_t>& frustum, const vector3_t& orthographic_direction)
 	{
@@ -405,7 +403,7 @@ namespace Vcl { namespace Graphics
 		{
 			real_t d = dir.dot(frustum.corner(i) - p[0]);
 			proj_points[i] = frustum.corner(i) - d * dir;
-			VclCheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar) 1e-3), "Projected point is on plane", fmt::format("d = %f", dir.dot(proj_points[i] - p[0])));
+			VclCheckEx(equal(dir.dot(proj_points[i] - p[0]), 0, (Scalar)1e-3), "Projected point is on plane", fmt::format("d = %f", dir.dot(proj_points[i] - p[0])));
 		}
 
 		// Compute center of projected points
@@ -415,8 +413,8 @@ namespace Vcl { namespace Graphics
 		m /= 8;
 
 		// Compute projected center point
-		//vector3_t c = 
-		//	real_t(0.5)*(frustum.position() + frustum.nearPlane()*frustum.direction()) + 
+		//vector3_t c =
+		//	real_t(0.5)*(frustum.position() + frustum.nearPlane()*frustum.direction()) +
 		//	real_t(0.5)*(frustum.position() +  frustum.farPlane()*frustum.direction())  ;
 		//real_t dc = dir.dot(c - p[0]);
 		//c -= dc * dir;
@@ -452,21 +450,21 @@ namespace Vcl { namespace Graphics
 		}
 
 		// Compute frustum parameters
-		real_t near_to_far   = n[1].dot(p[1] - p[0]);
+		real_t near_to_far = n[1].dot(p[1] - p[0]);
 		real_t left_to_right = n[3].dot(p[3] - p[2]);
 		real_t bottom_to_top = n[5].dot(p[5] - p[4]);
 
 		// Compute frustum center on near plane
 		// - Project m on to left plane, displace by left_to_right/2 -> t
 		// - Project t on to bottom plane, displace by bottom_to_top/2 -> nc
-		real_t dt = -n[3].dot(m - p[3]) - left_to_right/2;
+		real_t dt = -n[3].dot(m - p[3]) - left_to_right / 2;
 		vector3_t t = m + dt * n[3];
-		real_t dnc = -n[5].dot(t - p[5]) - bottom_to_top/2;
+		real_t dnc = -n[5].dot(t - p[5]) - bottom_to_top / 2;
 		vector3_t nc = t + dnc * n[5];
 
 		VclAssertBlock
 		{
-			vector3_t pos = nc + dir*near_to_far;
+			vector3_t pos = nc + dir * near_to_far;
 			real_t d0 = n[0].dot(pos - p[0]);
 			real_t d1 = n[1].dot(pos - p[1]);
 
@@ -477,17 +475,17 @@ namespace Vcl { namespace Graphics
 			real_t dm4 = n[4].dot(nc - p[4]);
 			real_t dm5 = n[5].dot(nc - p[5]);
 
-			VclCheck(equal(abs(d0),   near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
-			VclCheck(equal(abs(d1), 2*near_to_far, (Scalar) 1e-3), "Frustum position is correct.");
-				
-			VclCheck(equal(abs(dm0),           0, (Scalar) 1e-3), "Frustum depth is correct.");
-			VclCheck(equal(abs(dm1), near_to_far, (Scalar) 1e-3), "Frustum depth is correct.");
-			VclCheck(equal(abs(dm2), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
-			VclCheck(equal(abs(dm3), left_to_right/2, (Scalar) 1e-3), "Frustum width is correct.");
-			VclCheck(equal(abs(dm4), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
-			VclCheck(equal(abs(dm5), bottom_to_top/2, (Scalar) 1e-3), "Frustum height is correct.");
+			VclCheck(equal(abs(d0), near_to_far, (Scalar)1e-3), "Frustum position is correct.");
+			VclCheck(equal(abs(d1), 2 * near_to_far, (Scalar)1e-3), "Frustum position is correct.");
 
-			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar) 1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", -dir.cross(n[5]).dot(n[3])));
+			VclCheck(equal(abs(dm0), 0, (Scalar)1e-3), "Frustum depth is correct.");
+			VclCheck(equal(abs(dm1), near_to_far, (Scalar)1e-3), "Frustum depth is correct.");
+			VclCheck(equal(abs(dm2), left_to_right / 2, (Scalar)1e-3), "Frustum width is correct.");
+			VclCheck(equal(abs(dm3), left_to_right / 2, (Scalar)1e-3), "Frustum width is correct.");
+			VclCheck(equal(abs(dm4), bottom_to_top / 2, (Scalar)1e-3), "Frustum height is correct.");
+			VclCheck(equal(abs(dm5), bottom_to_top / 2, (Scalar)1e-3), "Frustum height is correct.");
+
+			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar)1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", -dir.cross(n[5]).dot(n[3])));
 		}
 
 		OrthographicViewFrustum<real_t> ortho
@@ -502,9 +500,9 @@ namespace Vcl { namespace Graphics
 	{
 		using Vcl::Mathematics::equal;
 
-		VclRequire(equal(_direction.squaredNorm(), 1, (Scalar) 1e-6), "Direction is unit length.");
-		VclRequire(equal(_up.squaredNorm(), 1, (Scalar) 1e-6), "Up is unit length.");
-		VclRequire(equal(_right.squaredNorm(), 1, (Scalar) 1e-6), "Right is unit length.");
+		VclRequire(equal(_direction.squaredNorm(), 1, (Scalar)1e-6), "Direction is unit length.");
+		VclRequire(equal(_up.squaredNorm(), 1, (Scalar)1e-6), "Up is unit length.");
+		VclRequire(equal(_right.squaredNorm(), 1, (Scalar)1e-6), "Right is unit length.");
 
 		real_t height = _y;
 		real_t width  = _x;
@@ -513,20 +511,20 @@ namespace Vcl { namespace Graphics
 		vector3_t fc = _position + _direction * _far;
 
 		// Far plane (top, left/top, right/bottom, left/top, left)
-		vector3_t ftl = fc + (_up * height*real_t(0.5)) - (_right * width*real_t(0.5));
-		vector3_t ftr = fc + (_up * height*real_t(0.5)) + (_right * width*real_t(0.5));
-		vector3_t fbl = fc - (_up * height*real_t(0.5)) - (_right * width*real_t(0.5));
-		vector3_t fbr = fc - (_up * height*real_t(0.5)) + (_right * width*real_t(0.5));
-			
+		vector3_t ftl = fc + (_up * height * real_t(0.5)) - (_right * width * real_t(0.5));
+		vector3_t ftr = fc + (_up * height * real_t(0.5)) + (_right * width * real_t(0.5));
+		vector3_t fbl = fc - (_up * height * real_t(0.5)) - (_right * width * real_t(0.5));
+		vector3_t fbr = fc - (_up * height * real_t(0.5)) + (_right * width * real_t(0.5));
+
 		// Near plane center
 		vector3_t nc = _position + _direction * _near;
-			
+
 		// Near plane (top, left/top, right/bottom, left/top, left)
-		vector3_t ntl = nc + (_up * height*real_t(0.5)) - (_right * width*real_t(0.5));
-		vector3_t ntr = nc + (_up * height*real_t(0.5)) + (_right * width*real_t(0.5));
-		vector3_t nbl = nc - (_up * height*real_t(0.5)) - (_right * width*real_t(0.5));
-		vector3_t nbr = nc - (_up * height*real_t(0.5)) + (_right * width*real_t(0.5));
-			
+		vector3_t ntl = nc + (_up * height * real_t(0.5)) - (_right * width * real_t(0.5));
+		vector3_t ntr = nc + (_up * height * real_t(0.5)) + (_right * width * real_t(0.5));
+		vector3_t nbl = nc - (_up * height * real_t(0.5)) - (_right * width * real_t(0.5));
+		vector3_t nbr = nc - (_up * height * real_t(0.5)) + (_right * width * real_t(0.5));
+
 		// Store the corners
 		_corners[0] = nbl;
 		_corners[1] = nbr;

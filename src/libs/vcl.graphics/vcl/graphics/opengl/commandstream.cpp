@@ -234,7 +234,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case CommandType::PatchParameteri:
 			VclCheck(params.size() == 1, "Number params is valid.");
 
-			_commands.push_back((uint32_t) type);
+			_commands.push_back((uint32_t)type);
 			_commands.push_back(*p);
 
 			break;
@@ -315,7 +315,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	}
 	uint32_t CommandStream::toToken(float arg)
 	{
-		return *(uint32_t*) &arg;
+		return *(uint32_t*)&arg;
 	}
 	uint32_t CommandStream::toToken(GLenum arg)
 	{
@@ -323,7 +323,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	}
 	float CommandStream::toFloat(uint32_t tok)
 	{
-		return *(float*) &tok;
+		return *(float*)&tok;
 	}
 }}}
 

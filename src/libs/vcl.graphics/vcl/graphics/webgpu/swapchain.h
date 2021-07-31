@@ -37,8 +37,8 @@
 
 #ifndef VCL_ARCH_WEBASM
 // Dawn
-#include <dawn_native/D3D12Backend.h>
-#include <dawn_native/DawnNative.h>
+#	include <dawn_native/D3D12Backend.h>
+#	include <dawn_native/DawnNative.h>
 #endif
 
 // VCL
@@ -95,7 +95,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 
 	private:
 		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc);
-		
+
 		//! Associated device
 		WGPUDevice _device;
 

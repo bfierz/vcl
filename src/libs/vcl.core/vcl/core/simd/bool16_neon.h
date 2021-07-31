@@ -39,7 +39,7 @@ namespace Vcl
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
-	
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, vandq_u32, 4)
 		VCL_SIMD_BINARY_OP(operator||, vorrq_u32, 4)

@@ -25,23 +25,24 @@
 
 #include "imguiapp.h"
 
- // IMGUI
+// IMGUI
 #define NOMINMAX
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
 
- // Forward declare message handler from imgui_impl_win32.cpp
+// Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 ImGuiApplication::ImGuiApplication(LPCSTR title)
-	: Application(title)
+: Application(title)
 {
 	_imguiDescrHeap = device()->createDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true);
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;	 // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;	  // Enable Gamepad Controls
 
@@ -51,10 +52,7 @@ ImGuiApplication::ImGuiApplication(LPCSTR title)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(windowHandle());
-	ImGui_ImplDX12_Init(device()->nativeDevice(), NumberOfFrames,
-		DXGI_FORMAT_R8G8B8A8_UNORM, _imguiDescrHeap.Get(),
-		_imguiDescrHeap->GetCPUDescriptorHandleForHeapStart(),
-		_imguiDescrHeap->GetGPUDescriptorHandleForHeapStart());
+	ImGui_ImplDX12_Init(device()->nativeDevice(), NumberOfFrames, DXGI_FORMAT_R8G8B8A8_UNORM, _imguiDescrHeap.Get(), _imguiDescrHeap->GetCPUDescriptorHandleForHeapStart(), _imguiDescrHeap->GetGPUDescriptorHandleForHeapStart());
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

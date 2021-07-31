@@ -22,8 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-float liver_points[] =
-{
+
+// clang-format off
+float liver_points[] = {
 	11.3805f, 6.10116f, 11.6117f,
 	11.8436f, 6.2012501f, 12.3314f,
 	12.1044f, 17.7034f, 12.2123f,
@@ -5035,8 +5036,7 @@ float liver_points[] =
 };
 int num_liver_points = sizeof(liver_points) / sizeof(float);
 
-int liver_faces[] =
-{
+int liver_faces[] = {
 	1, 2, 210,
 	2, 1, 2230,
 	3, 4, 3130,
@@ -15039,3 +15039,4 @@ int liver_faces[] =
 	5008, 3079, 109
 };
 int num_liver_faces = sizeof(liver_faces) / sizeof(int);
+// clang-format on

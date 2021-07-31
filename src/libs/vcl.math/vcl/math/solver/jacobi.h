@@ -79,7 +79,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual bool solve(JacobiContext* ctx, double* residual = nullptr);
 
 	private: // Solver configuration
-
 		//! Maximum number of iterations
 		int _maxIterations = 0;
 

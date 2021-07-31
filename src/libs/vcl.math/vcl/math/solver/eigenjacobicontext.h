@@ -34,14 +34,14 @@
 
 namespace Vcl { namespace Mathematics { namespace Solver
 {
-	template <typename MatrixT>
+	template<typename MatrixT>
 	class EigenJacobiContext : public JacobiContext
 	{
 	public:
-		using real_t   = typename MatrixT::Scalar;
+		using real_t = typename MatrixT::Scalar;
 		using vector_t = Eigen::Matrix<real_t, MatrixT::ColsAtCompileTime, 1>;
 		using matrix_t = Eigen::Matrix<real_t, MatrixT::RowsAtCompileTime, MatrixT::ColsAtCompileTime>;
-		using map_t    = Eigen::Map<vector_t>;
+		using map_t = Eigen::Map<vector_t>;
 
 	public:
 		EigenJacobiContext(const matrix_t* A, const vector_t* b)
@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		void setX(map_t x)
 		{
-			new(&_x) map_t(x);
+			new (&_x) map_t(x);
 		}
 
 		//! \brief Implement virtual interface
@@ -82,7 +82,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			x = _next;
 		}
-		 double computeError() override
+		double computeError() override
 		{
 			auto& A = *_A;
 			auto& x = _x;
@@ -92,7 +92,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			return _error / size();
 		}
-		void finish(double * residual) override
+		void finish(double* residual) override
 		{
 			if (residual)
 				(*residual) = _error;
@@ -107,7 +107,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	private:
 		//! Current error
 		real_t _error{ 0 };
-		
+
 		//! Size of the problem
 		size_t _size;
 
@@ -116,7 +116,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Per-element inverse of the system matrix diagonal
 		vector_t _DInv;
-		
+
 		//! Off-diagonal elements of the system matrix
 		matrix_t _R;
 

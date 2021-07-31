@@ -63,8 +63,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			{
 				VCL_DIRECT3D_SAFE_CALL(factory->EnumWarpAdapter(IID_PPV_ARGS(&dxgi_adapter1)));
 				VCL_DIRECT3D_SAFE_CALL(dxgi_adapter1.As(&dxgi_adapter4));
-			}
-			else
+			} else
 			{
 				SIZE_T video_memory = 0;
 				for (UINT i = 0; factory->EnumAdapters1(i, &dxgi_adapter1) != DXGI_ERROR_NOT_FOUND; ++i)
@@ -159,7 +158,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 		_defaultQueue = std::make_unique<CommandQueue>(this);
 	}
-	
+
 	Device::~Device()
 	{
 #ifdef VCL_DEBUG

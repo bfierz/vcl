@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 

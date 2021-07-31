@@ -39,7 +39,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 #if defined(VCL_COMPILER_MSVC)
-#pragma float_control(precise, on, push)
+#	pragma float_control(precise, on, push)
 #endif
 template<class T>
 const T& min(const T& a, const T& b)
@@ -53,7 +53,7 @@ const T& max(const T& a, const T& b)
 	return (a > b) ? a : b;
 }
 #if defined(VCL_COMPILER_MSVC)
-#pragma float_control(pop)
+#	pragma float_control(pop)
 #endif
 
 TEST(MinMax, NanSafeMinMax)
@@ -61,7 +61,7 @@ TEST(MinMax, NanSafeMinMax)
 	// Prepare a buffer with a NaN float
 	float in_nan = std::nanf("");
 	std::stringstream nan_stream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
-	nan_stream.write((char*) &in_nan, sizeof(in_nan));
+	nan_stream.write((char*)&in_nan, sizeof(in_nan));
 	nan_stream.seekg(0);
 
 	float nan = 0;

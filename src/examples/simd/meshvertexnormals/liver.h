@@ -29,7 +29,7 @@
 #include <vcl/config/eigen.h>
 
 extern float liver_points[];
-extern int   liver_faces [];
+extern int liver_faces[];
 
 extern int num_liver_points;
 extern int num_liver_faces;

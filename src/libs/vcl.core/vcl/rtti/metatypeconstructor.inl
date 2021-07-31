@@ -71,31 +71,31 @@ namespace Vcl { namespace RTTI
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char (&name)[N], AttribT (MetaType::*getter)() const, void (MetaType::*setter)(AttribT))
 	{
 		auto attrib = std::make_unique<Attribute<T, AttribT>>(name, getter, setter);
 
 		_concreteAttributes.push_back(std::move(attrib));
-		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t)_concreteAttributes.size() };
 
 		return this;
 	}
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char (&name)[N], AttribT* (MetaType::*getter)() const, void (MetaType::*setter)(std::unique_ptr<AttribT>))
 	{
 		auto attrib = std::make_unique<Attribute<T, std::unique_ptr<AttribT>>>(name, getter, setter);
 
 		_concreteAttributes.push_back(std::move(attrib));
-		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t) _concreteAttributes.size() };
+		_attributes = { (const AttributeBase**)_concreteAttributes.data(), (std::ptrdiff_t)_concreteAttributes.size() };
 
 		return this;
 	}
 
 	template<typename T>
 	template<size_t N, typename AttribT>
-	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
+	DynamicConstructableType<T>* DynamicConstructableType<T>::addAttribute(const char (&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&))
 	{
 		auto attrib = std::make_unique<Attribute<T, const AttribT&>>(name, getter, setter);
 

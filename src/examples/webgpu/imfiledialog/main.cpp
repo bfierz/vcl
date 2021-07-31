@@ -51,9 +51,8 @@ public:
 	{
 		// ImFileDialog requires you to set the CreateTexture and DeleteTexture
 		ifd::FileDialog::Instance().CreateTexture = [this](uint8_t* data, int w, int h, char fmt) -> void* {
-
 			using Vcl::Graphics::WebGPU::createTextureFromData;
-			const auto texture_data = createTextureFromData(_wgpuDevice, Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM, w, h, stdext::make_span(data, 4*w*h));
+			const auto texture_data = createTextureFromData(_wgpuDevice, Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM, w, h, stdext::make_span(data, 4 * w * h));
 			fi_img_cache.emplace(std::get<1>(texture_data), std::get<0>(texture_data));
 			return (void*)std::get<1>(texture_data);
 		};
@@ -80,23 +79,29 @@ private:
 			ifd::FileDialog::Instance().Save("ShaderSaveDialog", "Save a shader", "*.sprj {.sprj}");
 		ImGui::End();
 
-		if (ifd::FileDialog::Instance().IsDone("ShaderOpenDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("ShaderOpenDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				const std::vector<std::filesystem::path>& res = ifd::FileDialog::Instance().GetResults();
 				for (const auto& r : res) // ShaderOpenDialog supports multiselection
 					printf("OPEN[%s]\n", r.u8string().c_str());
 			}
 			ifd::FileDialog::Instance().Close();
 		}
-		if (ifd::FileDialog::Instance().IsDone("DirectoryOpenDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("DirectoryOpenDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 				printf("DIRECTORY[%s]\n", res.c_str());
 			}
 			ifd::FileDialog::Instance().Close();
 		}
-		if (ifd::FileDialog::Instance().IsDone("ShaderSaveDialog")) {
-			if (ifd::FileDialog::Instance().HasResult()) {
+		if (ifd::FileDialog::Instance().IsDone("ShaderSaveDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
 				std::string res = ifd::FileDialog::Instance().GetResult().u8string();
 				printf("SAVE[%s]\n", res.c_str());
 			}
@@ -135,6 +140,6 @@ private:
 
 int main(int argc, char** argv)
 {
-	DemoImGuiApplication app{"ImFileDialog Demo"};
+	DemoImGuiApplication app{ "ImFileDialog Demo" };
 	return app.run();
 }

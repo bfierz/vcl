@@ -80,9 +80,9 @@ namespace Vcl { namespace Graphics
 		const unsigned int bitStep = 4;
 
 		int i = 0;
-		while (keyBits > i*bitStep)
+		while (keyBits > i * bitStep)
 		{
-			radixSortStepKeysOnly(keys, bitStep, i*bitStep, numElements);
+			radixSortStepKeysOnly(keys, bitStep, i * bitStep, numElements);
 			i++;
 		}
 	}
@@ -96,7 +96,7 @@ namespace Vcl { namespace Graphics
 
 		unsigned int array_length = numElements * 16 / 2 / LocalSize;
 		_scan(_countersSum, _counters, array_length);
-		
+
 		reorderDataKeysOnlyOCL(keys, startbit, numElements);
 	}
 

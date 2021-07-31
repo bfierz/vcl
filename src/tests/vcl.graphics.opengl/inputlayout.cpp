@@ -84,14 +84,13 @@ using namespace Vcl::Graphics;
 TEST(OpenGL, EmptyLayout)
 {
 	InputLayoutDescription in;
-	InputLayout layout{in};
+	InputLayout layout{ in };
 	EXPECT_NE(0, layout.id());
 }
 
 TEST(OpenGL, Float4Layout)
 {
-	InputLayoutDescription in
-	{
+	InputLayoutDescription in{
 		{
 			{ 0, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject },
 		},
@@ -110,10 +109,9 @@ TEST(OpenGL, Float4Layout)
 
 TEST(OpenGL, NormalizedSignedShort2Layout)
 {
-	InputLayoutDescription in
-	{
+	InputLayoutDescription in{
 		{
-			{ 0, 2*sizeof(short), VertexDataClassification::VertexDataPerInstance },
+			{ 0, 2 * sizeof(short), VertexDataClassification::VertexDataPerInstance },
 		},
 		{
 			{ "Position", SurfaceFormat::R16G16_SNORM, 0, 0, 0 },
@@ -130,8 +128,7 @@ TEST(OpenGL, NormalizedSignedShort2Layout)
 
 TEST(OpenGL, SignedByte1Layout)
 {
-	InputLayoutDescription in
-	{
+	InputLayoutDescription in{
 		{
 			{ 0, sizeof(char), VertexDataClassification::VertexDataPerObject },
 		},

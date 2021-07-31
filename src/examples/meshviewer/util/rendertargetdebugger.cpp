@@ -48,22 +48,22 @@ namespace Vcl { namespace Editor { namespace Util
 		//using Vcl::Graphics::Runtime::VertexDataClassification;
 		//using Vcl::Graphics::SurfaceFormat;
 
-		 /////////////////////////////////////////////////////////////////////////
-		 // Pipeline states
-		 /////////////////////////////////////////////////////////////////////////
-		
-		 Shader present_vert = createShader(ShaderType::VertexShader,   ":/shaders/debug/renderttarget_present.vert");
-		 Shader present_frag = createShader(ShaderType::FragmentShader, ":/shaders/debug/renderttarget_present.frag");
+		/////////////////////////////////////////////////////////////////////////
+		// Pipeline states
+		/////////////////////////////////////////////////////////////////////////
 
-		 PipelineStateDescription present_psdesc;
-		 present_psdesc.VertexShader = &present_vert;
-		 present_psdesc.FragmentShader = &present_frag;
-		 _presentationPipelineState = make_owner<PipelineState>(present_psdesc);
+		Shader present_vert = createShader(ShaderType::VertexShader, ":/shaders/debug/renderttarget_present.vert");
+		Shader present_frag = createShader(ShaderType::FragmentShader, ":/shaders/debug/renderttarget_present.frag");
 
-		 // Create a nearest neighbour sampler for the render-target visualization
-		 SamplerDescription sampler_desc;
-		 sampler_desc.Filter = FilterType::MinMagMipPoint;
-		 _rtSampler = std::make_unique<Sampler>(sampler_desc);
+		PipelineStateDescription present_psdesc;
+		present_psdesc.VertexShader = &present_vert;
+		present_psdesc.FragmentShader = &present_frag;
+		_presentationPipelineState = make_owner<PipelineState>(present_psdesc);
+
+		// Create a nearest neighbour sampler for the render-target visualization
+		SamplerDescription sampler_desc;
+		sampler_desc.Filter = FilterType::MinMagMipPoint;
+		_rtSampler = std::make_unique<Sampler>(sampler_desc);
 	}
 
 	void RendertargetDebugger::draw(

@@ -61,7 +61,7 @@ namespace Vcl { namespace Geometry
 		const Eigen::Matrix<int_t, Dim, 1>& signs() const { return _signs; }
 
 	public:
-		vector_t operator() (const Scalar& t) const
+		vector_t operator()(const Scalar& t) const
 		{
 			return _ray.pointAt(t);
 		}

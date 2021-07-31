@@ -47,9 +47,10 @@ namespace Vcl { namespace Core { namespace OpenCL
 			{
 				log2L = 0;
 				return 0;
-			}
-			else {
-				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++);
+			} else
+			{
+				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++)
+					;
 				return L;
 			}
 		}
@@ -133,7 +134,7 @@ namespace Vcl { namespace Core { namespace OpenCL
 		auto bufDst = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(dst);
 		auto bufSrc = Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::Buffer>(src);
 
-		std::array<size_t, 3> globalWorkSize = { (n*size) / 4, 0, 0 };
+		std::array<size_t, 3> globalWorkSize = { (n * size) / 4, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { WorkgroupSize, 0, 0 };
 
 		_scanExclusiveLocal1Kernel->run

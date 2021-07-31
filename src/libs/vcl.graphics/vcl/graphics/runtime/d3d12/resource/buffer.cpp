@@ -92,14 +92,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		{
 			buffer_usage = D3D12_RESOURCE_STATE_COPY_DEST;
 			_targetStates = buffer_usage;
-		}
-		else if (_heapType == D3D12_HEAP_TYPE_UPLOAD)
+		} else if (_heapType == D3D12_HEAP_TYPE_UPLOAD)
 
 		{
 			buffer_usage = D3D12_RESOURCE_STATE_GENERIC_READ;
 			_targetStates = buffer_usage;
-		}
-		else
+		} else
 		{
 			buffer_usage = D3D12_RESOURCE_STATE_COMMON;
 			_targetStates = toD3DResourceState(usage());
@@ -161,7 +159,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		return ptr;
 	}
-	
+
 	void Buffer::write(Graphics::D3D12::Device* device, ID3D12GraphicsCommandList* cmd_list, const void* data, size_t offset_in_bytes, size_t size_in_bytes)
 	{
 		VclRequire(offset_in_bytes + size_in_bytes <= sizeInBytes(), "Data fits into buffer.");
@@ -171,8 +169,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 			auto ptr = reinterpret_cast<uint8_t*>(map());
 			memcpy(ptr + offset_in_bytes, data, size_in_bytes);
 			unmap({ offset_in_bytes, size_in_bytes });
-		}
-		else
+		} else
 		{
 			if (!_uploadResource)
 			{

@@ -68,14 +68,14 @@ TEST(DISABLED_SlabMath, Intersection)
 	float tmin[10], tmax[10];
 
 	for (int j = 0; j < 2; j++)
-	for (int i = 0; i < 5; i++)
-	{
-		float t1 = (left  - o[i]) * inv_d[j];
-		float t2 = (right - o[i]) * inv_d[j];
+		for (int i = 0; i < 5; i++)
+		{
+			float t1 = (left - o[i]) * inv_d[j];
+			float t2 = (right - o[i]) * inv_d[j];
 
-		tmin[5*j + i] = min(min(t1, t2),  std::numeric_limits<float>::infinity());
-		tmax[5*j + i] = max(max(t1, t2), -std::numeric_limits<float>::infinity());
-	}
+			tmin[5 * j + i] = min(min(t1, t2), std::numeric_limits<float>::infinity());
+			tmax[5 * j + i] = max(max(t1, t2), -std::numeric_limits<float>::infinity());
+		}
 
 	// No intersection
 	EXPECT_TRUE(std::isinf(tmin[0]));
@@ -106,8 +106,8 @@ TEST(DISABLED_SlabMath, Intersection)
 template<typename Scalar, typename Func>
 void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func intersect, bool result)
 {
-	using Vcl::Mathematics::equal;
 	using Vcl::all;
+	using Vcl::Mathematics::equal;
 
 	using real_t = Scalar;
 
@@ -123,14 +123,14 @@ void testAxisAlignedIntersection(const Vcl::Geometry::Ray<Scalar, 3>& ray, Func 
 // DISABLED: Test results unstable depending on compiler optimization
 TEST(DISABLED_AxisAlignedBoxRayIntersection, ScalarBarnes)
 {
-	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 
-	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f,  0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f,  1.000001f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool(*Func) (const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
+	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
 	Func f = Vcl::Geometry::intersects_Barnes;
 	testAxisAlignedIntersection(r0, f, true);
 	testAxisAlignedIntersection(r1, f, true);
@@ -141,14 +141,14 @@ TEST(DISABLED_AxisAlignedBoxRayIntersection, ScalarBarnes)
 
 TEST(AxisAlignedBoxRayIntersection, ScalarIze)
 {
-	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 
-	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f,  0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f,  1.000001f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool(*Func) (const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
+	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
 	Func f = Vcl::Geometry::intersects_MaxMult;
 	testAxisAlignedIntersection(r0, f, true);
 	testAxisAlignedIntersection(r1, f, true);
@@ -160,14 +160,14 @@ TEST(AxisAlignedBoxRayIntersection, ScalarIze)
 // DISABLED: Test results unstable depending on compiler optimization
 TEST(DISABLED_AxisAlignedBoxRayIntersection, ScalarPharr)
 {
-	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r0{ { 0.5f, 0.5f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r1{ { 0.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 
-	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f,  0.0f },{ 0, 0, 1 } };
-	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f,  1.000001f },{ 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r2{ { 1.0f, 0.0f, -0.000001f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
+	Vcl::Geometry::Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool(*Func) (const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
+	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Vcl::Geometry::Ray<float, 3>&);
 	Func f = Vcl::Geometry::intersects_Pharr;
 	testAxisAlignedIntersection(r0, f, true);
 	testAxisAlignedIntersection(r1, f, true);
@@ -178,9 +178,9 @@ TEST(DISABLED_AxisAlignedBoxRayIntersection, ScalarPharr)
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 {
+	using Vcl::all;
 	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
-	using Vcl::all;
 
 	using real_t = float;
 
@@ -196,9 +196,9 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat)
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat4)
 {
+	using Vcl::all;
 	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
-	using Vcl::all;
 
 	using real_t = Vcl::float4;
 
@@ -214,9 +214,9 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat4)
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat8)
 {
+	using Vcl::all;
 	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
-	using Vcl::all;
 
 	using real_t = Vcl::float8;
 
@@ -232,9 +232,9 @@ TEST(AxisAlignedBoxRayIntersection, SimpleFloat8)
 
 TEST(AxisAlignedBoxRayIntersection, SimpleFloat16)
 {
+	using Vcl::all;
 	using Vcl::Geometry::intersects_MaxMult;
 	using Vcl::Mathematics::equal;
-	using Vcl::all;
 
 	using real_t = Vcl::float16;
 

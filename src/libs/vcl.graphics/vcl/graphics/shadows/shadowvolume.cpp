@@ -26,7 +26,7 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // FMT
-#	include <fmt/format.h>
+#include <fmt/format.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
@@ -38,7 +38,7 @@ namespace Vcl { namespace Graphics
 	ShadowMapVolume::~ShadowMapVolume()
 	{
 	}
-	
+
 	ShadowMapAlgorithm ShadowMapVolume::shadowMapAlgorithm() const
 	{
 		return _shadowMapAlgorithm;
@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics
 	{
 		_shadowMapAlgorithm = algorithm;
 	}
-		
+
 	ShadowMap* ShadowMapVolume::shadowMap() const
 	{
 		return _shadowMap.get();
@@ -92,7 +92,7 @@ namespace Vcl { namespace Graphics
 	{
 		mDirection = dir;
 	}
-	
+
 	float PerspectiveShadowMapVolume::fieldOfView() const
 	{
 		return mFOV;
@@ -102,7 +102,7 @@ namespace Vcl { namespace Graphics
 	{
 		mFOV = fov;
 	}
-	
+
 	float PerspectiveShadowMapVolume::nearPlane() const
 	{
 		return mNearPlane;
@@ -112,7 +112,7 @@ namespace Vcl { namespace Graphics
 	{
 		mNearPlane = near_plane;
 	}
-		
+
 	float PerspectiveShadowMapVolume::farPlane() const
 	{
 		return mFarPlane;
@@ -227,7 +227,7 @@ namespace Vcl { namespace Graphics
 	{
 		mUp = up;
 	}
-	
+
 	float OrthographicShadowMapVolume::width() const
 	{
 		return mWidth;
@@ -237,7 +237,7 @@ namespace Vcl { namespace Graphics
 	{
 		mWidth = w;
 	}
-		
+
 	float OrthographicShadowMapVolume::height() const
 	{
 		return mHeight;
@@ -247,7 +247,7 @@ namespace Vcl { namespace Graphics
 	{
 		mHeight = h;
 	}
-	
+
 	float OrthographicShadowMapVolume::nearPlane() const
 	{
 		return mNearPlane;
@@ -257,7 +257,7 @@ namespace Vcl { namespace Graphics
 	{
 		mNearPlane = near_plane;
 	}
-		
+
 	float OrthographicShadowMapVolume::farPlane() const
 	{
 		return mFarPlane;
@@ -267,7 +267,7 @@ namespace Vcl { namespace Graphics
 	{
 		mFarPlane = far_plane;
 	}
-	
+
 	Eigen::Matrix4f OrthographicShadowMapVolume::lightMatrix() const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
@@ -291,7 +291,7 @@ namespace Vcl { namespace Graphics
 		VclRequire(mHeight > 0, "Height is valid");
 		VclRequire(mNearPlane > 0, "Near plane is valid");
 		VclRequire(mFarPlane > 0, "Far plane is valid");
-		
+
 		return mFactory->createOrtho(mWidth, mHeight, nearPlane(), farPlane(), Handedness::RightHanded);
 	}
 
@@ -352,22 +352,22 @@ namespace Vcl { namespace Graphics
 
 			// Compute split positions based on
 			// GPU Gems 3 - Parallel-Split Shadow Maps on Programmable GPUs
-			int nr_splits = (int) mSplits.size();
+			int nr_splits = (int)mSplits.size();
 			float n = frustum->nearPlane();
 			float f = frustum->farPlane();
 
 			mSplits.front() = n;
 			for (int i = 1; i < nr_splits; i++)
 			{
-				float uniform_split = n + (f - n) * (float) i / (float) nr_splits;
-				float log_split = n * pow(f / n, (float) i / (float) nr_splits);
-				float split = mLambda*log_split + (1 - mLambda)*uniform_split;						
+				float uniform_split = n + (f - n) * (float)i / (float)nr_splits;
+				float log_split = n * pow(f / n, (float)i / (float)nr_splits);
+				float split = mLambda * log_split + (1 - mLambda) * uniform_split;
 				mSplits[i] = split;
 			}
 			mSplits.back() = f;
-			
+
 			// Compute orthographic volumes for each split
-			for (size_t i = 0; i < mSplits.size()-1; i++)
+			for (size_t i = 0; i < mSplits.size() - 1; i++)
 			{
 				// Compute the perspective split frustum
 				PerspectiveViewFrustum<float> psf
@@ -384,9 +384,9 @@ namespace Vcl { namespace Graphics
 
 	float ParallelSplitOrthographicShadowMapVolume::split(unsigned int idx) const
 	{
-		VclRequire(idx < mSplits.size()-1, "Index is valid.");
+		VclRequire(idx < mSplits.size() - 1, "Index is valid.");
 
-		return mSplits[idx+1];
+		return mSplits[idx + 1];
 	}
 
 	Eigen::Matrix4f ParallelSplitOrthographicShadowMapVolume::lightMatrix(unsigned int split) const

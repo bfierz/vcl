@@ -50,14 +50,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	{
 		GLint val = getInteger(e);
 
-		return (GLenum) val;
+		return (GLenum)val;
 	}
-	
+
 	GLenum GL::getEnum(GLenum e, int i)
 	{
 		GLint val = getInteger(e, i);
 
-		return (GLenum) val;
+		return (GLenum)val;
 	}
 
 	GLint GL::getInteger(GLenum e)
@@ -75,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		return val;
 	}
-	
+
 	AnyRenderType GL::toRenderType(SurfaceFormat fmt)
 	{
 		using namespace Vcl::Graphics::OpenGL;
@@ -134,7 +134,6 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		return RenderType<void>();
 	}
-		
 
 	bool GL::checkGLError()
 	{
@@ -176,12 +175,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return false;
 		}
 	}
-	
+
 	bool GL::checkGLFramebufferStatus(GLuint fbo)
 	{
 		// check FBO status
-		GLenum status = glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);   
-		switch(status)
+		GLenum status = glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);
+		switch (status)
 		{
 		case GL_FRAMEBUFFER_COMPLETE:
 			return true;

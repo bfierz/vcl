@@ -52,7 +52,7 @@ class Serializer : public Vcl::RTTI::Serializer
 public:
 	virtual void beginType(const stdext::string_view name, int version) override
 	{
-		_objects.emplace_back(_attrib, json{ {"Type", name.data() },  { "Version", version } });
+		_objects.emplace_back(_attrib, json{ { "Type", name.data() }, { "Version", version } });
 	}
 
 	virtual void endType() override
@@ -63,8 +63,7 @@ public:
 		if (!_objects.empty())
 		{
 			_objects.back().second["Attributes"][attrib_obj.first] = std::move(attrib_obj.second);
-		}
-		else
+		} else
 		{
 			_storage = std::move(attrib_obj.second);
 		}
@@ -133,7 +132,6 @@ public:
 	virtual void endType() override
 	{
 		_object_stack.pop_back();
-
 	}
 
 	virtual std::string readType() override
@@ -156,7 +154,6 @@ private:
 	const json& _storage;
 
 	std::vector<const json*> _object_stack;
-
 };
 
 // Test classes
@@ -168,11 +165,12 @@ class BaseObject
 
 public:
 	BaseObject() = default;
-	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const char* name)
+	: _name(name) {}
 	BaseObject(const BaseObject&) = delete;
 	virtual ~BaseObject() = default;
 
-	BaseObject& operator = (const BaseObject&) = delete;
+	BaseObject& operator=(const BaseObject&) = delete;
 
 public:
 	const std::string& name() const { return _name; }
@@ -230,14 +228,13 @@ public:
 	BaseObject* ownedObj() const { return _ownedObj.get(); }
 	void setOwnedObj(std::unique_ptr<BaseObject> obj) { _ownedObj = std::move(obj); }
 
-	size_t size() const { return (size_t) _size; }
+	size_t size() const { return (size_t)_size; }
 
 private:
 	float _size;
 
 	std::unique_ptr<BaseObject> _ownedObj;
 };
-
 
 VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 	Vcl::RTTI::Constructor<BaseObject>(),
@@ -284,7 +281,7 @@ TEST(RttiTest, DefaultConstructor)
 	Constructor<BaseObject> def_constr{};
 
 	// Allocate memory for the test object
-	BaseObject* obj = (BaseObject*) malloc(sizeof(BaseObject));
+	BaseObject* obj = (BaseObject*)malloc(sizeof(BaseObject));
 
 	// Calls the default ctor
 	def_constr.call(obj);
@@ -373,7 +370,7 @@ TEST(RttiTest, SimpleConstructableType)
 	void* obj_mem = type.allocate();
 	type.Type::construct(obj_mem);
 
-	auto obj = (BaseObject*) obj_mem;
+	auto obj = (BaseObject*)obj_mem;
 
 	// Check the expected output
 	EXPECT_TRUE(type.hasAttribute("Name")) << "Attribute 'Name' is not found.";
@@ -419,10 +416,9 @@ TEST(RttiTest, SimpleFactoryUse)
 	using namespace Vcl::RTTI;
 
 	// Create a new type
-	auto obj = (BaseObject*) Factory::create("BaseObject", "Param0");
+	auto obj = (BaseObject*)Factory::create("BaseObject", "Param0");
 
 	EXPECT_EQ(std::string{ "Param0" }, obj->name()) << "Default ctor was not called.";
-
 }
 
 TEST(RttiTest, AttributeSimpleSetter)

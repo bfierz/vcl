@@ -118,12 +118,12 @@ namespace Vcl { namespace Tools { namespace Clc
 	{
 		SECURITY_ATTRIBUTES saAttr;
 
-		// Set the bInheritHandle flag so pipe handles are inherited. 
+		// Set the bInheritHandle flag so pipe handles are inherited.
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
 		saAttr.lpSecurityDescriptor = nullptr;
 
-		// Create a pipe for the child process's IO 
+		// Create a pipe for the child process's IO
 		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
 			return;
 
@@ -142,7 +142,7 @@ namespace Vcl { namespace Tools { namespace Clc
 		for (;;)
 		{
 			DWORD exit_code;
-			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			GetExitCodeProcess(hProcess, &exit_code); //while the process is running
 			if (exit_code != STILL_ACTIVE)
 				break;
 
@@ -172,11 +172,11 @@ namespace Vcl { namespace Tools { namespace Clc
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
-		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdError = hWrite;  //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-		
+
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -231,7 +231,7 @@ namespace Vcl { namespace Tools { namespace Clc
 	}
 }}}
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Clc;
 
@@ -285,20 +285,17 @@ int main(int argc, char* argv [])
 				compiler = "cl";
 				param_tok = '/';
 				format = Compiler::Msvc;
-			}
-			else if (parsed_options["compiler"].as<std::string>() == "clang")
+			} else if (parsed_options["compiler"].as<std::string>() == "clang")
 			{
 				compiler = "clang";
 				param_tok = '-';
 				format = Compiler::Clang;
-			}
-			else if (parsed_options["compiler"].as<std::string>() == "gcc")
+			} else if (parsed_options["compiler"].as<std::string>() == "gcc")
 			{
 				compiler = "gcc";
 				param_tok = '-';
 				format = Compiler::Gcc;
-			}
-			else
+			} else
 			{
 				std::cerr << "Invalid compiler string" << std::endl;
 				std::cout << options.help({ "" }) << std::endl;
@@ -350,8 +347,8 @@ int main(int argc, char* argv [])
 				std::string source = read_stream_into_string(ifile);
 				ifile.close();
 
-				const char* sources [] = { source.data() };
-				size_t sizes [] = { source.size() };
+				const char* sources[] = { source.data() };
+				size_t sizes[] = { source.size() };
 
 				const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_30";
 
@@ -362,8 +359,7 @@ int main(int argc, char* argv [])
 				{
 					std::cout << log << std::endl;
 					Nvidia::freeLog(log);
-				}
-				else
+				} else
 				{
 					// Append the compiled source to the output
 					Nvidia::freeProgramBinary(binary);
@@ -388,8 +384,7 @@ int main(int argc, char* argv [])
 
 		// Invoke the binary file translator
 		exec("bin2c", cmd.str().c_str());
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;

@@ -24,7 +24,7 @@
  */
 #include <vcl/math/solver/cuda/poisson3dsolver_jacobi.h>
 
- // VCL
+// VCL
 #include <vcl/math/ceil.h>
 
 CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, dim3 dim, float h, float a, float offset, float* __restrict Ac, float* __restrict Ax_l, float* __restrict Ax_r, float* __restrict Ay_l, float* __restrict Ay_r, float* __restrict Az_l, float* __restrict Az_r, const unsigned char* __restrict skip);
@@ -47,7 +47,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		using namespace Vcl::Mathematics;
 
 		// Create buffers
-		size_t size = dim.x()*dim.y()*dim.z();
+		size_t size = dim.x() * dim.y() * dim.z();
 
 		for (auto& buf : _laplacian)
 			buf = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size * sizeof(float)));
@@ -77,9 +77,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		new(&std::get<1>(_unknowns)) map_t(unknowns);
+		new (&std::get<1>(_unknowns)) map_t(unknowns);
 		std::get<0>(_rhs) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		new(&std::get<1>(_rhs)) const_map_t(rhs);
+		new (&std::get<1>(_rhs)) const_map_t(rhs);
 
 		_queue->write(std::get<0>(_unknowns), unknowns.data(), true);
 		_queue->write(std::get<0>(_rhs), rhs.data(), true);
@@ -93,9 +93,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = unknowns;
-		new(&std::get<1>(_unknowns)) map_t(nullptr, 0);
+		new (&std::get<1>(_unknowns)) map_t(nullptr, 0);
 		std::get<0>(_rhs) = rhs;
-		new(&std::get<1>(_rhs)) const_map_t(nullptr, 0);
+		new (&std::get<1>(_rhs)) const_map_t(nullptr, 0);
 	}
 
 	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, float o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)

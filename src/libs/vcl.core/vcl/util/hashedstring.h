@@ -138,16 +138,16 @@ namespace Vcl { namespace Util
 	}
 #endif
 
-	template <unsigned int N, unsigned int I>
+	template<unsigned int N, unsigned int I>
 	struct FnvHash
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
-			return (FnvHash<N, I-1>::hash(str) ^ static_cast<unsigned int>(str[I-2])) * 0x01000193;
+			return (FnvHash<N, I - 1>::hash(str) ^ static_cast<unsigned int>(str[I - 2])) * 0x01000193;
 		}
 	};
- 
-	template <unsigned int N>
+
+	template<unsigned int N>
 	struct FnvHash<N, 1>
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
@@ -158,21 +158,22 @@ namespace Vcl { namespace Util
 	};
 
 	class StringHash
-	{ 
+	{
 	public:
 		struct DynamicConstCharString
 		{
-			VCL_STRONG_INLINE DynamicConstCharString(const char* s) : str(s) {}
+			VCL_STRONG_INLINE DynamicConstCharString(const char* s)
+			: str(s) {}
 			const char* str;
 		};
 
 	public:
-		template <size_t N>
+		template<size_t N>
 		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 StringHash(const char (&str)[N])
 		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}
-		
+
 		VCL_STRONG_INLINE StringHash(DynamicConstCharString str)
 		: _hash(calculateFnv1a32(str.str))
 		{
@@ -187,7 +188,7 @@ namespace Vcl { namespace Util
 		{
 			return _hash;
 		}
- 
+
 	private:
 		//! Computed hash value
 		uint32_t _hash;

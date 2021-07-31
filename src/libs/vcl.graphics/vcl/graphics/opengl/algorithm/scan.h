@@ -93,13 +93,11 @@ namespace Vcl { namespace Graphics
 		);
 
 	private: // Module, Kernels
-
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal1Kernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal2Kernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _uniformUpdateKernel;
 
 	private: // Configurations
-
 		static const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
 
 		static const unsigned int WorkgroupSize = 256;
@@ -110,7 +108,6 @@ namespace Vcl { namespace Graphics
 		static const unsigned int MaxLargeArraySize = 4 * WorkgroupSize * WorkgroupSize;
 
 	private: // Buffers
-
 		//! Maximum number of stored entries
 		size_t _maxElements = 0;
 

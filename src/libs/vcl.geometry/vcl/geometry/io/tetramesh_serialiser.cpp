@@ -75,7 +75,7 @@ namespace Vcl { namespace Geometry { namespace IO
 	{
 		VclRequire(indices.size() == 4, "Indices describe a tetrahedron.");
 
-		std::array<unsigned int, 4> volume = {indices[0], indices[1], indices[2], indices[3]};
+		std::array<unsigned int, 4> volume = { indices[0], indices[1], indices[2], indices[3] };
 		_volumes.push_back(volume);
 	}
 

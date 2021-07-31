@@ -86,8 +86,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
-		
-		//! Left-hand side 
+
+		//! Left-hand side
 		std::tuple<ref_ptr<Compute::Cuda::Buffer>, map_t> _unknowns;
 
 		//! Right-hand side

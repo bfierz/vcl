@@ -44,8 +44,7 @@ TEST(D3D12Buffer, Create)
 	using namespace Vcl::Graphics::Runtime;
 
 	// Define the buffer
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::Vertex
 	};
@@ -129,16 +128,14 @@ TEST(D3D12Buffer, InitWithValues)
 	// Define the buffer
 	float numbers[256];
 	for (int i = 0; i < 256; i++)
-		numbers[i] = (float) i;
+		numbers[i] = (float)i;
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapRead
 	};
 
-	BufferInitData data =
-	{
+	BufferInitData data = {
 		numbers,
 		1024
 	};
@@ -183,8 +180,7 @@ TEST(D3D12Buffer, ReadWrite)
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapWrite
 	};
@@ -227,8 +223,7 @@ TEST(D3D12Buffer, DoubleMap)
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapWrite
 	};
@@ -288,8 +283,7 @@ TEST(D3D12Buffer, DynamicUpdate)
 	DescriptorTableLayout table_layout{ device.get(), std::move(dynamic_resources), {} };
 	auto signature = table_layout.rootSignature();
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapWrite | BufferUsage::Uniform
 	};

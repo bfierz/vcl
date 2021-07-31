@@ -29,7 +29,7 @@
 // C++ Standard Library
 #include <algorithm>
 
- // Windows Runtime Library
+// Windows Runtime Library
 #define NOMINMAX
 #include <tchar.h>
 #include <wrl.h>
@@ -97,15 +97,15 @@ TEST_F(D3D12GraphicsEngineTest, EngineFrameCounter)
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 0);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 1);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 2);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 0);
 	engine.endFrame();

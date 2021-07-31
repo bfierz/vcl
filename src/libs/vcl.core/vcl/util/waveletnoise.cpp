@@ -30,16 +30,16 @@
 #include <vcl/util/waveletnoise_helpers.h>
 #include <vcl/util/waveletnoise_modulo.h>
 
- // C++ standard library
+// C++ standard library
 #include <array>
 #include <cmath>
 
 // Disable the core-guideline checker until this file is refactored
 #if defined(VCL_COMPILER_MSVC) && defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
 #	pragma warning(push, 1)
-#	pragma warning(disable: 26446)
-#	pragma warning(disable: 26451)
-#	pragma warning(disable: 26482)
+#	pragma warning(disable : 26446)
+#	pragma warning(disable : 26451)
+#	pragma warning(disable : 26482)
 #elif defined(VCL_COMPILER_CLANG)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wsign-conversion"
@@ -146,13 +146,13 @@ namespace Vcl { namespace Util
 
 	template<int N>
 	WaveletNoise<N>::WaveletNoise() noexcept
-		: WaveletNoise(std::random_device{}())
+	: WaveletNoise(std::random_device{}())
 	{
 	}
 
 	template<int N>
 	WaveletNoise<N>::WaveletNoise(unsigned int seed)
-		: WaveletNoise(*make_twister(seed))
+	: WaveletNoise(*make_twister(seed))
 	{
 	}
 

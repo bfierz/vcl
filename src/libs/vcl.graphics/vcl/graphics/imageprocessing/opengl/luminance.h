@@ -41,7 +41,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	public:
 		Luminance(ImageProcessor* processor);
 		virtual ~Luminance() = default;
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 

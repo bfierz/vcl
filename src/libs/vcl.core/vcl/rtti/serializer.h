@@ -58,7 +58,6 @@ namespace Vcl { namespace RTTI
 		//! \returns true if the current object has the queried attribute
 		virtual bool hasAttribute(const stdext::string_view name) = 0;
 
-
 		virtual std::string readAttribute(const stdext::string_view name) = 0;
 	};
 }}

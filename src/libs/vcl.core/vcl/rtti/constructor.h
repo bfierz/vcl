@@ -48,7 +48,8 @@
 #include <vcl/rtti/constructorbase.h>
 
 #define VCL_RTTI_CTOR_TABLE_BEGIN(Object) auto VCL_PP_JOIN(Object, _constructors) = std::make_tuple(
-#define VCL_RTTI_CTOR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _constructor_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::ConstructorBase*>(VCL_PP_JOIN(Object, _constructors));
+#define VCL_RTTI_CTOR_TABLE_END(Object) ); \
+	auto VCL_PP_JOIN(Object, _constructor_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::ConstructorBase*>(VCL_PP_JOIN(Object, _constructors));
 #define VCL_RTTI_REGISTER_CTORS(Object) type->registerConstructors(VCL_PP_JOIN(Object, _constructor_bases));
 
 namespace Vcl { namespace RTTI
@@ -85,7 +86,7 @@ namespace Vcl { namespace RTTI
 	public:
 		T* call(void* location, Params... params) const
 		{
-			return new(location) T(std::forward<Params>(params)...);
+			return new (location) T(std::forward<Params>(params)...);
 		}
 
 		virtual bool hasParam(const stdext::string_view name) const override
@@ -174,7 +175,7 @@ namespace Vcl { namespace RTTI
 	public:
 		T* call(void* location)
 		{
-			return new(location) T;
+			return new (location) T;
 		}
 
 		virtual bool hasParam(const stdext::string_view name) const override
@@ -202,7 +203,7 @@ namespace Vcl { namespace RTTI
 
 			VCL_UNREFERENCED_PARAMETER(params);
 
-			return new(location) T();
+			return new (location) T();
 		}
 
 		ParameterBase _default{ { "Default" }, nullptr };

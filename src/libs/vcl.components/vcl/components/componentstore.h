@@ -71,7 +71,7 @@ namespace Vcl { namespace Components
 		//! The type of the components in this store
 		const Vcl::RTTI::Type* _type;
 	};
-	
+
 	/*!
 	 *	\class ComponentStore
 	 *	\brief Manage the live time of a single component type
@@ -167,7 +167,7 @@ namespace Vcl { namespace Components
 			auto itr = (*this)(id);
 			for (auto it = itr.first; it != itr.second; ++it)
 			{
-				components.emplace_back((void*) &it->second, type());
+				components.emplace_back((void*)&it->second, type());
 			}
 		}
 
@@ -214,7 +214,6 @@ namespace Vcl { namespace Components
 		MultiComponentStore(Func&& f)
 		: _func(std::forward<Func&&>(f))
 		{
-
 		}
 
 	public:

@@ -35,7 +35,7 @@
 // Windows Runtime Library
 #include <wrl.h>
 
- // Windows Graphics
+// Windows Graphics
 #include <dxgi1_6.h>
 
 // VCL

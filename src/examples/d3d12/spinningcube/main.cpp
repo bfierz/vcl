@@ -49,16 +49,13 @@ public:
 	SpinningCubeApplication()
 	: Application("SpinningCubes")
 	{
-		using Vcl::Graphics::D3D12::ContantDescriptor;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
-		using Vcl::Graphics::D3D12::DescriptorTable;
-		using Vcl::Graphics::D3D12::TableDescriptor;
 		using Vcl::Graphics::SurfaceFormat;
-		using Vcl::Graphics::Runtime::D3D12::Buffer;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
+		using Vcl::Graphics::D3D12::ContantDescriptor;
+		using Vcl::Graphics::D3D12::DescriptorTable;
+		using Vcl::Graphics::D3D12::DescriptorTableLayout;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
+		using Vcl::Graphics::D3D12::TableDescriptor;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
@@ -68,21 +65,22 @@ public:
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
+		using Vcl::Graphics::Runtime::D3D12::Buffer;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
 
 		resetCommandList();
 
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, CubeCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, CubeCsoPS);
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_VERTEX }
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX }
 		};
 		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
 		//_table = std::make_unique<DescriptorTable>(device(), _tableLayout.get());
 
-		InputLayoutDescription input_layout
-		{
+		InputLayoutDescription input_layout{
 			{
 				{ 0, sizeof(Eigen::Vector3f), VertexDataClassification::VertexDataPerObject },
 			},
@@ -116,40 +114,35 @@ public:
 			-1, -1,  1,
 			 1, -1,  1
 		};
-		BufferDescription vbo_desc =
-		{
+		BufferDescription vbo_desc = {
 			cube_points.size() * sizeof(float),
 			BufferUsage::Vertex
 		};
-		BufferInitData vbo_data =
-		{
+		BufferInitData vbo_data = {
 			cube_points.data(),
 			cube_points.size() * sizeof(float)
 		};
 		_vbo = std::make_unique<Buffer>(device(), vbo_desc, &vbo_data, cmdList());
 
-		std::vector<int> cube_indices =
-		{
-			0,1,2,
-			0,2,3,
-			0,4,5,
-			0,5,1,
-			1,5,6,
-			1,6,2,
-			2,6,7,
-			2,7,3,
-			3,7,4,
-			3,4,0,
-			4,7,6,
-			4,6,5
+		std::vector<int> cube_indices = {
+			0, 1, 2,
+			0, 2, 3,
+			0, 4, 5,
+			0, 5, 1,
+			1, 5, 6,
+			1, 6, 2,
+			2, 6, 7,
+			2, 7, 3,
+			3, 7, 4,
+			3, 4, 0,
+			4, 7, 6,
+			4, 6, 5
 		};
-		BufferDescription ibo_desc =
-		{
+		BufferDescription ibo_desc = {
 			cube_indices.size() * sizeof(int),
 			BufferUsage::Vertex
 		};
-		BufferInitData ibo_data =
-		{
+		BufferInitData ibo_data = {
 			cube_indices.data(),
 			cube_indices.size() * sizeof(int)
 		};
@@ -168,7 +161,7 @@ private:
 
 		const auto size = swapChain()->bufferSize();
 		_camera.setViewport(size.first, size.second);
-		_camera.setFieldOfView((float) size.first / (float) size.second);
+		_camera.setFieldOfView((float)size.first / (float)size.second);
 	}
 
 	void updateFrame() override

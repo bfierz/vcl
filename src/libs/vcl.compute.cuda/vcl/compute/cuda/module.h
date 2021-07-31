@@ -46,10 +46,10 @@ namespace Vcl { namespace Compute { namespace Cuda
 		Module(CUmodule mod);
 
 		Module(Module&&);
-		Module& operator =(Module&&);
+		Module& operator=(Module&&);
 
 		Module(const Module&) = delete;
-		Module& operator =(const Module&) = delete;
+		Module& operator=(const Module&) = delete;
 
 		//! Destructor
 		virtual ~Module();

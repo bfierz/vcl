@@ -82,7 +82,7 @@ namespace Vcl { namespace Compute
 		//! Size in bytes
 		size_t _sizeInBytes{ 0 };
 	};
-	
+
 	/*!
 	 *	\brief View on a part of a buffer
 	 */
@@ -95,7 +95,7 @@ namespace Vcl { namespace Compute
 	public:
 		Buffer& owner() { return *_owner; }
 	};
-	
+
 	/*!
 	 *	\brief Abstraction for compute API linear memory buffers
 	 */
@@ -108,8 +108,8 @@ namespace Vcl { namespace Compute
 		virtual ~Buffer() = default;
 
 	public:
-		Buffer& operator =(const Buffer&) = delete;
-		Buffer& operator =(Buffer&&);
+		Buffer& operator=(const Buffer&) = delete;
+		Buffer& operator=(Buffer&&);
 
 	public:
 		BufferAccess hostAccess() const { return _hostAccess; }
@@ -124,6 +124,5 @@ namespace Vcl { namespace Compute
 
 		//! Size in bytes
 		size_t _sizeInBytes = 0;
-
 	};
 }}

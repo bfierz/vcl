@@ -57,16 +57,16 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	cxxopts::Options options(argv[0], "bin2c - command line options");
-	
+
 	// Output width
 	int width = 1;
-	
+
 	// Export symbol name
 	std::string export_symbol{ "BinData" };
-	
+
 	// Input file
 	std::ifstream ifile;
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv [])
 		options.parse_positional("input-file");
 
 		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
-		
+
 		if (parsed_options.count("help") > 0)
 		{
 			std::cout << options.help({ "" }) << std::endl;
@@ -110,7 +110,7 @@ int main(int argc, char* argv [])
 
 			width = group;
 		}
-		
+
 		if (parsed_options.count("symbol") > 0)
 		{
 			export_symbol = parsed_options["symbol"].as<std::string>();
@@ -118,8 +118,7 @@ int main(int argc, char* argv [])
 
 		ifile.open(parsed_options["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in);
 		ofile.open(parsed_options["output-file"].as<std::string>());
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
@@ -163,16 +162,16 @@ int main(int argc, char* argv [])
 
 			// Write data
 			ofile << "\t";
-			for (int e = 0; e + width <= (int) tmp_buffer.size(); e += width)
+			for (int e = 0; e + width <= (int)tmp_buffer.size(); e += width)
 			{
 				ofile << "0x";
 				for (int i = width - 1; i >= 0; i--)
 				{
-					unsigned int content = (unsigned int) (unsigned char) tmp_buffer[e + i];
+					unsigned int content = (unsigned int)(unsigned char)tmp_buffer[e + i];
 					ofile << std::setfill('0') << std::hex << std::setw(2) << content;
 				}
 
-				if (e + 2*width <= (int) tmp_buffer.size())
+				if (e + 2 * width <= (int)tmp_buffer.size())
 				{
 					ofile << ", ";
 

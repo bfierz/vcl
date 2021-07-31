@@ -55,7 +55,7 @@ namespace Vcl { namespace Components
 		 *
 		 *	\returs a pointer to the added system
 		 */
-		template <typename S>
+		template<typename S>
 		Core::ref_ptr<S> add(Core::owner_ptr<S> system)
 		{
 			_systems.emplace_back(std::move(system));
@@ -67,10 +67,10 @@ namespace Vcl { namespace Components
 		 *
 		 *	\returs a pointer to the added system
 		 */
-		template <typename S, typename ... Args>
-		Core::ref_ptr<S> add(Args && ... args)
-		{			
-			return add(Core::make_owner<S>(std::forward<Args>(args) ...));
+		template<typename S, typename... Args>
+		Core::ref_ptr<S> add(Args&&... args)
+		{
+			return add(Core::make_owner<S>(std::forward<Args>(args)...));
 		}
 
 		/*!
@@ -78,7 +78,7 @@ namespace Vcl { namespace Components
 		 *
 		 *	\returns the pointer to a system of the requested type.
 		 */
-		template <typename S>
+		template<typename S>
 		Core::ref_ptr<S> system()
 		{
 			for (auto& sys : _systems)
@@ -89,7 +89,7 @@ namespace Vcl { namespace Components
 				}
 			}
 
-			return{};
+			return {};
 		}
 
 	private:

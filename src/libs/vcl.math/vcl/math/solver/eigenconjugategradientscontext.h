@@ -35,11 +35,11 @@
 
 namespace Vcl { namespace Mathematics { namespace Solver
 {
-	template <typename Real, int ProblemSize = Eigen::Dynamic>
+	template<typename Real, int ProblemSize = Eigen::Dynamic>
 	class EigenCgBaseContext : public ConjugateGradientsContext
 	{
 	public:
-		using real_t  = Real;
+		using real_t = Real;
 		using vector_t = Eigen::Matrix<real_t, ProblemSize, 1>;
 		using map_t = Eigen::Map<vector_t>;
 
@@ -64,7 +64,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		void setX(map_t x)
 		{
-			new(&_x) map_t(x);
+			new (&_x) map_t(x);
 		}
 
 	public:
@@ -78,7 +78,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			real_t d_g = _dir.dot(_q);
 			real_t d_b = _res.dot(_q);
 			real_t d_a = _q.squaredNorm();
-				
+
 			_alpha = 0.0f;
 			if (fabs(d_g) > 0.0f)
 				_alpha = d_r / d_g;
@@ -107,7 +107,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		{
 			return double(fabs(_beta * _residualLength));
 		}
-			
+
 		void finish(double* residual = nullptr) override
 		{
 			if (residual)
@@ -129,7 +129,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		vector_t _res;
 	};
 
-	template <typename MatrixT>
+	template<typename MatrixT>
 	class GenericEigenCgContext : public EigenCgBaseContext<typename MatrixT::Scalar, MatrixT::RowsAtCompileTime>
 	{
 	public:
@@ -151,7 +151,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			this->_res = (*_b) - (*_M) * this->_x;
 			this->_dir = this->_res;
 		}
-			
+
 		// q = A*d
 		void computeQ() override
 		{

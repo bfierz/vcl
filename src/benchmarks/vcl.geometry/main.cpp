@@ -47,12 +47,12 @@ VCL_END_EXTERNAL_HEADERS
 // Tests the distance functions.
 static gte::Vector3<float> cast(const Eigen::Vector3f& vec)
 {
-	return{ vec.x(), vec.y(), vec.z() };
+	return { vec.x(), vec.y(), vec.z() };
 }
 
 static Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 {
-	return{ vec[0], vec[1], vec[2] };
+	return { vec[0], vec[1], vec[2] };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ void BM_Dist_TriTri(benchmark::State& state)
 {
 	using namespace Vcl::Geometry;
 	using Vcl::Mathematics::equal;
-	
+
 	using real_t = Real;
 	using int_t = Int;
 
@@ -192,7 +192,7 @@ void BM_Int_RayBoxEberly(benchmark::State& state)
 			Eigen::Vector3f bmax = box_max.at<float>(i);
 			Eigen::Vector3f rdir = ray_dir.at<float>(i);
 
-			gte::Ray3<float> ray{ {0, 0, 0}, cast(rdir) };
+			gte::Ray3<float> ray{ { 0, 0, 0 }, cast(rdir) };
 			gte::AlignedBox3<float> box{ cast(bmin), cast(bmax) };
 
 			benchmark::DoNotOptimize(gteQuery(ray, box));

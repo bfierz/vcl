@@ -114,9 +114,8 @@ private: // Scene data
 
 	/// Bounding box of the scene
 	Eigen::AlignedBox3f _sceneBoundingBox;
-	
-private: // Render data
 
+private: // Render data
 	Eigen::AlignedBox3f _boundingBox;
 
 	Eigen::Vector4f _frustumData;
@@ -140,7 +139,6 @@ private: // Mesh entities
 	std::vector<Vcl::Components::Entity> _meshes;
 
 private: // Editor support
-
-	 //! QML exposure of scene entities
+		 //! QML exposure of scene entities
 	Editor::EntityAdapterModel _entityAdapterModel;
 };

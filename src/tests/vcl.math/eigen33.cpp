@@ -159,7 +159,7 @@ namespace
 			EXPECT_TRUE(equal(sqLenResUc2, Scalar(1), tol)) << "Index: " << i << ", Result U: Column 2 is not normalized.";
 
 			bool eqS = refS.array().abs().isApprox(resS.array().abs(), tol);
-			bool eqU = refU.array().abs().isApprox(resU.array().abs(), 2*tol);
+			bool eqU = refU.array().abs().isApprox(resU.array().abs(), 2 * tol);
 
 			EXPECT_TRUE(eqS) << "Index: " << i << ", S(" << i << ") -\nRef: " << refS.format(fmt) << ",\nRes: " << resS.format(fmt);
 			EXPECT_TRUE(eqU) << "Index: " << i << ", U(" << i << ") -\nRef: " << refU.format(fmt) << ",\nRes: " << resU.format(fmt);

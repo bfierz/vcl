@@ -35,4 +35,3 @@ namespace stdext
 	using absl::any;
 	using absl::any_cast;
 }
-

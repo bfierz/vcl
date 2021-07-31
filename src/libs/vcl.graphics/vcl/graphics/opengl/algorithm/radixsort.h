@@ -81,9 +81,8 @@ namespace Vcl { namespace Graphics
 		void radixSortBlocksKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int nbits, unsigned int startbit, unsigned int numElements);
 		void findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements);
 		void reorderDataKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int startbit, unsigned int numElements);
-		
-	private: // Module, Kernels
 
+	private: // Module, Kernels
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _radixSortBlocksKeysOnlyKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _findRadixOffsetsKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _reorderDataKeysOnlyKernel;

@@ -54,12 +54,11 @@ namespace Vcl
 		if (value == "true" || value == "1")
 		{
 			return true;
-		}
-		else if (value == "false" || value == "0")
+		} else if (value == "false" || value == "0")
 		{
 			return false;
 		}
-		
+
 		VclDebugError("value not recognized");
 		return false;
 	}
@@ -69,8 +68,7 @@ namespace Vcl
 		if (value)
 		{
 			return { "true" };
-		}
-		else
+		} else
 		{
 			return { "false" };
 		}

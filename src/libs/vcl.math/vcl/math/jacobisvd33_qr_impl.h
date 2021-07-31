@@ -40,7 +40,7 @@
 namespace Vcl { namespace Mathematics
 {
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(push, off) 
+#	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC
 
 	/*
@@ -100,6 +100,6 @@ namespace Vcl { namespace Mathematics
 		return iter_eig33 + 3;
 	}
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(pop) 
+#	pragma strict_gs_check(pop)
 #endif // VCL_COMPILER_MSVC
 }}

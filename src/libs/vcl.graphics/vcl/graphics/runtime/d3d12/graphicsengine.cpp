@@ -27,7 +27,7 @@
 // Abseil
 #include <absl/container/inlined_vector.h>
 
- // VCL
+// VCL
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/d3dx12.h>

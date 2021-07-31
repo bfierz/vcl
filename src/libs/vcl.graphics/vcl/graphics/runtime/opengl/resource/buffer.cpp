@@ -86,13 +86,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	}
 
 	Buffer::Buffer(const BufferDescription& desc, const BufferInitData* init_data)
-		: Runtime::Buffer(desc.SizeInBytes, desc.Usage)
-		, Resource()
-		, _allowPersistentMapping(true)
-		, _allowCoherentMapping(true)
+	: Runtime::Buffer(desc.SizeInBytes, desc.Usage)
+	, Resource()
+	, _allowPersistentMapping(true)
+	, _allowCoherentMapping(true)
 	{
 		VclRequire(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
-		
+
 		VclRequire(glewIsSupported("GL_ARB_buffer_storage"), "GL buffer storage extension is supported.");
 		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "GL clear buffer object extension is supported.");
 
@@ -152,7 +152,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	BufferBindPoint Buffer::bind(GLenum target)
 	{
-		return{ target, _glId };
+		return { target, _glId };
 	}
 
 	void* Buffer::map(size_t offset, size_t length, Flags<MapOptions> options)
@@ -200,13 +200,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			_mappedOffset = offset;
 			_mappedSize = length;
 		}
-		
+
 		VclEnsure(mappedPtr, "Buffer is mapped.");
 		VclAssertBlock
 		{
 			GLint64 min_align = 0;
 			glGetInteger64v(GL_MIN_MAP_BUFFER_ALIGNMENT, &min_align);
-			VclEnsureEx(((ptrdiff_t) mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", fmt::format("Offset: {}, Minimum aligment: {}", offset, min_align));
+			VclEnsureEx(((ptrdiff_t)mappedPtr - offset) % min_align == 0, "Mapped pointers are aligned correctly.", fmt::format("Offset: {}, Minimum aligment: {}", offset, min_align));
 		}
 
 		return mappedPtr;
@@ -218,7 +218,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(usage().isSet(BufferUsage::MapWrite) && _mappedOptions.isSet(MapOptions::ExplicitFlush), "Buffer is mapped with explicit flush");
 		VclRequire(offset + length <= _mappedSize, "Flush request lies in mapped range");
 
-		// If access is not using the coherency flag, we have to 
+		// If access is not using the coherency flag, we have to
 		// make sure that we are still providing coherent memory access
 		glFlushMappedNamedBufferRangeVCL(_glId, offset, length);
 	}
@@ -240,7 +240,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Memory was lost
 			throw gl_memory_error{ "Video memory was trashed" };
 		}
-		
+
 		VclEnsure(_mappedSize == 0, "Buffer is not mapped.");
 	}
 
@@ -251,7 +251,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		glClearNamedBufferDataVCL(_glId, GL_R8I, GL_RED, GL_BYTE, nullptr);
 	}
-	
+
 	void Buffer::clear(const Graphics::OpenGL::AnyRenderType& rt, void* data)
 	{
 		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
@@ -259,13 +259,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		glClearNamedBufferDataVCL(_glId, rt.internalFormat(), rt.format(), rt.componentType(), data);
 	}
-	
+
 	void Buffer::clear(size_t offset, size_t size)
 	{
 		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
-		
+
 		glClearNamedBufferSubDataVCL(_glId, GL_R8I, offset, size, GL_RED, GL_BYTE, nullptr);
 	}
 
@@ -274,7 +274,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
-		
+
 		glClearNamedBufferSubDataVCL(_glId, rt.internalFormat(), offset, size, rt.format(), rt.componentType(), data);
 	}
 
@@ -286,7 +286,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
 
-		glGetNamedBufferSubDataVCL(_glId, srcOffset, size, (char*) dst + dstOffset);
+		glGetNamedBufferSubDataVCL(_glId, srcOffset, size, (char*)dst + dstOffset);
 	}
 
 	void Buffer::copyTo(Buffer& target, size_t srcOffset, size_t dstOffset, size_t size) const
@@ -300,7 +300,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (size == std::numeric_limits<size_t>::max())
 			size = sizeInBytes() - srcOffset;
 		VclCheck(dstOffset + size <= target.sizeInBytes(), "Size to copy is valid");
-		
+
 		glCopyNamedBufferSubDataVCL(_glId, target.id(), srcOffset, dstOffset, size);
 	}
 }}}}

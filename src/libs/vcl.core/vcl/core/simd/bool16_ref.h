@@ -34,14 +34,14 @@
 namespace Vcl
 {
 #ifdef VCL_COMPILER_MSVC
-#	pragma warning(disable: 4324)
+#	pragma warning(disable : 4324)
 #endif
 	template<>
 	class alignas(16) VectorScalar<bool, 16> : protected Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::None>
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(None)
-		VCL_STRONG_INLINE Scalar& operator[] (int idx) noexcept { return _data[idx]; }
+		VCL_STRONG_INLINE Scalar& operator[](int idx) noexcept { return _data[idx]; }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, Core::Simd::Details::conj, 16)
@@ -51,6 +51,6 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator|=, Core::Simd::Details::disj, 16)
 	};
 #ifdef VCL_COMPILER_MSVC
-#	pragma warning(default: 4324)
+#	pragma warning(default : 4324)
 #endif
 }

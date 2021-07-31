@@ -130,7 +130,7 @@ void createRotationProblems
 		if (max_compression > 0)
 		{
 			Eigen::Matrix<float, 3, 1> scaling;
-			scaling << (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng));
+			scaling << (1.0f - max_compression * d(rng)), (1.0f - max_compression * d(rng)), (1.0f - max_compression * d(rng));
 
 			Eigen::JacobiSVD<Eigen::Matrix3f> svd{ Rot, Eigen::ComputeFullU | Eigen::ComputeFullV };
 			Rot *= svd.matrixV() * scaling.asDiagonal() * svd.matrixV().transpose();

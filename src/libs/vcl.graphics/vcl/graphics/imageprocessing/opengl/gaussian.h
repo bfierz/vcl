@@ -41,7 +41,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	public:
 		Gaussian(ImageProcessor* processor);
 		virtual ~Gaussian() = default;
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 

@@ -57,8 +57,8 @@ TEST(QR33, SimpleGivens)
 	JacobiQR(R, Q);
 
 	// Check reverse result
-	Matrix3f Ares = Q*R;
-	Matrix3f I = Q.transpose()*Q;
+	Matrix3f Ares = Q * R;
+	Matrix3f I = Q.transpose() * Q;
 
 	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly";
 	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly";
@@ -88,8 +88,8 @@ TEST(QR33, SimpleHouseholder)
 	HouseholderQR(R, Q);
 
 	// Check reverse result
-	Matrix3f Ares = Q*R;
-	Matrix3f I = Q.transpose()*Q;
+	Matrix3f Ares = Q * R;
+	Matrix3f I = Q.transpose() * Q;
 
 	EXPECT_TRUE(equal(0, R(1, 0), 1e-4f)) << "R(1, 0) is not computed correctly: " << R(1, 0);
 	EXPECT_TRUE(equal(0, R(2, 0), 1e-4f)) << "R(2, 0) is not computed correctly: " << R(2, 0);

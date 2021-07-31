@@ -46,7 +46,7 @@ namespace Vcl { namespace Geometry { namespace IO
 	public:
 		virtual void begin();
 		virtual void end();
-		
+
 	public:
 		virtual void sizeHintNodes(unsigned int hint);
 		virtual void sizeHintEdges(unsigned int hint);
@@ -62,7 +62,6 @@ namespace Vcl { namespace Geometry { namespace IO
 		virtual void addNormal(const Vector3f& normal);
 
 	private:
-
 		//! Generated mesh
 		std::unique_ptr<TetraMesh> _mesh;
 

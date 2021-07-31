@@ -44,39 +44,39 @@ namespace Vcl { namespace Geometry
 		GenericId(const GenericId<Derived, T>& other) = default;
 
 	public:
-		GenericId<Derived, T>& operator = (const GenericId<Derived, T>& other) = default;
+		GenericId<Derived, T>& operator=(const GenericId<Derived, T>& other) = default;
 
 	public:
 		T id() const { return _id; }
 		bool isValid() const { return _id != InvalidId().id(); }
 
 	public:
-		bool operator < (const GenericId<Derived, T>& other) const
+		bool operator<(const GenericId<Derived, T>& other) const
 		{
 			return _id < other._id;
 		}
 
-		bool operator <= (const GenericId<Derived, T>& other) const
+		bool operator<=(const GenericId<Derived, T>& other) const
 		{
 			return _id <= other._id;
 		}
 
-		bool operator > (const GenericId<Derived, T>& other) const
+		bool operator>(const GenericId<Derived, T>& other) const
 		{
 			return _id > other._id;
 		}
 
-		bool operator >= (const GenericId<Derived, T>& other) const
+		bool operator>=(const GenericId<Derived, T>& other) const
 		{
 			return _id >= other._id;
 		}
 
-		bool operator == (const GenericId<Derived, T>& other) const
+		bool operator==(const GenericId<Derived, T>& other) const
 		{
 			return _id == other._id;
 		}
 
-		bool operator != (const GenericId<Derived, T>& other) const
+		bool operator!=(const GenericId<Derived, T>& other) const
 		{
 			return _id != other._id;
 		}

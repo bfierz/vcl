@@ -51,12 +51,12 @@ namespace Vcl { namespace RTTI
 		{
 			TypeRegistry::remove(&rhs);
 		}
-				
+
 		_hash = rhs._hash;
 		_size = rhs._size;
 		_alignment = rhs._alignment;
 		_version = rhs._version;
-		
+
 		rhs._hash = 0;
 		rhs._size = 0;
 		rhs._alignment = 0;
@@ -66,7 +66,7 @@ namespace Vcl { namespace RTTI
 		std::swap(_constructors, rhs._constructors);
 		std::swap(_attributes, rhs._attributes);
 		std::swap(_methods, rhs._methods);
-		
+
 		TypeRegistry::add(this);
 	}
 
@@ -77,7 +77,7 @@ namespace Vcl { namespace RTTI
 			TypeRegistry::remove(this);
 		}
 	}
-		
+
 	void* Type::allocate() const
 	{
 #if defined(VCL_ARCH_X86) || defined(VCL_ARCH_X64)
@@ -116,8 +116,7 @@ namespace Vcl { namespace RTTI
 			if (meta->nrParents() > 0)
 			{
 				meta = meta->parents()[0];
-			}
-			else
+			} else
 			{
 				meta = nullptr;
 			}
@@ -129,8 +128,7 @@ namespace Vcl { namespace RTTI
 	{
 		const size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
-		const auto* attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash] (const AttributeBase* attrib)
-		{
+		const auto* attribIt = std::find_if(std::begin(_attributes), std::end(_attributes), [hash](const AttributeBase* attrib) {
 			return attrib->hash() == hash;
 		});
 
@@ -152,11 +150,10 @@ namespace Vcl { namespace RTTI
 
 		const size_t hash = Vcl::Util::StringHash(name.data(), name.length()).hash();
 
-		const auto* attribIt = std::find_if(_attributes.cbegin(), _attributes.cend(), [hash] (const AttributeBase* attrib)
-		{
+		const auto* attribIt = std::find_if(_attributes.cbegin(), _attributes.cend(), [hash](const AttributeBase* attrib) {
 			return attrib->hash() == hash;
 		});
-		
+
 		if (attribIt != _attributes.cend())
 		{
 			return *attribIt;

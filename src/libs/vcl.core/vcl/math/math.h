@@ -32,14 +32,13 @@ namespace Vcl { namespace Mathematics
 {
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float sq(float a) noexcept
 	{
-		return a*a;
+		return a * a;
 	}
 
 	VCL_STRONG_INLINE double rsqrt(double in) noexcept
 	{
 		return 1.0 / ::sqrt(in);
 	}
-
 
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 double rcp(double in) noexcept
 	{
@@ -83,19 +82,19 @@ namespace Vcl { namespace Mathematics
 #endif
 	}
 
-	template <typename T>
+	template<typename T>
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x, std::false_type) noexcept
 	{
 		return T(0) < x ? 1 : 0;
 	}
 
-	template <typename T>
+	template<typename T>
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x, std::true_type) noexcept
 	{
 		return (T(0) < x ? 1 : 0) - (x < T(0) ? 1 : 0);
 	}
 
-	template <typename T>
+	template<typename T>
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x) noexcept
 	{
 		return sgn(x, std::is_signed<T>());
@@ -141,7 +140,7 @@ namespace Vcl { namespace Mathematics
 		const __m128 muls = _mm_mul_ss(_mm_mul_ss(nr, nr), v);
 		const __m128 dbl = _mm_add_ss(nr, nr);
 
-		// Filter out zero input to ensure 
+		// Filter out zero input to ensure
 		const __m128 mask = _mm_cmpeq_ss(v, _mm_setzero_ps());
 		const __m128 filtered = _mm_andnot_ps(mask, muls);
 		const __m128 result = _mm_sub_ss(dbl, filtered);

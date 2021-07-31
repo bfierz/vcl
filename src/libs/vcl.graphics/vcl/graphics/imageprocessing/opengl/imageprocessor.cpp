@@ -45,8 +45,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	size_t ImageProcessor::buildKernel(const char* source)
 	{
 		using Runtime::OpenGL::Shader;
-		using Runtime::OpenGL::ShaderProgramDescription;
 		using Runtime::OpenGL::ShaderProgram;
+		using Runtime::OpenGL::ShaderProgramDescription;
 
 		size_t kernelId = Util::StringHash(source).hash();
 		Shader kernel{ Runtime::ShaderType::ComputeShader, 0, source };
@@ -68,8 +68,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		if (cache_entry != cache.end())
 		{
 			return *cache_entry;
-		}
-		else
+		} else
 		{
 			Runtime::Texture2DDescription desc2d;
 			desc2d.Format = fmt;
@@ -113,8 +112,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		char raw_input_range_name[] = "inputRange0";
 		for (int i = 0; i < nr_raw_inputs; i++)
 		{
-			raw_input_name[5] = '0' + (char) i;
-			raw_input_range_name[10] = '0' + (char) i;
+			raw_input_name[5] = '0' + (char)i;
+			raw_input_range_name[10] = '0' + (char)i;
 
 			auto in_handle = prog->uniform(raw_input_name);
 			prog->setImage(in_handle, raw_inputs[i], true, false);
@@ -123,12 +122,12 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			prog->setUniform(in_range_handle, Eigen::Vector4i{ rawInRanges[i].x(), rawInRanges[i].y(), rawInRanges[i].z(), rawInRanges[i].w() });
 		}
 
-		char sampled_input_name [] = "texture0";
-		char sampled_input_range_name [] = "textureRange0";
+		char sampled_input_name[] = "texture0";
+		char sampled_input_range_name[] = "textureRange0";
 		for (int i = 0; i < nr_sampled_inputs; i++)
 		{
-			sampled_input_name[7] = '0' + (char) i;
-			sampled_input_range_name[12] = '0' + (char) i;
+			sampled_input_name[7] = '0' + (char)i;
+			sampled_input_range_name[12] = '0' + (char)i;
 
 			auto in_handle = prog->uniform(sampled_input_name);
 			prog->setTexture(in_handle, sampled_inputs[i], _linearSampler.get());

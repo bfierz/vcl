@@ -47,33 +47,33 @@ namespace Vcl { namespace Mathematics
 		//const Real pi = Real(3.1415926535897932384626433832795);
 
 		//const Real gamma = Real(3) + Real(2) * Real(std::sqrt(Real(2)));
-        const Real gamma = typename NumericTrait<Real>::base_t(5.8284271247461900976033774484194);
+		const Real gamma = typename NumericTrait<Real>::base_t(5.8284271247461900976033774484194);
 
 		//const Real c_star = Real(std::cos(pi / Real(8)));
-        const Real c_star = typename NumericTrait<Real>::base_t(0.92387953251128675612818318939679);
-		
+		const Real c_star = typename NumericTrait<Real>::base_t(0.92387953251128675612818318939679);
+
 		//const Real s_star = Real(std::sin(pi / Real(8)));
-        const Real s_star = typename NumericTrait<Real>::base_t(0.3826834323650897717284599840304);
-		
+		const Real s_star = typename NumericTrait<Real>::base_t(0.3826834323650897717284599840304);
+
 		// cos(theta / 2)
 		Real c_h = Real(2) * (a11 - a22);
 
 		// sin(theta / 2)
 		Real s_h = a12;
-	
+
 		// Decide which rotation is used
-		auto b = gamma*s_h*s_h < c_h*c_h;
+		auto b = gamma * s_h * s_h < c_h * c_h;
 
 		// Normalisation factor
 #ifdef VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
-		Real omega = rsqrt(s_h*s_h + c_h*c_h);
+		Real omega = rsqrt(s_h * s_h + c_h * c_h);
 #else
-		Real omega = Real(1) / Real(sqrt(s_h*s_h + c_h*c_h));
+		Real omega = Real(1) / Real(sqrt(s_h * s_h + c_h * c_h));
 #endif // defined(VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT)
-		
+
 		// Select appropriate rotation angles
-		c_h = select(b, omega*c_h, c_star);
-		s_h = select(b, omega*s_h, s_star);
+		c_h = select(b, omega * c_h, c_star);
+		s_h = select(b, omega * s_h, s_star);
 
 		return Eigen::Matrix<Real, 2, 1>(c_h, s_h);
 	}
@@ -120,14 +120,14 @@ namespace Vcl { namespace Mathematics
 
 #if 1
 			// Transform the input matrix
-			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
-			Scalar b = Scalar(2)*s*c;
-			Scalar M00 = a*a * M(0, 0) + a*b * (M(0, 1) + M(1, 0)) + b*b * M(1, 1);
-			Scalar M10 = a*a * M(1, 0) + a*b * (M(1, 1) - M(0, 0)) - b*b * M(0, 1);
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
+			Scalar b = Scalar(2) * s * c;
+			Scalar M00 = a * a * M(0, 0) + a * b * (M(0, 1) + M(1, 0)) + b * b * M(1, 1);
+			Scalar M10 = a * a * M(1, 0) + a * b * (M(1, 1) - M(0, 0)) - b * b * M(0, 1);
 			Scalar M20 = a * M(2, 0) + b * M(2, 1);
 
 			//Scalar M01 = a*a * M(0, 1) + a*b * ( M(1, 1) - M(0, 0)) - b*b * M(1, 0);
-			Scalar M11 = a*a * M(1, 1) + a*b * (-M(0, 1) - M(1, 0)) + b*b * M(0, 0);
+			Scalar M11 = a * a * M(1, 1) + a * b * (-M(0, 1) - M(1, 0)) + b * b * M(0, 0);
 			Scalar M21 = a * M(2, 1) - b * M(2, 0);
 
 			//Scalar M02 = a * M(0, 2) + b * M(1, 2);
@@ -149,8 +149,7 @@ namespace Vcl { namespace Mathematics
 
 			// Update the rotation quaternion
 			Q *= quat;
-		}
-		else if (p == 0 && q == 2)
+		} else if (p == 0 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
@@ -184,11 +183,11 @@ namespace Vcl { namespace Mathematics
 
 #if 1
 			// Transform the input matrix
-			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
-			Scalar b = Scalar(2)*s*c;
-			Scalar M00 = a*a * M(0, 0) + a*b * (M(0, 2) + M(2, 0)) + b*b * M(2, 2);
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
+			Scalar b = Scalar(2) * s * c;
+			Scalar M00 = a * a * M(0, 0) + a * b * (M(0, 2) + M(2, 0)) + b * b * M(2, 2);
 			Scalar M10 = a * M(1, 0) + b * M(1, 2);
-			Scalar M20 = a*a * M(2, 0) + a*b * (M(2, 2) - M(0, 0)) - b*b * M(0, 2);
+			Scalar M20 = a * a * M(2, 0) + a * b * (M(2, 2) - M(0, 0)) - b * b * M(0, 2);
 
 			//Scalar M01 = a * M(0, 1) + b * M(2, 1);
 			Scalar M11 = M(1, 1);
@@ -196,7 +195,7 @@ namespace Vcl { namespace Mathematics
 
 			//Scalar M02 = a*a * M(0, 2) + a*b * ( M(2, 2) - M(0, 0)) - b*b * M(2, 0);
 			//Scalar M12 = a * M(1, 2) - b * M(1, 0);
-			Scalar M22 = a*a * M(2, 2) + a*b * (-M(0, 2) - M(2, 0)) + b*b * M(0, 0);
+			Scalar M22 = a * a * M(2, 2) + a * b * (-M(0, 2) - M(2, 0)) + b * b * M(0, 0);
 
 			M(0, 0) = M00;
 			M(1, 0) = M10;
@@ -211,8 +210,7 @@ namespace Vcl { namespace Mathematics
 			M(2, 2) = M22;
 #endif
 			Q *= quat;
-		}
-		else if (p == 1 && q == 2)
+		} else if (p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
@@ -245,20 +243,20 @@ namespace Vcl { namespace Mathematics
 
 #if 1
 			// Transform the input matrix
-			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c*c - s*s;
-			Scalar b = Scalar(2)*s*c;
+			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
+			Scalar b = Scalar(2) * s * c;
 
 			Scalar M00 = M(0, 0);
 			Scalar M10 = a * M(1, 0) + b * M(2, 0);
 			Scalar M20 = a * M(2, 0) - b * M(1, 0);
-		
+
 			//Scalar M01 = a * M(0, 1) + b * M(0, 2);
-			Scalar M11 = a*a * M(1, 1) + a*b * (M(1, 2) + M(2, 1)) + b*b * M(2, 2);
-			Scalar M21 = a*a * M(2, 1) + a*b * (M(2, 2) - M(1, 1)) - b*b * M(1, 2);
+			Scalar M11 = a * a * M(1, 1) + a * b * (M(1, 2) + M(2, 1)) + b * b * M(2, 2);
+			Scalar M21 = a * a * M(2, 1) + a * b * (M(2, 2) - M(1, 1)) - b * b * M(1, 2);
 
 			//Scalar M02 = a * M(0, 2) - b * M(0, 1);
 			//Scalar M12 = a*a * M(1, 2) + a*b * ( M(2, 2) - M(1, 1)) - b*b * M(2, 1);
-			Scalar M22 = a*a * M(2, 2) + a*b * (-M(1, 2) - M(2, 1)) + b*b * M(1, 1);
+			Scalar M22 = a * a * M(2, 2) + a * b * (-M(1, 2) - M(2, 1)) + b * b * M(1, 1);
 
 			M(0, 0) = M00;
 			M(1, 0) = M10;
@@ -284,18 +282,18 @@ namespace Vcl { namespace Mathematics
 		Scalar c = cs(0);
 		Scalar s = cs(1);
 
-		Scalar a = c*c - s*s;
-		Scalar b = Scalar(2)*s*c;
+		Scalar a = c * c - s * s;
+		Scalar b = Scalar(2) * s * c;
 		VCL_IF_CONSTEXPR(p == 0 && q == 1)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
 
 			// Transform the input matrix
-			Scalar M00 = a*a * M(0) + a*b * (M(3) + M(3)) + b*b * M(1);
-			Scalar M10 = a*a * M(3) + a*b * (M(1) - M(0)) - b*b * M(3);
+			Scalar M00 = a * a * M(0) + a * b * (M(3) + M(3)) + b * b * M(1);
+			Scalar M10 = a * a * M(3) + a * b * (M(1) - M(0)) - b * b * M(3);
 			Scalar M20 = a * M(4) + b * M(5);
-			Scalar M11 = a*a * M(1) + a*b * (-M(3) - M(3)) + b*b * M(0);
+			Scalar M11 = a * a * M(1) + a * b * (-M(3) - M(3)) + b * b * M(0);
 			Scalar M21 = a * M(5) - b * M(4);
 
 			M(0) = M00;
@@ -313,11 +311,11 @@ namespace Vcl { namespace Mathematics
 			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
 
 			// Transform the input matrix
-			Scalar M00 = a*a * M(0) + a*b * (M(4) + M(4)) + b*b * M(2);
+			Scalar M00 = a * a * M(0) + a * b * (M(4) + M(4)) + b * b * M(2);
 			Scalar M10 = a * M(3) + b * M(5);
-			Scalar M20 = a*a * M(4) + a*b * (M(2) - M(0)) - b*b * M(4);
+			Scalar M20 = a * a * M(4) + a * b * (M(2) - M(0)) - b * b * M(4);
 			Scalar M21 = a * M(5) - b * M(3);
-			Scalar M22 = a*a * M(2) + a*b * (-M(4) - M(4)) + b*b * M(0);
+			Scalar M22 = a * a * M(2) + a * b * (-M(4) - M(4)) + b * b * M(0);
 
 			M(0) = M00;
 			M(2) = M22;
@@ -335,9 +333,9 @@ namespace Vcl { namespace Mathematics
 			// Transform the input matrix
 			Scalar M10 = a * M(3) + b * M(4);
 			Scalar M20 = a * M(4) - b * M(3);
-			Scalar M11 = a*a * M(1) + a*b * (M(5) + M(5)) + b*b * M(2);
-			Scalar M21 = a*a * M(5) + a*b * (M(2) - M(1)) - b*b * M(5);
-			Scalar M22 = a*a * M(2) + a*b * (-M(5) - M(5)) + b*b * M(1);
+			Scalar M11 = a * a * M(1) + a * b * (M(5) + M(5)) + b * b * M(2);
+			Scalar M21 = a * a * M(5) + a * b * (M(2) - M(1)) - b * b * M(5);
+			Scalar M22 = a * a * M(2) + a * b * (-M(5) - M(5)) + b * b * M(1);
 
 			M(1) = M11;
 			M(2) = M22;
@@ -353,7 +351,7 @@ namespace Vcl { namespace Mathematics
 	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
 		VclRequire(all(equal(Q.norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
-		
+
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
 
@@ -391,7 +389,7 @@ namespace Vcl { namespace Mathematics
 			Q *= Eigen::Quaternion<Scalar>(c, s, 0, 0);
 		}
 	}
-	
+
 	template<typename Scalar>
 	VCL_STRONG_INLINE void QuaternionJacobiRotate(const Eigen::Matrix<Scalar, 3, 3>& M, int p, int q, Eigen::Quaternion<Scalar>& Q)
 	{
@@ -407,13 +405,13 @@ namespace Vcl { namespace Mathematics
 
 		Eigen::Matrix<Scalar, 3, 1> v = Eigen::Matrix<Scalar, 3, 1>::Zero();
 		int idx = 2 - (p + q - 1);
-		v(idx) = (idx%2 == 0) ? s : -s;
-		
+		v(idx) = (idx % 2 == 0) ? s : -s;
+
 		Q *= Eigen::Quaternion<Scalar>(c, v(0), v(1), v(2));
 
 		VclEnsure(epsEqual(Eigen::Quaternion<Scalar>(c, v(0), v(1), v(2)).norm(), 1, 1e-6), "Quaternion is normalized.");
 	}
-	
+
 	/*
 	 *	Method based on the technical report:
 	 *		2011 - McAdams, Selle, Tamstorf, Teran, Sifakis - Computing the Singular Value Decomposition of 3 x 3 matrices with minimal branching and elementary floating point operations
@@ -424,7 +422,7 @@ namespace Vcl { namespace Mathematics
 	int SelfAdjointJacobiEigenQuatIncrementalSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& Q, int nr_sweeps = 5)
 	{
 		using namespace Eigen;
-		
+
 		// Initialize the temporary working set.
 		// This informs the optimizer that we are not interested in any
 		// intermediate result and only the final result needs to be stored.
@@ -494,7 +492,7 @@ namespace Vcl { namespace Mathematics
 
 		return nr_sweeps * 3;
 	}
-	
+
 	template<typename Scalar>
 	int SelfAdjointJacobiEigenQuatIncrementalSweeps(Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Matrix<Scalar, 3, 3>& R)
 	{

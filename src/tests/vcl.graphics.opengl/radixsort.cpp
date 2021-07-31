@@ -47,14 +47,12 @@ void ExecuteRadixSortTest(unsigned int size)
 	for (int i = 0; i < num_keys; i++)
 		numbers[i] = num_keys - (i + 0);
 
-	Runtime::BufferDescription desc =
-	{
+	Runtime::BufferDescription desc = {
 		num_keys * static_cast<unsigned int>(sizeof(int)),
 		Runtime::BufferUsage::MapRead | Runtime::BufferUsage::Storage
 	};
 
-	Runtime::BufferInitData data =
-	{
+	Runtime::BufferInitData data = {
 		numbers.data(),
 		num_keys * static_cast<unsigned int>(sizeof(int))
 	};

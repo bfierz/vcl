@@ -62,7 +62,7 @@ TEST(OpenGL, ConfigureFillMode)
 		state.bind();
 		EXPECT_TRUE(state.isValid()) << "State is not valid";
 	}
-	
+
 	{
 		RasterizerDescription desc;
 		desc.FillMode = FillModeMethod::Solid;

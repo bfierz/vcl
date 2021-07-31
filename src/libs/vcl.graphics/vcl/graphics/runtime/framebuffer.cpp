@@ -115,41 +115,32 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		poolDesc.SizeInBytes = (1 + desc.Width * desc.Height) * 8 * (2 * sizeof(uint32_t));
 
 		_headBuffer = engine->createResource(poolDesc);
-
 	}
 
 	void ABuffer::bind(ref_ptr<GraphicsEngine> engine)
 	{
-
 	}
 
 	void ABuffer::clear(int idx, const Eigen::Vector4f& colour)
 	{
-
 	}
 	void ABuffer::clear(int idx, const Eigen::Vector4i& colour)
 	{
-
 	}
 	void ABuffer::clear(int idx, const Eigen::Vector4ui& colour)
 	{
-
 	}
 	void ABuffer::clear(float depth, int stencil)
 	{
-
 	}
 	void ABuffer::clear(float depth)
 	{
-
 	}
 	void ABuffer::clear(int stencil)
 	{
-
 	}
 	void ABuffer::resolve()
 	{
-
 	}
 }}}
 #endif // VCL_OPENGL_SUPPORT

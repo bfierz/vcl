@@ -63,7 +63,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		void copyTo(ID3D12GraphicsCommandList* cmd_queue, Texture& target);
 
 	private:
-		//! 
+		//!
 		ComPtr<ID3D12Resource> _uploadResource;
 	};
 
@@ -95,7 +95,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv() const override;
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav() const override;
-
 	};
 
 	class Texture2DArray final : public Texture

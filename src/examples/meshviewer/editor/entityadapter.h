@@ -78,9 +78,9 @@ namespace Editor
 
 		void addEntity(const EntityAdapter& entity);
 
-		int rowCount(const QModelIndex & parent = QModelIndex()) const;
+		int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
-		QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+		QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
 		//! Access a single item of the model
 		Q_INVOKABLE QVariant get(int index);

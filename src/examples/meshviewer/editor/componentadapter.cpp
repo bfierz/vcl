@@ -48,7 +48,6 @@ namespace Editor
 	: ComponentAdapter("TransformComponent", "Transform")
 	, _component(comp)
 	{
-
 	}
 
 	QVector3D TransformComponentAdapter::translation() const

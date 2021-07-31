@@ -42,7 +42,7 @@ using namespace Vcl::Mathematics;
 TEST(Math, FltSign)
 {
 	std::random_device rnd;
-	std::uniform_real_distribution<double> dist_d{-10, 10};
+	std::uniform_real_distribution<double> dist_d{ -10, 10 };
 
 	EXPECT_EQ(sgn(0.0), 0.0);
 	EXPECT_EQ(sgn(-0.0), 0.0);
@@ -52,8 +52,7 @@ TEST(Math, FltSign)
 		if (d < 0)
 		{
 			EXPECT_EQ(sgn(d), -1.0);
-		}
-		else if (d > 0)
+		} else if (d > 0)
 		{
 			EXPECT_EQ(sgn(d), 1.0);
 		}
@@ -72,8 +71,7 @@ TEST(Math, IntSign)
 		if (d < 0)
 		{
 			EXPECT_EQ(sgn(d), -1);
-		}
-		else if (d > 0)
+		} else if (d > 0)
 		{
 			EXPECT_EQ(sgn(d), 1);
 		}
@@ -92,8 +90,7 @@ TEST(Math, Max)
 		if (d0 > d1)
 		{
 			EXPECT_EQ(max(d0, d1), d0);
-		}
-		else
+		} else
 		{
 			EXPECT_EQ(max(d0, d1), d1);
 		}
@@ -112,8 +109,7 @@ TEST(Math, Min)
 		if (d0 < d1)
 		{
 			EXPECT_EQ(min(d0, d1), d0);
-		}
-		else
+		} else
 		{
 			EXPECT_EQ(min(d0, d1), d1);
 		}

@@ -25,7 +25,7 @@
 
 #include "../common/app.h"
 
- // Include the relevant parts from the library
+// Include the relevant parts from the library
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/runtime/webgpu/resource/buffer.h>
 #include <vcl/graphics/runtime/webgpu/resource/shader.h>
@@ -41,13 +41,13 @@ public:
 	DrawQuadApplication()
 	: Application("DrawQuads")
 	{
-		using Vcl::Graphics::Runtime::WebGPU::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::WebGPU::Shader;
+		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
-		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::WebGPU::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::WebGPU::Shader;
 
 		_vs = std::make_unique<Shader>(_wgpuDevice, ShaderType::VertexShader, 0, QuadSpirvVS);
 		_fs = std::make_unique<Shader>(_wgpuDevice, ShaderType::FragmentShader, 0, QuadSpirvFS);
@@ -99,7 +99,7 @@ private:
 			wgpuRenderPassEncoderEndPass(pass);
 			wgpuRenderPassEncoderRelease(pass);
 		}
-		
+
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
 		wgpuCommandEncoderRelease(encoder);

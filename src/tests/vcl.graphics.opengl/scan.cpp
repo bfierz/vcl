@@ -45,14 +45,12 @@ void ExecuteScanTest(unsigned int size)
 	for (int i = 0; i < size; i++)
 		numbers[i] = i;
 
-	Runtime::BufferDescription desc =
-	{
+	Runtime::BufferDescription desc = {
 		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size()),
 		Runtime::BufferUsage::MapRead | Runtime::BufferUsage::Storage
 	};
 
-	Runtime::BufferInitData data =
-	{
+	Runtime::BufferInitData data = {
 		numbers.data(),
 		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size())
 	};

@@ -54,17 +54,17 @@ class DerivedObject : public BaseObject
 
 public:
 	DerivedObject()
-		: _size(42)
+	: _size(42)
 	{
 	}
 
 	DerivedObject(int a)
-		: _size((float)a)
+	: _size((float)a)
 	{
 	}
 
 	DerivedObject(int a, int b)
-		: _size((float)(a + b))
+	: _size((float)(a + b))
 	{
 	}
 

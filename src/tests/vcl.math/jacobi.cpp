@@ -49,9 +49,9 @@ TEST(Jacobi, Identity)
 	for (int i = 0; i < 10; i++)
 		b[i] = static_cast<float>(i + 1);
 
-	EigenJacobiContext<Eigen::MatrixXf> ctx{&A, &b};
+	EigenJacobiContext<Eigen::MatrixXf> ctx{ &A, &b };
 
-	Eigen::Map<Eigen::VectorXf> mx{x.data(), x.size()};
+	Eigen::Map<Eigen::VectorXf> mx{ x.data(), x.size() };
 	ctx.setX(mx);
 
 	Jacobi solver;

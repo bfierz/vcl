@@ -81,7 +81,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		Vcl::Compute::OpenCL::Context* _ownerCtx;
 
 	private: // Module, Kernels
-
 		//! Module with the radix sort code
 		ref_ptr<Compute::Module> _scanModule;
 
@@ -90,7 +89,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		ref_ptr<Compute::OpenCL::Kernel> _uniformUpdateKernel = nullptr;
 
 	private: // Configurations
-
 		const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
 
 		static const int WorkgroupSize = 256;
@@ -101,7 +99,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		static const unsigned int MaxLargeArraySize = 4 * WorkgroupSize * WorkgroupSize;
 
 	private: // Buffers
-
 		//! Maximum number of stored entries
 		size_t _maxElements = 0;
 

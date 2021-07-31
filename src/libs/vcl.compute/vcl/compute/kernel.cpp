@@ -24,7 +24,7 @@
  */
 #include <vcl/compute/kernel.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Compute

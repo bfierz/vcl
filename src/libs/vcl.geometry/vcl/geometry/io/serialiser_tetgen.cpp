@@ -48,8 +48,7 @@ namespace Vcl { namespace Geometry { namespace IO
 		{
 			node_path = path;
 			ele_path = path.substr(0, path.length() - 5) + ".ele";
-		}
-		else if (path.substr(path.length() - 4) == ".ele")
+		} else if (path.substr(path.length() - 4) == ".ele")
 		{
 			node_path = path.substr(0, path.length() - 4) + ".node";
 			ele_path = path;
@@ -89,8 +88,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					node_parser.skipLine();
-				}
-				else
+				} else
 				{
 					int size = stoi(token);
 					int dim;
@@ -107,7 +105,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the position data
 		while (node_parser.loadLine())
 		{
@@ -118,8 +116,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					node_parser.skipLine();
-				}
-				else
+				} else
 				{
 					node_parser.readFloat(&position[0]);
 					node_parser.readFloat(&position[1]);
@@ -129,7 +126,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the element header
 		while (ele_parser.loadLine())
 		{
@@ -140,8 +137,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					ele_parser.skipLine();
-				}
-				else
+				} else
 				{
 					int size = stoi(token);
 					int dim;
@@ -156,7 +152,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the element data
 		while (ele_parser.loadLine())
 		{
@@ -167,8 +163,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					ele_parser.skipLine();
-				}
-				else
+				} else
 				{
 					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[0])); tetrahedron[0] -= 1;
 					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[1])); tetrahedron[1] -= 1;
@@ -179,7 +174,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		deserialiser->end();
 
 		fin_node.close();

@@ -59,8 +59,7 @@ namespace Vcl { namespace Graphics
 
 			// Reset the trackball
 			_trackball.reset();
-		}
-		else if (mode() == CameraMode::CameraTarget)
+		} else if (mode() == CameraMode::CameraTarget)
 		{
 			// Build a rotation transformation around the current center
 			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
@@ -108,10 +107,9 @@ namespace Vcl { namespace Graphics
 			}
 
 			_trackball.startRotate(ratio_x, ratio_y, true);
-		}
-		else if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)
+		} else if (mode() == CameraMode::Camera || mode() == CameraMode::Fly)
 		{
-			Eigen::Vector3f init_dir{0, 0, 1};
+			Eigen::Vector3f init_dir{ 0, 0, 1 };
 			Eigen::Vector3f curr_dir = (_initialPosition - _initialTarget).normalized();
 			Eigen::Quaternionf init_rot = Eigen::Quaternionf::FromTwoVectors(init_dir, curr_dir);
 

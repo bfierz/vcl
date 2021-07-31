@@ -89,9 +89,9 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int width, unsigned int height)
 	{
-		VclRequire(implies(input, width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
-		VclRequire(implies(input, height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
-		
+		VclRequire(implies(input, width <= (unsigned int)input->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(input, height <= (unsigned int)input->height()), "'y' + 'width' is in range.");
+
 		if (_source)
 			disconnect();
 
@@ -105,9 +105,9 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 	{
-		VclRequire(implies(input, x + width <= (unsigned int) input->width()), "'x' + 'width' is in range.");
-		VclRequire(implies(input, y + height <= (unsigned int) input->height()), "'y' + 'width' is in range.");
-		
+		VclRequire(implies(input, x + width <= (unsigned int)input->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(input, y + height <= (unsigned int)input->height()), "'y' + 'width' is in range.");
+
 		if (_source)
 			disconnect();
 
@@ -161,8 +161,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res, unsigned int width, unsigned int height)
 	{
-		VclRequire(implies(res, width <= (unsigned int) res->width()), "'width' is in range.");
-		VclRequire(implies(res, height <= (unsigned int) res->height()), "'width' is in range.");
+		VclRequire(implies(res, width <= (unsigned int)res->width()), "'width' is in range.");
+		VclRequire(implies(res, height <= (unsigned int)res->height()), "'width' is in range.");
 
 		_resource = res;
 		_width = width;
@@ -170,18 +170,18 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	}
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
 	{
-		VclRequire(implies(res, x + width <= (unsigned int) res->width()), "'x' + 'width' is in range.");
-		VclRequire(implies(res, y + height <= (unsigned int) res->height()), "'y' + 'width' is in range.");
-		
+		VclRequire(implies(res, x + width <= (unsigned int)res->width()), "'x' + 'width' is in range.");
+		VclRequire(implies(res, y + height <= (unsigned int)res->height()), "'y' + 'width' is in range.");
+
 		_resource = res;
 		_x = x;
 		_y = y;
 		_width = width;
 		_height = height;
 	}
-	
+
 	const Runtime::Texture* OutputSlot::resource() const
-	{		
+	{
 		return _resource.get();
 	}
 	unsigned int OutputSlot::x() const

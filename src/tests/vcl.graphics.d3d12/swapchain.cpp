@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
- // Google test
+// Google test
 #include <gtest/gtest.h>
 
 // Windows
@@ -87,7 +87,7 @@ TEST_F(D3D12SwapChainTest, CreateDestroy)
 	desc.Height = 512;
 	desc.PresentMode = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	desc.VSync = false;
-	
+
 	SwapChain swap_chain{ device.get(), device->defaultQueue(), desc };
 }
 

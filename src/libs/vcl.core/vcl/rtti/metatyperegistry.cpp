@@ -56,7 +56,7 @@ namespace Vcl { namespace RTTI
 			metas.emplace(meta->hash(), meta);
 		}
 	}
-	
+
 	void TypeRegistry::remove(const Type* meta)
 	{
 		TypeMap& metas = instance();

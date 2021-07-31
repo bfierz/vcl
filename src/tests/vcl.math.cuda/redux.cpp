@@ -52,7 +52,7 @@ public:
 	void computeInitialResidual() override
 	{
 	}
-			
+
 	void computeQ() override
 	{
 	}
@@ -62,7 +62,7 @@ public:
 		// ISO C++ randorm number generator
 		std::mt19937 twister;
 		std::uniform_real_distribution<float> values;
-		
+
 		_input_r.clear();
 		_input_d.clear();
 		_input_q.clear();
@@ -84,7 +84,7 @@ public:
 		const std::vector<float>& r = _input_r;
 		const std::vector<float>& d = _input_d;
 		const std::vector<float>& q = _input_q;
-		
+
 		l1_r = 0;
 		l1_g = 0;
 		l1_b = 0;
@@ -107,24 +107,23 @@ public:
 		_queue->read(_hostA, Vcl::Compute::BufferView(_reduceBuffersA[0], 0, sizeof(float)));
 		_queue->read(_hostB, Vcl::Compute::BufferView(_reduceBuffersB[0], 0, sizeof(float)));
 		_queue->sync();
-		
+
 		float l1_r = 0;
 		float l1_g = 0;
 		float l1_b = 0;
 		float l1_a = 0;
 		computeReference(l1_r, l1_g, l1_b, l1_a);
 
-		EXPECT_TRUE(equal(*_hostR, l1_r, size()*1e-5f)) << "Ref: " << *_hostR << ", Cuda: " << l1_r;
-		EXPECT_TRUE(equal(*_hostG, l1_g, size()*1e-5f)) << "Ref: " << *_hostG << ", Cuda: " << l1_g;
-		EXPECT_TRUE(equal(*_hostB, l1_b, size()*1e-5f)) << "Ref: " << *_hostB << ", Cuda: " << l1_b;
-		EXPECT_TRUE(equal(*_hostA, l1_a, size()*1e-5f)) << "Ref: " << *_hostA << ", Cuda: " << l1_a;
+		EXPECT_TRUE(equal(*_hostR, l1_r, size() * 1e-5f)) << "Ref: " << *_hostR << ", Cuda: " << l1_r;
+		EXPECT_TRUE(equal(*_hostG, l1_g, size() * 1e-5f)) << "Ref: " << *_hostG << ", Cuda: " << l1_g;
+		EXPECT_TRUE(equal(*_hostB, l1_b, size() * 1e-5f)) << "Ref: " << *_hostB << ", Cuda: " << l1_b;
+		EXPECT_TRUE(equal(*_hostA, l1_a, size() * 1e-5f)) << "Ref: " << *_hostA << ", Cuda: " << l1_a;
 	}
 
 private:
 	std::vector<float> _input_r;
 	std::vector<float> _input_d;
 	std::vector<float> _input_q;
-
 };
 
 extern Vcl::owner_ptr<Vcl::Compute::Cuda::Context> default_ctx;
@@ -142,4 +141,3 @@ TEST(Cuda, Reduction)
 	cg_ctx.reduceVectors();
 	cg_ctx.testResults();
 }
-

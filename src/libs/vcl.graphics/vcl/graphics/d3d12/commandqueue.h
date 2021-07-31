@@ -63,7 +63,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		//! Native queue object
 		ComPtr<ID3D12CommandQueue> _d3d12Queue;
 
-		//! Semaphore for CPU-GPU synchronization 
+		//! Semaphore for CPU-GPU synchronization
 		Semaphore _semaphore;
 	};
 }}}

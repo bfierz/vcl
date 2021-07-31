@@ -101,7 +101,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 * \param offset Offset to the beginning of the currently mapped range
 		 */
 		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
-		
+
 		//! Clear the contents of the buffer
 		void clear();
 
@@ -109,7 +109,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! \param rt Type of the input data
 		//! \param data Input data
 		void clear(const Graphics::OpenGL::AnyRenderType& rt, void* data);
-		
+
 		//! Clear the contents of the buffer
 		//! \param offset Offset into the buffer
 		//! \param size Size of the area to clear

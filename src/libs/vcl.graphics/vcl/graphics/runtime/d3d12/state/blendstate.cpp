@@ -137,7 +137,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 			tgt.RenderTargetWriteMask = rt.RenderTargetWriteMask.bits();
 			i++;
 		}
-		
+
 		return d3d12_desc;
 	}
 }}}}

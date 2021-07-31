@@ -35,8 +35,8 @@
 
 #ifndef VCL_ARCH_WEBASM
 // Dawn
-#include <dawn_native/D3D12Backend.h>
-#include <dawn_native/DawnNative.h>
+#	include <dawn_native/D3D12Backend.h>
+#	include <dawn_native/DawnNative.h>
 #endif
 
 // WebGPU
@@ -81,7 +81,7 @@ private:
 
 	//! WebGPU surface
 	WGPUSurface _wgpuSurface{ nullptr };
-	
+
 protected:
 	//! WebGPU device
 	WGPUDevice _wgpuDevice{ nullptr };

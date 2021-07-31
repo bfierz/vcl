@@ -43,9 +43,13 @@
 #include <vcl/rtti/metatypelookup.h>
 #include <vcl/rtti/serializer.h>
 
-#define VCL_RTTI_ATTR_TABLE_BEGIN(Object) namespace { auto VCL_PP_JOIN(Object, _attributes) = std::make_tuple(
-#define VCL_RTTI_ATTR(Object, name, type, getter, setter) Vcl::RTTI::Attribute<Object, type>{ name, &Object::getter, &Object::setter }
-#define VCL_RTTI_ATTR_TABLE_END(Object) ); auto VCL_PP_JOIN(Object, _attribute_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::AttributeBase*>(VCL_PP_JOIN(Object, _attributes)); }
+#define VCL_RTTI_ATTR_TABLE_BEGIN(Object) \
+	namespace { auto VCL_PP_JOIN(Object, _attributes) = std::make_tuple(
+#define VCL_RTTI_ATTR(Object, name, type, getter, setter) \
+	Vcl::RTTI::Attribute<Object, type> { name, &Object::getter, &Object::setter }
+#define VCL_RTTI_ATTR_TABLE_END(Object) );                                                                                                            \
+	auto VCL_PP_JOIN(Object, _attribute_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::AttributeBase*>(VCL_PP_JOIN(Object, _attributes)); \
+	}
 #define VCL_RTTI_REGISTER_ATTRS(Object) type->registerAttributes(VCL_PP_JOIN(Object, _attribute_bases));
 
 namespace Vcl { namespace RTTI 
@@ -55,8 +59,8 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 EnumAttribute(const char(&name)[N])
-			: EnumAttributeBase(name)
+		VCL_CPP_CONSTEXPR_14 EnumAttribute(const char (&name)[N])
+		: EnumAttributeBase(name)
 		{
 		}
 
@@ -78,13 +82,14 @@ namespace Vcl { namespace RTTI
 	class Attribute : public std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type
 	{
 		using Base = typename std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type;
+
 	public:
 		using Getter = T (MetaType::*)() const;
 		using Setter = void (MetaType::*)(T);
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -94,7 +99,7 @@ namespace Vcl { namespace RTTI
 			if (getter != nullptr)
 				this->setHasGetter();
 		}
-		
+
 	public:
 		T get(const MetaType& obj) const
 		{
@@ -163,15 +168,16 @@ namespace Vcl { namespace RTTI
 	class Attribute<MetaType, const T&> : public std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type
 	{
 		using Base = typename std::conditional<std::is_enum<T>::value, EnumAttribute<T>, AttributeBase>::type;
+
 	public:
-		using  AttrT = const T&;
+		using AttrT = const T&;
 
 		using Getter = AttrT (MetaType::*)() const;
 		using Setter = void (MetaType::*)(AttrT);
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -247,14 +253,14 @@ namespace Vcl { namespace RTTI
 	template<typename MetaType, typename T>
 	class Attribute<MetaType, std::unique_ptr<T>> : public AttributeBase
 	{
-		using  AttrT = std::unique_ptr<T>;
+		using AttrT = std::unique_ptr<T>;
 
-		using Getter = T*(MetaType::*)() const;
+		using Getter = T* (MetaType::*)() const;
 		using Setter = void (MetaType::*)(AttrT);
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char(&name)[N], Getter getter, Setter setter)
+		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -264,7 +270,7 @@ namespace Vcl { namespace RTTI
 			if (getter != nullptr)
 				this->setHasGetter();
 		}
-		
+
 	public:
 		T* get(const MetaType& obj) const
 		{
@@ -325,7 +331,7 @@ namespace Vcl { namespace RTTI
 
 			// Read content of the attribute
 			auto type = vcl_meta_type_by_name(deser.readType());
-			auto store = (MetaType*) Factory::create(deser.readType());
+			auto store = (MetaType*)Factory::create(deser.readType());
 			auto val = AttrT(store);
 
 			type->deserialize(deser, val.get());

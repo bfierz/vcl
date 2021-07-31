@@ -81,14 +81,14 @@ TEST(SimdBool, Construct)
 	using Vcl::all;
 	using Vcl::none;
 
-	EXPECT_TRUE(all(bool4{true}));
-	EXPECT_TRUE(all(bool8{true}));
-	EXPECT_TRUE(all(bool16{true}));
-	
-	EXPECT_TRUE(none(bool4{false}));
-	EXPECT_TRUE(none(bool8{false}));
-	EXPECT_TRUE(none(bool16{false}));
-	
+	EXPECT_TRUE(all(bool4{ true }));
+	EXPECT_TRUE(all(bool8{ true }));
+	EXPECT_TRUE(all(bool16{ true }));
+
+	EXPECT_TRUE(none(bool4{ false }));
+	EXPECT_TRUE(none(bool8{ false }));
+	EXPECT_TRUE(none(bool16{ false }));
+
 	bool4 b4{ b4_0 };
 	for (int i = 0; i < 4; i++)
 	{
@@ -117,10 +117,10 @@ TEST(SimdBool, Assign)
 
 	using Vcl::all;
 
-	bool4 b4{true};
-	bool8 b8{true};
-	bool16 b16{true};
-	
+	bool4 b4{ true };
+	bool8 b8{ true };
+	bool16 b16{ true };
+
 	EXPECT_TRUE(all(b4));
 	EXPECT_TRUE(all(b8));
 	EXPECT_TRUE(all(b16));
@@ -128,13 +128,13 @@ TEST(SimdBool, Assign)
 	b4 = b4_0;
 	b8 = b8_0;
 	b16 = b16_0;
-	
+
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(b4[i], i % 2 == 0);
-	
+
 	for (int i = 0; i < 8; i++)
 		EXPECT_EQ(b8[i], i % 2 == 0);
-	
+
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(b16[i], i % 2 == 0);
 }
@@ -149,12 +149,12 @@ TEST(SimdBool, And)
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(b4[i], i % 2 == 0);
 	EXPECT_TRUE(none(b4_0 && b4_1));
-	
+
 	bool8 b8 = b8_0 && b8_0;
 	for (int i = 0; i < 8; i++)
 		EXPECT_EQ(b8[i], i % 2 == 0);
 	EXPECT_TRUE(none(b8_0 && b8_1));
-	
+
 	bool16 b16 = b16_0 && b16_0;
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(b16[i], i % 2 == 0);
@@ -171,12 +171,12 @@ TEST(SimdBool, Or)
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(b4[i], i % 2 == 0);
 	EXPECT_TRUE(all(b4_0 || b4_1));
-	
+
 	bool8 b8 = b8_0 || b8_0;
 	for (int i = 0; i < 8; i++)
 		EXPECT_EQ(b8[i], i % 2 == 0);
 	EXPECT_TRUE(all(b8_0 || b8_1));
-	
+
 	bool16 b16 = b16_0 || b16_0;
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(b16[i], i % 2 == 0);
@@ -219,26 +219,26 @@ TEST(SimdFloat, Assign)
 {
 	VCL_SIMD_FLOATS
 
-	float4 f4{0};
+	float4 f4{ 0 };
 	for (int i = 0; i < 4; i++)
 		EXPECT_EQ(f4[i], 0.0f);
 	f4 = f4_asc;
 	for (int i = 0; i < 4; i++)
-		EXPECT_EQ(f4_asc[i], i+1);
-	
-	float8 f8{0};
+		EXPECT_EQ(f4_asc[i], i + 1);
+
+	float8 f8{ 0 };
 	for (int i = 0; i < 8; i++)
 		EXPECT_EQ(f8[i], 0.0f);
 	f8 = f8_asc;
 	for (int i = 0; i < 8; i++)
-		EXPECT_EQ(f8_asc[i], i+1);
-	
-	float16 f16{0};
+		EXPECT_EQ(f8_asc[i], i + 1);
+
+	float16 f16{ 0 };
 	for (int i = 0; i < 16; i++)
 		EXPECT_EQ(f16[i], 0.0f);
 	f16 = f16_asc;
 	for (int i = 0; i < 16; i++)
-		EXPECT_EQ(f16_asc[i], i+1);
+		EXPECT_EQ(f16_asc[i], i + 1);
 }
 
 TEST(SimdFloat, Negate)
@@ -382,8 +382,7 @@ void fltSignumTest()
 		if (d < 0)
 		{
 			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(-1)));
-		}
-		else if (d > 0)
+		} else if (d > 0)
 		{
 			EXPECT_TRUE(all(sgn(floatN(d)) == floatN(1)));
 		}

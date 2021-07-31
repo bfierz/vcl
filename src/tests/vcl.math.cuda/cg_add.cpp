@@ -61,7 +61,7 @@ public:
 	void computeInitialResidual() override
 	{
 	}
-			
+
 	void computeQ() override
 	{
 	}
@@ -71,7 +71,7 @@ public:
 		// ISO C++ randorm number generator
 		std::mt19937 twister;
 		std::uniform_real_distribution<float> values;
-		
+
 		_input_x.clear();
 		_input_r.clear();
 		_input_d.clear();
@@ -140,7 +140,7 @@ public:
 		_queue->read(d.data(), Vcl::Compute::BufferView(_devDirection));
 		_queue->read(q.data(), Vcl::Compute::BufferView(_devQ));
 		_queue->sync();
-		
+
 		computeReference();
 
 		compare("x", x, _input_x);
@@ -152,7 +152,8 @@ public:
 	void compare(const char* marker, const std::vector<float>& sol, const std::vector<float>& ref)
 	{
 		// Check for the solution
-		Eigen::VectorXf err; err.setZero(sol.size());
+		Eigen::VectorXf err;
+		err.setZero(sol.size());
 		for (size_t i = 0; i < sol.size(); i++)
 		{
 			err(i) = fabs(ref[i] - sol[i]);
@@ -184,4 +185,3 @@ TEST(Cuda, CgUpdateVectors)
 	cg_ctx.updateVectors();
 	cg_ctx.testResults();
 }
-

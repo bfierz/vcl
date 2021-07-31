@@ -89,8 +89,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		BufferView(const BufferView&) = delete;
 		BufferView(BufferView&&) = default;
-		BufferView& operator =(const BufferView&) = delete;
-		BufferView& operator =(BufferView&&) = default;
+		BufferView& operator=(const BufferView&) = delete;
+		BufferView& operator=(BufferView&&) = default;
 
 		void* data() const { return _data; }
 
@@ -185,7 +185,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		/// Pointer to mapped constant buffer
 		void* _mappedLinearMemory{ nullptr };
-
 	};
 
 	struct DepthSurface
@@ -195,7 +194,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> DepthBuffer;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DsvHeap;
-
 	};
 
 	enum class PipelineBindPoint
@@ -316,6 +314,5 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		//! Current offset into the linear memory buffer
 		size_t _linearBufferOffset{ 0 };
-
 	};
 }}}}

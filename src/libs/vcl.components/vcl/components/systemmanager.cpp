@@ -29,6 +29,5 @@ namespace Vcl { namespace Components
 	SystemManager::SystemManager(Core::ref_ptr<EntityManager> em)
 	: _entities(em)
 	{
-
 	}
 }}

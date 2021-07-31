@@ -99,7 +99,7 @@ namespace Vcl { namespace Core
 
 			// Allocate initial memory
 			AlignedAllocPolicy<SCALAR, 64> alloc;
-			mData = alloc.allocate(mAllocated*mRows*mCols);
+			mData = alloc.allocate(mAllocated * mRows * mCols);
 		}
 
 		InterleavedArray(InterleavedArray&& rhs)
@@ -123,7 +123,7 @@ namespace Vcl { namespace Core
 			if (mData)
 			{
 				AlignedAllocPolicy<SCALAR, 64> alloc;
-				alloc.deallocate(mData, mAllocated*mRows*mCols);
+				alloc.deallocate(mData, mAllocated * mRows * mCols);
 			}
 		}
 
@@ -145,7 +145,7 @@ namespace Vcl { namespace Core
 
 		void setZero()
 		{
-			memset(mData, 0, mAllocated*mRows*mCols*sizeof(SCALAR));
+			memset(mData, 0, mAllocated * mRows * mCols * sizeof(SCALAR));
 		}
 
 	public:

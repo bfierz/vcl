@@ -22,8 +22,9 @@
  * OUT O	OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-float pitbull_core_points[] =
-{
+
+// clang-format off
+float pitbull_core_points[] = {
 	54.843079f, -45.140915f, 5.875645f,
 	56.843372f, -45.104752f, 10.981045f,
 	56.822353f, -45.160885f, 10.674680f,
@@ -7599,8 +7600,7 @@ float pitbull_core_points[] =
 };
 int num_pitbull_core_points = sizeof(pitbull_core_points) / sizeof(float);
 
-float pitbull_core_texcoords[] =
-{
+float pitbull_core_texcoords[] = {
 	0.732128f, 0.005432f,
 	0.694852f, 0.006102f,
 	0.695327f, 0.005015f,
@@ -15176,8 +15176,7 @@ float pitbull_core_texcoords[] =
 };
 int num_pitbull_core_texcoords = sizeof(pitbull_core_texcoords) / sizeof(float);
 
-float pitbull_core_normals[] =
-{
+float pitbull_core_normals[] = {
 	0.211684f, -0.345448f, -0.914251f,
 	0.364996f, -0.096065f, -0.926040f,
 	0.062867f, -0.238841f, -0.969021f,
@@ -22753,8 +22752,7 @@ float pitbull_core_normals[] =
 };
 int num_pitbull_core_normals = sizeof(pitbull_core_normals) / sizeof(float);
 
-int pitbull_core_faces[] =
-{
+int pitbull_core_faces[] = {
 	4, 4, 4, 2, 2, 2, 3, 3, 3,
 	6, 6, 6, 4, 4, 4, 3, 3, 3,
 	8, 8, 8, 9, 9, 9, 10, 10, 10,
@@ -37925,3 +37923,4 @@ int pitbull_core_faces[] =
 	7572, 7572, 7572, 7563, 7563, 7563, 7562, 7562, 7562,
 };
 int num_pitbull_core_faces = sizeof(pitbull_core_faces) / sizeof(int);
+// clang-format on

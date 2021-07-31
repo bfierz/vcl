@@ -47,7 +47,8 @@ namespace Vcl { namespace Geometry
 	};
 
 	// Forward declaration
-	template<typename T> struct CellTraits;
+	template<typename T>
+	struct CellTraits;
 
 	template<typename Derived, typename IndexType>
 	class Cell
@@ -121,14 +122,14 @@ namespace Vcl { namespace Geometry
 			}
 			return Jm;
 		}
-		
+
 		// Compute the spatial derivatives of the interpolation functions at a given
 		// integration point
 		static matrix3x4_t dNi_xyz(const matrix3_t& Jinv, const NaturalCoordinates3& gauss_point)
 		{
 			matrix3x4_t der = matrix3x4_t::Zero();
 			vector3_t dNi_zeta_123;
-			
+
 			for (int i = 0; i < 4; i++)
 			{
 				dNi_zeta_123(0) = dNi_zeta_1(i, gauss_point);
@@ -139,7 +140,7 @@ namespace Vcl { namespace Geometry
 
 			return der;
 		}
-		
+
 		// Compute the Jacobian matrix for the deformation field at a given integration
 		// point.
 		static matrix4_t jacobian(const matrix3x4_t& coords, const NaturalCoordinates4& gauss_point)
@@ -155,14 +156,14 @@ namespace Vcl { namespace Geometry
 			}
 			return Jm;
 		}
-		
+
 		// Compute the spatial derivatives of the interpolation functions at a given
 		// integration point
 		static matrix4_t dNi_xyz(const matrix4_t& Jinv, const NaturalCoordinates4& gauss_point)
 		{
 			matrix4_t der = matrix4_t::Zero();
 			vector4_t dNi_zeta_1234;
-			
+
 			for (int i = 0; i < 4; i++)
 			{
 				dNi_zeta_1234(0) = dNi_zeta_1(i, gauss_point);
@@ -185,7 +186,7 @@ namespace Vcl { namespace Geometry
 			else
 				return 0;
 		}
-		
+
 		static float dNi_zeta_2(int i, const NaturalCoordinates3&)
 		{
 			if (i == 1)
@@ -205,7 +206,7 @@ namespace Vcl { namespace Geometry
 			else
 				return 0;
 		}
-		
+
 		static float dNi_zeta_1(int i, const NaturalCoordinates4&)
 		{
 			if (i == 0)
@@ -213,7 +214,7 @@ namespace Vcl { namespace Geometry
 			else
 				return 0;
 		}
-		
+
 		static float dNi_zeta_2(int i, const NaturalCoordinates4&)
 		{
 			if (i == 1)
@@ -247,12 +248,12 @@ namespace Vcl { namespace Geometry
 		static const int NumFaces = 4;
 		static const int NumTriFaces = 4;
 		static const int NumQuadFaces = 0;
-	
+
 		static const int edges[NumEdges][2];
 		static const int quadFaces[1][4]; // NumQuadFaces is 0, which would result in a linker error, so setting to a dummy 1
 		static const int triFaces[NumTriFaces][3];
 	};
-	
+
 	template<typename IndexType>
 	class PyramidralCell : public Cell<PyramidralCell<IndexType>, IndexType>
 	{
@@ -557,15 +558,15 @@ namespace Vcl { namespace Geometry
 		static float dNi_xi(int i, const Node& gauss_point)
 		{
 			Node node = nodes(i); // node = [xi_i, eta_i, zeta_i]
-			return float(1.0/8.0*node.xi*(1+gauss_point.eta*node.eta)*(1+gauss_point.zeta*node.zeta));
+			return float(1.0 / 8.0 * node.xi * (1 + gauss_point.eta * node.eta) * (1 + gauss_point.zeta * node.zeta));
 		}
-		
+
 		// Isoparametric derivative wrt. eta of interpolation function N_i evaluated
 		// at integration point gaussPoint
 		static float dNi_eta(int i, const Node& gauss_point)
 		{
 			Node node = nodes(i); // node = [xi_i, eta_i, zeta_i]
-			return float(1.0/8.0*(1+gauss_point.xi*node.xi)*(node.eta)*(1+gauss_point.zeta*node.zeta));
+			return float(1.0 / 8.0 * (1 + gauss_point.xi * node.xi) * (node.eta) * (1 + gauss_point.zeta * node.zeta));
 		}
 
 		// Isoparametric derivative wrt. zeta of interpolation function N_i evaluated
@@ -573,16 +574,16 @@ namespace Vcl { namespace Geometry
 		static float dNi_zeta(int i, const Node& gauss_point)
 		{
 			Node node = nodes(i); // node = [xi_i, eta_i, zeta_i]
-			return float(1.0/8.0*(1+gauss_point.xi*node.xi)*(1+gauss_point.eta*node.eta)*(node.zeta));
+			return float(1.0 / 8.0 * (1 + gauss_point.xi * node.xi) * (1 + gauss_point.eta * node.eta) * (node.zeta));
 		}
-		
+
 		// Compute the spatial derivatives of the interpolation functions at a given
 		// integration point
 		static matrix3x8_t dNi_xyz(const matrix3_t& Jinv, const Node& gauss_point)
 		{
 			matrix3x8_t der = matrix3x8_t::Zero();
 			vector3_t dNi_xi_eta_zeta;
-			
+
 			for (int i = 0; i < 8; i++)
 			{
 				dNi_xi_eta_zeta(0) = dNi_xi(i, gauss_point);
@@ -594,7 +595,7 @@ namespace Vcl { namespace Geometry
 			return der;
 		}
 	};
-	
+
 	template<typename IndexType>
 	struct CellTraits<HexahedralCell<IndexType>>
 	{

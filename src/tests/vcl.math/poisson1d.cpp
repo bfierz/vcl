@@ -115,6 +115,7 @@ TEST(Poisson1D, SimpleCgNoBlocker)
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson1DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(nr_pts);
+	Eigen::VectorXf lhs;
+	lhs.setZero(nr_pts);
 	runPoissonTest<ConjugateGradients, Poisson1DCgCtx<float>, unsigned int>(nr_pts, h, lhs, rhs, sol, skip, nr_pts, 3e-4f);
 }

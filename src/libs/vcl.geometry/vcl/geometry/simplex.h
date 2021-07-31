@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 #include <vcl/geometry/genericid.h>
 #include <vcl/geometry/propertygroup.h>
@@ -55,7 +55,7 @@ namespace Vcl { namespace Geometry
 			return _startId;
 		}
 
-		const ElementT* operator-> () const
+		const ElementT* operator->() const
 		{
 			return &_mesh->element(_startId);
 		}
@@ -108,8 +108,8 @@ namespace Vcl { namespace Geometry
 		SimplexLevel0()
 		: _vertexData("VertexData")
 		{
-            _vertices = _vertexData.template add<Vertex>("Vertices");
-            _verticesMetaData = _vertexData.template add<VertexMetaData>("VerticesMetaData");
+			_vertices = _vertexData.template add<Vertex>("Vertices");
+			_verticesMetaData = _vertexData.template add<VertexMetaData>("VerticesMetaData");
 		}
 		SimplexLevel0(const SimplexLevel0& rhs)
 		: _vertexData(rhs._vertexData)
@@ -147,7 +147,7 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<VertexId>& vertexProperties()       { return _vertexData; }
 
 	public: // Enumerators
-		VertexEnumerator vertexEnumerator() const { return{ this, VertexId(0), VertexId(static_cast<typename VertexId::IdType>(_vertices.size())) }; }
+		VertexEnumerator vertexEnumerator() const { return { this, VertexId(0), VertexId(static_cast<typename VertexId::IdType>(_vertices.size())) }; }
 
 	protected: // Element access
 		template<typename element_type, typename index_type>
@@ -165,7 +165,6 @@ namespace Vcl { namespace Geometry
 		}
 
 	protected: // Properties
-
 		//! Data associated with a vertex
 		PropertyGroup<VertexId> _vertexData;
 
@@ -181,21 +180,20 @@ namespace Vcl { namespace Geometry
 	{
 	public: // IDs
 		using EdgeId = typename IndexDescriptionTrait<Derived>::EdgeId;
-		
+
 	public: // Structures
 		using Edge = typename IndexDescriptionTrait<Derived>::Edge;
 		using EdgeMetaData = typename IndexDescriptionTrait<Derived>::EdgeMetaData;
 
-
 	public: // Iterator Types
-        using EdgeEnumerator = Enumerator<EdgeId, Edge, SimplexLevel1<Derived>>;
+		using EdgeEnumerator = Enumerator<EdgeId, Edge, SimplexLevel1<Derived>>;
 
 	public:
 		SimplexLevel1()
 		: _edgeData("EdgeGroup")
 		{
-            _edges = _edgeData.template add<Edge>("Edges");
-            _edgesMetaData = _edgeData.template add<EdgeMetaData>("EdgesMetaData");
+			_edges = _edgeData.template add<Edge>("Edges");
+			_edgesMetaData = _edgeData.template add<EdgeMetaData>("EdgesMetaData");
 		}
 		SimplexLevel1(const SimplexLevel1& rhs)
 		: _edgeData(rhs._edgeData)
@@ -233,10 +231,9 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<EdgeId>& edgeProperties()       { return _edgeData; }
 
 	public: // Enumerators
-		EdgeEnumerator edgeEnumerator() const { return{ this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges.size())) }; }
+		EdgeEnumerator edgeEnumerator() const { return { this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges.size())) }; }
 
 	protected: // Properties
-		
 		//! Data associated with an edge
 		PropertyGroup<EdgeId> _edgeData;
 
@@ -252,20 +249,20 @@ namespace Vcl { namespace Geometry
 	{
 	public: // IDs
 		using FaceId = typename IndexDescriptionTrait<Derived>::FaceId;
-		
+
 	public: // Structures
 		using Face = typename IndexDescriptionTrait<Derived>::Face;
 		using FaceMetaData = typename IndexDescriptionTrait<Derived>::FaceMetaData;
 
 	public: // Iterator Types
-        using FaceEnumerator = Enumerator<FaceId, Face, SimplexLevel2<Derived>>;
+		using FaceEnumerator = Enumerator<FaceId, Face, SimplexLevel2<Derived>>;
 
 	public:
 		SimplexLevel2()
 		: _faceData("FaceGroup")
 		{
-            _faces = _faceData.template add<Face>("Faces");
-            _facesMetaData = _faceData.template add<FaceMetaData>("FacesMetaData");
+			_faces = _faceData.template add<Face>("Faces");
+			_facesMetaData = _faceData.template add<FaceMetaData>("FacesMetaData");
 		}
 		SimplexLevel2(const SimplexLevel2& rhs)
 		: _faceData(rhs._faceData)
@@ -283,7 +280,7 @@ namespace Vcl { namespace Geometry
 			_facesMetaData = _faceData.template property<FaceMetaData>("FacesMetaData");
 		}
 		virtual ~SimplexLevel2() = default;
-		
+
 	public: // Properties
 		unsigned int nrFaces() const { return static_cast<unsigned int>(_faceData.propertySize()); }
 
@@ -303,10 +300,9 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<FaceId>& faceProperties()       { return _faceData; }
 
 	public: // Enumerators
-		FaceEnumerator faceEnumerator() const { return{ this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces.size())) }; }
+		FaceEnumerator faceEnumerator() const { return { this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces.size())) }; }
 
 	protected: // Properties
-		
 		//! Data associated with a face
 		PropertyGroup<FaceId> _faceData;
 
@@ -322,20 +318,20 @@ namespace Vcl { namespace Geometry
 	{
 	public: // IDs
 		using VolumeId = typename IndexDescriptionTrait<Derived>::VolumeId;
-		
+
 	public: // Structures
 		using Volume = typename IndexDescriptionTrait<Derived>::Volume;
 		using VolumeMetaData = typename IndexDescriptionTrait<Derived>::VolumeMetaData;
 
 	public: // Iterator Types
-        using VolumeEnumerator = Enumerator<VolumeId, Volume, SimplexLevel3<Derived>>;
+		using VolumeEnumerator = Enumerator<VolumeId, Volume, SimplexLevel3<Derived>>;
 
 	public:
 		SimplexLevel3()
 		: _volumeData("VolumeGroup")
 		{
-            _volumes = _volumeData.template add<Volume>("Volumes");
-            _volumesMetaData = _volumeData.template add<VolumeMetaData>("VolumesMetaData");
+			_volumes = _volumeData.template add<Volume>("Volumes");
+			_volumesMetaData = _volumeData.template add<VolumeMetaData>("VolumesMetaData");
 		}
 		SimplexLevel3(const SimplexLevel3& rhs)
 		: _volumeData(rhs._volumeData)
@@ -373,10 +369,9 @@ namespace Vcl { namespace Geometry
 		      PropertyGroup<VolumeId>& volumeProperties()       { return _volumeData; }
 
 	public: // Enumerators
-		VolumeEnumerator volumeEnumerator() const { return{ this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes.size())) }; }
+		VolumeEnumerator volumeEnumerator() const { return { this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes.size())) }; }
 
 	protected: // Properties
-
 		//! Data associated with a volume
 		PropertyGroup<VolumeId> _volumeData;
 

@@ -46,10 +46,10 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		Module(cl_program mod);
 
 		Module(Module&&);
-		Module& operator =(Module&&);
+		Module& operator=(Module&&);
 
 		Module(const Module&) = delete;
-		Module& operator =(const Module&) = delete;
+		Module& operator=(const Module&) = delete;
 
 		//! Destructor
 		virtual ~Module();
@@ -58,7 +58,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 		static Core::owner_ptr<Module> loadFromSource(Context* ctx, const int8_t* source, size_t size);
 
 	public:
-		operator cl_program () const;
+		operator cl_program() const;
 
 	public:
 		//! Access a kernel object through its name

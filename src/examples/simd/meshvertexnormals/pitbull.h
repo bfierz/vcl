@@ -30,10 +30,10 @@
 
 extern float pitbull_core_points[];
 extern float pitbull_core_texcoords[];
-extern float pitbull_core_normals [];
+extern float pitbull_core_normals[];
 
 // f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3
-extern int   pitbull_core_faces[];
+extern int pitbull_core_faces[];
 
 extern int num_pitbull_core_points;
 extern int num_pitbull_core_texcoords;

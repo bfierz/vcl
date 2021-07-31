@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 #pragma once
- 
+
 // VCL configuration
 #include <vcl/config/global.h>
 

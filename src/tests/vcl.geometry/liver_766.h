@@ -32,7 +32,7 @@
 #include <cstddef>
 
 extern float liver_766_points[];
-extern int   liver_766_faces [];
+extern int liver_766_faces[];
 
 extern std::size_t num_liver_766_points;
 extern std::size_t num_liver_766_faces;

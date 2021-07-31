@@ -44,10 +44,10 @@ namespace Vcl { namespace Graphics
 			{
 				log2L = 0;
 				return 0;
-			}
-			else
+			} else
 			{
-				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++);
+				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++)
+					;
 				return L;
 			}
 		}
@@ -86,8 +86,7 @@ namespace Vcl { namespace Graphics
 		if (arrayLength <= MaxShortArraySize)
 		{
 			scanExclusiveSmall(dst, src, 1, arrayLength);
-		}
-		else
+		} else
 		{
 			unsigned int batchSize = arrayLength / MaxWorkgroupInclusiveScanSize;
 			scanExclusiveLarge(dst, src, batchSize, MaxWorkgroupInclusiveScanSize);

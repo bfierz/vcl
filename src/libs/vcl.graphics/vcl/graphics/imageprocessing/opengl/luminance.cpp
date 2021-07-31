@@ -113,7 +113,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			imageStore(output0, outBase + outCoords, vec4(avg, avg, avg, avg));
 		}
 		)";
-		
+
 		const char* downscale = R"(
 		#version 430 core
 		
@@ -225,7 +225,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		Eigen::Vector4i input_range{ 0, 0, in_w, in_h };
 		Eigen::Vector4i output_range{ 0, 0, pass_width, pass_height };
-		
+
 		// Convert the color image input to luminance
 		processor->enqueKernel(_prepareKernelId, pass_width, pass_height, &next_lum_base_img_ptr, &output_range, 1, &input, &input_range, 1);
 

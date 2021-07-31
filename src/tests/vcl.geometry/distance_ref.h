@@ -49,9 +49,9 @@ Real distanceEberly
 	Real d = (B - P).dot(E0);
 	Real e = (B - P).dot(E1);
 	Real f = (B - P).squaredNorm();
-	Real det = std::abs(a*c - b*b);
-	Real s = b*e - c*d;
-	Real t = b*d - a*e;
+	Real det = std::abs(a * c - b * b);
+	Real s = b * e - c * d;
+	Real t = b * d - a * e;
 	Real dist;
 
 	int region = -1;
@@ -60,7 +60,7 @@ Real distanceEberly
 	{
 		if (s < (Real)0.0)
 		{
-			if (t < (Real)0.0)  // region 4
+			if (t < (Real)0.0) // region 4
 			{
 				region = 4;
 
@@ -70,35 +70,30 @@ Real distanceEberly
 					if (-d >= a)
 					{
 						s = (Real)1.0;
-						dist = a + ((Real)2.0)*d + f;
-					}
-					else
+						dist = a + ((Real)2.0) * d + f;
+					} else
 					{
 						s = -d / a;
-						dist = d*s + f;
+						dist = d * s + f;
 					}
-				}
-				else
+				} else
 				{
 					s = (Real)0.0;
 					if (e >= (Real)0.0)
 					{
 						t = (Real)0.0;
 						dist = f;
-					}
-					else if (-e >= c)
+					} else if (-e >= c)
 					{
 						t = (Real)1.0;
-						dist = c + ((Real)2.0)*e + f;
-					}
-					else
+						dist = c + ((Real)2.0) * e + f;
+					} else
 					{
 						t = -e / c;
-						dist = e*t + f;
+						dist = e * t + f;
 					}
 				}
-			}
-			else  // region 3
+			} else // region 3
 			{
 				region = 3;
 
@@ -107,20 +102,17 @@ Real distanceEberly
 				{
 					t = (Real)0.0;
 					dist = f;
-				}
-				else if (-e >= c)
+				} else if (-e >= c)
 				{
 					t = (Real)1.0;
-					dist = c + ((Real)2.0)*e + f;
-				}
-				else
+					dist = c + ((Real)2.0) * e + f;
+				} else
 				{
 					t = -e / c;
-					dist = e*t + f;
+					dist = e * t + f;
 				}
 			}
-		}
-		else if (t < (Real)0.0)  // region 5
+		} else if (t < (Real)0.0) // region 5
 		{
 			region = 5;
 
@@ -129,19 +121,16 @@ Real distanceEberly
 			{
 				s = (Real)0.0;
 				dist = f;
-			}
-			else if (-d >= a)
+			} else if (-d >= a)
 			{
 				s = (Real)1.0;
-				dist = a + ((Real)2.0)*d + f;
-			}
-			else
+				dist = a + ((Real)2.0) * d + f;
+			} else
 			{
 				s = -d / a;
-				dist = d*s + f;
+				dist = d * s + f;
 			}
-		}
-		else  // region 0
+		} else // region 0
 		{
 			region = 0;
 
@@ -149,15 +138,14 @@ Real distanceEberly
 			Real inv_det = ((Real)1.0) / det;
 			s *= inv_det;
 			t *= inv_det;
-			dist = s*(a*s + b*t + ((Real)2.0)*d) +
-				t*(b*s + c*t + ((Real)2.0)*e) + f;
+			dist = s * (a * s + b * t + ((Real)2.0) * d) +
+				   t * (b * s + c * t + ((Real)2.0) * e) + f;
 		}
-	}
-	else
+	} else
 	{
 		Real tmp0, tmp1, numer, denom;
 
-		if (s < (Real)0.0)  // region 2
+		if (s < (Real)0.0) // region 2
 		{
 			region = 2;
 
@@ -166,42 +154,37 @@ Real distanceEberly
 			if (tmp1 > tmp0)
 			{
 				numer = tmp1 - tmp0;
-				denom = a - 2.0f*b + c;
+				denom = a - 2.0f * b + c;
 				if (numer >= denom)
 				{
 					s = (Real)1.0;
 					t = (Real)0.0;
-					dist = a + ((Real)2.0)*d + f;
-				}
-				else
+					dist = a + ((Real)2.0) * d + f;
+				} else
 				{
 					s = numer / denom;
 					t = (Real)1.0 - s;
-					dist = s*(a*s + b*t + 2.0f*d) +
-						t*(b*s + c*t + ((Real)2.0)*e) + f;
+					dist = s * (a * s + b * t + 2.0f * d) +
+						   t * (b * s + c * t + ((Real)2.0) * e) + f;
 				}
-			}
-			else
+			} else
 			{
 				s = (Real)0.0;
 				if (tmp1 <= (Real)0.0)
 				{
 					t = (Real)1.0;
-					dist = c + ((Real)2.0)*e + f;
-				}
-				else if (e >= (Real)0.0)
+					dist = c + ((Real)2.0) * e + f;
+				} else if (e >= (Real)0.0)
 				{
 					t = (Real)0.0;
 					dist = f;
-				}
-				else
+				} else
 				{
 					t = -e / c;
-					dist = e*t + f;
+					dist = e * t + f;
 				}
 			}
-		}
-		else if (t < (Real)0.0)  // region 6
+		} else if (t < (Real)0.0) // region 6
 		{
 			region = 6;
 
@@ -210,42 +193,37 @@ Real distanceEberly
 			if (tmp1 > tmp0)
 			{
 				numer = tmp1 - tmp0;
-				denom = a - ((Real)2.0)*b + c;
+				denom = a - ((Real)2.0) * b + c;
 				if (numer >= denom)
 				{
 					t = (Real)1.0;
 					s = (Real)0.0;
-					dist = c + ((Real)2.0)*e + f;
-				}
-				else
+					dist = c + ((Real)2.0) * e + f;
+				} else
 				{
 					t = numer / denom;
 					s = (Real)1.0 - t;
-					dist = s*(a*s + b*t + ((Real)2.0)*d) +
-						t*(b*s + c*t + ((Real)2.0)*e) + f;
+					dist = s * (a * s + b * t + ((Real)2.0) * d) +
+						   t * (b * s + c * t + ((Real)2.0) * e) + f;
 				}
-			}
-			else
+			} else
 			{
 				t = (Real)0.0;
 				if (tmp1 <= (Real)0.0)
 				{
 					s = (Real)1.0;
-					dist = a + ((Real)2.0)*d + f;
-				}
-				else if (d >= (Real)0.0)
+					dist = a + ((Real)2.0) * d + f;
+				} else if (d >= (Real)0.0)
 				{
 					s = (Real)0.0;
 					dist = f;
-				}
-				else
+				} else
 				{
 					s = -d / a;
-					dist = d*s + f;
+					dist = d * s + f;
 				}
 			}
-		}
-		else  // region 1
+		} else // region 1
 		{
 			region = 1;
 
@@ -254,23 +232,21 @@ Real distanceEberly
 			{
 				s = (Real)0.0;
 				t = (Real)1.0;
-				dist = c + ((Real)2.0)*e + f;
-			}
-			else
+				dist = c + ((Real)2.0) * e + f;
+			} else
 			{
-				denom = a - 2.0f*b + c;
+				denom = a - 2.0f * b + c;
 				if (numer >= denom)
 				{
 					s = (Real)1.0;
 					t = (Real)0.0;
-					dist = a + ((Real)2.0)*d + f;
-				}
-				else
+					dist = a + ((Real)2.0) * d + f;
+				} else
 				{
 					s = numer / denom;
 					t = (Real)1.0 - s;
-					dist = s*(a*s + b*t + ((Real)2.0)*d) +
-						t*(b*s + c*t + ((Real)2.0)*e) + f;
+					dist = s * (a * s + b * t + ((Real)2.0) * d) +
+						   t * (b * s + c * t + ((Real)2.0) * e) + f;
 				}
 			}
 		}

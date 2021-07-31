@@ -90,8 +90,7 @@ namespace Vcl { namespace Geometry
 				if (it != face_lut.end())
 				{
 					face_lut.erase(it);
-				}
-				else
+				} else
 				{
 					face_lut.insert(std::make_pair(h, f));
 				}
@@ -152,7 +151,7 @@ namespace Vcl { namespace Geometry
 				auto v = std::find_if_not(tri.first, tri.second, [o](const auto v) { return v.second == o; });
 				if (v != tri.second)
 				{
-					tri_adj[2*i + 1] = VertexId(v->second);
+					tri_adj[2 * i + 1] = VertexId(v->second);
 				}
 			}
 

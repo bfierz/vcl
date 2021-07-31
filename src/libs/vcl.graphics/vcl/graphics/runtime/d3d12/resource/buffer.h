@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 #include <vcl/config/direct3d12.h>
@@ -86,7 +86,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		//! Unmap the buffer
 		void unmap(D3D12_RANGE range = { 0, 0 }) const;
-		
+
 		void write(Graphics::D3D12::Device* device, ID3D12GraphicsCommandList* cmd_list, const void* data, size_t offset_in_bytes, size_t size_in_bytes);
 
 		//! \defgroup Data copy methods
@@ -98,7 +98,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		//! \}
 
 	private:
-		//! 
+		//!
 		ComPtr<ID3D12Resource> _uploadResource;
 	};
 }}}}

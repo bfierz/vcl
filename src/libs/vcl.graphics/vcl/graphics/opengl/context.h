@@ -61,7 +61,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		//! Access the context type
 		//! \returns The context type ('Core', 'Compatibility', 'Invalid')
 		static const char* profileType();
-		
+
 		//! Initialize the OpenGL extension function pointers
 		static void initExtensions();
 
@@ -109,7 +109,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		//! Allocated display
 		bool _allocated_display{ false };
-		
+
 		//! Allocated surface
 		bool _allocated_surface{ false };
 	};

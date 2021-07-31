@@ -65,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		auto d3d12_shader = static_cast<const D3D12::Shader*>(shader);
 		const auto cso = d3d12_shader->data();
-		return{ cso.data(), cso.size() };
+		return { cso.data(), cso.size() };
 	}
 
 	GraphicsPipelineState::GraphicsPipelineState
@@ -98,7 +98,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		const auto input_layout = toD3D12(desc.InputLayout);
 		graphics_pipeline_desc.InputLayout.NumElements = input_layout.size();
 		graphics_pipeline_desc.InputLayout.pInputElementDescs = input_layout.data();
-		
+
 		graphics_pipeline_desc.IBStripCutValue = desc.InputAssembly.PrimitiveRestartEnable ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 		graphics_pipeline_desc.PrimitiveTopologyType = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.NumRenderTargets = rt_layout.ColourFormats.size();

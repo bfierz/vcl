@@ -25,18 +25,19 @@
 
 #include "imguiapp.h"
 
- // IMGUI
+// IMGUI
 #define NOMINMAX
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 ImGuiApplication::ImGuiApplication(const char* title)
-	: Application(title)
+: Application(title)
 {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;	 // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;	  // Enable Gamepad Controls
 

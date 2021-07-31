@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-#if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
+#if defined(VCL_USE_CONTRACTS) && (defined(DEBUG) || defined(_DEBUG))
 #	ifndef VCL_NO_CONTRACTS
 #		define VCL_CONTRACT
 #	endif
@@ -40,7 +40,7 @@
 #ifdef VCL_CONTRACT
 
 // C++ standard library
-#include <string>
+#	include <string>
 
 namespace Vcl { namespace Assert
 {
@@ -128,6 +128,6 @@ namespace Vcl { namespace Assert
 #		define VclDebugErrorEx(description, note)
 #	endif
 #	ifndef VclAssertBlock
-#		define VclAssertBlock if(VCL_EVAL_FALSE)
+#		define VclAssertBlock if (VCL_EVAL_FALSE)
 #	endif
 #endif

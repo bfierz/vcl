@@ -62,7 +62,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		wgpu_desc.format = WGPUTextureFormat_RGBA8Unorm;
 		wgpu_desc.width = width;
 		wgpu_desc.height = height;
-		wgpu_desc.presentMode = (WGPUPresentMode) _desc.PresentMode;
+		wgpu_desc.presentMode = (WGPUPresentMode)_desc.PresentMode;
 
 		_swapChain = wgpuDeviceCreateSwapChain(_device, _desc.Surface, &wgpu_desc);
 #else

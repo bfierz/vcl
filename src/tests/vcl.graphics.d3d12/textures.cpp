@@ -47,13 +47,13 @@ std::vector<unsigned char> createTestPattern(int width, int height, int depth)
 	};
 
 	std::vector<unsigned char> image;
-	image.reserve(width*height*depth*4);
+	image.reserve(width * height * depth * 4);
 	for (int d = 0; d < depth; d++)
-	for (int h = 0; h < height; h++)
-	for (int w = 0; w < width*4; w++)
-	{
-		image.push_back(pattern[4*(h%3) + w%4]);
-	}
+		for (int h = 0; h < height; h++)
+			for (int w = 0; w < width * 4; w++)
+			{
+				image.push_back(pattern[4 * (h % 3) + w % 4]);
+			}
 	return image;
 }
 
@@ -87,8 +87,7 @@ void verifyContent(ID3D12CommandQueue* cmd_queue, ID3D12GraphicsCommandList* cmd
 	const uint32_t row_pitch = ceil<256>(w * pixel_size);
 	const uint32_t slice_pitch = ceil<512>(h * row_pitch);
 
-	BufferDescription read_back_desc =
-	{
+	BufferDescription read_back_desc = {
 		std::max(l * slice_pitch, d * h * row_pitch),
 		BufferUsage::CopyDst | BufferUsage::MapRead
 	};
@@ -110,11 +109,11 @@ void verifyContent(ID3D12CommandQueue* cmd_queue, ID3D12GraphicsCommandList* cmd
 	{
 		auto img_ptr = ptr + i * slice_pitch;
 		for (unsigned int z = 0; z < d; z++)
-		for (unsigned int y = 0; y < h; y++, img_ptr += row_pitch)
-		for (unsigned int x = 0; x < pixel_size * w; x++)
-		{
-			equal = equal && (img_ptr[x] == test_image[pixel_size * w * y + x]);
-		}
+			for (unsigned int y = 0; y < h; y++, img_ptr += row_pitch)
+				for (unsigned int x = 0; x < pixel_size * w; x++)
+				{
+					equal = equal && (img_ptr[x] == test_image[pixel_size * w * y + x]);
+				}
 	}
 	buf.unmap({ 0, 0 });
 	EXPECT_TRUE(equal) << "Initialisation data is correct.";
@@ -131,7 +130,7 @@ TEST(D3D12Texture, InitEmptyTexture1D)
 	desc1d.Width = 32;
 	desc1d.MipLevels = 1;
 	Runtime::D3D12::Texture1D tex{ device.get(), desc1d };
-	
+
 	verifySize(tex, 32, 1, 1);
 }
 

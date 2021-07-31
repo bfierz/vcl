@@ -31,16 +31,16 @@
 
 #ifndef VCL_ARCH_WEBASM
 // GLFW
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#	define GLFW_EXPOSE_NATIVE_WIN32
+#	include <GLFW/glfw3native.h>
 
 // Dawn
-#include <dawn/dawn_proc.h>
+#	include <dawn/dawn_proc.h>
 #else
 // Emscripten
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#include <emscripten/html5_webgpu.h>
+#	include <emscripten.h>
+#	include <emscripten/html5.h>
+#	include <emscripten/html5_webgpu.h>
 #endif
 
 // VCL
@@ -55,7 +55,8 @@ static void printGlfwError(int error, const char* description)
 static void printDeviceError(WGPUErrorType errorType, const char* message, void*)
 {
 	const char* error_type = "";
-	switch (errorType) {
+	switch (errorType)
+	{
 	case WGPUErrorType_Validation:
 		error_type = "Validation";
 		break;
@@ -74,7 +75,6 @@ static void printDeviceError(WGPUErrorType errorType, const char* message, void*
 
 	std::cout << error_type << " error: " << message << std::endl;
 }
-
 
 Application::Application(const char* title)
 {
@@ -114,7 +114,7 @@ void Application::step()
 
 	// Allow to update the state of objects before waiting for the GPU
 	updateFrame();
-	
+
 	auto back_buffer = _swapChain->currentBackBuffer();
 	renderFrame(back_buffer);
 	_swapChain->present(wgpuDeviceGetQueue(_wgpuDevice), false);
@@ -169,9 +169,9 @@ bool Application::initWebGpu(GLFWwindow* window)
 	_wgpuSurface = instance.CreateSurface(&surface_desc).Release();
 #else
 	_wgpuInstance = std::make_unique<dawn_native::Instance>();
-#ifdef VCL_DEBUG
+#	ifdef VCL_DEBUG
 	_wgpuInstance->EnableBackendValidation(true);
-#endif
+#	endif
 	_wgpuInstance->DiscoverDefaultAdapters();
 	dawn_native::Adapter adapter = _wgpuInstance->GetAdapters()[0];
 	_wgpuDevice = adapter.CreateDevice();

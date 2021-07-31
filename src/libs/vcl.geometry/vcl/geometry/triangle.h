@@ -46,7 +46,7 @@ namespace Vcl { namespace Geometry
 		}
 
 	public:
-		const vector_t& operator[] (size_t idx) const
+		const vector_t& operator[](size_t idx) const
 		{
 			VclRequire(idx < 3, "Id is in [0, 3[");
 

@@ -86,12 +86,12 @@ namespace Vcl { namespace Tools { namespace Cuc
 	{
 		SECURITY_ATTRIBUTES saAttr;
 
-		// Set the bInheritHandle flag so pipe handles are inherited. 
+		// Set the bInheritHandle flag so pipe handles are inherited.
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
 		saAttr.lpSecurityDescriptor = nullptr;
 
-		// Create a pipe for the child process's IO 
+		// Create a pipe for the child process's IO
 		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
 			return;
 
@@ -110,7 +110,7 @@ namespace Vcl { namespace Tools { namespace Cuc
 		for (;;)
 		{
 			DWORD exit_code;
-			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			GetExitCodeProcess(hProcess, &exit_code); //while the process is running
 			if (exit_code != STILL_ACTIVE)
 				break;
 
@@ -140,9 +140,9 @@ namespace Vcl { namespace Tools { namespace Cuc
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
-		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdError = hWrite;  //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
 
 		// Construct the command line
@@ -245,8 +245,7 @@ int main(int argc, char* argv[])
 		{
 			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
 			nvcc_bin_path = exe_path.parent_path();
-		}
-		else
+		} else
 		{
 			nvcc_bin_path = getenv("CUDA_PATH");
 			nvcc_bin_path.append("bin");
@@ -267,12 +266,11 @@ int main(int argc, char* argv[])
 		// Construct the base name for the intermediate files
 		std::string tmp_file_base = fs::path(parsed_options["input-file"].as<std::string>()).stem().string();
 
-		// Add the address 
+		// Add the address
 		if (parsed_options.count("m64"))
 		{
 			tmp_file_base += "_m64";
-		}
-		else
+		} else
 		{
 			tmp_file_base += "_m32";
 		}
@@ -304,7 +302,7 @@ int main(int argc, char* argv[])
 
 			// Generate the output filename for intermediate file
 			std::string tmp_file = tmp_file_base + "_";
-			std::string cc_file  = tmp_file_base + "_compiled_";
+			std::string cc_file = tmp_file_base + "_compiled_";
 
 			auto sm = p.find("sm");
 			if (sm != p.npos)
@@ -314,16 +312,15 @@ int main(int argc, char* argv[])
 				tmp_file += p + ".cubin";
 
 				cmd_link << p << " ";
-				cc_file  += p + ".cubin";
-			}
-			else
+				cc_file += p + ".cubin";
+			} else
 			{
 				cmd_compile << p << ",code=" << p;
 				cmd_compile << " -ptx ";
 				tmp_file += p + ".ptx";
 
 				cmd_link << p << " ";
-				cc_file  += p + ".ptx";
+				cc_file += p + ".ptx";
 			}
 
 			// Link against CUDA libraries
@@ -354,7 +351,7 @@ int main(int argc, char* argv[])
 			exec((nvcc_bin_path / "nvlink.exe").string().c_str(), cmd_link.str().c_str());
 		}
 
-		// Create a fat binary from the compiled files 
+		// Create a fat binary from the compiled files
 		std::stringstream fatbin_cmdbuilder;
 
 		// Create a new fatbin
@@ -367,8 +364,7 @@ int main(int argc, char* argv[])
 		if (parsed_options.count("m64"))
 		{
 			fatbin_cmdbuilder << "-64 ";
-		}
-		else
+		} else
 		{
 			fatbin_cmdbuilder << "-32 ";
 		}
@@ -387,7 +383,7 @@ int main(int argc, char* argv[])
 
 		exec((nvcc_bin_path / "fatbinary.exe").string().c_str(), fatbin_cmdbuilder.str().c_str());
 
-		// Create a source file with the binary 
+		// Create a source file with the binary
 		std::stringstream bin2c_cmdbuilder;
 		bin2c_cmdbuilder.str("");
 		bin2c_cmdbuilder.clear();
@@ -403,8 +399,7 @@ int main(int argc, char* argv[])
 
 		// Invoke the binary file translator
 		exec("bin2c", bin2c_cmdbuilder.str().c_str());
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;

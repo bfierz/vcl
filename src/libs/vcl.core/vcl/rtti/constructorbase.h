@@ -52,22 +52,22 @@
 
 namespace Vcl { namespace RTTI
 {
-	template < typename T, typename... Ts >
+	template<typename T, typename... Ts>
 	auto& head(std::tuple<T, Ts...> t)
 	{
 		return std::get<0>(t);
 	}
 
-	template < std::size_t... Ns, typename... Ts >
+	template<std::size_t... Ns, typename... Ts>
 	auto tail_impl(absl::index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
 		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
 
-	template < typename... Ts >
+	template<typename... Ts>
 	auto tail(const std::tuple<Ts...>& t)
 	{
-		return tail_impl(absl::make_index_sequence<sizeof...(Ts)-1u>(), t);
+		return tail_impl(absl::make_index_sequence<sizeof...(Ts) - 1u>(), t);
 	}
 
 	class ParameterMetaData
@@ -145,7 +145,7 @@ namespace Vcl { namespace RTTI
 		: ParameterBase(std::move(meta_data), &typeid(T))
 		{
 		}
-	
+
 	public:
 		virtual stdext::any pack(std::string value) const override
 		{
@@ -220,7 +220,7 @@ namespace Vcl { namespace RTTI
 		int numParams() const { return _numParams; }
 
 		template<size_t N>
-		bool hasParam(const char(&name)[N])
+		bool hasParam(const char (&name)[N])
 		{
 			return hasParam(name, N - 1);
 		}
@@ -244,7 +244,7 @@ namespace Vcl { namespace RTTI
 		int size() const { return static_cast<int>(_constructors.size()); }
 		const ConstructorBase& constructor(int i) const { return *_constructors[i]; }
 
-		bool hasStandardConstructor() const { return _hasStandardConstructor;  }
+		bool hasStandardConstructor() const { return _hasStandardConstructor; }
 
 	public:
 		template<size_t N>
@@ -307,8 +307,7 @@ namespace Vcl { namespace RTTI
 		{
 			std::array<bool, sizeof...(Args)> results{ { checkArg<Args, S>(constr)... } };
 
-			return std::accumulate(results.cbegin(), results.cend(), true, [] (bool a, bool b) -> bool
-			{
+			return std::accumulate(results.cbegin(), results.cend(), true, [](bool a, bool b) -> bool {
 				return a && b;
 			});
 		}

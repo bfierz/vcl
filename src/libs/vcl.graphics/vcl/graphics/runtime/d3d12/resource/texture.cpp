@@ -80,10 +80,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	D3D12_RESOURCE_STATES toD3DResourceState(Flags<TextureUsage> flag)
 	{
 		UINT d3d_flags = 0;
-		d3d_flags |= (flag.isSet(TextureUsage::CopySrc))          ? D3D12_RESOURCE_STATE_COPY_SOURCE : 0;
-		d3d_flags |= (flag.isSet(TextureUsage::CopyDst))          ? D3D12_RESOURCE_STATE_COPY_DEST : 0;
-		d3d_flags |= (flag.isSet(TextureUsage::Sampled))          ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : 0;
-		d3d_flags |= (flag.isSet(TextureUsage::Storage))          ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : 0;
+		d3d_flags |= (flag.isSet(TextureUsage::CopySrc)) ? D3D12_RESOURCE_STATE_COPY_SOURCE : 0;
+		d3d_flags |= (flag.isSet(TextureUsage::CopyDst)) ? D3D12_RESOURCE_STATE_COPY_DEST : 0;
+		d3d_flags |= (flag.isSet(TextureUsage::Sampled)) ? D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE : 0;
+		d3d_flags |= (flag.isSet(TextureUsage::Storage)) ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : 0;
 		d3d_flags |= (flag.isSet(TextureUsage::OutputAttachment)) ? D3D12_RESOURCE_STATE_RENDER_TARGET : 0;
 
 		return (D3D12_RESOURCE_STATES)d3d_flags;
@@ -134,9 +134,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 		if (usage().isSet(TextureUsage::Storage))
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
-		
-		const D3D12_RESOURCE_DESC d3d12_desc =
-		{
+
+		const D3D12_RESOURCE_DESC d3d12_desc = {
 			toD3DResourceDimension(type()),
 			0,
 			width(),
@@ -333,7 +332,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	}
 
 	Texture2D::Texture2D(const Texture2D& rhs)
-		: Texture(rhs)
+	: Texture(rhs)
 	{
 	}
 
@@ -409,7 +408,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		return std::make_unique<Texture3D>(*this);
 	}
 
-
 	TextureCube::TextureCube
 	(
 		Graphics::D3D12::Device* device,
@@ -417,12 +415,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue
 	)
-		: Texture(device, desc, init_data, cmd_queue)
+	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
 
 	TextureCube::TextureCube(const TextureCube& rhs)
-		: Texture(rhs)
+	: Texture(rhs)
 	{
 	}
 
@@ -439,12 +437,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue
 	)
-		: Texture(device, desc, init_data, cmd_queue)
+	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
 
 	TextureCubeArray::TextureCubeArray(const TextureCubeArray& rhs)
-		: Texture(rhs)
+	: Texture(rhs)
 	{
 	}
 

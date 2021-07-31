@@ -102,10 +102,10 @@ TEST(EntityManagerTest, CreateDestroyUniqueComponents)
 	auto c2 = em.create<NameComponent>(e2, "E2");
 	auto c3 = em.create<NameComponent>(e3, "E3");
 
-	EXPECT_TRUE (em.has<NameComponent>(e0));
+	EXPECT_TRUE(em.has<NameComponent>(e0));
 	EXPECT_FALSE(em.has<NameComponent>(e1));
-	EXPECT_TRUE (em.has<NameComponent>(e2));
-	EXPECT_TRUE (em.has<NameComponent>(e3));
+	EXPECT_TRUE(em.has<NameComponent>(e2));
+	EXPECT_TRUE(em.has<NameComponent>(e3));
 
 	EXPECT_EQ("E0", c0->Name);
 	EXPECT_EQ("E2", c2->Name);

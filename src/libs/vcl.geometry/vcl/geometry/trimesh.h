@@ -87,8 +87,8 @@ namespace Vcl { namespace Geometry
 		virtual ~TriMesh() = default;
 
 	public:
-		TriMesh& operator= (const TriMesh& rhs) = default;
-		TriMesh& operator= (TriMesh&& rhs) = default;
+		TriMesh& operator=(const TriMesh& rhs) = default;
+		TriMesh& operator=(TriMesh&& rhs) = default;
 
 	public: // Construct meshes from data
 		TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TriMesh>::IndexType, 3>>& faces);

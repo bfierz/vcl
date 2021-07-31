@@ -24,7 +24,7 @@
  */
 #include <vcl/math/solver/cuda/poisson3dsolver_cg.h>
 
- // VCL
+// VCL
 #include <vcl/math/solver/poisson.h>
 #include <vcl/math/ceil.h>
 
@@ -48,7 +48,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		using namespace Vcl::Mathematics;
 
 		// Create buffers
-		size_t size = dim.x()*dim.y()*dim.z();
+		size_t size = dim.x() * dim.y() * dim.z();
 
 		for (auto& buf : _laplacian)
 			buf = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size * sizeof(float)));
@@ -70,9 +70,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		new(&std::get<1>(_unknowns)) map_t(unknowns);
+		new (&std::get<1>(_unknowns)) map_t(unknowns);
 		std::get<0>(_rhs) = static_pointer_cast<Compute::Cuda::Buffer>(_ownerCtx->createBuffer(Compute::BufferAccess::None, size() * sizeof(float)));
-		new(&std::get<1>(_rhs)) const_map_t(rhs);
+		new (&std::get<1>(_rhs)) const_map_t(rhs);
 
 		_queue->write(std::get<0>(_unknowns), unknowns.data(), true);
 		_queue->write(std::get<0>(_rhs), rhs.data(), true);
@@ -88,9 +88,9 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 			_ownerCtx->release(std::get<0>(_rhs));
 
 		std::get<0>(_unknowns) = unknowns;
-		new(&std::get<1>(_unknowns)) map_t(nullptr, 0);
+		new (&std::get<1>(_unknowns)) map_t(nullptr, 0);
 		std::get<0>(_rhs) = rhs;
-		new(&std::get<1>(_rhs)) const_map_t(nullptr, 0);
+		new (&std::get<1>(_rhs)) const_map_t(nullptr, 0);
 
 		_devX = std::get<0>(_unknowns);
 	}

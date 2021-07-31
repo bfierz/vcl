@@ -68,12 +68,11 @@ namespace Vcl { namespace Util
 			// Copy the remaining data to the front
 			const auto copy_amount = static_cast<size_t>((_currentBuffer + _currentSizeAvailable) - _bufferReadPtr);
 			if (copy_amount > 0 && _bufferReadPtr != _currentBuffer)
-				// There was some data read, move the remaining
+			// There was some data read, move the remaining
 			{
 				memmove(_currentBuffer, _bufferReadPtr, copy_amount);
-			}
-			else if (copy_amount == 0 && _stream->eof())
-				// All data was read and we're are at the end of the stream
+			} else if (copy_amount == 0 && _stream->eof())
+			// All data was read and we're are at the end of the stream
 			{
 				_eos = true;
 				return false;
@@ -136,7 +135,7 @@ namespace Vcl { namespace Util
 	{
 		const char* begin_ptr = _bufferReadPtr;
 		skipLine();
-		
+
 		// Store the end-pointer and terminate the string
 		char c = *_bufferReadPtr;
 		*_bufferReadPtr = '\0';
@@ -162,7 +161,7 @@ namespace Vcl { namespace Util
 		{
 			return false;
 		}
-		
+
 		// Store the end-pointer and terminate the string
 		char c = *_bufferReadPtr;
 		*_bufferReadPtr = '\0';
@@ -182,14 +181,12 @@ namespace Vcl { namespace Util
 
 		// Find the end of the number
 		const char* begin_ptr = _bufferReadPtr;
-		while
-		(
+		while (
 			((*_bufferReadPtr) >= '0' && (*_bufferReadPtr) <= '9') ||
-			 (*_bufferReadPtr) == '.' ||
-			 (*_bufferReadPtr) == '-' ||
-			 (*_bufferReadPtr) == 'E' ||
-			 (*_bufferReadPtr) == 'e'
-		)
+			(*_bufferReadPtr) == '.' ||
+			(*_bufferReadPtr) == '-' ||
+			(*_bufferReadPtr) == 'E' ||
+			(*_bufferReadPtr) == 'e')
 		{
 			++_bufferReadPtr;
 		}
@@ -219,7 +216,7 @@ namespace Vcl { namespace Util
 		// Find the end of the number
 		const char* begin_ptr = _bufferReadPtr;
 		while (((*_bufferReadPtr) >= '0' && (*_bufferReadPtr) <= '9') ||
-		        (*_bufferReadPtr) == '-')
+			   (*_bufferReadPtr) == '-')
 		{
 			++_bufferReadPtr;
 		}

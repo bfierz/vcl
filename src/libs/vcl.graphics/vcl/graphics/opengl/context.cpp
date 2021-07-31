@@ -345,7 +345,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		if (desc.Type != ContextType::Compatibility) flags |= WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB;
 		if (desc.Debug) flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
 
-		int  contextAttribs[] = {
+		int contextAttribs[] = {
 			WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 			WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
 			WGL_CONTEXT_PROFILE_MASK_ARB, type,
@@ -382,7 +382,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 	bool Context::makeCurrent()
 	{
-		return wglMakeCurrent((HDC) _display_ctx, (HGLRC) _render_ctx) != 0 ? true : false;
+		return wglMakeCurrent((HDC)_display_ctx, (HGLRC)_render_ctx) != 0 ? true : false;
 	}
 #	endif
 

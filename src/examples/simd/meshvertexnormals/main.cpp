@@ -32,7 +32,7 @@
 
 // OpenMP
 #ifdef _OPENMP
-#include <omp.h>
+#	include <omp.h>
 #endif // _OPENMP
 
 // VCL
@@ -42,7 +42,7 @@
 
 #include "pitbull.h"
 
-// Tangent space computation is based on 
+// Tangent space computation is based on
 // Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
 // Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 
@@ -72,9 +72,12 @@ void accumulateNormals
 		Eigen::Vector3f p2 = points[(f_begin + idx)->z()];
 
 		// Compute the edges
-		Eigen::Vector3f p0p1 = p1 - p0; float p0p1_l = p0p1.norm();
-		Eigen::Vector3f p1p2 = p2 - p1; float p1p2_l = p1p2.norm();
-		Eigen::Vector3f p2p0 = p0 - p2; float p2p0_l = p2p0.norm();
+		Eigen::Vector3f p0p1 = p1 - p0;
+		float p0p1_l = p0p1.norm();
+		Eigen::Vector3f p1p2 = p2 - p1;
+		float p1p2_l = p1p2.norm();
+		Eigen::Vector3f p2p0 = p0 - p2;
+		float p2p0_l = p2p0.norm();
 
 		// Normalize the edges
 		p0p1 = p0p1_l > 1e-6f ? p0p1.normalized() : Eigen::Vector3f::Zero();
@@ -101,11 +104,11 @@ void accumulateNormals
 		Eigen::Vector2f w2 = texcoords[(tf_begin + idx)->y()];
 		Eigen::Vector2f w3 = texcoords[(tf_begin + idx)->z()];
 
-		float x1 =  p0p1.x();
+		float x1 = p0p1.x();
 		float x2 = -p2p0.x();
-		float y1 =  p0p1.y();
+		float y1 = p0p1.y();
 		float y2 = -p2p0.y();
-		float z1 =  p0p1.z();
+		float z1 = p0p1.z();
 		float z2 = -p2p0.z();
 
 		float s1 = w2.x() - w1.x();
@@ -150,7 +153,7 @@ void simdAccumulateNormals
 	using vector3i_t = Eigen::Matrix<wint_t, 3, 1>;
 	using vector2_t = Eigen::Matrix<wfloat_t, 2, 1>;
 	using vector3_t = Eigen::Matrix<wfloat_t, 3, 1>;
-	
+
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
@@ -158,15 +161,18 @@ void simdAccumulateNormals
 	{
 		vector3i_t idx;
 		load(idx, faces.data() + Width * i);
-		
+
 		vector3_t p0 = gather<float, Width, 3, 1>(points.data(), idx(0));
 		vector3_t p1 = gather<float, Width, 3, 1>(points.data(), idx(1));
 		vector3_t p2 = gather<float, Width, 3, 1>(points.data(), idx(2));
 
 		// Compute the edges
-		vector3_t p0p1 = p1 - p0; wfloat_t p0p1_l = p0p1.norm();
-		vector3_t p1p2 = p2 - p1; wfloat_t p1p2_l = p1p2.norm();
-		vector3_t p2p0 = p0 - p2; wfloat_t p2p0_l = p2p0.norm();
+		vector3_t p0p1 = p1 - p0;
+		wfloat_t p0p1_l = p0p1.norm();
+		vector3_t p1p2 = p2 - p1;
+		wfloat_t p1p2_l = p1p2.norm();
+		vector3_t p2p0 = p0 - p2;
+		wfloat_t p2p0_l = p2p0.norm();
 
 		// Normalize the edges
 		p0p1 = select<float, Width, 3, 1>(p0p1_l > wfloat_t(1e-6f), p0p1 / p0p1_l, vector3_t::Zero());
@@ -264,7 +270,7 @@ void computeNormals
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (int i = 0; i < (int) points.size(); i++)
+	for (int i = 0; i < (int)points.size(); i++)
 	{
 		normals[i].normalize();
 	}
@@ -272,7 +278,7 @@ void computeNormals
 #ifdef _OPENMP
 #	pragma omp parallel for
 #endif // _OPENMP
-	for (int i = 0; i < (int) faces.size(); i++)
+	for (int i = 0; i < (int)faces.size(); i++)
 	{
 		const auto& f = faces[i];
 		const auto& tf = tex_faces[i];
@@ -338,23 +344,21 @@ void computeNormalsSIMD
 	for (int i = 0; i < static_cast<int>(points.size() / Width); i++)
 	{
 		vector3f_t n;
-		load(n, normals.data() + i*Width);
+		load(n, normals.data() + i * Width);
 
 		// Compute
 		n /= n.norm();
 
-		store(normals.data() + i*Width, n);
+		store(normals.data() + i * Width, n);
 	}
 
-	for
-	(
+	for (
 		int i = static_cast<int>(points.size() / Width) * Width;
-		i < (int) points.size();
-		i++
-	)
+		i < (int)points.size();
+		i++)
 	{
 		normals[i] /= normals[i].norm();
-	}		
+	}
 
 #ifdef _OPENMP
 #	pragma omp parallel for
@@ -362,8 +366,8 @@ void computeNormalsSIMD
 	for (int i = 0; i < static_cast<int>(faces.size() / Width); i++)
 	{
 		vector3i_t f, tf;
-		load(f, faces.data() + i*Width);
-		load(tf, tex_faces.data() + i*Width);
+		load(f, faces.data() + i * Width);
+		load(tf, tex_faces.data() + i * Width);
 
 		for (int j = 0; j < 3; j++)
 		{
@@ -385,7 +389,7 @@ void computeNormalsSIMD
 		}
 	}
 
-	for (int i = static_cast<int>(faces.size() / Width) * Width; i < (int) faces.size(); i++)
+	for (int i = static_cast<int>(faces.size() / Width) * Width; i < (int)faces.size(); i++)
 	{
 		const auto& f = faces[i];
 		const auto& tf = tex_faces[i];
@@ -408,17 +412,16 @@ void computeNormalsSIMD
 
 	timer.stop();
 	std::cout << "Compute mesh vertex normals (SIMD width " << Width << "): " << timer.interval() / faces.size() * 1e9 << "[ns]" << std::endl;
-
 }
 
 int main(int argc, char* argv[])
 {
 	VCL_UNREFERENCED_PARAMETER(argc);
 	VCL_UNREFERENCED_PARAMETER(argv);
-	
+
 	// Data set
-	std::vector<Eigen::Vector3f> points((Eigen::Vector3f*) pitbull_core_points, (Eigen::Vector3f*) (pitbull_core_points + num_pitbull_core_points));
-	std::vector<Eigen::Vector2f> texcoords((Eigen::Vector2f*) pitbull_core_texcoords, (Eigen::Vector2f*) (pitbull_core_texcoords + num_pitbull_core_texcoords));
+	std::vector<Eigen::Vector3f> points((Eigen::Vector3f*)pitbull_core_points, (Eigen::Vector3f*)(pitbull_core_points + num_pitbull_core_points));
+	std::vector<Eigen::Vector2f> texcoords((Eigen::Vector2f*)pitbull_core_texcoords, (Eigen::Vector2f*)(pitbull_core_texcoords + num_pitbull_core_texcoords));
 	std::vector<Eigen::Vector3i> faces, tex_faces;
 
 	int num_faces = num_pitbull_core_faces / 9;
@@ -457,10 +460,10 @@ int main(int argc, char* argv[])
 	computeNormals(faces, tex_faces, points, texcoords, normals_ref, tangents_ref);
 
 	// Test Performance: Use paralle versions
-	computeNormalsSIMD< 4>(faces, tex_faces, points, texcoords, normals_004, tangents_004);
-	computeNormalsSIMD< 8>(faces, tex_faces, points, texcoords, normals_008, tangents_008);
+	computeNormalsSIMD<4>(faces, tex_faces, points, texcoords, normals_004, tangents_004);
+	computeNormalsSIMD<8>(faces, tex_faces, points, texcoords, normals_008, tangents_008);
 	computeNormalsSIMD<16>(faces, tex_faces, points, texcoords, normals_016, tangents_016);
-	
+
 	float L1_004 = 0;
 	float L1_008 = 0;
 	float L1_016 = 0;

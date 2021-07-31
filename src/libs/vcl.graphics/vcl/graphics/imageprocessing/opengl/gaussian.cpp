@@ -189,7 +189,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// Execute the vertical blurring kernel
 		const Runtime::Texture* voutput = _outputSlots[0]->resource();
 		const Runtime::Texture* vinput = tmp.get();
-		
+
 		processor->enqueKernel(_verticalKernelId, output_range.z(), output_range.w(), &voutput, &output_range, nr_outputs, &vinput, &input_range, nr_inputs);
 	}
 }}}}

@@ -64,8 +64,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 			HANDLE waitableObjects[] = { additional_event, _event };
 			::WaitForMultipleObjects(2, waitableObjects, TRUE, static_cast<DWORD>(duration.count()));
-		}
-		else
+		} else
 		{
 			::WaitForSingleObject(additional_event, static_cast<DWORD>(duration.count()));
 		}

@@ -51,7 +51,7 @@ namespace Vcl { namespace Geometry
 		}
 
 	public:
-		const vector_t& operator[] (size_t idx) const
+		const vector_t& operator[](size_t idx) const
 		{
 			VclRequire(idx < 4, "Id is in [0, 4[");
 
@@ -61,7 +61,7 @@ namespace Vcl { namespace Geometry
 	public:
 		vector_t computeCenter() const
 		{
-			return (real_t) 0.25 * (_data[0] + _data[1] + _data[2] + _data[3]);
+			return (real_t)0.25 * (_data[0] + _data[1] + _data[2] + _data[3]);
 		}
 
 		real_t inradius() const
@@ -79,7 +79,7 @@ namespace Vcl { namespace Geometry
 			                            L[4].cross(L[1]).norm() +
 			                            L[3].cross(L[2]).norm());
 
-			return (real_t) 3 * computeVolume() / A;
+			return (real_t)3 * computeVolume() / A;
 		}
 
 		real_t computeCircumradius() const
@@ -119,9 +119,9 @@ namespace Vcl { namespace Geometry
 		
 			VclAssertBlock
 			{
-				real_t ref = (_data[3]- _data[0]).dot((_data[1]- _data[0]).cross((_data[2]- _data[0]))) / (real_t) 6;
+				real_t ref = (_data[3] - _data[0]).dot((_data[1] - _data[0]).cross((_data[2] - _data[0]))) / (real_t)6;
 
-				VclEnsure(equal(vol, ref, (real_t) 1e-6), "Volumes are equal.");
+				VclEnsure(equal(vol, ref, (real_t)1e-6), "Volumes are equal.");
 			}
 
 			return vol;
@@ -165,7 +165,7 @@ namespace Vcl { namespace Geometry
 
 			real_t l1 = a.squaredNorm();
 			real_t l2 = b.squaredNorm();
-			real_t tmp = (a.dot(b)) / sqrt(l1*l2);
+			real_t tmp = (a.dot(b)) / sqrt(l1 * l2);
 			if (tmp >= 1.0)
 				return 0.0f;         // avoid rounding errors
 			if (tmp <= -1.0)

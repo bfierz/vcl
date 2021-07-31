@@ -31,11 +31,11 @@
 #	if VCL_HAS_STDCXX17
 #		include <filesystem>
 #	else
-#	define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#		define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #		include <experimental/filesystem>
 #	endif
 #elif defined(VCL_ABI_POSIX)
-#include <boost/filesystem.hpp>
+#	include <boost/filesystem.hpp>
 #endif
 #include <iostream>
 #include <vector>
@@ -108,12 +108,12 @@ namespace Vcl { namespace Tools { namespace Cui
 	{
 		SECURITY_ATTRIBUTES saAttr;
 
-		// Set the bInheritHandle flag so pipe handles are inherited. 
+		// Set the bInheritHandle flag so pipe handles are inherited.
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
 		saAttr.lpSecurityDescriptor = nullptr;
 
-		// Create a pipe for the child process's IO 
+		// Create a pipe for the child process's IO
 		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
 			return;
 
@@ -132,7 +132,7 @@ namespace Vcl { namespace Tools { namespace Cui
 		for (;;)
 		{
 			DWORD exit_code;
-			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			GetExitCodeProcess(hProcess, &exit_code); //while the process is running
 			if (exit_code != STILL_ACTIVE)
 				break;
 
@@ -162,11 +162,11 @@ namespace Vcl { namespace Tools { namespace Cui
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
-		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdError = hWrite;  //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-		
+
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -221,7 +221,7 @@ namespace Vcl { namespace Tools { namespace Cui
 	}
 }}}
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Cui;
 
@@ -263,8 +263,7 @@ int main(int argc, char* argv [])
 		{
 			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
 			nvcc_bin_path = exe_path.parent_path();
-		}
-		else
+		} else
 		{
 			nvcc_bin_path = getenv("CUDA_PATH");
 			nvcc_bin_path.append("bin");
@@ -314,8 +313,7 @@ int main(int argc, char* argv [])
 		ww.open(parsed_options["output-file"].as<std::string>(), std::ios_base::binary);
 		createWrappers(ww, kernels, module_buffer);
 		ww.close();
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;

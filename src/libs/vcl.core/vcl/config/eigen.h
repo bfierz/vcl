@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 // VCL configuration
@@ -143,10 +143,10 @@ namespace Vcl
 	typedef Eigen::Matrix<float, 2, 2> Matrix2f;
 	typedef Eigen::Matrix<float, 3, 3> Matrix3f;
 	typedef Eigen::Matrix<float, 4, 4> Matrix4f;
-	
-	typedef Eigen::Matrix<float, 2, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector2f;
-	typedef Eigen::Matrix<float, 3, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector3f;
-	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector4f;
+
+	typedef Eigen::Matrix<float, 2, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector2f;
+	typedef Eigen::Matrix<float, 3, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector3f;
+	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector4f;
 
 	typedef Eigen::Quaternion<float, Eigen::Unaligned> UnalignedQuaternionf;
 

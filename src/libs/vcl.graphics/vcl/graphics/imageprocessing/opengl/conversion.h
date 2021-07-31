@@ -40,7 +40,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	{
 	public:
 		IntegerConversion(ImageProcessor* processor);
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 

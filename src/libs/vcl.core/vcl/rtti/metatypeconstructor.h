@@ -48,13 +48,13 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		ConstructableType(const char(&name)[N], size_t size, size_t alignment)
+		ConstructableType(const char (&name)[N], size_t size, size_t alignment)
 		: Type(name, size, alignment)
 		{
 		}
 		ConstructableType(ConstructableType&& rhs) = default;
 
-	public:		
+	public:
 		template<size_t N>
 		ConstructableType* registerBaseClasses(std::array<const Type*, N>& bases)
 		{
@@ -90,7 +90,7 @@ namespace Vcl { namespace RTTI
 
 	public:
 		template<size_t N>
-		DynamicConstructableType(const char(&name)[N], size_t size, size_t alignment)
+		DynamicConstructableType(const char (&name)[N], size_t size, size_t alignment)
 		: Type(name, size, alignment)
 		{
 		}
@@ -101,18 +101,18 @@ namespace Vcl { namespace RTTI
 		DynamicConstructableType<T>* inherit();
 
 		DynamicConstructableType<T>* addConstructor();
-		
+
 		template<typename... Args>
 		DynamicConstructableType<T>* addConstructor(Parameter<Args>... descriptors);
 
 		template<size_t N, typename AttribT>
-		DynamicConstructableType<T>* addAttribute(const char(&name)[N], AttribT(MetaType::*getter)() const, void(MetaType::*setter)(AttribT));
+		DynamicConstructableType<T>* addAttribute(const char (&name)[N], AttribT (MetaType::*getter)() const, void (MetaType::*setter)(AttribT));
 
 		template<size_t N, typename AttribT>
-		DynamicConstructableType<T>* addAttribute(const char(&name)[N], AttribT*(MetaType::*getter)() const, void(MetaType::*setter)(std::unique_ptr<AttribT>));
+		DynamicConstructableType<T>* addAttribute(const char (&name)[N], AttribT* (MetaType::*getter)() const, void (MetaType::*setter)(std::unique_ptr<AttribT>));
 
 		template<size_t N, typename AttribT>
-		DynamicConstructableType<T>* addAttribute(const char(&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
+		DynamicConstructableType<T>* addAttribute(const char (&name)[N], const AttribT& (MetaType::*getter)() const, void (MetaType::*setter)(const AttribT&));
 
 		virtual void destruct(void* ptr) const override
 		{

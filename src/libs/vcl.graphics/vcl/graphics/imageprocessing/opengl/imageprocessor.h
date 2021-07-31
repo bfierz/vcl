@@ -31,7 +31,7 @@
 #include <string>
 #include <unordered_map>
 
-// VCL 
+// VCL
 #include <vcl/graphics/imageprocessing/imageprocessor.h>
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>

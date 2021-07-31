@@ -24,7 +24,7 @@
  */
 #include "transform.h"
 
- // VCL
+// VCL
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
 
@@ -47,7 +47,6 @@ namespace System { namespace Components
 	Transform::Transform(const Eigen::Matrix4f& initial)
 	: _transform(initial)
 	{
-
 	}
 
 	Eigen::Matrix3f Transform::rotation() const
