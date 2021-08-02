@@ -52,8 +52,7 @@
 	}
 #define VCL_RTTI_REGISTER_ATTRS(Object) type->registerAttributes(VCL_PP_JOIN(Object, _attribute_bases));
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	template<typename T>
 	class EnumAttribute : public EnumAttributeBase
 	{

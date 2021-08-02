@@ -37,10 +37,8 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl
-{
-	namespace Core
-	{
+namespace Vcl {
+	namespace Core {
 		template<typename T>
 		class ref_ptr;
 
@@ -359,8 +357,7 @@ namespace Vcl
 	using namespace Core;
 }
 
-namespace std
-{
+namespace std {
 	template<typename T>
 	struct hash<Vcl::Core::ref_ptr<T>>
 	{

@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	void Trackball::reset(const Eigen::Vector3f& up)
 	{
 		_rotate = false;

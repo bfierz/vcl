@@ -140,8 +140,7 @@ namespace
 #undef ADD_WEIGHTED
 }
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	using namespace Details;
 
 	template<int N>

@@ -30,8 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	Slot::Slot(const std::string& id, Task* task)
 	: _identifier(id)
 	, _owner(task)

@@ -28,8 +28,7 @@
 #define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
 #include <vcl/math/jacobieigen33_selfadjoint_quat_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int SelfAdjointJacobiEigenQuat(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U)
 	{
 		return SelfAdjointJacobiEigenQuatIncrementalSweeps(A, U);

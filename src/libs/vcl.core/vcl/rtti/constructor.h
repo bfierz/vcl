@@ -52,8 +52,7 @@
 	auto VCL_PP_JOIN(Object, _constructor_bases) = Vcl::Core::make_array_from_tuple<const Vcl::RTTI::ConstructorBase*>(VCL_PP_JOIN(Object, _constructors));
 #define VCL_RTTI_REGISTER_CTORS(Object) type->registerConstructors(VCL_PP_JOIN(Object, _constructor_bases));
 
-namespace Vcl { namespace RTTI
-{
+namespace Vcl { namespace RTTI {
 	template<typename T>
 	struct extract
 	{

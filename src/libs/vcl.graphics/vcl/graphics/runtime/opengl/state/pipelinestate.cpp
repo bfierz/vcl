@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	PipelineState::PipelineState(const PipelineStateDescription& desc)
 	: _inputLayout(desc.InputLayout)
 	, _inputAssembly(desc.InputAssembly)

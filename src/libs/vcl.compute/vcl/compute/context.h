@@ -38,8 +38,7 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	class Context
 	{
 	public:

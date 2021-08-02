@@ -31,10 +31,8 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Geometry
-{
-	namespace detail
-	{
+namespace Vcl { namespace Geometry {
+	namespace detail {
 		template<typename Real>
 		VCL_STRONG_INLINE Real inv(const Real& x)
 		{

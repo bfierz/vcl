@@ -36,8 +36,7 @@
 // Set to use the rsqrt optimization
 //#define VCL_MATH_JACOBIQR_USE_RSQRT
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
 #	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC

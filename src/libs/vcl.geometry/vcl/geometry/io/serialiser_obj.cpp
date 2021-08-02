@@ -32,8 +32,7 @@
 // VCL library
 #include <vcl/util/stringparser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	static int convertToIndex(const std::string& str, int latest_idx)
 	{
 		int idx = atoi(str.c_str());

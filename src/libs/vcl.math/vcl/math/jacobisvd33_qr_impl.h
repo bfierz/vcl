@@ -37,8 +37,7 @@
 #include <vcl/math/math.h>
 #include <vcl/math/qr33_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
 #	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC

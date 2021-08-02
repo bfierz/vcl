@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/components/entitymanager.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	/*!
 	 * \class System
 	 * \brief Base for all systems

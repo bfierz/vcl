@@ -39,8 +39,7 @@
 #include "problems.h"
 
 // Common functions
-namespace
-{
+namespace {
 	template<typename Scalar>
 	void checkSolution
 	(

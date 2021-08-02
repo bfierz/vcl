@@ -35,8 +35,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	Shader::Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	: Runtime::Shader(type, tag)
 	{

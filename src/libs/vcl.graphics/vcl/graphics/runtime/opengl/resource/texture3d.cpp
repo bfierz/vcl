@@ -29,8 +29,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	Texture3D::Texture3D
 	(
 		const Texture3DDescription& desc,

@@ -37,8 +37,7 @@
 #include <vcl/compute/cuda/kernel.h>
 #include <vcl/compute/module.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	class Module : public Compute::Module
 	{
 	public:

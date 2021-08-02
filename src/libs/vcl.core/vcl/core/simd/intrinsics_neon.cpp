@@ -32,8 +32,7 @@ VCL_END_EXTERNAL_HEADERS
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 
 	float32x4_t vsinq_f32(float32x4_t v)
 	{

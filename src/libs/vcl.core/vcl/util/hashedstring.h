@@ -35,8 +35,7 @@
 // http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
 // https://notes.underscorediscovery.com/constexpr-fnv1a/
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 #if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
 	// Source for prime-numbers:
 	// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function

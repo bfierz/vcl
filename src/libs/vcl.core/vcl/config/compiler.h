@@ -419,8 +419,7 @@
 
 // Support for fmin/fmax with low overhead
 #	if (_MSC_VER < 1800)
-namespace std
-{
+namespace std {
 #		if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
 	inline float fmin(float x, float y)
 	{

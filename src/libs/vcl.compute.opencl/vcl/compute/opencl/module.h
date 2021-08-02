@@ -37,8 +37,7 @@
 #include <vcl/compute/opencl/kernel.h>
 #include <vcl/compute/module.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class Module : public Compute::Module
 	{
 	public:

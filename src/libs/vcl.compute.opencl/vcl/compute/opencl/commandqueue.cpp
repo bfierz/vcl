@@ -28,8 +28,7 @@
 #include <vcl/compute/opencl/buffer.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	CommandQueue::CommandQueue(Context* owner)
 	: Compute::CommandQueue()
 	, _ownerCtx(owner)

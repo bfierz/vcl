@@ -33,8 +33,7 @@
 #include <vcl/geometry/propertygroup.h>
 #include <vcl/geometry/property.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename MeshIndex>
 	struct IndexDescriptionTrait;
 

@@ -30,8 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUBufferUsageFlags toWGPU(Flags<BufferUsage> flags)
 	{
 		WGPUBufferUsageFlags wgpu_flags = 0;

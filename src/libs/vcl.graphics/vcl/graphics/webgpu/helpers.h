@@ -37,8 +37,7 @@
 #include <vcl/graphics/webgpu/webgpu.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	auto createTextureFromData(WGPUDevice device, SurfaceFormat type, uint32_t width, uint32_t height, stdext::span<const uint8_t> data)
 		-> std::tuple<WGPUTexture, WGPUTextureView>
 	{

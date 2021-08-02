@@ -36,8 +36,7 @@
 #include <vcl/geometry/io/serialiser.h>
 #include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	class TriMeshDeserialiser : public AbstractDeserialiser
 	{
 	public:

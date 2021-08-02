@@ -28,6 +28,5 @@
 
 // VCL
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 }}

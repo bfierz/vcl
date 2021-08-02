@@ -24,8 +24,7 @@
  */
 #include <vcl/components/systemmanager.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	SystemManager::SystemManager(Core::ref_ptr<EntityManager> em)
 	: _entities(em)
 	{

@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/imageprocessing/conversion.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	IntegerConversion::IntegerConversion()
 	{
 		TaskDescription desc;

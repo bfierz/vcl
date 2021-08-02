@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/graphics/runtime/state/common.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class FilterType
 	{
 		MinMagMipPoint = 0,

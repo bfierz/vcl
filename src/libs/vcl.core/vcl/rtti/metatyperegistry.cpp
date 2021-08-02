@@ -27,15 +27,13 @@
 // VCL
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Stores pointer to instatiated type objects.
 	// This registry is non-owning. Initialization and cleanup
 	// must be performed by the calling code.
 	using TypeMap = std::unordered_map<size_t, const Type*>;
 
-	namespace
-	{
+	namespace {
 		TypeMap& instance()
 		{
 			// Since C++11 this initialization is thread-safe

@@ -31,8 +31,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_sse.h>
 
-namespace Vcl
-{
+namespace Vcl {
 #if !defined VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex) noexcept
 	{

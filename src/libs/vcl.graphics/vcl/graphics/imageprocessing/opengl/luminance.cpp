@@ -35,8 +35,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace
-{
+namespace {
 	inline std::tuple<int, int> computeNumberRequiredImages(int requested_size)
 	{
 
@@ -52,8 +51,7 @@ namespace
 	}
 }
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Luminance::Luminance(ImageProcessor* processor)
 	{
 		// Kernel sources

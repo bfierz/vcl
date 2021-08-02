@@ -35,8 +35,7 @@
 #include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:

@@ -34,10 +34,8 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics
-{
-	namespace
-	{
+namespace Vcl { namespace Graphics {
+	namespace {
 		unsigned int factorRadix2(unsigned int& log2L, unsigned int L)
 		{
 			if (!L)

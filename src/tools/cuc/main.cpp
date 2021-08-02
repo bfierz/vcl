@@ -53,8 +53,7 @@ VCL_END_EXTERNAL_HEADERS
 VCL_ERROR("No compatible process API found.")
 #endif
 
-namespace Vcl { namespace Tools { namespace Cuc
-{
+namespace Vcl { namespace Tools { namespace Cuc {
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");

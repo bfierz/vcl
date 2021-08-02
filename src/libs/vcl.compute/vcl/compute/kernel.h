@@ -30,8 +30,7 @@
 // C++ standard library
 #include <string>
 
-namespace Vcl { namespace Compute
-{	
+namespace Vcl { namespace Compute {
 	class Kernel
 	{
 	public:

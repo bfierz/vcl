@@ -42,8 +42,7 @@
 #include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime 
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	class BufferRange
 	{
 	public:

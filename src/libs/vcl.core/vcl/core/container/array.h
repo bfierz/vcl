@@ -45,17 +45,14 @@
 
 #ifdef VCL_HAS_STL_MAKE_ARRAY
 #	include <experimental/array>
-namespace std
-{
+namespace std {
 	using std::experimental::make_array;
 }
 #else
 ////////////////////////////////////////////////////////////////////////////////
 // http://en.cppreference.com/w/cpp/experimental/make_array
-namespace std
-{
-	namespace details
-	{
+namespace std {
+	namespace details {
 		template<class> struct is_ref_wrapper : std::false_type {};
 		template<class T> struct is_ref_wrapper<std::reference_wrapper<T>> : std::true_type {};
 
@@ -83,8 +80,7 @@ namespace std
 ////////////////////////////////////////////////////////////////////////////////
 #endif
 	
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	namespace detail
 	{
 		template<typename T, typename... Args, size_t... Is>

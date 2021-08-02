@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	Buffer::Buffer(size_t size, Flags<BufferUsage> usage)
 	: _sizeInBytes(size)
 	, _usage2(usage)

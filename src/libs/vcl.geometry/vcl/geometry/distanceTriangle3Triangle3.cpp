@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/simd/memory.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 #define clamp(v, a, b) max((a), min((v), (b)))
 
 	template<typename T> auto inline dot(const T& p1, const T& p2) { return p1.dot(p2); }

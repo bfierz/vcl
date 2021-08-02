@@ -35,8 +35,7 @@
 // Google test
 #include <gtest/gtest.h>
 
-namespace
-{
+namespace {
 	GLint vertexAttribiv(GLuint i, GLenum param)
 	{
 		GLint value = 0;

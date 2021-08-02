@@ -40,8 +40,7 @@
 #include <vcl/core/span.h>
 #include <vcl/geometry/cell.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename VertexId>
 	uint64_t makeEdgeHash(VertexId p0, VertexId p1)
 	{

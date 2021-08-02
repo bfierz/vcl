@@ -51,8 +51,7 @@
 #	define glVertexArrayAttribFormatVCL(idx, loc, size, type, normalized, offset) glVertexAttribFormat(loc, size, type, normalized, offset)
 #endif
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	InputLayout::InputLayout(const Runtime::InputLayoutDescription& desc)
 	: _desc(desc)
 	{

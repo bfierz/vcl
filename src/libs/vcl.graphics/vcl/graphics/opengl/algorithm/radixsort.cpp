@@ -33,8 +33,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	RadixSort::RadixSort(unsigned int maxElements)
 	: _scan(maxElements * 16 / 2 / LocalSize)
 	{

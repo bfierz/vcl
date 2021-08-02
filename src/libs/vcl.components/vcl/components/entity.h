@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	template<typename Derived, typename T = unsigned int>
 	class GenericId
 	{
@@ -161,8 +160,7 @@ namespace Vcl { namespace Core
 #define VCL_CREATE_GENERATIONALID(type_name, idx_type_name, gen_type_name) class type_name : public Vcl::Core::GenerationalId<type_name, idx_type_name, gen_type_name> { public: type_name() = default; explicit type_name(idx_type_name id, gen_type_name gen) : GenerationalId(id, gen) {}}
 
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	// Forward declaration
 	class EntityManager;
 
@@ -204,8 +202,7 @@ namespace Vcl { namespace Components
 	};
 }}
 
-namespace std
-{
+namespace std {
 	template<>
 	struct hash<Vcl::Components::EntityId>
 	{

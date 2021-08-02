@@ -55,8 +55,7 @@
 #	define VCL_DIRECT3D_SAFE_RELEASE(ptr) if (ptr != 0) { ptr->Release(); ptr = 0; }
 #endif
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	class D3D
 	{
 	public:

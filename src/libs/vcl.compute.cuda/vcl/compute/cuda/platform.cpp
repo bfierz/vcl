@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Platform* Platform::_implementation = nullptr;
 
 	void Platform::initialise()

@@ -61,8 +61,7 @@
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V, unsigned int sweeps)
 	{
 		using ::sqrt;

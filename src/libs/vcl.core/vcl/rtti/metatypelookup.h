@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/rtti/metatype.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Forward declaration
 	class Type;
 

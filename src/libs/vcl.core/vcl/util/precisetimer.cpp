@@ -26,8 +26,7 @@
 
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 
 #ifdef VCL_ABI_POSIX
 	timespec diff(timespec start, timespec end)

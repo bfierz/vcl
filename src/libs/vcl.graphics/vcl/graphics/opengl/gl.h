@@ -34,8 +34,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	class GL
 	{
 	public: // Context info

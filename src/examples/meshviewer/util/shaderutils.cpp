@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	QString resolveShaderFile(QString full_path)
 	{
 		QRegularExpression dir_regex{ R"((.+/)(.+))" };

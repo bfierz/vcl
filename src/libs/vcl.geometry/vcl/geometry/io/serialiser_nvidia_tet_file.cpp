@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/util/stringparser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	void NvidiaTetSerialiser::load(AbstractDeserialiser* deserialiser, const std::string& path) const
 	{
 		using namespace std;

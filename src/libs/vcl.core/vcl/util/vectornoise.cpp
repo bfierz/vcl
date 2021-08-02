@@ -25,8 +25,7 @@
 #define VCL_UTIL_VECTORNOISE_INST
 #include <vcl/util/vectornoise.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	template<int N>
 	VectorNoise<N>::VectorNoise()
 	{

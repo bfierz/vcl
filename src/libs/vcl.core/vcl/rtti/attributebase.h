@@ -34,8 +34,7 @@
 #include <vcl/core/string_view.h>
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Forward declaration
 	class Serializer;
 	class Deserializer;

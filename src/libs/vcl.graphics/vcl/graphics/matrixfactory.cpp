@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	Eigen::Matrix4f MatrixFactory::createLookAt
 	(
 		const Eigen::Vector3f& position,
@@ -79,8 +78,7 @@ namespace Vcl { namespace Graphics
 	}
 }}
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	Eigen::Matrix4f MatrixFactory::createPerspective
 	(
 		float width,
@@ -293,8 +291,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	}
 }}}
 
-namespace Vcl { namespace Graphics { namespace Direct3D
-{
+namespace Vcl { namespace Graphics { namespace Direct3D {
 	Eigen::Matrix4f MatrixFactory::createPerspective
 	(
 		float width,

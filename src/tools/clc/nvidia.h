@@ -36,8 +36,7 @@ typedef int (*tNvCliCompileProgram)
 typedef void (*tNvCliCompileLogFree) (const char* compileLog);
 typedef void (*tNvCliCompiledProgramFree) (const char* compiledProgram);
 
-namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
-{
+namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia {
 	bool loadCompiler();
 	void releaseCompiler();
 

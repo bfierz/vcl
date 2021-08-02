@@ -38,8 +38,7 @@
 #include <vcl/geometry/tetrahedron.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	/*!
 	 *	\brief Ray-AABB intersection
 	 *

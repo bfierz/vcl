@@ -36,8 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	template<typename VertexDataType>
 	struct InputLayoutTypeTrait
 	{

@@ -30,8 +30,7 @@
 #include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/math/ceil.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	GenericTextureDescription::GenericTextureDescription(const Texture1DDescription& desc)
 	{
 		Type = TextureType::Texture1D;

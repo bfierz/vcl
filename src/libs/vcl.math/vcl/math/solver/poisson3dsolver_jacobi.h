@@ -35,8 +35,7 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson3DJacobiCtx : public JacobiContext
 	{

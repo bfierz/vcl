@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	// Cell types
 	enum class CellType
 	{

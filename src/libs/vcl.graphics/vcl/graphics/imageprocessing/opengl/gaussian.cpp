@@ -32,8 +32,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Gaussian::Gaussian(ImageProcessor* processor)
 	{
 		// Various Kernels from http://dev.theomader.com/gaussian-kernel-calculator/

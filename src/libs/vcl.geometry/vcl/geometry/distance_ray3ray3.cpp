@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/simd/memory.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Real>
 	Real distanceImpl
 	(

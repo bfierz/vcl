@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Texture1DArray final : public Texture
 	{
 	public:

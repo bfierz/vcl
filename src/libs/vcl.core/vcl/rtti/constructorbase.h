@@ -50,8 +50,7 @@
 #include <vcl/core/span.h>
 #include <vcl/core/string_view.h>
 
-namespace Vcl { namespace RTTI
-{
+namespace Vcl { namespace RTTI {
 	template<typename T, typename... Ts>
 	auto& head(std::tuple<T, Ts...> t)
 	{

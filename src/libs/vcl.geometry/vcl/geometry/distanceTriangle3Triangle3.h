@@ -33,8 +33,7 @@
 #include <vcl/geometry/segment.h>
 #include <vcl/geometry/triangle.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	/*!
 	 *	Triangle - Triangle distance function from: http://jcgt.org/published/0003/04/05/
 	 */

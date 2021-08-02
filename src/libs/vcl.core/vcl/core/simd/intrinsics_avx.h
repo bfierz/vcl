@@ -50,8 +50,7 @@
 #define VCL_M256I_SIGNBIT _mm256_set1_epi32(int(0x80000000))
 #define VCL_M256I_ALLBITS _mm256_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
 	{
 		return _mm256_andnot_ps(_mm256_castsi256_ps(VCL_M256I_SIGNBIT), v);

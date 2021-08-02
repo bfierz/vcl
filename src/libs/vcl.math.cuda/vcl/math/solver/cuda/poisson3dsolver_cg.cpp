@@ -32,8 +32,7 @@ CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSha
 CUresult ComputeInitialResidual(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, const float* __restrict unknowns, float* __restrict residual, float* __restrict direction);
 CUresult ComputeQ(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict direction, float* __restrict q);
 
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	Poisson3DCgCtx::Poisson3DCgCtx
 	(
 		ref_ptr<Compute::Context> ctx,

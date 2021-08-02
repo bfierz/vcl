@@ -63,8 +63,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Cwise ops
-namespace Eigen
-{
+namespace Eigen {
 	template<typename Scalar>
 	struct CwiseClampOp
 	{
@@ -115,8 +114,7 @@ namespace Eigen
 }
 
 // Some additional Eigen typedefs
-namespace Eigen
-{
+namespace Eigen {
 	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
 	typedef Eigen::ParametrizedLine<float, 3> ParametrizedLine3f;
 	typedef Eigen::Hyperplane<float, 3> Hyperplane3f;
@@ -133,8 +131,7 @@ namespace Eigen
 }
 
 // Typedefs for VCL
-namespace Vcl
-{
+namespace Vcl {
 	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
 
 	typedef Eigen::Matrix<float, 2, 1> Vector2f;

@@ -27,8 +27,7 @@
 // VCL library
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	/*AnyRenderType D3D::toRenderType(SurfaceFormat fmt)
 	{
 		switch (fmt)

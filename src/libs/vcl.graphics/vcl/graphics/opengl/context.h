@@ -38,8 +38,7 @@
 #		undef Success
 #	endif
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	enum class ContextType
 	{
 		Core,

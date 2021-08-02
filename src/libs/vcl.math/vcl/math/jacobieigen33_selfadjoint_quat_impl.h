@@ -39,8 +39,7 @@
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RCP
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	template<typename Real>
 	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(const Real& a11, const Real& a12, const Real& a22)
 	{

@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/imageprocessing/tonemap.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	Tonemap::Tonemap()
 	{
 		TaskDescription desc;

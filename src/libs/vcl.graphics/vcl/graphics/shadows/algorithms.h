@@ -24,8 +24,7 @@
  */
 #pragma once
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	enum class ShadowMapAlgorithm
 	{
 		None,

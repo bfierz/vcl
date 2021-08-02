@@ -31,8 +31,7 @@
 #include <vcl/core/flags.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(BufferUsage,
 
 		//! Buffer is mappable so the it is readable by the CPU

@@ -29,8 +29,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Core::owner_ptr<Module> Module::loadFromBinary(Context* ctx, const int8_t* data, size_t size)
 	{
 		VclRequire(ctx->isCurrent(), "Current context is set.");

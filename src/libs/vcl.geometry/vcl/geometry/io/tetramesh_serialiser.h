@@ -36,8 +36,7 @@
 #include <vcl/geometry/io/serialiser.h>
 #include <vcl/geometry/tetramesh.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	class TetraMeshDeserialiser : public AbstractDeserialiser
 	{
 	public:

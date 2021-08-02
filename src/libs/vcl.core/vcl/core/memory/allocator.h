@@ -47,8 +47,7 @@
  * http://jrruethe.github.io/blog/2015/11/22/allocators/
  * http://upcoder.com/5/zero-initialisation-for-classes
  */
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	template<typename T>
 	class ObjectTraits
 	{

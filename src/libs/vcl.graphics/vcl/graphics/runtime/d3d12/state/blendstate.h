@@ -34,7 +34,6 @@
 // VCL
 #include <vcl/graphics/runtime/state/blendstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_BLEND_DESC toD3D12(const BlendDescription& desc);
 }}}}

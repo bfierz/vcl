@@ -36,8 +36,7 @@
 
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	{
 		Shader shader{ type, tag, source, headers };

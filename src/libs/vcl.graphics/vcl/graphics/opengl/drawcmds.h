@@ -30,8 +30,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	struct DrawCommand
 	{
 		DrawCommand(int count, int inst_count, int first, int base_inst)

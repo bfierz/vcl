@@ -36,8 +36,7 @@
 #include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson1DCgCtx : public EigenCgBaseContext<Real, Eigen::Dynamic>
 	{

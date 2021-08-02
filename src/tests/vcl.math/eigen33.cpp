@@ -49,8 +49,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Common functions
-namespace
-{
+namespace {
 	template<typename REAL>
 	void SortEigenvalues(Eigen::Matrix<REAL, 3, 1>& A, Eigen::Matrix<REAL, 3, 3>& B)
 	{

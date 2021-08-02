@@ -52,8 +52,7 @@
 #		define glCheckNamedFramebufferStatusVCL(fb, target)                             [&] { FbBindPoint bp(target, fb); return glCheckFramebufferStatus(target); }()
 #	endif
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class FbBindPoint
 	{
 	public:

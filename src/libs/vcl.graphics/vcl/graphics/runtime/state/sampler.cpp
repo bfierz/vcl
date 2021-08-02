@@ -27,8 +27,7 @@
  // C++ Standard Library
 #include <limits>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	SamplerDescription::SamplerDescription()
 	{
 		Filter = FilterType::MinMagMipLinear;

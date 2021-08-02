@@ -24,8 +24,7 @@
  */
 #include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf)
 	: ConstBufferView(buf, 0, buf->size())
 	{

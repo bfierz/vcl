@@ -24,8 +24,7 @@
  */
 #include <vcl/components/entitymanager.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	Entity EntityManager::create()
 	{
 		uint32_t index, generation;

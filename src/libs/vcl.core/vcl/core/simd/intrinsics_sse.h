@@ -36,8 +36,7 @@
 #define VCL_M128I_SIGNBIT _mm_set1_epi32(int(0x80000000))
 #define VCL_M128I_ALLBITS _mm_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
+namespace Vcl {
 	namespace Core { namespace Simd { namespace SSE
 	{
 		/// Per element absolut value

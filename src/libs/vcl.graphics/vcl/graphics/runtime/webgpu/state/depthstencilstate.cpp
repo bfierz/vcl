@@ -30,8 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUCompareFunction toWebGPU(ComparisonFunction op)
 	{
 		switch (op)

@@ -33,8 +33,7 @@
 #include <vcl/math/solver/conjugategradients.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real, int ProblemSize = Eigen::Dynamic>
 	class EigenCgBaseContext : public ConjugateGradientsContext
 	{

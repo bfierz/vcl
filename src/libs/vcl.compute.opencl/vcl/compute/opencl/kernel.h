@@ -36,8 +36,7 @@
 #include <vcl/compute/opencl/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	struct LocalMemory
 	{
 		LocalMemory(size_t size) : Size(size) {}

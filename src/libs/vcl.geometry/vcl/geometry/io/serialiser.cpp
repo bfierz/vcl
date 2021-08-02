@@ -4,6 +4,5 @@
 #include <fstream>
 #include <sstream>
 
-namespace Vcl { namespace Geometry { namespace IO
-{	
+namespace Vcl { namespace Geometry { namespace IO {
 }}}

@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/math/polardecomposition_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	void PolarDecomposition(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>* S)
 	{
 		PolarDecomposition<float>(A, R, S);

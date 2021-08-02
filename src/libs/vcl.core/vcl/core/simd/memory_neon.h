@@ -31,8 +31,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/simd/intrinsics_neon.h>
 
-namespace Vcl
-{
+namespace Vcl {
 #if defined VCL_VECTORIZE_NEON
 	VCL_STRONG_INLINE float32x4_t gather(float const* base, int32x4_t vindex)
 	{

@@ -27,8 +27,7 @@
 // VCL library
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	/*AnyRenderType D3D::toRenderType(SurfaceFormat fmt)
 	{
 		switch (fmt)

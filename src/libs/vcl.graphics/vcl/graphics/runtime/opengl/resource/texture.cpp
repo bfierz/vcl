@@ -29,8 +29,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	TextureBindPoint::TextureBindPoint(GLenum target, GLuint id)
 		: _target(target)
 		, _id(id)

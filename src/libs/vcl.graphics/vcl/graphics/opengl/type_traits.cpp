@@ -48,8 +48,7 @@
 	const GLint  RenderTypeTrait<type>::Size = sizeof(type);				   \
 	const bool   RenderTypeTrait<type>::IsIntegral = integral
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	GLenum AnyRenderType::internalFormat() const  { return _gate().internalFormat(); }
 	GLenum AnyRenderType::format() const  { return _gate().format(); }
 	GLenum AnyRenderType::componentType() const { return _gate().componentType(); }

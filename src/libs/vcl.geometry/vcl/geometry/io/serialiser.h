@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	struct AbstractDeserialiser
 	{
 		virtual ~AbstractDeserialiser() = default;

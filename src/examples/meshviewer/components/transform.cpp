@@ -42,8 +42,7 @@ VCL_DEFINE_METAOBJECT(System::Components::Transform)
 	type->registerAttributes(Transform_attribute_bases);
 }
 
-namespace System { namespace Components
-{
+namespace System { namespace Components {
 	Transform::Transform(const Eigen::Matrix4f& initial)
 	: _transform(initial)
 	{

@@ -35,8 +35,7 @@
 #include <vcl/graphics/cameracontroller.h>
 #include <vcl/graphics/trackball.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	class TrackballCameraController : public CameraController
 	{
 	public:

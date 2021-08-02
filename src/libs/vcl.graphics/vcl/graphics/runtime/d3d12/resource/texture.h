@@ -33,8 +33,7 @@
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	struct GenericTextureDescription : public TextureBaseDescription
 	{
 		GenericTextureDescription(const Texture1DDescription& desc);

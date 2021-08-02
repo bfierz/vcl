@@ -38,8 +38,7 @@
 #include <vcl/core/simd/intrinsics_avx.h>
 #include <vcl/core/simd/intrinsics_avx512.h>
 
-namespace Vcl { namespace Core { namespace Simd
-{
+namespace Vcl { namespace Core { namespace Simd {
 	//! Type of vectorization extension
 	enum class SimdExt
 	{

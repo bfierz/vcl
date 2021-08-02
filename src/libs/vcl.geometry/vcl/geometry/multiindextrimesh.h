@@ -42,8 +42,7 @@
 #include <vcl/geometry/propertygroup.h>
 #include <vcl/geometry/simplex.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	class MultiIndexTriMesh;
 
 	template<>

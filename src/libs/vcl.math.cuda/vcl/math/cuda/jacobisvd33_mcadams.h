@@ -36,8 +36,7 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/interleavedarray.h>
 
-namespace Vcl { namespace Mathematics { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Cuda {
 	class JacobiSVD33
 	{
 	public:

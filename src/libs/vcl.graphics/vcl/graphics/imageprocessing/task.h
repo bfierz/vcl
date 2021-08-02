@@ -37,8 +37,7 @@
 #include <vcl/graphics/imageprocessing/link.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class ImageProcessor;
 
 	enum class InputSlotType

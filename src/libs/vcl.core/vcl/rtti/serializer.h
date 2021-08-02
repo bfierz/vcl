@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace RTTI
-{
+namespace Vcl { namespace RTTI {
 	class Serializer
 	{
 	public:

@@ -33,8 +33,7 @@
 #include <vcl/graphics/runtime/state/sampler.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	class RendertargetDebugger
 	{
 	public:

@@ -39,8 +39,7 @@
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Context::Context(const Device& dev, ApiBinding binding)
 	: Compute::Context()
 	, _dev(dev)

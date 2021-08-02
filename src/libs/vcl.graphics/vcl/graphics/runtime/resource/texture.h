@@ -36,8 +36,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(TextureUsage,
 
 		//! Texture can be the source of copy opertions

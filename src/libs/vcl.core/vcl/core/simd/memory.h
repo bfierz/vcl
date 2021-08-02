@@ -47,8 +47,7 @@
 #	include <vcl/core/simd/memory_neon.h>
 #endif //VCL_VECTORIZE_NEON
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE void load(float& value, const float* base) noexcept
 	{
 		VclRequire(base, "Load memory location is not null");

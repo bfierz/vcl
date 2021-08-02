@@ -28,8 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	enum class Handedness
 	{
 		LeftHanded = 0,

@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Derived, typename T = unsigned int>
 	class GenericId
 	{

@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/geometry/marchingcubestables.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum)
 	{
 		// tan(fov / 2)

@@ -44,8 +44,7 @@ VCL_END_EXTERNAL_HEADERS
 //#define VCL_MATH_TWOSIDEDJACOBI_USE_RSQRT
 //#define VCL_MATH_TWOSIDEDJACOBI_USE_RCP
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	template<typename T>
 	struct TwoSidedJacobiTraits {};
 

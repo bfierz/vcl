@@ -24,7 +24,6 @@
  */
 #include <vcl/components/componentstore.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 }}
 

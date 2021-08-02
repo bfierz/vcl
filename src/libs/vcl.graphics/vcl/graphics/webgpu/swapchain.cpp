@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/webgpu/webgpu.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	SwapChain::SwapChain(WGPUDevice device, const SwapChainDescription& desc)
 	: _device{ device }
 	, _desc{ desc }

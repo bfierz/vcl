@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Kernel::Kernel(const std::string& name, cl_kernel func)
 	: Compute::Kernel(name)
 	, _func(func)

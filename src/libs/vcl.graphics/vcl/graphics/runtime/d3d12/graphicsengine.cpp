@@ -33,8 +33,7 @@
 #include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/runtime/d3d12/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	Frame::Frame(ref_ptr<Graphics::D3D12::Device> dev)
 	{
 		GraphicsCommandAllocator = dev->createCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);

@@ -24,8 +24,7 @@
  */
 #include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	TriMesh::TriMesh(const std::vector<IndexDescriptionTrait<TriMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TriMesh>::IndexType, 3>>& faces)
 	{
 		faceProperties().resizeProperties(faces.size());

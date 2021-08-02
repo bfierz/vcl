@@ -30,8 +30,7 @@
 CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, dim3 dim, float h, float a, float offset, float* __restrict Ac, float* __restrict Ax_l, float* __restrict Ax_r, float* __restrict Ay_l, float* __restrict Ay_r, float* __restrict Az_l, float* __restrict Az_r, const unsigned char* __restrict skip);
 CUresult PoissonUpdateSolution(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, float* __restrict unknowns, float* __restrict next, float* __restrict error);
 
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	Poisson3DJacobiCtx::Poisson3DJacobiCtx
 	(
 		ref_ptr<Compute::Context> ctx,

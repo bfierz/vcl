@@ -35,8 +35,7 @@
 #include <string>
 #include <vector>
 
-namespace Vcl { namespace IO
-{
+namespace Vcl { namespace IO {
 	class Bitmap
 	{
 	public:

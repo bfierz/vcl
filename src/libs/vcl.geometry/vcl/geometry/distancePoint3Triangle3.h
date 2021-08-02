@@ -32,8 +32,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/geometry/triangle.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	/*!
 	 *	Point - Triangle distance computation refactored from Eberly's Geometric tools
 	 *	to support SIMD execution

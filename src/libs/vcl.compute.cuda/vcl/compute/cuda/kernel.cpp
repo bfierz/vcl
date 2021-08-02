@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Kernel::Kernel(const std::string& name, CUfunction func)
 	: Compute::Kernel(name)
 	, _func(func)

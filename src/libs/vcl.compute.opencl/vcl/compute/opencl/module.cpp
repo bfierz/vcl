@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Core::owner_ptr<Module> Module::loadFromSource(Context* ctx, const int8_t* source, size_t size)
 	{
 		using namespace std;

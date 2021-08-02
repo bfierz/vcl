@@ -34,8 +34,7 @@
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	class Resource
 	{
 	protected:

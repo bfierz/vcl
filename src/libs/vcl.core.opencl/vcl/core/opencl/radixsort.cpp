@@ -32,8 +32,7 @@
 extern uint32_t RadixSortCL[];
 extern size_t RadixSortCLSize;
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
+namespace Vcl { namespace Core { namespace OpenCL {
 	RadixSort::RadixSort(Vcl::Compute::OpenCL::Context* ctx, unsigned int maxElements)
 	: _ownerCtx(ctx)
 	, _scan(ctx, maxElements / 2 / LocalSize * 16)

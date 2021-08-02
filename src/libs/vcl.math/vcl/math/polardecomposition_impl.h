@@ -41,8 +41,7 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/math/jacobisvd33_qr_impl.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	/*!
 	 *	\note:
 	 *	Compute the polar decomposition of a 3x3 matrix. Since this method is mainly used

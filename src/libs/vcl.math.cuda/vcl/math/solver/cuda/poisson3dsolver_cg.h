@@ -38,8 +38,7 @@
 #include <vcl/compute/cuda/module.h>
 #include <vcl/math/cuda/conjugategradientscontext.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	class Poisson3DCgCtx : public ConjugateGradientsContext
 	{
 		using vector_t = Eigen::Matrix<float, Eigen::Dynamic, 1>;

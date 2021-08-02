@@ -35,8 +35,7 @@
 // VCL
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class InputSlot;
 	class OutputSlot;
 	class Task;

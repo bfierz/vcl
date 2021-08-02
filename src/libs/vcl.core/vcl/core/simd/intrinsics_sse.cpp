@@ -34,8 +34,7 @@ VCL_END_EXTERNAL_HEADERS
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 #if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m128 _mm_sin_ps(__m128 v) noexcept
 	{

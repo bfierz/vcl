@@ -37,8 +37,7 @@
 #include <vcl/components/componentstore.h>
 #include <vcl/components/entity.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	/*!
 	 *	\class EntityManager
 	 *	\brief Create and manage the live time of all entities

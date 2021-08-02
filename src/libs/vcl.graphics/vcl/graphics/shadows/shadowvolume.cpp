@@ -33,8 +33,7 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/graphics/shadows/shadowmap.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	ShadowMapVolume::~ShadowMapVolume()
 	{
 	}

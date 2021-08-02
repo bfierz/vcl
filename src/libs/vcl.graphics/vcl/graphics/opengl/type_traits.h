@@ -35,8 +35,7 @@
 #include <vcl/graphics/surfaceformat.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	template<typename T>
 	struct RenderTypeTrait
 	{

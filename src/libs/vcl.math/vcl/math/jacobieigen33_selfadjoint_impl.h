@@ -45,8 +45,7 @@ VCL_END_EXTERNAL_HEADERS
 //#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_USE_RCP
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
 #	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC

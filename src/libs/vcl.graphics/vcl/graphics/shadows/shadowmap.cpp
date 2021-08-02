@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/shadows/shadowmap.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	ShadowMap::ShadowMap(ShadowMapType type, unsigned int width, unsigned int height, unsigned int count)
 	: _type(type)
 	, _width(width)

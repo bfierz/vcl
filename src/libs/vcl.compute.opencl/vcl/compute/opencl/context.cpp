@@ -33,8 +33,7 @@
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Context::Context(const Device& dev)
 	: Compute::Context()
 	, _dev(dev)

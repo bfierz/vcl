@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	/*!
 	 *	\note The heap order is ignored until the maximum size is reached
 	 */

@@ -40,8 +40,7 @@
 #include <vcl/graphics/runtime/state/inputlayout.h>
 #include <vcl/graphics/runtime/state/rasterizerstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class PrimitiveType
 	{
 		Undefined = 0,

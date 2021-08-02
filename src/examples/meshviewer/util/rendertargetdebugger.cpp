@@ -32,8 +32,7 @@
 // Project specific
 #include "shaderutils.h"
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	RendertargetDebugger::RendertargetDebugger()
 	{
 		//using namespace Vcl::Geometry;

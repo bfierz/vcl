@@ -26,8 +26,7 @@
 
 // VCL
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUVertexFormat toWebGPU(SurfaceFormat format)
 	{
 		switch (format)

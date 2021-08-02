@@ -30,12 +30,10 @@
 #include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/device.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	using namespace Microsoft::WRL;
 
-	namespace
-	{
+	namespace {
 		ComPtr<IDXGIFactory4> queryDXGIFactory()
 		{
 			ComPtr<IDXGIFactory4> factory;

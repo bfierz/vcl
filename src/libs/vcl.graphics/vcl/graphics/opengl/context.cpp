@@ -36,8 +36,7 @@
 #		include <GL/wglew.h>
 #	endif
 
-namespace
-{
+namespace {
 	void VCL_CALLBACK OpenGLDebugMessageCallback
 	(
 		GLenum source,
@@ -129,8 +128,7 @@ namespace
 	}
 }
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	const char* Context::profileType()
 	{
 		GLint profile = GL::getInteger(GL_CONTEXT_PROFILE_MASK);

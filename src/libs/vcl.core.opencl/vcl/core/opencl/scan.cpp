@@ -32,10 +32,8 @@
 extern uint32_t ScanCL[];
 extern size_t ScanCLSize;
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
-	namespace
-	{
+namespace Vcl { namespace Core { namespace OpenCL {
+	namespace {
 		unsigned int iSnapUp(unsigned int dividend, unsigned int divisor)
 		{
 			return ((dividend % divisor) == 0) ? dividend : (dividend - dividend % divisor + divisor);

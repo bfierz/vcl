@@ -33,8 +33,7 @@
 // FUSE
 #include <vcl/util/waveletnoise_modulo.h>
 
-namespace Vcl { namespace Util { namespace Details
-{
+namespace Vcl { namespace Util { namespace Details {
 	inline std::unique_ptr<std::mt19937> make_twister(unsigned int seed)
 	{
 		auto twister = std::make_unique<std::mt19937>();

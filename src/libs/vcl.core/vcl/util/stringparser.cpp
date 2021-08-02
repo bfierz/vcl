@@ -29,8 +29,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	StringParser::StringParser()
 	: _streamBuffer(BufferSize)
 	, _currentBuffer(_streamBuffer.data())

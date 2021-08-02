@@ -40,8 +40,7 @@
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	class BufferRange
 	{
 	public:

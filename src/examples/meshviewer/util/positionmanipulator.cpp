@@ -32,8 +32,7 @@
 // Project specific
 #include "shaderutils.h"
 
-namespace
-{
+namespace {
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> createBuffer(const void* buffer, size_t nr_elements, size_t stride)
 	{
 		using namespace Vcl::Graphics::Runtime;
@@ -50,8 +49,7 @@ namespace
 	}
 }
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	PositionManipulator::PositionManipulator()
 	{
 		using namespace Vcl::Geometry;

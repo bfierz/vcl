@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	int sizeInBytes(SurfaceFormat fmt)
 	{
 		switch (fmt)

@@ -38,8 +38,7 @@
 // https://github.com/panaseleus/stack_unwinding/blob/master/standalone/stack_unwinding.hpp
 
 #if defined(VCL_COMPILER_MSVC) && (_MSC_VER <= 1800)
-namespace std
-{
+namespace std {
 	namespace details { extern "C" char * _getptd(); }
 	inline int uncaught_exceptions()
 	{
@@ -49,8 +48,7 @@ namespace std
 }
 #elif defined(__APPLE__)
 #	include <cxxabi.h>
-namespace std
-{
+namespace std {
 	namespace details { extern "C" char * __cxa_get_globals(); }
 	inline int uncaught_exceptions() noexcept
 	{
@@ -59,8 +57,7 @@ namespace std
 }
 #elif defined(__GLIBCXX__) || (defined(_LIBCPP_VERSION) && !defined(__EMSCRIPTEN__))
 #	include <cxxabi.h>
-namespace std
-{
+namespace std {
 	inline int uncaught_exceptions() noexcept
 	{
 		return *(static_cast<unsigned*>(static_cast<void*>(reinterpret_cast<char*>(__cxxabiv1::__cxa_get_globals()) + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
@@ -71,8 +68,7 @@ namespace std
 // Scope guard presentation:
 // https://github.com/CppCon/CppCon2015/blob/master/Presentations/Declarative%20Control%20Flow/Declarative%20Control%20Flow%20-%20Andrei%20Alexandrescu%20-%20CppCon%202015.pdf
 
-namespace Vcl { namespace Util { namespace Detail
-{
+namespace Vcl { namespace Util { namespace Detail {
 	class UncaughtExceptionCounter
 	{
 	public:

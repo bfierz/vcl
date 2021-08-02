@@ -37,8 +37,7 @@
 #include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	class GraphicsEngine;
 
 	struct RenderTargetDescription

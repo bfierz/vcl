@@ -40,8 +40,7 @@
 #	define typename_msvc typename
 #endif
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename IndexT>
 	class PropertyGroup
 	{

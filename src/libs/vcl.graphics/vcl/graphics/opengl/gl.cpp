@@ -29,8 +29,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	const char* GL::getProfileInfo()
 	{
 		GLint profile;

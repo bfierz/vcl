@@ -31,8 +31,7 @@
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 #ifdef VCL_COMPILER_MSVC
 #	pragma warning(disable : 4324)
 #endif

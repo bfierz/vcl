@@ -34,8 +34,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	using namespace Vcl::Graphics::OpenGL;
 
 	BlendState::BlendState(const BlendDescription& desc)

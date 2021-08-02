@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/device.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	CommandQueue::CommandQueue(Device* device)
 	: _device{ device }
 	, _semaphore{ device->nativeDevice() }

@@ -33,8 +33,7 @@
 #	define M_PI 3.1415926535897932384626433832795
 #endif
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	Camera::Camera(std::shared_ptr<MatrixFactory> factory)
 	: Camera({ 1, 1, 1 }, { 0, 0, 0 }, std::move(factory))
 	{

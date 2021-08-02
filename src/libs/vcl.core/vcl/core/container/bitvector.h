@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{	
+namespace Vcl { namespace Core {
 	/*!
 	 *	Picking up an idea formulated in:
 	 *	http://upcoder.com/9/fast-resettable-flag-vector/

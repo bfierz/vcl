@@ -37,8 +37,7 @@
 #include <vcl/core/preprocessor.h>
 #include <vcl/math/math.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename Scalar, int Width>
 	class VectorScalar
 	{
@@ -92,8 +91,7 @@ namespace Vcl
 #	include <vcl/core/simd/int4_ref.h>
 #	include <vcl/core/simd/int8_ref.h>
 #	include <vcl/core/simd/int16_ref.h>
-namespace Vcl
-{
+namespace Vcl {
 	template<typename Scalar, int Width>
 	VectorScalar<Scalar, Width> select
 	(
@@ -149,8 +147,7 @@ namespace Vcl
 }
 #endif
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename T>
 	struct VectorTypes
 	{};
@@ -437,8 +434,7 @@ namespace Vcl
 	typedef VectorScalar<bool, 16> bool16;
 }
 
-namespace Eigen
-{
+namespace Eigen {
 	template<> struct NumTraits<Vcl::float4> : GenericNumTraits<Vcl::float4>
 	{
 		enum
@@ -504,8 +500,7 @@ namespace Eigen
 	};
 }
 
-namespace Eigen { namespace numext
-{
+namespace Eigen { namespace numext {
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& conj(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& real(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> imag(const Vcl::VectorScalar<Scalar, Width>&)   { return Vcl::VectorScalar<Scalar, Width>(0); }

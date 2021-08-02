@@ -28,8 +28,7 @@
 // VCL
 #include <vcl/graphics/d3d12/d3d.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	std::vector<D3D12_INPUT_ELEMENT_DESC> toD3D12(const InputLayoutDescription& desc)
 	{
 		std::vector<D3D12_INPUT_ELEMENT_DESC> d3d12_desc;

@@ -30,8 +30,7 @@
 // C++ standard library
 #include <limits>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	class JacobiContext
 	{
 	public:

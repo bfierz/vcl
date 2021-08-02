@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	/**
 	 * Original implementation by:
 	 *  2018 - Kugelstadt, Koschier, Bender - Fast Corotated FEM using Operator Splitting

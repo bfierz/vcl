@@ -31,8 +31,7 @@
 // Eigen
 #include <Eigen/Geometry>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Scalar, int Dim>
 	class Ray
 	{

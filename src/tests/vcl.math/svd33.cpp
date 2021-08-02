@@ -44,8 +44,7 @@ VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 #define USE_PREGEN_DATA
-namespace
-{
+namespace {
 	// clang-format off
 	float predefinedProblems[] =
 	{

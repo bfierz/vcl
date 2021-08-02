@@ -36,8 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	/*!
 	 *	Wavelet noise implementation by Robert L. Cook and Tony DeRose
 	 */
@@ -89,8 +88,7 @@ namespace Vcl { namespace Util
 	};
 }}
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 #ifndef VCL_UTIL_WAVELETNOISE_INST
 	extern template class WaveletNoise<32>;
 	extern template class WaveletNoise<64>;

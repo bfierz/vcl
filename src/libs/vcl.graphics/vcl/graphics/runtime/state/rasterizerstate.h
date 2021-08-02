@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class FillModeMethod
 	{
 		Wireframe = 2,

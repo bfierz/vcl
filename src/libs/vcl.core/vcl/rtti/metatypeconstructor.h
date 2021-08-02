@@ -39,8 +39,7 @@
 #define VCL_RTTI_BASES(Object, ...) auto VCL_PP_JOIN(Object, _parents) = vcl_meta_types<__VA_ARGS__>();
 #define VCL_RTTI_REGISTER_BASES(Object) type->registerBaseClasses(VCL_PP_JOIN(Object, _parents));
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	template<typename T>
 	class ConstructableType : public Type
 	{

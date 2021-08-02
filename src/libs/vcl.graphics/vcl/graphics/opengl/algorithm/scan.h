@@ -34,8 +34,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL scan sample
 	 */

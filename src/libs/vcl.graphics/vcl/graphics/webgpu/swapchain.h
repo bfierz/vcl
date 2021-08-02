@@ -44,8 +44,7 @@
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	enum class PresentMode
 	{
 		Immediate = 0x00000000,

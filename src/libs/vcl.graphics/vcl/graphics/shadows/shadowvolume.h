@@ -34,12 +34,15 @@
 #include <vcl/graphics/matrixfactory.h>
 
 // Forward declaration
-namespace Vcl { namespace Graphics { class ShadowMap; }}
-namespace Vcl { namespace Graphics { class Camera; }}
+namespace Vcl { namespace Graphics {
+	class ShadowMap;
+}}
+namespace Vcl { namespace Graphics {
+	class Camera;
+}}
 
 // Declaration
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	class ShadowMapVolume
 	{
 	protected:

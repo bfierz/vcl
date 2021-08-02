@@ -35,8 +35,7 @@
 
 // VCL
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	class StringParser
 	{
 	public:

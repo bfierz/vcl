@@ -43,8 +43,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 #endif // VCL_STL_CHRONO
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	class PreciseTimer
 	{
 	public:

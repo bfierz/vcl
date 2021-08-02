@@ -32,8 +32,7 @@
 #include <array>
 #include <memory>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	// Forward declaration
 	class Camera;
 	class MatrixFactory;

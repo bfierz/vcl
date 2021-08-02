@@ -31,8 +31,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/d3d.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 	D3D12_LOGIC_OP toD3D12(LogicOperation op)
 	{

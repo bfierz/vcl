@@ -39,8 +39,7 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	class Poisson3DJacobiCtx : public JacobiContext
 	{
 		using vector_t = Eigen::Matrix<float, Eigen::Dynamic, 1>;

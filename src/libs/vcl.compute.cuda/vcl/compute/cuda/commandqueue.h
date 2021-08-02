@@ -35,8 +35,7 @@
 #include <vcl/compute/cuda/context.h>
 #include <vcl/compute/commandqueue.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{	
+namespace Vcl { namespace Compute { namespace Cuda {
 	class CommandQueue : public Compute::CommandQueue
 	{
 	public:

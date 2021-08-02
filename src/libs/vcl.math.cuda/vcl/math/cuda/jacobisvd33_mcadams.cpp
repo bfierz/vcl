@@ -35,8 +35,7 @@
 
 CUresult JacobiSVD33McAdams(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, int size, int capacity, const float* __restrict memA, float* __restrict memU, float* __restrict memV, float* __restrict memS);
 
-namespace Vcl { namespace Mathematics { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Cuda {
 	JacobiSVD33::JacobiSVD33(Core::ref_ptr<Compute::Context> ctx)
 	: _ownerCtx(ctx)
 	{

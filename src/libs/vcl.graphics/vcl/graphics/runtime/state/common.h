@@ -37,8 +37,7 @@
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class ComparisonFunction
 	{
 		Never = 1,

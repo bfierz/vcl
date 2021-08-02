@@ -36,8 +36,7 @@
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Forward declaration
 	class AttributeBase;
 	class Serializer;

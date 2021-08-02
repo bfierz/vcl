@@ -32,8 +32,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	void CommandStream::bind()
 	{
 		for (auto tok = _commands.begin(); tok != _commands.end(); ++tok)

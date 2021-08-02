@@ -37,8 +37,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class Shader : public Runtime::Shader
 	{
 	public:

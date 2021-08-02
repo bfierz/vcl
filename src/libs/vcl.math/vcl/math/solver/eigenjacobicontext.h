@@ -32,8 +32,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/solver/jacobi.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename MatrixT>
 	class EigenJacobiContext : public JacobiContext
 	{

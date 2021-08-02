@@ -36,8 +36,7 @@
 #include <vcl/compute/buffer.h>
 #include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	class CommandQueue
 	{
 	protected:

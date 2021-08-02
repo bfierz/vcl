@@ -35,8 +35,7 @@
 #include <vcl/core/memory/allocator.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	class PropertyBase
 	{
 	public:
@@ -83,8 +82,7 @@ namespace Vcl { namespace Geometry
 		size_t _allocated;
 	};
 
-	namespace Internal
-	{
+	namespace Internal {
 		template<typename T>
 		struct PropertyMemberType
 		{

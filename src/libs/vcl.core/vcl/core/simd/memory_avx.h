@@ -31,8 +31,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 
 #if defined(VCL_VECTORIZE_AVX)
-namespace Vcl
-{
+namespace Vcl {
 #ifdef VCL_VECTORIZE_AVX512
 	VCL_STRONG_INLINE __m512 gather(float const* base, __m512i vindex)
 	{

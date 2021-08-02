@@ -29,8 +29,7 @@
 #define VCL_MATH_TWOSIDEDJACOBI_USE_RCP
 #include <vcl/math/jacobisvd33_twosided_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int TwoSidedJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, bool warm_start /* = false */)
 	{
 		return TwoSidedJacobiSVD<float>(A, U, V, warm_start);

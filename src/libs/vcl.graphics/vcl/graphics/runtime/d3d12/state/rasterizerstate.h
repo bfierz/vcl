@@ -31,7 +31,6 @@
 // VCL
 #include <vcl/graphics/runtime/state/rasterizerstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_RASTERIZER_DESC toD3D12(const RasterizerDescription& desc);
 }}}}

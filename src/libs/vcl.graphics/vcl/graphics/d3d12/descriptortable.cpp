@@ -34,8 +34,7 @@
 #include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/device.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	DescriptorTableLayout::DescriptorTableLayout
 	(
 		Device* device,

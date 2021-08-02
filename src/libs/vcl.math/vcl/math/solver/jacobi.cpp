@@ -24,8 +24,7 @@
  */
 #include <vcl/math/solver/jacobi.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	bool Jacobi::solve(JacobiContext* ctx, double* residual)
 	{
 		int dofs = ctx->size();

@@ -44,8 +44,7 @@
 #define VCL_MATH_CG_CUDA_BASIC 0
 
 #ifdef VCL_CUDA_SUPPORT
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	class ConjugateGradientsContext : public Vcl::Mathematics::Solver::ConjugateGradientsContext
 	{
 	public:

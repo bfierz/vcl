@@ -35,8 +35,7 @@
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/commandqueue.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{	
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class CommandQueue : public Compute::CommandQueue
 	{
 	public:

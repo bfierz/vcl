@@ -42,8 +42,7 @@ VCL_END_EXTERNAL_HEADERS
 #	define M_PI 3.1415926535897932384626433832795
 #endif
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	template<typename Scalar>
 	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum()
 	: PerspectiveViewFrustum(0, 0, static_cast<Scalar>(M_PI / 4.0), static_cast<Scalar>(0.01), 100, { 0, 0, 0 }, { 0, 0, 1 }, { 0, 1, 0 }, { 1, 0, 0 })

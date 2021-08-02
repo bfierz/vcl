@@ -36,8 +36,7 @@
 #include <vcl/graphics/runtime/d3d12/state/inputlayout.h>
 #include <vcl/graphics/runtime/d3d12/state/rasterizerstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE convert(PrimitiveType type)
 	{
 		switch (type)

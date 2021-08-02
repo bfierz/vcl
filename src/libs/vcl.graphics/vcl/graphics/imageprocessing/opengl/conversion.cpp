@@ -29,8 +29,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	IntegerConversion::IntegerConversion(ImageProcessor* processor)
 	{
 		// Kernel source

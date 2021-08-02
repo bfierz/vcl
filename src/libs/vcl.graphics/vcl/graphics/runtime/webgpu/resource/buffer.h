@@ -33,8 +33,7 @@
 #include <vcl/core/flags.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class Buffer : public Runtime::Buffer
 	{
 	public:

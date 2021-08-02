@@ -37,8 +37,7 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/core/simd/bool16_avx512.h>
 #include <vcl/core/simd/float16_avx512.h>
 
-namespace Vcl
-{
+namespace Vcl {
 #if !defined(VCL_COMPILER_MSVC)
 	__m512 _mm512_sin_ps(__m512 v)
 	{

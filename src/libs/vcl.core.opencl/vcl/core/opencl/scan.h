@@ -34,8 +34,7 @@
 #include <vcl/compute/buffer.h>
 #include <vcl/compute/module.h>
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
+namespace Vcl { namespace Core { namespace OpenCL {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */

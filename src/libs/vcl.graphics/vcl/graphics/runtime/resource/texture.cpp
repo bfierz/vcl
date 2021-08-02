@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	void TextureView::initializeView
 	(
 		TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,

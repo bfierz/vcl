@@ -76,8 +76,7 @@ inline Vcl::Flags<name> operator|(name::Enum lhs, Vcl::Flags<name> rhs)  \
 	return (Vcl::Flags<name>(lhs) | rhs);						         \
 }
 
-namespace Vcl
-{
+namespace Vcl {
 	template <class T>
 	class Flags
 	{

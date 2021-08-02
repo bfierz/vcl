@@ -35,8 +35,7 @@
 #include <vcl/graphics/runtime/webgpu/state/rasterizerstate.h>
 #include <vcl/graphics/webgpu/webgpu.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUPrimitiveTopology convert(PrimitiveType type)
 	{
 		switch (type)

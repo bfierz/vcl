@@ -77,8 +77,7 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-namespace Vcl { namespace Tools { namespace Clc
-{
+namespace Vcl { namespace Tools { namespace Clc {
 	enum class Compiler
 	{
 		Msvc,

@@ -32,8 +32,7 @@
 #include <vcl/core/memory/allocator.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	const int DynamicStride = -1;
 
 	/*!

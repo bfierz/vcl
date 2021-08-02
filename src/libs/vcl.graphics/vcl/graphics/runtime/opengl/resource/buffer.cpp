@@ -67,8 +67,7 @@
 #		define glGetNamedBufferSubDataVCL(buffer, offset, size, data)   [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glGetBufferSubData(GL_ARRAY_BUFFER, offset, size, data); }();
 #	endif
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	void flushBufferRange(Runtime::Buffer& buffer, size_t offset, size_t size)
 	{
 		static_cast<Buffer*>(&buffer)->flushRange(offset, size);

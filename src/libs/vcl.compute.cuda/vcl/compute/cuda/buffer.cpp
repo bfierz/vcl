@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, size_t size)
 	: Compute::Buffer(hostAccess, size)
 	, _ownerCtx(ctx)

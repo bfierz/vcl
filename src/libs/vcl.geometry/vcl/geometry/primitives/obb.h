@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/span.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	//! Fitting of bounding box based on PhD thesis of Stefan Gottschalk
 	//! http://gamma.cs.unc.edu/users/gottschalk/main.pdf
 	//! Summarized by James Gregson

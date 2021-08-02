@@ -34,7 +34,6 @@
 // VCL
 #include <vcl/graphics/runtime/state/inputlayout.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	std::pair<std::vector<WGPUVertexBufferLayoutDescriptor>, std::vector<WGPUVertexAttributeDescriptor>> toWebGPU(const InputLayoutDescription& desc);
 }}}}

@@ -36,8 +36,7 @@
 
 #ifdef VCL_OPENGL_SUPPORT
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	Histogram::Histogram(unsigned int nr_elements, unsigned int nr_buckets)
 	: _maxNrElements(nr_elements)
 	, _maxNrBuckets(nr_buckets)

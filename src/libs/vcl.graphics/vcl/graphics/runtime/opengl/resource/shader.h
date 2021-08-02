@@ -40,8 +40,7 @@
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/opengl/gl.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:

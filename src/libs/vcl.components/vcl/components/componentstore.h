@@ -38,8 +38,7 @@
 #include <vcl/components/entity.h>
 #include <vcl/rtti/metatypelookup.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	template<typename T>
 	struct ComponentTraits
 	{

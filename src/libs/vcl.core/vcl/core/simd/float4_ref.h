@@ -33,8 +33,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/math/math.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class VectorScalar<float, 4> : protected Core::Simd::VectorScalarBase<float, 4, Core::Simd::SimdExt::None>
 	{

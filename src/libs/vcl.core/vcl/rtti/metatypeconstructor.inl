@@ -30,8 +30,7 @@
 #include <vcl/rtti/metatypeconstructor.h>
 #include <vcl/rtti/metatypelookup.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	template<typename T>
 	template<typename Args>
 	DynamicConstructableType<T>* DynamicConstructableType<T>::inherit()

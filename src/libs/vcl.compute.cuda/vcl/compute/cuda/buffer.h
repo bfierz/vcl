@@ -35,14 +35,13 @@
 #include <vcl/compute/cuda/context.h>
 #include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{	
+namespace Vcl { namespace Compute { namespace Cuda {
 	class Buffer : public Compute::Buffer
 	{
 	public:
 		Buffer(Context* owner, BufferAccess hostAccess, size_t size);
 		virtual ~Buffer();
-		
+
 	public:
 		void resize(size_t new_size);
 

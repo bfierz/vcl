@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	inline constexpr uint32_t ceil(uint32_t val, uint32_t N) noexcept
 	{
 		const uint32_t div = (val + (N - 1)) / N;

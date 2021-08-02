@@ -30,8 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	/*!
 	 * Original implementation can be found at: http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
 	 */

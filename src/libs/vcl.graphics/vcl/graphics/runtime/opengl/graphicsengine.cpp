@@ -35,8 +35,7 @@
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/math/ceil.h>
 
-namespace
-{
+namespace {
 	GLenum toGLenum(Vcl::Graphics::Runtime::PrimitiveType topology)
 	{
 		using Vcl::Graphics::Runtime::PrimitiveType;
@@ -71,8 +70,7 @@ namespace
 
 }
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	Fence::Fence(GLsync sync)
 	: _sync(sync)
 	{

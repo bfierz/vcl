@@ -90,8 +90,7 @@ namespace Vcl															       \
 	}																	       \
 }
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename T>
 	VCL_CPP_CONSTEXPR_11 unsigned int enumCount()
 	{

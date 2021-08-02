@@ -35,8 +35,7 @@
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{	
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class Buffer : public Compute::Buffer
 	{
 	public:

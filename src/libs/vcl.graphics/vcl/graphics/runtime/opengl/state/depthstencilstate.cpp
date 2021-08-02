@@ -32,8 +32,7 @@
 #include <vcl/graphics/opengl/gl.h>
 
 #ifdef VCL_OPENGL_SUPPORT
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	using namespace Vcl::Graphics::OpenGL;
 
 	DepthStencilState::DepthStencilState(const DepthStencilDescription& desc)

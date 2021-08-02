@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	WGPUTextureFormat toWebGPUEnum(SurfaceFormat type);
 		//static D3D11_RTV_DIMENSION toD3Denum(RenderTargetViewDimension::RenderTargetViewDimension dim);
 		//static D3D11_DSV_DIMENSION toD3Denum(DepthStencilViewDimension::DepthStencilViewDimension dim);

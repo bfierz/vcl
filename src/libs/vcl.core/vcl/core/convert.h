@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename T>
 	T from_string(const std::string& value)
 	{

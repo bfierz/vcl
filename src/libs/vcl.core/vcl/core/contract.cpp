@@ -37,8 +37,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #	include <fmt/printf.h>
 VCL_END_EXTERNAL_HEADERS
 
-namespace Vcl { namespace Assert
-{
+namespace Vcl { namespace Assert {
 	enum class QueryAnswer
 	{
 		IgnoreOnce = 1,

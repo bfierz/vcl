@@ -32,8 +32,7 @@
 #include <vcl/core/preprocessor.h>
 #include <vcl/rtti/metatypeconstructor.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Based on the article series:
 	// http://seanmiddleditch.com/journal/2012/01/c-metadata-part-i-singletons-and-lookup/
 	template<typename MetaType>

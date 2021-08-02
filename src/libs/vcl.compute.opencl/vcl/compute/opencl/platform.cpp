@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Platform* Platform::_implementation = nullptr;
 
 	void Platform::initialise()

@@ -37,8 +37,7 @@
 // VCL
 #include <vcl/graphics/d3d12/semaphore.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	class Device;
 
 	class CommandQueue

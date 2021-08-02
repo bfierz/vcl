@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/components/entitymanager.h>
 
-namespace Editor
-{
+namespace Editor {
 	class EntityAdapter
 	{
 	public:

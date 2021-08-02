@@ -28,8 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float sq(float a) noexcept
 	{
 		return a * a;

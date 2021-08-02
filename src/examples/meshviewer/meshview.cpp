@@ -38,8 +38,7 @@
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
 // Application
-namespace
-{
+namespace {
 #include "shaders/3DSceneBindings.h"
 #include "shaders/MarchingCubes.h"
 }
@@ -48,8 +47,7 @@ namespace
 #include "util/shaderutils.h"
 #include "scene.h"
 
-namespace
-{
+namespace {
 	QString resolveShaderFile(QString full_path)
 	{
 		QRegularExpression dir_regex{ R"((.+/)(.+))" };

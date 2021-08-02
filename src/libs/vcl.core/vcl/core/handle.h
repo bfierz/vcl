@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	uint32_t createResourceHandleTag(void* owner) noexcept;
 
 	template<typename T>

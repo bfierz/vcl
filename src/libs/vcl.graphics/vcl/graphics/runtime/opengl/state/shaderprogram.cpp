@@ -45,8 +45,7 @@ VCL_END_EXTERNAL_HEADERS
 #define VCL_ENUM_TO_TYPE(type, val, name) case val: return ProgramResourceType::type;
 #define VCL_ENUM_TO_NAME(type, val, name) case val: return name;
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	ProgramAttributes::ProgramAttributes(GLuint program)
 	{
 		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");

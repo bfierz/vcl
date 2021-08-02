@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 
 #ifdef VCL_OPENGL_SUPPORT
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	Sampler::Sampler(const SamplerDescription& desc)
 	: Runtime::Sampler(desc)
 	{

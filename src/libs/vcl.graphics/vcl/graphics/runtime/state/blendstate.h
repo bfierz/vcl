@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/flags.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(ColourWriteEnable, Red, Green, Blue, Alpha)
 
 	enum class Blend

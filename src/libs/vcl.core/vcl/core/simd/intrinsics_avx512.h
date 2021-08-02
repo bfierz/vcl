@@ -37,8 +37,7 @@
 #define VCL_M512I_SIGNBIT _mm512_set1_epi32(int(0x80000000))
 #define VCL_M512I_ALLBITS _mm512_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE __m512 _mm512_sgn_ps(__m512 v)
 	{
 		const __mmask16 is_eq_zero = _mm512_cmp_ps_mask(v, _mm512_setzero_ps(), _CMP_EQ_OQ);

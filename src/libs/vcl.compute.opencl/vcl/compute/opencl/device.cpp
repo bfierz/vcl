@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Device::Device(cl_device_id dev)
 	: _device(dev)
 	, _capMajor(0)

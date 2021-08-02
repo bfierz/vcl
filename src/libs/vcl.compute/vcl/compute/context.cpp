@@ -29,8 +29,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	Context::ref_ptr<CommandQueue> Context::defaultQueue() const
 	{
 		VclRequire(_queues.size() > 0, "At least one command queue exists.");

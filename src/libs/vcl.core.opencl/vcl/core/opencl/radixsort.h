@@ -35,8 +35,7 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/opencl/scan.h>
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
+namespace Vcl { namespace Core { namespace OpenCL {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */

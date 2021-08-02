@@ -32,8 +32,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:

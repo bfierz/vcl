@@ -36,8 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/matrixfactory.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	/*!
 	 *	\brief	Basic camera, projection a 3D scene to a 2D space.
 	 *

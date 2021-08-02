@@ -75,8 +75,7 @@ static std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-namespace Vcl { namespace Tools { namespace Cui
-{
+namespace Vcl { namespace Tools { namespace Cui {
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");

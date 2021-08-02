@@ -28,8 +28,7 @@
 #include <vcl/compute/cuda/buffer.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	CommandQueue::CommandQueue(Context* owner)
 	: Compute::CommandQueue()
 	, _ownerCtx(owner)

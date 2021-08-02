@@ -28,10 +28,8 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
-	namespace Detail
-	{
+namespace Vcl { namespace Mathematics { namespace Solver {
+	namespace Detail {
 		template<typename Real>
 		void updateStencil(unsigned int i, unsigned int dim, Real s, Real& c, Real& r, Real& l)
 		{

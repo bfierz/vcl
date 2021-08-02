@@ -26,8 +26,7 @@
 
 #include "components/transform.h"
 
-namespace Editor
-{
+namespace Editor {
 	ComponentAdapter::ComponentAdapter(const QString& type, const QString& name)
 	: _type(type)
 	, _name(name)

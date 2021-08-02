@@ -32,8 +32,7 @@
 #include <vcl/rtti/serializer.h>
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	Type::Type(stdext::string_view name, size_t hash, size_t size, size_t alignment)
 	: _name(name)
 	, _hash(hash)

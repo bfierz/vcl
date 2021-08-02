@@ -35,8 +35,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #include <fmt/printf.h>
 VCL_END_EXTERNAL_HEADERS
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	void ReserveBottomMemory()
 	{
 #ifdef _WIN64

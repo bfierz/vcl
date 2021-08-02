@@ -32,8 +32,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/geometry/ray.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Real>
 	struct Result
 	{

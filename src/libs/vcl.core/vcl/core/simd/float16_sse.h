@@ -33,8 +33,7 @@
 #include <vcl/core/simd/intrinsics_sse.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class VectorScalar<float, 16> : protected Core::Simd::VectorScalarBase<float, 16, Core::Simd::SimdExt::SSE>
 	{

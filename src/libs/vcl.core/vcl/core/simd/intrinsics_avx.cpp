@@ -37,8 +37,7 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/core/simd/bool8_avx.h>
 #include <vcl/core/simd/float8_avx.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	__m256 _mm256_sin_ps(__m256 v)
 	{
 		return sin256_ps(v);

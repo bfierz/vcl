@@ -37,8 +37,7 @@
 #include <vcl/graphics/surfaceformat.h>
 
 // Declaration
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	enum class ShadowMapType
 	{
 		None,

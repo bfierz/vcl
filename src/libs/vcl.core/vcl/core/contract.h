@@ -42,8 +42,7 @@
 // C++ standard library
 #	include <string>
 
-namespace Vcl { namespace Assert
-{
+namespace Vcl { namespace Assert {
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const char* note, bool& ignore);
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const std::string& note, bool& ignore);
 }}

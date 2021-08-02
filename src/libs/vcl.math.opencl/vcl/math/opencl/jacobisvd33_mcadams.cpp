@@ -14,8 +14,7 @@
 extern uint32_t JacobiSVD33McAdamsCL[];
 extern size_t JacobiSVD33McAdamsCLSize;
 
-namespace Vcl { namespace Mathematics { namespace OpenCL
-{
+namespace Vcl { namespace Mathematics { namespace OpenCL {
 	JacobiSVD33::JacobiSVD33(Core::ref_ptr<Compute::Context> ctx)
 	: _ownerCtx(ctx)
 	{

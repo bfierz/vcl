@@ -24,8 +24,7 @@
  */
 #include <vcl/geometry/multiindextrimesh.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	MultiIndexTriMesh::MultiIndexTriMesh(const std::vector<IndexDescriptionTrait<MultiIndexTriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<MultiIndexTriMesh>::Face>& faces)
 	{
 		faceProperties().resizeProperties(faces.size());

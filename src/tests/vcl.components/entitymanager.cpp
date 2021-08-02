@@ -53,8 +53,7 @@ struct SecondaryNameComponent
 };
 
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	template<>
 	struct ComponentTraits<SecondaryNameComponent>
 	{

@@ -29,8 +29,7 @@
 #include <vcl/graphics/imageprocessing/imageprocessor.h>
 #include <vcl/graphics/imageprocessing/link.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	void Task::initialize(const TaskDescription& desc)
 	{
 		// Store the description

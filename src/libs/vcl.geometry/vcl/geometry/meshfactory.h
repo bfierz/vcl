@@ -35,8 +35,7 @@
 #include <vcl/geometry/tetramesh.h>
 #include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Mesh>
 	class MeshFactory
 	{

@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/graphics/runtime/graphicsengine.h>
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	enum class ManipulatorType
 	{
 		PositionManipulator,

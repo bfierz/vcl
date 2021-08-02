@@ -48,8 +48,7 @@ tNvCliCompileProgram nvCompileProgram;
 tNvCliCompileLogFree nvCompileLogFree;
 tNvCliCompiledProgramFree nvCompiledProgramFree;
 
-namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
-{
+namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia {
 #ifdef VCL_ABI_WINAPI
 
 	void print_error()

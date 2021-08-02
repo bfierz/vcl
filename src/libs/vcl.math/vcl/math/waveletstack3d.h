@@ -31,8 +31,7 @@
 #include <cmath>
 #include <vector>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	/*!
 	 *	Wavlet stack implementation from "Kim, Thürey - Wavelet Turbulence for Fluid Simulation"
 	 */
