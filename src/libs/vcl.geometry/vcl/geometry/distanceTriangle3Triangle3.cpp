@@ -30,9 +30,16 @@
 namespace Vcl { namespace Geometry {
 #define clamp(v, a, b) max((a), min((v), (b)))
 
-	template<typename T> auto inline dot(const T& p1, const T& p2) { return p1.dot(p2); }
-	template<typename T> auto inline cross(const T& p1, const T& p2) { return p1.cross(p2); }
-	
+	template<typename T>
+	auto inline dot(const T& p1, const T& p2)
+	{
+		return p1.dot(p2);
+	}
+	template<typename T>
+	auto inline cross(const T& p1, const T& p2)
+	{
+		return p1.cross(p2);
+	}
 
 	template<typename Real, int Width>
 	VectorScalar<bool, Width> project6(
@@ -81,7 +88,7 @@ namespace Vcl { namespace Geometry {
 
 		return (isDiffDirection <= RealVec{ 0 }) && (isSameDirection >= RealVec{ 0 });
 	}
-	
+
 	//Code is taken from Real Time Collision Detection section 5.1.9 and has been adapted and changed to suit the paper's purposes.
 	template<typename Real, int Width>
 	VectorScalar<Real, Width> segmentSegmentSquared(
@@ -100,26 +107,26 @@ namespace Vcl { namespace Geometry {
 		const RealVec3 dir2 = iLine2[1] - iLine2[0]; // Direction vector of segment S2
 		const RealVec3 r = iLine1[0] - iLine2[0];
 		const RealVec a = dot(dir1, dir1); // Squared length of segment S1, always nonnegative
-		RealVec e = dot(dir2, dir2); // Squared length of segment S2, always nonnegative
+		RealVec e = dot(dir2, dir2);       // Squared length of segment S2, always nonnegative
 		const RealVec f = dot(dir2, r);
 		const RealVec c = dot(dir1, r);
 		const RealVec b = dot(dir1, dir2);
 
-		// s and t are the parameter values form Line1 and iLine2 respectively. 
+		// s and t are the parameter values form Line1 and iLine2 respectively.
 		RealVec s, t;
 		//The following is always nonnegative.
-		RealVec denom = a*e - b*b;
+		RealVec denom = a * e - b * b;
 		// If segments not parallel, compute closest point on L1 to L2, and
 		// clamp to segment S1. Else pick arbitrary s (here 0)
 
-		//EVAN: As the previous description says if s can be arbitrary then we take the value given below instead of an if statement. 
+		//EVAN: As the previous description says if s can be arbitrary then we take the value given below instead of an if statement.
 		//To avoid a nonnegative denominator, we clip it. We know that it always has to be non-negative therefore we clip it with the following value.
 		denom = max(denom, RealVec(ulp));
-		s = clamp((b*f - c*e) / denom, RealVec(0), RealVec(1));
+		s = clamp((b * f - c * e) / denom, RealVec(0), RealVec(1));
 		// Compute point on L2 closest to S1(s) using
 		// t = dot((P1+D1*s)-P2,D2) / dot(D2,D2) = (b*s + f) / e
 		e = max(e, RealVec(ulp));
-		t = (b*s + f) / e;
+		t = (b * s + f) / e;
 		// If t in [0,1] done. Else clamp t, recompute s for the new value
 		// of t using s = dot((P2+D2*t)-P1,D1) / dot(D1,D1)= (t*b - c) / a
 		// and clamp s to [0, 1]
@@ -127,7 +134,7 @@ namespace Vcl { namespace Geometry {
 		BoolVec mask = (newT != t);
 
 		//Now test if all true or none true or some true. Use the select function to choose the respective values.
-		s = select(mask, clamp((newT*b - c) / a, RealVec(0), RealVec(1)), s);
+		s = select(mask, clamp((newT * b - c) / a, RealVec(0), RealVec(1)), s);
 
 		oLine1Point = iLine1[0] + dir1 * s;
 		oLine2Point = iLine2[0] + dir2 * newT;
@@ -135,12 +142,10 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	VectorScalar<Real, Width> trianglePointSquared
-	(
+	VectorScalar<Real, Width> trianglePointSquared(
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTriPoint,
 		const Triangle<VectorScalar<Real, Width>, 3>& iTri,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iPoint
-	)
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iPoint)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;
@@ -156,7 +161,7 @@ namespace Vcl { namespace Geometry {
 		oTriPoint = iTri[0];
 		BoolVec exit(mask1);
 		if (all(exit))
-			return (oTriPoint - iPoint).squaredNorm();  // barycentric coordinates (1,0,0)
+			return (oTriPoint - iPoint).squaredNorm(); // barycentric coordinates (1,0,0)
 
 		// Check if P in vertex region outside B
 		const RealVec3 bp = iPoint - iTri[1];
@@ -167,7 +172,7 @@ namespace Vcl { namespace Geometry {
 		oTriPoint = select<Real, Width, 3, 1>(exit, oTriPoint, select<Real, Width, 3, 1>(mask2, iTri[1], oTriPoint));
 		exit |= mask2;
 		if (all(exit))
-			return (oTriPoint - iPoint).squaredNorm();  // barycentric coordinates (0,1,0)
+			return (oTriPoint - iPoint).squaredNorm(); // barycentric coordinates (0,1,0)
 
 		// Check if P in vertex region outside C
 		const RealVec3 cp = iPoint - iTri[2];
@@ -178,21 +183,21 @@ namespace Vcl { namespace Geometry {
 		oTriPoint = select<Real, Width, 3, 1>(exit, oTriPoint, select<Real, Width, 3, 1>(mask3, iTri[2], oTriPoint));
 		exit |= mask3;
 		if (all(exit))
-			return (oTriPoint - iPoint).squaredNorm();  // barycentric coordinates (0,0,1)
+			return (oTriPoint - iPoint).squaredNorm(); // barycentric coordinates (0,0,1)
 
 		// Check if P in edge region of AB, if so return projection of P onto AB
-		const RealVec vc = d1*d4 - d3*d2;
+		const RealVec vc = d1 * d4 - d3 * d2;
 		const BoolVec mask4 = (vc <= RealVec(0)) && (d1 >= RealVec(0)) && (d3 <= RealVec(0));
 		const RealVec v1 = d1 / (d1 - d3);
-		const RealVec3 answer1 = iTri[0] + v1 * ab;		
+		const RealVec3 answer1 = iTri[0] + v1 * ab;
 		// Closest point is on the line ab. Update if necessary.
 		oTriPoint = select<Real, Width, 3, 1>(exit, oTriPoint, select<Real, Width, 3, 1>(mask4, answer1, oTriPoint));
 		exit |= mask4;
 		if (all(exit))
-			return (oTriPoint - iPoint).squaredNorm();  // barycentric coordinates (1-v,v,0)
+			return (oTriPoint - iPoint).squaredNorm(); // barycentric coordinates (1-v,v,0)
 
 		// Check if P in edge region of AC, if so return projection of P onto AC
-		const RealVec vb = d5*d2 - d1*d6;
+		const RealVec vb = d5 * d2 - d1 * d6;
 		const BoolVec mask5 = (vb <= RealVec(0)) && (d2 >= RealVec(0)) && (d6 <= RealVec(0));
 		const RealVec w1 = d2 / (d2 - d6);
 		const RealVec3 answer2 = iTri[0] + w1 * ac;
@@ -200,10 +205,10 @@ namespace Vcl { namespace Geometry {
 		oTriPoint = select<Real, Width, 3, 1>(exit, oTriPoint, select<Real, Width, 3, 1>(mask5, answer2, oTriPoint));
 		exit |= mask5;
 		if (all(exit))
-			return (oTriPoint - iPoint).squaredNorm();  // barycentric coordinates (1-w,0,w)
+			return (oTriPoint - iPoint).squaredNorm(); // barycentric coordinates (1-w,0,w)
 
 		// Check if P in edge region of BC, if so return projection of P onto BC
-		const RealVec va = d3*d6 - d5*d4;
+		const RealVec va = d3 * d6 - d5 * d4;
 		const BoolVec mask6 = (va <= RealVec(0)) && ((d4 - d3) >= RealVec(0)) && ((d5 - d6) >= RealVec(0));
 		RealVec w2 = (d4 - d3) / ((d4 - d3) + (d5 - d6));
 		const RealVec3 answer3 = iTri[1] + w2 * (iTri[2] - iTri[1]);
@@ -221,7 +226,7 @@ namespace Vcl { namespace Geometry {
 		const BoolVec mask7 = (answer4 - iPoint).squaredNorm() < (oTriPoint - iPoint).squaredNorm();
 		// Closest point is inside triangle. Update if necessary.
 		oTriPoint = select<Real, Width, 3, 1>(exit, oTriPoint, select<Real, Width, 3, 1>(mask7, answer4, oTriPoint));
-		return (oTriPoint - iPoint).squaredNorm();  // = u*a + v*b + w*c, u = va * denom = 1.0f - v - w
+		return (oTriPoint - iPoint).squaredNorm(); // = u*a + v*b + w*c, u = va * denom = 1.0f - v - w
 	}
 
 	// Compute the distance between a triangle vertex and another triangle
@@ -326,7 +331,7 @@ namespace Vcl { namespace Geometry {
 	{
 		using BoolVec = VectorScalar<bool, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
-		
+
 		const RealVec3 p1 = { 0, 0, 0 }; //P1 - P1;
 		const RealVec3 p2 = P2 - P1;
 		const RealVec3 p3 = P3 - P1;
@@ -343,6 +348,7 @@ namespace Vcl { namespace Geometry {
 
 		BoolVec mask(true);
 
+		// clang-format off
 		const RealVec3 n1 = cross(e1, e2);   mask &= project6(n1, p1, p2, p3, q1, q2, q3);   if (none(mask)) return false;
 		const RealVec3 m1 = cross(f1, f2);   mask &= project6(m1, p1, p2, p3, q1, q2, q3);   if (none(mask)) return false;
 		const RealVec3 ef11 = cross(e1, f1); mask &= project6(ef11, p1, p2, p3, q1, q2, q3); if (none(mask)) return false;
@@ -362,6 +368,7 @@ namespace Vcl { namespace Geometry {
 		const RealVec3 h1 = cross(f1, m1);   mask &= project6(h1, p1, p2, p3, q1, q2, q3);   if (none(mask)) return false;
 		const RealVec3 h2 = cross(f2, m1);   mask &= project6(h2, p1, p2, p3, q1, q2, q3);   if (none(mask)) return false;
 		const RealVec3 h3 = cross(f3, m1);   mask &= project6(h3, p1, p2, p3, q1, q2, q3);   if (none(mask)) return false;
+		// clang-format on
 
 		return mask;
 	}
@@ -378,11 +385,11 @@ namespace Vcl { namespace Geometry {
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
 
 		//The three edges of the triangle. Keep orientation consistent.
-		const Segment<RealVec, 3> tri1Edges[3] = { { iTri1[1], iTri1[0] },{ iTri1[2], iTri1[1] },{ iTri1[0], iTri1[2] } };
-		const Segment<RealVec, 3> tri2Edges[3] = { { iTri2[1], iTri2[0] },{ iTri2[2], iTri2[1] },{ iTri2[0], iTri2[2] } };
+		const Segment<RealVec, 3> tri1Edges[3] = { { iTri1[1], iTri1[0] }, { iTri1[2], iTri1[1] }, { iTri1[0], iTri1[2] } };
+		const Segment<RealVec, 3> tri2Edges[3] = { { iTri2[1], iTri2[0] }, { iTri2[2], iTri2[1] }, { iTri2[0], iTri2[2] } };
 
 		RealVec3 tri1Vector, tri2Vector;
-		BoolVec  isFinished{ false };
+		BoolVec isFinished{ false };
 
 		RealVec minDistsTriTri = closestEdgeToEdge(isFinished, oTri1Point, oTri2Point, tri1Edges, tri2Edges[0], iTri2[2]);
 		if (all(isFinished))
@@ -417,13 +424,13 @@ namespace Vcl { namespace Geometry {
 		oTri2Point = select<Real, Width, 3, 1>(mask, tri2Vector, oTri2Point);
 
 		minDistsTriTri = select(mask, tmpMinDist, minDistsTriTri);
-		//We need to rule out the triangles colliding with each other otherwise we can get a distance that is not equal to 0 although 
+		//We need to rule out the triangles colliding with each other otherwise we can get a distance that is not equal to 0 although
 		//the true distance is 0. Hence we use simdTriContact here.
 
 		BoolVec colliding{ triContact(iTri1[0], iTri1[1], iTri1[2], iTri2[0], iTri2[1], iTri2[2]) };
 		return select(colliding, RealVec{ 0 }, minDistsTriTri);
 	}
-	
+
 	float4 distance(const Triangle<float4, 3>& iTri1, const Triangle<float4, 3>& iTri2, Eigen::Matrix<float4, 3, 1>& oTri1Point, Eigen::Matrix<float4, 3, 1>& oTri2Point)
 	{
 		return distanceImpl<float, 4>(iTri1, iTri2, oTri1Point, oTri2Point);

@@ -34,14 +34,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUBufferUsageFlags toWGPU(Flags<BufferUsage> flags)
 	{
 		WGPUBufferUsageFlags wgpu_flags = 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::MapRead))  ? WGPUBufferUsage_MapRead  : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::MapRead)) ? WGPUBufferUsage_MapRead : 0;
 		wgpu_flags |= (flags.isSet(BufferUsage::MapWrite)) ? WGPUBufferUsage_MapWrite : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::CopySrc))  ? WGPUBufferUsage_CopySrc  : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::CopyDst))  ? WGPUBufferUsage_CopyDst  : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::Index))    ? WGPUBufferUsage_Index    : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::Vertex))   ? WGPUBufferUsage_Vertex   : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::Uniform))  ? WGPUBufferUsage_Uniform  : 0;
-		wgpu_flags |= (flags.isSet(BufferUsage::Storage))  ? WGPUBufferUsage_Storage  : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::CopySrc)) ? WGPUBufferUsage_CopySrc : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::CopyDst)) ? WGPUBufferUsage_CopyDst : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::Index)) ? WGPUBufferUsage_Index : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::Vertex)) ? WGPUBufferUsage_Vertex : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::Uniform)) ? WGPUBufferUsage_Uniform : 0;
+		wgpu_flags |= (flags.isSet(BufferUsage::Storage)) ? WGPUBufferUsage_Storage : 0;
 		wgpu_flags |= (flags.isSet(BufferUsage::Indirect)) ? WGPUBufferUsage_Indirect : 0;
 
 		VclCheck(!flags.isSet(BufferUsage::StreamOut), "Stream-out is not supported");
@@ -62,7 +62,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 			toWGPU(desc.Usage),
 			desc.SizeInBytes,
 			init_data != nullptr
-		} ;
+		};
 
 		_resource = wgpuDeviceCreateBuffer(device, &wgpu_desc);
 
@@ -80,7 +80,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	{
 		wgpuBufferUnmap(_resource);
 	}
-	
+
 	void* Buffer::map() const
 	{
 		VclRequire(usage().isSet(BufferUsage::MapRead) | usage().isSet(BufferUsage::MapWrite), "Buffer is mappable.");

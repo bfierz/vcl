@@ -44,8 +44,10 @@ namespace Vcl { namespace Core {
 		static Derived InvalidId() { return Derived(std::numeric_limits<T>::max()); }
 
 	public:
-		GenericId() : _id(InvalidId().id()) {}
-		explicit GenericId(T id) : _id(id) {}
+		GenericId()
+		: _id(InvalidId().id()) {}
+		explicit GenericId(T id)
+		: _id(id) {}
 
 	public:
 		T id() const { return _id; }
@@ -156,9 +158,20 @@ namespace Vcl { namespace Core {
 }}
 
 // Instantiate a generic, typed ID
-#define VCL_CREATE_ID(type_name, idx_type_name) class type_name : public Vcl::Core::GenericId<type_name, idx_type_name> { public: type_name() = default; explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {}}
-#define VCL_CREATE_GENERATIONALID(type_name, idx_type_name, gen_type_name) class type_name : public Vcl::Core::GenerationalId<type_name, idx_type_name, gen_type_name> { public: type_name() = default; explicit type_name(idx_type_name id, gen_type_name gen) : GenerationalId(id, gen) {}}
-
+#define VCL_CREATE_ID(type_name, idx_type_name)                                           \
+	class type_name : public Vcl::Core::GenericId<type_name, idx_type_name>               \
+	{                                                                                     \
+	public:                                                                               \
+		type_name() = default;                                                            \
+		explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {} \
+	}
+#define VCL_CREATE_GENERATIONALID(type_name, idx_type_name, gen_type_name)                      \
+	class type_name : public Vcl::Core::GenerationalId<type_name, idx_type_name, gen_type_name> \
+	{                                                                                           \
+	public:                                                                                     \
+		type_name() = default;                                                                  \
+		explicit type_name(idx_type_name id, gen_type_name gen) : GenerationalId(id, gen) {}    \
+	}
 
 namespace Vcl { namespace Components {
 	// Forward declaration
@@ -177,6 +190,7 @@ namespace Vcl { namespace Components {
 	class Entity
 	{
 		friend class EntityManager;
+
 	public:
 		Entity() = default;
 

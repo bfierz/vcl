@@ -46,7 +46,11 @@ namespace Vcl { namespace Compute { namespace Cuda {
 	template<typename T>
 	struct KernelArg
 	{
-		KernelArg(const T& arg) : Arg(arg) { /*static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "T is simple type.");*/ }
+		KernelArg(const T& arg)
+		: Arg(arg)
+		{
+			//static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value, "T is simple type.");
+		}
 
 		static size_t alignment() { return alignof(T); }
 		static size_t size() { return sizeof(T); }
@@ -59,7 +63,8 @@ namespace Vcl { namespace Compute { namespace Cuda {
 	template<>
 	struct KernelArg<dim3>
 	{
-		KernelArg(const dim3& arg) : Arg(arg) {}
+		KernelArg(const dim3& arg)
+		: Arg(arg) {}
 
 		static size_t alignment() { return alignof(dim3); }
 		static size_t size() { return sizeof(dim3); }
@@ -71,7 +76,8 @@ namespace Vcl { namespace Compute { namespace Cuda {
 	template<typename U>
 	struct KernelArg<ref_ptr<U>>
 	{
-		KernelArg(const ref_ptr<U>& arg) : Arg(static_cast<const Compute::Cuda::Buffer*>(arg.get())->devicePtr()) { static_assert(std::is_base_of<Compute::Buffer, std::decay<U>::type>::value, "Type is derived from Buffer."); }
+		KernelArg(const ref_ptr<U>& arg)
+		: Arg(static_cast<const Compute::Cuda::Buffer*>(arg.get())->devicePtr()) { static_assert(std::is_base_of<Compute::Buffer, std::decay<U>::type>::value, "Type is derived from Buffer."); }
 
 		static size_t alignment() { return alignof(CUdeviceptr); }
 		static size_t size() { return sizeof(CUdeviceptr); }
@@ -83,7 +89,8 @@ namespace Vcl { namespace Compute { namespace Cuda {
 	template<>
 	struct KernelArg<Cuda::Buffer>
 	{
-		KernelArg(const Cuda::Buffer& arg) : Arg(arg.devicePtr()) {}
+		KernelArg(const Cuda::Buffer& arg)
+		: Arg(arg.devicePtr()) {}
 
 		static size_t alignment() { return alignof(CUdeviceptr); }
 		static size_t size() { return sizeof(CUdeviceptr); }

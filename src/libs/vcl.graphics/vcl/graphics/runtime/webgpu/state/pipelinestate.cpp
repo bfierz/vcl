@@ -38,8 +38,8 @@
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUPrimitiveTopology convert(PrimitiveType type)
 	{
-		switch (type)
-		{
+		// clang-format off
+		switch (type) {
 		case PrimitiveType::Undefined:        return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::Pointlist:        return WGPUPrimitiveTopology_PointList;
 		case PrimitiveType::Linelist:         return WGPUPrimitiveTopology_LineList;
@@ -52,6 +52,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		case PrimitiveType::TrianglestripAdj: return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::Patch:            return WGPUPrimitiveTopology_Force32;
 		}
+		// clang-format on
 
 		return WGPUPrimitiveTopology_Force32;
 	}
@@ -76,7 +77,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		WGPUProgrammableStageDescriptor desc = {};
 
 		const auto* wgpu_shader = static_cast<const Shader*>(shader);
-		desc.module =  wgpu_shader->handle();
+		desc.module = wgpu_shader->handle();
 		desc.entryPoint = "main";
 
 		return desc;
@@ -95,9 +96,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(desc.TessEvalShader == nullptr, "Tessellation Evaluation Shader not supported");
 		VclRequire(desc.GeometryShader == nullptr, "Geometry Shader not supported");
 		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending")
-		VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported")
+			VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported")
 
-		WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
+				WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
 
 		WGPUPipelineLayoutDescriptor layout_desc = {};
 		graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
@@ -118,7 +119,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 		graphics_pipeline_desc.primitive.topology = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.primitive.stripIndexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
-		graphics_pipeline_desc.primitive.frontFace = desc.Rasterizer.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;;
+		graphics_pipeline_desc.primitive.frontFace = desc.Rasterizer.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;
+		;
 		graphics_pipeline_desc.primitive.cullMode = toWebGPU(desc.Rasterizer.CullMode);
 		graphics_pipeline_desc.multisample.count = 1;
 		graphics_pipeline_desc.multisample.mask = UINT_MAX;

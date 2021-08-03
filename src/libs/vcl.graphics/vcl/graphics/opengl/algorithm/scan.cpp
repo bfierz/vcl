@@ -55,9 +55,8 @@ namespace Vcl { namespace Graphics {
 	: _maxElements(maxElements)
 	{
 		using namespace Vcl::Graphics::Runtime;
-		
-		BufferDescription desc =
-		{
+
+		BufferDescription desc = {
 			std::max(1u, maxElements / MaxWorkgroupInclusiveScanSize) * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
@@ -67,7 +66,7 @@ namespace Vcl { namespace Graphics {
 		// Load the sorting kernels
 		_scanExclusiveLocal1Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal1\n", module_scan });
 		_scanExclusiveLocal2Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal2\n", module_scan });
-		_uniformUpdateKernel       = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
+		_uniformUpdateKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
 	}
 
 	void ScanExclusive::operator()(
@@ -104,13 +103,11 @@ namespace Vcl { namespace Graphics {
 		// Check all work-groups to be fully packed with data
 		VclCheck((batchSize * arrayLength) % 4 == 0, "All work-groups are fully packed");
 
-		return scanExclusiveLocal1
-		(
+		return scanExclusiveLocal1(
 			dst,
 			src,
 			batchSize,
-			arrayLength
-		);
+			arrayLength);
 	}
 
 	void ScanExclusive::scanExclusiveLarge(
@@ -172,7 +169,7 @@ namespace Vcl { namespace Graphics {
 		_scanExclusiveLocal1Kernel->setUniform(_scanExclusiveLocal1Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		unsigned int nr_workgroups = ceil((n*size) / 4, WorkgroupSize) / WorkgroupSize;
+		unsigned int nr_workgroups = ceil((n * size) / 4, WorkgroupSize) / WorkgroupSize;
 		glDispatchCompute(nr_workgroups, 1, 1);
 
 		// Insert buffer write barrier

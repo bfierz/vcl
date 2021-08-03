@@ -62,10 +62,10 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 
 		_source = src;
 		_resource = nullptr;
-		
+
 		_x = 0;
 		_y = 0;
-		_width  = 0;
+		_width = 0;
 		_height = 0;
 
 		if (src)
@@ -83,7 +83,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 
 		_x = 0;
 		_y = 0;
-		_width  = (input) ? input->width() : 0;
+		_width = (input) ? input->width() : 0;
 		_height = (input) ? input->height() : 0;
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int width, unsigned int height)
@@ -99,7 +99,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 
 		_x = 0;
 		_y = 0;
-		_width  = width;
+		_width = width;
 		_height = height;
 	}
 	void InputSlot::setResource(const Runtime::Texture* input, unsigned int x, unsigned int y, unsigned int width, unsigned int height)
@@ -115,7 +115,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 
 		_x = x;
 		_y = y;
-		_width  = width;
+		_width = width;
 		_height = height;
 	}
 

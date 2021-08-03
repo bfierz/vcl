@@ -58,7 +58,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
-		const Real s = a / (h*h);
+		const Real s = a / (h * h);
 
 		Ac.setZero();
 		Ax_l.setZero();
@@ -67,7 +67,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		for (unsigned int i = 0; i < dim; i++)
 		{
 			// Initialize write-back data
-			float a_c   = 0;
+			float a_c = 0;
 			float a_x_l = 0;
 			float a_x_r = 0;
 
@@ -77,7 +77,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 				Detail::updateStencil(i, dim, s, a_c, a_x_r, a_x_l);
 			}
 
-			Ac  [index] = a_c + o;
+			Ac[index] = a_c + o;
 			Ax_l[index] = a_x_l;
 			Ax_r[index] = a_x_r;
 		}
@@ -97,7 +97,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
-		const Real s = a / (h*h);
+		const Real s = a / (h * h);
 
 		Ac.setZero();
 		Ax_l.setZero();
@@ -110,7 +110,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 			for (typename Eigen::Vector2ui::Scalar i = 0; i < dim.x(); i++)
 			{
 				// Initialize write-back data
-				float a_c   = 0;
+				float a_c = 0;
 				float a_x_l = 0;
 				float a_x_r = 0;
 				float a_y_l = 0;
@@ -123,7 +123,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 					Detail::updateStencil(j, dim.y(), s, a_c, a_y_r, a_y_l);
 				}
 
-				Ac  [index] = a_c + o;
+				Ac[index] = a_c + o;
 				Ax_l[index] = a_x_l;
 				Ax_r[index] = a_x_r;
 				Ay_l[index] = a_y_l;
@@ -148,7 +148,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
-		const Real s = a / (h*h);
+		const Real s = a / (h * h);
 
 		Ac.setZero();
 		Ax_l.setZero();
@@ -158,7 +158,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Az_l.setZero();
 		Az_r.setZero();
 
-		const typename Eigen::Vector2ui::Scalar slab = dim.x()*dim.y();
+		const typename Eigen::Vector2ui::Scalar slab = dim.x() * dim.y();
 
 		for (typename Eigen::Vector2ui::Scalar k = 0; k < dim.z(); k++)
 		{
@@ -167,7 +167,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 				for (typename Eigen::Vector2ui::Scalar i = 0; i < dim.x(); i++)
 				{
 					// Initialize write-back data
-					float a_c   = 0;
+					float a_c = 0;
 					float a_x_l = 0;
 					float a_x_r = 0;
 					float a_y_l = 0;
@@ -183,7 +183,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 						Detail::updateStencil(k, dim.z(), s, a_c, a_z_r, a_z_l);
 					}
 
-					Ac  [index] = a_c + o;
+					Ac[index] = a_c + o;
 					Ax_l[index] = a_x_l;
 					Ax_r[index] = a_x_r;
 					Ay_l[index] = a_y_l;

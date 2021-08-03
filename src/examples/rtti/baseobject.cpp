@@ -28,6 +28,7 @@
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/metatypeconstructor.inl>
 
+// clang-format off
 VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 	Vcl::RTTI::Constructor<BaseObject>{},
 	Vcl::RTTI::Constructor<BaseObject, const char*>{ { "Name" } }
@@ -43,3 +44,4 @@ VCL_DEFINE_METAOBJECT(BaseObject)
 	VCL_RTTI_REGISTER_CTORS(BaseObject);
 	VCL_RTTI_REGISTER_ATTRS(BaseObject);
 }
+// clang-format on

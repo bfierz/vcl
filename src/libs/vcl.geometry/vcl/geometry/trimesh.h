@@ -51,9 +51,9 @@ namespace Vcl { namespace Geometry {
 	public: // Idx Type
 		using IndexType = unsigned int;
 
-	public: // IDs
-		VCL_CREATEID(VertexId, IndexType);	// Size: n0
-		VCL_CREATEID(FaceId, IndexType);	// Size: n2
+	public:                                // IDs
+		VCL_CREATEID(VertexId, IndexType); // Size: n0
+		VCL_CREATEID(FaceId, IndexType);   // Size: n2
 
 	public: // Basic types
 		struct VertexMetaData
@@ -98,44 +98,36 @@ namespace Vcl { namespace Geometry {
 
 		//! Add a new property to the vertex level
 		template<typename T>
-		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty
-		(
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::reference init_value)
 		{
 			return vertexProperties().add<T>(name, init_value);
 		}
-		
+
 		//! Add a new property to the vertex level
 		template<typename T>
-		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty
-		(
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> addVertexProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::rvalue_reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TriMesh>::VertexId>::rvalue_reference init_value)
 		{
 			return vertexProperties().add<T>(name, std::move(init_value));
 		}
 
 		//! Add a new property to the face level
 		template<typename T>
-		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty
-		(
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::reference init_value)
 		{
 			return faceProperties().add<T>(name, init_value);
 		}
-		
+
 		//! Add a new property to the face level
 		template<typename T>
-		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty
-		(
+		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> addFaceProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::rvalue_reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TriMesh>::FaceId>::rvalue_reference init_value)
 		{
 			return faceProperties().add<T>(name, std::move(init_value));
 		}

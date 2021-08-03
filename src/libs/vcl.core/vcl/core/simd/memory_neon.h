@@ -38,8 +38,7 @@ namespace Vcl {
 		int idx[4];
 		vst1q_s32(idx, vindex);
 
-		float data[4] =
-		{
+		float data[4] = {
 			base[idx[0]],
 			base[idx[1]],
 			base[idx[2]],
@@ -56,21 +55,17 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const* base, const VectorScalar<int, 8>& vindex)
 	{
-		return VectorScalar<float, 8>
-		(
+		return VectorScalar<float, 8>(
 			gather(base, vindex.get(0)),
-			gather(base, vindex.get(1))
-		);
+			gather(base, vindex.get(1)));
 	}
 	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const* base, const VectorScalar<int, 16>& vindex)
 	{
-		return VectorScalar<float, 16>
-		(
+		return VectorScalar<float, 16>(
 			gather(base, vindex.get(0)),
 			gather(base, vindex.get(1)),
 			gather(base, vindex.get(2)),
-			gather(base, vindex.get(3))
-		);
+			gather(base, vindex.get(3)));
 	}
 
 	VCL_STRONG_INLINE void load(float4& value, const float* base)
@@ -84,11 +79,11 @@ namespace Vcl {
 	}
 
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
-	VCL_STRONG_INLINE void load
-	(
-		float32x4_t& x, float32x4_t& y, float32x4_t& z,
-		const Eigen::Vector3f* base
-	)
+	VCL_STRONG_INLINE void load(
+		float32x4_t& x,
+		float32x4_t& y,
+		float32x4_t& z,
+		const Eigen::Vector3f* base)
 	{
 		const float* p = base->data();
 		float32x4x3_t reg = vld3q_f32(p);
@@ -98,11 +93,12 @@ namespace Vcl {
 		z = reg.val[2];
 	}
 
-	VCL_STRONG_INLINE void load
-	(
-		float32x4_t& x, float32x4_t& y, float32x4_t& z, float32x4_t& w,
-		const Eigen::Vector4f* base
-	)
+	VCL_STRONG_INLINE void load(
+		float32x4_t& x,
+		float32x4_t& y,
+		float32x4_t& z,
+		float32x4_t& w,
+		const Eigen::Vector4f* base)
 	{
 		const float* p = base->data();
 		float32x4_t m0 = vld1q_f32(p + 0);
@@ -113,17 +109,17 @@ namespace Vcl {
 		float32x4x2_t t0 = vtrnq_f32(m0, m1);
 		float32x4x2_t t1 = vtrnq_f32(m2, m3);
 
-		x = vcombine_f32(vget_low_f32 (t0.val[0]), vget_low_f32 (t1.val[0]));
-		y = vcombine_f32(vget_low_f32 (t0.val[1]), vget_low_f32 (t1.val[1]));
+		x = vcombine_f32(vget_low_f32(t0.val[0]), vget_low_f32(t1.val[0]));
+		y = vcombine_f32(vget_low_f32(t0.val[1]), vget_low_f32(t1.val[1]));
 		z = vcombine_f32(vget_high_f32(t0.val[0]), vget_high_f32(t1.val[0]));
 		w = vcombine_f32(vget_high_f32(t0.val[1]), vget_high_f32(t1.val[1]));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const float32x4_t& x, const float32x4_t& y, const float32x4_t& z
-	)
+		const float32x4_t& x,
+		const float32x4_t& y,
+		const float32x4_t& z)
 	{
 		float* p = base->data();
 
@@ -131,11 +127,9 @@ namespace Vcl {
 		vst3q_f32(p, reg);
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float4, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		float32x4_t x0, y0, z0;
 		load(x0, y0, z0, base);
@@ -145,11 +139,9 @@ namespace Vcl {
 		loaded(2) = float4(z0);
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int4, 3, 1>& loaded,
-		const Eigen::Vector3i* base
-	)
+		const Eigen::Vector3i* base)
 	{
 		float32x4_t x0, y0, z0;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
@@ -159,11 +151,9 @@ namespace Vcl {
 		loaded(2) = int4{ vreinterpretq_s32_f32(z0) };
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float4, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		float32x4_t x0, y0, z0, w0;
 		load(x0, y0, z0, w0, base);
@@ -173,11 +163,9 @@ namespace Vcl {
 		loaded(2) = float4(z0);
 		loaded(3) = float4(w0);
 	}
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int4, 4, 1>& loaded,
-		const Eigen::Vector4i* base
-	)
+		const Eigen::Vector4i* base)
 	{
 		float32x4_t x0, y0, z0, w0;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
@@ -188,34 +176,26 @@ namespace Vcl {
 		loaded(3) = int4{ vreinterpretq_s32_f32(w0) };
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const Eigen::Matrix<float4, 3, 1>& value
-	)
+		const Eigen::Matrix<float4, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			base,
 			value(0).get(0),
 			value(1).get(0),
-			value(2).get(0)
-		);
+			value(2).get(0));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
-		const Eigen::Matrix<int4, 3, 1>& value
-	)
+		const Eigen::Matrix<int4, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base),
 			vreinterpretq_f32_s32(value(0).get(0)),
 			vreinterpretq_f32_s32(value(1).get(0)),
-			vreinterpretq_f32_s32(value(2).get(0))
-		);
+			vreinterpretq_f32_s32(value(2).get(0)));
 	}
 
 	VCL_STRONG_INLINE std::array<float4, 2> interleave(const float4& a, const float4& b) noexcept
@@ -263,8 +243,7 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
-		value = float16
-		{
+		value = float16{
 			vld1q_f32(base + 0), vld1q_f32(base + 4),
 			vld1q_f32(base + 8), vld1q_f32(base + 12)
 		};
@@ -272,53 +251,44 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE void load(int16& value, const int* base)
 	{
-		value = int16
-		{
-			vld1q_s32(base + 0), vld1q_s32(base +  4),
+		value = int16{
+			vld1q_s32(base + 0), vld1q_s32(base + 4),
 			vld1q_s32(base + 8), vld1q_s32(base + 12)
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float8, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		float32x4_t x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, base);
 		load(x1, y1, z1, base + 4);
 
-		loaded =
-		{
+		loaded = {
 			float8(x0, x1),
 			float8(y0, y1),
 			float8(z0, z1)
 		};
 	}
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int8, 3, 1>& loaded,
-		const Eigen::Vector3i* base
-	)
+		const Eigen::Vector3i* base)
 	{
 		float32x4_t x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
 		load(x1, y1, z1, reinterpret_cast<const Eigen::Vector3f*>(base) + 4);
 
-		loaded =
-		{
+		loaded = {
 			int8{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1) },
 			int8{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1) },
 			int8{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1) }
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float8, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		float32x4_t x0, x1, y0, y1, z0, z1, w0, w1;
 		load(x0, y0, z0, w0, base);
@@ -329,11 +299,9 @@ namespace Vcl {
 		loaded(2) = float8(z0, z1);
 		loaded(3) = float8(w0, w1);
 	}
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int8, 4, 1>& loaded,
-		const Eigen::Vector4i* base
-	)
+		const Eigen::Vector4i* base)
 	{
 		float32x4_t x0, x1, y0, y1, z0, z1, w0, w1;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
@@ -345,11 +313,9 @@ namespace Vcl {
 		loaded(3) = int8{ vreinterpretq_s32_f32(w0), vreinterpretq_s32_f32(w1) };
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		float32x4_t x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3;
 		load(x0, y0, z0, base);
@@ -357,19 +323,16 @@ namespace Vcl {
 		load(x2, y2, z2, base + 8);
 		load(x3, y3, z3, base + 12);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0, x1, x2, x3),
 			float16(y0, y1, y2, y3),
 			float16(z0, z1, z2, z3)
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int16, 3, 1>& loaded,
-		const Eigen::Vector3i* base
-	)
+		const Eigen::Vector3i* base)
 	{
 		float32x4_t x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
@@ -377,19 +340,16 @@ namespace Vcl {
 		load(x2, y2, z2, reinterpret_cast<const Eigen::Vector3f*>(base) + 8);
 		load(x3, y3, z3, reinterpret_cast<const Eigen::Vector3f*>(base) + 12);
 
-		loaded =
-		{
+		loaded = {
 			int16{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1), vreinterpretq_s32_f32(x2), vreinterpretq_s32_f32(x3) },
 			int16{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1), vreinterpretq_s32_f32(y2), vreinterpretq_s32_f32(y3) },
 			int16{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1), vreinterpretq_s32_f32(z2), vreinterpretq_s32_f32(z3) }
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		float32x4_t x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
 		load(x0, y0, z0, w0, base);
@@ -397,8 +357,7 @@ namespace Vcl {
 		load(x2, y2, z2, w2, base + 8);
 		load(x3, y3, z3, w3, base + 12);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0, x1, x2, x3),
 			float16(y0, y1, y2, y3),
 			float16(z0, z1, z2, z3),
@@ -406,11 +365,9 @@ namespace Vcl {
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int16, 4, 1>& loaded,
-		const Eigen::Vector4i* base
-	)
+		const Eigen::Vector4i* base)
 	{
 		float32x4_t x0, x1, x2, x3, y0, y1, y2, y3, z0, z1, z2, z3, w0, w1, w2, w3;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
@@ -418,8 +375,7 @@ namespace Vcl {
 		load(x2, y2, z2, w2, reinterpret_cast<const Eigen::Vector4f*>(base) + 8);
 		load(x3, y3, z3, w3, reinterpret_cast<const Eigen::Vector4f*>(base) + 12);
 
-		loaded =
-		{
+		loaded = {
 			int16{ vreinterpretq_s32_f32(x0), vreinterpretq_s32_f32(x1), vreinterpretq_s32_f32(x2), vreinterpretq_s32_f32(x3) },
 			int16{ vreinterpretq_s32_f32(y0), vreinterpretq_s32_f32(y1), vreinterpretq_s32_f32(y2), vreinterpretq_s32_f32(y3) },
 			int16{ vreinterpretq_s32_f32(z0), vreinterpretq_s32_f32(z1), vreinterpretq_s32_f32(z2), vreinterpretq_s32_f32(z3) },
@@ -427,87 +383,67 @@ namespace Vcl {
 		};
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const Eigen::Matrix<float8, 3, 1>& value
-	)
+		const Eigen::Matrix<float8, 3, 1>& value)
 	{
 		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0));
 		store(base + 4, value(0).get(1), value(1).get(1), value(2).get(1));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
-		const Eigen::Matrix<int8, 3, 1>& value
-	)
+		const Eigen::Matrix<int8, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 0,
 			vreinterpretq_f32_s32(value(0).get(0)),
 			vreinterpretq_f32_s32(value(1).get(0)),
-			vreinterpretq_f32_s32(value(2).get(0))
-		);
+			vreinterpretq_f32_s32(value(2).get(0)));
 
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 4,
 			vreinterpretq_f32_s32(value(0).get(1)),
 			vreinterpretq_f32_s32(value(1).get(1)),
-			vreinterpretq_f32_s32(value(2).get(1))
-		);
+			vreinterpretq_f32_s32(value(2).get(1)));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const Eigen::Matrix<float16, 3, 1>& value
-	)
+		const Eigen::Matrix<float16, 3, 1>& value)
 	{
-		store(base +  0, value(0).get(0),value(1).get(0), value(2).get(0));
-		store(base +  4, value(0).get(1),value(1).get(1), value(2).get(1));
-		store(base +  8, value(0).get(2),value(1).get(2), value(2).get(2));
-		store(base + 12, value(0).get(3),value(1).get(3), value(2).get(3));
+		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1), value(2).get(1));
+		store(base + 8, value(0).get(2), value(1).get(2), value(2).get(2));
+		store(base + 12, value(0).get(3), value(1).get(3), value(2).get(3));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
-		const Eigen::Matrix<int16, 3, 1>& value
-	)
+		const Eigen::Matrix<int16, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 0,
 			vreinterpretq_f32_s32(value(0).get(0)),
 			vreinterpretq_f32_s32(value(1).get(0)),
-			vreinterpretq_f32_s32(value(2).get(0))
-		);
+			vreinterpretq_f32_s32(value(2).get(0)));
 
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 4,
 			vreinterpretq_f32_s32(value(0).get(1)),
 			vreinterpretq_f32_s32(value(1).get(1)),
-			vreinterpretq_f32_s32(value(2).get(1))
-		);
-		store
-		(
+			vreinterpretq_f32_s32(value(2).get(1)));
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 8,
 			vreinterpretq_f32_s32(value(0).get(2)),
 			vreinterpretq_f32_s32(value(1).get(2)),
-			vreinterpretq_f32_s32(value(2).get(2))
-		);
+			vreinterpretq_f32_s32(value(2).get(2)));
 
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 12,
 			vreinterpretq_f32_s32(value(0).get(3)),
 			vreinterpretq_f32_s32(value(1).get(3)),
-			vreinterpretq_f32_s32(value(2).get(3))
-		);
+			vreinterpretq_f32_s32(value(2).get(3)));
 	}
 #endif // defined VCL_VECTORIZE_NEON
 }

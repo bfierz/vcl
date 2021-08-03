@@ -52,30 +52,30 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = _mm_movemask_ps(b.get(3)) << 12;
-			mask |= _mm_movemask_ps(b.get(2)) <<  8;
-			mask |= _mm_movemask_ps(b.get(1)) <<  4;
-			mask |= _mm_movemask_ps(b.get(0));
+		int mask = _mm_movemask_ps(b.get(3)) << 12;
+		mask |= _mm_movemask_ps(b.get(2)) << 8;
+		mask |= _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = _mm_movemask_ps(b.get(3)) << 12;
-			mask |= _mm_movemask_ps(b.get(2)) <<  8;
-			mask |= _mm_movemask_ps(b.get(1)) <<  4;
-			mask |= _mm_movemask_ps(b.get(0));
+		int mask = _mm_movemask_ps(b.get(3)) << 12;
+		mask |= _mm_movemask_ps(b.get(2)) << 8;
+		mask |= _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = _mm_movemask_ps(b.get(3)) << 12;
-			mask |= _mm_movemask_ps(b.get(2)) <<  8;
-			mask |= _mm_movemask_ps(b.get(1)) <<  4;
-			mask |= _mm_movemask_ps(b.get(0));
+		int mask = _mm_movemask_ps(b.get(3)) << 12;
+		mask |= _mm_movemask_ps(b.get(2)) << 8;
+		mask |= _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

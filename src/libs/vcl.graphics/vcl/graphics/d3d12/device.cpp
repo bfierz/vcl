@@ -130,8 +130,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			//D3D12_MESSAGE_CATEGORY Categories[] = {};
 
 			// Suppress messages based on their severity level
-			D3D12_MESSAGE_SEVERITY Severities[] =
-			{
+			D3D12_MESSAGE_SEVERITY Severities[] = {
 				D3D12_MESSAGE_SEVERITY_INFO
 			};
 

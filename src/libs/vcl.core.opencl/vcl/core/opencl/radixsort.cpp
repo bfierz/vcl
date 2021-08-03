@@ -37,8 +37,7 @@ namespace Vcl { namespace Core { namespace OpenCL {
 	: _ownerCtx(ctx)
 	, _scan(ctx, maxElements / 2 / LocalSize * 16)
 	{
-		unsigned int numBlocks = ((maxElements % (LocalSize * 4)) == 0) ?
-			(maxElements / (LocalSize * 4)) : (maxElements / (LocalSize * 4) + 1);
+		unsigned int numBlocks = ((maxElements % (LocalSize * 4)) == 0) ? (maxElements / (LocalSize * 4)) : (maxElements / (LocalSize * 4) + 1);
 
 		_tmpKeys = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, sizeof(unsigned int) * maxElements);
 		_counters = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, WarpSize * numBlocks * sizeof(unsigned int));
@@ -47,7 +46,7 @@ namespace Vcl { namespace Core { namespace OpenCL {
 
 		// Load the module
 		_radixSortModule = ctx->createModuleFromSource(reinterpret_cast<const int8_t*>(RadixSortCL), RadixSortCLSize * sizeof(uint32_t));
-			
+
 		if (_radixSortModule)
 		{
 			// Load the sorting kernels

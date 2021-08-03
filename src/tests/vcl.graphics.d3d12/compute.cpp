@@ -61,15 +61,16 @@ TEST(D3D12Compute, Saxpy)
 	using namespace Vcl::Graphics::D3D12;
 
 	D3D12::Shader cs(ShaderType::ComputeShader, 0, SaxpyCsoCS);
-	
-	std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-	{
+
+	// clang-format off
+	std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
 		{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 3}, D3D12_SHADER_VISIBILITY_ALL },
 		{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND },
+			{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND }
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 	};
+	// clang-format on
 
 	DescriptorTableLayout table_layout{ device.get(), std::move(dynamic_resources), {} };
 	auto signature = table_layout.rootSignature();

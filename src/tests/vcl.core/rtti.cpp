@@ -236,6 +236,7 @@ private:
 	std::unique_ptr<BaseObject> _ownedObj;
 };
 
+// clang-format off
 VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 	Vcl::RTTI::Constructor<BaseObject>(),
 	Vcl::RTTI::Constructor<BaseObject, const char*>(Vcl::RTTI::Parameter<const char*>("Name"))
@@ -272,6 +273,7 @@ VCL_DEFINE_METAOBJECT(DerivedObject)
 	VCL_RTTI_REGISTER_CTORS(DerivedObject);
 	VCL_RTTI_REGISTER_ATTRS(DerivedObject);
 }
+// clang-format on
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -299,17 +301,15 @@ TEST(RttiTest, MultiParamConstructor)
 	using namespace Vcl::RTTI;
 
 	// Defines a default ctor
-	Constructor<DerivedObject, int> def_constr_a
-	{
+	Constructor<DerivedObject, int> def_constr_a{
 		Parameter<int>("a")
 	};
-	Constructor<DerivedObject, int, int> def_constr_a_b
-	{
+	Constructor<DerivedObject, int, int> def_constr_a_b{
 		Parameter<int>("a"), Parameter<int>("b")
 	};
 
 	// Allocate memory for the test object
-	auto obj_a   = (DerivedObject*)malloc(sizeof(DerivedObject));
+	auto obj_a = (DerivedObject*)malloc(sizeof(DerivedObject));
 	auto obj_a_b = (DerivedObject*)malloc(sizeof(DerivedObject));
 
 	// Calls the default ctor
@@ -332,8 +332,7 @@ TEST(RttiTest, SimpleConstructor)
 	using namespace Vcl::RTTI;
 
 	// Defines a default ctor
-	Constructor<BaseObject, const char*> def_constr
-	{
+	Constructor<BaseObject, const char*> def_constr{
 		Parameter<const char*>("Name")
 	};
 
@@ -487,18 +486,13 @@ TEST(RttiTest, SimpleObjectSerialization)
 TEST(RttiTest, SimpleObjectDeserialization)
 {
 	using namespace Vcl::RTTI;
-	
+
 	// Serialize
-	json storage = 
-	{
-		{"Type", "BaseObject"},
-		{"Version", 1},
-		{
-			"Attributes", 
-			{
-				{"Name", "Loaded"}
-			}
-		}
+	json storage = {
+		{ "Type", "BaseObject" },
+		{ "Version", 1 },
+		{ "Attributes",
+		  { { "Name", "Loaded" } } }
 	};
 	::Deserializer loader(storage);
 	loader.beginType("");
@@ -536,29 +530,16 @@ TEST(RttiTest, ComplexObjectDeserialization)
 	using namespace Vcl::RTTI;
 
 	// Serialize
-	json storage =
-	{
+	json storage = {
 		{ "Type", "DerivedObject" },
 		{ "Version", 1 },
-		{
-			"Attributes",
-			{
-				{ "Name", "OuterLoaded" },
-				{
-					"OwnedMember", 
-					{
-						{ "Type", "BaseObject" },
-						{ "Version", 1 },
-						{
-							"Attributes",
-							{
-								{ "Name", "Loaded" }
-							}
-						}
-					}
-				}
-			}
-		}
+		{ "Attributes",
+		  { { "Name", "OuterLoaded" },
+			{ "OwnedMember",
+			  { { "Type", "BaseObject" },
+				{ "Version", 1 },
+				{ "Attributes",
+				  { { "Name", "Loaded" } } } } } } }
 	};
 	::Deserializer loader(storage);
 

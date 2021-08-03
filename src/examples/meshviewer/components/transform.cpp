@@ -28,6 +28,7 @@
 #include <vcl/rtti/attribute.h>
 #include <vcl/rtti/constructor.h>
 
+// clang-format off
 VCL_RTTI_CTOR_TABLE_BEGIN(Transform)
 	Vcl::RTTI::Constructor<System::Components::Transform, Eigen::Matrix4f>(Vcl::RTTI::Parameter<Eigen::Matrix4f>("InitialTransform"))
 VCL_RTTI_CTOR_TABLE_END(Transform)
@@ -41,6 +42,7 @@ VCL_DEFINE_METAOBJECT(System::Components::Transform)
 	type->registerConstructors(Transform_constructor_bases);
 	type->registerAttributes(Transform_attribute_bases);
 }
+// clang-format on
 
 namespace System { namespace Components {
 	Transform::Transform(const Eigen::Matrix4f& initial)

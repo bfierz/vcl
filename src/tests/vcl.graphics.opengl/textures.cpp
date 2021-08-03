@@ -40,12 +40,13 @@
 
 std::vector<unsigned char> createTestPattern(int width, int height, int depth)
 {
-	std::array<unsigned char, 12> pattern =
-	{
+	// clang-format off
+	std::array<unsigned char, 12> pattern = {
 		0xff, 0x00, 0x00, 0xff,
 		0x00, 0xff, 0x00, 0xff,
 		0x00, 0x00, 0xff, 0xff,
 	};
+	// clang-format on
 
 	std::vector<unsigned char> image;
 	image.reserve(width * height * depth * 4);

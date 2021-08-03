@@ -37,8 +37,7 @@ namespace Vcl { namespace Geometry {
 
 		for (size_t i = 0; i < faces.size(); ++i)
 		{
-			Face f
-			{
+			Face f{
 				VertexId{ faces[i][0] },
 				VertexId{ faces[i][1] },
 				VertexId{ faces[i][2] }

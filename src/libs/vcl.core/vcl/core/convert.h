@@ -94,26 +94,30 @@ namespace Vcl {
 	{
 		return std::to_string(value);
 	}
-	
+
 	template<>
 	inline Eigen::Vector2f from_string<Eigen::Vector2f>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
 		const float v0 = std::stof(value, &next);      pos += next;
 		const float v1 = std::stof(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector2f(v0, v1);
 	}
-	
+
 	template<>
 	inline Eigen::Vector3f from_string<Eigen::Vector3f>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
 		const float v0 = std::stof(value, &next);             pos += next;
 		const float v1 = std::stof(value.substr(pos), &next); pos += next;
 		const float v2 = std::stof(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector3f(v0, v1, v2);
 	}
@@ -121,35 +125,41 @@ namespace Vcl {
 	template<>
 	inline Eigen::Vector4f from_string<Eigen::Vector4f>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
 		const float v0 = std::stof(value, &next);             pos += next;
 		const float v1 = std::stof(value.substr(pos), &next); pos += next;
 		const float v2 = std::stof(value.substr(pos), &next); pos += next;
 		const float v3 = std::stof(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector4f(v0, v1, v2, v3);
 	}
-	
+
 	template<>
 	inline Eigen::Vector2ui from_string<Eigen::Vector2ui>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
 		const unsigned int v0 = std::stoul(value, &next);      pos += next;
 		const unsigned int v1 = std::stoul(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector2ui(v0, v1);
 	}
-	
+
 	template<>
 	inline Eigen::Vector3ui from_string<Eigen::Vector3ui>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
 		const unsigned int v0 = std::stoul(value, &next);             pos += next;
 		const unsigned int v1 = std::stoul(value.substr(pos), &next); pos += next;
 		const unsigned int v2 = std::stoul(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector3ui(v0, v1, v2);
 	}
@@ -157,12 +167,14 @@ namespace Vcl {
 	template<>
 	inline Eigen::Vector4ui from_string<Eigen::Vector4ui>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos  = 0;
 		size_t next = 0;
-		const unsigned int v0 = std::stoul(value, &next);               pos += next;
-		const unsigned int v1 = std::stoul(value.substr(pos), &next);	pos += next;
-		const unsigned int v2 = std::stoul(value.substr(pos), &next);	pos += next;
+		const unsigned int v0 = std::stoul(value, &next);             pos += next;
+		const unsigned int v1 = std::stoul(value.substr(pos), &next); pos += next;
+		const unsigned int v2 = std::stoul(value.substr(pos), &next); pos += next;
 		const unsigned int v3 = std::stoul(value.substr(pos));
+		// clang-format on
 
 		return Eigen::Vector4ui(v0, v1, v2, v3);
 	}
@@ -170,6 +182,7 @@ namespace Vcl {
 	template<>
 	inline Eigen::Matrix3f from_string<Eigen::Matrix3f>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos = 0;
 		size_t next = 0;
 		const float v00 = std::stof(value, &next);             pos += next;
@@ -183,6 +196,7 @@ namespace Vcl {
 		const float v02 = std::stof(value.substr(pos), &next); pos += next;
 		const float v12 = std::stof(value.substr(pos), &next); pos += next;
 		const float v22 = std::stof(value.substr(pos));
+		// clang-format on
 
 		Eigen::Matrix3f M;
 		M.col(0) << v00, v10, v20;
@@ -206,6 +220,7 @@ namespace Vcl {
 	template<>
 	inline Eigen::Matrix4f from_string<Eigen::Matrix4f>(const std::string& value)
 	{
+		// clang-format off
 		size_t pos = 0;
 		size_t next = 0;
 		const float v00 = std::stof(value, &next);             pos += next;
@@ -227,6 +242,7 @@ namespace Vcl {
 		const float v13 = std::stof(value.substr(pos), &next); pos += next;
 		const float v23 = std::stof(value.substr(pos), &next); pos += next;
 		const float v33 = std::stof(value.substr(pos));
+		// clang-format on
 
 		Eigen::Matrix4f M;
 		M.col(0) << v00, v10, v20, v30;

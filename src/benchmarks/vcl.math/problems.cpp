@@ -47,8 +47,8 @@ void createRandomProblems(
 		// Rest-state
 		Eigen::Matrix3f M;
 		M << d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 		F.at<float>(i) = M;
 
 		if (R)
@@ -74,8 +74,8 @@ void createSymmetricProblems(
 		// Rest-state
 		Eigen::Matrix3f M;
 		M << d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 		Eigen::Matrix3f MtM = M.transpose() * M;
 		F.at<float>(i) = MtM;
 
@@ -105,8 +105,8 @@ void createRotationProblems(
 		// Rest-state
 		Eigen::Matrix3f X0;
 		X0 << d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 
 		// Rotation angle
 		float angle = a(rng);

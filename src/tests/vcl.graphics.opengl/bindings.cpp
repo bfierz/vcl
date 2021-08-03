@@ -37,7 +37,7 @@
 
 // Tests the shader compilation
 const char* MaxBindingsVS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in vec2 Position;
@@ -65,7 +65,7 @@ void main()
 )";
 
 const char* MaxBindingsFS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in PerVertexData

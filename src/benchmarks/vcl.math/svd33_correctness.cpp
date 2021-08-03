@@ -230,9 +230,10 @@ void checkSolution(
 
 int main(int, char**)
 {
-	using Vcl::float16;
+	// clang-format off
 	using Vcl::float4;
 	using Vcl::float8;
+	using Vcl::float16;
 	using Vcl::Mathematics::McAdamsJacobiSVD;
 	using Vcl::Mathematics::QRJacobiSVD;
 	using Vcl::Mathematics::TwoSidedJacobiSVD;
@@ -285,13 +286,15 @@ int main(int, char**)
 #ifdef VCL_VECTORIZE_AVX
 	auto mcadams_float8  = static_cast<ComputeSvdFloat8>(McAdamsJacobiSVD);
 	computeSolution<float8> (nr_problems, mcadams_float8,  F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_VECTORIZE_AVX
+#endif
 
 #ifdef VCL_CUDA_SUPPORT
 	cudaMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - CUDA", "cuda_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_CUDA_SUPPORT
+#endif
 
 #ifdef VCL_OPENCL_SUPPORT
 	openCLMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - OpenCL", "opencl_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_OPENCL_SUPPORT
+#endif
+
+	// clang-format on
 }

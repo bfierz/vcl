@@ -51,12 +51,12 @@ namespace Vcl {
 		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 2)
 
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mmVCL_cmpeq_epi32,  2)
+		VCL_SIMD_COMP_OP(operator==, _mmVCL_cmpeq_epi32, 2)
 		VCL_SIMD_COMP_OP(operator!=, _mmVCL_cmpneq_epi32, 2)
-		VCL_SIMD_COMP_OP(operator<,  _mmVCL_cmplt_epi32,  2)
-		VCL_SIMD_COMP_OP(operator<=, _mmVCL_cmple_epi32,  2)
-		VCL_SIMD_COMP_OP(operator>,  _mmVCL_cmpgt_epi32,  2)
-		VCL_SIMD_COMP_OP(operator>=, _mmVCL_cmpge_epi32,  2)
+		VCL_SIMD_COMP_OP(operator<, _mmVCL_cmplt_epi32, 2)
+		VCL_SIMD_COMP_OP(operator<=, _mmVCL_cmple_epi32, 2)
+		VCL_SIMD_COMP_OP(operator>, _mmVCL_cmpgt_epi32, 2)
+		VCL_SIMD_COMP_OP(operator>=, _mmVCL_cmpge_epi32, 2)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, _mmVCL_abs_epi32, 2)
@@ -71,23 +71,21 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b) noexcept
 	{
-		return VectorScalar<int, 16>
-		(
+		return VectorScalar<int, 16>(
 			_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))),
-			_mmVCL_xor_si256(b.get(1), _mmVCL_and_si256(_mm256_castps_si256(mask.get(1)), _mmVCL_xor_si256(b.get(1), a.get(1))))
-		);
+			_mmVCL_xor_si256(b.get(1), _mmVCL_and_si256(_mm256_castps_si256(mask.get(1)), _mmVCL_xor_si256(b.get(1), a.get(1)))));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(32) int vars[16];
 		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 0), rhs.get(0));
 		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 8), rhs.get(1));
 
-		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3] << ", "
-				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7] << ", "
-				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11] << ", "
-				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << ", "
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << ", "
+		  << vars[8] << ", " << vars[9] << ", " << vars[10] << ", " << vars[11] << ", "
+		  << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
 	}

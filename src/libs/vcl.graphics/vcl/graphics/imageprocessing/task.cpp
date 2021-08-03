@@ -39,14 +39,14 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 		_inputSlots.reserve(_desc.Inputs.size());
 		for (unsigned int i = 0; i < _desc.Inputs.size(); i++)
 		{
-		//	if (_desc.Inputs[i].Type == InputSlotType::Task)
-		//	{
-		//		_inputSlots.push_back(std::make_unique<FilterInputSlot>(_desc.Inputs[i].Name)));
-		//	}
-		//	else if (_desc.Inputs[i].Type == InputSlotType::Resource)
-		//	{
-		//		_inputSlots.push_back(std::make_unique<ResourceInputSlot>(_desc.Inputs[i].Name)));
-		//	}
+			//if (_desc.Inputs[i].Type == InputSlotType::Task)
+			//{
+			//	_inputSlots.push_back(std::make_unique<FilterInputSlot>(_desc.Inputs[i].Name)));
+			//}
+			//else if (_desc.Inputs[i].Type == InputSlotType::Resource)
+			//{
+			//	_inputSlots.push_back(std::make_unique<ResourceInputSlot>(_desc.Inputs[i].Name)));
+			//}
 			_inputSlots.push_back(std::make_unique<InputSlot>(_desc.Inputs[i].Name, this));
 		}
 
@@ -93,7 +93,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 				if (outputSlot(i)->resource() && w <= outputSlot(i)->resource()->width() && h <= outputSlot(i)->resource()->height())
 					needs_new_image = false;
 			}
-			else */if (nrInputSlots() > 0 && inputSlot(0)->resource())
+			else */
+			if (nrInputSlots() > 0 && inputSlot(0)->resource())
 			{
 				w = inputSlot(0)->width();
 				h = inputSlot(0)->height();

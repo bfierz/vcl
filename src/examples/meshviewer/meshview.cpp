@@ -132,31 +132,21 @@ FboRenderer::FboRenderer()
 			{ "PlaneEquation", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0 },
 		}
 	};
-	
-	InputLayoutDescription opaqueTriLayout =
-	{
-		{
-			{ 0, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
-			{ 1, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
-			{ 2, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
-		},
-		{
-			{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
-			{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0 },
-			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0 }
-		}
+
+	InputLayoutDescription opaqueTriLayout = {
+		{ { 0, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+		  { 1, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+		  { 2, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject } },
+		{ { "Index0", SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
+		  { "Index1", SurfaceFormat::R32G32B32_SINT, 0, 1, 0 },
+		  { "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0 } }
 	};
-	
-	InputLayoutDescription opaqueTetraLayout =
-	{
-		{
-			{ 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
-			{ 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
-		},
-		{
-			{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
-			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
-		}
+
+	InputLayoutDescription opaqueTetraLayout = {
+		{ { 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
+		  { 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject } },
+		{ { "Index", SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
+		  { "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 } }
 	};
 
 	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/debug/boundinggrid.vert");

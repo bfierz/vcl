@@ -39,7 +39,8 @@ namespace Vcl { namespace Geometry {
 
 	public:
 		GenericId() = default;
-		explicit GenericId(T id) : _id(id) {}
+		explicit GenericId(T id)
+		: _id(id) {}
 		GenericId(const GenericId<Derived, T>& other) = default;
 
 	public:
@@ -86,4 +87,10 @@ namespace Vcl { namespace Geometry {
 }}
 
 // Instantiate a generic, typed ID
-#define VCL_CREATEID(type_name, idx_type_name) class type_name : public Vcl::Geometry::GenericId<type_name, idx_type_name> { public: type_name(){} explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {}}
+#define VCL_CREATEID(type_name, idx_type_name)                                            \
+	class type_name : public Vcl::Geometry::GenericId<type_name, idx_type_name>           \
+	{                                                                                     \
+	public:                                                                               \
+		type_name() {}                                                                    \
+		explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {} \
+	}

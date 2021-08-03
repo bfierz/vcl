@@ -47,9 +47,8 @@ namespace Vcl { namespace Compute { namespace OpenCL {
 
 		// Create context without graphics bindings
 		{
-			cl_context_properties props [] =
-			{
-				CL_CONTEXT_PLATFORM, (cl_context_properties) platform, // OpenCL platform
+			cl_context_properties props[] = {
+				CL_CONTEXT_PLATFORM, (cl_context_properties)platform, // OpenCL platform
 				0
 			};
 

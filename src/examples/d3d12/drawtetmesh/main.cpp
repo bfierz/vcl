@@ -152,16 +152,18 @@ private:
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources =
-		{
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
 			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 2}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 		};
+		// clang-format on
+
 		_tetToTriMeshCtx.TableLayoutCompute = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
 		_tetToTriMeshCtx.TableCompute = std::make_unique<DescriptorTable>(device(), _tetToTriMeshCtx.TableLayoutCompute.get());
 		_tetToTriMeshCtx.TableCompute->addResource(0, _tetMeshIndices.get(), 0, 4 * _mesh->nrVolumes(), sizeof(int));
@@ -174,9 +176,8 @@ private:
 		cpsd.ComputeShader = &tet_to_tri_mesh_cs;
 		_tetToTriMeshCtx.TetToTriMeshPS = std::make_unique<ComputePipelineState>(device(), cpsd, _tetToTriMeshCtx.TableLayoutCompute.get());
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_VERTEX }
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX }
 		};
 		_tetToTriMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
 
@@ -218,13 +219,15 @@ private:
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources =
-		{
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
 			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 		};
+		// clang-format on
+
 		_directTetMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
 		_directTetMeshCtx.TableGraphics = std::make_unique<DescriptorTable>(device(), _directTetMeshCtx.TableLayoutGraphics.get());
 		_directTetMeshCtx.TableGraphics->addResource(0, _tetMeshVertices.get(), 0, _mesh->nrVertices(), sizeof(TetraMesh::Vertex));

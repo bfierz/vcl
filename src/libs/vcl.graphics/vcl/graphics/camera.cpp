@@ -166,14 +166,12 @@ namespace Vcl { namespace Graphics {
 	{
 		if (_changedProjection)
 		{
-			_projection = 
-				_factory->createPerspectiveFov
-				(
+			_projection =
+				_factory->createPerspectiveFov(
 					_nearPlane, _farPlane,
-					(float) _viewportX / (float) _viewportY,
+					(float)_viewportX / (float)_viewportY,
 					_fov / nonLinearZoom(),
-					Handedness::RightHanded
-				);
+					Handedness::RightHanded);
 			_changedProjection = false;
 		}
 
@@ -185,13 +183,11 @@ namespace Vcl { namespace Graphics {
 		if (_changedView)
 		{
 			_view =
-				_factory->createLookAt
-				(
+				_factory->createLookAt(
 					position(),
 					direction(),
 					up(),
-					Handedness::RightHanded
-				);
+					Handedness::RightHanded);
 			_changedView = false;
 		}
 

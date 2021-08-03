@@ -26,8 +26,8 @@
 // C++ standard library
 #include <cstddef>
 
-float liver_766_points[] =
-{
+// clang-format off
+float liver_766_points[] = {
 	6.33635f, 11.4657f, 5.04827f,
 	6.39273f, 12.589f, 4.92584f,
 	6.42096f, 14.6492f, 5.24788f,
@@ -289,8 +289,7 @@ float liver_766_points[] =
 };
 std::size_t num_liver_766_points = sizeof(liver_766_points) / sizeof(float);
 
-int liver_766_faces[] =
-{
+int liver_766_faces[] = {
 	202, 201, 194,
 	147, 188, 144,
 	181, 163, 160,
@@ -709,3 +708,4 @@ int liver_766_faces[] =
 	118, 133, 131,
 };
 std::size_t num_liver_766_faces = sizeof(liver_766_faces) / sizeof(int);
+// clang-format on

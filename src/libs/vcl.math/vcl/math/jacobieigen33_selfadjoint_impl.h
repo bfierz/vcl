@@ -51,7 +51,8 @@ namespace Vcl { namespace Mathematics {
 #endif // VCL_COMPILER_MSVC
 
 	template<typename T>
-	struct JacobiTraits {};
+	struct JacobiTraits
+	{};
 
 	template<>
 	struct JacobiTraits<float>

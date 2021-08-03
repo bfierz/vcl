@@ -101,22 +101,19 @@
 #endif
 
 // Identify system ABI
-#if defined VCL_COMPILER_ICC \
- || defined VCL_COMPILER_MSVC \
- || defined VCL_COMPILER_CLANG \
- || defined VCL_COMPILER_GNU
+#if defined VCL_COMPILER_ICC || defined VCL_COMPILER_MSVC || defined VCL_COMPILER_CLANG || defined VCL_COMPILER_GNU
 #	if defined(_WIN32)
 #		define VCL_ABI_WINAPI
 #		if defined(_WIN64)
 #			define VCL_ABI_WIN64
 #		else
 #			define VCL_ABI_WIN32
-#		endif // _WIN64
-#	endif // _WIN32
+#		endif
+#	endif
 
 #	if defined(__unix) && __unix == 1
 #		define VCL_ABI_POSIX
-#	endif // __unix
+#	endif
 #endif
 
 // Identify CPU instruction set
@@ -198,20 +195,18 @@
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
-#if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER)
-#   if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
-#       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T)  && \
-		   !defined(__DEFINED_max_align_t)
-			typedef struct {
-			long long __clang_max_align_nonce1
-				__attribute__((__aligned__(__alignof__(long long))));
-			long double __clang_max_align_nonce2
-				__attribute__((__aligned__(__alignof__(long double))));
-			} max_align_t;
-#			define __DEFINED_max_align_t
-#       endif
-#   endif
-#endif
+#	if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER)
+#		if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
+#			if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T) && !defined(__DEFINED_max_align_t)
+typedef struct
+{
+	long long __clang_max_align_nonce1 __attribute__((__aligned__(__alignof__(long long))));
+	long double __clang_max_align_nonce2 __attribute__((__aligned__(__alignof__(long double))));
+} max_align_t;
+#				define __DEFINED_max_align_t
+#			endif
+#		endif
+#	endif
 
 #elif defined(VCL_COMPILER_ICC)
 
@@ -236,7 +231,6 @@
 #		if defined alignof
 #			undef alignof
 #		endif
-//#		define alignof(x) __alignof(decltype(*static_cast<std::remove_reference<std::remove_pointer<(x)>::type>::type*>(0)))
 #		define alignof(x) __alignof(x)
 
 #		define alignas(x) __declspec(align(x))
@@ -387,13 +381,13 @@
 #	endif
 
 #	if defined VCL_VECTORIZE_AVX
-		extern "C"
-		{
-#			include <immintrin.h>
-		}
+extern "C"
+{
+#		include <immintrin.h>
+}
 #	elif defined(VCL_VECTORIZE_SSE)
-		extern "C"
-		{
+extern "C"
+{
 #		ifdef VCL_VECTORIZE_SSE4_2
 #			include <nmmintrin.h>
 #		elif defined VCL_VECTORIZE_SSE4_1
@@ -407,7 +401,7 @@
 #			include <xmmintrin.h>
 #			include <mmintrin.h>
 #		endif
-		}
+}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
 #elif (defined(VCL_ARCH_ARM) || defined(VCL_ARCH_ARM64)) && defined VCL_VECTORIZE_NEON

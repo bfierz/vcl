@@ -31,27 +31,27 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class FillModeMethod
 	{
 		Wireframe = 2,
-		Solid     = 3 
+		Solid = 3
 	};
 
 	enum class CullModeMethod
 	{
-		None  = 1,
+		None = 1,
 		Front = 2,
-		Back  = 3 
+		Back = 3
 	};
 
 	struct RasterizerDescription
 	{
 		FillModeMethod FillMode{ FillModeMethod::Solid };
 		CullModeMethod CullMode{ CullModeMethod::Back };
-		bool     FrontCounterClockwise{ true };
-		int      DepthBias{ 0 };
-		float    SlopeScaledDepthBias{ 0.0f };
-		float    DepthBiasClamp{ 0.0f };
-		bool     DepthClipEnable{ true };
-		bool     ScissorEnable{ false };
-		bool     MultisampleEnable{ false };
-		bool     AntialiasedLineEnable{ false };
+		bool FrontCounterClockwise{ true };
+		int DepthBias{ 0 };
+		float SlopeScaledDepthBias{ 0.0f };
+		float DepthBiasClamp{ 0.0f };
+		bool DepthClipEnable{ true };
+		bool ScissorEnable{ false };
+		bool MultisampleEnable{ false };
+		bool AntialiasedLineEnable{ false };
 	};
 }}}

@@ -203,11 +203,15 @@ namespace Vcl { namespace Core { namespace Simd {
 		{
 			return _mm256_set1_ps(s0);
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		) noexcept
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7) noexcept
 		{
 			return _mm256_set_ps(s7, s6, s5, s4, s3, s2, s1, s0);
 		}
@@ -231,11 +235,15 @@ namespace Vcl { namespace Core { namespace Simd {
 		{
 			return _mm256_set1_epi32(s0);
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		) noexcept
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7) noexcept
 		{
 			return _mm256_set_epi32(s7, s6, s5, s4, s3, s2, s1, s0);
 		}
@@ -260,11 +268,15 @@ namespace Vcl { namespace Core { namespace Simd {
 			const int m0 = s0 ? -1 : 0;
 			return _mm256_castsi256_ps(_mm256_set1_epi32(m0));
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar s0, Scalar s1, Scalar s2, Scalar s3,
-			Scalar s4, Scalar s5, Scalar s6, Scalar s7
-		) noexcept
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7) noexcept
 		{
 			const int m0 = s0 ? -1 : 0;
 			const int m1 = s1 ? -1 : 0;
@@ -299,13 +311,23 @@ namespace Vcl { namespace Core { namespace Simd {
 		{
 			return _mm512_set1_ps(s0);
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
-			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
-			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
-			Scalar s12, Scalar s13, Scalar s14, Scalar s15
-		)
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7,
+			Scalar s8,
+			Scalar s9,
+			Scalar s10,
+			Scalar s11,
+			Scalar s12,
+			Scalar s13,
+			Scalar s14,
+			Scalar s15)
 		{
 			return _mm512_set_ps(s15, s14, s13, s12, s11, s10, s9, s8, s7, s6, s5, s4, s3, s2, s1, s0);
 		}
@@ -329,13 +351,23 @@ namespace Vcl { namespace Core { namespace Simd {
 		{
 			return _mm512_set1_epi32(s0);
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
-			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
-			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
-			Scalar s12, Scalar s13, Scalar s14, Scalar s15
-		)
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7,
+			Scalar s8,
+			Scalar s9,
+			Scalar s10,
+			Scalar s11,
+			Scalar s12,
+			Scalar s13,
+			Scalar s14,
+			Scalar s15)
 		{
 			return _mm512_set_epi32(s15, s14, s13, s12, s11, s10, s9, s8, s7, s6, s5, s4, s3, s2, s1, s0);
 		}
@@ -360,25 +392,35 @@ namespace Vcl { namespace Core { namespace Simd {
 			const unsigned int mask = s0 ? 0xffffffff : 0;
 			return _cvtu32_mask16(mask);
 		}
-		VCL_STRONG_INLINE static Type set
-		(
-			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
-			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
-			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
-			Scalar s12, Scalar s13, Scalar s14, Scalar s15
-		)
+		VCL_STRONG_INLINE static Type set(
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7,
+			Scalar s8,
+			Scalar s9,
+			Scalar s10,
+			Scalar s11,
+			Scalar s12,
+			Scalar s13,
+			Scalar s14,
+			Scalar s15)
 		{
 			unsigned int mask = 0;
-			mask |= s0  ? 1 <<  0 : 0;
-			mask |= s1  ? 1 <<  1 : 0;
-			mask |= s2  ? 1 <<  2 : 0;
-			mask |= s3  ? 1 <<  3 : 0;
-			mask |= s4  ? 1 <<  4 : 0;
-			mask |= s5  ? 1 <<  5 : 0;
-			mask |= s6  ? 1 <<  6 : 0;
-			mask |= s7  ? 1 <<  7 : 0;
-			mask |= s8  ? 1 <<  8 : 0;
-			mask |= s9  ? 1 <<  9 : 0;
+			mask |= s0 ? 1 << 0 : 0;
+			mask |= s1 ? 1 << 1 : 0;
+			mask |= s2 ? 1 << 2 : 0;
+			mask |= s3 ? 1 << 3 : 0;
+			mask |= s4 ? 1 << 4 : 0;
+			mask |= s5 ? 1 << 5 : 0;
+			mask |= s6 ? 1 << 6 : 0;
+			mask |= s7 ? 1 << 7 : 0;
+			mask |= s8 ? 1 << 8 : 0;
+			mask |= s9 ? 1 << 9 : 0;
 			mask |= s10 ? 1 << 10 : 0;
 			mask |= s11 ? 1 << 11 : 0;
 			mask |= s12 ? 1 << 12 : 0;
@@ -533,7 +575,7 @@ namespace Vcl { namespace Core { namespace Simd {
 			VclRequire(0 <= i && i < NrRegs, "Access is in range.");
 			return _data[i];
 		}
-		VCL_STRONG_INLINE Scalar operator[] (int idx) const noexcept
+		VCL_STRONG_INLINE Scalar operator[](int idx) const noexcept
 		{
 			VclRequire(0 <= idx && idx < Width, "Access is in range.");
 			return SimdRegister<Scalar, Type>::get(get(idx / NrValuesPerReg), idx % NrValuesPerReg);
@@ -560,7 +602,7 @@ namespace Vcl { namespace Core { namespace Simd {
 		//! Assignment operator
 		//! Define a custom assignment in order to support the compiler generating
 		//! SIMD instructions for copying data
-		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator= (const VectorScalarBase<Scalar, Width, Type>& rhs) noexcept
+		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator=(const VectorScalarBase<Scalar, Width, Type>& rhs) noexcept
 		{
 			set(rhs._data, absl::make_index_sequence<NrRegs>{});
 			return *this;
@@ -580,7 +622,7 @@ namespace Vcl { namespace Core { namespace Simd {
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<4> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3);
-			setImpl(tag, i+1, vals...);
+			setImpl(tag, i + 1, vals...);
 		}
 
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8>, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7) noexcept
@@ -592,34 +634,56 @@ namespace Vcl { namespace Core { namespace Simd {
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<8> tag, int i, Scalar s0, Scalar s1, Scalar s2, Scalar s3, Scalar s4, Scalar s5, Scalar s6, Scalar s7, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7);
-			setImpl(tag, i+1, vals...);
+			setImpl(tag, i + 1, vals...);
 		}
 
-		VCL_STRONG_INLINE void setImpl
-		(
-			SimdWidthTag<16>, int i,
-			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
-			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
-			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
-			Scalar s12, Scalar s13, Scalar s14, Scalar s15
-		)
+		VCL_STRONG_INLINE void setImpl(
+			SimdWidthTag<16>,
+			int i,
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7,
+			Scalar s8,
+			Scalar s9,
+			Scalar s10,
+			Scalar s11,
+			Scalar s12,
+			Scalar s13,
+			Scalar s14,
+			Scalar s15)
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
 		}
 
 		template<typename... T>
-		VCL_STRONG_INLINE void setImpl
-		(
-			SimdWidthTag<16> tag, int i,
-			Scalar  s0, Scalar  s1, Scalar  s2, Scalar  s3,
-			Scalar  s4, Scalar  s5, Scalar  s6, Scalar  s7,
-			Scalar  s8, Scalar  s9, Scalar s10, Scalar s11,
-			Scalar s12, Scalar s13, Scalar s14, Scalar s15,
-			T... vals
-		)
+		VCL_STRONG_INLINE void setImpl(
+			SimdWidthTag<16> tag,
+			int i,
+			Scalar s0,
+			Scalar s1,
+			Scalar s2,
+			Scalar s3,
+			Scalar s4,
+			Scalar s5,
+			Scalar s6,
+			Scalar s7,
+			Scalar s8,
+			Scalar s9,
+			Scalar s10,
+			Scalar s11,
+			Scalar s12,
+			Scalar s13,
+			Scalar s14,
+			Scalar s15,
+			T... vals)
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11, s12, s13, s14, s15);
-			setImpl(tag, i+1, vals...);
+			setImpl(tag, i + 1, vals...);
 		}
 
 		template<int W>
@@ -632,12 +696,11 @@ namespace Vcl { namespace Core { namespace Simd {
 		VCL_STRONG_INLINE void setImpl(SimdWidthTag<W> tag, int i, const RegType& v0, T... vals) noexcept
 		{
 			_data[i] = SimdRegister<Scalar, Type>::set(v0);
-			setImpl(tag, i+1, vals...);
+			setImpl(tag, i + 1, vals...);
 		}
 	};
 
-	namespace Details
-	{
+	namespace Details {
 		template<typename T>
 		VCL_STRONG_INLINE T nop(T a) noexcept
 		{
@@ -724,50 +787,67 @@ namespace Vcl { namespace Core { namespace Simd {
 	}
 }}}
 
-#define VCL_SIMD_VECTORSCALAR_SETUP(SIMD_TYPE) \
-	using Base = Core::Simd::VectorScalarBase<Scalar, NrValues, Core::Simd::SimdExt::SIMD_TYPE>; \
-	using Self = VectorScalar<Scalar, NrValues>; \
-	using Bool = VectorScalar<bool, NrValues>; \
-	using Base::operator[]; \
-	using Base::get; \
-	VCL_STRONG_INLINE VectorScalar() noexcept = default; \
-	VCL_STRONG_INLINE VectorScalar(Scalar s) noexcept { set(s); } \
-	template<typename... S> explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) noexcept { \
+#define VCL_SIMD_VECTORSCALAR_SETUP(SIMD_TYPE)                                                                                                       \
+	using Base = Core::Simd::VectorScalarBase<Scalar, NrValues, Core::Simd::SimdExt::SIMD_TYPE>;                                                     \
+	using Self = VectorScalar<Scalar, NrValues>;                                                                                                     \
+	using Bool = VectorScalar<bool, NrValues>;                                                                                                       \
+	using Base::operator[];                                                                                                                          \
+	using Base::get;                                                                                                                                 \
+	VCL_STRONG_INLINE VectorScalar() noexcept = default;                                                                                             \
+	VCL_STRONG_INLINE VectorScalar(Scalar s) noexcept { set(s); }                                                                                    \
+	template<typename... S>                                                                                                                          \
+	explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) noexcept                                             \
+	{                                                                                                                                                \
 		static_assert(absl::conjunction<std::is_convertible<S, Scalar>...>::value, "All parameters need to be convertible to the scalar base type"); \
-		static_assert(sizeof...(S) == NrValues-4, "Wrong number number of parameters"); \
-		set(s0, s1, s2, s3, static_cast<Scalar>(s)...); } \
-	template<typename... V> VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) noexcept { \
-		static_assert(sizeof...(V) == NrRegs-1, "Wrong number number of parameters"); \
-		set(v0, v...); }
+		static_assert(sizeof...(S) == NrValues - 4, "Wrong number number of parameters");                                                            \
+		set(s0, s1, s2, s3, static_cast<Scalar>(s)...);                                                                                              \
+	}                                                                                                                                                \
+	template<typename... V>                                                                                                                          \
+	VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) noexcept                                                                      \
+	{                                                                                                                                                \
+		static_assert(sizeof...(V) == NrRegs - 1, "Wrong number number of parameters");                                                              \
+		set(v0, v...);                                                                                                                               \
+	}
 
-#define VCL_SIMD_P1_1(op, i)  op(get(i))
-#define VCL_SIMD_P1_2(op, i)  VCL_SIMD_P1_1(op, i), VCL_SIMD_P1_1(op, i+1)
-#define VCL_SIMD_P1_4(op, i)  VCL_SIMD_P1_2(op, i), VCL_SIMD_P1_2(op, i+2)
-#define VCL_SIMD_P1_8(op, i)  VCL_SIMD_P1_4(op, i), VCL_SIMD_P1_4(op, i+4)
-#define VCL_SIMD_P1_16(op, i) VCL_SIMD_P1_8(op, i), VCL_SIMD_P1_8(op, i+8)
+#define VCL_SIMD_P1_1(op, i) op(get(i))
+#define VCL_SIMD_P1_2(op, i) VCL_SIMD_P1_1(op, i), VCL_SIMD_P1_1(op, i + 1)
+#define VCL_SIMD_P1_4(op, i) VCL_SIMD_P1_2(op, i), VCL_SIMD_P1_2(op, i + 2)
+#define VCL_SIMD_P1_8(op, i) VCL_SIMD_P1_4(op, i), VCL_SIMD_P1_4(op, i + 4)
+#define VCL_SIMD_P1_16(op, i) VCL_SIMD_P1_8(op, i), VCL_SIMD_P1_8(op, i + 8)
 
-#define VCL_SIMD_P2_1(op, i)  op(get(i), rhs.get(i))
-#define VCL_SIMD_P2_2(op, i)  VCL_SIMD_P2_1(op, i), VCL_SIMD_P2_1(op, i+1)
-#define VCL_SIMD_P2_4(op, i)  VCL_SIMD_P2_2(op, i), VCL_SIMD_P2_2(op, i+2)
-#define VCL_SIMD_P2_8(op, i)  VCL_SIMD_P2_4(op, i), VCL_SIMD_P2_4(op, i+4)
-#define VCL_SIMD_P2_16(op, i) VCL_SIMD_P2_8(op, i), VCL_SIMD_P2_8(op, i+8)
+#define VCL_SIMD_P2_1(op, i) op(get(i), rhs.get(i))
+#define VCL_SIMD_P2_2(op, i) VCL_SIMD_P2_1(op, i), VCL_SIMD_P2_1(op, i + 1)
+#define VCL_SIMD_P2_4(op, i) VCL_SIMD_P2_2(op, i), VCL_SIMD_P2_2(op, i + 2)
+#define VCL_SIMD_P2_8(op, i) VCL_SIMD_P2_4(op, i), VCL_SIMD_P2_4(op, i + 4)
+#define VCL_SIMD_P2_16(op, i) VCL_SIMD_P2_8(op, i), VCL_SIMD_P2_8(op, i + 8)
 
-#define VCL_SIMD_RED_P1_1(op1, op2, i)  op1(get(i))
-#define VCL_SIMD_RED_P1_2(op1, op2, i)  op2(VCL_SIMD_RED_P1_1(op1, op2, i), VCL_SIMD_RED_P1_1(op1, op2, i+1))
-#define VCL_SIMD_RED_P1_4(op1, op2, i)  op2(VCL_SIMD_RED_P1_2(op1, op2, i), VCL_SIMD_RED_P1_2(op1, op2, i+2))
-#define VCL_SIMD_RED_P1_8(op1, op2, i)  op2(VCL_SIMD_RED_P1_4(op1, op2, i), VCL_SIMD_RED_P1_4(op1, op2, i+4))
-#define VCL_SIMD_RED_P1_16(op1, op2, i) op2(VCL_SIMD_RED_P1_8(op1, op2, i), VCL_SIMD_RED_P1_8(op1, op2, i+8))
+#define VCL_SIMD_RED_P1_1(op1, op2, i) op1(get(i))
+#define VCL_SIMD_RED_P1_2(op1, op2, i) op2(VCL_SIMD_RED_P1_1(op1, op2, i), VCL_SIMD_RED_P1_1(op1, op2, i + 1))
+#define VCL_SIMD_RED_P1_4(op1, op2, i) op2(VCL_SIMD_RED_P1_2(op1, op2, i), VCL_SIMD_RED_P1_2(op1, op2, i + 2))
+#define VCL_SIMD_RED_P1_8(op1, op2, i) op2(VCL_SIMD_RED_P1_4(op1, op2, i), VCL_SIMD_RED_P1_4(op1, op2, i + 4))
+#define VCL_SIMD_RED_P1_16(op1, op2, i) op2(VCL_SIMD_RED_P1_8(op1, op2, i), VCL_SIMD_RED_P1_8(op1, op2, i + 8))
 
-#define VCL_SIMD_RED_P2_1(op1, op2, i)  op1(get(i), rhs.get(i))
-#define VCL_SIMD_RED_P2_2(op1, op2, i)  op2(VCL_SIMD_RED_P2_1(op1, op2, i), VCL_SIMD_RED_P2_1(op1, op2, i+1))
-#define VCL_SIMD_RED_P2_4(op1, op2, i)  op2(VCL_SIMD_RED_P2_2(op1, op2, i), VCL_SIMD_RED_P2_2(op1, op2, i+2))
-#define VCL_SIMD_RED_P2_8(op1, op2, i)  op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i+4))
-#define VCL_SIMD_RED_P2_16(op1, op2, i) op2(VCL_SIMD_RED_P2_8(op1, op2, i), VCL_SIMD_RED_P2_8(op1, op2, i+8))
+#define VCL_SIMD_RED_P2_1(op1, op2, i) op1(get(i), rhs.get(i))
+#define VCL_SIMD_RED_P2_2(op1, op2, i) op2(VCL_SIMD_RED_P2_1(op1, op2, i), VCL_SIMD_RED_P2_1(op1, op2, i + 1))
+#define VCL_SIMD_RED_P2_4(op1, op2, i) op2(VCL_SIMD_RED_P2_2(op1, op2, i), VCL_SIMD_RED_P2_2(op1, op2, i + 2))
+#define VCL_SIMD_RED_P2_8(op1, op2, i) op2(VCL_SIMD_RED_P2_4(op1, op2, i), VCL_SIMD_RED_P2_4(op1, op2, i + 4))
+#define VCL_SIMD_RED_P2_16(op1, op2, i) op2(VCL_SIMD_RED_P2_8(op1, op2, i), VCL_SIMD_RED_P2_8(op1, op2, i + 8))
 
-#define VCL_SIMD_UNARY_OP(name, op, N) VCL_STRONG_INLINE Self name() const noexcept { return Self{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
-#define VCL_SIMD_BINARY_OP(name, op, N) VCL_STRONG_INLINE Self name(const Self& rhs) const noexcept { return Self{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
-#define VCL_SIMD_ASSIGN_OP(name, op, N) VCL_STRONG_INLINE Self& name(const Self& rhs) noexcept { set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)); return *this; }
-#define VCL_SIMD_COMP_OP(name, op, N) VCL_STRONG_INLINE Bool name(const Self& rhs) const noexcept { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0)}; }
-#define VCL_SIMD_QUERY_OP(name, op, N) VCL_STRONG_INLINE Bool name() const noexcept { return Bool{VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0)}; }
-#define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name() const noexcept { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0)}; }
-#define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) VCL_STRONG_INLINE Scalar name(const Self& rhs) const noexcept { return Scalar{VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0)}; }
+#define VCL_SIMD_UNARY_OP(name, op, N) \
+	VCL_STRONG_INLINE Self name() const noexcept { return Self{ VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0) }; }
+#define VCL_SIMD_BINARY_OP(name, op, N) \
+	VCL_STRONG_INLINE Self name(const Self& rhs) const noexcept { return Self{ VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0) }; }
+#define VCL_SIMD_ASSIGN_OP(name, op, N)                    \
+	VCL_STRONG_INLINE Self& name(const Self& rhs) noexcept \
+	{                                                      \
+		set(VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0));        \
+		return *this;                                      \
+	}
+#define VCL_SIMD_COMP_OP(name, op, N) \
+	VCL_STRONG_INLINE Bool name(const Self& rhs) const noexcept { return Bool{ VCL_PP_JOIN_2(VCL_SIMD_P2_, N)(op, 0) }; }
+#define VCL_SIMD_QUERY_OP(name, op, N) \
+	VCL_STRONG_INLINE Bool name() const noexcept { return Bool{ VCL_PP_JOIN_2(VCL_SIMD_P1_, N)(op, 0) }; }
+#define VCL_SIMD_UNARY_REDUCTION_OP(name, op1, op2, N) \
+	VCL_STRONG_INLINE Scalar name() const noexcept { return Scalar{ VCL_PP_JOIN_2(VCL_SIMD_RED_P1_, N)(op1, op2, 0) }; }
+#define VCL_SIMD_BINARY_REDUCTION_OP(name, op1, op2, N) \
+	VCL_STRONG_INLINE Scalar name(const Self& rhs) const noexcept { return Scalar{ VCL_PP_JOIN_2(VCL_SIMD_RED_P2_, N)(op1, op2, 0) }; }

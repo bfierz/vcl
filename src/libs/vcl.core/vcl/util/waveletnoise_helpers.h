@@ -41,6 +41,7 @@ namespace Vcl { namespace Util { namespace Details {
 		return twister;
 	}
 
+	// clang-format off
 	VCL_CPP_CONSTEXPR_11 std::array<float, 32> ACoeffs =
 	{
 		 0.000334f,-0.001528f, 0.000410f, 0.003545f,-0.000938f,-0.008233f, 0.002172f, 0.019120f,
@@ -48,6 +49,7 @@ namespace Vcl { namespace Util { namespace Details {
 		 0.655340f, 0.033979f,-0.243780f,-0.025936f, 0.103311f, 0.011655f,-0.044412f,-0.005040f,
 		 0.019120f, 0.002172f,-0.008233f,-0.000938f, 0.003546f, 0.000410f,-0.001528f, 0.000334f
 	};
+	// clang-format on
 	VCL_CPP_CONSTEXPR_11 std::array<float, 4> PCoeffs = { 0.25f, 0.75f, 0.75f, 0.25f };
 
 	//! Evaluate quadratic B-spline basis functions

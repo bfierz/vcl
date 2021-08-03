@@ -149,39 +149,29 @@ namespace Vcl { namespace Core {
 
 	public:
 		template<typename SCALAR_OUT>
-		Eigen::Map
-		<
+		Eigen::Map<
 			Eigen::Matrix<SCALAR_OUT, ROWS, COLS>,
 			Eigen::Unaligned,
-			Eigen::Stride
-			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
-			>
-		> at(size_t idx)
+			Eigen::Stride<
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS * STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))> >
+		at(size_t idx)
 		{
-			static_assert
-			(
+			static_assert(
 				(sizeof(SCALAR_OUT) >= sizeof(SCALAR)) && (sizeof(SCALAR_OUT) % sizeof(SCALAR) == 0),
-				"Always access multiples of the internal type."
-			);
-			static_assert
-			(
+				"Always access multiples of the internal type.");
+			static_assert(
 				implies(Stride != DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= static_cast<size_t>(Stride)) && (static_cast<size_t>(Stride) % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
-				"Output size and stride size are compatible."
-			);
+				"Output size and stride size are compatible.");
 
-			typedef Eigen::Stride
-			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
-			> StrideType;
+			typedef Eigen::Stride<
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS * STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))>
+				StrideType;
 
-			VclRequire
-			(
+			VclRequire(
 				implies(Stride == DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= mAllocated) && (mAllocated % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
-				"Output size and stride size are compatible."
-			);
+				"Output size and stride size are compatible.");
 
 			const size_t rows = mRows;
 			const size_t cols = mCols;
@@ -200,45 +190,38 @@ namespace Vcl { namespace Core {
 			auto base = reinterpret_cast<SCALAR_OUT*>(mData);
 			if (stride == 0 || stride == 1)
 			{
-				base += idx*rows*cols;
-			}
-			else if (stride < mAllocated)
+				base += idx * rows * cols;
+			} else if (stride < mAllocated)
 			{
 				size_t entry = idx % stride;
 				size_t group_idx = idx - entry;
-				base += group_idx*rows*cols + entry;
+				base += group_idx * rows * cols + entry;
 
-				outer_stride = rows*stride / scalar_width;
+				outer_stride = rows * stride / scalar_width;
 				inner_stride = stride / scalar_width;
-			}
-			else
+			} else
 			{
 				base += idx;
 
-				outer_stride = rows*stride / scalar_width;
+				outer_stride = rows * stride / scalar_width;
 				inner_stride = stride / scalar_width;
 			}
 
 			if (Stride == DynamicStride || mStride == size_t(DynamicStride))
-				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>
-				(
-					base, StrideType(static_cast<ptrdiff_t>(outer_stride), static_cast<ptrdiff_t>(inner_stride))
-				);
+				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>(
+					base, StrideType(static_cast<ptrdiff_t>(outer_stride), static_cast<ptrdiff_t>(inner_stride)));
 			else
 				return Eigen::Map<Eigen::Matrix<SCALAR_OUT, ROWS, COLS>, Eigen::Unaligned, StrideType>(base);
 		}
 
 		template<typename SCALAR_OUT>
-		const Eigen::Map
-		<
+		const Eigen::Map<
 			Eigen::Matrix<SCALAR_OUT, ROWS, COLS>,
 			Eigen::Unaligned,
-			Eigen::Stride
-			<
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS*STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))
-			>
-		> at(size_t idx) const
+			Eigen::Stride<
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS * STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))> >
+		at(size_t idx) const
 		{
 			return const_cast<InterleavedArray*>(this)->at<SCALAR_OUT>(idx);
 		}

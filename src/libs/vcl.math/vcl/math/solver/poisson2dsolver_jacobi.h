@@ -46,21 +46,21 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 	public:
 		Poisson2DJacobiCtx(Eigen::Vector2ui dim)
 		: _dim(dim)
-		, _unknowns(nullptr, dim.x()*dim.y())
-		, _rhs(nullptr, dim.x()*dim.y())
+		, _unknowns(nullptr, dim.x() * dim.y())
+		, _rhs(nullptr, dim.x() * dim.y())
 		{
-			_next.setZero(dim.x()*dim.y());
+			_next.setZero(dim.x() * dim.y());
 			for (auto& A : _laplacian)
 			{
-				A.resize(_dim.x()*_dim.y());
+				A.resize(_dim.x() * _dim.y());
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
-			new(&_unknowns) map_t(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_unknowns) map_t(unknowns);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -71,19 +71,17 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 			auto& Ay_l = _laplacian[3];
 			auto& Ay_r = _laplacian[4];
 
-			makePoissonStencil
-			(
+			makePoissonStencil(
 				_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
-				skip
-			);
+				skip);
 		}
 
 	public:
 		virtual int size() const override
 		{
-			return _dim.x()*_dim.y();
+			return _dim.x() * _dim.y();
 		}
 
 	public:
@@ -101,7 +99,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 			auto X = static_cast<const ptrdiff_t>(_dim.x());
 			auto Y = static_cast<const ptrdiff_t>(_dim.y());
 
-			const auto& Ac   = _laplacian[0];
+			const auto& Ac = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];
 			const auto& Ax_r = _laplacian[2];
 			const auto& Ay_l = _laplacian[3];
@@ -140,7 +138,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 					if (Ac[index])
 					{
 						float e = rhs[index] - (Ac[index] * unknowns[index] + q);
-						acc += e*e;
+						acc += e * e;
 					}
 				}
 			}
@@ -167,8 +165,8 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 
 		//! Laplacian matrix (center, x(l/r), y(l/r))
 		std::array<vector_t, 5> _laplacian;
-		
-		//! Left-hand side 
+
+		//! Left-hand side
 		map_t _unknowns;
 
 		//! Right-hand side

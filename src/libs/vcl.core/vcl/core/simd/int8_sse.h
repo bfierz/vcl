@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool8_sse.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_sse.h>
@@ -44,23 +44,23 @@ namespace Vcl {
 		VCL_SIMD_BINARY_OP(operator+, _mm_add_epi32, 2)
 		VCL_SIMD_BINARY_OP(operator-, _mm_sub_epi32, 2)
 		VCL_SIMD_BINARY_OP(operator*, _mmVCL_mullo_epi32, 2)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_epi32, 2)
 		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_epi32, 2)
 		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 2)
-		
+
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_epi32,  2)
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_epi32, 2)
 		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_epi32, 2)
-		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_epi32,  2)
-		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_epi32,  2)
-		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_epi32,  2)
-		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32,  2)
+		VCL_SIMD_COMP_OP(operator<, _mm_cmplt_epi32, 2)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_epi32, 2)
+		VCL_SIMD_COMP_OP(operator>, _mm_cmpgt_epi32, 2)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32, 2)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_s32, 2)
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&, _mm_and_si128, 2)
 		VCL_SIMD_BINARY_OP(operator|, _mm_or_si128, 2)
@@ -68,24 +68,22 @@ namespace Vcl {
 		VCL_SIMD_BINARY_OP(min, Core::Simd::SSE::min_s32, 2)
 		VCL_SIMD_BINARY_OP(max, Core::Simd::SSE::max_s32, 2)
 	};
-	
+
 	VCL_STRONG_INLINE VectorScalar<int, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<int, 8>& a, const VectorScalar<int, 8>& b) noexcept
 	{
-		return VectorScalar<int, 8>
-		(
+		return VectorScalar<int, 8>(
 			Core::Simd::SSE::blend_s32(b.get(0), a.get(0), mask.get(0)),
-			Core::Simd::SSE::blend_s32(b.get(1), a.get(1), mask.get(1))
-		);
+			Core::Simd::SSE::blend_s32(b.get(1), a.get(1), mask.get(1)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 8>& rhs)
 	{
 		alignas(16) int vars[8];
 		_mm_store_si128(reinterpret_cast<__m128i*>(vars + 0), rhs.get(0));
 		_mm_store_si128(reinterpret_cast<__m128i*>(vars + 4), rhs.get(1));
 
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
-				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
 	}

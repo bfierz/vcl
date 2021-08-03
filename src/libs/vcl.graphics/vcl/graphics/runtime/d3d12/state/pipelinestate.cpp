@@ -46,12 +46,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		case PrimitiveType::Linelist:
 		case PrimitiveType::Linestrip:
 		case PrimitiveType::LinelistAdj:
-		case PrimitiveType::LinestripAdj: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case PrimitiveType::LinestripAdj: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 		case PrimitiveType::Trianglelist:
 		case PrimitiveType::Trianglestrip:
 		case PrimitiveType::TrianglelistAdj:
-		case PrimitiveType::TrianglestripAdj: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		case PrimitiveType::Patch: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+		case PrimitiveType::TrianglestripAdj: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case PrimitiveType::Patch: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 		}
 
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;

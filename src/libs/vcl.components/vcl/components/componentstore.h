@@ -52,7 +52,8 @@ namespace Vcl { namespace Components {
 	class ComponentStoreBase
 	{
 	public:
-		ComponentStoreBase(const Vcl::RTTI::Type* type) : _type(type) {}
+		ComponentStoreBase(const Vcl::RTTI::Type* type)
+		: _type(type) {}
 		virtual ~ComponentStoreBase() = default;
 
 		//! \returns the type of the components in this store
@@ -85,7 +86,8 @@ namespace Vcl { namespace Components {
 		using ComponentType = T;
 
 	public:
-		ComponentStore() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+		ComponentStore()
+		: ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
 
 		bool empty() const override
 		{
@@ -149,7 +151,8 @@ namespace Vcl { namespace Components {
 		using Store = std::unordered_multimap<EntityId, ComponentType>;
 
 	public:
-		MultiComponentStoreBase() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+		MultiComponentStoreBase()
+		: ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
 
 		bool empty() const override
 		{

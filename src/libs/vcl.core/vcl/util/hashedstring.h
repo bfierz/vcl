@@ -40,12 +40,11 @@ namespace Vcl { namespace Util {
 	// Source for prime-numbers:
 	// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 	constexpr uint32_t fnv1a_32_offset = 0x811c9dc5;
-	constexpr uint32_t fnv1a_32_prime  = 0x01000193;
+	constexpr uint32_t fnv1a_32_prime = 0x01000193;
 	constexpr uint64_t fnv1a_64_offset = 0xcbf29ce484222325;
-	constexpr uint64_t fnv1a_64_prime  = 0x100000001b3;
+	constexpr uint64_t fnv1a_64_prime = 0x100000001b3;
 
-	namespace Details
-	{
+	namespace Details {
 		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, const uint32_t value) noexcept
 		{
 			return (str[0] == '\0') ? value : calculateFnv1a32(&str[1], (value ^ uint32_t(str[0])) * fnv1a_32_prime);
@@ -194,25 +193,23 @@ namespace Vcl { namespace Util {
 	};
 
 #if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
-	namespace Literals
-	{
-		constexpr uint32_t operator "" _fnv1a32(const char* str, size_t)
+	namespace Literals {
+		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t)
 		{
 			return calculateFnv1a32(str);
 		}
-		constexpr uint64_t operator "" _fnv1a64(const char* str, size_t)
+		constexpr uint64_t operator"" _fnv1a64(const char* str, size_t)
 		{
 			return calculateFnv1a64(str);
 		}
 	}
 #elif VCL_HAS_CPP_CONSTEXPR_14
-	namespace Literals
-	{
-		constexpr uint32_t operator "" _fnv1a32(const char* str, size_t N)
+	namespace Literals {
+		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t N)
 		{
 			return calculateFnv1a32(str, N);
 		}
-		constexpr uint64_t operator "" _fnv1a64(const char* str, size_t N)
+		constexpr uint64_t operator"" _fnv1a64(const char* str, size_t N)
 		{
 			return calculateFnv1a64(str, N);
 		}

@@ -55,7 +55,8 @@ layout(std430, binding = ABUFFER_BUFFER_LOC + 1) buffer IotFragmentPool
 // Constants
 ////////////////////////////////////////////////////////////////////////////////
 
-UNIFORM_BUFFER(ABUFFER_CONFIG_LOC) ABufferConfig
+UNIFORM_BUFFER(ABUFFER_CONFIG_LOC)
+ABufferConfig
 {
 	// Width of the ABuffer
 	uint iotBufferWidth;

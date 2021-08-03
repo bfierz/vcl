@@ -89,6 +89,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 	{
 		DXGI_FORMAT d3d_format = DXGI_FORMAT_UNKNOWN;
 
+		// clang-format off
 		switch (type)
 		{
 		case SurfaceFormat::Unknown             : d3d_format = DXGI_FORMAT_UNKNOWN; break;
@@ -141,7 +142,8 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		case SurfaceFormat::R8_SINT             : d3d_format = DXGI_FORMAT_R8_SINT; break;
 		default: VclDebugError("Unsupported colour format.");
 		}
-		
+		// clang-format on
+
 		return d3d_format;
 	}
 

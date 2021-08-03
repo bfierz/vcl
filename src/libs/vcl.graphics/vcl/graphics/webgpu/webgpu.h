@@ -36,20 +36,20 @@
 
 namespace Vcl { namespace Graphics { namespace WebGPU {
 	WGPUTextureFormat toWebGPUEnum(SurfaceFormat type);
-		//static D3D11_RTV_DIMENSION toD3Denum(RenderTargetViewDimension::RenderTargetViewDimension dim);
-		//static D3D11_DSV_DIMENSION toD3Denum(DepthStencilViewDimension::DepthStencilViewDimension dim);
-		//static D3D11_SRV_DIMENSION toD3Denum(ShaderResourceViewDimension::ShaderResourceViewDimension dim);
-		//
-		//static D3D11_QUERY toD3Denum(VCL_ENUM(QueryType) query);
-		//
-		//static D3D11_BLEND    toD3Denum(Blend::Blend blend);
-		//static D3D11_BLEND_OP toD3Denum(BlendOp::BlendOp op);
-		//static UINT8          toD3Denum(ColourWriteEnable::ColourWriteEnable mask);
-		//
-		//static D3D11_FILL_MODE toD3Denum(FillMode::FillMode mode);
-		//static D3D11_CULL_MODE toD3Denum(CullMode::CullMode mode);
-		//
-		//static D3D11_DEPTH_WRITE_MASK toD3Denum(DepthWriteMask::DepthWriteMask mask);
-		//static D3D11_COMPARISON_FUNC toD3Denum(ComparisonFunction::ComparisonFunction func);
-		//static D3D11_STENCIL_OP toD3Denum(StencilOperation::StencilOperation func);
+	//static D3D11_RTV_DIMENSION toD3Denum(RenderTargetViewDimension::RenderTargetViewDimension dim);
+	//static D3D11_DSV_DIMENSION toD3Denum(DepthStencilViewDimension::DepthStencilViewDimension dim);
+	//static D3D11_SRV_DIMENSION toD3Denum(ShaderResourceViewDimension::ShaderResourceViewDimension dim);
+	//
+	//static D3D11_QUERY toD3Denum(VCL_ENUM(QueryType) query);
+	//
+	//static D3D11_BLEND    toD3Denum(Blend::Blend blend);
+	//static D3D11_BLEND_OP toD3Denum(BlendOp::BlendOp op);
+	//static UINT8          toD3Denum(ColourWriteEnable::ColourWriteEnable mask);
+	//
+	//static D3D11_FILL_MODE toD3Denum(FillMode::FillMode mode);
+	//static D3D11_CULL_MODE toD3Denum(CullMode::CullMode mode);
+	//
+	//static D3D11_DEPTH_WRITE_MASK toD3Denum(DepthWriteMask::DepthWriteMask mask);
+	//static D3D11_COMPARISON_FUNC toD3Denum(ComparisonFunction::ComparisonFunction func);
+	//static D3D11_STENCIL_OP toD3Denum(StencilOperation::StencilOperation func);
 }}}

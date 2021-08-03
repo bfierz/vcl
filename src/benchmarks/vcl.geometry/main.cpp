@@ -289,17 +289,16 @@ void BM_Int_RayBox_MaxMult(benchmark::State& state)
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_Int_RayBoxEberly);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, float);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float4);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float8);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float16);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, float);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float4);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float8);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float16);//->ThreadRange(1, 16);
+BENCHMARK(BM_Int_RayBoxEberly);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, float);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float4);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float8);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float16);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, float);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float4);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float8);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float16);
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 BENCHMARK_MAIN();

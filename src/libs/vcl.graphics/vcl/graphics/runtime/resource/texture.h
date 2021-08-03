@@ -39,21 +39,20 @@
 namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(TextureUsage,
 
-		//! Texture can be the source of copy opertions
-		CopySrc,
+					  //! Texture can be the source of copy opertions
+					  CopySrc,
 
-		//! Texture can be the destination of copy opertions
-		CopyDst,
+					  //! Texture can be the destination of copy opertions
+					  CopyDst,
 
-		//! Texture can be used to sample texels from in the shader
-		Sampled,
+					  //! Texture can be used to sample texels from in the shader
+					  Sampled,
 
-		//! Texture can be read as image (e.g. in compute shader)
-		Storage,
+					  //! Texture can be read as image (e.g. in compute shader)
+					  Storage,
 
-		//! Texture can be used as render-target
-		OutputAttachment
-	)
+					  //! Texture can be used as render-target
+					  OutputAttachment)
 
 	enum class TextureCubeFace
 	{

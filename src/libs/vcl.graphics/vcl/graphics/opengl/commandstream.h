@@ -71,11 +71,11 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 	struct BindVertexBuffersConfig
 	{
-		GLuint   First;
-		GLsizei  Count;
-		GLuint   Buffers[16];
+		GLuint First;
+		GLsizei Count;
+		GLuint Buffers[16];
 		GLintptr Offsets[16];
-		GLsizei  Strides[16];
+		GLsizei Strides[16];
 	};
 
 	class CommandStream

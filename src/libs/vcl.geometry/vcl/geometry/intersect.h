@@ -55,14 +55,14 @@ namespace Vcl { namespace Geometry {
 		using namespace Vcl::Mathematics;
 
 		float tmin = -std::numeric_limits<float>::infinity();
-		float tmax =  std::numeric_limits<float>::infinity();
+		float tmax = std::numeric_limits<float>::infinity();
 
 		for (int i = 0; i < 3; ++i)
 		{
 			float t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
 			float t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
-			tmin = max(tmin, min(min(t1, t2),  std::numeric_limits<float>::infinity()));
+			tmin = max(tmin, min(min(t1, t2), std::numeric_limits<float>::infinity()));
 			tmax = min(tmax, max(max(t1, t2), -std::numeric_limits<float>::infinity()));
 		}
 
@@ -85,12 +85,14 @@ namespace Vcl { namespace Geometry {
 
 		Eigen::Vector3f bounds[] = { box.min(), box.max() };
 
+		// clang-format off
 		txmin = (bounds[    r.signs().x()].x() - r.origin().x()) * r.invDirection().x();
 		txmax = (bounds[1 - r.signs().x()].x() - r.origin().x()) * r.invDirection().x();
 		tymin = (bounds[    r.signs().y()].y() - r.origin().y()) * r.invDirection().y();
 		tymax = (bounds[1 - r.signs().y()].y() - r.origin().y()) * r.invDirection().y();
 		tzmin = (bounds[    r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
 		tzmax = (bounds[1 - r.signs().z()].z() - r.origin().z()) * r.invDirection().z();
+		// clang-format on
 
 		// Disallow any intersection that lies behind the start point of the ray
 		float tmin = 0;
@@ -103,7 +105,6 @@ namespace Vcl { namespace Geometry {
 		return tmin <= tmax;
 	}
 
-	
 	template<typename Real, int Width>
 	Vcl::VectorScalar<bool, Width> intersects_MaxMult(
 		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
@@ -162,11 +163,11 @@ namespace Vcl { namespace Geometry {
 		for (int i = 0; i < 3; ++i)
 		{
 			float tNear = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
-			float tFar  = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
+			float tFar = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
 			if (tNear > tFar) std::swap(tNear, tFar);
 			t0 = tNear > t0 ? tNear : t0;
-			t1 = tFar < t1  ? tFar : t1;
+			t1 = tFar < t1 ? tFar : t1;
 
 			if (t0 > t1) return false;
 		}

@@ -47,8 +47,8 @@ namespace Vcl { namespace Geometry {
 			Real inv_det = inv(det);
 			Real s = s_in * inv_det;
 			Real t = t_in * inv_det;
-			dist[0] = s*(a*s + b*t + (Real(2))*d) +
-				      t*(b*s + c*t + (Real(2))*e) + f;
+			dist[0] = s * (a * s + b * t + (Real(2)) * d) +
+					  t * (b * s + c * t + (Real(2)) * e) + f;
 			dist[1] = s;
 			dist[2] = t;
 
@@ -63,7 +63,7 @@ namespace Vcl { namespace Geometry {
 			std::array<Real, 3> dist;
 
 			Real numer = c + e - b - d;
-			Real denom = a - b*2 + c;
+			Real denom = a - b * 2 + c;
 
 			Real s_a = 0;
 			Real s_b = 1;
@@ -73,44 +73,32 @@ namespace Vcl { namespace Geometry {
 			Real t_b = 0;
 			Real t_c = Real(1) - s_c;
 
-			Real d_a = c + (Real(2))*e + f;
-			Real d_b = a + (Real(2))*d + f;
-			Real d_c = s_c*(a*s_c + b*t_c + (Real(2))*d) +
-					   t_c*(b*s_c + c*t_c + (Real(2))*e) + f;
+			Real d_a = c + (Real(2)) * e + f;
+			Real d_b = a + (Real(2)) * d + f;
+			Real d_c = s_c * (a * s_c + b * t_c + (Real(2)) * d) +
+					   t_c * (b * s_c + c * t_c + (Real(2)) * e) + f;
 
-			dist[0] = select
-			(
+			dist[0] = select(
 				numer <= Real(0),
 				d_a,
-				select
-				(
+				select(
 					numer >= denom,
 					d_b,
-					d_c
-				)
-			);
-			dist[1] = select
-			(
+					d_c));
+			dist[1] = select(
 				numer <= Real(0),
 				s_a,
-				select
-				(
+				select(
 					numer >= denom,
 					s_b,
-					s_c
-				)
-			);
-			dist[2] = select
-			(
+					s_c));
+			dist[2] = select(
 				numer <= Real(0),
 				t_a,
-				select
-				(
+				select(
 					numer >= denom,
 					t_b,
-					t_c
-				)
-			);
+					t_c));
 
 			return dist;
 		}
@@ -125,7 +113,7 @@ namespace Vcl { namespace Geometry {
 			Real tmp0 = b + d;
 			Real tmp1 = c + e;
 			Real numer = tmp1 - tmp0;
-			Real denom = a - b*2 + c;
+			Real denom = a - b * 2 + c;
 
 			Real s_a = 1;
 			Real s_b = numer * inv(denom);
@@ -139,27 +127,18 @@ namespace Vcl { namespace Geometry {
 			Real t_d = 0;
 			Real t_e = -e * inv(c);
 
-			Real d_a = a + (Real(2))*d + f;
-			Real d_b = s_b*(a*s_b + b*t_b + d*2) +
-				       t_b*(b*s_b + c*t_b + (Real(2))*e) + f;
-			Real d_c = c + (Real(2))*e + f;
+			Real d_a = a + (Real(2)) * d + f;
+			Real d_b = s_b * (a * s_b + b * t_b + d * 2) +
+					   t_b * (b * s_b + c * t_b + (Real(2)) * e) + f;
+			Real d_c = c + (Real(2)) * e + f;
 			Real d_d = f;
-			Real d_e = e*t_e + f;
+			Real d_e = e * t_e + f;
 
-			dist[0] = select(tmp1 > tmp0,
-				select(numer >= denom, d_a, d_b),
-				select(tmp1 <= Real(0), d_c,
-					select(e >= Real(0), d_d, d_e)));
+			dist[0] = select(tmp1 > tmp0, select(numer >= denom, d_a, d_b), select(tmp1 <= Real(0), d_c, select(e >= Real(0), d_d, d_e)));
 
-			dist[1] = select(tmp1 > tmp0,
-				select(numer >= denom, s_a, s_b),
-				select(tmp1 <= Real(0), s_c,
-					select(e >= Real(0), s_d, s_e)));
+			dist[1] = select(tmp1 > tmp0, select(numer >= denom, s_a, s_b), select(tmp1 <= Real(0), s_c, select(e >= Real(0), s_d, s_e)));
 
-			dist[2] = select(tmp1 > tmp0,
-				select(numer >= denom, t_a, t_b),
-				select(tmp1 <= Real(0), t_c,
-					select(e >= Real(0), t_d, t_e)));
+			dist[2] = select(tmp1 > tmp0, select(numer >= denom, t_a, t_b), select(tmp1 <= Real(0), t_c, select(e >= Real(0), t_d, t_e)));
 			return dist;
 		}
 
@@ -171,7 +150,6 @@ namespace Vcl { namespace Geometry {
 			VCL_UNREFERENCED_PARAMETER(b);
 			VCL_UNREFERENCED_PARAMETER(d);
 
-
 			std::array<Real, 3> dist;
 
 			Real t_a = 0;
@@ -179,32 +157,24 @@ namespace Vcl { namespace Geometry {
 			Real t_c = -e * inv(c);
 
 			Real sq_d_a = f;
-			Real sq_d_b = c + (Real(2))*e + f;
-			Real sq_d_c = e*t_c + f;
+			Real sq_d_b = c + (Real(2)) * e + f;
+			Real sq_d_c = e * t_c + f;
 
-			dist[0] = select
-			(
+			dist[0] = select(
 				e >= Real(0),
 				sq_d_a,
-				select
-				(
+				select(
 					-e >= c,
 					sq_d_b,
-					sq_d_c
-				)
-			);
+					sq_d_c));
 			dist[1] = 0;
-			dist[2] = select
-			(
+			dist[2] = select(
 				e >= Real(0),
 				t_a,
-				select
-				(
+				select(
 					-e >= c,
 					t_b,
-					t_c
-				)
-			);
+					t_c));
 
 			return dist;
 		}
@@ -215,7 +185,6 @@ namespace Vcl { namespace Geometry {
 			VCL_UNREFERENCED_PARAMETER(det);
 			VCL_UNREFERENCED_PARAMETER(b);
 
-
 			std::array<Real, 3> dist;
 
 			Real s_a = 1;
@@ -223,33 +192,24 @@ namespace Vcl { namespace Geometry {
 			Real s_c = 0;
 			Real s_d = 0;
 			Real s_e = 0;
-					   
+
 			Real t_a = 0;
 			Real t_b = 0;
 			Real t_c = 0;
 			Real t_d = 1;
 			Real t_e = -e * inv(c);
-					   
-			Real d_a = a + (Real(2))*d + f;
-			Real d_b = d*s_b + f;
-			Real d_c = f;
-			Real d_d = c + (Real(2))*e + f;
-			Real d_e = e*t_e + f;
 
-			dist[0] = select(d < Real(0), 
-				select(-d >= a, d_a, d_b),
-				select(e >= Real(0), d_c,
-					select(-e >= c, d_d, d_e)));
-					
-			dist[1] = select(d < Real(0), 
-				select(-d >= a, s_a, s_b),
-				select(e >= Real(0), s_c,
-					select(-e >= c, s_d, s_e)));
-					
-			dist[2] = select(d < Real(0), 
-				select(-d >= a, t_a, t_b),
-				select(e >= Real(0), t_c,
-					select(-e >= c, t_d, t_e)));
+			Real d_a = a + (Real(2)) * d + f;
+			Real d_b = d * s_b + f;
+			Real d_c = f;
+			Real d_d = c + (Real(2)) * e + f;
+			Real d_e = e * t_e + f;
+
+			dist[0] = select(d < Real(0), select(-d >= a, d_a, d_b), select(e >= Real(0), d_c, select(-e >= c, d_d, d_e)));
+
+			dist[1] = select(d < Real(0), select(-d >= a, s_a, s_b), select(e >= Real(0), s_c, select(-e >= c, s_d, s_e)));
+
+			dist[2] = select(d < Real(0), select(-d >= a, t_a, t_b), select(e >= Real(0), t_c, select(-e >= c, t_d, t_e)));
 
 			return dist;
 		}
@@ -262,7 +222,6 @@ namespace Vcl { namespace Geometry {
 			VCL_UNREFERENCED_PARAMETER(c);
 			VCL_UNREFERENCED_PARAMETER(e);
 
-
 			std::array<Real, 3> dist;
 
 			Real s_a = 0;
@@ -270,15 +229,11 @@ namespace Vcl { namespace Geometry {
 			Real s_c = -d * inv(a);
 
 			Real d_a = f;
-			Real d_b = a + d*2 + f;
-			Real d_c = d*s_c + f;
+			Real d_b = a + d * 2 + f;
+			Real d_c = d * s_c + f;
 
-			dist[0] = select(d >= 0,
-				d_a,
-				select(-d >= a, d_b, d_c));
-			dist[1] = select(d >= 0, 
-				s_a,
-				select(-d >= a, s_b, s_c));
+			dist[0] = select(d >= 0, d_a, select(-d >= a, d_b, d_c));
+			dist[1] = select(d >= 0, s_a, select(-d >= a, s_b, s_c));
 			dist[2] = 0;
 			return dist;
 		}
@@ -293,7 +248,7 @@ namespace Vcl { namespace Geometry {
 			Real tmp0 = b + e;
 			Real tmp1 = a + d;
 			Real numer = tmp1 - tmp0;
-			Real denom = a - (Real(2))*b + c;
+			Real denom = a - (Real(2)) * b + c;
 
 			Real t_a = 1;
 			Real t_b = numer * inv(denom);
@@ -306,28 +261,19 @@ namespace Vcl { namespace Geometry {
 			Real s_c = 1;
 			Real s_d = 0;
 			Real s_e = -d * inv(a);
-					   
-			Real d_a = c + (Real(2))*e + f;
-			Real d_b = s_b*(a*s_b + b*t_b + (Real(2))*d) +
-					   t_b*(b*s_b + c*t_b + (Real(2))*e) + f;
-			Real d_c = a + (Real(2))*d + f;
+
+			Real d_a = c + (Real(2)) * e + f;
+			Real d_b = s_b * (a * s_b + b * t_b + (Real(2)) * d) +
+					   t_b * (b * s_b + c * t_b + (Real(2)) * e) + f;
+			Real d_c = a + (Real(2)) * d + f;
 			Real d_d = f;
-			Real d_e = d*s_e + f;
+			Real d_e = d * s_e + f;
 
-			dist[0] = select(tmp1 > tmp0,
-				select(numer >= denom, d_a, d_b),
-				select(tmp1 <= Real(0), d_c,
-					select(d >= Real(0), d_d, d_e)));
-			
-			dist[1] = select(tmp1 > tmp0,
-				select(numer >= denom, s_a, s_b),
-				select(tmp1 <= Real(0), s_c,
-					select(d >= Real(0), s_d, s_e)));
+			dist[0] = select(tmp1 > tmp0, select(numer >= denom, d_a, d_b), select(tmp1 <= Real(0), d_c, select(d >= Real(0), d_d, d_e)));
 
-			dist[2] = select(tmp1 > tmp0,
-				select(numer >= denom, t_a, t_b),
-				select(tmp1 <= Real(0), t_c,
-					select(d >= Real(0), t_d, t_e)));
+			dist[1] = select(tmp1 > tmp0, select(numer >= denom, s_a, s_b), select(tmp1 <= Real(0), s_c, select(d >= Real(0), s_d, s_e)));
+
+			dist[2] = select(tmp1 > tmp0, select(numer >= denom, t_a, t_b), select(tmp1 <= Real(0), t_c, select(d >= Real(0), t_d, t_e)));
 
 			return dist;
 		}
@@ -352,35 +298,29 @@ namespace Vcl { namespace Geometry {
 		Real d = (B - P).dot(E0);
 		Real e = (B - P).dot(E1);
 		Real f = (B - P).squaredNorm();
-		Real det = abs(a*c-b*b);
-		Real s = b*e-c*d;
-		Real t = b*d-a*e;
+		Real det = abs(a * c - b * b);
+		Real s = b * e - c * d;
+		Real t = b * d - a * e;
 
 		// Compute the results for all the regions
-		std::array<Real, 3> sq_dist = select
-		(
-			s + t <= det, 
-			select
-			(
+		std::array<Real, 3> sq_dist = select(
+			s + t <= det,
+			select(
 				s < Real(0),
 				select(t < Real(0), detail::computeDistanceRegion4(det, a, b, c, d, e, f), detail::computeDistanceRegion3(det, a, b, c, d, e, f)),
-				select(t < Real(0), detail::computeDistanceRegion5(det, a, b, c, d, e, f), detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f))
-			),
-			select
-			(
+				select(t < Real(0), detail::computeDistanceRegion5(det, a, b, c, d, e, f), detail::computeDistanceRegion0(s, t, det, a, b, c, d, e, f))),
+			select(
 				s < Real(0),
 				detail::computeDistanceRegion2(det, a, b, c, d, e, f),
-				select(t < Real(0), detail::computeDistanceRegion6(det, a, b, c, d, e, f), detail::computeDistanceRegion1(det, a, b, c, d, e, f))
-			)
-		);
+				select(t < Real(0), detail::computeDistanceRegion6(det, a, b, c, d, e, f), detail::computeDistanceRegion1(det, a, b, c, d, e, f))));
 
 		//int region = select
 		//(
-		//	s + t <= det, 
+		//	s + t <= det,
 		//	select
 		//	(
 		//		s < Real(0),
-		//		select(t < Real(0), 4, 3), 
+		//		select(t < Real(0), 4, 3),
 		//		select(t < Real(0), 5, 0)
 		//	),
 		//	select
@@ -411,15 +351,15 @@ namespace Vcl { namespace Geometry {
 		return sqrt(sq_dist[0]);
 	}
 
-	float   distance(const Triangle<float, 3>& tri, const Eigen::Matrix<float, 3, 1>& p, std::array<float, 3>* barycentric, int* r)
+	float distance(const Triangle<float, 3>& tri, const Eigen::Matrix<float, 3, 1>& p, std::array<float, 3>* barycentric, int* r)
 	{
 		return distanceImpl(tri, p, barycentric, r);
 	}
-	float4  distance(const Triangle<float4, 3>& tri, const Eigen::Matrix<float4, 3, 1>& p, std::array<float4, 3>* barycentric, int* r)
+	float4 distance(const Triangle<float4, 3>& tri, const Eigen::Matrix<float4, 3, 1>& p, std::array<float4, 3>* barycentric, int* r)
 	{
 		return distanceImpl(tri, p, barycentric, r);
 	}
-	float8  distance(const Triangle<float8, 3>& tri, const Eigen::Matrix<float8, 3, 1>& p, std::array<float8, 3>* barycentric, int* r)
+	float8 distance(const Triangle<float8, 3>& tri, const Eigen::Matrix<float8, 3, 1>& p, std::array<float8, 3>* barycentric, int* r)
 	{
 		return distanceImpl(tri, p, barycentric, r);
 	}

@@ -38,8 +38,8 @@ namespace Vcl { namespace Geometry {
 	 *	to support SIMD execution
 	 *	http://www.geometrictools.com/Documentation/DistancePoint3Triangle3.pdf
 	 */
-	float   distance(const Triangle<float,   3>& tri, const Eigen::Matrix<float,   3, 1>& p, std::array<float,   3>* barycentric = nullptr, int* r = nullptr);
-	float4  distance(const Triangle<float4,  3>& tri, const Eigen::Matrix<float4,  3, 1>& p, std::array<float4,  3>* barycentric = nullptr, int* r = nullptr);
-	float8  distance(const Triangle<float8,  3>& tri, const Eigen::Matrix<float8,  3, 1>& p, std::array<float8,  3>* barycentric = nullptr, int* r = nullptr);
+	float distance(const Triangle<float, 3>& tri, const Eigen::Matrix<float, 3, 1>& p, std::array<float, 3>* barycentric = nullptr, int* r = nullptr);
+	float4 distance(const Triangle<float4, 3>& tri, const Eigen::Matrix<float4, 3, 1>& p, std::array<float4, 3>* barycentric = nullptr, int* r = nullptr);
+	float8 distance(const Triangle<float8, 3>& tri, const Eigen::Matrix<float8, 3, 1>& p, std::array<float8, 3>* barycentric = nullptr, int* r = nullptr);
 	float16 distance(const Triangle<float16, 3>& tri, const Eigen::Matrix<float16, 3, 1>& p, std::array<float16, 3>* barycentric = nullptr, int* r = nullptr);
 }}

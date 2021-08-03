@@ -49,23 +49,23 @@ namespace Vcl { namespace IO {
 				short type;
 				int size;
 				short reserved1,
-					  reserved2;
-				int offset; 
+					reserved2;
+				int offset;
 			};
 
 			struct Info
 			{
-				int   Size;
-				long  Width;
-				long  Height;
+				int Size;
+				long Width;
+				long Height;
 				short Planes;
 				short BitCount;
-				int   Compression;
-				int   SizeImage;
-				long  XPelsPerMeter;
-				long  YPelsPerMeter;
-				int   ClrUsed;
-				int   ClrImportant;
+				int Compression;
+				int SizeImage;
+				long XPelsPerMeter;
+				long YPelsPerMeter;
+				int ClrUsed;
+				int ClrImportant;
 			};
 
 			struct Colour

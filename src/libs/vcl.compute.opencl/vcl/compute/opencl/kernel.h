@@ -39,7 +39,8 @@
 namespace Vcl { namespace Compute { namespace OpenCL {
 	struct LocalMemory
 	{
-		LocalMemory(size_t size) : Size(size) {}
+		LocalMemory(size_t size)
+		: Size(size) {}
 
 		size_t Size;
 	};

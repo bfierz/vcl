@@ -164,10 +164,14 @@ namespace Vcl { namespace Geometry { namespace IO {
 					ele_parser.skipLine();
 				} else
 				{
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[0])); tetrahedron[0] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[1])); tetrahedron[1] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[2])); tetrahedron[2] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[3])); tetrahedron[3] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[0]));
+					tetrahedron[0] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[1]));
+					tetrahedron[1] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[2]));
+					tetrahedron[2] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[3]));
+					tetrahedron[3] -= 1;
 
 					deserialiser->addVolume(tetrahedron);
 				}

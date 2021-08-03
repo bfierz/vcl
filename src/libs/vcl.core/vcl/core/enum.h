@@ -34,61 +34,72 @@
 #include <vcl/core/preprocessor.h>
 #include <vcl/core/convert.h>
 
-#define VCL_DECLARE_ENUMS(name, n)          name = n,
-#define VCL_DECLARE_ENUM_IDX_TO_VALUE(name, n) case n: return EnumType::name;
-#define VCL_DECLARE_ENUM_IDX_TO_STRING(name, n) case n: return VCL_PP_STRINGIZE(name);
-#define VCL_DECLARE_ENUM_TO_STRING(name, n) case EnumType::name: return VCL_PP_STRINGIZE(name);
-#define VCL_DECLARE_STRING_TO_ENUM(name, n) if (value == VCL_PP_STRINGIZE(name)) { return EnumType::name; } else 
+#define VCL_DECLARE_ENUMS(name, n) name = n,
+#define VCL_DECLARE_ENUM_IDX_TO_VALUE(name, n) \
+	case n:                                    \
+		return EnumType::name;
+#define VCL_DECLARE_ENUM_IDX_TO_STRING(name, n) \
+	case n:                                     \
+		return VCL_PP_STRINGIZE(name);
+#define VCL_DECLARE_ENUM_TO_STRING(name, n) \
+	case EnumType::name:                    \
+		return VCL_PP_STRINGIZE(name);
+#define VCL_DECLARE_STRING_TO_ENUM(name, n) \
+	if (value == VCL_PP_STRINGIZE(name))    \
+	{                                       \
+		return EnumType::name;              \
+	} else
 
-#define VCL_DECLARE_ENUM(type_name, ...)								       \
-enum class type_name													       \
-{																		       \
-	VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUMS, __VA_ARGS__)				       \
-};																		       \
-namespace Vcl															       \
-{																		       \
-	template<>																   \
-	VCL_CPP_CONSTEXPR_11 unsigned int enumCount<type_name>()						   \
-	{																		   \
-		return VCL_PP_VA_NUM_ARGS(__VA_ARGS__);								   \
-	}																		   \
-	template<>																   \
-	type_name enumValue<type_name>(uint32_t i)			                       \
-	{                                                                          \
-		using EnumType = type_name;                                            \
-		switch (i)                                                             \
-		{                                                                      \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_IDX_TO_VALUE, __VA_ARGS__)     \
-		}                                                                      \
-		return type_name(0);                                                   \
-	}																		   \
-	template<>																   \
-	std::string enumName<type_name>(uint32_t i)		                           \
-	{                                                                          \
-		switch (i)                                                             \
-		{                                                                      \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_IDX_TO_STRING, __VA_ARGS__)    \
-		}                                                                      \
-		return{};                                                              \
-	}																		   \
-	template<>															       \
-	inline std::string to_string<type_name>(const type_name& value)            \
-	{                                                                          \
-		using EnumType = type_name;                                            \
-		switch (value)                                                         \
-		{                                                                      \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_ENUM_TO_STRING, __VA_ARGS__)        \
-		}                                                                      \
-		return{};                                                              \
-	}                                                                          \
-	template<>															       \
-	inline type_name from_string<type_name>(const std::string& value)          \
-	{																	       \
-		using EnumType = type_name;                                            \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_STRING_TO_ENUM, __VA_ARGS__)        \
-		{ return type_name(0); }										       \
-	}																	       \
-}
+#define VCL_DECLARE_ENUM(type_name, ...)                                           \
+	enum class type_name                                                           \
+	{                                                                              \
+		VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_ENUMS, __VA_ARGS__)                      \
+	};                                                                             \
+	namespace Vcl {                                                                \
+		template<>                                                                 \
+		VCL_CPP_CONSTEXPR_11 unsigned int enumCount<type_name>()                   \
+		{                                                                          \
+			return VCL_PP_VA_NUM_ARGS(__VA_ARGS__);                                \
+		}                                                                          \
+		template<>                                                                 \
+		type_name enumValue<type_name>(uint32_t i)                                 \
+		{                                                                          \
+			using EnumType = type_name;                                            \
+			switch (i)                                                             \
+			{                                                                      \
+				VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_ENUM_IDX_TO_VALUE, __VA_ARGS__)  \
+			}                                                                      \
+			return type_name(0);                                                   \
+		}                                                                          \
+		template<>                                                                 \
+		std::string enumName<type_name>(uint32_t i)                                \
+		{                                                                          \
+			switch (i)                                                             \
+			{                                                                      \
+				VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_ENUM_IDX_TO_STRING, __VA_ARGS__) \
+			}                                                                      \
+			return {};                                                             \
+		}                                                                          \
+		template<>                                                                 \
+		inline std::string to_string<type_name>(const type_name& value)            \
+		{                                                                          \
+			using EnumType = type_name;                                            \
+			switch (value)                                                         \
+			{                                                                      \
+				VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_ENUM_TO_STRING, __VA_ARGS__)     \
+			}                                                                      \
+			return {};                                                             \
+		}                                                                          \
+		template<>                                                                 \
+		inline type_name from_string<type_name>(const std::string& value)          \
+		{                                                                          \
+			using EnumType = type_name;                                            \
+			VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_STRING_TO_ENUM, __VA_ARGS__)         \
+			{                                                                      \
+				return type_name(0);                                               \
+			}                                                                      \
+		}                                                                          \
+	}
 
 namespace Vcl {
 	template<typename T>
@@ -106,6 +117,6 @@ namespace Vcl {
 	template<typename T>
 	std::string enumName(uint32_t i)
 	{
-		return{};
+		return {};
 	}
 }

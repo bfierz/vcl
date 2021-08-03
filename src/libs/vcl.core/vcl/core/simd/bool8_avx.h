@@ -38,7 +38,7 @@ namespace Vcl {
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(AVX)
 		explicit VCL_STRONG_INLINE VectorScalar(__m256i I8) noexcept { set(_mm256_castsi256_ps(I8)); }
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, _mm256_and_ps, 1)
 		VCL_SIMD_BINARY_OP(operator||, _mm256_or_ps, 1)

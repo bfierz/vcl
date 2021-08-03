@@ -32,9 +32,9 @@
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl { namespace Mathematics {
-	int QRJacobiSVD(Eigen::Matrix<float,   3, 3>& A, Eigen::Matrix<float,   3, 3>& U, Eigen::Matrix<float,   3, 3>& V);
-	int QRJacobiSVD(Eigen::Matrix<float4,  3, 3>& A, Eigen::Matrix<float4,  3, 3>& U, Eigen::Matrix<float4,  3, 3>& V);
-	int QRJacobiSVD(Eigen::Matrix<float8,  3, 3>& A, Eigen::Matrix<float8,  3, 3>& U, Eigen::Matrix<float8,  3, 3>& V);
+	int QRJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V);
+	int QRJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V);
+	int QRJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V);
 	int QRJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V);
 
 	int QRJacobiSVD(Eigen::Matrix3d& A, Eigen::Matrix3d& U, Eigen::Matrix3d& V);

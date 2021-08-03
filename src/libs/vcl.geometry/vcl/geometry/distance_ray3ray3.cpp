@@ -51,18 +51,18 @@ namespace Vcl { namespace Geometry {
 		// | -PQ Q^2 | | t | = |  (A - B)Q |
 		const auto& A = ray_a.origin();
 		const auto& B = ray_b.origin();
-		
+
 		const auto& P = ray_a.direction();
 		const auto& Q = ray_b.direction();
-		const Real pp =  P.dot(P);
-		const Real qq =  Q.dot(Q);
+		const Real pp = P.dot(P);
+		const Real qq = Q.dot(Q);
 		const Real pq = -P.dot(Q);
 		const Real c1 = -(A - B).dot(P);
-		const Real c2 =  (A - B).dot(Q);
+		const Real c2 = (A - B).dot(Q);
 
-		const Real D  = pp*qq - pq*pq;
-		const Real Ds = c1*qq - pq*c2;
-		const Real Dt = pp*c2 - c1*pq;
+		const Real D = pp * qq - pq * pq;
+		const Real Ds = c1 * qq - pq * c2;
+		const Real Dt = pp * c2 - c1 * pq;
 
 		// Handle parallel rays (D == 0)
 		const Real s = select(D > 0, Ds / D, Real(0.0f));

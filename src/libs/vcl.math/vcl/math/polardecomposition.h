@@ -32,9 +32,9 @@
 #include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl { namespace Mathematics {
-	void PolarDecomposition(Eigen::Matrix<float,   3, 3>& A, Eigen::Matrix<float,   3, 3>& R, Eigen::Matrix<float,   3, 3>* S);
-	void PolarDecomposition(Eigen::Matrix<float4,  3, 3>& A, Eigen::Matrix<float4,  3, 3>& R, Eigen::Matrix<float4,  3, 3>* S);
-	void PolarDecomposition(Eigen::Matrix<float8,  3, 3>& A, Eigen::Matrix<float8,  3, 3>& R, Eigen::Matrix<float8,  3, 3>* S);
+	void PolarDecomposition(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>* S);
+	void PolarDecomposition(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>* S);
+	void PolarDecomposition(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>* S);
 	void PolarDecomposition(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& R, Eigen::Matrix<float16, 3, 3>* S);
 
 	void PolarDecomposition(Eigen::Matrix3d& A, Eigen::Matrix3d& R, Eigen::Matrix3d* S);

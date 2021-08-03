@@ -30,7 +30,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Shader constants
 ////////////////////////////////////////////////////////////////////////////////
-UNIFORM_BUFFER(0) TransformData
+UNIFORM_BUFFER(0)
+TransformData
 {
 	// Transform to world space
 	mat4 ModelMatrix;
@@ -39,7 +40,8 @@ UNIFORM_BUFFER(0) TransformData
 	mat4 ViewProjectionMatrix;
 };
 
-UNIFORM_BUFFER(1) BoundingGridConfig
+UNIFORM_BUFFER(1)
+BoundingGridConfig
 {
 	// Axis' in model space
 	vec3 Axis[3];

@@ -44,26 +44,26 @@ namespace Vcl {
 			for (int i = 0; i < NrValues; i++)
 				_data[i] = scalars[i * stride];
 		}
-		VCL_STRONG_INLINE Scalar& operator[] (int idx) { return _data[idx]; }
+		VCL_STRONG_INLINE Scalar& operator[](int idx) { return _data[idx]; }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator+, Core::Simd::Details::add, 4)
 		VCL_SIMD_BINARY_OP(operator-, Core::Simd::Details::sub, 4)
 		VCL_SIMD_BINARY_OP(operator*, Core::Simd::Details::mul, 4)
 		VCL_SIMD_BINARY_OP(operator/, Core::Simd::Details::div, 4)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, Core::Simd::Details::add, 4)
 		VCL_SIMD_ASSIGN_OP(operator-=, Core::Simd::Details::sub, 4)
 		VCL_SIMD_ASSIGN_OP(operator*=, Core::Simd::Details::mul, 4)
 		VCL_SIMD_ASSIGN_OP(operator/=, Core::Simd::Details::div, 4)
-		
+
 	public:
 		VCL_SIMD_COMP_OP(operator==, Core::Simd::Details::cmpeq, 4)
 		VCL_SIMD_COMP_OP(operator!=, Core::Simd::Details::cmpne, 4)
-		VCL_SIMD_COMP_OP(operator<,  Core::Simd::Details::cmplt, 4)
+		VCL_SIMD_COMP_OP(operator<, Core::Simd::Details::cmplt, 4)
 		VCL_SIMD_COMP_OP(operator<=, Core::Simd::Details::cmple, 4)
-		VCL_SIMD_COMP_OP(operator>,  Core::Simd::Details::cmpgt, 4)
+		VCL_SIMD_COMP_OP(operator>, Core::Simd::Details::cmpgt, 4)
 		VCL_SIMD_COMP_OP(operator>=, Core::Simd::Details::cmpge, 4)
 
 	public:
@@ -79,7 +79,7 @@ namespace Vcl {
 		VCL_SIMD_UNARY_OP(sqrt, std::sqrt, 4)
 		VCL_SIMD_UNARY_OP(rcp, Vcl::Mathematics::rcp, 4)
 		VCL_SIMD_UNARY_OP(rsqrt, Vcl::Mathematics::rsqrt, 4)
-		
+
 		VCL_SIMD_QUERY_OP(isinf, std::isinf, 4)
 
 	public:

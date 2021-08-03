@@ -45,7 +45,7 @@ namespace Vcl { namespace Geometry {
 	class PropertyGroup
 	{
 	public:
-		using map_type   = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
+		using map_type = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
 		using index_type = IndexT;
 
 	public:

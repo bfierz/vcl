@@ -39,29 +39,26 @@ namespace Vcl { namespace Graphics {
 	{
 		using namespace Vcl::Graphics::Runtime;
 
-		unsigned int numBlocks = ((maxElements % (LocalSize * 4)) == 0) ?
-			(maxElements / (LocalSize * 4)) : (maxElements / (LocalSize * 4) + 1);
+		unsigned int numBlocks = ((maxElements % (LocalSize * 4)) == 0) ? (maxElements / (LocalSize * 4)) : (maxElements / (LocalSize * 4) + 1);
 
-		BufferDescription desc_large =
-		{
+		BufferDescription desc_large = {
 			maxElements * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
-		BufferDescription desc_small =
-		{
+		BufferDescription desc_small = {
 			32 * numBlocks * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
-		
-		_tmpKeys      = make_owner<Runtime::OpenGL::Buffer>(desc_large);
-		_counters     = make_owner<Runtime::OpenGL::Buffer>(desc_small);
-		_countersSum  = make_owner<Runtime::OpenGL::Buffer>(desc_small);
+
+		_tmpKeys = make_owner<Runtime::OpenGL::Buffer>(desc_large);
+		_counters = make_owner<Runtime::OpenGL::Buffer>(desc_small);
+		_countersSum = make_owner<Runtime::OpenGL::Buffer>(desc_small);
 		_blockOffsets = make_owner<Runtime::OpenGL::Buffer>(desc_small);
 
 		// Load the sorting kernels
 		_radixSortBlocksKeysOnlyKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define radixSortBlocksKeysOnly\n", module_scan });
-		_findRadixOffsetsKernel        = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define findRadixOffsets\n", module_scan });
-		_reorderDataKeysOnlyKernel     = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
+		_findRadixOffsetsKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define findRadixOffsets\n", module_scan });
+		_reorderDataKeysOnlyKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
 	}
 
 	void RadixSort::operator()(

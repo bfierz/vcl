@@ -72,7 +72,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
-		ArraySize = 6*desc.ArraySize;
+		ArraySize = 6 * desc.ArraySize;
 		MipLevels = desc.MipLevels;
 	}
 

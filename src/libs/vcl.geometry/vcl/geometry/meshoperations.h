@@ -99,8 +99,7 @@ namespace Vcl { namespace Geometry {
 		// All remaining faces in the list should represent surface triangles
 		std::vector<std::array<VertexId, 3>> tri_adjs;
 		tri_adjs.reserve(face_lut.size());
-		std::transform(std::begin(face_lut), std::end(face_lut), std::back_inserter(tri_adjs), [](const auto& tri)
-		{
+		std::transform(std::begin(face_lut), std::end(face_lut), std::back_inserter(tri_adjs), [](const auto& tri) {
 			return tri.second;
 		});
 
@@ -118,8 +117,7 @@ namespace Vcl { namespace Geometry {
 
 		// Initialize the adjacencies by building a cache for the second pass.
 		// For each edge it stores the third vertex
-		std::transform(std::begin(triangles), std::end(triangles), std::back_inserter(tri_adjs), [&edge_face_lut](const auto& tri)
-		{
+		std::transform(std::begin(triangles), std::end(triangles), std::back_inserter(tri_adjs), [&edge_face_lut](const auto& tri) {
 			auto e0 = makeEdgeHash(tri[0], tri[1]);
 			auto e1 = makeEdgeHash(tri[1], tri[2]);
 			auto e2 = makeEdgeHash(tri[0], tri[2]);
@@ -130,14 +128,13 @@ namespace Vcl { namespace Geometry {
 
 			return std::make_array(tri[0], VertexId::InvalidId(), tri[1], VertexId::InvalidId(), tri[2], VertexId::InvalidId());
 		});
-		
+
 		// Connect the neighbours to the central triangle
 		size_t idx = 0;
 		for (auto& tri_adj : tri_adjs)
 		{
 			uint64_t v[] = { tri_adj[4].id(), tri_adj[0].id(), tri_adj[2].id() };
-			uint64_t e[] =
-			{
+			uint64_t e[] = {
 				makeEdgeHash(tri_adj[0], tri_adj[2]),
 				makeEdgeHash(tri_adj[2], tri_adj[4]),
 				makeEdgeHash(tri_adj[0], tri_adj[4])
@@ -161,12 +158,10 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename VertexId>
-	void computeNormals
-	(
+	void computeNormals(
 		const stdext::span<std::array<VertexId, 3>>& triangles,
 		const stdext::span<Eigen::Vector3f>& points,
-		stdext::span<Eigen::Vector3f> normals
-	)
+		stdext::span<Eigen::Vector3f> normals)
 	{
 		for (int idx = 0; idx < (int)triangles.size(); idx++)
 		{
@@ -175,9 +170,12 @@ namespace Vcl { namespace Geometry {
 			Eigen::Vector3f p2 = points[triangles[idx][2].id()];
 
 			// Compute the edges
-			Eigen::Vector3f p0p1 = p1 - p0; float p0p1_l = p0p1.norm();
-			Eigen::Vector3f p1p2 = p2 - p1; float p1p2_l = p1p2.norm();
-			Eigen::Vector3f p2p0 = p0 - p2; float p2p0_l = p2p0.norm();
+			Eigen::Vector3f p0p1 = p1 - p0;
+			float p0p1_l = p0p1.norm();
+			Eigen::Vector3f p1p2 = p2 - p1;
+			float p1p2_l = p1p2.norm();
+			Eigen::Vector3f p2p0 = p0 - p2;
+			float p2p0_l = p2p0.norm();
 
 			// Normalize the edges
 			p0p1 = p0p1_l > 1e-6f ? p0p1.normalized() : Eigen::Vector3f::Zero();

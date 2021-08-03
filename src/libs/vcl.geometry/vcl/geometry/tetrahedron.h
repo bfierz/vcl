@@ -73,10 +73,10 @@ namespace Vcl { namespace Geometry {
 			L[4] = _data[3] - _data[1];
 			L[5] = _data[3] - _data[2];
 
-			real_t A = (real_t) 0.5 * (L[2].cross(L[0]).norm() +
-			                            L[3].cross(L[0]).norm() +
-			                            L[4].cross(L[1]).norm() +
-			                            L[3].cross(L[2]).norm());
+			real_t A = (real_t)0.5 * (L[2].cross(L[0]).norm() +
+									  L[3].cross(L[0]).norm() +
+									  L[4].cross(L[1]).norm() +
+									  L[3].cross(L[2]).norm());
 
 			return (real_t)3 * computeVolume() / A;
 		}
@@ -110,12 +110,12 @@ namespace Vcl { namespace Geometry {
 			// Calculate the volume for a right-handed coordinate system
 			Eigen::Matrix<real_t, 4, 4> m;
 			m << _data[0].x(), _data[1].x(), _data[2].x(), _data[3].x(),
-				 _data[0].y(), _data[1].y(), _data[2].y(), _data[3].y(),
-				 _data[0].z(), _data[1].z(), _data[2].z(), _data[3].z(),
-				   (real_t) 1,   (real_t) 1,   (real_t) 1,   (real_t) 1;
+				_data[0].y(), _data[1].y(), _data[2].y(), _data[3].y(),
+				_data[0].z(), _data[1].z(), _data[2].z(), _data[3].z(),
+				(real_t)1, (real_t)1, (real_t)1, (real_t)1;
 
-			real_t vol = -m.determinant() / (real_t) 6;
-		
+			real_t vol = -m.determinant() / (real_t)6;
+
 			VclAssertBlock
 			{
 				real_t ref = (_data[3] - _data[0]).dot((_data[1] - _data[0]).cross((_data[2] - _data[0]))) / (real_t)6;
@@ -166,7 +166,7 @@ namespace Vcl { namespace Geometry {
 			real_t l2 = b.squaredNorm();
 			real_t tmp = (a.dot(b)) / sqrt(l1 * l2);
 			if (tmp >= 1.0)
-				return 0.0f;         // avoid rounding errors
+				return 0.0f; // avoid rounding errors
 			if (tmp <= -1.0)
 				return pi<real_t>(); // avoid rounding errors
 

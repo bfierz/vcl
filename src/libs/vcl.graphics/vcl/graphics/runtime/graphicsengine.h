@@ -103,7 +103,8 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	class ConstantBufferView : public BufferView
 	{
 	public:
-		ConstantBufferView(BufferView&& view) : BufferView(std::move(view)) {}
+		ConstantBufferView(BufferView&& view)
+		: BufferView(std::move(view)) {}
 		T* operator->() { return reinterpret_cast<T*>(data()); }
 	};
 

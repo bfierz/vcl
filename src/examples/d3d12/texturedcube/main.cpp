@@ -82,13 +82,15 @@ public:
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, CubeCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, CubeCsoPS);
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_VERTEX },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_PIXEL }
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX },
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
+				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND }
+			} }, D3D12_SHADER_VISIBILITY_PIXEL }
 		};
+		// clang-format on
+
 		std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers = {
 			CD3DX12_STATIC_SAMPLER_DESC(
 				0,
@@ -104,6 +106,7 @@ public:
 		};
 		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources), std::move(static_samplers));
 
+		// clang-format off
 		InputLayoutDescription input_layout{
 			{
 				{ 0, 5 * sizeof(float), VertexDataClassification::VertexDataPerObject },
@@ -113,6 +116,7 @@ public:
 				{ "UV",       SurfaceFormat::R32G32_FLOAT,    0, 0, 12 },
 			}
 		};
+		// clang-format on
 
 		PipelineStateDescription psd;
 		psd.VertexShader = _vs.get();
@@ -128,8 +132,8 @@ public:
 		_camera.setFarPlane(10.0f);
 		_camera.setPosition({ 1.5f, 1.5f, 1.5f });
 
-		std::vector<float> cube_points =
-		{
+		// clang-format off
+		std::vector<float> cube_points = {
 			-1.0f,-1.0f,-1.0f, 0.0f, 0.0f,
 			-1.0f,-1.0f, 1.0f, 0.0f, 1.0f,
 			-1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -172,6 +176,8 @@ public:
 			-1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
 			+1.0f,-1.0f, 1.0f, 1.0f, 0.0f,
 		};
+		// clang-format on
+
 		BufferDescription vbo_desc = {
 			cube_points.size() * sizeof(float),
 			BufferUsage::Vertex

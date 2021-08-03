@@ -31,51 +31,60 @@ namespace Vcl { namespace Mathematics {
 	////////////////////////////////////////////////////////////////////////
 	// basic up / downsampling
 	////////////////////////////////////////////////////////////////////////
-	static void Downsample(const float *from, float *to, int n, int stride)
+	static void Downsample(const float* from, float* to, int n, int stride)
 	{
 		static const float aCoeffs[32] = {
-			0.000334f,-0.001528f, 0.000410f, 0.003545f,-0.000938f,-0.008233f, 0.002172f, 0.019120f,
-			-0.005040f,-0.044412f, 0.011655f, 0.103311f,-0.025936f,-0.243780f, 0.033979f, 0.655340f,
-			0.655340f, 0.033979f,-0.243780f,-0.025936f, 0.103311f, 0.011655f,-0.044412f,-0.005040f,
-			0.019120f, 0.002172f,-0.008233f,-0.000938f, 0.003546f, 0.000410f,-0.001528f, 0.000334f
+			0.000334f, -0.001528f, 0.000410f, 0.003545f, -0.000938f, -0.008233f, 0.002172f, 0.019120f,
+			-0.005040f, -0.044412f, 0.011655f, 0.103311f, -0.025936f, -0.243780f, 0.033979f, 0.655340f,
+			0.655340f, 0.033979f, -0.243780f, -0.025936f, 0.103311f, 0.011655f, -0.044412f, -0.005040f,
+			0.019120f, 0.002172f, -0.008233f, -0.000938f, 0.003546f, 0.000410f, -0.001528f, 0.000334f
 		};
-		static const float *const aCoCenter= &aCoeffs[16];
+		static const float* const aCoCenter = &aCoeffs[16];
 
-		for (int i = 0; i < n / 2; i++) {
+		for (int i = 0; i < n / 2; i++)
+		{
 			to[i * stride] = 0;
-			for (int k = 2 * i - 16; k < 2 * i + 16; k++) { 
+			for (int k = 2 * i - 16; k < 2 * i + 16; k++)
+			{
 				// handle boundary
-				float fromval; 
-				if(k<0) {
+				float fromval;
+				if (k < 0)
+				{
 					fromval = from[0];
-				} else if(k>n-1) {
-					fromval = from[(n-1) * stride];
-				} else {
-					fromval = from[k * stride]; 
-				} 
-				
-				to[i * stride] += aCoCenter[k - 2*i] * fromval; 
+				} else if (k > n - 1)
+				{
+					fromval = from[(n - 1) * stride];
+				} else
+				{
+					fromval = from[k * stride];
+				}
+
+				to[i * stride] += aCoCenter[k - 2 * i] * fromval;
 			}
 		}
 	}
 
-	static void Upsample(const float *from, float *to, int n, int stride)
+	static void Upsample(const float* from, float* to, int n, int stride)
 	{
 		static const float pCoeffs[4] = { 0.25f, 0.75f, 0.75f, 0.25f };
-		static const float *const pCoCenter = &pCoeffs[2];
-	
-		for (int i = 0; i < n; i++) {
+		static const float* const pCoCenter = &pCoeffs[2];
+
+		for (int i = 0; i < n; i++)
+		{
 			to[i * stride] = 0;
-			for (int k = i / 2; k <= i / 2 + 1; k++) {
+			for (int k = i / 2; k <= i / 2 + 1; k++)
+			{
 				float fromval;
 				// handle boundary
-				if(k>n/2) {
-					fromval = from[(n/2) * stride];
-				} else {
-					fromval = from[k * stride]; 
-				} 
+				if (k > n / 2)
+				{
+					fromval = from[(n / 2) * stride];
+				} else
+				{
+					fromval = from[k * stride];
+				}
 
-				to[i * stride] += pCoCenter[i - 2 * k] * fromval; 
+				to[i * stride] += pCoCenter[i - 2 * k] * fromval;
 			}
 		}
 	}
@@ -85,59 +94,71 @@ namespace Vcl { namespace Mathematics {
 	////////////////////////////////////////////////////////////////////////
 
 	// some convenience functions for an nxn image
-	static void DownsampleX(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int iy = 0; iy < sy; iy++) 
-			for (int iz = 0; iz < sz; iz++) {
-				const int i = iy * sx + iz*sx*sy;
+	static void DownsampleX(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int iy = 0; iy < sy; iy++)
+			for (int iz = 0; iz < sz; iz++)
+			{
+				const int i = iy * sx + iz * sx * sy;
 				Downsample(&from[i], &to[i], sx, 1);
 			}
 	}
-	static void DownsampleY(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int ix = 0; ix < sx; ix++) 
-			for (int iz = 0; iz < sz; iz++) {
-				const int i = ix + iz*sx*sy;
+	static void DownsampleY(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int ix = 0; ix < sx; ix++)
+			for (int iz = 0; iz < sz; iz++)
+			{
+				const int i = ix + iz * sx * sy;
 				Downsample(&from[i], &to[i], sy, sx);
-		}
+			}
 	}
-	static void DownsampleZ(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int ix = 0; ix < sx; ix++) 
-			for (int iy = 0; iy < sy; iy++) {
-				const int i = ix + iy*sx;
-				Downsample(&from[i], &to[i], sz, sx*sy);
-		}
+	static void DownsampleZ(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int ix = 0; ix < sx; ix++)
+			for (int iy = 0; iy < sy; iy++)
+			{
+				const int i = ix + iy * sx;
+				Downsample(&from[i], &to[i], sz, sx * sy);
+			}
 	}
-	static void UpsampleX(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int iy = 0; iy < sy; iy++) 
-			for (int iz = 0; iz < sz; iz++) {
-				const int i = iy * sx + iz*sx*sy;
+	static void UpsampleX(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int iy = 0; iy < sy; iy++)
+			for (int iz = 0; iz < sz; iz++)
+			{
+				const int i = iy * sx + iz * sx * sy;
 				Upsample(&from[i], &to[i], sx, 1);
 			}
 	}
-	static void UpsampleY(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int ix = 0; ix < sx; ix++) 
-			for (int iz = 0; iz < sz; iz++) {
-				const int i = ix + iz*sx*sy;
+	static void UpsampleY(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int ix = 0; ix < sx; ix++)
+			for (int iz = 0; iz < sz; iz++)
+			{
+				const int i = ix + iz * sx * sy;
 				Upsample(&from[i], &to[i], sy, sx);
 			}
 	}
-	static void UpsampleZ(float* to, const float* from, int sx,int sy, int sz) {
-		
-		for (int ix = 0; ix < sx; ix++) 
-			for (int iy = 0; iy < sy; iy++) {
-				const int i = ix + iy*sx;
-				Upsample(&from[i], &to[i], sz, sx*sy);
+	static void UpsampleZ(float* to, const float* from, int sx, int sy, int sz)
+	{
+
+		for (int ix = 0; ix < sx; ix++)
+			for (int iy = 0; iy < sy; iy++)
+			{
+				const int i = ix + iy * sx;
+				Upsample(&from[i], &to[i], sz, sx * sy);
 			}
 	}
 
 	WaveletStack3D::WaveletStack3D(int x_res, int y_res, int z_res)
 	: mResX(x_res), mResY(y_res), mResZ(z_res)
 	{
-		const size_t elem_cnt = static_cast<size_t>(mResX*mResY*mResZ);
+		const size_t elem_cnt = static_cast<size_t>(mResX * mResY * mResZ);
 		mBufferInput = new float[elem_cnt];
 		mBufferLowFreq = new float[elem_cnt];
 		mBufferHighFreq = new float[elem_cnt];
@@ -173,24 +194,22 @@ namespace Vcl { namespace Mathematics {
 		VCL_UNREFERENCED_PARAMETER(zRes);
 	}
 
-	void WaveletStack3D::Decompose
-	(
+	void WaveletStack3D::Decompose(
 		const float* input,
 		float*& lowFreq,
 		float*& highFreq,
 		float*& halfSize,
 		int xRes,
 		int yRes,
-		int zRes
-	)
+		int zRes)
 	{
 		// init the temp arrays
 		float* temp1 = lowFreq;
 		float* temp2 = highFreq;
 
-		memset(temp1, 0, static_cast<size_t>(xRes*yRes*zRes)*sizeof(float));
-		memset(temp2, 0, static_cast<size_t>(xRes*yRes*zRes)*sizeof(float));
-		
+		memset(temp1, 0, static_cast<size_t>(xRes * yRes * zRes) * sizeof(float));
+		memset(temp2, 0, static_cast<size_t>(xRes * yRes * zRes) * sizeof(float));
+
 		DownsampleX(temp1, input, xRes, yRes, zRes);
 		DownsampleY(temp2, temp1, xRes, yRes, zRes);
 		DownsampleZ(temp1, temp2, xRes, yRes, zRes);
@@ -205,7 +224,6 @@ namespace Vcl { namespace Mathematics {
 		UpsampleZ(temp2, temp1, xRes, yRes, zRes);
 		UpsampleY(temp1, temp2, xRes, yRes, zRes);
 		UpsampleX(temp2, temp1, xRes, yRes, zRes);
-		
 
 		// final low frequency component is in temp2
 		lowFreq = temp2;
@@ -230,7 +248,7 @@ namespace Vcl { namespace Mathematics {
 			}
 		}*/
 		index = 0;
-		for (int z = 0; z < zRes; z++) 
+		for (int z = 0; z < zRes; z++)
 		{
 			for (int y = 0; y < yRes; y++)
 			{
@@ -254,7 +272,7 @@ namespace Vcl { namespace Mathematics {
 			mCoeff.resize(static_cast<size_t>(levels), nullptr);
 		}
 
-		memcpy(mBufferInput, data, static_cast<size_t>(mResX*mResY*mResZ)*sizeof(float));
+		memcpy(mBufferInput, data, static_cast<size_t>(mResX * mResY * mResZ) * sizeof(float));
 
 		int currentXRes = mResX;
 		int currentYRes = mResY;
@@ -263,7 +281,7 @@ namespace Vcl { namespace Mathematics {
 		// Create the image stack
 		for (size_t x = 0; x < static_cast<size_t>(levels); x++)
 		{
-			const size_t curr_elem_cnt = static_cast<size_t>(currentXRes*currentYRes*currentZRes);
+			const size_t curr_elem_cnt = static_cast<size_t>(currentXRes * currentYRes * currentZRes);
 			if (mStack[x] == nullptr) mStack[x] = new float[curr_elem_cnt];
 			if (mCoeff[x] == nullptr) mCoeff[x] = new float[curr_elem_cnt];
 
@@ -301,12 +319,12 @@ namespace Vcl { namespace Mathematics {
 			mStack.resize(1, nullptr);
 		}
 
-		const size_t elem_cnt = static_cast<size_t>(mResX*mResY*mResZ);
+		const size_t elem_cnt = static_cast<size_t>(mResX * mResY * mResZ);
 		if (mStack[0] == nullptr) mStack[0] = new float[elem_cnt];
 
 		Decompose(data, mBufferLowFreq, mBufferHighFreq, mBufferHalfSize, mResX, mResY, mResZ);
 
 		// Save downsampled image to the stack
-		memcpy(mStack[0], mBufferHighFreq, elem_cnt*sizeof(float));
+		memcpy(mStack[0], mBufferHighFreq, elem_cnt * sizeof(float));
 	}
 }}

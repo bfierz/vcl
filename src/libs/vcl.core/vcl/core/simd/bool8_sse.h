@@ -41,7 +41,7 @@ namespace Vcl {
 		{
 			set(_mm_castsi128_ps(I4_0), _mm_castsi128_ps(I4_1));
 		}
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, _mm_and_ps, 2)
 		VCL_SIMD_BINARY_OP(operator||, _mm_or_ps, 2)
@@ -59,8 +59,8 @@ namespace Vcl {
 		//return vars[0] | vars[1] | vars[2] | vars[3] |
 		//       vars[4] | vars[5] | vars[6] | vars[7];
 
-		int mask  = _mm_movemask_ps(b.get(1)) << 4;
-		    mask |= _mm_movemask_ps(b.get(0));
+		int mask = _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
 
 		return mask != 0;
 	}
@@ -74,16 +74,16 @@ namespace Vcl {
 		//return vars[0] & vars[1] & vars[2] & vars[3] &
 		//       vars[4] & vars[5] & vars[6] & vars[7];
 
-		int mask  = _mm_movemask_ps(b.get(1)) << 4;
-		    mask |= _mm_movemask_ps(b.get(0));
-			
+		int mask = _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
+
 		return static_cast<unsigned int>(mask) == 0xff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b) noexcept
 	{
-		int mask  = _mm_movemask_ps(b.get(1)) << 4;
-		    mask |= _mm_movemask_ps(b.get(0));
+		int mask = _mm_movemask_ps(b.get(1)) << 4;
+		mask |= _mm_movemask_ps(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

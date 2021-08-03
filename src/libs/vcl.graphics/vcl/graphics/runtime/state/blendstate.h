@@ -74,7 +74,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		Colordodge = 11,
 		Colorburn = 12,
 		Hardlight = 13,
-		Softlight = 14, 
+		Softlight = 14,
 		Difference = 15,
 		Exclusion = 16,
 
@@ -106,13 +106,13 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 	struct RenderTargetBlendDescription
 	{
-		bool					 BlendEnable{ false };
-		Blend					 SrcBlend{ Blend::One };
-		Blend					 DestBlend{ Blend::Zero };
-		BlendOperation			 BlendOp{ BlendOperation::Add };
-		Blend					 SrcBlendAlpha{ Blend::One };
-		Blend					 DestBlendAlpha{ Blend::Zero };
-		BlendOperation			 BlendOpAlpha{ BlendOperation::Add };
+		bool BlendEnable{ false };
+		Blend SrcBlend{ Blend::One };
+		Blend DestBlend{ Blend::Zero };
+		BlendOperation BlendOp{ BlendOperation::Add };
+		Blend SrcBlendAlpha{ Blend::One };
+		Blend DestBlendAlpha{ Blend::Zero };
+		BlendOperation BlendOpAlpha{ BlendOperation::Add };
 		Flags<ColourWriteEnable> RenderTargetWriteMask{ ColourWriteEnable::Red | ColourWriteEnable::Green | ColourWriteEnable::Blue | ColourWriteEnable::Alpha };
 	};
 
@@ -121,7 +121,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		bool AlphaToCoverageEnable{ false };
 		bool IndependentBlendEnable{ false };
 
-		bool           LogicOpEnable{ false };
+		bool LogicOpEnable{ false };
 		LogicOperation LogicOp{ LogicOperation::NoOp };
 		std::array<RenderTargetBlendDescription, 8> RenderTarget;
 

@@ -37,7 +37,7 @@ namespace Vcl { namespace Graphics {
 	{
 		return _type;
 	}
-	
+
 	unsigned int ShadowMap::width() const
 	{
 		return _width;

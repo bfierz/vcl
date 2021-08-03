@@ -42,7 +42,7 @@
 
 // Tests the shader compilation
 const char* QuadVS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in vec2 Position;
@@ -77,7 +77,7 @@ void main()
 )";
 
 const char* QuadFS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in PerVertexData
@@ -96,7 +96,7 @@ void main()
 )";
 
 const char* QuadColourAlphaFS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in PerVertexData
@@ -115,7 +115,7 @@ void main()
 )";
 
 const char* SimpleCS =
-R"(
+	R"(
 #version 440 core
 
 // Kernel output
@@ -198,8 +198,8 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 	Runtime::OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadFS);
 
 	// Create the input definition
-	InputLayoutDescription in = 
-	{
+	// clang-format off
+	InputLayoutDescription in = {
 		{
 			{ 0, sizeof(Eigen::Vector2f) + sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
 			{ 1, sizeof(Eigen::Vector4f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerInstance }
@@ -210,6 +210,7 @@ TEST(OpenGL, BuildSimpleGraphicsShaderProgram)
 			{ "Scale",  Vcl::Graphics::SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
 		}
 	};
+	// clang-format on
 
 	// Create the program descriptor
 	Runtime::OpenGL::ShaderProgramDescription desc;
@@ -238,8 +239,8 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	Runtime::OpenGL::Shader fs(ShaderType::FragmentShader, 0, QuadSpirvFS);
 
 	// Create the input definition
-	InputLayoutDescription in = 
-	{
+	// clang-format off
+	InputLayoutDescription in = {
 		{
 			{ 0, sizeof(Eigen::Vector2f) + sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
 			{ 1, sizeof(Eigen::Vector4f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerInstance }
@@ -250,6 +251,7 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 			{ "Scale",  Vcl::Graphics::SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
 		}
 	};
+	// clang-format on
 
 	// Create the program descriptor
 	Runtime::OpenGL::ShaderProgramDescription desc;

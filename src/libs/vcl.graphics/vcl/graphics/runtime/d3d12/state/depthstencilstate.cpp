@@ -33,8 +33,8 @@
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_COMPARISON_FUNC toD3D12(ComparisonFunction op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case ComparisonFunction::Never:        return D3D12_COMPARISON_FUNC_NEVER;
 		case ComparisonFunction::Less:         return D3D12_COMPARISON_FUNC_LESS;
 		case ComparisonFunction::Equal:        return D3D12_COMPARISON_FUNC_EQUAL;
@@ -45,14 +45,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		case ComparisonFunction::Always:       return D3D12_COMPARISON_FUNC_ALWAYS;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return {};
 	}
 
 	D3D12_STENCIL_OP toD3D12(StencilOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case StencilOperation::Keep:             return D3D12_STENCIL_OP_KEEP;
 		case StencilOperation::Zero:             return D3D12_STENCIL_OP_ZERO;
 		case StencilOperation::Replace:          return D3D12_STENCIL_OP_REPLACE;
@@ -63,6 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		case StencilOperation::DecreaseWrap:     return D3D12_STENCIL_OP_DECR;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return {};
 	}

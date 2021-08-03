@@ -34,8 +34,8 @@ namespace Vcl { namespace Graphics {
 			return;
 
 		_initialPosition = camera()->position();
-		_initialUp       = camera()->up();
-		_initialTarget   = camera()->target();
+		_initialUp = camera()->up();
+		_initialTarget = camera()->target();
 	}
 
 	void TrackballCameraController::setRotationCenter(const Eigen::Vector3f& center)
@@ -44,8 +44,8 @@ namespace Vcl { namespace Graphics {
 		{
 			// Build a rotation transformation around the current center
 			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
-			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+			auto R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+			auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
 
 			// Connect to the existing transformation
 			auto T = C * R * mC * _objAccumTransform;
@@ -62,8 +62,8 @@ namespace Vcl { namespace Graphics {
 		{
 			// Build a rotation transformation around the current center
 			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
-			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+			auto R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
+			auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
 
 			// Connect to the existing transformation
 			auto T = C * R * mC * _objAccumTransform;
@@ -93,8 +93,8 @@ namespace Vcl { namespace Graphics {
 			{
 				// Build a rotation transformation around the current center
 				auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-				auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
-				auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
+				auto R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+				auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
 
 				// Connect to the existing transformation
 				auto T = C * R * mC * _objAccumTransform;
@@ -131,8 +131,8 @@ namespace Vcl { namespace Graphics {
 
 			// Build a rotation transformation around the current center
 			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
-			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+			auto R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().toRotationMatrix() };
+			auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
 
 			// Connect to the existing transformation
 			auto T = C * R * mC * _objAccumTransform;
@@ -145,11 +145,11 @@ namespace Vcl { namespace Graphics {
 		case CameraMode::CameraTarget:
 		{
 			_trackball.rotate(ratio_x, ratio_y, true);
-		
+
 			// Build a rotation transformation around the current center
 			auto mC = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ -_objRotationCenter } };
-			auto  R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
-			auto  C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{  _objRotationCenter } };
+			auto R = Eigen::Transform<float, 3, Eigen::Affine>{ _trackball.rotation().inverse().toRotationMatrix() };
+			auto C = Eigen::Transform<float, 3, Eigen::Affine>{ Eigen::Translation3f{ _objRotationCenter } };
 
 			// Connect to the existing transformation
 			auto T = C * R * mC * _objAccumTransform;
@@ -171,7 +171,7 @@ namespace Vcl { namespace Graphics {
 
 			point_on_sphere = _trackball.rotation().conjugate() * point_on_sphere;
 			up = _trackball.rotation().conjugate() * up;
-		
+
 			camera()->setPosition(camera()->target() + point_on_sphere * length);
 			camera()->setUp(up.normalized());
 			break;
@@ -181,14 +181,14 @@ namespace Vcl { namespace Graphics {
 			float length = (camera()->target() - camera()->position()).norm();
 
 			_trackball.rotate(ratio_x, ratio_y, true);
-			
+
 			Vector3f point_on_sphere = _initialTarget - _initialPosition;
 			point_on_sphere.normalize();
 			Vector3f up = point_on_sphere + _initialUp;
 
 			point_on_sphere = _trackball.rotation() * point_on_sphere;
 			up = _trackball.rotation() * up;
-		
+
 			camera()->setTarget(camera()->position() + point_on_sphere * length);
 			camera()->setUp((up - point_on_sphere).normalized());
 			break;

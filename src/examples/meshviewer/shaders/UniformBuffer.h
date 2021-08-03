@@ -27,46 +27,47 @@
 
 #ifdef __cplusplus
 #	define UNIFORM_BUFFER(loc) struct
-	
-	namespace std140
+
+namespace std140 {
+	struct vec3
 	{
-		struct vec3
+		float x, y, z;
+
+		vec3() {}
+		vec3(const Eigen::Vector3f& v)
+		: x(v.x()), y(v.y()), z(v.z()) {}
+
+	private:
+		float pad;
+	};
+
+	struct vec4
+	{
+		float x, y, z, w;
+
+		vec4() {}
+		vec4(const Eigen::Vector4f& v)
+		: x(v.x()), y(v.y()), z(v.z()), w(v.w()) {}
+	};
+
+	struct mat4
+	{
+		vec4 cols[4];
+
+		mat4() {}
+		mat4(const Eigen::Matrix4f& m)
 		{
-			float x, y, z;
+			cols[0] = vec4{ Eigen::Vector4f{ m.col(0) } };
+			cols[1] = vec4{ Eigen::Vector4f{ m.col(1) } };
+			cols[2] = vec4{ Eigen::Vector4f{ m.col(2) } };
+			cols[3] = vec4{ Eigen::Vector4f{ m.col(3) } };
+		}
+	};
+}
 
-			vec3() {}
-			vec3(const Eigen::Vector3f& v) : x(v.x()), y(v.y()), z(v.z()) {}
-			
-		private:
-			float pad;
-		};
-
-		struct vec4
-		{
-			float x, y, z, w;
-
-			vec4() {}
-			vec4(const Eigen::Vector4f& v) : x(v.x()), y(v.y()), z(v.z()), w(v.w()) {}
-		};
-
-		struct mat4
-		{
-			vec4 cols[4];
-
-			mat4() {}
-			mat4(const Eigen::Matrix4f& m)
-			{
-				cols[0] = vec4{ Eigen::Vector4f{ m.col(0) } };
-				cols[1] = vec4{ Eigen::Vector4f{ m.col(1) } };
-				cols[2] = vec4{ Eigen::Vector4f{ m.col(2) } };
-				cols[3] = vec4{ Eigen::Vector4f{ m.col(3) } };
-			}
-		};
-	}
-	
-	using std140::vec3;
-	using std140::vec4;
-	using std140::mat4;
+using std140::mat4;
+using std140::vec3;
+using std140::vec4;
 
 #else
 #	define UNIFORM_BUFFER(loc) layout(std140, binding = loc) uniform

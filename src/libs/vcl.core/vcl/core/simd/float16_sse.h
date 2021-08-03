@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool16_sse.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_sse.h>
@@ -73,42 +73,40 @@ namespace Vcl {
 		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 4)
 		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 4)
 		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 4)
-		
+
 		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 4)
 
 	public:
 		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 4)
 		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 4)
-		
+
 		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, Core::Simd::Details::add, 4)
-		
+
 		VCL_SIMD_UNARY_REDUCTION_OP(min, _mmVCL_hmin_ps, Mathematics::min, 4)
 		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, Mathematics::max, 4)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<float, 16>& a, const VectorScalar<float, 16>& b) noexcept
 	{
-		return VectorScalar<float, 16>
-		(
+		return VectorScalar<float, 16>(
 			Core::Simd::SSE::blend_f32(b.get(0), a.get(0), mask.get(0)),
 			Core::Simd::SSE::blend_f32(b.get(1), a.get(1), mask.get(1)),
 			Core::Simd::SSE::blend_f32(b.get(2), a.get(2), mask.get(2)),
-			Core::Simd::SSE::blend_f32(b.get(3), a.get(3), mask.get(3))
-		);
+			Core::Simd::SSE::blend_f32(b.get(3), a.get(3), mask.get(3)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 16>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<float, 16>& rhs)
 	{
 		alignas(16) float vars[16];
-		_mm_store_ps(vars +  0, rhs.get(0));
-		_mm_store_ps(vars +  4, rhs.get(1));
-		_mm_store_ps(vars +  8, rhs.get(2));
+		_mm_store_ps(vars + 0, rhs.get(0));
+		_mm_store_ps(vars + 4, rhs.get(1));
+		_mm_store_ps(vars + 8, rhs.get(2));
 		_mm_store_ps(vars + 12, rhs.get(3));
 
-		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3]
-		         << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7]
-				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11]
-				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7]
+		  << vars[8] << ", " << vars[9] << ", " << vars[10] << ", " << vars[11]
+		  << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
 	}

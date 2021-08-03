@@ -134,8 +134,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		size_t nr_inputs = 2;
 		const Runtime::Texture* inputs[] = { _inputSlots[0]->resource(), _inputSlots[1]->resource() };
-		Eigen::Vector4i input_ranges[] = 
-		{
+		Eigen::Vector4i input_ranges[] = {
 			{ 0, 0, inputs[0]->width(), inputs[0]->height() },
 			{ 0, 0, inputs[1]->width(), inputs[1]->height() }
 		};

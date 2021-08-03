@@ -100,10 +100,9 @@ public:
 		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
 		_cameraController->setCamera(_camera.get());
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE}, D3D12_SHADER_VISIBILITY_VERTEX },
-			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE}, D3D12_SHADER_VISIBILITY_VERTEX }
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{ 0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE }, D3D12_SHADER_VISIBILITY_VERTEX },
+			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{ 1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE }, D3D12_SHADER_VISIBILITY_VERTEX }
 		};
 		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
 		//_table = std::make_unique<DescriptorTable>(device(), _tableLayout.get());

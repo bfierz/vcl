@@ -28,6 +28,9 @@
 #include <vcl/math/solver/poisson.h>
 #include <vcl/math/ceil.h>
 
+//#define VCL_PHYSICS_FLUID_CUDA_CG_INIT_VERIFY
+//#define VCL_PHYSICS_FLUID_CUDA_CG_Q_VERIFY
+
 CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, dim3 dim, float h, float a, float offset, float* __restrict Ac, float* __restrict Ax_l, float* __restrict Ax_r, float* __restrict Ay_l, float* __restrict Ay_r, float* __restrict Az_l, float* __restrict Az_r, const unsigned char* __restrict skip);
 CUresult ComputeInitialResidual(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, const float* __restrict unknowns, float* __restrict residual, float* __restrict direction);
 CUresult ComputeQ(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict direction, float* __restrict q);
@@ -96,7 +99,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	{
 		using Vcl::Mathematics::Solver::makePoissonStencil;
 
-		Eigen::VectorXf Ac  { _dim.x() * _dim.y() * _dim.z() };
+		Eigen::VectorXf Ac{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ax_l{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ax_r{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ay_l{ _dim.x() * _dim.y() * _dim.z() };
@@ -111,7 +114,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
 			skip);
 
-		_queue->write(_laplacian[0], Ac.data(),   true);
+		_queue->write(_laplacian[0], Ac.data(), true);
 		_queue->write(_laplacian[1], Ax_l.data(), true);
 		_queue->write(_laplacian[2], Ax_r.data(), true);
 		_queue->write(_laplacian[3], Ay_l.data(), true);
@@ -125,8 +128,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size =
-		{
+		const dim3 grid_size = {
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,
 			ceil(_dim.z(), block_size.z) / block_size.z
@@ -158,15 +160,13 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size =
-		{
+		const dim3 grid_size = {
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		VCL_CU_SAFE_CALL(ComputeInitialResidual
-		(
+		VCL_CU_SAFE_CALL(ComputeInitialResidual(
 			grid_size,
 			block_size,
 			0,
@@ -176,27 +176,25 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			_dim.x(),
 			_dim.y(),
 			_dim.z(),
-			(float*) _laplacian[0]->devicePtr(),
-			(float*) _laplacian[1]->devicePtr(),
-			(float*) _laplacian[2]->devicePtr(),
-			(float*) _laplacian[3]->devicePtr(),
-			(float*) _laplacian[4]->devicePtr(),
-			(float*) _laplacian[5]->devicePtr(),
-			(float*) _laplacian[6]->devicePtr(),
-			(float*) std::get<0>(_rhs)->devicePtr(),
-			(float*) std::get<0>(_unknowns)->devicePtr(),
-			(float*) _devResidual->devicePtr(),
-			(float*) _devDirection->devicePtr()
-		));
+			(float*)_laplacian[0]->devicePtr(),
+			(float*)_laplacian[1]->devicePtr(),
+			(float*)_laplacian[2]->devicePtr(),
+			(float*)_laplacian[3]->devicePtr(),
+			(float*)_laplacian[4]->devicePtr(),
+			(float*)_laplacian[5]->devicePtr(),
+			(float*)_laplacian[6]->devicePtr(),
+			(float*)std::get<0>(_rhs)->devicePtr(),
+			(float*)std::get<0>(_unknowns)->devicePtr(),
+			(float*)_devResidual->devicePtr(),
+			(float*)_devDirection->devicePtr()));
 
-//#define VCL_PHYSICS_FLUID_CUDA_CG_INIT_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_CG_INIT_VERIFY
-		
+
 		// Compare against CPU implementation
 		const unsigned int X = _dim.x();
 		const unsigned int Y = _dim.y();
 		const unsigned int Z = _dim.z();
-		const unsigned int size = X*Y*Z;
+		const unsigned int size = X * Y * Z;
 
 		std::vector<float> Ac(size, 0.0f);
 		std::vector<float> Ax_l(size, 0.0f);
@@ -210,8 +208,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		std::vector<float> b(size, 0.0f);
 		std::vector<float> r(size, 0.0f);
 		std::vector<float> d(size, 0.0f);
-		
-		cuMemcpyDtoH(Ac.data(),   _laplacian[0]->devicePtr(), size * sizeof(float));
+
+		cuMemcpyDtoH(Ac.data(), _laplacian[0]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ax_l.data(), _laplacian[1]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ax_r.data(), _laplacian[2]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ay_l.data(), _laplacian[3]->devicePtr(), size * sizeof(float));
@@ -262,15 +260,13 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size =
-		{
+		const dim3 grid_size = {
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		VCL_CU_SAFE_CALL(ComputeQ
-		(
+		VCL_CU_SAFE_CALL(ComputeQ(
 			grid_size,
 			block_size,
 			0,
@@ -288,18 +284,16 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			(float*)_laplacian[5]->devicePtr(),
 			(float*)_laplacian[6]->devicePtr(),
 			(float*)_devDirection->devicePtr(),
-			(float*)_devQ->devicePtr()
-		));
+			(float*)_devQ->devicePtr()));
 
-//#define VCL_PHYSICS_FLUID_CUDA_CG_Q_VERIFY
 #ifdef VCL_PHYSICS_FLUID_CUDA_CG_Q_VERIFY
 		// Compare against CPU implementation
 		const unsigned int X = _dim.x();
 		const unsigned int Y = _dim.y();
 		const unsigned int Z = _dim.z();
-		const unsigned int size = X*Y*Z;
+		const unsigned int size = X * Y * Z;
 
-		std::vector<float> Ac  (size, 0.0f);
+		std::vector<float> Ac(size, 0.0f);
 		std::vector<float> Ax_l(size, 0.0f);
 		std::vector<float> Ax_r(size, 0.0f);
 		std::vector<float> Ay_l(size, 0.0f);
@@ -311,7 +305,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		std::vector<float> d(size, 0.0f);
 		std::vector<float> r(size, 0.0f);
 
-		cuMemcpyDtoH(Ac.data(),   _laplacian[0]->devicePtr(), size * sizeof(float));
+		cuMemcpyDtoH(Ac.data(), _laplacian[0]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ax_l.data(), _laplacian[1]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ax_r.data(), _laplacian[2]->devicePtr(), size * sizeof(float));
 		cuMemcpyDtoH(Ay_l.data(), _laplacian[3]->devicePtr(), size * sizeof(float));
@@ -332,11 +326,11 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 				for (size_t x = 1; x < X - 1; x++, index++)
 				{
 					float Ad =
-						d[index + 0]     * Ac[index] +
-						d[index - 1]     * Ax_l[index] +
-						d[index + 1]     * Ax_r[index] +
-						d[index - X]     * Ay_l[index] +
-						d[index + X]     * Ay_r[index] +
+						d[index + 0] * Ac[index] +
+						d[index - 1] * Ax_l[index] +
+						d[index + 1] * Ax_r[index] +
+						d[index - X] * Ay_l[index] +
+						d[index + X] * Ay_r[index] +
 						d[index - X * Y] * Az_l[index] +
 						d[index + X * Y] * Az_r[index];
 					Ad = (Ac[index] != 0) ? Ad : 0.0f;

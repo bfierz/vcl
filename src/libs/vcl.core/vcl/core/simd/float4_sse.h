@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool4_sse.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_sse.h>
@@ -45,20 +45,20 @@ namespace Vcl {
 		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 1)
 		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 1)
 		VCL_SIMD_BINARY_OP(operator/, _mm_div_ps, 1)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_ps, 1)
 		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_ps, 1)
 		VCL_SIMD_ASSIGN_OP(operator*=, _mm_mul_ps, 1)
 		VCL_SIMD_ASSIGN_OP(operator/=, _mm_div_ps, 1)
-		
+
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps,  1)
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps, 1)
 		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_ps, 1)
-		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_ps,  1)
-		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps,  1)
-		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_ps,  1)
-		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  1)
+		VCL_SIMD_COMP_OP(operator<, _mm_cmplt_ps, 1)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps, 1)
+		VCL_SIMD_COMP_OP(operator>, _mm_cmpgt_ps, 1)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps, 1)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_f32, 1)
@@ -73,7 +73,7 @@ namespace Vcl {
 		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 1)
 		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 1)
 		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 1)
-		
+
 		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 1)
 
 	public:
@@ -91,11 +91,11 @@ namespace Vcl {
 		return VectorScalar<float, 4>(Core::Simd::SSE::blend_f32(b.get(0), a.get(0), mask.get(0)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<float, 4>& rhs)
 	{
 		alignas(16) float vars[4];
 		_mm_store_ps(vars + 0, rhs.get(0));
-		
+
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << "'";
 		return s;
 	}

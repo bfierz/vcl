@@ -34,36 +34,35 @@
 namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(BufferUsage,
 
-		//! Buffer is mappable so the it is readable by the CPU
-		MapRead,
+					  //! Buffer is mappable so the it is readable by the CPU
+					  MapRead,
 
-		//! Buffer is mappable so the it is writable by the CPU
-		MapWrite,
+					  //! Buffer is mappable so the it is writable by the CPU
+					  MapWrite,
 
-		//! Buffer can be the source of copy opertions
-		CopySrc,
+					  //! Buffer can be the source of copy opertions
+					  CopySrc,
 
-		//! Buffer can be the destination of copy opertions
-		CopyDst,
+					  //! Buffer can be the destination of copy opertions
+					  CopyDst,
 
-		//! Buffer can be used as index buffer
-		Index,
+					  //! Buffer can be used as index buffer
+					  Index,
 
-		//! Buffer can be used as vertex buffer
-		Vertex,
+					  //! Buffer can be used as vertex buffer
+					  Vertex,
 
-		//! Buffer can be used as uniform buffer
-		Uniform,
+					  //! Buffer can be used as uniform buffer
+					  Uniform,
 
-		//! Buffer can be used as generic buffer in shaders
-		Storage,
+					  //! Buffer can be used as generic buffer in shaders
+					  Storage,
 
-		//! Buffer can be used as source for indirect draw calls
-		Indirect,
+					  //! Buffer can be used as source for indirect draw calls
+					  Indirect,
 
-		//! Buffer can be used to stream data out
-		StreamOut
-	)
+					  //! Buffer can be used to stream data out
+					  StreamOut)
 
 	struct BufferDescription
 	{

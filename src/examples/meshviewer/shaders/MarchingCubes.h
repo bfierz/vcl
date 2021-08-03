@@ -30,7 +30,8 @@
 // Define common locations
 #define MARCHING_CUBES_TABLES_LOC 6
 
-UNIFORM_BUFFER(MARCHING_CUBES_TABLES_LOC) MarchingCubesTables
+UNIFORM_BUFFER(MARCHING_CUBES_TABLES_LOC)
+MarchingCubesTables
 {
 	// LuT: Number of generated polygons for each in/out permutation
 	int caseToNumPolys[256];

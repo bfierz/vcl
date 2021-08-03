@@ -38,7 +38,7 @@ namespace Vcl {
 		: _dataIdx(idx)
 		, _tag(tag)
 		{}
-		
+
 	public:
 		int32_t index() const
 		{

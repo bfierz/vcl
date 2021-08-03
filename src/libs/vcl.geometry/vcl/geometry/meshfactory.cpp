@@ -31,7 +31,7 @@
 namespace Vcl { namespace Geometry {
 	std::unique_ptr<TetraMesh> MeshFactory<TetraMesh>::createHomogenousCubes(unsigned int count_x, unsigned int count_y, unsigned int count_z)
 	{
-		#define SpatialToLinearIndex(a, b, c) ((c) * (xmax + 1) * (ymax + 1) + (b) * (xmax + 1) + (a))
+#define SpatialToLinearIndex(a, b, c) ((c) * (xmax + 1) * (ymax + 1) + (b) * (xmax + 1) + (a))
 
 		const unsigned int xmax = count_x;
 		const unsigned int ymax = count_y;
@@ -41,7 +41,7 @@ namespace Vcl { namespace Geometry {
 		std::vector<Vector3f> positions;
 		std::vector<volume_t> volumes;
 
-		positions.resize((xmax + 1)*(ymax + 1)*(zmax + 1));
+		positions.resize((xmax + 1) * (ymax + 1) * (zmax + 1));
 		for (unsigned int k = 0; k < zmax + 1; k++)
 		{
 			for (unsigned int j = 0; j < ymax + 1; j++)
@@ -62,8 +62,7 @@ namespace Vcl { namespace Geometry {
 					if (((i % 2 == 0) && (j % 2 == 0) && (k % 2 == 0)) ||
 						((i % 2 == 1) && (j % 2 == 1) && (k % 2 == 0)))
 					{
-						volume_t v0 =
-						{
+						volume_t v0 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
@@ -71,8 +70,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v0);
 
-						volume_t v1 =
-						{
+						volume_t v1 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
@@ -80,8 +78,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v1);
 
-						volume_t v2 =
-						{
+						volume_t v2 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
@@ -89,8 +86,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v2);
 
-						volume_t v3 =
-						{
+						volume_t v3 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
@@ -98,8 +94,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v3);
 
-						volume_t v4 =
-						{
+						volume_t v4 = {
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
@@ -111,8 +106,7 @@ namespace Vcl { namespace Geometry {
 					if (((i % 2 == 1) && (j % 2 == 0) && (k % 2 == 0)) ||
 						((i % 2 == 0) && (j % 2 == 1) && (k % 2 == 0)))
 					{
-						volume_t v0 =
-						{
+						volume_t v0 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
@@ -120,8 +114,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v0);
 
-						volume_t v1 =
-						{
+						volume_t v1 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
@@ -129,8 +122,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v1);
 
-						volume_t v2 =
-						{
+						volume_t v2 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
@@ -138,8 +130,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v2);
 
-						volume_t v3 =
-						{
+						volume_t v3 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
@@ -147,22 +138,19 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v3);
 
-						volume_t v4 =
-						{
+						volume_t v4 = {
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1)
 						};
 						volumes.push_back(v4);
-
 					}
 
 					if (((i % 2 == 0) && (j % 2 == 0) && (k % 2 == 1)) ||
 						((i % 2 == 1) && (j % 2 == 1) && (k % 2 == 1)))
 					{
-						volume_t v0 =
-						{
+						volume_t v0 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
@@ -170,8 +158,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v0);
 
-						volume_t v1 =
-						{
+						volume_t v1 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
@@ -179,8 +166,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v1);
 
-						volume_t v2 =
-						{
+						volume_t v2 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
@@ -188,8 +174,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v2);
 
-						volume_t v3 =
-						{
+						volume_t v3 = {
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
@@ -197,22 +182,19 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v3);
 
-						volume_t v4 =
-						{
+						volume_t v4 = {
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 0, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1)
 						};
 						volumes.push_back(v4);
-
 					}
 
 					if (((i % 2 == 1) && (j % 2 == 0) && (k % 2 == 1)) ||
 						((i % 2 == 0) && (j % 2 == 1) && (k % 2 == 1)))
 					{
-						volume_t v0 =
-						{
+						volume_t v0 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
@@ -220,8 +202,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v0);
 
-						volume_t v1 =
-						{
+						volume_t v1 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
@@ -229,8 +210,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v1);
 
-						volume_t v2 =
-						{
+						volume_t v2 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 0, j + 1, k + 0),
@@ -238,8 +218,7 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v2);
 
-						volume_t v3 =
-						{
+						volume_t v3 = {
 							SpatialToLinearIndex(i + 0, j + 0, k + 0),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
@@ -247,15 +226,13 @@ namespace Vcl { namespace Geometry {
 						};
 						volumes.push_back(v3);
 
-						volume_t v4 =
-						{
+						volume_t v4 = {
 							SpatialToLinearIndex(i + 1, j + 1, k + 0),
 							SpatialToLinearIndex(i + 0, j + 1, k + 1),
 							SpatialToLinearIndex(i + 1, j + 0, k + 1),
 							SpatialToLinearIndex(i + 1, j + 1, k + 1)
 						};
 						volumes.push_back(v4);
-
 					}
 				}
 			}
@@ -275,7 +252,7 @@ namespace Vcl { namespace Geometry {
 
 		return std::make_unique<TetraMesh>(positions, volumes);
 
-		#undef SpatialToLinearIndex
+#undef SpatialToLinearIndex
 	}
 
 	std::unique_ptr<TriMesh> TriMeshFactory::createCube(unsigned int count_x, unsigned int count_y, unsigned int count_z)
@@ -331,7 +308,7 @@ namespace Vcl { namespace Geometry {
 		unsigned int face_count = (stacks * slices) * 2;
 
 		std::vector<Vector3f> positions{ nr_vertices };
-		std::vector<face_t>   faces{ face_count };
+		std::vector<face_t> faces{ face_count };
 
 		// Create the positions
 		size_t index = 0;
@@ -366,7 +343,7 @@ namespace Vcl { namespace Geometry {
 		positions[index].y() = center.y() - radius;
 		positions[index].z() = 0;
 		positions[index].x() = 0;
-		
+
 		// Create the indices:
 		// Deal with the first and the last stack seperately
 		unsigned int i0 = inverted ? 1 : 0;
@@ -389,11 +366,11 @@ namespace Vcl { namespace Geometry {
 			{
 				faces[index][0] = row0_base + (j + i0) % slices;
 				faces[index][1] = row0_base + (j + i1) % slices;
-				faces[index][2] = row1_base + (j +  0) % slices;
+				faces[index][2] = row1_base + (j + 0) % slices;
 				++index;
 
 				faces[index][0] = row1_base + (j + i0) % slices;
-				faces[index][1] = row0_base + (j +  1) % slices;
+				faces[index][1] = row0_base + (j + 1) % slices;
 				faces[index][2] = row1_base + (j + i1) % slices;
 				++index;
 			}
@@ -407,10 +384,10 @@ namespace Vcl { namespace Geometry {
 			faces[index][2] = nr_vertices - 1;
 			++index;
 		}
-		
+
 		auto mesh = std::make_unique<TriMesh>(positions, faces);
 		auto normals = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
-		
+
 		// Create the normals
 		float sign = inverted ? -1.0f : 1.0f;
 		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
@@ -441,7 +418,7 @@ namespace Vcl { namespace Geometry {
 
 		std::vector<Vector3f> positions{ nr_vertices };
 		std::vector<Vector3f> normals{ nr_vertices };
-		std::vector<face_t>   faces{ nr_indices / 3 };
+		std::vector<face_t> faces{ nr_indices / 3 };
 
 		size_t index = 0;
 
@@ -558,7 +535,7 @@ namespace Vcl { namespace Geometry {
 
 		auto mesh = std::make_unique<TriMesh>(positions, faces);
 		auto normal_prop = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
-		
+
 		for (unsigned int i = 0; i < static_cast<unsigned int>(nr_vertices); ++i)
 		{
 			normal_prop[i] = normals[i];
@@ -591,7 +568,7 @@ namespace Vcl { namespace Geometry {
 		{
 			unsigned int curr_seg = (seg == nr_radial_segments) ? 0 : seg;
 
-			float t1 = (float) curr_seg / nr_radial_segments * two_pi;
+			float t1 = (float)curr_seg / nr_radial_segments * two_pi;
 			Eigen::Vector3f r1{ std::cos(t1) * outer_radius, 0.0f, std::sin(t1) * outer_radius };
 
 			for (unsigned int side = 0; side <= nr_sides; side++)
@@ -603,7 +580,6 @@ namespace Vcl { namespace Geometry {
 				vertices[side + seg * (nr_sides + 1)] = r1 + r2;
 			}
 		}
-
 
 		// Define the normales
 		std::vector<Eigen::Vector3f> normals(vertices.size());

@@ -131,19 +131,19 @@ namespace Vcl { namespace Geometry {
 		unsigned int nrVertices() const { return static_cast<unsigned int>(_vertexData.propertySize()); }
 
 		const Vertex& vertex(VertexId id) const { return element(id); }
-		      Vertex& vertex(VertexId id)       { return element(id); }
+		Vertex& vertex(VertexId id) { return element(id); }
 
 		const Vertex& element(VertexId id) const { return static_cast<const Derived*>(this)->access(_vertices, id); }
-		      Vertex& element(VertexId id)       { return static_cast<      Derived*>(this)->access(_vertices, id); }
-			  
+		Vertex& element(VertexId id) { return static_cast<Derived*>(this)->access(_vertices, id); }
+
 		const VertexMetaData& metaData(VertexId id) const { return static_cast<const Derived*>(this)->access(_verticesMetaData, id); }
-		      VertexMetaData& metaData(VertexId id)       { return static_cast<      Derived*>(this)->access(_verticesMetaData, id); }
-			  
+		VertexMetaData& metaData(VertexId id) { return static_cast<Derived*>(this)->access(_verticesMetaData, id); }
+
 		ConstPropertyPtr<Vertex, VertexId> vertices() const { return _vertices; }
 
 	protected:
 		const PropertyGroup<VertexId>& vertexProperties() const { return _vertexData; }
-		      PropertyGroup<VertexId>& vertexProperties()       { return _vertexData; }
+		PropertyGroup<VertexId>& vertexProperties() { return _vertexData; }
 
 	public: // Enumerators
 		VertexEnumerator vertexEnumerator() const { return { this, VertexId(0), VertexId(static_cast<typename VertexId::IdType>(_vertices.size())) }; }
@@ -215,19 +215,19 @@ namespace Vcl { namespace Geometry {
 		unsigned int nrEdges() const { return static_cast<unsigned int>(_edgeData.propertySize()); }
 
 		const Edge& edge(EdgeId id) const { return element(id); }
-		      Edge& edge(EdgeId id)       { return element(id); }
+		Edge& edge(EdgeId id) { return element(id); }
 
 		const Edge& element(EdgeId id) const { return static_cast<const Derived*>(this)->access(_edges, id); }
-		      Edge& element(EdgeId id)       { return static_cast<      Derived*>(this)->access(_edges, id); }
-			  
+		Edge& element(EdgeId id) { return static_cast<Derived*>(this)->access(_edges, id); }
+
 		const EdgeMetaData& metaData(EdgeId id) const { return static_cast<const Derived*>(this)->access(_edgesMetaData, id); }
-		      EdgeMetaData& metaData(EdgeId id)       { return static_cast<      Derived*>(this)->access(_edgesMetaData, id); }
-			  
+		EdgeMetaData& metaData(EdgeId id) { return static_cast<Derived*>(this)->access(_edgesMetaData, id); }
+
 		ConstPropertyPtr<Edge, EdgeId> edges() const { return _edges; }
 
 	protected:
 		const PropertyGroup<EdgeId>& edgeProperties() const { return _edgeData; }
-		      PropertyGroup<EdgeId>& edgeProperties()       { return _edgeData; }
+		PropertyGroup<EdgeId>& edgeProperties() { return _edgeData; }
 
 	public: // Enumerators
 		EdgeEnumerator edgeEnumerator() const { return { this, EdgeId(0), EdgeId(static_cast<typename EdgeId::IdType>(_edges.size())) }; }
@@ -284,19 +284,19 @@ namespace Vcl { namespace Geometry {
 		unsigned int nrFaces() const { return static_cast<unsigned int>(_faceData.propertySize()); }
 
 		const Face& face(FaceId id) const { return element(id); }
-		      Face& face(FaceId id)       { return element(id); }
+		Face& face(FaceId id) { return element(id); }
 
 		const Face& element(FaceId id) const { return static_cast<const Derived*>(this)->access(_faces, id); }
-		      Face& element(FaceId id)       { return static_cast<      Derived*>(this)->access(_faces, id); }
-			  
+		Face& element(FaceId id) { return static_cast<Derived*>(this)->access(_faces, id); }
+
 		const FaceMetaData& metaData(FaceId id) const { return static_cast<const Derived*>(this)->access(_facesMetaData, id); }
-		      FaceMetaData& metaData(FaceId id)       { return static_cast<      Derived*>(this)->access(_facesMetaData, id); }
-			  
+		FaceMetaData& metaData(FaceId id) { return static_cast<Derived*>(this)->access(_facesMetaData, id); }
+
 		ConstPropertyPtr<Face, FaceId> faces() const { return _faces; }
 
 	protected:
 		const PropertyGroup<FaceId>& faceProperties() const { return _faceData; }
-		      PropertyGroup<FaceId>& faceProperties()       { return _faceData; }
+		PropertyGroup<FaceId>& faceProperties() { return _faceData; }
 
 	public: // Enumerators
 		FaceEnumerator faceEnumerator() const { return { this, FaceId(0), FaceId(static_cast<typename FaceId::IdType>(_faces.size())) }; }
@@ -353,19 +353,19 @@ namespace Vcl { namespace Geometry {
 		unsigned int nrVolumes() const { return static_cast<unsigned int>(_volumeData.propertySize()); }
 
 		const Volume& volume(VolumeId id) const { return element(id); }
-		      Volume& volume(VolumeId id)       { return element(id); }
+		Volume& volume(VolumeId id) { return element(id); }
 
 		const Volume& element(VolumeId id) const { return static_cast<const Derived*>(this)->access(_volumes, id); }
-		      Volume& element(VolumeId id)       { return static_cast<      Derived*>(this)->access(_volumes, id); }
-			  
+		Volume& element(VolumeId id) { return static_cast<Derived*>(this)->access(_volumes, id); }
+
 		const VolumeMetaData& metaData(VolumeId id) const { return static_cast<const Derived*>(this)->access(_volumesMetaData, id); }
-		      VolumeMetaData& metaData(VolumeId id)       { return static_cast<      Derived*>(this)->access(_volumesMetaData, id); }
-			  
+		VolumeMetaData& metaData(VolumeId id) { return static_cast<Derived*>(this)->access(_volumesMetaData, id); }
+
 		ConstPropertyPtr<Volume, VolumeId> volumes() const { return _volumes; }
 
 	protected:
 		const PropertyGroup<VolumeId>& volumeProperties() const { return _volumeData; }
-		      PropertyGroup<VolumeId>& volumeProperties()       { return _volumeData; }
+		PropertyGroup<VolumeId>& volumeProperties() { return _volumeData; }
 
 	public: // Enumerators
 		VolumeEnumerator volumeEnumerator() const { return { this, VolumeId(0), VolumeId(static_cast<typename VolumeId::IdType>(_volumes.size())) }; }

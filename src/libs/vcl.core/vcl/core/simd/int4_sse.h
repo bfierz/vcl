@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool4_sse.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_sse.h>
@@ -44,23 +44,23 @@ namespace Vcl {
 		VCL_SIMD_BINARY_OP(operator+, _mm_add_epi32, 1)
 		VCL_SIMD_BINARY_OP(operator-, _mm_sub_epi32, 1)
 		VCL_SIMD_BINARY_OP(operator*, _mmVCL_mullo_epi32, 1)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_epi32, 1)
 		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_epi32, 1)
 		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 1)
-		
+
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_epi32,  1)
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_epi32, 1)
 		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_epi32, 1)
-		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_epi32,  1)
-		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_epi32,  1)
-		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_epi32,  1)
-		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32,  1)
+		VCL_SIMD_COMP_OP(operator<, _mm_cmplt_epi32, 1)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_epi32, 1)
+		VCL_SIMD_COMP_OP(operator>, _mm_cmpgt_epi32, 1)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_epi32, 1)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_s32, 1)
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&, _mm_and_si128, 1)
 		VCL_SIMD_BINARY_OP(operator|, _mm_or_si128, 1)
@@ -74,7 +74,7 @@ namespace Vcl {
 		return VectorScalar<int, 4>(Core::Simd::SSE::blend_s32(b.get(0), a.get(0), mask.get(0)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 4>& rhs)
 	{
 		alignas(16) int vars[4];
 		_mm_store_si128(reinterpret_cast<__m128i*>(vars + 0), rhs.get(0));

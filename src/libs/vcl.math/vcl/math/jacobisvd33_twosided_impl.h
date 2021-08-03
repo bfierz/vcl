@@ -46,7 +46,8 @@ VCL_END_EXTERNAL_HEADERS
 
 namespace Vcl { namespace Mathematics {
 	template<typename T>
-	struct TwoSidedJacobiTraits {};
+	struct TwoSidedJacobiTraits
+	{};
 
 	template<>
 	struct TwoSidedJacobiTraits<float>

@@ -374,10 +374,16 @@ namespace Vcl { namespace Geometry {
 		typedef IndexT index_type;
 
 	public:
-		PropertyPtr() : _property(nullptr) {}
+		PropertyPtr()
+		: _property(nullptr) {}
 		PropertyPtr(const PropertyPtr<value_type, index_type>& other) { _property = other._property; }
-		PropertyPtr(PropertyPtr<value_type, index_type>&& other) { _property = other._property; other._property = nullptr; }
-		PropertyPtr(Property<value_type, index_type>* p) : _property(p) {}
+		PropertyPtr(PropertyPtr<value_type, index_type>&& other)
+		{
+			_property = other._property;
+			other._property = nullptr;
+		}
+		PropertyPtr(Property<value_type, index_type>* p)
+		: _property(p) {}
 
 		PropertyPtr& operator=(Property<value_type, index_type>* p)
 		{
@@ -439,15 +445,25 @@ namespace Vcl { namespace Geometry {
 		typedef IndexT index_type;
 
 	public:
-		ConstPropertyPtr() : _property(nullptr) {}
+		ConstPropertyPtr()
+		: _property(nullptr) {}
 
 		ConstPropertyPtr(const PropertyPtr<value_type, index_type>& other) { _property = other.ptr(); }
 		ConstPropertyPtr(const ConstPropertyPtr<value_type, index_type>& other) { _property = other.ptr(); }
 
-		ConstPropertyPtr(PropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
-		ConstPropertyPtr(ConstPropertyPtr<value_type, index_type>&& other) { _property = other.ptr(); other._property = nullptr; }
+		ConstPropertyPtr(PropertyPtr<value_type, index_type>&& other)
+		{
+			_property = other.ptr();
+			other._property = nullptr;
+		}
+		ConstPropertyPtr(ConstPropertyPtr<value_type, index_type>&& other)
+		{
+			_property = other.ptr();
+			other._property = nullptr;
+		}
 
-		ConstPropertyPtr(const Property<value_type, index_type>* p) : _property(p) {}
+		ConstPropertyPtr(const Property<value_type, index_type>* p)
+		: _property(p) {}
 
 		ConstPropertyPtr& operator=(Property<value_type, index_type>* p)
 		{

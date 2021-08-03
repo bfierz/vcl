@@ -99,7 +99,6 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 		// Depth stencil state
 		Runtime::DepthStencilDescription DepthStencil;
-
 	};
 
 	struct ComputePipelineStateDescription

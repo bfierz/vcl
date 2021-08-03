@@ -53,22 +53,22 @@ namespace Vcl {
 		VCL_SIMD_ASSIGN_OP(operator/=, vdivq_f32, 2)
 
 	public:
-		VCL_SIMD_COMP_OP(operator==, vceqq_f32 , 2)
+		VCL_SIMD_COMP_OP(operator==, vceqq_f32, 2)
 		VCL_SIMD_COMP_OP(operator!=, vcneqq_f32, 2)
-		VCL_SIMD_COMP_OP(operator< , vcltq_f32 , 2)
-		VCL_SIMD_COMP_OP(operator<=, vcleq_f32 , 2)
-		VCL_SIMD_COMP_OP(operator> , vcgtq_f32 , 2)
-		VCL_SIMD_COMP_OP(operator>=, vcgeq_f32 , 2)
+		VCL_SIMD_COMP_OP(operator<, vcltq_f32, 2)
+		VCL_SIMD_COMP_OP(operator<=, vcleq_f32, 2)
+		VCL_SIMD_COMP_OP(operator>, vcgtq_f32, 2)
+		VCL_SIMD_COMP_OP(operator>=, vcgeq_f32, 2)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs,   vabsq_f32  , 2)
-		VCL_SIMD_UNARY_OP(sin,   vsinq_f32  , 2)
-		VCL_SIMD_UNARY_OP(cos,   vcosq_f32  , 2)
-		VCL_SIMD_UNARY_OP(exp,   vexpq_f32  , 2)
-		VCL_SIMD_UNARY_OP(log,   vlogq_f32  , 2)
-		VCL_SIMD_UNARY_OP(sgn,   vsgnq_f32  , 2)
-		VCL_SIMD_UNARY_OP(sqrt,  vsqrtq_f32 , 2)
-		VCL_SIMD_UNARY_OP(rcp,   vrcpq_f32  , 2)
+		VCL_SIMD_UNARY_OP(abs, vabsq_f32, 2)
+		VCL_SIMD_UNARY_OP(sin, vsinq_f32, 2)
+		VCL_SIMD_UNARY_OP(cos, vcosq_f32, 2)
+		VCL_SIMD_UNARY_OP(exp, vexpq_f32, 2)
+		VCL_SIMD_UNARY_OP(log, vlogq_f32, 2)
+		VCL_SIMD_UNARY_OP(sgn, vsgnq_f32, 2)
+		VCL_SIMD_UNARY_OP(sqrt, vsqrtq_f32, 2)
+		VCL_SIMD_UNARY_OP(rcp, vrcpq_f32, 2)
 		VCL_SIMD_UNARY_OP(rsqrt, vrsqrtq_f32, 2)
 
 		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 2)
@@ -88,21 +88,19 @@ namespace Vcl {
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b) noexcept
 	{
 		// (((b ^ a) & mask)^b)
-		return VectorScalar<float, 8>
-		(
+		return VectorScalar<float, 8>(
 			vbslq_f32(mask.get(0), a.get(0), b.get(0)),
-			vbslq_f32(mask.get(1), a.get(1), b.get(1))
-		);
+			vbslq_f32(mask.get(1), a.get(1), b.get(1)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<float, 8>& rhs)
 	{
 		alignas(8) float vars[8];
 		vst1q_f32(vars + 0, rhs.get(0));
 		vst1q_f32(vars + 4, rhs.get(1));
-		
+
 		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3]
-				 << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
+		  << vars[4] << "," << vars[5] << "," << vars[6] << "," << vars[7] << "'";
 
 		return s;
 	}

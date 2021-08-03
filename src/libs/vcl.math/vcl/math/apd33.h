@@ -40,9 +40,9 @@ namespace Vcl { namespace Mathematics {
 	 * transform does not contain any inversion. By the nature of the algorithm
 	 * it cannot as it iteratively rotates the sources to the target.
 	 */
-	int AnalyticPolarDecomposition(const Eigen::Matrix<float,   3, 3>& A, Eigen::Quaternion<float >&  Q);
-	int AnalyticPolarDecomposition(const Eigen::Matrix<float4,  3, 3>& A, Eigen::Quaternion<float4>&  Q);
-	int AnalyticPolarDecomposition(const Eigen::Matrix<float8,  3, 3>& A, Eigen::Quaternion<float8>&  Q);
+	int AnalyticPolarDecomposition(const Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& Q);
+	int AnalyticPolarDecomposition(const Eigen::Matrix<float4, 3, 3>& A, Eigen::Quaternion<float4>& Q);
+	int AnalyticPolarDecomposition(const Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& Q);
 	int AnalyticPolarDecomposition(const Eigen::Matrix<float16, 3, 3>& A, Eigen::Quaternion<float16>& Q);
 	int AnalyticPolarDecomposition(const Eigen::Matrix3d& A, Eigen::Quaterniond& q);
 }}

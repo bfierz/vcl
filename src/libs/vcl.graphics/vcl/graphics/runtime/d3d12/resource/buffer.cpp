@@ -37,11 +37,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	{
 		if (_currentStates != target_state)
 		{
-			CD3DX12_RESOURCE_BARRIER barriers[] =
-			{
+			CD3DX12_RESOURCE_BARRIER barriers[] = {
 				CD3DX12_RESOURCE_BARRIER::Transition(
-				handle(),
-				_currentStates, target_state)
+					handle(),
+					_currentStates, target_state)
 			};
 			cmd_list->ResourceBarrier(1, barriers);
 			_currentStates = target_state;
@@ -50,6 +49,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 	D3D12_RESOURCE_STATES toD3DResourceState(Flags<BufferUsage> flag)
 	{
+		// clang-format off
 		UINT d3d_flags = 0;
 		d3d_flags |= (flag.isSet(BufferUsage::CopySrc))   ? D3D12_RESOURCE_STATE_COPY_SOURCE : 0;
 		d3d_flags |= (flag.isSet(BufferUsage::CopyDst))   ? D3D12_RESOURCE_STATE_COPY_DEST : 0;
@@ -59,7 +59,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		d3d_flags |= (flag.isSet(BufferUsage::Storage))   ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : 0;
 		d3d_flags |= (flag.isSet(BufferUsage::Indirect))  ? D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT : 0;
 		d3d_flags |= (flag.isSet(BufferUsage::StreamOut)) ? D3D12_RESOURCE_STATE_STREAM_OUT : 0;
-
+		// clang-format on
 
 		return (D3D12_RESOURCE_STATES)d3d_flags;
 	}
@@ -135,9 +135,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			subresource_data.RowPitch = desc.SizeInBytes;
 			subresource_data.SlicePitch = subresource_data.RowPitch;
 
-			UpdateSubresources(cmd_queue,
-				_resource.Get(), _uploadResource.Get(),
-				0, 0, 1, &subresource_data);
+			UpdateSubresources(cmd_queue, _resource.Get(), _uploadResource.Get(), 0, 0, 1, &subresource_data);
 		}
 	}
 

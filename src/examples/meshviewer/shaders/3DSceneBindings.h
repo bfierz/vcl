@@ -32,7 +32,8 @@
 #define PER_FRAME_LIGHT_DATA_LOC 1
 
 // Define common buffers
-UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
+UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC)
+PerFrameCameraData
 {
 	// Viewport (x, y, w, h)
 	vec4 Viewport;
@@ -59,7 +60,8 @@ struct HemisphereLight
 	vec3 Direction;
 };
 
-UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC) PerFrameLightData
+UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC)
+PerFrameLightData
 {
 	HemisphereLight HemiLight;
 };

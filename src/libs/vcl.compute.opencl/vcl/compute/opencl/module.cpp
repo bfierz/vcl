@@ -38,7 +38,7 @@ namespace Vcl { namespace Compute { namespace OpenCL {
 	{
 		using namespace std;
 
-		std::array<const char*, 1> sources = { (const char*) source };
+		std::array<const char*, 1> sources = { (const char*)source };
 		std::array<size_t, 1> sizes = { size };
 
 		// Load the module

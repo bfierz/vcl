@@ -67,37 +67,49 @@ namespace Eigen {
 	template<typename Scalar>
 	struct CwiseClampOp
 	{
-		CwiseClampOp(const Scalar& inf, const Scalar& sup) : m_inf(inf), m_sup(sup) {}
-		const Scalar operator()(const Scalar& x) const { return x<m_inf ? m_inf : (x>m_sup ? m_sup : x); }
+		CwiseClampOp(const Scalar& inf, const Scalar& sup)
+		: m_inf(inf), m_sup(sup) {}
+		const Scalar operator()(const Scalar& x) const { return x < m_inf ? m_inf : (x > m_sup ? m_sup : x); }
 		Scalar m_inf, m_sup;
 	};
 
 	template<typename Scalar>
 	struct CwiseThresholdOp
 	{
-		CwiseThresholdOp(const Scalar& inf) : mInf(inf) {}
+		CwiseThresholdOp(const Scalar& inf)
+		: mInf(inf) {}
 		const Scalar operator()(const Scalar& x) const { return x < mInf ? 0 : x; }
 		Scalar mInf;
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseInverseWithThresholdOp
 	{
-		CwiseInverseWithThresholdOp(const Scalar& tol) : mTol(tol) {}
+		CwiseInverseWithThresholdOp(const Scalar& tol)
+		: mTol(tol) {}
 		const Scalar operator()(const Scalar& x) const { return x < mTol ? 0 : 1.0 / x; }
 		Scalar mTol;
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseFractionalPartOp
 	{
-		const Scalar operator()(const Scalar& x) const { Scalar intPart = 0; return std::modf(x, &intPart); }
+		const Scalar operator()(const Scalar& x) const
+		{
+			Scalar intPart = 0;
+			return std::modf(x, &intPart);
+		}
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseIntegralPartOp
 	{
-		const Scalar operator()(const Scalar& x) const { Scalar intPart = 0; std::modf(x, &intPart); return intPart; }
+		const Scalar operator()(const Scalar& x) const
+		{
+			Scalar intPart = 0;
+			std::modf(x, &intPart);
+			return intPart;
+		}
 	};
 
 	template<typename Scalar>

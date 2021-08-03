@@ -97,7 +97,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 
 	void Poisson3DJacobiCtx::updatePoissonStencil(float h, float k, float o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
-		Eigen::VectorXf Ac  { _dim.x() * _dim.y() * _dim.z() };
+		Eigen::VectorXf Ac{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ax_l{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ax_r{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Ay_l{ _dim.x() * _dim.y() * _dim.z() };
@@ -112,7 +112,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
 			skip);
 
-		_queue->write(_laplacian[0], Ac.data(),   true);
+		_queue->write(_laplacian[0], Ac.data(), true);
 		_queue->write(_laplacian[1], Ax_l.data(), true);
 		_queue->write(_laplacian[2], Ax_r.data(), true);
 		_queue->write(_laplacian[3], Ay_l.data(), true);
@@ -126,8 +126,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size =
-		{
+		const dim3 grid_size = {
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,
 			ceil(_dim.z(), block_size.z) / block_size.z
@@ -156,7 +155,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 
 	int Poisson3DJacobiCtx::size() const
 	{
-		return _dim.x()*_dim.y()*_dim.z();
+		return _dim.x() * _dim.y() * _dim.z();
 	}
 
 	void Poisson3DJacobiCtx::precompute()
@@ -169,8 +168,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		// Compute block and grid size
 		// Has to be multiple of 16 (memory alignment) and 32 (warp size)
 		const dim3 block_size = { 8, 8, 4 };
-		const dim3 grid_size =
-		{
+		const dim3 grid_size = {
 			ceil(_dim.x(), block_size.x) / block_size.x,
 			ceil(_dim.y(), block_size.y) / block_size.y,
 			ceil(_dim.z(), block_size.z) / block_size.z

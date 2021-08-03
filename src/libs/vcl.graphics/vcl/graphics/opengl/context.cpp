@@ -143,7 +143,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 #	if defined VCL_EGL_SUPPORT
 	Context::Context(const ContextDesc& desc)
-		: Context(nullptr, nullptr, desc)
+	: Context(nullptr, nullptr, desc)
 	{
 	}
 
@@ -161,14 +161,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 			display = _display;
 		}
-		
+
 		// 2. Select an appropriate configuration
 		// 3. Create a surface
 		EGLConfig egl_config;
 		if (!surface)
-		{		
-			const EGLint surface_config_attribs[] =
-			{
+		{
+			const EGLint surface_config_attribs[] = {
 				EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
 				EGL_BLUE_SIZE, 8,
 				EGL_GREEN_SIZE, 8,
@@ -177,14 +176,15 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 				EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
 				EGL_NONE
 			};
-	
+
 			const int pbuffer_width = 32;
 			const int pbuffer_height = 32;
-	
-			const EGLint pbuffer_attribs[] =
-			{
-				EGL_WIDTH, pbuffer_width,
-				EGL_HEIGHT, pbuffer_height,
+
+			const EGLint pbuffer_attribs[] = {
+				EGL_WIDTH,
+				pbuffer_width,
+				EGL_HEIGHT,
+				pbuffer_height,
 				EGL_NONE,
 			};
 
@@ -204,10 +204,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		// 4. Bind the API
 		eglBindAPI(EGL_OPENGL_API);
-	  
+
 		// 5. Create a eglContext and make it current
-		const EGLint context_attribute[] =
-		{
+		const EGLint context_attribute[] = {
 			EGL_CONTEXT_MAJOR_VERSION, desc.MajorVersion,
 			EGL_CONTEXT_MINOR_VERSION, desc.MinorVersion,
 			EGL_CONTEXT_OPENGL_PROFILE_MASK, desc.Type == ContextType::Core ? EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT : EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT,
@@ -215,7 +214,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		};
 		_context = eglCreateContext(_display, egl_config, EGL_NO_CONTEXT, context_attribute);
 		makeCurrent();
-	  		
+
 		initExtensions();
 
 		if (desc.Debug)
@@ -234,7 +233,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			eglTerminate(_display);
 		}
 	}
-	
+
 	bool Context::makeCurrent()
 	{
 		return eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
@@ -263,21 +262,20 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		// Create a temporary render context in order to query
 		// the actual creation function
-		PIXELFORMATDESCRIPTOR pfd =
-		{
+		PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
 			1,
-			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
-			PFD_TYPE_RGBA,            //The kind of framebuffer. RGBA or palette.
-			32,                        //Colordepth of the framebuffer.
+			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
+			PFD_TYPE_RGBA,                                              //The kind of framebuffer. RGBA or palette.
+			32,                                                         //Colordepth of the framebuffer.
 			0, 0, 0, 0, 0, 0,
 			0,
 			0,
 			0,
 			0, 0, 0, 0,
-			24,                        //Number of bits for the depthbuffer
-			8,                        //Number of bits for the stencilbuffer
-			0,                        //Number of Aux buffers in the framebuffer.
+			24, //Number of bits for the depthbuffer
+			8,  //Number of bits for the stencilbuffer
+			0,  //Number of Aux buffers in the framebuffer.
 			PFD_MAIN_PLANE,
 			0,
 			0, 0, 0
@@ -411,16 +409,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
 		// Disable specific messages
-		GLuint perf_messages_ids[] =
-		{
+		GLuint perf_messages_ids[] = {
 			131154, // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering
-		//	131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
+			//131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
 		};
-		glDebugMessageControl
-		(
+		glDebugMessageControl(
 			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE,
-			sizeof(perf_messages_ids) / sizeof(GLuint), perf_messages_ids, GL_FALSE
-		);
+			sizeof(perf_messages_ids) / sizeof(GLuint), perf_messages_ids, GL_FALSE);
 
 		// Register debug callback
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);

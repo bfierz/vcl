@@ -55,10 +55,12 @@ __attribute__((__optnone__)) void doNotOptimizeAway(T&& datum)
 
 #else
 
+// clang-format off
 template<class T>
 void doNotOptimizeAway(T&& datum)
 {
   asm volatile("" : "+r" (datum));
 }
+// clang-format on
 
 #endif

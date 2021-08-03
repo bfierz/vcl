@@ -33,8 +33,8 @@
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUCompareFunction toWebGPU(ComparisonFunction op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case ComparisonFunction::Never:        return WGPUCompareFunction_Never;
 		case ComparisonFunction::Less:         return WGPUCompareFunction_Less;
 		case ComparisonFunction::Equal:        return WGPUCompareFunction_Equal;
@@ -45,14 +45,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		case ComparisonFunction::Always:       return WGPUCompareFunction_Always;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return WGPUCompareFunction_Undefined;
 	}
 
 	WGPUStencilOperation toWebGPU(StencilOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case StencilOperation::Keep:             return WGPUStencilOperation_Keep;
 		case StencilOperation::Zero:             return WGPUStencilOperation_Zero;
 		case StencilOperation::Replace:          return WGPUStencilOperation_Replace;
@@ -63,6 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		case StencilOperation::DecreaseWrap:     return WGPUStencilOperation_DecrementWrap;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return WGPUStencilOperation_Force32;
 	}
@@ -95,6 +97,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		}
 		else
 		{
+			// clang-format off
 			webgpu_desc.stencilBack.compare      = WGPUCompareFunction_Always;
 			webgpu_desc.stencilBack.failOp       = WGPUStencilOperation_Keep;
 			webgpu_desc.stencilBack.depthFailOp  = WGPUStencilOperation_Keep;
@@ -103,6 +106,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 			webgpu_desc.stencilFront.failOp      = WGPUStencilOperation_Keep;
 			webgpu_desc.stencilFront.depthFailOp = WGPUStencilOperation_Keep;
 			webgpu_desc.stencilFront.passOp      = WGPUStencilOperation_Keep;
+			// clang-format on
 		}
 
 		return webgpu_desc;

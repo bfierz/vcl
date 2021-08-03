@@ -47,21 +47,20 @@ namespace Vcl { namespace Graphics {
 		VclRequire(nr_buckets < 2048, "Shared memory buckets are limited to 2048.");
 
 		unsigned int totalBlocks = ceil(_maxNrElements, LocalSize) / LocalSize;
-		BufferDescription desc =
-		{
+		BufferDescription desc = {
 			totalBlocks * nr_buckets * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
-		
+
 		_partialHistograms = make_owner<Runtime::OpenGL::Buffer>(desc);
 
 		// Define the number of buckets for the shader
 		auto partials = fmt::format("#define partialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
-		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
+		auto collect = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
 
 		// Load the kernels
-		_partialHistogramKernel         = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });
-		_collectPartialHistogramsKernel = Runtime::OpenGL::createComputeKernel(module, { collect.c_str()  });
+		_partialHistogramKernel = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });
+		_collectPartialHistogramsKernel = Runtime::OpenGL::createComputeKernel(module, { collect.c_str() });
 	}
 
 	void Histogram::operator()(

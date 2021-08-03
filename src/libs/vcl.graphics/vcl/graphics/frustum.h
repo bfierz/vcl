@@ -47,7 +47,12 @@ namespace Vcl { namespace Graphics {
 	public:
 		enum
 		{
-			Top = 0, Bottom, Left, Right, Near, Far
+			Top = 0,
+			Bottom,
+			Left,
+			Right,
+			Near,
+			Far
 		};
 
 	public:
@@ -125,7 +130,12 @@ namespace Vcl { namespace Graphics {
 	public:
 		enum
 		{
-			Top = 0, Bottom, Left, Right, Near, Far
+			Top = 0,
+			Bottom,
+			Left,
+			Right,
+			Near,
+			Far
 		};
 
 	public:

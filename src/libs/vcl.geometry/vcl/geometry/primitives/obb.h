@@ -68,26 +68,32 @@ namespace Vcl { namespace Geometry {
 			}
 
 			// Build the co-variance matrix
-			real_t cxx = -size * mu.x()*mu.x();
-			real_t cxy = -size * mu.x()*mu.y();
-			real_t cxz = -size * mu.x()*mu.z();
-			real_t cyy = -size * mu.y()*mu.y();
-			real_t cyz = -size * mu.y()*mu.z();
-			real_t czz = -size * mu.z()*mu.z();
+			real_t cxx = -size * mu.x() * mu.x();
+			real_t cxy = -size * mu.x() * mu.y();
+			real_t cxz = -size * mu.x() * mu.z();
+			real_t cyy = -size * mu.y() * mu.y();
+			real_t cyz = -size * mu.y() * mu.z();
+			real_t czz = -size * mu.z() * mu.z();
 			for (const auto& p : points)
 			{
-				cxx += p.x()*p.x();
-				cxy += p.x()*p.y();
-				cxz += p.x()*p.z();
-				cyy += p.y()*p.y();
-				cyz += p.y()*p.z();
-				czz += p.z()*p.z();
+				cxx += p.x() * p.x();
+				cxy += p.x() * p.y();
+				cxz += p.x() * p.z();
+				cyy += p.y() * p.y();
+				cyz += p.y() * p.z();
+				czz += p.z() * p.z();
 			}
 
 			matrix_t C = matrix_t::Zero();
-			C(0, 0) = cxx; C(0, 1) = cxy; C(0, 2) = cxz;
-			C(1, 0) = cxy; C(1, 1) = cyy; C(1, 2) = cyz;
-			C(2, 0) = cxz; C(2, 1) = cyz; C(2, 2) = czz;
+			C(0, 0) = cxx;
+			C(0, 1) = cxy;
+			C(0, 2) = cxz;
+			C(1, 0) = cxy;
+			C(1, 1) = cyy;
+			C(1, 2) = cyz;
+			C(2, 0) = cxz;
+			C(2, 1) = cyz;
+			C(2, 2) = czz;
 
 			evaluateCovariance(points, C);
 		}

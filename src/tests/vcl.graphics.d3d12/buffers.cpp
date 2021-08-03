@@ -273,12 +273,13 @@ TEST(D3D12Buffer, DynamicUpdate)
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-	{
+	// clang-format off
+	std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
 		{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			{ D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND },
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 	};
+	// clang-format on
 
 	DescriptorTableLayout table_layout{ device.get(), std::move(dynamic_resources), {} };
 	auto signature = table_layout.rootSignature();

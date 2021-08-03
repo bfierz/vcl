@@ -103,8 +103,8 @@ public:
 		_camera.setFarPlane(10.0f);
 		_camera.setPosition({ 1.5f, 1.5f, 1.5f });
 
-		std::vector<float> cube_points =
-		{
+		// clang-format off
+		std::vector<float> cube_points = {
 			 1,  1, -1,
 			-1,  1, -1,
 			-1,  1,  1,
@@ -114,6 +114,8 @@ public:
 			-1, -1,  1,
 			 1, -1,  1
 		};
+		// clang-format on
+
 		BufferDescription vbo_desc = {
 			cube_points.size() * sizeof(float),
 			BufferUsage::Vertex

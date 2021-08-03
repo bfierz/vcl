@@ -37,8 +37,10 @@ VCL_END_EXTERNAL_HEADERS
 struct NameComponent
 {
 	NameComponent() = default;
-	NameComponent(const std::string& name) : Name(name) {}
-	NameComponent(const char* name) : Name(name) {}
+	NameComponent(const std::string& name)
+	: Name(name) {}
+	NameComponent(const char* name)
+	: Name(name) {}
 
 	std::string Name;
 };
@@ -46,12 +48,13 @@ struct NameComponent
 struct SecondaryNameComponent
 {
 	SecondaryNameComponent() = default;
-	SecondaryNameComponent(const std::string& name) : Name(name) {}
-	SecondaryNameComponent(const char* name) : Name(name) {}
+	SecondaryNameComponent(const std::string& name)
+	: Name(name) {}
+	SecondaryNameComponent(const char* name)
+	: Name(name) {}
 
 	std::string Name;
 };
-
 
 namespace Vcl { namespace Components {
 	template<>

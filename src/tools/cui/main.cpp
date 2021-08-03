@@ -226,6 +226,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
+		// clang-format off
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
@@ -235,6 +236,7 @@ int main(int argc, char* argv[])
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
 			;
+		// clang-format on
 		options.parse_positional("input-file");
 
 		cxxopts::ParseResult parsed_options = options.parse(argc, argv);

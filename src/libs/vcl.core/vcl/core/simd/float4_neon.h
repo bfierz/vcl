@@ -53,22 +53,22 @@ namespace Vcl {
 		VCL_SIMD_ASSIGN_OP(operator/=, vdivq_f32, 1)
 
 	public:
-		VCL_SIMD_COMP_OP(operator==, vceqq_f32 , 1)
+		VCL_SIMD_COMP_OP(operator==, vceqq_f32, 1)
 		VCL_SIMD_COMP_OP(operator!=, vcneqq_f32, 1)
-		VCL_SIMD_COMP_OP(operator< , vcltq_f32 , 1)
-		VCL_SIMD_COMP_OP(operator<=, vcleq_f32 , 1)
-		VCL_SIMD_COMP_OP(operator> , vcgtq_f32 , 1)
-		VCL_SIMD_COMP_OP(operator>=, vcgeq_f32 , 1)
+		VCL_SIMD_COMP_OP(operator<, vcltq_f32, 1)
+		VCL_SIMD_COMP_OP(operator<=, vcleq_f32, 1)
+		VCL_SIMD_COMP_OP(operator>, vcgtq_f32, 1)
+		VCL_SIMD_COMP_OP(operator>=, vcgeq_f32, 1)
 
 	public:
-		VCL_SIMD_UNARY_OP(abs,   vabsq_f32  , 1)
-		VCL_SIMD_UNARY_OP(sin,   vsinq_f32  , 1)
-		VCL_SIMD_UNARY_OP(cos,   vcosq_f32  , 1)
-		VCL_SIMD_UNARY_OP(exp,   vexpq_f32  , 1)
-		VCL_SIMD_UNARY_OP(log,   vlogq_f32  , 1)
-		VCL_SIMD_UNARY_OP(sgn,   vsgnq_f32  , 1)
-		VCL_SIMD_UNARY_OP(sqrt,  vsqrtq_f32 , 1)
-		VCL_SIMD_UNARY_OP(rcp,   vrcpq_f32  , 1)
+		VCL_SIMD_UNARY_OP(abs, vabsq_f32, 1)
+		VCL_SIMD_UNARY_OP(sin, vsinq_f32, 1)
+		VCL_SIMD_UNARY_OP(cos, vcosq_f32, 1)
+		VCL_SIMD_UNARY_OP(exp, vexpq_f32, 1)
+		VCL_SIMD_UNARY_OP(log, vlogq_f32, 1)
+		VCL_SIMD_UNARY_OP(sgn, vsgnq_f32, 1)
+		VCL_SIMD_UNARY_OP(sqrt, vsqrtq_f32, 1)
+		VCL_SIMD_UNARY_OP(rcp, vrcpq_f32, 1)
 		VCL_SIMD_UNARY_OP(rsqrt, vrsqrtq_f32, 1)
 
 		VCL_SIMD_UNARY_OP(acos, vacosq_f32, 1)
@@ -90,11 +90,11 @@ namespace Vcl {
 		return VectorScalar<float, 4>(vbslq_f32(mask.get(0), a.get(0), b.get(0)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 4>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<float, 4>& rhs)
 	{
 		alignas(8) float vars[4];
 		vst1q_f32(vars + 0, rhs.get(0));
-		
+
 		s << "'" << vars[0] << "," << vars[1] << "," << vars[2] << "," << vars[3] << "'";
 		return s;
 	}

@@ -26,16 +26,16 @@
 
 #if defined(VCL_VECTORIZE_SSE)
 VCL_BEGIN_EXTERNAL_HEADERS
-#define USE_SSE2
-#include <vcl/core/simd/detail/sse_mathfun.h>
+#	define USE_SSE2
+#	include <vcl/core/simd/detail/sse_mathfun.h>
 
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
-#include <vcl/core/simd/vectorscalar.h>
+#	include <vcl/core/simd/vectorscalar.h>
 
 namespace Vcl {
-#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
+#	if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m128 _mm_sin_ps(__m128 v) noexcept
 	{
 		return sin_ps(v);
@@ -55,7 +55,7 @@ namespace Vcl {
 	{
 		return exp_ps(v);
 	}
-	
+
 	__m128 _mm_pow_ps(__m128 x, __m128 y) noexcept
 	{
 		return _mm_exp_ps(_mm_mul_ps(_mm_log_ps(x), y));
@@ -100,10 +100,9 @@ namespace Vcl {
 		ret -= 0.2121144f;
 		ret *= x;
 		ret += 1.5707288f;
-		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
+		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x) * ret;
 		return (ret - 2.0f * negate * ret).get(0);
 	}
-
 
 	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x) noexcept
 	{
@@ -134,26 +133,26 @@ namespace Vcl {
 
 		return t3.get(0);
 	}
-#endif
-	
+#	endif
+
 	__m128 _mmVCL_floor_ps(__m128 x) noexcept
 	{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_floor_ps(x);
-#else
+#	else
 		// The following implementations are taken from:
 		// http://dss.stephanierct.com/DevBlog/?p=8
 
 		__m128i v0 = _mm_setzero_si128();
-		__m128i v1 = _mm_cmpeq_epi32(v0,v0);
-		__m128i ji = _mm_srli_epi32( v1, 25);
+		__m128i v1 = _mm_cmpeq_epi32(v0, v0);
+		__m128i ji = _mm_srli_epi32(v1, 25);
 		__m128 j = _mm_castsi128_ps(_mm_slli_epi32(ji, 23)); //create vector 1.0f
 		__m128i i = _mm_cvttps_epi32(x);
 		__m128 fi = _mm_cvtepi32_ps(i);
 		__m128 igx = _mm_cmpgt_ps(fi, x);
 		j = _mm_and_ps(igx, j);
 		return _mm_sub_ps(fi, j);
-#endif
+#	endif
 	}
 }
 #endif // defined(VCL_VECTORIZE_SSE)

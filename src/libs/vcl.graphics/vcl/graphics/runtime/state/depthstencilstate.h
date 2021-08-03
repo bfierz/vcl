@@ -59,20 +59,20 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 	struct DepthStencilOperationDescription
 	{
-		StencilOperation   StencilFailOp{ StencilOperation::Keep };
-		StencilOperation   StencilDepthFailOp{ StencilOperation::Keep };
-		StencilOperation   StencilPassOp{ StencilOperation::Keep };
+		StencilOperation StencilFailOp{ StencilOperation::Keep };
+		StencilOperation StencilDepthFailOp{ StencilOperation::Keep };
+		StencilOperation StencilPassOp{ StencilOperation::Keep };
 		ComparisonFunction StencilFunc{ ComparisonFunction::Always };
 	};
 
 	struct DepthStencilDescription
 	{
-		bool                             DepthEnable{ true };
-		DepthWriteMethod                 DepthWriteMask{ DepthWriteMethod::All };
-		ComparisonFunction               DepthFunc{ ComparisonFunction::Less };
-		bool                             StencilEnable{ false };
-		uint8_t                          StencilReadMask{ 0xff };
-		uint8_t                          StencilWriteMask{ 0xff };
+		bool DepthEnable{ true };
+		DepthWriteMethod DepthWriteMask{ DepthWriteMethod::All };
+		ComparisonFunction DepthFunc{ ComparisonFunction::Less };
+		bool StencilEnable{ false };
+		uint8_t StencilReadMask{ 0xff };
+		uint8_t StencilWriteMask{ 0xff };
 		DepthStencilOperationDescription FrontFace;
 		DepthStencilOperationDescription BackFace;
 	};

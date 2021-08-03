@@ -50,13 +50,15 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		Always = 8
 	};
 
-	enum class AttachmentLoadOp {
+	enum class AttachmentLoadOp
+	{
 		DontCare,
 		Clear,
 		Load
 	};
 
-	enum class AttachmentStoreOp {
+	enum class AttachmentStoreOp
+	{
 		Store,
 		Clear
 	};

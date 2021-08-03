@@ -390,19 +390,29 @@ namespace Vcl { namespace Graphics {
 		vector3_t dir = -orthographic_direction.normalized();
 
 		// OBB positions & normals
-		std::array<vector3_t, 6> p; p.fill(frustum.corner(0));
+		std::array<vector3_t, 6> p;
+		p.fill(frustum.corner(0));
 		std::array<vector3_t, 6> n;
-		std::array<int, 6> idx;     idx.fill(0);
+		std::array<int, 6> idx;
+		idx.fill(0);
 
 		// Near/Far plane
-		n[0] =  dir;
+		n[0] = dir;
 		n[1] = -dir;
 		for (int i = 1; i < 8; i++)
 		{
 			real_t d0 = n[0].dot(frustum.corner(i) - p[0]);
 			real_t d1 = n[1].dot(frustum.corner(i) - p[1]);
-			if (d0 > 0) { p[0] = frustum.corner(i); idx[0] = i; }
-			if (d1 > 0) { p[1] = frustum.corner(i); idx[1] = i; }
+			if (d0 > 0)
+			{
+				p[0] = frustum.corner(i);
+				idx[0] = i;
+			}
+			if (d1 > 0)
+			{
+				p[1] = frustum.corner(i);
+				idx[1] = i;
+			}
 		}
 
 		// Project points on near plane
@@ -432,29 +442,45 @@ namespace Vcl { namespace Graphics {
 		for (int i = 0; i < 8; i++)
 			Y.col(i) = proj_points[i] - m;
 
-		Eigen::Matrix<real_t, 3, 3> S = Y*Y.transpose();
+		Eigen::Matrix<real_t, 3, 3> S = Y * Y.transpose();
 		Eigen::SelfAdjointEigenSolver<Eigen::Matrix<real_t, 3, 3>> eig(S);
 
 		// Compute planes orthogonal to the main directions
-		n[2] =  eig.eigenvectors().col(2).normalized();
+		n[2] = eig.eigenvectors().col(2).normalized();
 		n[3] = -eig.eigenvectors().col(2).normalized();
-		n[4] =  eig.eigenvectors().col(1).normalized();
+		n[4] = eig.eigenvectors().col(1).normalized();
 		n[5] = -eig.eigenvectors().col(1).normalized();
 
 		// Check if frame is orthogonal, else change it
 		if (-dir.cross(n[5]).dot(n[3]) < 0)
 			std::swap(n[4], n[5]);
-			
+
 		for (int i = 1; i < 8; i++)
 		{
 			real_t d2 = n[2].dot(frustum.corner(i) - p[2]);
 			real_t d3 = n[3].dot(frustum.corner(i) - p[3]);
 			real_t d4 = n[4].dot(frustum.corner(i) - p[4]);
 			real_t d5 = n[5].dot(frustum.corner(i) - p[5]);
-			if (d2 > 0) { p[2] = frustum.corner(i); idx[2] = i; }
-			if (d3 > 0) { p[3] = frustum.corner(i); idx[3] = i; }
-			if (d4 > 0) { p[4] = frustum.corner(i); idx[4] = i; }
-			if (d5 > 0) { p[5] = frustum.corner(i); idx[5] = i; }
+			if (d2 > 0)
+			{
+				p[2] = frustum.corner(i);
+				idx[2] = i;
+			}
+			if (d3 > 0)
+			{
+				p[3] = frustum.corner(i);
+				idx[3] = i;
+			}
+			if (d4 > 0)
+			{
+				p[4] = frustum.corner(i);
+				idx[4] = i;
+			}
+			if (d5 > 0)
+			{
+				p[5] = frustum.corner(i);
+				idx[5] = i;
+			}
 		}
 
 		// Compute frustum parameters
@@ -500,7 +526,7 @@ namespace Vcl { namespace Graphics {
 			left_to_right, bottom_to_top, near_to_far, 2 * near_to_far, nc + dir * near_to_far, -dir, n[5], n[3]);
 		return ortho;
 	}
-	
+
 	template<typename Scalar>
 	void OrthographicViewFrustum<Scalar>::computePlanes()
 	{
@@ -511,7 +537,7 @@ namespace Vcl { namespace Graphics {
 		VclRequire(equal(_right.squaredNorm(), 1, (Scalar)1e-6), "Right is unit length.");
 
 		real_t height = _y;
-		real_t width  = _x;
+		real_t width = _x;
 
 		// Far plane center
 		vector3_t fc = _position + _direction * _far;

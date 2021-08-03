@@ -125,8 +125,13 @@ namespace Vcl { namespace Graphics {
 	Eigen::Matrix4f PerspectiveShadowMapVolume::lightMatrix() const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * computeProjectionMatrix() * computeViewMatrix();
 	}
 
@@ -137,7 +142,7 @@ namespace Vcl { namespace Graphics {
 
 	Eigen::Matrix4f PerspectiveShadowMapVolume::computeProjectionMatrix() const
 	{
-		float aspect_ratio = (float) shadowMap()->width() / (float) shadowMap()->height();
+		float aspect_ratio = (float)shadowMap()->width() / (float)shadowMap()->height();
 		return mFactory->createPerspectiveFov(nearPlane(), farPlane(), aspect_ratio, fieldOfView(), Handedness::RightHanded);
 	}
 
@@ -268,8 +273,13 @@ namespace Vcl { namespace Graphics {
 	Eigen::Matrix4f OrthographicShadowMapVolume::lightMatrix() const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * computeProjectionMatrix() * computeViewMatrix();
 	}
 
@@ -384,8 +394,13 @@ namespace Vcl { namespace Graphics {
 	Eigen::Matrix4f ParallelSplitOrthographicShadowMapVolume::lightMatrix(unsigned int split) const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * mOrthoFrustums[split].computeProjectionMatrix(*mFactory) * mOrthoFrustums[split].computeViewMatrix(*mFactory);
 	}
 
