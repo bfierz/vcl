@@ -42,30 +42,23 @@ namespace Vcl { namespace Graphics {
 		virtual ~Histogram() = default;
 
 	public:
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Runtime::OpenGL::Buffer> histogram,
 			const ref_ptr<Runtime::OpenGL::Buffer> values,
-			unsigned int num_elements
-		);
+			unsigned int num_elements);
 
 	private:
-
-		void partialHistograms
-		(
+		void partialHistograms(
 			ref_ptr<Runtime::OpenGL::Buffer> buckets,
 			const ref_ptr<Runtime::OpenGL::Buffer> values,
 			unsigned int num_elements,
-			unsigned int num_buckets
-		);
+			unsigned int num_buckets);
 
-		void collectPartialHistograms
-		(
+		void collectPartialHistograms(
 			ref_ptr<Runtime::OpenGL::Buffer> histogram,
 			const ref_ptr<Runtime::OpenGL::Buffer> buckets,
 			unsigned int num_elements,
-			unsigned int num_buckets
-		);
+			unsigned int num_buckets);
 
 	private: // Limits
 		//! Warp size

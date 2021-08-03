@@ -93,12 +93,10 @@ namespace Vcl {
 #	include <vcl/core/simd/int16_ref.h>
 namespace Vcl {
 	template<typename Scalar, int Width>
-	VectorScalar<Scalar, Width> select
-	(
+	VectorScalar<Scalar, Width> select(
 		const VectorScalar<bool, Width>& mask,
 		const VectorScalar<Scalar, Width>& a,
-		const VectorScalar<Scalar, Width>& b
-	)
+		const VectorScalar<Scalar, Width>& b)
 	{
 		VectorScalar<Scalar, Width> res;
 		for (int i = 0; i < Width; i++)
@@ -327,12 +325,10 @@ namespace Vcl {
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	VCL_STRONG_INLINE Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> select
-	(
+	VCL_STRONG_INLINE Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> select(
 		const VectorScalar<bool, Width>& mask,
 		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& a,
-		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& b
-	)
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& b)
 	{
 		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> selected;
 		for (int c = 0; c < Cols; c++)
@@ -347,12 +343,10 @@ namespace Vcl {
 	}
 
 	template<typename Scalar, int Width, size_t N>
-	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select
-	(
+	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select(
 		const VectorScalar<bool, Width>& mask,
 		const std::array<VectorScalar<Scalar, Width>, N>& a,
-		const std::array<VectorScalar<Scalar, Width>, N>& b
-	)
+		const std::array<VectorScalar<Scalar, Width>, N>& b)
 	{
 		std::array<VectorScalar<Scalar, Width>, N> selected;
 
@@ -411,12 +405,10 @@ namespace Vcl {
 	}
 
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<bool, Width> equal
-	(
+	VCL_STRONG_INLINE VectorScalar<bool, Width> equal(
 		const VectorScalar<Scalar, Width>& x,
 		const VectorScalar<Scalar, Width>& y,
-		const VectorScalar<Scalar, Width>& tol = 0
-	)
+		const VectorScalar<Scalar, Width>& tol = 0)
 	{
 		return abs(x - y) <= tol * max(VectorScalar<Scalar, Width>(1), max(abs(x), abs(y)));
 	}

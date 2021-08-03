@@ -57,14 +57,12 @@
 #include "problems.h"
 
 template<typename Scalar>
-void computeReferenceSolution
-(
+void computeReferenceSolution(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& V,
-	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-)
+	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S)
 {
 	// Compute reference using Eigen
 	for (size_t i = 0; i < nr_problems; i++)
@@ -78,15 +76,13 @@ void computeReferenceSolution
 }
 
 template<typename WideScalar, typename Func>
-void computeSolution
-(
+void computeSolution(
 	size_t nr_problems,
 	Func& func,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -115,14 +111,12 @@ void computeSolution
 }
 
 #ifdef VCL_CUDA_SUPPORT
-void cudaMcAdamsSVD
-(
+void cudaMcAdamsSVD(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::Cuda;
 
@@ -139,14 +133,12 @@ void cudaMcAdamsSVD
 #endif // defined VCL_CUDA_SUPPORT
 
 #ifdef VCL_OPENCL_SUPPORT
-void openCLMcAdamsSVD
-(
+void openCLMcAdamsSVD(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::OpenCL;
 
@@ -163,8 +155,7 @@ void openCLMcAdamsSVD
 #endif // defined VCL_OPENCL_SUPPORT
 
 template<typename Scalar>
-void checkSolution
-(
+void checkSolution(
 	const char* Name,
 	const char* file,
 	size_t nr_problems,
@@ -174,8 +165,7 @@ void checkSolution
 	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resVa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-)
+	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 {
 	using scalar_t = Scalar;
 

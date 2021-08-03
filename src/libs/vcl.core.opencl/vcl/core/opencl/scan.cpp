@@ -74,13 +74,11 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		}
 	}
 
-	void ScanExclusiveLarge::operator()
-	(
+	void ScanExclusiveLarge::operator()(
 		ref_ptr<Compute::Buffer> dst,
 		ref_ptr<Compute::Buffer> src,
 		unsigned int batchSize,
-		unsigned int arrayLength
-	)
+		unsigned int arrayLength)
 	{
 		// Check power-of-two factorization
 		unsigned int log2L;
@@ -93,38 +91,30 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		// Check total batch size limit
 		VclCheck((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
 
-		scanExclusiveLocal1
-		(
+		scanExclusiveLocal1(
 			dst,
 			src,
 			(batchSize * arrayLength) / (4 * WorkgroupSize),
-			4 * WorkgroupSize
-		);
+			4 * WorkgroupSize);
 
-		scanExclusiveLocal2
-		(
+		scanExclusiveLocal2(
 			_workSpace,
 			dst,
 			src,
 			batchSize,
-			arrayLength / (4 * WorkgroupSize)
-		);
+			arrayLength / (4 * WorkgroupSize));
 
-		uniformUpdate
-		(
+		uniformUpdate(
 			dst,
 			_workSpace,
-			(batchSize * arrayLength) / (4 * WorkgroupSize)
-		);
+			(batchSize * arrayLength) / (4 * WorkgroupSize));
 	}
-	
-	void ScanExclusiveLarge::scanExclusiveLocal1
-	(
+
+	void ScanExclusiveLarge::scanExclusiveLocal1(
 		ref_ptr<Compute::Buffer> dst,
 		ref_ptr<Compute::Buffer> src,
 		unsigned int n,
-		unsigned int size
-	)
+		unsigned int size)
 	{
 		VclRequire(_scanExclusiveLocal1Kernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
@@ -135,27 +125,23 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { (n * size) / 4, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { WorkgroupSize, 0, 0 };
 
-		_scanExclusiveLocal1Kernel->run
-		(
+		_scanExclusiveLocal1Kernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufDst,
-			(cl_mem) *bufSrc,
+			(cl_mem)*bufDst,
+			(cl_mem)*bufSrc,
 			LocalMemory(2 * WorkgroupSize * sizeof(unsigned int)),
-			size
-		);
+			size);
 	}
 
-	void ScanExclusiveLarge::scanExclusiveLocal2
-	(
+	void ScanExclusiveLarge::scanExclusiveLocal2(
 		ref_ptr<Compute::Buffer> buffer,
 		ref_ptr<Compute::Buffer> dst,
 		ref_ptr<Compute::Buffer> src,
 		unsigned int n,
-		unsigned int size
-	)
+		unsigned int size)
 	{
 		VclRequire(_scanExclusiveLocal2Kernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
@@ -168,27 +154,23 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { iSnapUp(elements, WorkgroupSize), 0, 0 };
 		std::array<size_t, 3> localWorkSize = { WorkgroupSize, 0, 0 };
 
-		_scanExclusiveLocal2Kernel->run
-		(
+		_scanExclusiveLocal2Kernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufBuf,
-			(cl_mem) *bufDst,
-			(cl_mem) *bufSrc,
+			(cl_mem)*bufBuf,
+			(cl_mem)*bufDst,
+			(cl_mem)*bufSrc,
 			LocalMemory(2 * WorkgroupSize * sizeof(unsigned int)),
 			elements,
-			size
-		);
+			size);
 	}
 
-	void ScanExclusiveLarge::uniformUpdate
-	(
+	void ScanExclusiveLarge::uniformUpdate(
 		ref_ptr<Compute::Buffer> dst,
 		ref_ptr<Compute::Buffer> buffer,
-		unsigned int n
-	)
+		unsigned int n)
 	{
 		VclRequire(_uniformUpdateKernel, "Kernel is loaded.");
 		using Vcl::Compute::OpenCL::LocalMemory;
@@ -199,14 +181,12 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { n * WorkgroupSize, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { WorkgroupSize, 0, 0 };
 
-		_uniformUpdateKernel->run
-		(
+		_uniformUpdateKernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufDst,
-			(cl_mem) *bufBuf
-		);
+			(cl_mem)*bufDst,
+			(cl_mem)*bufBuf);
 	}
 }}}

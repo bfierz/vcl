@@ -48,8 +48,7 @@ namespace Vcl { namespace Geometry {
 		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
 		const Eigen::Matrix<Scalar, 3, 1>& n,
 		std::array<Scalar, 4>& coord,
-		int& mask
-	)
+		int& mask)
 	{
 		mask = 000;
 		if ((coord[0] = diff[0].dot(n)) > 0) mask  = 001;
@@ -67,8 +66,7 @@ namespace Vcl { namespace Geometry {
 	template<typename Scalar>
 	inline bool detHalfSpace(
 		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
-		const Eigen::Matrix<Scalar, 3, 1>& n
-	)
+		const Eigen::Matrix<Scalar, 3, 1>& n)
 	{
 		return ((diff[0].dot(n)>0) &&
 				(diff[1].dot(n)>0) &&

@@ -30,19 +30,15 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
-	TextureCubeArray::TextureCubeArray
-	(
+	TextureCubeArray::TextureCubeArray(
 		const TextureCubeDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::TextureCubeArray, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
-			desc.Width, desc.Height, 1
-		);
+			desc.Width, desc.Height, 1);
 		initialise(init_data);
 	}
 

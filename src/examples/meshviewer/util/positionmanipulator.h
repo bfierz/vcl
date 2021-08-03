@@ -69,22 +69,19 @@ namespace Vcl { namespace Editor { namespace Util {
 		void drawIds(
 			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			unsigned int id,
-			const Eigen::Matrix4f& T
-		);
+			const Eigen::Matrix4f& T);
 
 		//! Draw the handle
 		void draw(
 			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
-			const Eigen::Matrix4f& T
-		);
+			const Eigen::Matrix4f& T);
 
 	private:
 		void draw(
 			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			const Eigen::Matrix4f& T,
 			ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
-			ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps
-		);
+			ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps);
 
 	private:
 		//! Pipeline state used for the opaque parts of the handle

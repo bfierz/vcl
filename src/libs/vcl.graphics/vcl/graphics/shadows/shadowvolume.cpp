@@ -163,14 +163,12 @@ namespace Vcl { namespace Graphics {
 	{
 	}
 
-	OrthographicShadowMapVolume::OrthographicShadowMapVolume
-	(
+	OrthographicShadowMapVolume::OrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		const Eigen::Vector3f& position,
 		const Eigen::Vector3f& direction,
 		const Eigen::Vector3f& right,
-		const Eigen::Vector3f& up
-	)
+		const Eigen::Vector3f& up)
 	: mFactory(std::move(factory))
 	, mPosition(position)
 	, mDirection(direction)
@@ -294,24 +292,21 @@ namespace Vcl { namespace Graphics {
 		return mFactory->createOrtho(mWidth, mHeight, nearPlane(), farPlane(), Handedness::RightHanded);
 	}
 
-	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume
-	(
+	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		int nr_splits,
-		float lambda
-	)
+		float lambda)
 	: ParallelSplitOrthographicShadowMapVolume(factory, nr_splits, lambda, Eigen::Vector3f(0, -1, 0), nullptr)
 	{
 	}
 
-	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume
-	(
+	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		int nr_splits,
 		float lambda,
 		const Eigen::Vector3f& direction,
 		const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum /* = nullptr */
-	)
+		)
 	: OrthographicShadowMapVolume(std::move(factory))
 	, mSplits(nr_splits + 1)
 	, mLambda(lambda)
@@ -369,12 +364,10 @@ namespace Vcl { namespace Graphics {
 			for (size_t i = 0; i < mSplits.size() - 1; i++)
 			{
 				// Compute the perspective split frustum
-				PerspectiveViewFrustum<float> psf
-				(
+				PerspectiveViewFrustum<float> psf(
 					frustum->width(), frustum->height(), frustum->fieldOfView(),
-					mSplits[i], mSplits[i+1],
-					frustum->position(), frustum->direction(), frustum->up(), frustum->right()
-				);
+					mSplits[i], mSplits[i + 1],
+					frustum->position(), frustum->direction(), frustum->up(), frustum->right());
 
 				mOrthoFrustums[i] = OrthographicViewFrustum<float>::enclose(psf, direction());
 			}

@@ -54,12 +54,10 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		 *                    maxElements passed to the constructor
 		 * \param keyBits     The number of bits in each key to use for ordering
 		 */
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Compute::Buffer> keys,
 			unsigned int numElements,
-			unsigned int keyBits
-		);
+			unsigned int keyBits);
 
 	private:
 		/*!

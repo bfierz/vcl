@@ -42,13 +42,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-		GraphicsPipelineState
-		(
+		GraphicsPipelineState(
 			Graphics::D3D12::Device* device,
 			const PipelineStateDescription& desc,
 			const RenderTargetLayout& rt_layout,
-			const Graphics::D3D12::DescriptorTableLayout* layout
-		);
+			const Graphics::D3D12::DescriptorTableLayout* layout);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }
@@ -67,12 +65,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-		ComputePipelineState
-		(
+		ComputePipelineState(
 			Graphics::D3D12::Device* device,
 			const ComputePipelineStateDescription& desc,
-			const Graphics::D3D12::DescriptorTableLayout* layout
-		);
+			const Graphics::D3D12::DescriptorTableLayout* layout);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }

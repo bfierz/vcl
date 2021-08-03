@@ -64,12 +64,10 @@ namespace Vcl { namespace Graphics {
 		_reorderDataKeysOnlyKernel     = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 128\n#define SCAN_SHARED_MEM_SIZE 4*WORKGROUP_SIZE\n#define reorderDataKeysOnly\n", module_scan });
 	}
 
-	void RadixSort::operator()
-	(
+	void RadixSort::operator()(
 		ref_ptr<Runtime::OpenGL::Buffer> keys,
 		unsigned int numElements,
-		unsigned int keyBits
-	)
+		unsigned int keyBits)
 	{
 		radixSortKeysOnly(keys, numElements, keyBits);
 	}

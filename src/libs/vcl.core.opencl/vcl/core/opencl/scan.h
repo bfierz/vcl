@@ -45,36 +45,28 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		virtual ~ScanExclusiveLarge() = default;
 
 	public:
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int batchSize,
-			unsigned int arrayLength
-		);
+			unsigned int arrayLength);
 
 	private:
-		void scanExclusiveLocal1
-		(
+		void scanExclusiveLocal1(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void scanExclusiveLocal2
-		(
+			unsigned int size);
+		void scanExclusiveLocal2(
 			ref_ptr<Compute::Buffer> buffer,
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void uniformUpdate
-		(
+			unsigned int size);
+		void uniformUpdate(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> buffer,
-			unsigned int n
-		);
+			unsigned int n);
 
 	private: // Device context
 		Vcl::Compute::OpenCL::Context* _ownerCtx;

@@ -274,13 +274,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		_cmdList->Dispatch(thread_group_count_x, thread_group_count_y, thread_group_count_z);
 	}
 
-
-	GraphicsEngine::GraphicsEngine
-	(
+	GraphicsEngine::GraphicsEngine(
 		ref_ptr<Device> device,
-		const SwapChainDescription& swap_chain_desc
-	)
-	: _device{device}
+		const SwapChainDescription& swap_chain_desc)
+	: _device{ device }
 	{
 		_swapChain = std::make_unique<SwapChain>(_device.get(), _device->defaultQueue(), swap_chain_desc);
 

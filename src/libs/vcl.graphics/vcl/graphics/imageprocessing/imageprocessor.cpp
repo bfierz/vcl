@@ -45,13 +45,11 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 		}
 	}
 
-	void ImageProcessor::visit
-	(
+	void ImageProcessor::visit(
 		Task* task,
 		std::stack<Task*, std::vector<Task*>>& queue,
 		std::set<Task*>& permanent,
-		std::set<Task*>& temporary
-	)
+		std::set<Task*>& temporary)
 	{
 		VclRequire(temporary.find(task) == temporary.end(), "Graph is a DAG.");
 

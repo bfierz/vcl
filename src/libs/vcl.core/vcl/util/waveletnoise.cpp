@@ -65,12 +65,12 @@ namespace
 	result += weight * data[(zC * N + yC) * N + xC]
 
 	template<int N>
-	float interpolate
-	(
-		int mid_x, int mid_y, int mid_z,
+	float interpolate(
+		int mid_x,
+		int mid_y,
+		int mid_z,
 		const std::array<std::array<float, 3>, 3>& weights,
-		stdext::span<const float> data
-	) noexcept
+		stdext::span<const float> data) noexcept
 	{
 		//float result = 0;
 		//for (int z = -1; z < 2; z++)

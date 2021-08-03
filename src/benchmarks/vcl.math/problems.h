@@ -30,33 +30,25 @@
 // VCL
 #include <vcl/core/interleavedarray.h>
 
-void createRandomProblems
-(
+void createRandomProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
-);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr);
 
-void createSymmetricProblems
-(
+void createSymmetricProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
-);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr);
 
-void createRotationProblems
-(
+void createRotationProblems(
 	size_t nr_problems,
 	float max_angle,
 	float max_compression,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr
-);
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R = nullptr);
 
-void computeEigenReferenceSolution
-(
+void computeEigenReferenceSolution(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& ATA,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-);
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S);

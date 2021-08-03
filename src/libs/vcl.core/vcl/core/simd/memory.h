@@ -86,17 +86,15 @@ namespace Vcl {
 	}
 
 	template<typename Scalar>
-	Scalar gather(Scalar const * base, int vindex)  noexcept
+	Scalar gather(Scalar const* base, int vindex) noexcept
 	{
 		return *(base + vindex * 1);
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
-	(
+	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather(
 		const Eigen::Matrix<Scalar, Rows, Cols>* base,
-		VectorScalar<int, Width>& vindex
-	)
+		VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 		static_assert(sizeof(Eigen::Matrix<Scalar, Rows, Cols>) == Rows*Cols*sizeof(Scalar), "Size of matrix type does not contain any padding.");
@@ -120,11 +118,9 @@ namespace Vcl {
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols, int Stride>
-	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
-	(
+	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather(
 		const Vcl::Core::InterleavedArray<Scalar, Rows, Cols, Stride>& base,
-		VectorScalar<int, Width>& vindex
-	)
+		VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
@@ -178,12 +174,10 @@ namespace Vcl {
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	void scatter
-	(
-		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& value, 
+	void scatter(
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& value,
 		Eigen::Matrix<Scalar, Rows, Cols>* base,
-		const VectorScalar<int, Width>& vindex
-	)
+		const VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
@@ -216,11 +210,9 @@ namespace Vcl {
 	}
 	
 	template<typename T, int Width>
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<VectorScalar<T, Width>, 3, 1>& loaded,
-		const Eigen::Matrix<T, 3, 1>* base
-	)
+		const Eigen::Matrix<T, 3, 1>* base)
 	{
 		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 3);
 		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 3);
@@ -228,11 +220,9 @@ namespace Vcl {
 	}
 	
 	template<typename T, int Width>
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<VectorScalar<T, Width>, 4, 1>& loaded,
-		const Eigen::Matrix<T, 4, 1>* base
-	)
+		const Eigen::Matrix<T, 4, 1>* base)
 	{
 		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 4);
 		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 4);

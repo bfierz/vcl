@@ -37,16 +37,14 @@
 #	endif
 
 namespace {
-	void VCL_CALLBACK OpenGLDebugMessageCallback
-	(
+	void VCL_CALLBACK OpenGLDebugMessageCallback(
 		GLenum source,
 		GLenum type,
 		GLuint id,
 		GLenum severity,
 		GLsizei length,
 		const GLchar* message,
-		const void* user_param
-	)
+		const void* user_param)
 	{
 		VCL_UNREFERENCED_PARAMETER(length);
 		VCL_UNREFERENCED_PARAMETER(user_param);

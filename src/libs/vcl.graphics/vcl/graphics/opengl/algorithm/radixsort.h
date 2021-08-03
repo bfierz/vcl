@@ -54,12 +54,10 @@ namespace Vcl { namespace Graphics {
 		 *                    maxElements passed to the constructor
 		 * \param keyBits     The number of bits in each key to use for ordering
 		 */
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Runtime::OpenGL::Buffer> keys,
 			unsigned int numElements,
-			unsigned int keyBits
-		);
+			unsigned int keyBits);
 
 	private:
 		/*!
@@ -90,7 +88,6 @@ namespace Vcl { namespace Graphics {
 		ScanExclusive _scan;
 
 	private: // Buffers
-
 		//! Work group size
 		static const unsigned int LocalSize = 128;
 

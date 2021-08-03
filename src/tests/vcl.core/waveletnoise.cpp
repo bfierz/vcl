@@ -51,12 +51,10 @@ public:
 	{}
 };
 
-bool equal
-(
+bool equal(
 	const std::array<float, 3>& x,
 	const std::array<float, 3>& y,
-	float tol = 0
-) noexcept
+	float tol = 0) noexcept
 {
 	bool eq = true;
 	for (int i = 0; i < 3; i++)

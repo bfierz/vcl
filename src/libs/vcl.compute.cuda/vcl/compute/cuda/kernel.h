@@ -120,20 +120,20 @@ namespace Vcl { namespace Compute { namespace Cuda {
 
 	public:
 		template<typename... Args>
-		void run
-		(
-			CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory,
-			const Args&... args
-		)
+		void run(
+			CommandQueue& queue,
+			dim3 gridDim,
+			dim3 blockDim,
+			unsigned int dynamicSharedMemory,
+			const Args&... args)
 		{
 			size_t param_size = 0;
 			size_t _[] = { addToParams(param_size, args)... };
-			(void) _;
-			
-			void* config[] =
-			{
+			(void)_;
+
+			void* config[] = {
 				CU_LAUNCH_PARAM_BUFFER_POINTER, _paramMemory.get(),
-				CU_LAUNCH_PARAM_BUFFER_SIZE,    &param_size,
+				CU_LAUNCH_PARAM_BUFFER_SIZE, &param_size,
 				CU_LAUNCH_PARAM_END
 			};
 
@@ -141,7 +141,7 @@ namespace Vcl { namespace Compute { namespace Cuda {
 		}
 
 		void run(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory);
-		
+
 	private:
 		template<typename T>
 		size_t addToParams(size_t& param_size, T&& arg)

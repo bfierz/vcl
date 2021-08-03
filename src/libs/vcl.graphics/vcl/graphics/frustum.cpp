@@ -50,27 +50,33 @@ namespace Vcl { namespace Graphics {
 	}
 
 	template<typename Scalar>
-	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum
-	(
-		real_t width, real_t height, real_t fov, real_t near_plane, real_t far_plane,
-		vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-	)
-	:	_x(width), _y(height), _fov(fov), _near(near_plane), _far(far_plane),
-		_position(pos), _direction(dir), _up(up), _right(right)
+	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum(
+		real_t width,
+		real_t height,
+		real_t fov,
+		real_t near_plane,
+		real_t far_plane,
+		vector3_t pos,
+		vector3_t dir,
+		vector3_t up,
+		vector3_t right)
+	: _x(width), _y(height), _fov(fov), _near(near_plane), _far(far_plane), _position(pos), _direction(dir), _up(up), _right(right)
 	{
 		computePlanes();
 	}
 
 	template<typename Scalar>
 	PerspectiveViewFrustum<Scalar>::PerspectiveViewFrustum(const Vcl::Graphics::Camera* cam)
-	: PerspectiveViewFrustum
-	  (
-		static_cast<Scalar>(cam->viewportWidth()), static_cast<Scalar>(cam->viewportHeight()), cam->fieldOfView(), cam->nearPlane(), cam->farPlane(),
-		cam->position().cast<Scalar>(),
-		cam->direction().cast<Scalar>(),
-		cam->direction().cross(cam->up().cross(cam->direction()).normalized()).normalized().cast<Scalar>(),
-		cam->up().cross(cam->direction()).normalized().cast<Scalar>()
-	  )
+	: PerspectiveViewFrustum(
+		  static_cast<Scalar>(cam->viewportWidth()),
+		  static_cast<Scalar>(cam->viewportHeight()),
+		  cam->fieldOfView(),
+		  cam->nearPlane(),
+		  cam->farPlane(),
+		  cam->position().cast<Scalar>(),
+		  cam->direction().cast<Scalar>(),
+		  cam->direction().cross(cam->up().cross(cam->direction()).normalized()).normalized().cast<Scalar>(),
+		  cam->up().cross(cam->direction()).normalized().cast<Scalar>())
 	{
 	}
 
@@ -251,10 +257,15 @@ namespace Vcl { namespace Graphics {
 	}
 
 	template<typename Scalar>
-	OrthographicViewFrustum<Scalar>::OrthographicViewFrustum
-	(
-		real_t width, real_t height, real_t near_plane, real_t far_plane, vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-	)
+	OrthographicViewFrustum<Scalar>::OrthographicViewFrustum(
+		real_t width,
+		real_t height,
+		real_t near_plane,
+		real_t far_plane,
+		vector3_t pos,
+		vector3_t dir,
+		vector3_t up,
+		vector3_t right)
 	: _x(width)
 	, _y(height)
 	, _near(near_plane)
@@ -268,10 +279,8 @@ namespace Vcl { namespace Graphics {
 	}
 
 	template<typename Scalar>
-	OrthographicViewFrustum<Scalar>::OrthographicViewFrustum
-	(
-		const OrthographicViewFrustum<real_t>& rhs
-	)
+	OrthographicViewFrustum<Scalar>::OrthographicViewFrustum(
+		const OrthographicViewFrustum<real_t>& rhs)
 	{
 		_x = rhs._x;
 		_y = rhs._y;
@@ -487,10 +496,8 @@ namespace Vcl { namespace Graphics {
 			VclCheckEx(equal(-dir.cross(n[5]).dot(n[3]), 1, (Scalar)1e-4), "Frame is orthogonal.", fmt::format("Angle: %f", -dir.cross(n[5]).dot(n[3])));
 		}
 
-		OrthographicViewFrustum<real_t> ortho
-		(
-			left_to_right, bottom_to_top, near_to_far, 2*near_to_far, nc + dir*near_to_far, -dir, n[5], n[3]
-		);
+		OrthographicViewFrustum<real_t> ortho(
+			left_to_right, bottom_to_top, near_to_far, 2 * near_to_far, nc + dir * near_to_far, -dir, n[5], n[3]);
 		return ortho;
 	}
 	

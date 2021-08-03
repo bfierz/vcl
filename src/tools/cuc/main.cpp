@@ -58,17 +58,9 @@ namespace Vcl { namespace Tools { namespace Cuc {
 	{
 		TCHAR errorMessage[1024] = TEXT("");
 
-		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM
-			| FORMAT_MESSAGE_IGNORE_INSERTS
-			| FORMAT_MESSAGE_MAX_WIDTH_MASK;
+		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK;
 
-		FormatMessage(flags,
-			nullptr,
-			errorCode,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			errorMessage,
-			sizeof(errorMessage) / sizeof(TCHAR),
-			nullptr);
+		FormatMessage(flags, nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errorMessage, sizeof(errorMessage) / sizeof(TCHAR), nullptr);
 
 #ifdef _UNICODE
 		std::wcerr << L"Error : " << errorDesc << std::endl;
@@ -160,17 +152,17 @@ namespace Vcl { namespace Tools { namespace Cuc {
 		std::copy(terminator, terminator + 1, std::back_inserter(cmd));
 
 		if (CreateProcess(
-			nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
-			cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			TRUE,       //_In_         BOOL bInheritHandles,
-			0,          //_In_         DWORD dwCreationFlags,
-			nullptr,    //_In_opt_     LPVOID lpEnvironment,
-			nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
-			&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
-			&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
-		) == FALSE)
+				nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
+				cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
+				TRUE,       //_In_         BOOL bInheritHandles,
+				0,          //_In_         DWORD dwCreationFlags,
+				nullptr,    //_In_opt_     LPVOID lpEnvironment,
+				nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
+				&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
+				&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
+				) == FALSE)
 		{
 			DWORD err = GetLastError();
 			displayError(TEXT("Unable to execute."), err);

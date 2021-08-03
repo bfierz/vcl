@@ -82,13 +82,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		return desc;
 	}
 
-	GraphicsPipelineState::GraphicsPipelineState
-	(
+	GraphicsPipelineState::GraphicsPipelineState(
 		WGPUDevice device,
 		const PipelineStateDescription& desc,
-		const RenderTargetLayout& rt_formats
-	)
-	: _inputLayout{desc.InputLayout}
+		const RenderTargetLayout& rt_formats)
+	: _inputLayout{ desc.InputLayout }
 	{
 		using Vcl::Graphics::WebGPU::toWebGPUEnum;
 
@@ -153,11 +151,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		_pipeline = wgpuDeviceCreateRenderPipeline(device, &graphics_pipeline_desc);
 	}
 
-	ComputePipelineState::ComputePipelineState
-	(
+	ComputePipelineState::ComputePipelineState(
 		WGPUDevice device,
-		const ComputePipelineStateDescription& desc
-	)
+		const ComputePipelineStateDescription& desc)
 	{
 		VclRequire(desc.ComputeShader, "Shader is set.");
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");

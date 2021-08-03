@@ -45,51 +45,39 @@ namespace Vcl { namespace Graphics {
 		virtual ~ScanExclusive() = default;
 
 	public:
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
-			unsigned int arrayLength
-		);
+			unsigned int arrayLength);
 
 	private:
-		void scanExclusiveSmall
-		(
+		void scanExclusiveSmall(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
 			unsigned int batchSize,
-			unsigned int arrayLength
-		);
+			unsigned int arrayLength);
 
-		void scanExclusiveLarge
-		(
+		void scanExclusiveLarge(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
 			unsigned int batchSize,
-			unsigned int arrayLength
-		);
+			unsigned int arrayLength);
 
-		void scanExclusiveLocal1
-		(
+		void scanExclusiveLocal1(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void scanExclusiveLocal2
-		(
+			unsigned int size);
+		void scanExclusiveLocal2(
 			ref_ptr<Runtime::OpenGL::Buffer> buffer,
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void uniformUpdate
-		(
+			unsigned int size);
+		void uniformUpdate(
 			ref_ptr<Runtime::OpenGL::Buffer> dst,
 			ref_ptr<Runtime::OpenGL::Buffer> buffer,
-			unsigned int n
-		);
+			unsigned int n);
 
 	private: // Module, Kernels
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _scanExclusiveLocal1Kernel;

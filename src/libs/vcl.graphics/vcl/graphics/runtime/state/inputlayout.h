@@ -93,7 +93,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 			_elements  = rhs._elements;
 			_locations = rhs._locations;
 		}
-		InputLayoutDescription(InputLayoutDescription&& rhs) 
+		InputLayoutDescription(InputLayoutDescription&& rhs)
 		{
 			std::swap(_bindings, rhs._bindings);
 			std::swap(_elements, rhs._elements);

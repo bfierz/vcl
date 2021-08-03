@@ -47,8 +47,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 	}
 
 	template<typename Real>
-	void makePoissonStencil
-	(
+	void makePoissonStencil(
 		unsigned int dim,
 		Real h,
 		Real a,
@@ -56,8 +55,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ac,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
-		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
-	)
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
 		const Real s = a / (h*h);
@@ -86,8 +84,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 	}
 
 	template<typename Real>
-	void makePoissonStencil
-	(
+	void makePoissonStencil(
 		Eigen::Vector2ui dim,
 		Real h,
 		Real a,
@@ -97,8 +94,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ax_r,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_r,
-		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
-	)
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
 		const Real s = a / (h*h);
@@ -137,8 +133,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 	}
 
 	template<typename Real>
-	void makePoissonStencil
-	(
+	void makePoissonStencil(
 		Eigen::Vector3ui dim,
 		Real h,
 		Real a,
@@ -150,8 +145,7 @@ namespace Vcl { namespace Mathematics { namespace Solver {
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Ay_r,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Az_l,
 		Eigen::Map<Eigen::Matrix<Real, Eigen::Dynamic, 1>> Az_r,
-		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip
-	)
+		Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		// Scaling of the stencil
 		const Real s = a / (h*h);

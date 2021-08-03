@@ -206,15 +206,13 @@ private:
 		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
 
-	void renderBoundingBox
-	(
+	void renderBoundingBox(
 		ID3D12GraphicsCommandList* cmd_list,
 		const Eigen::AlignedBox3f& bb,
 		unsigned int resolution,
 		Vcl::Graphics::Runtime::PipelineState* ps,
 		const Eigen::Matrix4f& M,
-		const Eigen::Matrix4f& VP
-	)
+		const Eigen::Matrix4f& VP)
 	{
 		// Configure the layout
 		cmd_list->SetPipelineState(_boxPipelineState->handle());

@@ -38,102 +38,140 @@ namespace Vcl { namespace Graphics {
 	class MatrixFactory
 	{
 	public:
-		Eigen::Matrix4f createLookAt
-		(
+		Eigen::Matrix4f createLookAt(
 			const Eigen::Vector3f& position,
 			const Eigen::Vector3f& direction,
 			const Eigen::Vector3f& world_up,
-			Handedness handedness = Handedness::RightHanded
-		) const;
+			Handedness handedness = Handedness::RightHanded) const;
 
 	public:
-		virtual Eigen::Matrix4f createPerspective
-		(
-			float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-		) const = 0;
+		virtual Eigen::Matrix4f createPerspective(
+			float width,
+			float height,
+			float near_plane,
+			float far_plane,
+			Handedness handedness = Handedness::RightHanded) const = 0;
 
-		virtual Eigen::Matrix4f createPerspectiveFov
-		(
-			float near_plane, float far_plane, float aspect_ratio, float fov_vertical, Handedness handedness = Handedness::RightHanded
-		) const = 0;
+		virtual Eigen::Matrix4f createPerspectiveFov(
+			float near_plane,
+			float far_plane,
+			float aspect_ratio,
+			float fov_vertical,
+			Handedness handedness = Handedness::RightHanded) const = 0;
 
-		virtual Eigen::Matrix4f createPerspectiveOffCenter
-		(
-			float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-		) const = 0;
+		virtual Eigen::Matrix4f createPerspectiveOffCenter(
+			float left,
+			float right,
+			float bottom,
+			float top,
+			float near_plane,
+			float far_plane,
+			Handedness handedness = Handedness::RightHanded) const = 0;
 
-		virtual Eigen::Matrix4f createOrtho
-		(
-			float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-		) const = 0;
+		virtual Eigen::Matrix4f createOrtho(
+			float width,
+			float height,
+			float near_plane,
+			float far_plane,
+			Handedness handedness = Handedness::RightHanded) const = 0;
 
-		virtual Eigen::Matrix4f createOrthoOffCenter
-		(
-			float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-		) const = 0;
+		virtual Eigen::Matrix4f createOrthoOffCenter(
+			float left,
+			float right,
+			float bottom,
+			float top,
+			float near_plane,
+			float far_plane,
+			Handedness handedness = Handedness::RightHanded) const = 0;
 	};
 
-	namespace OpenGL
-	{
+	namespace OpenGL {
 		class MatrixFactory : public Vcl::Graphics::MatrixFactory
 		{
 		public:
-			virtual Eigen::Matrix4f createPerspective
-			(
-				float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspective(
+				float width,
+				float height,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createPerspectiveFov
-			(
-				float near_plane, float far_plane, float aspect_ratio, float fov_vertical, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspectiveFov(
+				float near_plane,
+				float far_plane,
+				float aspect_ratio,
+				float fov_vertical,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createPerspectiveOffCenter
-			(
-				float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspectiveOffCenter(
+				float left,
+				float right,
+				float bottom,
+				float top,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createOrtho
-			(
-				float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createOrtho(
+				float width,
+				float height,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createOrthoOffCenter
-			(
-				float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createOrthoOffCenter(
+				float left,
+				float right,
+				float bottom,
+				float top,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 		};
 	}
-	
-	namespace Direct3D
-	{
+
+	namespace Direct3D {
 		class MatrixFactory : public Vcl::Graphics::MatrixFactory
 		{
 		public:
-			virtual Eigen::Matrix4f createPerspective
-			(
-				float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspective(
+				float width,
+				float height,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createPerspectiveFov
-			(
-				float near_plane, float far_plane, float aspect_ratio, float fov_vertical, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspectiveFov(
+				float near_plane,
+				float far_plane,
+				float aspect_ratio,
+				float fov_vertical,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createPerspectiveOffCenter
-			(
-				float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createPerspectiveOffCenter(
+				float left,
+				float right,
+				float bottom,
+				float top,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createOrtho
-			(
-				float width, float height, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createOrtho(
+				float width,
+				float height,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 
-			virtual Eigen::Matrix4f createOrthoOffCenter
-			(
-				float left, float right, float bottom, float top, float near_plane, float far_plane, Handedness handedness = Handedness::RightHanded
-			) const override;
+			virtual Eigen::Matrix4f createOrthoOffCenter(
+				float left,
+				float right,
+				float bottom,
+				float top,
+				float near_plane,
+				float far_plane,
+				Handedness handedness = Handedness::RightHanded) const override;
 		};
 	}
 }}

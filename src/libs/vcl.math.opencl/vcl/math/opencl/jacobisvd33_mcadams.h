@@ -43,14 +43,12 @@ namespace Vcl { namespace Mathematics { namespace OpenCL {
 		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
 
 	public:
-		void operator()
-			(
+		void operator()(
 			Vcl::Compute::CommandQueue& queue,
 			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
 			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
 			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-		);
+			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S);
 
 	private:
 		// Device context

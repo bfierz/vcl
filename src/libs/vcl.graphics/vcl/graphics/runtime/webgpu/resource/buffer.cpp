@@ -68,11 +68,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 		if (init_data)
 		{
-			wgpuQueueWriteBuffer(queue_id,
-				_resource,
-				0,
-				reinterpret_cast<const uint8_t*>(init_data->Data),
-				init_data->SizeInBytes);
+			wgpuQueueWriteBuffer(queue_id, _resource, 0, reinterpret_cast<const uint8_t*>(init_data->Data), init_data->SizeInBytes);
 		}
 	}
 

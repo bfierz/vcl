@@ -67,14 +67,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return { cso.data(), cso.size() };
 	}
 
-	GraphicsPipelineState::GraphicsPipelineState
-	(
+	GraphicsPipelineState::GraphicsPipelineState(
 		Graphics::D3D12::Device* device,
 		const PipelineStateDescription& desc,
 		const RenderTargetLayout& rt_layout,
-		const Graphics::D3D12::DescriptorTableLayout* layout
-	)
-	: _inputLayout{desc.InputLayout}
+		const Graphics::D3D12::DescriptorTableLayout* layout)
+	: _inputLayout{ desc.InputLayout }
 	{
 		VclRequire(desc.InputAssembly.PrimitiveRestartEnable == false, "Primitive restart is not supported.");
 
@@ -114,12 +112,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		_pipeline = device->createGraphicsPipelineState(graphics_pipeline_desc);
 	}
 
-	ComputePipelineState::ComputePipelineState
-	(
+	ComputePipelineState::ComputePipelineState(
 		Graphics::D3D12::Device* device,
 		const ComputePipelineStateDescription& desc,
-		const Graphics::D3D12::DescriptorTableLayout* layout
-	)
+		const Graphics::D3D12::DescriptorTableLayout* layout)
 	{
 		VclRequire(desc.ComputeShader, "Shader is set.");
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");

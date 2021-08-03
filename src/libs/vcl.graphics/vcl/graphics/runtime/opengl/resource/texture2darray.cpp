@@ -30,19 +30,15 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
-	Texture2DArray::Texture2DArray
-	(
+	Texture2DArray::Texture2DArray(
 		const Texture2DDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::Texture2DArray, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
-			desc.Width, desc.Height, 1
-		);
+			desc.Width, desc.Height, 1);
 		initialise(init_data);
 	}
 

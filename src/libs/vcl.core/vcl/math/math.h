@@ -188,12 +188,10 @@ namespace Vcl { namespace Mathematics {
 	}
 
 	template<typename Scalar, int Rows, int Cols>
-	VCL_STRONG_INLINE bool equal
-	(
+	VCL_STRONG_INLINE bool equal(
 		const Eigen::Matrix<Scalar, Rows, Cols>& x,
 		const Eigen::Matrix<Scalar, Rows, Cols>& y,
-		Scalar tol = 0
-	) noexcept
+		Scalar tol = 0) noexcept
 	{
 		bool eq = true;
 		for (int c = 0; c < Cols; c++)

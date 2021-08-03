@@ -571,8 +571,7 @@ namespace Vcl { namespace Geometry {
 		float outer_radius,
 		float inner_radius,
 		unsigned int nr_radial_segments,
-		unsigned int nr_sides
-	)
+		unsigned int nr_sides)
 	{
 		// The Formula
 		// x = Cos(theta) * (radius + ringRadius * Cos(phi))

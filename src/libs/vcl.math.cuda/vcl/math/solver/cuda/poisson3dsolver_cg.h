@@ -46,12 +46,10 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		using const_map_t = Eigen::Map<const vector_t>;
 
 	public:
-		Poisson3DCgCtx
-		(
+		Poisson3DCgCtx(
 			ref_ptr<Compute::Context> ctx,
 			ref_ptr<Compute::CommandQueue> queue,
-			const Eigen::Vector3ui& dim
-		);
+			const Eigen::Vector3ui& dim);
 		~Poisson3DCgCtx();
 
 		void setData(map_t unknowns, const_map_t rhs);

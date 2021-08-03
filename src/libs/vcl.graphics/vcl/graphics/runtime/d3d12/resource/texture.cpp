@@ -109,21 +109,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return D3D12_RESOURCE_DIMENSION_UNKNOWN;
 	}
 
-	Texture::Texture
-	(
+	Texture::Texture(
 		Graphics::D3D12::Device* device,
 		const GenericTextureDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	{
-		initializeView
-		(
+		initializeView(
 			desc.Type, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
-			desc.Width, desc.Height, desc.Depth
-		);
+			desc.Width, desc.Height, desc.Depth);
 
 		D3D12_RESOURCE_STATES texture_usage;
 		texture_usage = D3D12_RESOURCE_STATE_COMMON;
@@ -187,9 +183,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 				subresource_data.emplace_back(data);
 			}
 
-			UpdateSubresources(cmd_queue,
-				_resource.Get(), _uploadResource.Get(),
-				0, 0, layers(), subresource_data.data());
+			UpdateSubresources(cmd_queue, _resource.Get(), _uploadResource.Get(), 0, 0, layers(), subresource_data.data());
 		}
 	}
 	Texture::Texture(const Texture& rhs)
@@ -274,14 +268,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		cmd_queue->CopyTextureRegion(&dest, 0, 0, 0, &source, &source_region);
 	}
 
-
-	Texture1D::Texture1D
-	(
+	Texture1D::Texture1D(
 		Graphics::D3D12::Device* device,
 		const Texture1DDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -296,14 +287,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<Texture1D>(*this);
 	}
 
-
-	Texture1DArray::Texture1DArray
-	(
+	Texture1DArray::Texture1DArray(
 		Graphics::D3D12::Device* device,
 		const Texture1DDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -318,14 +306,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<Texture1DArray>(*this);
 	}
 
-
-	Texture2D::Texture2D
-	(
+	Texture2D::Texture2D(
 		Graphics::D3D12::Device* device,
 		const Texture2DDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -362,15 +347,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return desc;
 	}
 
-
-
-	Texture2DArray::Texture2DArray
-	(
+	Texture2DArray::Texture2DArray(
 		Graphics::D3D12::Device* device,
 		const Texture2DDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -385,14 +366,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<Texture2DArray>(*this);
 	}
 
-
-	Texture3D::Texture3D
-	(
+	Texture3D::Texture3D(
 		Graphics::D3D12::Device* device,
 		const Texture3DDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -407,13 +385,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<Texture3D>(*this);
 	}
 
-	TextureCube::TextureCube
-	(
+	TextureCube::TextureCube(
 		Graphics::D3D12::Device* device,
 		const TextureCubeDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}
@@ -428,14 +404,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<TextureCube>(*this);
 	}
 
-
-	TextureCubeArray::TextureCubeArray
-	(
+	TextureCubeArray::TextureCubeArray(
 		Graphics::D3D12::Device* device,
 		const TextureCubeDescription& desc,
 		const TextureResource* init_data,
-		ID3D12GraphicsCommandList* cmd_queue
-	)
+		ID3D12GraphicsCommandList* cmd_queue)
 	: Texture(device, desc, init_data, cmd_queue)
 	{
 	}

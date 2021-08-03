@@ -29,15 +29,13 @@
 #include <vcl/config/eigen.h>
 
 template<typename Real>
-Real distanceEberly
-(
+Real distanceEberly(
 	const Eigen::Matrix<Real, 3, 1>& v0,
 	const Eigen::Matrix<Real, 3, 1>& v1,
 	const Eigen::Matrix<Real, 3, 1>& v2,
 	const Eigen::Matrix<Real, 3, 1>& p,
 	std::array<Real, 3>* barycentric = nullptr,
-	int* r = nullptr
-)
+	int* r = nullptr)
 {
 	Eigen::Matrix<Real, 3, 1> P = p;
 	Eigen::Matrix<Real, 3, 1> B = v0;

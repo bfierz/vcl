@@ -40,28 +40,20 @@ namespace Vcl { namespace Geometry {
 		Eigen::Matrix<Real, 3, 1> Point[2];
 	};
 
-	float distance
-	(
+	float distance(
 		const Ray<float, 3>& ray_a,
 		const Ray<float, 3>& ray_b,
-		Result<float>* result
-	);
-	float4 distance
-	(
+		Result<float>* result);
+	float4 distance(
 		const Ray<float4, 3>& ray_a,
 		const Ray<float4, 3>& ray_b,
-		Result<float4>* result
-	);
-	float8 distance
-	(
+		Result<float4>* result);
+	float8 distance(
 		const Ray<float8, 3>& ray_a,
 		const Ray<float8, 3>& ray_b,
-		Result<float8>* result
-	);
-	float16 distance
-	(
+		Result<float8>* result);
+	float16 distance(
 		const Ray<float16, 3>& ray_a,
 		const Ray<float16, 3>& ray_b,
-		Result<float16>* result
-	);
+		Result<float16>* result);
 }}

@@ -44,13 +44,11 @@
 #include "problems.h"
 
 template<typename WideScalar>
-void jacobiEig
-(
+void jacobiEig(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -77,13 +75,11 @@ void jacobiEig
 }
 
 template<typename WideScalar>
-void jacobiEigQuat
-(
+void jacobiEigQuat(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
@@ -135,8 +131,7 @@ void SortEigenvalues(Eigen::Matrix<REAL, 3, 1>& A, Eigen::Matrix<REAL, 3, 3>& B)
 }
 
 template<typename Scalar>
-void checkSolution
-(
+void checkSolution(
 	const char* Name,
 	const char* file,
 	size_t nr_problems,
@@ -145,8 +140,7 @@ void checkSolution
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-)
+	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 {
 	using scalar_t = Scalar;
 

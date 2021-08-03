@@ -69,8 +69,7 @@ namespace Vcl { namespace Editor { namespace Util {
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		const Vcl::Graphics::Runtime::Texture& texture,
 		const unsigned int max_value,
-		const Eigen::Vector4f& loc_size
-	)
+		const Eigen::Vector4f& loc_size)
 	{
 		using BufferGL = Vcl::Graphics::Runtime::OpenGL::Buffer;
 		using PipelineStateGL = Vcl::Graphics::Runtime::OpenGL::PipelineState;

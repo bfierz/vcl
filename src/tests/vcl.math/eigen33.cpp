@@ -98,13 +98,11 @@ namespace {
 	}
 
 	template<typename Scalar>
-	void computeReferenceSolution
-	(
+	void computeReferenceSolution(
 		size_t nr_problems,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& ATA,
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
-		Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-	)
+		Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S)
 	{
 		// Compute reference using Eigen
 		for (size_t i = 0; i < nr_problems; i++)
@@ -120,15 +118,13 @@ namespace {
 	}
 
 	template<typename Scalar>
-	void checkSolution
-	(
+	void checkSolution(
 		size_t nr_problems,
 		Scalar tol,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-	)
+		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 	{
 		using Vcl::Mathematics::equal;
 

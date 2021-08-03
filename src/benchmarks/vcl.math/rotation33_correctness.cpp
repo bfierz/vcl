@@ -41,14 +41,12 @@
 // Common functions
 namespace {
 	template<typename Scalar>
-	void checkSolution
-	(
+	void checkSolution(
 		size_t nr_problems,
 		Scalar tol,
 		const std::vector<int>& iters,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refRa,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resRa
-	)
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resRa)
 	{
 		using Vcl::Mathematics::equal;
 

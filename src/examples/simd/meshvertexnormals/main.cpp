@@ -46,9 +46,7 @@
 // Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
 // Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 
-
-void accumulateNormals
-(
+void accumulateNormals(
 	std::vector<Eigen::Vector3i>::const_iterator f_begin,
 	std::vector<Eigen::Vector3i>::const_iterator f_end,
 	std::vector<Eigen::Vector3i>::const_iterator tf_begin,
@@ -57,8 +55,7 @@ void accumulateNormals
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
 	std::vector<Eigen::Vector3f>& tangents,
-	std::vector<Eigen::Vector3f>& bitangents
-)
+	std::vector<Eigen::Vector3f>& bitangents)
 {
 	VCL_UNREFERENCED_PARAMETER(tf_end);
 
@@ -131,16 +128,14 @@ void accumulateNormals
 }
 
 template<int Width>
-void simdAccumulateNormals
-(
+void simdAccumulateNormals(
 	const std::vector<Eigen::Vector3i>& faces,
 	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
 	std::vector<Eigen::Vector3f>& tangents,
-	std::vector<Eigen::Vector3f>& bitangents
-)
+	std::vector<Eigen::Vector3f>& bitangents)
 {
 	using Vcl::acos;
 	using Vcl::gather;
@@ -243,15 +238,13 @@ void simdAccumulateNormals
 	}
 }
 
-void computeNormals
-(
+void computeNormals(
 	const std::vector<Eigen::Vector3i>& faces,
 	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
-	std::vector<Eigen::Vector4f>& out_tangents
-)
+	std::vector<Eigen::Vector4f>& out_tangents)
 {
 	std::vector<Eigen::Vector3f> tangents(out_tangents.size(), Eigen::Vector3f::Zero());
 	std::vector<Eigen::Vector3f> bitangents(out_tangents.size(), Eigen::Vector3f::Zero());
@@ -259,13 +252,11 @@ void computeNormals
 	Vcl::Util::PreciseTimer timer;
 	timer.start();
 
-	accumulateNormals
-	(
+	accumulateNormals(
 		std::begin(faces), std::end(faces),
 		std::begin(tex_faces), std::end(tex_faces),
 		points, texcoords,
-		normals, tangents, bitangents
-	);
+		normals, tangents, bitangents);
 
 #ifdef _OPENMP
 #	pragma omp parallel for
@@ -303,15 +294,13 @@ void computeNormals
 }
 
 template<int Width>
-void computeNormalsSIMD
-(
+void computeNormalsSIMD(
 	const std::vector<Eigen::Vector3i>& faces,
 	const std::vector<Eigen::Vector3i>& tex_faces,
 	const std::vector<Eigen::Vector3f>& points,
 	const std::vector<Eigen::Vector2f>& texcoords,
 	std::vector<Eigen::Vector3f>& normals,
-	std::vector<Eigen::Vector4f>& out_tangents
-)
+	std::vector<Eigen::Vector4f>& out_tangents)
 {
 	using Vcl::gather;
 	using Vcl::load;
@@ -330,13 +319,11 @@ void computeNormalsSIMD
 	timer.start();
 	simdAccumulateNormals<Width>(faces, tex_faces, points, texcoords, normals, tangents, bitangents);
 
-	accumulateNormals
-	(
-		std::begin(faces) + static_cast<int>(faces.size() / Width)*Width, std::end(faces),
-		std::begin(tex_faces) + static_cast<int>(tex_faces.size() / Width)*Width, std::end(tex_faces),
+	accumulateNormals(
+		std::begin(faces) + static_cast<int>(faces.size() / Width) * Width, std::end(faces),
+		std::begin(tex_faces) + static_cast<int>(tex_faces.size() / Width) * Width, std::end(tex_faces),
 		points, texcoords,
-		normals, tangents, bitangents
-	);
+		normals, tangents, bitangents);
 
 #ifdef _OPENMP
 #	pragma omp parallel for

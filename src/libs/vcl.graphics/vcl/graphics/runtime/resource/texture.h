@@ -182,11 +182,10 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		TextureView() = default;
 		TextureView(const TextureView&) = default;
 
-		TextureView& operator= (const TextureView&) = delete;
+		TextureView& operator=(const TextureView&) = delete;
 
 	public:
 		virtual ~TextureView() = default;
-
 
 	public:
 		TextureType type() const { return _type; }
@@ -208,13 +207,17 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		size_t sizeInBytes() const { return _sizeInBytes; }
 
 	protected:
-		void initializeView
-		(
-			TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
-			int firstLvl, int nrLvls,
-			int firstLayer, int nrLayers,
-			int width, int height = 1, int depth = 1
-		);
+		void initializeView(
+			TextureType t,
+			SurfaceFormat f,
+			Flags<TextureUsage> usage,
+			int firstLvl,
+			int nrLvls,
+			int firstLayer,
+			int nrLayers,
+			int width,
+			int height = 1,
+			int depth = 1);
 
 	private:
 		//! Texture type

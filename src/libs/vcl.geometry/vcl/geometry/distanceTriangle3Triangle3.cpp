@@ -35,16 +35,14 @@ namespace Vcl { namespace Geometry {
 	
 
 	template<typename Real, int Width>
-	VectorScalar<bool, Width> project6
-	(
+	VectorScalar<bool, Width> project6(
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& ax,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& p1,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& p2,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& p3,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& q1,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& q2,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& q3
-	)
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& q3)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 
@@ -65,14 +63,12 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	VectorScalar<bool, Width> closestEdgePoints
-	(
+	VectorScalar<bool, Width> closestEdgePoints(
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iTri1Pt,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iClosestPtToTri1,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iTri2Pt,
 		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iClosestPtToTri2,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iSepDir
-	)
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iSepDir)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
@@ -88,13 +84,11 @@ namespace Vcl { namespace Geometry {
 	
 	//Code is taken from Real Time Collision Detection section 5.1.9 and has been adapted and changed to suit the paper's purposes.
 	template<typename Real, int Width>
-	VectorScalar<Real, Width> segmentSegmentSquared
-	(
+	VectorScalar<Real, Width> segmentSegmentSquared(
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oLine1Point,
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oLine2Point,
 		const Segment<VectorScalar<Real, Width>, 3>& iLine1,
-		const Segment<VectorScalar<Real, Width>, 3>& iLine2
-	)
+		const Segment<VectorScalar<Real, Width>, 3>& iLine2)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;
@@ -232,13 +226,11 @@ namespace Vcl { namespace Geometry {
 
 	// Compute the distance between a triangle vertex and another triangle
 	template<typename Real, int Width>
-	VectorScalar<Real, Width> closestVertToTri
-	(
+	VectorScalar<Real, Width> closestVertToTri(
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTriAPoint,
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTriBPoint,
 		const Triangle<VectorScalar<Real, Width>, 3>& iTriA,
-		const Triangle<VectorScalar<Real, Width>, 3>& iTriB
-	)
+		const Triangle<VectorScalar<Real, Width>, 3>& iTriB)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;
@@ -262,15 +254,13 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	VectorScalar<Real, Width> closestEdgeToEdge
-	(
+	VectorScalar<Real, Width> closestEdgeToEdge(
 		VectorScalar<bool, Width>& oIsFinished,
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTriAPoint,
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTriBPoint,
 		const Segment<VectorScalar<Real, Width>, 3> iTriAEdges[3],
 		const Segment<VectorScalar<Real, Width>, 3>& iTriBEdge,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iTriBLastPt
-	)
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& iTriBLastPt)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;
@@ -310,14 +300,12 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> computeSeparatingDir
-	(
+	Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> computeSeparatingDir(
 		const Segment<VectorScalar<Real, Width>, 3>& iTri1Edges,
-		const Segment<VectorScalar<Real, Width>, 3>& iTri2Edges
-	)
+		const Segment<VectorScalar<Real, Width>, 3>& iTri2Edges)
 	{
-		using RealVec  = VectorScalar<Real, Width>;
-		using BoolVec  = VectorScalar<bool, Width>;
+		using RealVec = VectorScalar<Real, Width>;
+		using BoolVec = VectorScalar<bool, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
 
 		RealVec3 separatingDir = cross(iTri1Edges[1] - iTri1Edges[0], iTri2Edges[1] - iTri2Edges[0]);
@@ -328,15 +316,13 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	VectorScalar<bool, Width> triContact
-	(
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &P1,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &P2,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &P3, 
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &Q1,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &Q2,
-		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1> &Q3
-	)
+	VectorScalar<bool, Width> triContact(
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& P1,
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& P2,
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& P3,
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& Q1,
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& Q2,
+		const Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& Q3)
 	{
 		using BoolVec = VectorScalar<bool, Width>;
 		using RealVec3 = Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>;
@@ -381,13 +367,11 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real, int Width>
-	VectorScalar<Real, Width> distanceImpl
-	(
+	VectorScalar<Real, Width> distanceImpl(
 		const Triangle<VectorScalar<Real, Width>, 3>& iTri1,
 		const Triangle<VectorScalar<Real, Width>, 3>& iTri2,
 		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTri1Point,
-		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTri2Point
-	)
+		Eigen::Matrix<VectorScalar<Real, Width>, 3, 1>& oTri2Point)
 	{
 		using RealVec = VectorScalar<Real, Width>;
 		using BoolVec = VectorScalar<bool, Width>;

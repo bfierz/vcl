@@ -38,15 +38,13 @@ namespace Vcl { namespace Compute { namespace OpenCL {
 	{
 		std::array<size_t, 3> offset = { 0, 0, 0 };
 
-		VCL_CL_SAFE_CALL(clEnqueueNDRangeKernel
-		(
-			(cl_command_queue) queue,
+		VCL_CL_SAFE_CALL(clEnqueueNDRangeKernel(
+			(cl_command_queue)queue,
 			_func,
 			dim,
 			offset.data(),
 			globalDim.data(),
 			localDim.data(),
-			0, nullptr, nullptr
-		));
+			0, nullptr, nullptr));
 	}
 }}}

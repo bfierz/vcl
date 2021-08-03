@@ -93,13 +93,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
-	Shader::Shader
-	(
-		ShaderType type, int tag,
+	Shader::Shader(
+		ShaderType type,
+		int tag,
 		stdext::span<const uint8_t> binary_data,
 		stdext::span<const unsigned int> spec_indices,
-		stdext::span<const unsigned int> spec_values
-	)
+		stdext::span<const unsigned int> spec_values)
 	: Runtime::Shader(type, tag)
 	{
 		VclRequire(GLEW_ARB_gl_spirv, "SPIR-V is supported.");

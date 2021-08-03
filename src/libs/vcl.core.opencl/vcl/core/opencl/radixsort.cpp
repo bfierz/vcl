@@ -58,12 +58,10 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		}
 	}
 
-	void RadixSort::operator()
-	(
+	void RadixSort::operator()(
 		ref_ptr<Compute::Buffer> keys,
 		unsigned int numElements,
-		unsigned int keyBits
-	)
+		unsigned int keyBits)
 	{
 		radixSortKeysOnly(keys, numElements, keyBits);
 	}
@@ -104,20 +102,18 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
-		_radixSortBlocksKeysOnlyKernel->run
-		(
+		_radixSortBlocksKeysOnlyKernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufKeys,
-			(cl_mem) *bufTmpKeys,
+			(cl_mem)*bufKeys,
+			(cl_mem)*bufTmpKeys,
 			nbits,
 			startbit,
 			numElements,
 			totalBlocks,
-			LocalMemory(4 * LocalSize * sizeof(unsigned int) )
-		);
+			LocalMemory(4 * LocalSize * sizeof(unsigned int)));
 	}
 
 	void RadixSort::findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements)
@@ -133,23 +129,21 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
-		_findRadixOffsetsKernel->run
-		(
+		_findRadixOffsetsKernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufTmpKeys,
-			(cl_mem) *bufCounters,
-			(cl_mem) *bufBlockOffsets,
+			(cl_mem)*bufTmpKeys,
+			(cl_mem)*bufCounters,
+			(cl_mem)*bufBlockOffsets,
 			startbit,
 			numElements,
 			totalBlocks,
-			LocalMemory( 2 * LocalSize * sizeof(unsigned int) )
-		);
+			LocalMemory(2 * LocalSize * sizeof(unsigned int)));
 	}
 
-#	define NUM_BANKS 16
+#define NUM_BANKS 16
 	void RadixSort::scanNaiveOCL(unsigned int numElements)
 	{
 		VclRequire(_scanNaiveKernel, "Kernel is loaded.");
@@ -164,17 +158,15 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		unsigned int extra_space = nHist / NUM_BANKS;
 		unsigned int shared_mem_size = sizeof(unsigned int) * (nHist + extra_space);
 
-		_scanNaiveKernel->run
-		(
+		_scanNaiveKernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufCountersSum,
-			(cl_mem) *bufCounters,
+			(cl_mem)*bufCountersSum,
+			(cl_mem)*bufCounters,
 			nHist,
-			LocalMemory( 2 * shared_mem_size )
-		);
+			LocalMemory(2 * shared_mem_size));
 	}
 
 	void RadixSort::reorderDataKeysOnlyOCL(ref_ptr<Compute::Buffer> keys, unsigned int startbit, unsigned int numElements)
@@ -192,21 +184,19 @@ namespace Vcl { namespace Core { namespace OpenCL {
 		std::array<size_t, 3> globalWorkSize = { LocalSize * totalBlocks, 0, 0 };
 		std::array<size_t, 3> localWorkSize = { LocalSize, 0, 0 };
 
-		_reorderDataKeysOnlyKernel->run
-		(
+		_reorderDataKeysOnlyKernel->run(
 			*Vcl::Core::dynamic_pointer_cast<Compute::OpenCL::CommandQueue>(_ownerCtx->defaultQueue()),
 			1,
 			globalWorkSize,
 			localWorkSize,
-			(cl_mem) *bufKeys,
-			(cl_mem) *bufTmpKeys,
-			(cl_mem) *bufBlockOffsets,
-			(cl_mem) *bufCountersSum,
-			(cl_mem) *bufCounters,
+			(cl_mem)*bufKeys,
+			(cl_mem)*bufTmpKeys,
+			(cl_mem)*bufBlockOffsets,
+			(cl_mem)*bufCountersSum,
+			(cl_mem)*bufCounters,
 			startbit,
 			numElements,
 			totalBlocks,
-			LocalMemory( 2 * LocalSize * sizeof(unsigned int) )
-		);
+			LocalMemory(2 * LocalSize * sizeof(unsigned int)));
 	}
 }}}

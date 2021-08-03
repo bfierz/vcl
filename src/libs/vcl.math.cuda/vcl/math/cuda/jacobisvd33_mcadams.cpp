@@ -47,14 +47,12 @@ namespace Vcl { namespace Mathematics { namespace Cuda {
 		_S = ctx->createBuffer(Vcl::Compute::BufferAccess::ReadWrite, 16 * 3 * sizeof(float));
 	}
 
-	void JacobiSVD33::operator()
-	(
+	void JacobiSVD33::operator()(
 		Vcl::Compute::CommandQueue& queue,
 		const Vcl::Core::InterleavedArray<float, 3, 3, -1>& inA,
 		Vcl::Core::InterleavedArray<float, 3, 3, -1>& outU,
 		Vcl::Core::InterleavedArray<float, 3, 3, -1>& outV,
-		Vcl::Core::InterleavedArray<float, 3, 1, -1>& outS
-	)
+		Vcl::Core::InterleavedArray<float, 3, 1, -1>& outS)
 	{
 		VclRequire(dynamic_cast<Compute::Cuda::CommandQueue*>(&queue), "Commandqueue is CUDA command queue.");
 		VclRequire(_svdKernel, "SVD kernel is loaded.");
@@ -80,20 +78,18 @@ namespace Vcl { namespace Mathematics { namespace Cuda {
 		// Perform the SVD computation
 		dim3 grid{ static_cast<unsigned int>(ceil<128>(size)) / 128 };
 		dim3 block{ 128 };
-		JacobiSVD33McAdams
-		(
+		JacobiSVD33McAdams(
 			grid,
 			block,
 			0,
 			static_cast<Compute::Cuda::CommandQueue&>(queue),
 
-			(int) size,
-			(int) _capacity,
+			(int)size,
+			(int)_capacity,
 			(float*)A->devicePtr(),
 			(float*)U->devicePtr(),
 			(float*)V->devicePtr(),
-			(float*)S->devicePtr()
-		);
+			(float*)S->devicePtr());
 
 		queue.read(outU.data(), U);
 		queue.read(outV.data(), V);

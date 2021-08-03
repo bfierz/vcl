@@ -35,13 +35,11 @@
 #include <vcl/graphics/d3d12/device.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12 {
-	DescriptorTableLayout::DescriptorTableLayout
-	(
+	DescriptorTableLayout::DescriptorTableLayout(
 		Device* device,
 		std::vector<DescriptorTableLayoutEntry> entries,
 		std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers,
-		bool use_input_assembler
-	)
+		bool use_input_assembler)
 	: _dynamicResources{ std::move(entries) }
 	, _staticSamplers{ std::move(static_samplers) }
 	{

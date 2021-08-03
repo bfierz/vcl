@@ -150,8 +150,7 @@ namespace Vcl { namespace Editor { namespace Util {
 	void PositionManipulator::drawIds(
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		unsigned int id,
-		const Eigen::Matrix4f& T
-	)
+		const Eigen::Matrix4f& T)
 	{
 		VclRequire(_opaqueIdPipelineState, "Opaque pipeline state is initialized.");
 		VclRequire(_transparentIdPipelineState, "Transparent pipeline state is initialized.");
@@ -166,8 +165,7 @@ namespace Vcl { namespace Editor { namespace Util {
 
 	void PositionManipulator::draw(
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
-		const Eigen::Matrix4f& T
-	)
+		const Eigen::Matrix4f& T)
 	{
 		VclRequire(_opaquePipelineState, "Opaque pipeline state is initialized.");
 		VclRequire(_transparentPipelineState, "Transparent pipeline state is initialized.");
@@ -179,8 +177,7 @@ namespace Vcl { namespace Editor { namespace Util {
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 		const Eigen::Matrix4f& T,
 		ref_ptr<Vcl::Graphics::Runtime::PipelineState> opaque_ps,
-		ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps
-	)
+		ref_ptr<Vcl::Graphics::Runtime::PipelineState> transparent_ps)
 	{
 		VclRequire(opaque_ps, "Opaque pipeline state is initialized.");
 		VclRequire(transparent_ps, "Transparent pipeline state is initialized.");

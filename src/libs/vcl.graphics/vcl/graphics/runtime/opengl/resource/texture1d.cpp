@@ -30,19 +30,15 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
-	Texture1D::Texture1D
-	(
+	Texture1D::Texture1D(
 		const Texture1DDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::Texture1D, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, 1,
-			desc.Width, 1, 1
-		);
+			desc.Width, 1, 1);
 		initialise(init_data);
 	}
 

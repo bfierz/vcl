@@ -121,8 +121,7 @@ TEST(EntityManagerTest, CreateDestroyMultiComponents)
 	auto e2 = em.create();
 	auto e3 = em.create();
 
-	em.registerComponent<SecondaryNameComponent>([](const SecondaryNameComponent& c, const std::string& s)
-	{
+	em.registerComponent<SecondaryNameComponent>([](const SecondaryNameComponent& c, const std::string& s) {
 		return c.Name == s;
 	});
 

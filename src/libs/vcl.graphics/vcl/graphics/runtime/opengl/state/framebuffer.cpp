@@ -72,11 +72,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLuint _id;
 	};
 
-	Framebuffer::Framebuffer
-	(
-		const Runtime::Texture** colourTargets, size_t nrColourTargets,
-		const Runtime::Texture* depthTarget
-	)
+	Framebuffer::Framebuffer(
+		const Runtime::Texture** colourTargets,
+		size_t nrColourTargets,
+		const Runtime::Texture* depthTarget)
 	: _depthTarget{ depthTarget }
 	{
 		_colourTargets.fill(nullptr);

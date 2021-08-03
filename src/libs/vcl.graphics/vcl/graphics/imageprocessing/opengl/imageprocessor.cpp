@@ -60,8 +60,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	ImageProcessor::ImagePtr ImageProcessor::requestImage(int w, int h, SurfaceFormat fmt)
 	{
 		auto& cache = _textures[fmt];
-		auto cache_entry = std::find_if(cache.begin(), cache.end(), [w, h](const ImagePtr& img)
-		{
+		auto cache_entry = std::find_if(cache.begin(), cache.end(), [w, h](const ImagePtr& img) {
 			return img->width() < w && img->height() < h;
 		});
 		if (cache_entry != cache.end())
@@ -82,13 +81,19 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		}
 	}
 
-	void ImageProcessor::enqueKernel
-	(
-		size_t kernel, int w, int h,
-		const Runtime::Texture** outputs,        Eigen::Vector4i* outRanges,       size_t nr_outputs,
-		const Runtime::Texture** raw_inputs,     Eigen::Vector4i* rawInRanges,     size_t nr_raw_inputs,
-		const Runtime::Texture** sampled_inputs, Eigen::Vector4i* sampledInRanges, size_t nr_sampled_inputs
-	)
+	void ImageProcessor::enqueKernel(
+		size_t kernel,
+		int w,
+		int h,
+		const Runtime::Texture** outputs,
+		Eigen::Vector4i* outRanges,
+		size_t nr_outputs,
+		const Runtime::Texture** raw_inputs,
+		Eigen::Vector4i* rawInRanges,
+		size_t nr_raw_inputs,
+		const Runtime::Texture** sampled_inputs,
+		Eigen::Vector4i* sampledInRanges,
+		size_t nr_sampled_inputs)
 	{
 		VclRequire(nr_raw_inputs + nr_sampled_inputs <= 8, "Supports 8 input slots");
 

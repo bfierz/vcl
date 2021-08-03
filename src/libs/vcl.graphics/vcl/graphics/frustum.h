@@ -55,10 +55,16 @@ namespace Vcl { namespace Graphics {
 		PerspectiveViewFrustum();
 
 		//! Constructor.
-		PerspectiveViewFrustum
-		(
-			real_t width, real_t height, real_t fov, real_t near_plane, real_t far_plane, vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-		);
+		PerspectiveViewFrustum(
+			real_t width,
+			real_t height,
+			real_t fov,
+			real_t near_plane,
+			real_t far_plane,
+			vector3_t pos,
+			vector3_t dir,
+			vector3_t up,
+			vector3_t right);
 
 		//! Construct frustum from camera
 		PerspectiveViewFrustum(const Vcl::Graphics::Camera* cam);
@@ -127,19 +133,22 @@ namespace Vcl { namespace Graphics {
 		OrthographicViewFrustum();
 
 		//! Constructor.
-		OrthographicViewFrustum
-		(
-			real_t width, real_t height, real_t near_plane, real_t far_plane, vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-		);
+		OrthographicViewFrustum(
+			real_t width,
+			real_t height,
+			real_t near_plane,
+			real_t far_plane,
+			vector3_t pos,
+			vector3_t dir,
+			vector3_t up,
+			vector3_t right);
 
 		//! Copy constructor
 		/*!
 		 *	\param rhs object to be copied
 		 */
-		OrthographicViewFrustum
-		(
-			const OrthographicViewFrustum<real_t>& rhs
-		);
+		OrthographicViewFrustum(
+			const OrthographicViewFrustum<real_t>& rhs);
 
 	public:
 		const vector3_t& position() const;

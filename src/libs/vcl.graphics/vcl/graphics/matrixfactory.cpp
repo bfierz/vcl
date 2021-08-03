@@ -29,13 +29,11 @@
 #include <vcl/math/math.h>
 
 namespace Vcl { namespace Graphics {
-	Eigen::Matrix4f MatrixFactory::createLookAt
-	(
+	Eigen::Matrix4f MatrixFactory::createLookAt(
 		const Eigen::Vector3f& position,
 		const Eigen::Vector3f& direction,
 		const Eigen::Vector3f& world_up,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VclRequire(Vcl::Mathematics::equal(direction.norm(), 1.f, 1e-4f), "Direction vector is normalized.");
 		VclRequire(Vcl::Mathematics::equal(world_up.norm(),  1.f, 1e-4f), "Up vector is normalized.");
@@ -79,14 +77,12 @@ namespace Vcl { namespace Graphics {
 }}
 
 namespace Vcl { namespace Graphics { namespace OpenGL {
-	Eigen::Matrix4f MatrixFactory::createPerspective
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspective(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(width);
 		VCL_UNREFERENCED_PARAMETER(height);
@@ -108,14 +104,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveFov
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveFov(
 		float near_plane,
 		float far_plane,
 		float aspect_ratio,
 		float fov_vertical,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -166,16 +160,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -199,14 +191,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrtho
-	(
+	Eigen::Matrix4f MatrixFactory::createOrtho(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -257,16 +247,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -292,14 +280,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 }}}
 
 namespace Vcl { namespace Graphics { namespace Direct3D {
-	Eigen::Matrix4f MatrixFactory::createPerspective
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspective(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(width);
 		VCL_UNREFERENCED_PARAMETER(height);
@@ -321,14 +307,12 @@ namespace Vcl { namespace Graphics { namespace Direct3D {
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveFov
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveFov(
 		float near_plane,
 		float far_plane,
 		float aspect_ratio,
 		float fov_vertical,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -379,16 +363,14 @@ namespace Vcl { namespace Graphics { namespace Direct3D {
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -412,14 +394,12 @@ namespace Vcl { namespace Graphics { namespace Direct3D {
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrtho
-	(
+	Eigen::Matrix4f MatrixFactory::createOrtho(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -470,16 +450,14 @@ namespace Vcl { namespace Graphics { namespace Direct3D {
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);

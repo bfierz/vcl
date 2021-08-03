@@ -42,18 +42,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Framebuffer : public Resource
 	{
 	public:
-		Framebuffer
-		(
-			const Runtime::Texture** colourTargets, size_t nrColourTargets,
-			const Runtime::Texture* depthTarget
-		);
+		Framebuffer(
+			const Runtime::Texture** colourTargets,
+			size_t nrColourTargets,
+			const Runtime::Texture* depthTarget);
 		Framebuffer(Framebuffer&&) = default;
 		Framebuffer(const Framebuffer&) = delete;
 		virtual ~Framebuffer();
 
-		Framebuffer& operator= (Framebuffer&&) = default;
-		Framebuffer& operator= (const Framebuffer&) = delete;
-		
+		Framebuffer& operator=(Framebuffer&&) = default;
+		Framebuffer& operator=(const Framebuffer&) = delete;
+
 	public:
 		void bind();
 		void clear(int idx, const Eigen::Vector4f& colour);
@@ -79,4 +78,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT
-

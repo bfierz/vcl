@@ -38,12 +38,10 @@ CUresult CGComputeReductionShuffleAtomics(dim3 gridDim, dim3 blockDim, unsigned 
 CUresult CGUpdateVectorsEx(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int n, const float* __restrict d_r_ptr, const float* __restrict d_g_ptr, const float* __restrict d_b_ptr, const float* __restrict d_a_ptr, float* __restrict vX, float* __restrict vD, float* __restrict vQ, float* __restrict vR);
 
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
-	ConjugateGradientsContext::ConjugateGradientsContext
-	(
+	ConjugateGradientsContext::ConjugateGradientsContext(
 		ref_ptr<Compute::Context> ctx,
 		ref_ptr<Compute::CommandQueue> queue,
-		int size
-	)
+		int size)
 	: _ownerCtx(ctx)
 	, _queue(queue)
 	, _size(size)

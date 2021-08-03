@@ -494,13 +494,11 @@ void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
 	_posManip->draw(_engine, M * curr_transform->get());
 }
 
-void FboRenderer::renderBoundingBox
-(
+void FboRenderer::renderBoundingBox(
 	const Eigen::AlignedBox3f& bb,
-	unsigned int resolution, 
+	unsigned int resolution,
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps,
-	const Eigen::Matrix4f& M
-)
+	const Eigen::Matrix4f& M)
 {
 	// Configure the layout
 	_engine->setPipelineState(ps);
@@ -656,14 +654,13 @@ QPoint MeshView::selectObject(int x, int y)
 	return { -1, -1 };
 }
 
-namespace
-{
-	Eigen::Vector3f computePointForTranslationManipulation
-	(
+namespace {
+	Eigen::Vector3f computePointForTranslationManipulation(
 		const Vcl::Graphics::Camera& camera,
 		const Eigen::Matrix4f& transform,
-		int axis, int x, int y
-	)
+		int axis,
+		int x,
+		int y)
 	{
 		// Find ray into the scene and compute the target location
 		const auto line = camera.pickWorldSpace(x, y);

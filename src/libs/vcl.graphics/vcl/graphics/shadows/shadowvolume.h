@@ -114,14 +114,12 @@ namespace Vcl { namespace Graphics {
 	{
 	public:
 		OrthographicShadowMapVolume(std::shared_ptr<MatrixFactory> factory);
-		OrthographicShadowMapVolume
-		(
+		OrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			const Eigen::Vector3f& position,
 			const Eigen::Vector3f& direction,
 			const Eigen::Vector3f& right,
-			const Eigen::Vector3f& up
-		);
+			const Eigen::Vector3f& up);
 		virtual ~OrthographicShadowMapVolume();
 
 	public:
@@ -178,20 +176,16 @@ namespace Vcl { namespace Graphics {
 	class ParallelSplitOrthographicShadowMapVolume : public OrthographicShadowMapVolume
 	{
 	public:
-		ParallelSplitOrthographicShadowMapVolume
-		(
+		ParallelSplitOrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			int nr_splits,
-			float lambda
-		);
-		ParallelSplitOrthographicShadowMapVolume
-		(
+			float lambda);
+		ParallelSplitOrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			int nr_splits,
 			float lambda,
 			const Eigen::Vector3f& direction,
-			const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum = nullptr
-		);
+			const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum = nullptr);
 		virtual ~ParallelSplitOrthographicShadowMapVolume();
 
 	public:

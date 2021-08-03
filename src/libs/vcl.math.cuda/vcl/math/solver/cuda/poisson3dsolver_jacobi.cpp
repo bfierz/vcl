@@ -31,17 +31,15 @@ CUresult MakePoissonStencil(dim3 gridDim, dim3 blockDim, unsigned int dynamicSha
 CUresult PoissonUpdateSolution(dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, CUstream stream, const unsigned int X, const unsigned int Y, const unsigned int Z, const float* __restrict Ac, const float* __restrict Ax_l, const float* __restrict Ax_r, const float* __restrict Ay_l, const float* __restrict Ay_r, const float* __restrict Az_l, const float* __restrict Az_r, const float* __restrict rhs, float* __restrict unknowns, float* __restrict next, float* __restrict error);
 
 namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
-	Poisson3DJacobiCtx::Poisson3DJacobiCtx
-	(
+	Poisson3DJacobiCtx::Poisson3DJacobiCtx(
 		ref_ptr<Compute::Context> ctx,
 		ref_ptr<Compute::CommandQueue> queue,
-		const Eigen::Vector3ui& dim
-	)
+		const Eigen::Vector3ui& dim)
 	: _ownerCtx(ctx)
 	, _queue(queue)
 	, _dim(dim)
-	, _unknowns(nullptr, map_t{nullptr, 0})
-	, _rhs(nullptr, map_t{nullptr, 0})
+	, _unknowns(nullptr, map_t{ nullptr, 0 })
+	, _rhs(nullptr, map_t{ nullptr, 0 })
 	{
 		using namespace Vcl::Mathematics;
 
@@ -107,14 +105,12 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		Eigen::VectorXf Az_l{ _dim.x() * _dim.y() * _dim.z() };
 		Eigen::VectorXf Az_r{ _dim.x() * _dim.y() * _dim.z() };
 
-		makePoissonStencil
-		(
+		makePoissonStencil(
 			_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 			map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 			map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 			map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
-			skip
-		);
+			skip);
 
 		_queue->write(_laplacian[0], Ac.data(),   true);
 		_queue->write(_laplacian[1], Ax_l.data(), true);
@@ -137,8 +133,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			ceil(_dim.z(), block_size.z) / block_size.z
 		};
 
-		VCL_CU_SAFE_CALL(MakePoissonStencil
-		(
+		VCL_CU_SAFE_CALL(MakePoissonStencil(
 			grid_size,
 			block_size,
 			0,
@@ -156,8 +151,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 			(float*)_laplacian[4]->devicePtr(),
 			(float*)_laplacian[5]->devicePtr(),
 			(float*)_laplacian[6]->devicePtr(),
-			(const unsigned char*)skip.devicePtr()
-		));
+			(const unsigned char*)skip.devicePtr()));
 	}
 
 	int Poisson3DJacobiCtx::size() const
@@ -186,8 +180,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 		float zero = 0.0f;
 		_queue->fill(_dev_error, &zero, sizeof(float));
 
-		VCL_CU_SAFE_CALL(PoissonUpdateSolution
-		(
+		VCL_CU_SAFE_CALL(PoissonUpdateSolution(
 			grid_size,
 			block_size,
 			0,
@@ -208,8 +201,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 
 			(float*)std::get<0>(_unknowns)->devicePtr(),
 			(float*)_next->devicePtr(),
-			(float*)_dev_error->devicePtr()
-		));
+			(float*)_dev_error->devicePtr()));
 
 		_queue->copy(std::get<0>(_unknowns), _next);
 	}

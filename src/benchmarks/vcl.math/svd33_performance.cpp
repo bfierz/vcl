@@ -59,15 +59,13 @@
 
 #ifdef VCL_CUDA_SUPPORT
 template<typename WideScalar>
-void perfCudaMcAdamsSVD
-(
+void perfCudaMcAdamsSVD(
 	size_t nr_problems,
 	unsigned int iters,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::Cuda;
 
@@ -98,15 +96,13 @@ void perfCudaMcAdamsSVD
 
 #ifdef VCL_OPENCL_SUPPORT
 template<typename WideScalar>
-void perfOpenCLMcAdamsSVD
-(
+void perfOpenCLMcAdamsSVD(
 	size_t nr_problems,
 	unsigned int iters,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::OpenCL;
 

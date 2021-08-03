@@ -33,12 +33,10 @@
 // VCL
 #include <vcl/math/polardecomposition.h>
 
-void createRandomProblems
-(
+void createRandomProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -62,12 +60,10 @@ void createRandomProblems
 	}
 }
 
-void createSymmetricProblems
-(
+void createSymmetricProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -92,14 +88,12 @@ void createSymmetricProblems
 	}
 }
 
-void createRotationProblems
-(
+void createRotationProblems(
 	size_t nr_problems,
 	float max_angle,
 	float max_compression,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -141,13 +135,11 @@ void createRotationProblems
 	}
 }
 
-void computeEigenReferenceSolution
-(
+void computeEigenReferenceSolution(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& ATA,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S)
 {
 	// Compute reference using Eigen
 	for (int i = 0; i < static_cast<int>(nr_problems); i++)

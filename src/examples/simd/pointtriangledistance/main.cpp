@@ -42,15 +42,13 @@
 #include <vcl/util/precisetimer.h>
 
 template<typename Real>
-Real distanceEberly
-(
-const Eigen::Matrix<Real, 3, 1>& v0,
-const Eigen::Matrix<Real, 3, 1>& v1,
-const Eigen::Matrix<Real, 3, 1>& v2,
-const Eigen::Matrix<Real, 3, 1>& p,
-std::array<Real, 3>* barycentric,
-int* r
-);
+Real distanceEberly(
+	const Eigen::Matrix<Real, 3, 1>& v0,
+	const Eigen::Matrix<Real, 3, 1>& v1,
+	const Eigen::Matrix<Real, 3, 1>& v2,
+	const Eigen::Matrix<Real, 3, 1>& p,
+	std::array<Real, 3>* barycentric,
+	int* r);
 
 int main(int argc, char* argv[])
 {
@@ -129,15 +127,13 @@ int main(int argc, char* argv[])
 }
 
 template<typename Real>
-Real distanceEberly
-(
+Real distanceEberly(
 	const Eigen::Matrix<Real, 3, 1>& v0,
 	const Eigen::Matrix<Real, 3, 1>& v1,
 	const Eigen::Matrix<Real, 3, 1>& v2,
 	const Eigen::Matrix<Real, 3, 1>& p,
 	std::array<Real, 3>* barycentric,
-	int* r
-)
+	int* r)
 {
 	Eigen::Matrix<Real, 3, 1> P = p;
 	Eigen::Matrix<Real, 3, 1> B = v0;

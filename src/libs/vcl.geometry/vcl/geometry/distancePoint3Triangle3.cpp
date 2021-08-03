@@ -334,13 +334,11 @@ namespace Vcl { namespace Geometry {
 	}
 
 	template<typename Real>
-	Real distanceImpl
-	(
+	Real distanceImpl(
 		const Triangle<Real, 3>& tri,
 		const Eigen::Matrix<Real, 3, 1>& p,
 		std::array<Real, 3>* barycentric,
-		int* r
-	)
+		int* r)
 	{
 		using namespace Vcl::Mathematics;
 

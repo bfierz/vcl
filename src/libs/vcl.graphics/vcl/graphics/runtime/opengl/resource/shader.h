@@ -45,10 +45,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	{
 	public:
 		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			stdext::span<const uint8_t> binary_data,
-			stdext::span<const unsigned int> spec_indices = {},
-			stdext::span<const unsigned int> spec_values = {});
+		Shader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices = {}, stdext::span<const unsigned int> spec_values = {});
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 

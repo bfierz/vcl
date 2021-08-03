@@ -48,11 +48,9 @@ namespace Vcl { namespace Geometry {
 	 *
 	 *	\note Rays aligned with the border of the bounding box produce only very inconsistent intersections
 	 */
-	inline bool intersects_Barnes
-	(
+	inline bool intersects_Barnes(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& ray
-	)
+		const Ray<float, 3>& ray)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -77,11 +75,9 @@ namespace Vcl { namespace Geometry {
 	 *	Implementation from
 	 *	https://www.solidangle.com/research/jcgt2013_robust_BVH-revised.pdf
 	 */
-	inline bool intersects_MaxMult
-	(
+	inline bool intersects_MaxMult(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& r
-	)
+		const Ray<float, 3>& r)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -106,13 +102,12 @@ namespace Vcl { namespace Geometry {
 
 		return tmin <= tmax;
 	}
+
 	
 	template<typename Real, int Width>
-	Vcl::VectorScalar<bool, Width> intersects_MaxMult
-	(
+	Vcl::VectorScalar<bool, Width> intersects_MaxMult(
 		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
-		const Ray<Vcl::VectorScalar<Real, Width>, 3>& r
-	)
+		const Ray<Vcl::VectorScalar<Real, Width>, 3>& r)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -155,11 +150,9 @@ namespace Vcl { namespace Geometry {
 	*
 	*	Method from Pharr, Humphrey
 	*/
-	inline bool intersects_Pharr
-	(
+	inline bool intersects_Pharr(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& ray
-	)
+		const Ray<float, 3>& ray)
 	{
 		using namespace Vcl::Mathematics;
 

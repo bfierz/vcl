@@ -70,13 +70,11 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		wgpu_desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
 		_swapChain = wgpuDeviceCreateSwapChain(_device, nullptr, &wgpu_desc);
 
-		wgpuSwapChainConfigure
-		(
+		wgpuSwapChainConfigure(
 			_swapChain,
 			dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
 			WGPUTextureUsage_RenderAttachment,
-			width, height
-		);
+			width, height);
 #endif
 	}
 
