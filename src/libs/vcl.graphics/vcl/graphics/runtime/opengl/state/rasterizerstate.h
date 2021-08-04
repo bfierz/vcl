@@ -32,7 +32,6 @@
 #include <vcl/graphics/opengl/commandstream.h>
 #include <vcl/graphics/runtime/state/rasterizerstate.h>
 
-#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	/*!
 	 *	\brief OpenGL abstraction of the rasterization related pipeline states
@@ -41,7 +40,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	{
 	public:
 		RasterizerState(const RasterizerDescription& desc);
-		
+
 	public:
 		const RasterizerDescription& desc() const { return _desc; }
 
@@ -71,4 +70,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		RasterizerDescription _desc;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

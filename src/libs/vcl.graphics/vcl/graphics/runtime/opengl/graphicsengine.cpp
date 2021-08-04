@@ -64,9 +64,13 @@ namespace {
 			return GL_TRIANGLE_STRIP_ADJACENCY;
 		case PrimitiveType::Patch:
 			return GL_PATCHES;
-		default: { VclDebugError("Enumeration value is valid."); return GL_INVALID_ENUM; }
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+			return GL_INVALID_ENUM;
 		}
-	}	
+		}
+	}
 
 }
 

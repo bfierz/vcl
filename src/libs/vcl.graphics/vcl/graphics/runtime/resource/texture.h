@@ -228,10 +228,10 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		//! Configured texture usages
 		Flags<TextureUsage> _usage;
 
-		int  _level;
-		int  _nrLevels;
-		int  _layer;
-		int  _nrLayers;
+		int _level;
+		int _nrLevels;
+		int _layer;
+		int _nrLayers;
 
 	private: // Size of a single sub resource of the lowest mip-map level
 		int _width;

@@ -28,7 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
 // C++ standard library
 #include <memory>
 
@@ -65,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	public:
 		virtual ~Texture();
-		
+
 	public:
 		static GLenum toSurfaceFormat(SurfaceFormat type);
 		static ImageFormat toImageFormat(SurfaceFormat fmt);
@@ -87,4 +86,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		virtual void updateImpl(const TextureResource& data) = 0;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

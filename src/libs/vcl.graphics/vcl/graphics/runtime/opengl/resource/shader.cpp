@@ -32,8 +32,6 @@
 #include <cmath>
 #include <cstring>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
@@ -162,16 +160,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	{
 		switch (type)
 		{
-		case ShaderType::VertexShader:     return GL_VERTEX_SHADER;
-		case ShaderType::ControlShader:    return GL_TESS_CONTROL_SHADER;
+		case ShaderType::VertexShader: return GL_VERTEX_SHADER;
+		case ShaderType::ControlShader: return GL_TESS_CONTROL_SHADER;
 		case ShaderType::EvaluationShader: return GL_TESS_EVALUATION_SHADER;
-		case ShaderType::GeometryShader:   return GL_GEOMETRY_SHADER;
-		case ShaderType::FragmentShader:   return GL_FRAGMENT_SHADER;
-		case ShaderType::ComputeShader:    return GL_COMPUTE_SHADER;
-		default: { VclDebugError("Enumeration value is valid."); }
+		case ShaderType::GeometryShader: return GL_GEOMETRY_SHADER;
+		case ShaderType::FragmentShader: return GL_FRAGMENT_SHADER;
+		case ShaderType::ComputeShader: return GL_COMPUTE_SHADER;
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+		}
 		}
 
 		return GL_NONE;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

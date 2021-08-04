@@ -32,8 +32,6 @@
 #include <vcl/graphics/opengl/gl.h>
 #include <vcl/util/hashedstring.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	using namespace Vcl::Graphics::OpenGL;
 
@@ -73,8 +71,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		if (desc().AlphaToCoverageEnable)
 		{
 			glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
+		} else
 		{
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 		}
@@ -86,8 +83,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 			// Disable blending when logic operations are used
 			glDisable(GL_BLEND);
-		}
-		else
+		} else
 		{
 			// Disable logic operations
 			glDisable(GL_COLOR_LOGIC_OP);
@@ -98,10 +94,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			const auto& rt = desc().RenderTarget[0];
 			if (rt.BlendEnable && desc().LogicOpEnable == false)
 			{
-				if (rt.SrcBlend == Blend::BlendFactor    || 
-					rt.SrcBlend == Blend::InvBlendFactor || 
-					rt.DestBlend == Blend::BlendFactor   ||
-					rt.DestBlend == Blend::InvBlendFactor  )
+				if (rt.SrcBlend == Blend::BlendFactor ||
+					rt.SrcBlend == Blend::InvBlendFactor ||
+					rt.DestBlend == Blend::BlendFactor ||
+					rt.DestBlend == Blend::InvBlendFactor)
 				{
 					float r = desc().ConstantColor[0];
 					float g = desc().ConstantColor[1];
@@ -114,22 +110,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				glEnable(GL_BLEND);
 				glBlendFunc(toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 				glBlendEquation(toGLenum(rt.BlendOp));
-			}
-			else
+			} else
 			{
 				glDisable(GL_BLEND);
 			}
 
 			// Set write mask
-			glColorMask
-			(
+			glColorMask(
 				rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
 				rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
 				rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
-				rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
-			);
-		}
-		else
+				rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha));
+		} else
 		{
 			GLint i = 0;
 			for (const auto& rt : desc().RenderTarget)
@@ -139,21 +131,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 					glEnablei(GL_BLEND, i);
 					glBlendFunci(i, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 					glBlendEquationi(i, toGLenum(rt.BlendOp));
-				}
-				else
+				} else
 				{
 					glDisablei(GL_BLEND, i);
 				}
 
 				// Set write mask
-				glColorMaski
-				(
+				glColorMaski(
 					i,
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
-					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
-				);
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha));
 
 				i++;
 			}
@@ -214,17 +203,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			// Set write mask
 			if (!rt.RenderTargetWriteMask.areAllSet())
 			{
-				states.emplace
-				(
+				states.emplace(
 					CommandType::ColorMask,
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
 					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
-					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
-				);
+					rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha));
 			}
-		}
-		else
+		} else
 		{
 			GLint i = 0;
 			for (const auto& rt : desc().RenderTarget)
@@ -243,15 +229,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				// Set write mask
 				if (!rt.RenderTargetWriteMask.areAllSet())
 				{
-					states.emplace
-					(
+					states.emplace(
 						CommandType::ColorMaskIndexed,
 						i,
 						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Red),
 						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green),
 						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue),
-						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)
-					);
+						rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha));
 				}
 				i++;
 			}
@@ -266,8 +250,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		{
 			valid &= glIsEnabled(GL_COLOR_LOGIC_OP) == GL_TRUE;
 			valid &= GL::getEnum(GL_LOGIC_OP_MODE) == toGLenum(desc().LogicOp);
-		}
-		else
+		} else
 		{
 			valid &= glIsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE;
 		}
@@ -281,8 +264,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				valid &= GL::getEnum(GL_BLEND_SRC) == toGLenum(rt.SrcBlend);
 				valid &= GL::getEnum(GL_BLEND_DST) == toGLenum(rt.DestBlend);
 				valid &= GL::getEnum(GL_BLEND_EQUATION_RGB) == toGLenum(rt.BlendOp);
-			}
-			else
+			} else
 			{
 				valid &= glIsEnabled(GL_BLEND) == GL_FALSE;
 			}
@@ -294,8 +276,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			valid &= values[1] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Green));
 			valid &= values[2] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue));
 			valid &= values[3] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha));
-		}
-		else
+		} else
 		{
 			for (unsigned int i = 0; i < desc().RenderTarget.size(); i++)
 			{
@@ -307,8 +288,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 					valid &= GL::getEnum(GL_BLEND_SRC, i) == toGLenum(desc().RenderTarget[i].SrcBlend);
 					valid &= GL::getEnum(GL_BLEND_DST, i) == toGLenum(desc().RenderTarget[i].DestBlend);
 					valid &= GL::getEnum(GL_BLEND_EQUATION_RGB, i) == toGLenum(desc().RenderTarget[i].BlendOp);
-				}
-				else
+				} else
 				{
 					valid &= glIsEnabledi(GL_BLEND, i) == GL_FALSE;
 				}
@@ -332,8 +312,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		{
 			VclCheck(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_TRUE, "Logic Op state is enabled.");
 			VclCheck(GL::getEnum(GL_LOGIC_OP_MODE) == toGLenum(desc().LogicOp), "Logic Op mode is correct.");
-		}
-		else
+		} else
 		{
 			VclCheck(glIsEnabled(GL_COLOR_LOGIC_OP) == GL_FALSE, "Logic Op state is disabled.");
 		}
@@ -347,8 +326,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				VclCheck(GL::getEnum(GL_BLEND_SRC) == toGLenum(rt.SrcBlend), "Src blend is correct.");
 				VclCheck(GL::getEnum(GL_BLEND_DST) == toGLenum(rt.DestBlend), "Dest blend is correct.");
 				VclCheck(GL::getEnum(GL_BLEND_EQUATION_RGB) == toGLenum(rt.BlendOp), "Blend Equation is correct.");
-			}
-			else
+			} else
 			{
 				VclCheck(glIsEnabled(GL_BLEND) == GL_FALSE, "Blend state is disabled.");
 			}
@@ -363,8 +341,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				VclCheck(values[2] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Blue)), "Blue write mask is correct.");
 				VclCheck(values[3] > 0 == (rt.RenderTargetWriteMask.isSet(ColourWriteEnable::Alpha)), "Alpha write mask is correct.");
 			}
-		}
-		else
+		} else
 		{
 			for (unsigned int i = 0; i < desc().RenderTarget.size(); i++)
 			{
@@ -376,12 +353,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 					VclCheck(GL::getEnum(GL_BLEND_SRC, i) == toGLenum(desc().RenderTarget[i].SrcBlend), "Src blend is correct.");
 					VclCheck(GL::getEnum(GL_BLEND_DST, i) == toGLenum(desc().RenderTarget[i].DestBlend), "Dest blend is correct.");
 					VclCheck(GL::getEnum(GL_BLEND_EQUATION_RGB, i) == toGLenum(desc().RenderTarget[i].BlendOp), "Blend Equation is correct.");
-				}
-				else
+				} else
 				{
 					VclCheck(glIsEnabledi(GL_BLEND, i) == GL_FALSE, "Blend state is disabled.");
 				}
-				
+
 				// Check write mask
 				VclAssertBlock
 				{
@@ -394,7 +370,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				}
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -405,8 +381,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	GLenum BlendState::toGLenum(LogicOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case LogicOperation::Clear       : return GL_CLEAR;
 		case LogicOperation::Set         : return GL_SET;
 		case LogicOperation::Copy        : return GL_COPY;
@@ -425,13 +401,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case LogicOperation::OrInverted  : return GL_OR_INVERTED;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 	GLenum BlendState::toGLenum(BlendOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case BlendOperation::Add        :  return GL_FUNC_ADD;
 		case BlendOperation::Subtract   :  return GL_FUNC_SUBTRACT;
 		case BlendOperation::RevSubtract:  return GL_FUNC_REVERSE_SUBTRACT;
@@ -457,14 +434,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 
 	GLenum BlendState::toGLenum(Blend factor)
 	{
-		switch (factor)
-		{
+		// clang-format off
+		switch (factor) {
 		case Blend::Zero          : return GL_ZERO;
 		case Blend::One           : return GL_ONE;
 		case Blend::SrcColour     : return GL_SRC_COLOR;
@@ -484,8 +462,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case Blend::InvSrc1Alpha  : return GL_ONE_MINUS_SRC1_ALPHA;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

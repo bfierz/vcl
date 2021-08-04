@@ -34,8 +34,6 @@
 // VCL
 #include <vcl/core/span.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace OpenGL {
 	enum class CommandType
 	{
@@ -108,5 +106,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		std::vector<uint32_t> _commands;
 	};
 }}}
-
-#endif // VCL_OPENGL_SUPPORT

@@ -29,8 +29,6 @@
 #include <vcl/config/eigen.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 #include <vcl/core/contract.h>
@@ -55,7 +53,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		typedef const AnyRenderType& (*DynamicRenderTypeGate)();
 
 	protected:
-		AnyRenderType(DynamicRenderTypeGate gate) : _gate(gate) { VclEnsure(_gate != nullptr, "gate not NULL"); }
+		AnyRenderType(DynamicRenderTypeGate gate)
+		: _gate(gate) { VclEnsure(_gate != nullptr, "gate not NULL"); }
 
 	public:
 		virtual GLenum internalFormat() const;
@@ -69,25 +68,31 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	private:
 		DynamicRenderTypeGate _gate;
 	};
-	
-	template <typename T> class RenderType;
 
-	template <typename T>
+	template<typename T>
+	class RenderType;
+
+	template<typename T>
 	struct DynamicRenderType
 	{
-		static const AnyRenderType& warp() { static const RenderType<T> obj; return obj; }
+		static const AnyRenderType& warp()
+		{
+			static const RenderType<T> obj;
+			return obj;
+		}
 	};
 
-	template <typename T>
+	template<typename T>
 	class RenderType : public AnyRenderType
 	{
 	public:
 		typedef T Type;
-		typedef RenderTypeTrait<T> TypeTrait;		
+		typedef RenderTypeTrait<T> TypeTrait;
 
 	public:
-		RenderType() : AnyRenderType(&DynamicRenderType<T>::warp) {}
-		
+		RenderType()
+		: AnyRenderType(&DynamicRenderType<T>::warp) {}
+
 		GLenum internalFormat() const override { return TypeTrait::InternalFormat; }
 		GLenum format() const override { return TypeTrait::Format; }
 		GLenum componentType() const override { return TypeTrait::ComponentType; }
@@ -97,30 +102,50 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		bool isIntegral() const override { return TypeTrait::IsIntegral; }
 	};
 
-#define VCL_GRAPHICS_RENDERTYPE_1(name, type) struct name    { using Type = type; Type x; };
-#define VCL_GRAPHICS_RENDERTYPE_2(name, type) struct name##2 { using Type = type; Type x, y; };
-#define VCL_GRAPHICS_RENDERTYPE_3(name, type) struct name##3 { using Type = type; Type x, y, z; };
-#define VCL_GRAPHICS_RENDERTYPE_4(name, type) struct name##4 { using Type = type; Type x, y, z, w; }
-#define VCL_GRAPHICS_RENDERTYPE(name, type)   \
-		VCL_GRAPHICS_RENDERTYPE_1(name, type) \
-		VCL_GRAPHICS_RENDERTYPE_2(name, type) \
-		VCL_GRAPHICS_RENDERTYPE_3(name, type) \
-		VCL_GRAPHICS_RENDERTYPE_4(name, type)
+#define VCL_GRAPHICS_RENDERTYPE_1(name, type) \
+	struct name                               \
+	{                                         \
+		using Type = type;                    \
+		Type x;                               \
+	};
+#define VCL_GRAPHICS_RENDERTYPE_2(name, type) \
+	struct name##2                            \
+	{                                         \
+		using Type = type;                    \
+		Type x, y;                            \
+	};
+#define VCL_GRAPHICS_RENDERTYPE_3(name, type) \
+	struct name##3                            \
+	{                                         \
+		using Type = type;                    \
+		Type x, y, z;                         \
+	};
+#define VCL_GRAPHICS_RENDERTYPE_4(name, type) \
+	struct name##4                            \
+	{                                         \
+		using Type = type;                    \
+		Type x, y, z, w;                      \
+	}
+#define VCL_GRAPHICS_RENDERTYPE(name, type) \
+	VCL_GRAPHICS_RENDERTYPE_1(name, type)   \
+	VCL_GRAPHICS_RENDERTYPE_2(name, type)   \
+	VCL_GRAPHICS_RENDERTYPE_3(name, type)   \
+	VCL_GRAPHICS_RENDERTYPE_4(name, type)
 
-VCL_GRAPHICS_RENDERTYPE(Float, float);
-VCL_GRAPHICS_RENDERTYPE(SignedInt, int);
-VCL_GRAPHICS_RENDERTYPE(UnsignedInt, unsigned int);
+	VCL_GRAPHICS_RENDERTYPE(Float, float);
+	VCL_GRAPHICS_RENDERTYPE(SignedInt, int);
+	VCL_GRAPHICS_RENDERTYPE(UnsignedInt, unsigned int);
 
-VCL_GRAPHICS_RENDERTYPE(Half, short);
-VCL_GRAPHICS_RENDERTYPE(SignedShort, short);
-VCL_GRAPHICS_RENDERTYPE(UnsignedShort, unsigned short);
-VCL_GRAPHICS_RENDERTYPE(NormalizedSignedShort, short);
-VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedShort, unsigned short);
+	VCL_GRAPHICS_RENDERTYPE(Half, short);
+	VCL_GRAPHICS_RENDERTYPE(SignedShort, short);
+	VCL_GRAPHICS_RENDERTYPE(UnsignedShort, unsigned short);
+	VCL_GRAPHICS_RENDERTYPE(NormalizedSignedShort, short);
+	VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedShort, unsigned short);
 
-VCL_GRAPHICS_RENDERTYPE(SignedByte, char);
-VCL_GRAPHICS_RENDERTYPE(UnsignedByte, unsigned char);
-VCL_GRAPHICS_RENDERTYPE(NormalizedSignedByte, char);
-VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
+	VCL_GRAPHICS_RENDERTYPE(SignedByte, char);
+	VCL_GRAPHICS_RENDERTYPE(UnsignedByte, unsigned char);
+	VCL_GRAPHICS_RENDERTYPE(NormalizedSignedByte, char);
+	VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
 
 #ifndef VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST
 	extern template struct RenderTypeTrait<void>;
@@ -129,7 +154,7 @@ VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
 	extern template struct RenderTypeTrait<Eigen::Vector2f>;
 	extern template struct RenderTypeTrait<Eigen::Vector3f>;
 	extern template struct RenderTypeTrait<Eigen::Vector4f>;
-	
+
 	extern template struct RenderTypeTrait<int>;
 	extern template struct RenderTypeTrait<Eigen::Vector2i>;
 	extern template struct RenderTypeTrait<Eigen::Vector3i>;
@@ -151,9 +176,9 @@ VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
 	extern template struct RenderTypeTrait<SignedInt4>;
 
 	extern template struct RenderTypeTrait<UnsignedInt>;
-	extern template struct RenderTypeTrait<UnsignedInt2>; 
-	extern template struct RenderTypeTrait<UnsignedInt3>; 
-	extern template struct RenderTypeTrait<UnsignedInt4>; 
+	extern template struct RenderTypeTrait<UnsignedInt2>;
+	extern template struct RenderTypeTrait<UnsignedInt3>;
+	extern template struct RenderTypeTrait<UnsignedInt4>;
 
 	extern template struct RenderTypeTrait<Half>;
 	extern template struct RenderTypeTrait<Half2>;
@@ -162,9 +187,9 @@ VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
 
 	extern template struct RenderTypeTrait<short>;
 	extern template struct RenderTypeTrait<SignedShort>;
-	extern template struct RenderTypeTrait<SignedShort2>; 
-	extern template struct RenderTypeTrait<SignedShort3>; 
-	extern template struct RenderTypeTrait<SignedShort4>; 
+	extern template struct RenderTypeTrait<SignedShort2>;
+	extern template struct RenderTypeTrait<SignedShort3>;
+	extern template struct RenderTypeTrait<SignedShort4>;
 
 	extern template struct RenderTypeTrait<unsigned short>;
 	extern template struct RenderTypeTrait<UnsignedShort>;
@@ -205,4 +230,3 @@ VCL_GRAPHICS_RENDERTYPE(NormalizedUnsignedByte, unsigned char);
 	extern template struct RenderTypeTrait<NormalizedUnsignedByte4>;
 #endif // VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST
 }}}
-#endif // VCL_OPENGL_SUPPORT

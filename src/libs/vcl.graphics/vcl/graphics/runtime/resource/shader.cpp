@@ -31,6 +31,5 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	: _tag(tag)
 	, _type(type)
 	{
-
 	}
 }}}

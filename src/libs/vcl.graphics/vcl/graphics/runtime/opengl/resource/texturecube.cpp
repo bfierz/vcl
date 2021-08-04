@@ -24,8 +24,6 @@
  */
 #include <vcl/graphics/runtime/opengl/resource/texturecube.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/core/contract.h>
 
@@ -49,13 +47,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	void TextureCube::allocImpl(GLenum colour_fmt)
 	{
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureStorage2D(_glId, mipMapLevels(), colour_fmt, width(), height());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureStorage2DEXT(_glId, GL_TEXTURE_CUBE_MAP, mipMapLevels(), colour_fmt, width(), height());
-#	else
+#else
 		glTexStorage2D(GL_TEXTURE_CUBE_MAP, mipMapLevels(), colour_fmt, width(), height());
-#	endif
+#endif
 	}
 
 	void TextureCube::updateImpl(const TextureResource& data)
@@ -66,11 +64,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLsizei h = (GLsizei)data.Height;
 		GLsizei mip = (GLsizei)data.MipMap;
 
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, 6, img_fmt.Format, img_fmt.Type, data.data());
-#	else
-		const GLenum faces[] =
-		{
+#else
+		const GLenum faces[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -81,14 +78,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		auto data_ptr = data.Data.data();
 		for (const auto face : faces)
 		{
-#		if defined(VCL_GL_EXT_direct_state_access)
+#	if defined(VCL_GL_EXT_direct_state_access)
 			glTextureSubImage2DEXT(_glId, face, mip, 0, 0, w, h, img_fmt.Format, img_fmt.Type, data_ptr);
-#		else
+#	else
 			glTexSubImage2D(face, mip, 0, 0, w, h, img_fmt.Format, img_fmt.Type, data_ptr);
-#		endif
+#	endif
 			data_ptr += w * h * pixel_size;
 		}
-#	endif
+#endif
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

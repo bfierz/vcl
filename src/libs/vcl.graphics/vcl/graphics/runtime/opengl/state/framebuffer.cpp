@@ -30,35 +30,35 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2darray.h>
 #include <vcl/graphics/runtime/opengl/resource/texture3d.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-#	if defined(VCL_GL_ARB_direct_state_access)
-#		define glCreateFramebuffersVCL glCreateFramebuffers
-#		define glNamedFramebufferDrawBuffersVCL glNamedFramebufferDrawBuffers
-#		define glNamedFramebufferTextureVCL glNamedFramebufferTexture
-#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayer
-#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatus
-#	elif defined(VCL_GL_EXT_direct_state_access)
-#		define glCreateFramebuffersVCL glGenFramebuffers
-#		define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
-#		define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
-#		define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
-#		define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
-#	else
-#		define glCreateFramebuffersVCL glGenFramebuffers
-#		define glNamedFramebufferDrawBuffersVCL(fb, n, bufs)                            [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glDrawBuffers(n, bufs); }()
-#		define glNamedFramebufferTextureVCL(fb, attachment, texture, level)             [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, texture, level); }()
-#		define glNamedFramebufferTextureLayerVCL(fb, attachment, texture, level, layer) [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, level, layer); }()
-#		define glCheckNamedFramebufferStatusVCL(fb, target)                             [&] { FbBindPoint bp(target, fb); return glCheckFramebufferStatus(target); }()
-#	endif
+// clang-format off
+#if defined(VCL_GL_ARB_direct_state_access)
+#	define glCreateFramebuffersVCL glCreateFramebuffers
+#	define glNamedFramebufferDrawBuffersVCL glNamedFramebufferDrawBuffers
+#	define glNamedFramebufferTextureVCL glNamedFramebufferTexture
+#	define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayer
+#	define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatus
+#elif defined(VCL_GL_EXT_direct_state_access)
+#	define glCreateFramebuffersVCL glGenFramebuffers
+#	define glNamedFramebufferDrawBuffersVCL glFramebufferDrawBuffersEXT
+#	define glNamedFramebufferTextureVCL glNamedFramebufferTextureEXT
+#	define glNamedFramebufferTextureLayerVCL glNamedFramebufferTextureLayerEXT
+#	define glCheckNamedFramebufferStatusVCL glCheckNamedFramebufferStatusEXT
+#else
+#	define glCreateFramebuffersVCL glGenFramebuffers
+#	define glNamedFramebufferDrawBuffersVCL(fb, n, bufs)                            [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glDrawBuffers(n, bufs); }()
+#	define glNamedFramebufferTextureVCL(fb, attachment, texture, level)             [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTexture(GL_DRAW_FRAMEBUFFER, attachment, texture, level); }()
+#	define glNamedFramebufferTextureLayerVCL(fb, attachment, texture, level, layer) [&] { FbBindPoint bp(GL_DRAW_FRAMEBUFFER, fb); glFramebufferTextureLayer(GL_DRAW_FRAMEBUFFER, attachment, texture, level, layer); }()
+#	define glCheckNamedFramebufferStatusVCL(fb, target)                             [&] { FbBindPoint bp(target, fb); return glCheckFramebufferStatus(target); }()
+#endif
+// clang-format on
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class FbBindPoint
 	{
 	public:
 		FbBindPoint(GLenum target, GLuint id)
-			: _target(target)
-			, _id(id)
+		: _target(target)
+		, _id(id)
 		{
 			glBindFramebuffer(_target, _id);
 		}
@@ -98,7 +98,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			{
 				SurfaceFormat depth_fmt = depthTarget->format();
 				GLenum depth_attachment_type = toDepthStencilAttachment(depth_fmt);
-				
+
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2D&>(*depthTarget);
 				glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), 0);
 				break;
@@ -112,27 +112,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				if (tex.firstLayer() == 0 && tex.layers() > 1)
 				{
 					glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel());
-				}
-				else if (tex.firstLayer() == 0 && tex.layers() == 1)
+				} else if (tex.firstLayer() == 0 && tex.layers() == 1)
 				{
 					glNamedFramebufferTextureLayerVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel(), tex.firstLayer());
-				}
-				else
+				} else
 				{
 					VclDebugError("Combination supported.");
 				}
-			
+
 				break;
 			}
 			default:
 				VclDebugError("Not implemented.");
 			}
-		}
-		else
+		} else
 		{
 			glNamedFramebufferTextureVCL(_glId, GL_DEPTH_ATTACHMENT, 0, 0);
 		}
-		
+
 		for (unsigned int v = 0; v < static_cast<unsigned int>(nrColourTargets); v++)
 		{
 			_colourTargets[v] = colourTargets[v];
@@ -149,22 +146,20 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			case TextureType::Texture2DArray:
 			{
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2DArray&>(*view);
-				int first = (int) tex.firstLayer();
-				int size  = (int) tex.layers();
-				
+				int first = (int)tex.firstLayer();
+				int size = (int)tex.layers();
+
 				if (first == 0 && size == tex.layers())
 				{
 					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
-				}
-				else if (size == 1)
+				} else if (size == 1)
 				{
 					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
-				}
-				else
+				} else
 				{
 					VclDebugError("Not available in OpenGL");
 				}
-				
+
 				break;
 			}
 			case TextureType::Texture3D:
@@ -173,21 +168,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				//int first = (int) tex.firstDepthSlice();
 				//int size = (int) tex.depthSlices();
 				int first = 0;
-				int size = (int) tex.depth();
+				int size = (int)tex.depth();
 
 				if (first == 0 && size >= tex.depth())
 				{
 					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
-				}
-				else if (size == 1)
+				} else if (size == 1)
 				{
 					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
-				}
-				else
+				} else
 				{
 					VclDebugError("Not available in OpenGL");
 				}
-			
+
 				break;
 			}
 			default:
@@ -314,4 +307,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		}
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

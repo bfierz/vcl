@@ -27,8 +27,6 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace OpenGL {
 	const char* GL::getProfileInfo()
 	{
@@ -79,8 +77,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	{
 		using namespace Vcl::Graphics::OpenGL;
 
-		switch (fmt)
-		{
+		// clang-format off
+		switch (fmt) {
 		case SurfaceFormat::R32G32B32A32_FLOAT  : return RenderType<Float4>();
 		case SurfaceFormat::R32G32B32A32_UINT   : return RenderType<UnsignedInt4>();
 		case SurfaceFormat::R32G32B32A32_SINT   : return RenderType<SignedInt4>();
@@ -130,6 +128,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		case SurfaceFormat::R8_SINT             : return RenderType<SignedByte>();
 		default: VclDebugError("Unsupported surface format.");
 		};
+		// clang-format on
 
 		return RenderType<void>();
 	}
@@ -219,4 +218,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		}
 	}
 }}}
-#endif // VCL_OPENGL_SUPPORT

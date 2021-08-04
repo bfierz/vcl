@@ -32,7 +32,6 @@
 #include <vcl/graphics/opengl/commandstream.h>
 #include <vcl/graphics/runtime/state/depthstencilstate.h>
 
-#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class DepthStencilState
 	{
@@ -62,4 +61,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		DepthStencilDescription _desc;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

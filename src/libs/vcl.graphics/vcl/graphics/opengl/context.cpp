@@ -31,10 +31,9 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
 
-#if defined VCL_OPENGL_SUPPORT
-#	ifdef VCL_ABI_WINAPI
-#		include <GL/wglew.h>
-#	endif
+#ifdef VCL_ABI_WINAPI
+#	include <GL/wglew.h>
+#endif
 
 namespace {
 	void VCL_CALLBACK OpenGLDebugMessageCallback(
@@ -141,7 +140,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			return "Invalid";
 	}
 
-#	if defined VCL_EGL_SUPPORT
+#if defined VCL_EGL_SUPPORT
 	Context::Context(const ContextDesc& desc)
 	: Context(nullptr, nullptr, desc)
 	{
@@ -239,7 +238,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		return eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
 	}
 
-#	elif defined VCL_ABI_WINAPI
+#elif defined VCL_ABI_WINAPI
 
 	// Based on OpenGL example:
 	// https://www.opengl.org/wiki/Creating_an_OpenGL_Context_%28WGL%29
@@ -378,7 +377,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	{
 		return wglMakeCurrent((HDC)_display_ctx, (HGLRC)_render_ctx) != 0 ? true : false;
 	}
-#	endif
+#endif
 
 	void Context::initExtensions()
 	{
@@ -411,7 +410,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		// Disable specific messages
 		GLuint perf_messages_ids[] = {
 			131154, // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering
-			//131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
+					//131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
 		};
 		glDebugMessageControl(
 			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE,
@@ -421,4 +420,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		glDebugMessageCallback(OpenGLDebugMessageCallback, nullptr);
 	}
 }}}
-#endif // defined VCL_OPENGL_SUPPORT

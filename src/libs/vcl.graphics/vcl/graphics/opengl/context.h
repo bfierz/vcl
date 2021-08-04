@@ -28,15 +28,11 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-// VCL
-
-#if defined VCL_OPENGL_SUPPORT
-
 // EGL
-#	if defined VCL_EGL_SUPPORT
-#		include <EGL/egl.h>
-#		undef Success
-#	endif
+#if defined VCL_EGL_SUPPORT
+#	include <EGL/egl.h>
+#	undef Success
+#endif
 
 namespace Vcl { namespace Graphics { namespace OpenGL {
 	enum class ContextType
@@ -69,9 +65,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 	public:
 		Context(const ContextDesc& desc = {});
-#	if defined VCL_EGL_SUPPORT
+#if defined VCL_EGL_SUPPORT
 		Context(EGLDisplay display, EGLSurface surface, const ContextDesc& desc = {});
-#	endif
+#endif
 		~Context();
 
 		//! Access the context descriptor
@@ -83,7 +79,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		bool makeCurrent();
 
 	private:
-#	if defined VCL_EGL_SUPPORT
+#if defined VCL_EGL_SUPPORT
 		//! Associated EGL display
 		EGLDisplay _display;
 
@@ -92,7 +88,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		//! EGL context
 		EGLContext _context;
-#	elif defined VCL_ABI_WINAPI
+#elif defined VCL_ABI_WINAPI
 		//! Windows window handle
 		void* _window_handle{ nullptr };
 
@@ -101,7 +97,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		//! Windows render context
 		void* _render_ctx{ nullptr };
-#	endif
+#endif
 
 		//! Context description
 		ContextDesc _desc;
@@ -113,4 +109,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		bool _allocated_surface{ false };
 	};
 }}}
-#endif // defined VCL_OPENGL_SUPPORT

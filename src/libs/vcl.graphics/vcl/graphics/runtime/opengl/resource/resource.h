@@ -32,22 +32,24 @@
 #include <stdexcept>
 #include <utility>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	/// Generic VCL OpenGL error
 	class gl_error : public std::runtime_error
 	{
 	public:
-		explicit gl_error(const std::string& what_arg) : runtime_error(what_arg) {}
-		explicit gl_error(const char* what_arg) : runtime_error(what_arg) {}
+		explicit gl_error(const std::string& what_arg)
+		: runtime_error(what_arg) {}
+		explicit gl_error(const char* what_arg)
+		: runtime_error(what_arg) {}
 	};
 
 	class gl_memory_error : public gl_error
 	{
 	public:
-		explicit gl_memory_error(const std::string& what_arg) : gl_error(what_arg) {}
-		explicit gl_memory_error(const char* what_arg) : gl_error(what_arg) {}
+		explicit gl_memory_error(const std::string& what_arg)
+		: gl_error(what_arg) {}
+		explicit gl_memory_error(const char* what_arg)
+		: gl_error(what_arg) {}
 	};
 
 	class Resource
@@ -71,4 +73,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLuint _glId{ 0 };
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

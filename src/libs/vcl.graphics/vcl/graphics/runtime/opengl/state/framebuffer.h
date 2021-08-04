@@ -36,8 +36,6 @@
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Framebuffer : public Resource
 	{
@@ -77,4 +75,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		const Runtime::Texture* _depthTarget{ nullptr };
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

@@ -33,8 +33,6 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace {
 	inline std::tuple<int, int> computeNumberRequiredImages(int requested_size)
 	{
@@ -260,5 +258,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		output->setResource(next_lum_base_img, 1, 1);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

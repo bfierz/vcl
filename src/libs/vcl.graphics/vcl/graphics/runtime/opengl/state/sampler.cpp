@@ -27,7 +27,6 @@
 // VCL libraries
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	Sampler::Sampler(const SamplerDescription& desc)
 	: Runtime::Sampler(desc)
@@ -37,14 +36,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		VclRequire(implies(desc.AddressU == TextureAddressMode::MirrorOnce || desc.AddressV == TextureAddressMode::MirrorOnce || desc.AddressW == TextureAddressMode::MirrorOnce, glewIsExtensionSupported("GL_ARB_texture_mirror_clamp_to_edge")), "Mirror once address mode is supported");
 
 		glGenSamplers(1, &_glId);
-		
+
 		// Set GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_TEXTURE_WRAP_R
 		glSamplerParameteri(_glId, GL_TEXTURE_WRAP_S, convert(desc.AddressU));
 		glSamplerParameteri(_glId, GL_TEXTURE_WRAP_T, convert(desc.AddressV));
 		glSamplerParameteri(_glId, GL_TEXTURE_WRAP_R, convert(desc.AddressW));
-		
-        // Set GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT
-		GLenum min; GLenum mag; GLenum compare_mode;
+
+		// Set GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MAX_ANISOTROPY_EXT
+		GLenum min;
+		GLenum mag;
+		GLenum compare_mode;
 		convert(desc.Filter, true, min, mag, compare_mode);
 
 		glSamplerParameteri(_glId, GL_TEXTURE_MIN_FILTER, min);
@@ -77,13 +78,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	{
 		glDeleteSamplers(1, &_glId);
 	}
-	
+
 	void Sampler::convert(FilterType filter, bool enable_mipmap, GLenum& min, GLenum& mag, GLenum& compare_mode) const
 	{
 		if (enable_mipmap)
 		{
-			switch (filter)
-			{
+			// clang-format off
+			switch (filter) {
 			case FilterType::MinMagMipPoint                      : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
 			case FilterType::MinMagPointMipLinear                : min = GL_NEAREST_MIPMAP_LINEAR;  mag = GL_NEAREST; compare_mode = GL_NONE; return;
 			case FilterType::MinPointMagLinearMipPoint           : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
@@ -104,11 +105,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST_MIPMAP_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			default: { VclDebugError("Enumeration value is valid."); }
 			}
-		}
-		else
+			// clang-format on
+		} else
 		{
-			switch (filter)
-			{
+			// clang-format off
+			switch (filter) {
 			case FilterType::MinMagMipPoint                      : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
 			case FilterType::MinMagPointMipLinear                : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_NONE; return;
 			case FilterType::MinPointMagLinearMipPoint           : min = GL_NEAREST; mag = GL_LINEAR;  compare_mode = GL_NONE; return;
@@ -129,13 +130,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			case FilterType::ComparisonAnisotropic               : min = GL_NEAREST; mag = GL_NEAREST; compare_mode = GL_COMPARE_REF_TO_TEXTURE; return;
 			default: { VclDebugError("Enumeration value is valid."); }
 			}
+			// clang-format on
 		}
 	}
 
 	GLenum Sampler::convert(TextureAddressMode mode) const
 	{
-		switch (mode)
-		{
+		// clang-format off
+		switch (mode) {
 		case TextureAddressMode::Wrap      : return GL_REPEAT;
 		case TextureAddressMode::Mirror    : return GL_MIRRORED_REPEAT;
 		case TextureAddressMode::Clamp     : return GL_CLAMP_TO_EDGE;
@@ -143,14 +145,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case TextureAddressMode::MirrorOnce: return GL_MIRROR_CLAMP_TO_EDGE;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_NONE;
 	}
 
 	GLenum Sampler::convert(ComparisonFunction func) const
 	{
-		switch (func)
-		{
+		// clang-format off
+		switch (func) {
 		case ComparisonFunction::Never       : return GL_NEVER;
 		case ComparisonFunction::Less        : return GL_LESS;
 		case ComparisonFunction::Equal       : return GL_EQUAL;
@@ -161,8 +164,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case ComparisonFunction::Always      : return GL_ALWAYS;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_NONE;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

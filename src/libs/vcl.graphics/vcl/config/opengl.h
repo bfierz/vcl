@@ -34,11 +34,9 @@
 #endif
 
 VCL_BEGIN_EXTERNAL_HEADERS
-#ifdef VCL_OPENGL_SUPPORT
-#	ifdef VCL_ARCH_WEBASM
-#		include <GLES3/gl32.h>
-#	else
-#		include <GL/glew.h>
-#	endif
+#ifdef VCL_ARCH_WEBASM
+#	include <GLES3/gl32.h>
+#else
+#	include <GL/glew.h>
 #endif
 VCL_END_EXTERNAL_HEADERS

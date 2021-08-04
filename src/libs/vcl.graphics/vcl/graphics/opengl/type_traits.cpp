@@ -25,32 +25,30 @@
 #define VCL_GRAPHICS_OPENGL_RENDERTYPETRAITS_INST
 #include <vcl/graphics/opengl/type_traits.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-#define VCL_GRAPHICS_RTT(type, int_fmt, fmt, cmp_type, nr_cmp, integral)	   \
-	template<>																   \
-	struct RenderTypeTrait<type>											   \
-	{																		   \
-		typedef type Type;													   \
-		static const GLenum InternalFormat;									   \
-		static const GLenum Format;											   \
-		static const GLenum ComponentType;									   \
-		static const GLint ComponentSize;									   \
-		static const GLint NrComponents;									   \
-		static const GLint Size;											   \
-		static const bool IsIntegral;										   \
-	};																		   \
-	const GLenum RenderTypeTrait<type>::InternalFormat = int_fmt;			   \
-	const GLenum RenderTypeTrait<type>::Format = fmt;						   \
-	const GLenum RenderTypeTrait<type>::ComponentType = cmp_type;			   \
-	const GLint  RenderTypeTrait<type>::ComponentSize = sizeof(type) / nr_cmp; \
-	const GLint  RenderTypeTrait<type>::NrComponents = nr_cmp;				   \
-	const GLint  RenderTypeTrait<type>::Size = sizeof(type);				   \
-	const bool   RenderTypeTrait<type>::IsIntegral = integral
+#define VCL_GRAPHICS_RTT(type, int_fmt, fmt, cmp_type, nr_cmp, integral)      \
+	template<>                                                                \
+	struct RenderTypeTrait<type>                                              \
+	{                                                                         \
+		typedef type Type;                                                    \
+		static const GLenum InternalFormat;                                   \
+		static const GLenum Format;                                           \
+		static const GLenum ComponentType;                                    \
+		static const GLint ComponentSize;                                     \
+		static const GLint NrComponents;                                      \
+		static const GLint Size;                                              \
+		static const bool IsIntegral;                                         \
+	};                                                                        \
+	const GLenum RenderTypeTrait<type>::InternalFormat = int_fmt;             \
+	const GLenum RenderTypeTrait<type>::Format = fmt;                         \
+	const GLenum RenderTypeTrait<type>::ComponentType = cmp_type;             \
+	const GLint RenderTypeTrait<type>::ComponentSize = sizeof(type) / nr_cmp; \
+	const GLint RenderTypeTrait<type>::NrComponents = nr_cmp;                 \
+	const GLint RenderTypeTrait<type>::Size = sizeof(type);                   \
+	const bool RenderTypeTrait<type>::IsIntegral = integral
 
 namespace Vcl { namespace Graphics { namespace OpenGL {
-	GLenum AnyRenderType::internalFormat() const  { return _gate().internalFormat(); }
-	GLenum AnyRenderType::format() const  { return _gate().format(); }
+	GLenum AnyRenderType::internalFormat() const { return _gate().internalFormat(); }
+	GLenum AnyRenderType::format() const { return _gate().format(); }
 	GLenum AnyRenderType::componentType() const { return _gate().componentType(); }
 	GLint AnyRenderType::size() const { return _gate().size(); }
 	GLint AnyRenderType::componentSize() const { return _gate().componentSize(); }
@@ -152,4 +150,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	VCL_GRAPHICS_RTT(NormalizedUnsignedByte3, GL_RGB8UI,  GL_RGB,  GL_UNSIGNED_BYTE, 3, false);
 	VCL_GRAPHICS_RTT(NormalizedUnsignedByte4, GL_RGBA8UI, GL_RGBA, GL_UNSIGNED_BYTE, 4, false);
 }}}
-#endif // VCL_OPENGL_SUPPORT

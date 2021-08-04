@@ -27,8 +27,6 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	SRGB::SRGB(ImageProcessor* processor)
 	{
@@ -102,5 +100,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		processor->enqueKernel(_kernelId, output->width(), output->height(), &output, &output_range, nr_outputs, &input, &input_range, nr_inputs);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

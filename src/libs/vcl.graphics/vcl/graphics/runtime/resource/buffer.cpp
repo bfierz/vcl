@@ -32,7 +32,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	: _sizeInBytes(size)
 	, _usage2(usage)
 	{
-		VclRequire(implies(usage.isSet(BufferUsage::MapWrite), !usage.isSet(BufferUsage::MapRead)),  "Map read and write are mutually exclusive");
-		VclRequire(implies(usage.isSet(BufferUsage::MapRead),  !usage.isSet(BufferUsage::MapWrite)), "Map read and write are mutually exclusive");
+		VclRequire(implies(usage.isSet(BufferUsage::MapWrite), !usage.isSet(BufferUsage::MapRead)), "Map read and write are mutually exclusive");
+		VclRequire(implies(usage.isSet(BufferUsage::MapRead), !usage.isSet(BufferUsage::MapWrite)), "Map read and write are mutually exclusive");
 	}
 }}}

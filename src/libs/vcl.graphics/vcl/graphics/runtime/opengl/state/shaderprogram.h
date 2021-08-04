@@ -42,8 +42,6 @@
 #include <vcl/graphics/runtime/state/inputlayout.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	struct ShaderProgramDescription
 	{
@@ -219,7 +217,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	struct UniformBlockData
 	{
-		UniformBlockData(int loc, std::string name, int res_loc) : Location(loc), Name(std::move(name)), ResourceLocation(res_loc) {}
+		UniformBlockData(int loc, std::string name, int res_loc)
+		: Location(loc), Name(std::move(name)), ResourceLocation(res_loc) {}
 
 		//! Uniform location
 		int Location;
@@ -233,7 +232,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	struct BufferBlockData
 	{
-		BufferBlockData(int loc, std::string name, int res_loc) : Location(loc), Name(std::move(name)), ResourceLocation(res_loc) {}
+		BufferBlockData(int loc, std::string name, int res_loc)
+		: Location(loc), Name(std::move(name)), ResourceLocation(res_loc) {}
 
 		//! Uniform location
 		int Location;
@@ -372,7 +372,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		const std::vector<UniformData>& uniforms() const { return _uniforms.elems(); }
 		const std::vector<UniformBlockData>& uniformBlocks() const { return _uniformBlocks.elems(); }
 		const std::vector<BufferBlockData>& buffers() const { return _buffers.elems(); }
-		
+
 	public:
 		static GLenum toGLenum(ProgramResourceType t);
 		static ProgramResourceType toResourceType(GLenum type);
@@ -400,7 +400,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	public:
 		void setConstantBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
 		void setBuffer(const char* name, const Runtime::Buffer* buf, size_t offset = 0, size_t size = 0);
-	
+
 	public:
 		template<typename T>
 		void setUniform(const char* name, T&& value)
@@ -472,5 +472,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		return {};
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT
-

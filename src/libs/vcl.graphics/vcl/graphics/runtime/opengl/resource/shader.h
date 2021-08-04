@@ -28,8 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // C++ standard library
 #include <initializer_list>
 
@@ -69,4 +67,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	/// @returns The compiled shader, or the error-string in case of failure
 	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices = {}, stdext::span<const unsigned int> spec_values = {});
 }}}}
-#endif // VCL_OPENGL_SUPPORT

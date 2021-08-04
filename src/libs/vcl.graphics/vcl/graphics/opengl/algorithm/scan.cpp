@@ -32,8 +32,6 @@
 #include "scan.glslinc"
 #include "scan.comp"
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics {
 	namespace {
 		unsigned int factorRadix2(unsigned int& log2L, unsigned int L)
@@ -227,5 +225,3 @@ namespace Vcl { namespace Graphics {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
-
-#endif // VCL_OPENGL_SUPPORT

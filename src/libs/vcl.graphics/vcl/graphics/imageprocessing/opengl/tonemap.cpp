@@ -27,8 +27,6 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Tonemap::Tonemap(ImageProcessor* processor)
 	{
@@ -142,5 +140,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		processor->enqueKernel(_reinhardKernelId, output->width(), output->height(), &output, &output_range, nr_outputs, inputs, input_ranges, nr_inputs);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

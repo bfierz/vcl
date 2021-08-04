@@ -32,8 +32,6 @@
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Sampler : public Runtime::Sampler, public Resource
 	{
@@ -47,4 +45,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLenum convert(ComparisonFunction func) const;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

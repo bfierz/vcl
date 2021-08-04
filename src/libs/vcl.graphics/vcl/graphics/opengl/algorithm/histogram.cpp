@@ -34,8 +34,6 @@
 // Compute shader
 #include "histogram.comp"
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics {
 	Histogram::Histogram(unsigned int nr_elements, unsigned int nr_buckets)
 	: _maxNrElements(nr_elements)
@@ -132,5 +130,3 @@ namespace Vcl { namespace Graphics {
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
-
-#endif // VCL_OPENGL_SUPPORT

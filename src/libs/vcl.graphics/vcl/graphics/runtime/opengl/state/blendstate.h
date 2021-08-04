@@ -32,8 +32,6 @@
 #include <vcl/graphics/opengl/commandstream.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	/*!
 	 *	\brief OpenGL abstraction of the blending related pipeline states
@@ -92,4 +90,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		Graphics::OpenGL::CommandStream _cmds;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

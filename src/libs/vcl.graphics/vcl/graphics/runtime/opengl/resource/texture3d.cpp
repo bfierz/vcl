@@ -24,8 +24,6 @@
  */
 #include <vcl/graphics/runtime/opengl/resource/texture3d.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/core/contract.h>
 
@@ -49,13 +47,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	void Texture3D::allocImpl(GLenum colour_fmt)
 	{
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureStorage3D(_glId, mipMapLevels(), colour_fmt, width(), height(), depth());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureStorage3DEXT(_glId, GL_TEXTURE_3D, mipMapLevels(), colour_fmt, width(), height(), depth());
-#	else
+#else
 		glTexStorage3D(GL_TEXTURE_3D, mipMapLevels(), colour_fmt, width(), height(), depth());
-#	endif
+#endif
 	}
 
 	void Texture3D::updateImpl(const TextureResource& data)
@@ -66,13 +64,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLsizei d = (GLsizei)data.Depth;
 		GLsizei mip = (GLsizei)data.MipMap;
 
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, d, img_fmt.Format, img_fmt.Type, data.data());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureSubImage3DEXT(_glId, GL_TEXTURE_3D, 0, 0, 0, 0, w, h, d, img_fmt.Format, img_fmt.Type, data.data());
-#	else
+#else
 		glTexSubImage3D(GL_TEXTURE_3D, mip, 0, 0, 0, w, h, d, img_fmt.Format, img_fmt.Type, data.data());
-#	endif
+#endif
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

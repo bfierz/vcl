@@ -33,39 +33,39 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-#	if defined(VCL_GL_ARB_direct_state_access)
-#		define glCreateBuffersVCL glCreateBuffers
-#		define glNamedBufferStorageVCL glNamedBufferStorage
-#		define glMapNamedBufferRangeVCL glMapNamedBufferRange
-#		define glUnmapNamedBufferVCL glUnmapNamedBuffer
-#		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRange
-#		define glCopyNamedBufferSubDataVCL glCopyNamedBufferSubData
-#		define glClearNamedBufferDataVCL glClearNamedBufferData
-#		define glClearNamedBufferSubDataVCL glClearNamedBufferSubData
-#		define glGetNamedBufferSubDataVCL glGetNamedBufferSubData
-#	elif defined(VCL_GL_EXT_direct_state_access)
-#		define glCreateBuffersVCL glGenBuffers
-#		define glNamedBufferStorageVCL glNamedBufferStorageEXT
-#		define glMapNamedBufferRangeVCL glMapNamedBufferRangeEXT
-#		define glUnmapNamedBufferVCL glUnmapNamedBufferEXT
-#		define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRangeEXT
-#		define glCopyNamedBufferSubDataVCL glNamedCopyBufferSubDataEXT
-#		define glClearNamedBufferDataVCL glClearNamedBufferDataEXT
-#		define glClearNamedBufferSubDataVCL glClearNamedBufferSubDataEXT
-#		define glGetNamedBufferSubDataVCL glGetNamedBufferSubDataEXT
-#	else
-#		define glCreateBuffersVCL glGenBuffers
-#		define glNamedBufferStorageVCL(buffer, size, data, flags)       [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glBufferStorage(GL_ARRAY_BUFFER, size, data, flags); }();
-#		define glMapNamedBufferRangeVCL(buffer, offset, length, access) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access); }();
-#		define glUnmapNamedBufferVCL(buffer)                            [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glUnmapBuffer(GL_ARRAY_BUFFER); }();
-#		define glFlushMappedNamedBufferRangeVCL(buffer, offset, length) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length); }();
-#		define glCopyNamedBufferSubDataVCL(rb, wb, ro, wo, size)        [&] { BufferBindPoint read_bind_point(GL_COPY_READ_BUFFER, rb); BufferBindPoint write_bind_point(GL_COPY_WRITE_BUFFER, wb); glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, ro, wo, size); }();
-#		define glClearNamedBufferDataVCL(buffer, ifmt, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferData(GL_ARRAY_BUFFER, ifmt, fmt, type, data); }();
-#		define glClearNamedBufferSubDataVCL(buffer, ifmt, offset, size, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferSubData(GL_ARRAY_BUFFER, ifmt, offset, size, fmt, type, data); }();
-#		define glGetNamedBufferSubDataVCL(buffer, offset, size, data)   [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glGetBufferSubData(GL_ARRAY_BUFFER, offset, size, data); }();
-#	endif
+// clang-format off
+#if defined(VCL_GL_ARB_direct_state_access)
+#	define glCreateBuffersVCL glCreateBuffers
+#	define glNamedBufferStorageVCL glNamedBufferStorage
+#	define glMapNamedBufferRangeVCL glMapNamedBufferRange
+#	define glUnmapNamedBufferVCL glUnmapNamedBuffer
+#	define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRange
+#	define glCopyNamedBufferSubDataVCL glCopyNamedBufferSubData
+#	define glClearNamedBufferDataVCL glClearNamedBufferData
+#	define glClearNamedBufferSubDataVCL glClearNamedBufferSubData
+#	define glGetNamedBufferSubDataVCL glGetNamedBufferSubData
+#elif defined(VCL_GL_EXT_direct_state_access)
+#	define glCreateBuffersVCL glGenBuffers
+#	define glNamedBufferStorageVCL glNamedBufferStorageEXT
+#	define glMapNamedBufferRangeVCL glMapNamedBufferRangeEXT
+#	define glUnmapNamedBufferVCL glUnmapNamedBufferEXT
+#	define glFlushMappedNamedBufferRangeVCL glFlushMappedNamedBufferRangeEXT
+#	define glCopyNamedBufferSubDataVCL glNamedCopyBufferSubDataEXT
+#	define glClearNamedBufferDataVCL glClearNamedBufferDataEXT
+#	define glClearNamedBufferSubDataVCL glClearNamedBufferSubDataEXT
+#	define glGetNamedBufferSubDataVCL glGetNamedBufferSubDataEXT
+#else
+#	define glCreateBuffersVCL glGenBuffers
+#	define glNamedBufferStorageVCL(buffer, size, data, flags)       [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glBufferStorage(GL_ARRAY_BUFFER, size, data, flags); }();
+#	define glMapNamedBufferRangeVCL(buffer, offset, length, access) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access); }();
+#	define glUnmapNamedBufferVCL(buffer)                            [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); return glUnmapBuffer(GL_ARRAY_BUFFER); }();
+#	define glFlushMappedNamedBufferRangeVCL(buffer, offset, length) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length); }();
+#	define glCopyNamedBufferSubDataVCL(rb, wb, ro, wo, size)        [&] { BufferBindPoint read_bind_point(GL_COPY_READ_BUFFER, rb); BufferBindPoint write_bind_point(GL_COPY_WRITE_BUFFER, wb); glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, ro, wo, size); }();
+#	define glClearNamedBufferDataVCL(buffer, ifmt, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferData(GL_ARRAY_BUFFER, ifmt, fmt, type, data); }();
+#	define glClearNamedBufferSubDataVCL(buffer, ifmt, offset, size, fmt, type, data) [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glClearBufferSubData(GL_ARRAY_BUFFER, ifmt, offset, size, fmt, type, data); }();
+#	define glGetNamedBufferSubDataVCL(buffer, offset, size, data)   [&] { BufferBindPoint bind_point(GL_ARRAY_BUFFER, buffer); glGetBufferSubData(GL_ARRAY_BUFFER, offset, size, data); }();
+#endif
+// clang-format on
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	void flushBufferRange(Runtime::Buffer& buffer, size_t offset, size_t size)
@@ -303,4 +303,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		glCopyNamedBufferSubDataVCL(_glId, target.id(), srcOffset, dstOffset, size);
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT
