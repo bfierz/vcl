@@ -55,16 +55,20 @@ namespace Vcl { namespace Core
 			Node(const Eigen::AlignedBox3f& box)
 			: Box{ box }
 			{
-				Children.assign(-1);
+				ChildrenMarkers = 0;
+				Children.fill(-1);
 			}
 
 			//! Check if this node is a leaf-node
 			//! \returns True if the node is a leaf-node
-			bool isLeaf() const { return Children[0] == -1; }
+			bool isLeaf() const { return ChildrenMarkers == 0; }
 
 			//! Aligned bounding box of the node
 			const Eigen::AlignedBox3f Box;
-			
+
+			//! Fill indicator
+			uint32_t ChildrenMarkers;
+
 			//! Pointers to child octants
 			std::array<int, 8> Children;
 
@@ -98,9 +102,11 @@ namespace Vcl { namespace Core
 		{
 			// Delete old tree
 			_nodes.clear();
+			_points.clear();
 
 			// Allocate new top-level node
-			_topNode.Children.assign(-1);
+			_topNode.ChildrenMarkers = 0;
+			_topNode.Children.fill(-1);
 		}
 
 		void assign(const std::vector<Eigen::Vector3f>& points)
@@ -122,6 +128,9 @@ namespace Vcl { namespace Core
 			// Lower corner
 			const Eigen::Vector3f lower = _topNode.Box.min();
 
+			// Copy points to internal state
+			_points = points;
+
 			// Prepare the morton codes
 			std::vector<std::pair<uint64_t, int>> codes;
 			codes.reserve(points.size() + 1);
@@ -133,16 +142,14 @@ namespace Vcl { namespace Core
 			// Insert decodeable end-token
 			codes.emplace_back(std::make_pair(Util::MortonCode::encode(0x1fffff, 0x1fffff, 0x1fffff), -1));
 
-			_points = points;
-
 			std::sort(codes.begin(), codes.end(), [](const std::pair<uint64_t, int>& a, const std::pair<uint64_t, int>& b)
 			{
 				return a.first < b.first;
 			});
 
 			// Determine first split node
-			uint64_t top = codes.back().first;
-			int level = (msbIdx(top) / 3);
+			uint64_t top = (codes.rbegin() + 1)->first;
+			int level = std::max((msbIdx(top) / 3) - 1, 0);
 
 			// Start building the tree
 			split(_topNode, codes.begin(), codes.end() - 1, level, points);
@@ -176,6 +183,24 @@ namespace Vcl { namespace Core
 			const auto validator = [search_box](const Eigen::Vector3f& p) { return search_box.contains(p); };
 			find(0, _topNode, search_box, validator, enclosed_points);
 			return enclosed_points.size();
+		}
+
+		std::vector<Eigen::AlignedBox3f> collectFullBoundingBoxes() const
+		{
+			std::vector<Eigen::AlignedBox3f> bbs;
+			bbs.reserve(1 + _nodes.size());
+
+			if (_topNode.isLeaf())
+				return bbs;
+
+			bbs.emplace_back(_topNode.Box);
+			for (const auto& node : _nodes)
+			{
+				if (!node.isLeaf() || !node.Data.empty())
+					bbs.emplace_back(node.Box);
+			}
+
+			return bbs;
 		}
 
 	private:
@@ -239,8 +264,8 @@ namespace Vcl { namespace Core
 					}
 				}
 
-				_nodes.emplace_back(new_box);
-				auto& new_node = _nodes.back();
+				auto& new_node = _nodes.emplace_back(new_box);
+				n.ChildrenMarkers |= 1 << i;
 				n.Children[i] = _nodes.size() - 1;
 
 				split(new_node, octants[i].first, octants[i].second, level - 1, points);
