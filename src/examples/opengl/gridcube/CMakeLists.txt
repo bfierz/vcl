@@ -90,6 +90,7 @@ vclcompileglsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
 
 add_executable(opengl_gridcube "")
+target_compile_definitions(opengl_gridcube PRIVATE IMGUI_DISABLE_DEMO_WINDOWS)
 set_target_properties(opengl_gridcube PROPERTIES FOLDER examples/opengl)
 vcl_target_sources(opengl_gridcube "../../3rdparty" ${IMGUI})
 vcl_target_sources(opengl_gridcube ".." ${COMMON})
