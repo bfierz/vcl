@@ -26,6 +26,7 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
 // C++ standard library
 #include <memory>
@@ -35,6 +36,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 #include <vcl/graphics/runtime/resource/texture.h>
+#include <vcl/graphics/runtime/state/common.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 
@@ -154,34 +156,40 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual void enqueueCommand(std::function<void(void)>) = 0;
 
 	public: // Resource management
-		void setRenderTargets(std::initializer_list<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target)
+		[[deprecated]] void setRenderTargets(std::initializer_list<ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target)
 		{
 			setRenderTargets(stdext::span<const ref_ptr<Texture>>(colour_targets.begin(), colour_targets.size()), depth_target);
 		}
 
-		virtual void setRenderTargets(stdext::span<const ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
+		[[deprecated]] virtual void setRenderTargets(stdext::span<const ref_ptr<Texture>> colour_targets, ref_ptr<Texture> depth_target) = 0;
 
 		virtual void setConstantBuffer(int idx, BufferView buffer) = 0;
+		virtual void setIndexBuffer(const Buffer& buffer) = 0;
 		virtual void setVertexBuffer(int idx, const Buffer& buffer, int offset, int stride) = 0;
 		virtual void setSampler(int idx, const Runtime::Sampler& sampler) = 0;
 		virtual void setSamplers(int idx, stdext::span<const ref_ptr<Sampler>> samplers) = 0;
 		virtual void setTexture(int idx, const Runtime::Texture& texture) = 0;
 		virtual void setTextures(int idx, stdext::span<const ref_ptr<Texture>> textures) = 0;
 		
-		virtual void pushConstants(void* data, size_t size) = 0;
+		[[deprecated]] virtual void pushConstants(void* data, size_t size) = 0;
 
 	public:
 		//! \defgroup FramebufferCommands Framebuffer commands
 		//! \{
-		virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
-		virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
-		virtual void clear(int idx, const Eigen::Vector4ui& colour) = 0;
-		virtual void clear(float depth, int stencil) = 0;
-		virtual void clear(float depth) = 0;
-		virtual void clear(int stencil) = 0;
+		[[deprecated]] virtual void clear(int idx, const Eigen::Vector4f& colour) = 0;
+		[[deprecated]] virtual void clear(int idx, const Eigen::Vector4i& colour) = 0;
+		[[deprecated]] virtual void clear(int idx, const Eigen::Vector4ui& colour) = 0;
+		[[deprecated]] virtual void clear(float depth, int stencil) = 0;
+		[[deprecated]] virtual void clear(float depth) = 0;
+		[[deprecated]] virtual void clear(int stencil) = 0;
 		//! \}
 
 	public: // Command buffer operations
+		//! Begin a new render pass with new render-targets
+		virtual void beginRenderPass(const RenderPassDescription& pass_desc) = 0;
+		//! End the current render pass
+		virtual void endRenderPass() = 0;
+
 		//! Set a new pipeline state
 		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
 		

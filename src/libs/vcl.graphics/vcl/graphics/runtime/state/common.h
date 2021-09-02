@@ -33,6 +33,10 @@
 // Abseil
 #include <absl/container/inlined_vector.h>
 
+//  VCL
+#include <vcl/core/memory/smart_ptr.h>
+#include <vcl/graphics/runtime/resource/texture.h>
+
 namespace Vcl { namespace Graphics { namespace Runtime
 {
 	enum class ComparisonFunction
@@ -60,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct RenderTargetAttachmentDescription
 	{
-		void* Attachment = nullptr;
+		union { void* Attachment = nullptr; Core::ref_ptr<Texture> View; };
 		AttachmentLoadOp LoadOp = AttachmentLoadOp::DontCare;
 		AttachmentStoreOp StoreOp = AttachmentStoreOp::Store;
 		std::array<float, 4> ClearColor = { 0, 0, 0, 0 };
@@ -68,7 +72,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct DepthStencilAttachmentTargetDescription
 	{
-		void* Attachment = nullptr;
+		union { void* Attachment = nullptr; Core::ref_ptr<Texture> View; };
 		AttachmentLoadOp DepthLoadOp = AttachmentLoadOp::DontCare;
 		AttachmentStoreOp DepthStoreOp = AttachmentStoreOp::Store;
 		float ClearDepth = 1.0f;

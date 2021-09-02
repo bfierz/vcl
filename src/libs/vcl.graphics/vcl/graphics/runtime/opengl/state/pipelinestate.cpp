@@ -28,6 +28,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 {
 	PipelineState::PipelineState(const PipelineStateDescription& desc)
 	: _inputLayout(desc.InputLayout)
+	, _inputAssembly(desc.InputAssembly)
 	, _blendState(desc.Blend)
 	, _depthStencilState(desc.DepthStencil)
 	, _rasterizerState(desc.Rasterizer)
