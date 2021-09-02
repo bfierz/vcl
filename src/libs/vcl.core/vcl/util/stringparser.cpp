@@ -114,7 +114,7 @@ namespace Vcl { namespace Util
 
 	void StringParser::skipWhiteSpace()
 	{
-		while (_bufferReadPtr < _currentBuffer + _currentSizeAvailable && (*_bufferReadPtr) <= ' ')
+		while (_bufferReadPtr < _currentBuffer + _currentSizeAvailable && (*_bufferReadPtr) <= ' ' && (*_bufferReadPtr) != '\n')
 		{
 			++_bufferReadPtr;
 		}

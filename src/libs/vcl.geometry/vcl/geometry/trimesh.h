@@ -143,9 +143,23 @@ namespace Vcl { namespace Geometry
 
 		//! Access generic vertex properties
 		template<typename T>
+		ConstPropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> vertexProperty(const std::string& name) const
+		{
+			return vertexProperties().property<T>(name);
+		}
+
+		//! Access generic vertex properties
+		template<typename T>
 		PropertyPtr<T, IndexDescriptionTrait<TriMesh>::VertexId> vertexProperty(const std::string& name)
 		{
 			return vertexProperties().property<T>(name);
+		}
+
+		//! Access generic face properties
+		template<typename T>
+		ConstPropertyPtr<T, IndexDescriptionTrait<TriMesh>::FaceId> faceProperty(const std::string& name) const
+		{
+			return faceProperties().property<T>(name);
 		}
 
 		//! Access generic face properties

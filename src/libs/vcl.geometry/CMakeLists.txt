@@ -35,8 +35,13 @@ set(SOURCE
 	
 	vcl/geometry/io/tetramesh_serialiser.cpp
 	vcl/geometry/io/tetramesh_serialiser.h	
+	vcl/geometry/io/trimesh_serialiser.cpp
+	vcl/geometry/io/trimesh_serialiser.h
+
 	vcl/geometry/io/serialiser_nvidia_tet_file.cpp
 	vcl/geometry/io/serialiser_nvidia_tet_file.h
+	vcl/geometry/io/serialiser_obj.cpp
+	vcl/geometry/io/serialiser_obj.h
 	vcl/geometry/io/serialiser_tetgen.cpp
 	vcl/geometry/io/serialiser_tetgen.h
 
