@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2021 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#version 450 core
+#extension GL_GOOGLE_include_directive : enable
 
-#include "app.h"
+#include "boundingbox.h"
 
-// IMGUI
-#include "imgui.h"
+// Positions of unit bounding box
+layout(location = 0) in vec3 Position;
 
-class ImGuiApplication : public Application
+// Per-instance minimum of bounding box
+layout(location = 1) in vec3 Min;
+// Per-instance maximum of bounding box
+layout(location = 2) in vec3 Max;
+
+layout(location = 0) out VertexData
 {
-public:
-	ImGuiApplication(const char* title);
-	virtual ~ImGuiApplication();
+	// View-space position
+	vec3 Position;
 
-protected:
-	void updateFrame() override;
-	void renderFrame(Vcl::Graphics::Runtime::GraphicsEngine& engine) override;
-};
+	// Object colour
+	vec4 Colour;
+
+} Out;
+
+void main()
+{
+	vec3 scale = Max - Min;
+
+	mat4 modelView = ViewMatrix * ModelMatrix;
+	vec4 posVS = modelView * vec4(Min + scale * Position, 1);
+	Out.Position = posVS.xyz;
+	Out.Colour = Colour;
+
+	gl_Position = ProjectionMatrix * posVS;
+}

@@ -30,12 +30,20 @@
 #include <stdexcept>
 
 // VCL
+#include <vcl/graphics/opengl/context.h>
+#include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
 const int Application::NumberOfFrames = 3;
 
 static void printGlfwError(int error, const char* description)
 {
 	fprintf(stdout, "Glfw Error %d: %s\n", error, description);
+}
+
+static void resizeGlfwWindow(GLFWwindow* window, int width, int height)
+{
+	auto app = static_cast<Application*>(glfwGetWindowUserPointer(window));
+	app->resize(width, height);
 }
 
 Application::Application(const char* title)
@@ -52,6 +60,7 @@ Application::Application(const char* title)
 		throw std::runtime_error("Could not initialize GLFW window");
 
 	glfwSetWindowUserPointer(_windowHandle, this);
+	glfwSetWindowSizeCallback(_windowHandle, resizeGlfwWindow);
 	//glfwSetMouseButtonCallback(_windowHandle, onMouseButton);
 	//glfwSetCursorPosCallback(_windowHandle, onMouseMove);
 
@@ -59,7 +68,10 @@ Application::Application(const char* title)
 	glfwSwapInterval(1); // Enable V-Sync
 
 	// Setup OpenGL environment
-	glewInit();
+	Vcl::Graphics::OpenGL::Context::initExtensions();
+	Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
+
+	_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 }
 
 Application::~Application()
@@ -78,7 +90,9 @@ int Application::run()
 
 		glfwMakeContextCurrent(windowHandle());
 
-		renderFrame();
+		_engine->beginFrame();
+		renderFrame(*_engine);
+		_engine->endFrame();
 
 		glfwMakeContextCurrent(windowHandle());
 		glfwSwapBuffers(windowHandle());

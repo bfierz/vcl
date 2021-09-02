@@ -35,9 +35,11 @@
 #include <GLFW/glfw3.h>
 
 // VCL
+#include <vcl/graphics/runtime/graphicsengine.h>
 
 class Application
 {
+	friend void resizeGlfwWindow(GLFWwindow* window, int width, int height);
 public:
 	Application(const char* title);
 	virtual ~Application();
@@ -47,8 +49,9 @@ public:
 	int run();
 
 protected:
+	virtual void resize(int width, int height) {}
 	virtual void updateFrame() {}
-	virtual void renderFrame() {}
+	virtual void renderFrame(Vcl::Graphics::Runtime::GraphicsEngine& engine) {}
 
 	//! Number of frames in the swap-queue
 	static const int NumberOfFrames;
@@ -56,4 +59,8 @@ protected:
 private:
 	//! Handle to the GLFW window
 	GLFWwindow* _windowHandle{ nullptr };
+
+	//! OpenGL engine
+	std::unique_ptr<Vcl::Graphics::Runtime::GraphicsEngine> _engine;
+
 };

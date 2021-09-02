@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2021 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#version 450 core
+#extension GL_GOOGLE_include_directive : enable
 
-#include "app.h"
-
-// IMGUI
-#include "imgui.h"
-
-class ImGuiApplication : public Application
+// Input data from last stage
+layout(location = 0) in VertexData
 {
-public:
-	ImGuiApplication(const char* title);
-	virtual ~ImGuiApplication();
+	vec3 Position;
+	vec4 Colour;
+} In;
 
-protected:
-	void updateFrame() override;
-	void renderFrame(Vcl::Graphics::Runtime::GraphicsEngine& engine) override;
-};
+// Output data
+layout(location = 0) out vec4 FragColour;
+
+void main(void)
+{
+	FragColour = In.Colour;
+}

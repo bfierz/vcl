@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2016 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#ifndef VCL_GLSL_3D_SCENE_BINDINGS
+#define VCL_GLSL_3D_SCENE_BINDINGS
 
-#include "app.h"
+#include <vcl/graphics/opengl/glsl/uniformbuffer.h>
 
-// IMGUI
-#include "imgui.h"
+// Define common locations
+#define PER_FRAME_CAMERA_DATA_LOC 0
+#define PER_FRAME_LIGHT_DATA_LOC 1
+#define VCL_GLSL_PREDEFIND_UNIFORM_BUFFERS 2
 
-class ImGuiApplication : public Application
+// Define common buffers
+UNIFORM_BUFFER(PER_FRAME_CAMERA_DATA_LOC) PerFrameCameraData
 {
-public:
-	ImGuiApplication(const char* title);
-	virtual ~ImGuiApplication();
+	// Viewport (x, y, w, h)
+	vec4 Viewport;
 
-protected:
-	void updateFrame() override;
-	void renderFrame(Vcl::Graphics::Runtime::GraphicsEngine& engine) override;
+	// Frustum (tan(fov / 2), aspect_ratio, near, far)
+	vec4 Frustum;
+
+	// Transform from world to view space
+	mat4 ViewMatrix;
+
+	// Transform from view to screen space
+	mat4 ProjectionMatrix;
 };
+
+struct HemisphereLight
+{
+	// Colour of the sky
+	vec3 SkyColour;
+
+	// Colour of the ground
+	vec3 GroundColor;
+
+	// Main direction of the light
+	vec3 Direction;
+};
+
+UNIFORM_BUFFER(PER_FRAME_LIGHT_DATA_LOC) PerFrameLightData
+{
+	HemisphereLight HemiLight;
+};
+
+#endif // VCL_GLSL_3D_SCENE_BINDINGS

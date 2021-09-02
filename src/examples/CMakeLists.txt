@@ -23,6 +23,7 @@ endif()
 if(VCL_OPENGL_SUPPORT)
 	add_subdirectory(meshviewer)
 	add_subdirectory(opengl)
+	add_subdirectory(spatial_accelleration_structures)
 endif()
 
 if(OPENCL_FOUND AND VCL_OPENCL_SUPPORT)

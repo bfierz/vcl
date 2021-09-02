@@ -79,7 +79,7 @@ void ImGuiApplication::updateFrame()
 	ImGui::NewFrame();
 }
 
-void ImGuiApplication::renderFrame()
+void ImGuiApplication::renderFrame(Vcl::Graphics::Runtime::GraphicsEngine&)
 {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

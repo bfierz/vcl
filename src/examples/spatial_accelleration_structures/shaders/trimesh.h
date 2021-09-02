@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2021 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#pragma once
+#ifndef VCL_GLSL_TRIMESH_BINDINGS
+#define VCL_GLSL_TRIMESH_BINDINGS
 
-#include "app.h"
+#include "../../opengl/common/shaders/3DSceneBindings.h"
 
-// IMGUI
-#include "imgui.h"
+#define VCL_GLSL_TRIMESH_PER_OBJECT_DATA_LOC VCL_GLSL_PREDEFIND_UNIFORM_BUFFERS
 
-class ImGuiApplication : public Application
+UNIFORM_BUFFER(VCL_GLSL_TRIMESH_PER_OBJECT_DATA_LOC) TriMeshPerObjectData
 {
-public:
-	ImGuiApplication(const char* title);
-	virtual ~ImGuiApplication();
-
-protected:
-	void updateFrame() override;
-	void renderFrame(Vcl::Graphics::Runtime::GraphicsEngine& engine) override;
+	// Transform from object to world space
+	mat4 ModelMatrix;
 };
+
+#endif // VCL_GLSL_TRIMESH_BINDINGS
