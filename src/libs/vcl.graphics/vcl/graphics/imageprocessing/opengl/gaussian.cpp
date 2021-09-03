@@ -28,7 +28,7 @@
 #include <vcl/core/contract.h>
 
 // Local
-#include "GaussianBlur.h"
+#include "3rdparty/GaussianBlur.h"
 
 namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Gaussian::Gaussian(ImageProcessor* processor)

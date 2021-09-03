@@ -30,7 +30,7 @@
 
 // VCL
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 
 const int Application::NumberOfFrames = 3;
 

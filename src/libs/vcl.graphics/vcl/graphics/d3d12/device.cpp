@@ -32,8 +32,8 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12 {
 	using namespace Microsoft::WRL;

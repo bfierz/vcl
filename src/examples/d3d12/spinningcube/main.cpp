@@ -29,8 +29,8 @@
 #include <Eigen/Geometry>
 
 // VCL
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
 #include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/d3d12/swapchain.h>

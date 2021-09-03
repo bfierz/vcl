@@ -44,7 +44,7 @@ set(VCL_CONFIG_INC
 )
 
 set(SOURCE_OPENGL
-	vcl/graphics/imageprocessing/opengl/GaussianBlur.h
+	vcl/graphics/imageprocessing/opengl/3rdparty/GaussianBlur.h
 	vcl/graphics/imageprocessing/opengl/conversion.cpp
 	vcl/graphics/imageprocessing/opengl/conversion.h
 	vcl/graphics/imageprocessing/opengl/gaussian.cpp
