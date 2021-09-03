@@ -83,7 +83,7 @@ namespace Vcl { namespace Util
 	{
 		return Details::calculateFnv1a64(str, length, fnv1a_64_offset);
 	}
-#endif
+#elif VCL_HAS_CPP_CONSTEXPR_14
 
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint32_t calculateFnv1a32(const char* str) noexcept
 	{
@@ -136,6 +136,7 @@ namespace Vcl { namespace Util
 
 		return hash;
 	}
+#endif
 
 	template <unsigned int N, unsigned int I>
 	struct FnvHash
