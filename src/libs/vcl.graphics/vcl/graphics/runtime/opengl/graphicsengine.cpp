@@ -512,20 +512,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			if (pass_desc.RenderTargetAttachments[i].LoadOp == AttachmentLoadOp::Clear)
 			{
 				const auto& colour = pass_desc.RenderTargetAttachments[i].ClearColor;
-				clear(i, Eigen::Vector4f{colour[0], colour[1], colour[2], colour[3]});
+				clear(i, Eigen::Vector4f{ colour[0], colour[1], colour[2], colour[3] });
 			}
 		}
 		if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear && pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
 		{
 			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth, pass_desc.DepthStencilTargetAttachment.ClearStencil);
-		}
-		else if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear)
+		} else if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear)
 		{
 			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth);
-		}
-		else if (pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
+		} else if (pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
 		{
-			clear((int) pass_desc.DepthStencilTargetAttachment.ClearStencil);
+			clear((int)pass_desc.DepthStencilTargetAttachment.ClearStencil);
 		}
 	}
 	void GraphicsEngine::endRenderPass()

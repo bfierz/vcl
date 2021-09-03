@@ -94,8 +94,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		{
 			webgpu_desc.stencilFront = toWebGPU(desc.FrontFace);
 			webgpu_desc.stencilBack = toWebGPU(desc.BackFace);
-		}
-		else
+		} else
 		{
 			// clang-format off
 			webgpu_desc.stencilBack.compare      = WGPUCompareFunction_Always;

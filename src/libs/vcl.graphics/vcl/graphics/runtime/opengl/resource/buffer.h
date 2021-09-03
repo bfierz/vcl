@@ -37,7 +37,6 @@
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
-
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	// clang-format off

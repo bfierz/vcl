@@ -92,7 +92,7 @@ namespace Vcl { namespace Util {
 			hash ^= uint32_t(*str++);
 			hash *= 0x01000193;
 		}
- 
+
 		return hash;
 	}
 

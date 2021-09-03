@@ -70,11 +70,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	const GLenum RenderTypeTrait<void>::InternalFormat = GL_NONE;
 	const GLenum RenderTypeTrait<void>::Format = GL_NONE;
 	const GLenum RenderTypeTrait<void>::ComponentType = GL_NONE;
-	const GLint  RenderTypeTrait<void>::ComponentSize = 1;
-	const GLint  RenderTypeTrait<void>::NrComponents = 1;
-	const GLint  RenderTypeTrait<void>::Size = 1;
-	const bool   RenderTypeTrait<void>::IsIntegral = false;
-	
+	const GLint RenderTypeTrait<void>::ComponentSize = 1;
+	const GLint RenderTypeTrait<void>::NrComponents = 1;
+	const GLint RenderTypeTrait<void>::Size = 1;
+	const bool RenderTypeTrait<void>::IsIntegral = false;
+
+	// clang-format off
 	VCL_GRAPHICS_RTT(float,           GL_R32F,    GL_RED,  GL_FLOAT, 1, false);
 	VCL_GRAPHICS_RTT(Eigen::Vector2f, GL_RG32F,   GL_RG,   GL_FLOAT, 2, false);
 	VCL_GRAPHICS_RTT(Eigen::Vector3f, GL_RGB32F,  GL_RGB,  GL_FLOAT, 3, false);
@@ -149,4 +150,5 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	VCL_GRAPHICS_RTT(NormalizedUnsignedByte2, GL_RG8UI,   GL_RG,   GL_UNSIGNED_BYTE, 2, false);
 	VCL_GRAPHICS_RTT(NormalizedUnsignedByte3, GL_RGB8UI,  GL_RGB,  GL_UNSIGNED_BYTE, 3, false);
 	VCL_GRAPHICS_RTT(NormalizedUnsignedByte4, GL_RGBA8UI, GL_RGBA, GL_UNSIGNED_BYTE, 4, false);
+	// clang-format on
 }}}

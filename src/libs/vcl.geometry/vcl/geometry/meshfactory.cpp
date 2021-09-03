@@ -292,7 +292,7 @@ namespace Vcl { namespace Geometry {
 		auto mesh = std::make_unique<TriMesh>(positions, faces);
 
 		// Create the normals
-		Eigen::Vector3f center{0.5f, 0.5f, 0.5f};
+		Eigen::Vector3f center{ 0.5f, 0.5f, 0.5f };
 		auto normals = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
 		for (unsigned int i = 0; i < static_cast<unsigned int>(positions.size()); ++i)
 			normals[i] = (positions[i] - center).normalized();

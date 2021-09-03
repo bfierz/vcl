@@ -276,8 +276,7 @@ std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::v
 	CXIndex index = clang_createIndex(0, 1);
 
 	// Parse a single translation unit
-	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, nullptr, parser_params.data(), static_cast<int>(parser_params.size()), 0, 0,
-		CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_Incomplete | CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_KeepGoing | CXTranslationUnit_IncludeAttributedTypes | CXTranslationUnit_VisitImplicitAttributes);
+	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, nullptr, parser_params.data(), static_cast<int>(parser_params.size()), 0, 0, CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_Incomplete | CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_KeepGoing | CXTranslationUnit_IncludeAttributedTypes | CXTranslationUnit_VisitImplicitAttributes);
 
 	// Traverse AST and collect types
 	TraversalCtx type_ctx;

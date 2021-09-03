@@ -68,8 +68,9 @@ namespace Vcl { namespace Core {
 		explicit ObjectTraits() noexcept = default;
 
 		//! Conversion constructor
-		template <typename U>
-		explicit ObjectTraits(ObjectTraits<U> const&) {}
+		template<typename U>
+		explicit ObjectTraits(ObjectTraits<U> const&)
+		{}
 
 		//! Compute address of an object
 		T* address(T& r) { return std::addressof(r); }
@@ -81,7 +82,7 @@ namespace Vcl { namespace Core {
 		template<typename U, typename... Args>
 		void construct(U* p, Args&&... args)
 		{
-			::new(static_cast<void*>(p)) U(std::forward<Args>(args)...);
+			::new (static_cast<void*>(p)) U(std::forward<Args>(args)...);
 		}
 
 		//! Call the destructor of p of type U
@@ -93,7 +94,7 @@ namespace Vcl { namespace Core {
 			p->~U();
 		}
 	};
-	
+
 	//! Object trait avoiding initialization of objects
 	template<typename T>
 	class NoInitObjectTraits
@@ -115,8 +116,9 @@ namespace Vcl { namespace Core {
 		explicit NoInitObjectTraits() noexcept = default;
 
 		//! Conversion constructor
-		template <typename U>
-		explicit NoInitObjectTraits(NoInitObjectTraits<U> const&) {}
+		template<typename U>
+		explicit NoInitObjectTraits(NoInitObjectTraits<U> const&)
+		{}
 
 		//! Compute address of an object
 		T* address(T& r) { return std::addressof(r); }
@@ -129,7 +131,7 @@ namespace Vcl { namespace Core {
 		void construct(U* p, Args&&...)
 		{
 			// Omit the '()' to avoid initialization of the objects
-			::new(static_cast<void*>(p)) U;
+			::new (static_cast<void*>(p)) U;
 		}
 
 		//! Provide the object destruction interface
@@ -163,8 +165,9 @@ namespace Vcl { namespace Core {
 	public:
 		explicit StandardAllocPolicy() noexcept = default;
 		explicit StandardAllocPolicy(StandardAllocPolicy const&) noexcept = default;
-		template <typename U>
-		explicit StandardAllocPolicy(StandardAllocPolicy<U> const&) {}
+		template<typename U>
+		explicit StandardAllocPolicy(StandardAllocPolicy<U> const&)
+		{}
 
 	public: // Memory allocation
 		pointer allocate(size_type cnt, const_pointer = nullptr)
@@ -220,8 +223,9 @@ namespace Vcl { namespace Core {
 	public:
 		explicit AlignedAllocPolicy() noexcept = default;
 		explicit AlignedAllocPolicy(AlignedAllocPolicy const&) noexcept = default;
-		template <typename U, int AlignmentRhs>
-		explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&) {}
+		template<typename U, int AlignmentRhs>
+		explicit AlignedAllocPolicy(AlignedAllocPolicy<U, AlignmentRhs> const&)
+		{}
 
 	public: // Memory allocation
 		pointer allocate(size_type cnt, const_pointer = nullptr)
@@ -281,7 +285,7 @@ namespace Vcl { namespace Core {
 		using value_type = typename AllocationPolicy::value_type;
 
 	public:
-		template <typename U>
+		template<typename U>
 		struct rebind
 		{
 			using other = Allocator<U, typename AllocationPolicy::template rebind<U>::other, typename TTraits::template rebind<U>::other>;
@@ -289,9 +293,12 @@ namespace Vcl { namespace Core {
 
 	public:
 		explicit Allocator() noexcept = default;
-		Allocator(Allocator const& rhs) noexcept : Policy(rhs), Traits(rhs) {}
-		template <typename U, typename P, typename T2>
-		Allocator(Allocator<U, P, T2> const& rhs) : Policy(rhs), Traits(rhs) {}
+		Allocator(Allocator const& rhs) noexcept
+		: Policy(rhs), Traits(rhs) {}
+		template<typename U, typename P, typename T2>
+		Allocator(Allocator<U, P, T2> const& rhs)
+		: Policy(rhs), Traits(rhs)
+		{}
 	};
 
 	/*

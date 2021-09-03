@@ -116,8 +116,7 @@ TEST(OpenGL, IndependentBlendingCmds)
 
 		cmds.bind();
 		EXPECT_TRUE(state.validate()) << "State is not valid";
-	}
-	else
+	} else
 	{
 		std::cout << "Independent blending is not supported on this platform!" << std::endl;
 	}
@@ -164,8 +163,7 @@ TEST(OpenGL, AdvancedBlendOpCmds)
 
 		cmds.bind();
 		EXPECT_TRUE(state.validate()) << "State is not valid";
-	}
-	else
+	} else
 	{
 		std::cout << "Advanced blend operations are not supported on this platform!" << std::endl;
 	}

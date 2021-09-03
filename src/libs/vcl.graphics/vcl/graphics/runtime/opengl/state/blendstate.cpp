@@ -155,8 +155,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		if (desc().AlphaToCoverageEnable)
 		{
 			states.emplace(CommandType::Enable, GL_SAMPLE_ALPHA_TO_COVERAGE);
-		}
-		else
+		} else
 		{
 			states.emplace(CommandType::Disable, GL_SAMPLE_ALPHA_TO_COVERAGE);
 		}
@@ -167,8 +166,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			states.emplace(CommandType::Disable, GL_BLEND);
 			states.emplace(CommandType::Enable, GL_COLOR_LOGIC_OP);
 			states.emplace(CommandType::LogicOp, toGLenum(desc().LogicOp));
-		}
-		else
+		} else
 		{
 			states.emplace(CommandType::Disable, GL_COLOR_LOGIC_OP);
 		}
@@ -194,8 +192,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				states.emplace(CommandType::Enable, GL_BLEND);
 				states.emplace(CommandType::BlendFunc, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 				states.emplace(CommandType::BlendEquation, toGLenum(rt.BlendOp));
-			}
-			else
+			} else
 			{
 				states.emplace(CommandType::Disable, GL_BLEND);
 			}
@@ -220,8 +217,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 					states.emplace(CommandType::Enablei, GL_BLEND, i);
 					states.emplace(CommandType::BlendFunci, i, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 					states.emplace(CommandType::BlendEquationi, i, toGLenum(rt.BlendOp));
-				}
-				else
+				} else
 				{
 					states.emplace(CommandType::Disablei, GL_BLEND, i);
 				}

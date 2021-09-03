@@ -142,7 +142,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		default: VclDebugError("Unsupported colour format.");
 		}
 		// clang-format on
-		
+
 		return webgpu_format;
 	}
 
