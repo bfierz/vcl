@@ -30,6 +30,7 @@
 // VCL
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
+#include <vcl/util/hashedstring.h>
 
 #ifdef VCL_OPENGL_SUPPORT
 
@@ -53,6 +54,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(implies(desc.RenderTarget[5].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
 		VclRequire(implies(desc.RenderTarget[6].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
 		VclRequire(implies(desc.RenderTarget[7].BlendOp >= BlendOperation::Multiply, glewIsSupported("GL_KHR_blend_equation_advanced")), "Advanced blending operations are supported.");
+
+		record(_cmds);
+		_hash = computeHash();
 	}
 
 	bool BlendState::isIndependentBlendingSupported()
@@ -61,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	}
 	bool BlendState::areAdvancedBlendOperationsSupported()
 	{
-		return glewIsSupported("GL_KHR_blend_equation_advanced") != 0;
+		return glewIsSupported("GL_KHR_blend_equation_advanced") == GL_TRUE;
 	}
 
 	void BlendState::bind()
@@ -164,12 +168,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			states.emplace(CommandType::Enable, GL_SAMPLE_ALPHA_TO_COVERAGE);
 		}
+		else
+		{
+			states.emplace(CommandType::Disable, GL_SAMPLE_ALPHA_TO_COVERAGE);
+		}
 
 		// Enable the logic operations if applicable
 		if (desc().LogicOpEnable && desc().RenderTarget[0].BlendEnable == false)
 		{
+			states.emplace(CommandType::Disable, GL_BLEND);
 			states.emplace(CommandType::Enable, GL_COLOR_LOGIC_OP);
 			states.emplace(CommandType::LogicOp, toGLenum(desc().LogicOp));
+		}
+		else
+		{
+			states.emplace(CommandType::Disable, GL_COLOR_LOGIC_OP);
 		}
 
 		if (desc().IndependentBlendEnable == false)
@@ -193,6 +206,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				states.emplace(CommandType::Enable, GL_BLEND);
 				states.emplace(CommandType::BlendFunc, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 				states.emplace(CommandType::BlendEquation, toGLenum(rt.BlendOp));
+			}
+			else
+			{
+				states.emplace(CommandType::Disable, GL_BLEND);
 			}
 
 			// Set write mask
@@ -219,6 +236,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 					states.emplace(CommandType::BlendFunci, i, toGLenum(rt.SrcBlend), toGLenum(rt.DestBlend));
 					states.emplace(CommandType::BlendEquationi, i, toGLenum(rt.BlendOp));
 				}
+				else
+				{
+					states.emplace(CommandType::Disablei, GL_BLEND, i);
+				}
 
 				// Set write mask
 				if (!rt.RenderTargetWriteMask.areAllSet())
@@ -238,7 +259,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 	}
 
-	bool BlendState::isValid() const
+	bool BlendState::validate() const
 	{
 		bool valid = true;
 
@@ -376,6 +397,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		}
 		
 		return true;
+	}
+
+	uint32_t BlendState::computeHash()
+	{
+		return Vcl::Util::calculateFnv1a32(reinterpret_cast<const char*>(_cmds.data().data()), _cmds.data().size() * sizeof(uint32_t));
 	}
 
 	GLenum BlendState::toGLenum(LogicOperation op)

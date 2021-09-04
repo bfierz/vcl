@@ -436,7 +436,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		auto& buffer = static_cast<const OpenGL::Buffer&>(view.owner());
 		glBindBufferRange(GL_UNIFORM_BUFFER, idx, buffer.id(), view.offset(), view.size());
 	}
-	
+
+	void GraphicsEngine::setIndexBuffer(const Runtime::Buffer& buffer)
+	{
+		auto& gl_buffer = static_cast<const OpenGL::Buffer&>(buffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_buffer.id());
+	}
+
 	void GraphicsEngine::setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride)
 	{
 		VclRequire(buffer.usage().isSet(BufferUsage::Vertex), "'buffer' points to a buffer configured as vertex buffer");
@@ -455,6 +461,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void GraphicsEngine::setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers)
 	{
+		std::vector<GLuint> gl_samplers(samplers.size());
+		std::transform(samplers.begin(), samplers.end(), gl_samplers.begin(), [](const auto& tex) { return static_cast<const OpenGL::Sampler*>(tex.get())->id(); });
+		glBindSamplers(idx, gl_samplers.size(), gl_samplers.data());
 	}
 
 	void GraphicsEngine::setTexture(int idx, const Runtime::Texture& texture)
@@ -467,6 +476,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void GraphicsEngine::setTextures(int idx, stdext::span<const ref_ptr<Runtime::Texture>> textures)
 	{
+		std::vector<GLuint> gl_textures(textures.size());
+		std::transform(textures.begin(), textures.end(), gl_textures.begin(), [](const auto& tex) { return static_cast<const OpenGL::Texture*>(tex.get())->id(); });
+		glBindTextures(idx, gl_textures.size(), gl_textures.data());
 	}
 
 	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
@@ -484,6 +496,41 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		memcpy(buffer.data(), data, size);
 
 		setConstantBuffer(_pushConstantBufferIndex, std::move(buffer));
+	}
+
+	void GraphicsEngine::beginRenderPass(const RenderPassDescription& pass_desc)
+	{
+		ref_ptr<Runtime::Texture> colours[8];
+		for (size_t i = 0; i < pass_desc.RenderTargetAttachments.size(); i++)
+		{
+			colours[i] = pass_desc.RenderTargetAttachments[i].View;
+		}
+
+		_currentFrame->setRenderTargets(stdext::make_span(colours, pass_desc.RenderTargetAttachments.size()), pass_desc.DepthStencilTargetAttachment.View);
+
+		for (size_t i = 0; i < pass_desc.RenderTargetAttachments.size(); i++)
+		{
+			if (pass_desc.RenderTargetAttachments[i].LoadOp == AttachmentLoadOp::Clear)
+			{
+				const auto& colour = pass_desc.RenderTargetAttachments[i].ClearColor;
+				clear(i, Eigen::Vector4f{colour[0], colour[1], colour[2], colour[3]});
+			}
+		}
+		if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear && pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
+		{
+			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth, pass_desc.DepthStencilTargetAttachment.ClearStencil);
+		}
+		else if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear)
+		{
+			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth);
+		}
+		else if (pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
+		{
+			clear((int) pass_desc.DepthStencilTargetAttachment.ClearStencil);
+		}
+	}
+	void GraphicsEngine::endRenderPass()
+	{
 	}
 	
 	void GraphicsEngine::clear(int idx, const Eigen::Vector4f& colour)

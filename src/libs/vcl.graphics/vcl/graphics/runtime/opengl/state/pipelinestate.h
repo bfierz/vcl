@@ -57,6 +57,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private:
 		InputLayout _inputLayout;
+		InputAssemblyDescription _inputAssembly;
 		std::unique_ptr<ShaderProgram> _shaderProgram;
 
 		BlendState _blendState;

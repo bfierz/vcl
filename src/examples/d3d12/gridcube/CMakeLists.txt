@@ -93,6 +93,7 @@ vclcompilehlsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
 
 add_executable(d3d12_gridcube "")
+target_compile_definitions(d3d12_gridcube PRIVATE IMGUI_DISABLE_DEMO_WINDOWS)
 set_target_properties(d3d12_gridcube PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_gridcube "../../3rdparty" ${IMGUI})
 vcl_target_sources(d3d12_gridcube ".." ${COMMON})

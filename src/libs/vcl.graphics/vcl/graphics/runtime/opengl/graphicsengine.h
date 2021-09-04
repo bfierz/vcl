@@ -202,9 +202,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Expose method from parent class
 		using Runtime::GraphicsEngine::setRenderTargets;
 
-		void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		[[deprecated]] void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
 		
 		void setConstantBuffer(int idx, BufferView buffer) override;
+		void setIndexBuffer(const Runtime::Buffer& buffer) override;
 		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
 		void setSampler(int idx, const Runtime::Sampler& sampler) override;
 		void setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers) override;
@@ -214,14 +215,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
 
 		//! Set per draw-call shader parameters
-		void pushConstants(void* data, size_t size) override;
-		
-		void clear(int idx, const Eigen::Vector4f& colour) override;
-		void clear(int idx, const Eigen::Vector4i& colour) override;
-		void clear(int idx, const Eigen::Vector4ui& colour) override;
-		void clear(float depth, int stencil) override;
-		void clear(float depth) override;
-		void clear(int stencil) override;
+		[[deprecated]] void pushConstants(void* data, size_t size) override;
+
+		void beginRenderPass(const RenderPassDescription& pass_desc) override;
+		void endRenderPass() override;
+		[[deprecated]] void clear(int idx, const Eigen::Vector4f& colour) override;
+		[[deprecated]] void clear(int idx, const Eigen::Vector4i& colour) override;
+		[[deprecated]] void clear(int idx, const Eigen::Vector4ui& colour) override;
+		[[deprecated]] void clear(float depth, int stencil) override;
+		[[deprecated]] void clear(float depth) override;
+		[[deprecated]] void clear(int stencil) override;
 		
 		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) override;
 		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) override;
@@ -257,6 +260,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	private: // Tracking state
 		Frame* _currentFrame{ nullptr };
+
+		// Currently active blend-state
+		uint32_t _blendstate_hash{ 0 };
 		
 		//! The current primitive type to draw
 		PrimitiveType _currentPrimitiveType;

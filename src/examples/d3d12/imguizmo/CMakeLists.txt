@@ -57,6 +57,7 @@ set(SOURCE_FILES
 )
 
 add_executable(d3d12_imguizmo "")
+target_compile_definitions(d3d12_imguizmo PRIVATE IMGUI_DISABLE_DEMO_WINDOWS)
 set_target_properties(d3d12_imguizmo PROPERTIES FOLDER examples/d3d12)
 vcl_target_sources(d3d12_imguizmo "../../3rdparty" ${IMGUI})
 vcl_target_sources(d3d12_imguizmo ".." ${COMMON})

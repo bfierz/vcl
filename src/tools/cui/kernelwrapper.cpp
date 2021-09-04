@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -206,8 +207,8 @@ static enum CXChildVisitResult parseFunction(CXCursor cursor, CXCursor parent, C
 		param.TypeName = readTypeName(type);
 		param.Alignment = clang_Type_getAlignOf(type);
 		param.Size = clang_Type_getSizeOf(type);
-		param.IsConst = clang_isConstQualifiedType(type);
-		param.IsRestricted = clang_isRestrictQualifiedType(type);
+		param.IsConst = clang_isConstQualifiedType(type) != 0;
+		param.IsRestricted = clang_isRestrictQualifiedType(type) != 0;
 		param.IsPointer = type.kind == CXType_Pointer;
 
 		func_decl->addParameter(std::move(param));
@@ -275,7 +276,7 @@ std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::v
 	CXIndex index = clang_createIndex(0, 1);
 
 	// Parse a single translation unit
-	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, 0, parser_params.data(), parser_params.size(), 0, 0,
+	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, nullptr, parser_params.data(), static_cast<int>(parser_params.size()), 0, 0,
 		CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_Incomplete | CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_KeepGoing | CXTranslationUnit_IncludeAttributedTypes | CXTranslationUnit_VisitImplicitAttributes);
 
 	// Traverse AST and collect types

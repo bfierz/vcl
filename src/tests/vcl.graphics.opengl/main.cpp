@@ -24,6 +24,9 @@
  */
 #include <gtest/gtest.h>
 
+// C++ standard library
+#include <algorithm>
+
 // VCL
 #include <vcl/graphics/opengl/context.h>
 

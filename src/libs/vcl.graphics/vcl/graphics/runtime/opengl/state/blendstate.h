@@ -28,9 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-// C++ standard library
-#include <array>
-
 // VCL
 #include <vcl/graphics/opengl/commandstream.h>
 #include <vcl/graphics/runtime/state/blendstate.h>
@@ -47,8 +44,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		BlendState(const BlendDescription& desc);
 
-	public:
 		const BlendDescription& desc() const { return _desc; }
+		uint32_t hash() const { return _hash; }
+
+		//! \name Queries
+		//! \{
+
+		//! \brief Validates the state against the OpenGL state machine
+		//! \returns True if the state is bound
+		bool validate() const;
+		//! \}
 
 	public:
 		/*!
@@ -61,11 +66,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 */
 		void record(Graphics::OpenGL::CommandStream& states);
 
-	public:
-		bool isValid() const;
-
-	private: // Debug
+	private:
+		//! Check if the state is currently set
 		bool check() const;
+
+		//! Compute the hash of the state
+		uint32_t computeHash();
 
 	public:
 		static bool isIndependentBlendingSupported();
@@ -79,6 +85,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	private:
 		//! Description of the blend state
 		BlendDescription _desc;
+
+		//! State hash
+		uint32_t _hash;
+
+		//! State commands
+		Graphics::OpenGL::CommandStream _cmds;
 	};
 }}}}
 #endif // VCL_OPENGL_SUPPORT
