@@ -279,6 +279,51 @@ namespace Vcl { namespace Geometry
 		#undef SpatialToLinearIndex
 	}
 
+	std::unique_ptr<TriMesh> TriMeshFactory::createCube(unsigned int count_x, unsigned int count_y, unsigned int count_z)
+	{
+		VclRequire(count_x > 0, "Resolution in x is greater than 0");
+		VclRequire(count_y > 0, "Resolution in y is greater than 0");
+		VclRequire(count_z > 0, "Resolution in z is greater than 0");
+
+		using face_t = std::array<unsigned int, 3>;
+
+		std::vector<Vector3f> positions = {
+			Vector3f(0, 0, 0),
+			Vector3f(1, 0, 0),
+			Vector3f(1, 1, 0),
+			Vector3f(0, 1, 0),
+			Vector3f(0, 1, 1),
+			Vector3f(1, 1, 1),
+			Vector3f(1, 0, 1),
+			Vector3f(0, 0, 1),
+		};
+
+		std::vector<face_t> faces = {
+			{ 0, 2, 1 }, //face front
+			{ 0, 3, 2 },
+			{ 2, 3, 4 }, //face top
+			{ 2, 4, 5 },
+			{ 1, 2, 5 }, //face right
+			{ 1, 5, 6 },
+			{ 0, 7, 4 }, //face left
+			{ 0, 4, 3 },
+			{ 5, 4, 7 }, //face back
+			{ 5, 7, 6 },
+			{ 0, 6, 7 }, //face bottom
+			{ 0, 1, 6 }
+		};
+
+		auto mesh = std::make_unique<TriMesh>(positions, faces);
+
+		// Create the normals
+		Eigen::Vector3f center{0.5f, 0.5f, 0.5f};
+		auto normals = mesh->addVertexProperty<Vector3f>("Normals", Vector3f{ 0, 0, 0 });
+		for (unsigned int i = 0; i < static_cast<unsigned int>(positions.size()); ++i)
+			normals[i] = (positions[i] - center).normalized();
+
+		return mesh;
+	}
+
 	std::unique_ptr<TriMesh> TriMeshFactory::createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted)
 	{
 		using face_t = std::array<unsigned int, 3>;

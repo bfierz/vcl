@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2015 Basil Fierz
+ * Copyright (c) 2021 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,43 +26,47 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
+#include <vcl/config/eigen.h>
 
-// C-runtime
-#define _USE_MATH_DEFINES
-#include <cmath>
+// C++ standard library
+#include <array>
+#include <string>
 
 // VCL
-#include <vcl/geometry/tetramesh.h>
+#include <vcl/geometry/io/serialiser.h>
 #include <vcl/geometry/trimesh.h>
 
-namespace Vcl { namespace Geometry
+namespace Vcl { namespace Geometry { namespace IO
 {
-	template<typename Mesh>
-	class MeshFactory
-	{
-	};
-
-	template<>
-	class MeshFactory<TetraMesh>
+	class TriMeshDeserialiser : public AbstractDeserialiser
 	{
 	public:
-		static std::unique_ptr<TetraMesh> createHomogenousCubes(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
-	};
+		std::unique_ptr<TriMesh> fetch() { return std::move(_mesh); }
 
-	class TriMeshFactory
-	{
 	public:
-		static std::unique_ptr<TriMesh> createCube(unsigned int count_x = 1, unsigned int count_y = 1, unsigned int count_z = 1);
+		virtual void begin();
+		virtual void end();
+		
+	public:
+		virtual void sizeHintNodes(unsigned int hint);
+		virtual void sizeHintEdges(unsigned int hint);
+		virtual void sizeHintFaces(unsigned int hint);
+		virtual void sizeHintVolumes(unsigned int hint);
 
-		static std::unique_ptr<TriMesh> createSphere(const Vector3f& center, float radius, unsigned int stacks, unsigned int slices, bool inverted);
+	public:
+		virtual void addNode(const std::vector<float>& coordinates);
+		virtual void addEdge(const std::vector<unsigned int>& indices);
+		virtual void addFace(const std::vector<unsigned int>& indices);
+		virtual void addVolume(const std::vector<unsigned int>& indices);
 
-		static std::unique_ptr<TriMesh> createArrow(float small_radius, float large_radius, float handle_length, float head_length, unsigned int slices);
+		virtual void addNormal(const Vector3f& normal);
 
-		static std::unique_ptr<TriMesh> createTorus(
-			float outer_radius,
-			float inner_radius,
-			unsigned int nr_radial_segments,
-			unsigned int nr_sides
-		);
+	private:
+
+		//! Generated mesh
+		std::unique_ptr<TriMesh> _mesh;
+
+		std::vector<Eigen::Vector3f> _positions;
+		std::vector<std::array<unsigned int, 3>> _faces;
 	};
-}}
+}}}
