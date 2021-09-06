@@ -103,7 +103,7 @@ jobs:
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'on'
-      Release_AVX512:
+      Release_AVX2:
         buildConfig: 'Release'
         configVectorization: 'AVX 2'
         configCodeCoverage: 'off'

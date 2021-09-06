@@ -265,6 +265,7 @@ if(VCL_OPENGL_SUPPORT)
 					${vcl_ext_glew}
 			)
 		elseif(WIN32)
+			include(FetchContent)
 			FetchContent_Declare(
 				glew
 				URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip

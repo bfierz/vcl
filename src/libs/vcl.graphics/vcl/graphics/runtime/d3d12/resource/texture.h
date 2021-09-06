@@ -26,7 +26,7 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/direct3d12.h>
 
 // VCL
 #include <vcl/graphics/d3d12/device.h>
