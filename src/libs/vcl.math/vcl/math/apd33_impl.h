@@ -33,27 +33,27 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Mathematics { namespace Impl
-{
+namespace Vcl { namespace Mathematics { namespace Impl {
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(push, off) 
+#	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC
 
 	template<typename Scalar>
-	VCL_STRONG_INLINE int AnalyticPolarDecomposition(const Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& q)
+	VCL_STRONG_INLINE unsigned int AnalyticPolarDecomposition(const Eigen::Matrix<Scalar, 3, 3>& A, Eigen::Quaternion<Scalar>& q, unsigned int max_iter = 20)
 	{
+		VclRequire(max_iter > 0, "At least one iteration is requested");
+
 		using matrix3_t = Eigen::Matrix<Scalar, 3, 3>;
 		using vector3_t = Eigen::Matrix<Scalar, 3, 1>;
 
-		int iter = 0;
+		unsigned int iter = 0;
 		vector3_t omega = vector3_t::Identity();
-		while (any(omega.norm() > Scalar(0.001)) && iter < 20)
+		while (any(omega.norm() > Scalar(0.001)) && iter < max_iter)
 		{
 			matrix3_t R = q.toRotationMatrix();
 			matrix3_t B = R.transpose() * A;
-			
-			vector3_t grad
-			{
+
+			vector3_t grad{
 				B.col(2)[1] - B.col(1)[2],
 				B.col(0)[2] - B.col(2)[0],
 				B.col(1)[0] - B.col(0)[1]
@@ -66,24 +66,16 @@ namespace Vcl { namespace Mathematics { namespace Impl
 			Scalar h02 = Scalar(-0.5) * (B.col(2)[0] + B.col(0)[2]);
 			Scalar h12 = Scalar(-0.5) * (B.col(2)[1] + B.col(1)[2]);
 
-			Scalar detH = Scalar(-1.0) * h02 * h02 * h11
-				        + Scalar(2.0) * h01 * h02 * h12
-				        - h00 * h12 * h12 - h01 * h01 * h22 + h00 * h11 * h22;
+			Scalar detH = Scalar(-1.0) * h02 * h02 * h11 + Scalar(2.0) * h01 * h02 * h12 - h00 * h12 * h12 - h01 * h01 * h22 + h00 * h11 * h22;
 
 			const Scalar factor = Scalar(-0.25) / detH;
-			omega[0] = (h11 * h22 - h12 * h12) * grad[0]
-				+ (h02 * h12 - h01 * h22) * grad[1]
-				+ (h01 * h12 - h02 * h11) * grad[2];
+			omega[0] = (h11 * h22 - h12 * h12) * grad[0] + (h02 * h12 - h01 * h22) * grad[1] + (h01 * h12 - h02 * h11) * grad[2];
 			omega[0] *= factor;
 
-			omega[1] = (h02 * h12 - h01 * h22) * grad[0]
-				+ (h00 * h22 - h02 * h02) * grad[1]
-				+ (h01 * h02 - h00 * h12) * grad[2];
+			omega[1] = (h02 * h12 - h01 * h22) * grad[0] + (h00 * h22 - h02 * h02) * grad[1] + (h01 * h02 - h00 * h12) * grad[2];
 			omega[1] *= factor;
 
-			omega[2] = (h01 * h12 - h02 * h11) * grad[0]
-				+ (h01 * h02 - h00 * h12) * grad[1]
-				+ (h00 * h11 - h01 * h01) * grad[2];
+			omega[2] = (h01 * h12 - h02 * h11) * grad[0] + (h01 * h02 - h00 * h12) * grad[1] + (h00 * h11 - h01 * h01) * grad[2];
 			omega[2] *= factor;
 
 			omega[0] = select(abs(detH) < Scalar(1.0e-9f), -grad[0], omega[0]);
@@ -110,6 +102,6 @@ namespace Vcl { namespace Mathematics { namespace Impl
 	}
 
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(pop) 
+#	pragma strict_gs_check(pop)
 #endif // VCL_COMPILER_MSVC
 }}}

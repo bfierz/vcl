@@ -33,9 +33,9 @@
 
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
-#include <vcl/math/apd33.h>
+#include <vcl/math/apd33_impl.h>
 #include <vcl/math/math.h>
-#include <vcl/math/rotation33_torque.h>
+#include <vcl/math/rotation33_torque_impl.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // Google test
@@ -43,30 +43,27 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Common functions
-namespace
-{
+namespace {
 	template<typename Scalar>
-	void createProblems
-	(
+	void createProblems(
 		size_t nr_problems,
 		Scalar max_angle,
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* F,
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* R
-	)
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>* R)
 	{
 		// Random number generator
-		std::mt19937_64 rng;
+		std::mt19937_64 rng{ 5489 };
 		std::uniform_real_distribution<float> d;
 		std::uniform_real_distribution<float> a{ -max_angle, max_angle };
-			
+
 		// Initialize data
 		for (size_t i = 0; i < nr_problems; i++)
 		{
 			// Rest-state
 			Eigen::Matrix<Scalar, 3, 3> X0;
-			X0 << d(rng), d(rng), d(rng),
-				  d(rng), d(rng), d(rng),
-				  d(rng), d(rng), d(rng);
+			X0 << d(rng), 0, 0,
+				0, d(rng), 0,
+				0, 0, d(rng);
 
 			// Rotation angle
 			Scalar angle = a(rng);
@@ -77,22 +74,20 @@ namespace
 			rot_vec.normalize();
 
 			// Rotation matrix
-			Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{angle, rot_vec}.toRotationMatrix();
+			Eigen::Matrix<Scalar, 3, 3> Rot = Eigen::AngleAxis<Scalar>{ angle, rot_vec }.toRotationMatrix();
 			R->template at<Scalar>(i) = Rot;
 
 			Eigen::Matrix<Scalar, 3, 3> X = Rot * X0;
-			F->template at<Scalar>(i) = X * X0.inverse();
+			F->template at<Scalar>(i) = X;
 		}
 	}
 
 	template<typename Scalar>
-	void checkSolution
-	(
+	void checkSolution(
 		size_t nr_problems,
 		Scalar tol,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refRa,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resRa
-	)
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resRa)
 	{
 		using Vcl::Mathematics::equal;
 
@@ -106,16 +101,16 @@ namespace
 			Scalar sqLenRefRc0 = refR.col(0).squaredNorm();
 			Scalar sqLenRefRc1 = refR.col(1).squaredNorm();
 			Scalar sqLenRefRc2 = refR.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenRefRc0, Scalar(1), tol)) << "Reference R(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefRc1, Scalar(1), tol)) << "Reference R(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenRefRc2, Scalar(1), tol)) << "Reference R(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenRefRc0, Scalar(1), tol)) << "Reference R(" << i << "): Column 0 is not normalized: " << sqLenRefRc0;
+			EXPECT_TRUE(equal(sqLenRefRc1, Scalar(1), tol)) << "Reference R(" << i << "): Column 1 is not normalized: " << sqLenRefRc1;
+			EXPECT_TRUE(equal(sqLenRefRc2, Scalar(1), tol)) << "Reference R(" << i << "): Column 2 is not normalized: " << sqLenRefRc2;
 
 			Scalar sqLenResRc0 = resR.col(0).squaredNorm();
 			Scalar sqLenResRc1 = resR.col(1).squaredNorm();
 			Scalar sqLenResRc2 = resR.col(2).squaredNorm();
-			EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized.";
-			EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized.";
+			EXPECT_TRUE(equal(sqLenResRc0, Scalar(1), tol)) << "Result R(" << i << "): Column 0 is not normalized: " << sqLenResRc0;
+			EXPECT_TRUE(equal(sqLenResRc1, Scalar(1), tol)) << "Result R(" << i << "): Column 1 is not normalized: " << sqLenResRc1;
+			EXPECT_TRUE(equal(sqLenResRc2, Scalar(1), tol)) << "Result R(" << i << "): Column 2 is not normalized: " << sqLenResRc2;
 
 			//bool eqR = refR.array().abs().isApprox(resR.array().abs(), tol);
 			//EXPECT_TRUE(eqR) << "R(" << i << ") - Ref: " << refR.format(fmt) << ", Actual: " << resR.format(fmt);
@@ -134,19 +129,21 @@ namespace
 template<typename T>
 struct TorqueRotation
 {
-	void operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	void operator()(const Eigen::Matrix<T, 3, 3>& A, Eigen::Matrix<T, 3, 3>& R)
 	{
-		Vcl::Mathematics::Rotation(A, R);
+		Eigen::Matrix<T, 3, 3> I = Eigen::Matrix<T, 3, 3>::Identity();
+		Vcl::Mathematics::Impl::Rotation(A, I, 100);
+		R = I;
 	}
 };
 
 template<typename T>
 struct AnalyticPolarDecomposition
 {
-	void operator()(const Eigen::Matrix<T, 3, 3> & A, Eigen::Matrix<T, 3, 3> & R)
+	void operator()(const Eigen::Matrix<T, 3, 3>& A, Eigen::Matrix<T, 3, 3>& R)
 	{
 		Eigen::Quaternion<T> q = Eigen::Quaternion<T>::Identity();
-		Vcl::Mathematics::AnalyticPolarDecomposition(A, q);
+		Vcl::Mathematics::Impl::AnalyticPolarDecomposition(A, q, 20);
 		R = q.matrix();
 	}
 };
@@ -162,7 +159,7 @@ protected:
 		using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 		size_t nr_problems = 128;
-		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1>    F(nr_problems);
+		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> F(nr_problems);
 		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> resR(nr_problems);
 		Vcl::Core::InterleavedArray<scalar_t, 3, 3, -1> refR(nr_problems);
 
@@ -190,21 +187,21 @@ protected:
 using Torque = Rotation33;
 TEST_P(Torque, Float)
 {
-	run<float>(TorqueRotation<float>{}, 2e-5f);
+	run<float>(TorqueRotation<float>{}, 1e-3f);
 }
 TEST_P(Torque, Float4)
 {
-	run<Vcl::float4>(TorqueRotation<Vcl::float4>{}, 2e-5f);
+	run<Vcl::float4>(TorqueRotation<Vcl::float4>{}, 1e-3f);
 }
 TEST_P(Torque, Float8)
 {
-	run<Vcl::float8>(TorqueRotation<Vcl::float8>{}, 2e-5f);
+	run<Vcl::float8>(TorqueRotation<Vcl::float8>{}, 1e-3f);
 }
 TEST_P(Torque, Float16)
 {
-	run<Vcl::float16>(TorqueRotation<Vcl::float16>{}, 2e-5f);
+	run<Vcl::float16>(TorqueRotation<Vcl::float16>{}, 1e-3f);
 }
-INSTANTIATE_TEST_SUITE_P(Rotation33, Torque, ::testing::Values(30, 60, 90, 120, 180));
+INSTANTIATE_TEST_SUITE_P(Rotation33, Torque, ::testing::Values(3, 6, 12, 25, 45));
 
 using APD = Rotation33;
 TEST_P(APD, Float)
@@ -223,4 +220,4 @@ TEST_P(APD, Float16)
 {
 	run<Vcl::float16>(AnalyticPolarDecomposition<Vcl::float16>{}, 2e-5f);
 }
-INSTANTIATE_TEST_SUITE_P(Rotation33, APD, ::testing::Values(30, 60, 90, 120, 180));
+INSTANTIATE_TEST_SUITE_P(Rotation33, APD, ::testing::Values(3, 6, 12, 25, 44));
