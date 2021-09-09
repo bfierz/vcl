@@ -46,7 +46,9 @@ namespace Vcl { namespace Core
 {
 	// http://devblogs.nvidia.com/parallelforall/thinking-parallel-part-iii-tree-construction-gpu/
 	// http://devblogs.nvidia.com/parallelforall/wp-content/uploads/sites/3/2012/11/karras2012hpg_paper.pdf
+	// EG 2009 - Lauterbach, Garland, Sengupta, Luebke, Manocha - Fast BVH Construction on GPUs (http://luebke.us/publications/eg09.pdf)
 	// EG UK Computer Graphics & Visual Computing (2014) - Apetrei - Fast and Simple Agglomerative LBVH Construction
+	// https://dcgi.fel.cvut.cz/projects/emc/emc2017.pdf
 	class BVH
 	{
 	private:
