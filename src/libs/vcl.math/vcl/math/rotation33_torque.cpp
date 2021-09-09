@@ -27,27 +27,26 @@
 // VCL
 #include <vcl/math/rotation33_torque_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int Rotation(const Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& R)
 	{
-		return Rotation<float>(A, R);
+		return Impl::Rotation<float>(A, R);
 	}
 	int Rotation(const Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& R)
 	{
-		return Rotation<float4>(A, R);
+		return Impl::Rotation<float4>(A, R);
 	}
 	int Rotation(const Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& R)
 	{
-		return Rotation<float8>(A, R);
+		return Impl::Rotation<float8>(A, R);
 	}
 	int Rotation(const Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& R)
 	{
-		return Rotation<float16>(A, R);
+		return Impl::Rotation<float16>(A, R);
 	}
-	
+
 	int Rotation(const Eigen::Matrix<double, 3, 3>& A, Eigen::Matrix<double, 3, 3>& R)
 	{
-		return Rotation<double>(A, R);
+		return Impl::Rotation<double>(A, R);
 	}
 }}

@@ -32,7 +32,7 @@
 
 // Include the relevant parts from the library
 #include <vcl/core/interleavedarray.h>
-#include <vcl/math/apd33.h>
+#include <vcl/math/apd33_impl.h>
 #include <vcl/math/math.h>
 #include <vcl/math/polardecomposition.h>
 
@@ -42,24 +42,23 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Common functions
-namespace
-{
+namespace {
 	template<typename Scalar>
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createRandomProblems(size_t nr_problems)
 	{
 		// Random number generator
-		std::mt19937_64 rng;
+		std::mt19937_64 rng{ 5489 };
 		std::uniform_real_distribution<float> d;
 
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-	
+
 		// Initialize data
-		for (int i = 0; i < (int) nr_problems; i++)
+		for (int i = 0; i < (int)nr_problems; i++)
 		{
 			Eigen::Matrix<Scalar, 3, 3> rnd;
 			rnd << d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng),
-				   d(rng), d(rng), d(rng);
+				d(rng), d(rng), d(rng),
+				d(rng), d(rng), d(rng);
 			F.template at<Scalar>(i) = rnd;
 		}
 
@@ -70,7 +69,7 @@ namespace
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createMaxAngleProblems(size_t nr_problems, float max_angle)
 	{
 		// Random number generator
-		std::mt19937_64 rng;
+		std::mt19937_64 rng{ 5489 };
 		std::uniform_real_distribution<float> dv;
 		std::uniform_real_distribution<float> da{ -max_angle, max_angle };
 
@@ -88,13 +87,11 @@ namespace
 	}
 
 	template<typename Scalar>
-	void computeReferenceSolution
-	(
+	void computeReferenceSolution(
 		size_t nr_problems,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& R,
-		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& S
-	)
+		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& S)
 	{
 		// Compute reference using Eigen
 		for (size_t i = 0; i < nr_problems; i++)
@@ -123,15 +120,13 @@ namespace
 	}
 
 	template<typename Scalar>
-	void checkSolution
-	(
+	void checkSolution(
 		size_t nr_problems,
 		Scalar tol,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refRa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refSa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resRa,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resSa
-	)
+		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resSa)
 	{
 		using Vcl::Mathematics::equal;
 
@@ -211,7 +206,7 @@ void runPolDecompTest(float tol)
 
 TEST(PolarDecomposition33, PolDecompFloat)
 {
-	runPolDecompTest<float>(1e-5f);
+	runPolDecompTest<float>(5e-5f);
 }
 TEST(PolarDecomposition33, PolDecompFloat4)
 {
@@ -252,9 +247,9 @@ void runAPDTest(float tol)
 	for (int i = 0; i < static_cast<int>(stride / width); i++)
 	{
 		matrix3_t A = F.at<real_t>(i);
-		
+
 		quaternion_t q = quaternion_t::Identity();
-		Vcl::Mathematics::AnalyticPolarDecomposition(A, q);
+		Vcl::Mathematics::Impl::AnalyticPolarDecomposition(A, q, 50);
 
 		matrix3_t R = q.toRotationMatrix();
 		resR.at<real_t>(i) = R;

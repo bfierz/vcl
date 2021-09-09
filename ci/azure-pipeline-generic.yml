@@ -99,7 +99,7 @@ steps:
     if ($runTestSuccess) {
       echo '##vso[task.complete result=Succeeded;]DONE'
     } else {
-      echo '##vso[task.complete result=SucceededWithIssues;]DONE'
+      echo '##vso[task.complete result=Failed;]DONE'
     }
   displayName: 'Run Unit Tests'
 
