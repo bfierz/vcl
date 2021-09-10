@@ -31,7 +31,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_CUDA_SUPPORT
 #	include <cuda.h>
 #endif // VCL_CUDA_SUPPORT
-	
+
 #ifdef VCL_DEBUG
 #	include <iostream>
 #endif // VCL_DEBUG
@@ -42,8 +42,17 @@ VCL_END_EXTERNAL_HEADERS
  */
 #ifndef VCL_CU_SAFE_CALL
 #	ifdef VCL_DEBUG
-#		define VCL_CU_SAFE_CALL(call) do { CUresult error0507 = call; if (error0507 != CUDA_SUCCESS) { std::cout << "CUDA Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error0507 << std::endl; __debugbreak(); }} while (VCL_EVAL_FALSE)
+#		define VCL_CU_SAFE_CALL(call)                                                                                   \
+			do                                                                                                           \
+			{                                                                                                            \
+				CUresult error0507 = call;                                                                               \
+				if (error0507 != CUDA_SUCCESS)                                                                           \
+				{                                                                                                        \
+					std::cout << "CUDA Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error0507 << std::endl; \
+					__debugbreak();                                                                                      \
+				}                                                                                                        \
+			} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_CU_SAFE_CALL(call) call
 #	endif // VCL_DEBUG
-#endif // VCL_CL_SAFE_CALL
+#endif     // VCL_CL_SAFE_CALL

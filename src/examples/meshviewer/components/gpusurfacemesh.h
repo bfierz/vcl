@@ -42,9 +42,9 @@ public:
 public:
 	size_t nrFaces() const { return _nrSurfaceElements; }
 
-	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* normals()     const { return _normals.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* indices() const { return _indices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* positions() const { return _positions.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* normals() const { return _normals.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* faceColours() const { return _volumeColours.get(); }
 
 	size_t indexStride() const { return _indexStride; }

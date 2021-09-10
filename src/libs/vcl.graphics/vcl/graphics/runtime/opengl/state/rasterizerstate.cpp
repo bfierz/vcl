@@ -31,9 +31,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	using namespace Vcl::Graphics::OpenGL;
 
 	RasterizerState::RasterizerState(const RasterizerDescription& desc)
@@ -59,7 +57,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				glFrontFace(GL_CCW);
 			else
 				glFrontFace(GL_CW);
-			
+
 			break;
 		}
 		case CullModeMethod::Back:
@@ -71,7 +69,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				glFrontFace(GL_CCW);
 			else
 				glFrontFace(GL_CW);
-			
+
 			break;
 		}
 		}
@@ -79,7 +77,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Configure fill mode
 		glPolygonMode(GL_FRONT_AND_BACK, toGLenum(desc().FillMode));
 	}
-	
+
 	void RasterizerState::record(Graphics::OpenGL::CommandStream& states)
 	{
 		switch (desc().CullMode)
@@ -98,7 +96,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				states.emplace(CommandType::FrontFace, GL_CCW);
 			else
 				states.emplace(CommandType::FrontFace, GL_CW);
-			
+
 			break;
 		}
 		case CullModeMethod::Back:
@@ -110,7 +108,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				states.emplace(CommandType::FrontFace, GL_CCW);
 			else
 				states.emplace(CommandType::FrontFace, GL_CW);
-			
+
 			break;
 		}
 		}
@@ -122,12 +120,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	bool RasterizerState::isValid() const
 	{
 		bool valid = true;
-		
-		if (desc().CullMode ==  CullModeMethod::None)
+
+		if (desc().CullMode == CullModeMethod::None)
 		{
 			valid &= glIsEnabled(GL_CULL_FACE) == GL_FALSE;
-		}
-		else
+		} else
 		{
 			valid &= glIsEnabled(GL_CULL_FACE) == GL_TRUE;
 			valid &= OpenGL::GL::getEnum(GL_CULL_FACE_MODE) == toGLenum(desc().CullMode);
@@ -143,17 +140,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	bool RasterizerState::check() const
 	{
-		if (desc().CullMode ==  CullModeMethod::None)
+		if (desc().CullMode == CullModeMethod::None)
 		{
 			VclCheck(glIsEnabled(GL_CULL_FACE) == GL_FALSE, "Rasterstate is correct");
-		}
-		else
+		} else
 		{
 			VclCheck(glIsEnabled(GL_CULL_FACE) == GL_TRUE, "Rasterstate is correct");
 			VclCheck(OpenGL::GL::getEnum(GL_CULL_FACE_MODE) == toGLenum(desc().CullMode), "Rasterstate is correct");
 			VclCheck(OpenGL::GL::getEnum(GL_FRONT_FACE) == (desc().FrontCounterClockwise ? GL_CCW : GL_CW), "Rasterstate is correct");
 		}
-		
+
 		GLint values[2];
 		glGetIntegerv(GL_POLYGON_MODE, values);
 		VclCheck(values[0] == toGLenum(desc().FillMode) && values[1] == toGLenum(desc().FillMode), "Rasterstate is correct");
@@ -163,27 +159,28 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	GLenum RasterizerState::toGLenum(CullModeMethod op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case CullModeMethod::None:  return GL_INVALID_ENUM;
 		case CullModeMethod::Front: return GL_FRONT;
 		case CullModeMethod::Back:  return GL_BACK;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 
 	GLenum RasterizerState::toGLenum(FillModeMethod op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case FillModeMethod::Solid:     return GL_FILL;
 		case FillModeMethod::Wireframe: return GL_LINE;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

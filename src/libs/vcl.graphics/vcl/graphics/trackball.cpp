@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	void Trackball::reset(const Eigen::Vector3f& up)
 	{
 		_rotate = false;
@@ -88,8 +87,7 @@ namespace Vcl { namespace Graphics
 		if (d < _radius * 0.70710678118654752440f)
 		{
 			projection.z() = sqrt(_radius * _radius - d * d);
-		}
-		else
+		} else
 		{
 			float t = _radius * 0.70710678118654752440f;
 			projection.z() = t * t / d;
@@ -99,7 +97,7 @@ namespace Vcl { namespace Graphics
 			projection.z() *= -1;
 
 		// Rotate to actual up vector
-		auto rot = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f{0.0f, 1.0f, 0.0f}, _up);
+		auto rot = Eigen::Quaternionf::FromTwoVectors(Eigen::Vector3f{ 0.0f, 1.0f, 0.0f }, _up);
 		return rot * projection;
 	}
 

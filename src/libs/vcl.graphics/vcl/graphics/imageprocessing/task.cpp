@@ -29,8 +29,7 @@
 #include <vcl/graphics/imageprocessing/imageprocessor.h>
 #include <vcl/graphics/imageprocessing/link.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	void Task::initialize(const TaskDescription& desc)
 	{
 		// Store the description
@@ -40,31 +39,31 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		_inputSlots.reserve(_desc.Inputs.size());
 		for (unsigned int i = 0; i < _desc.Inputs.size(); i++)
 		{
-		//	if (_desc.Inputs[i].Type == InputSlotType::Task)
-		//	{
-		//		_inputSlots.push_back(std::make_unique<FilterInputSlot>(_desc.Inputs[i].Name)));
-		//	}
-		//	else if (_desc.Inputs[i].Type == InputSlotType::Resource)
-		//	{
-		//		_inputSlots.push_back(std::make_unique<ResourceInputSlot>(_desc.Inputs[i].Name)));
-		//	}
+			//if (_desc.Inputs[i].Type == InputSlotType::Task)
+			//{
+			//	_inputSlots.push_back(std::make_unique<FilterInputSlot>(_desc.Inputs[i].Name)));
+			//}
+			//else if (_desc.Inputs[i].Type == InputSlotType::Resource)
+			//{
+			//	_inputSlots.push_back(std::make_unique<ResourceInputSlot>(_desc.Inputs[i].Name)));
+			//}
 			_inputSlots.push_back(std::make_unique<InputSlot>(_desc.Inputs[i].Name, this));
 		}
-		
+
 		_outputSlots.reserve(_desc.Outputs.size());
 		for (unsigned int o = 0; o < _desc.Outputs.size(); o++)
 		{
 			_outputSlots.push_back(std::make_unique<OutputSlot>(_desc.Outputs[o].Name, this));
 		}
 	}
-	
+
 	unsigned int Task::nrOutputSlots() const
 	{
-		return (unsigned int) _outputSlots.size();
+		return (unsigned int)_outputSlots.size();
 	}
 	unsigned int Task::nrInputSlots() const
 	{
-		return (unsigned int) _inputSlots.size();
+		return (unsigned int)_inputSlots.size();
 	}
 	OutputSlot* Task::outputSlot(unsigned int idx)
 	{
@@ -94,12 +93,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 				if (outputSlot(i)->resource() && w <= outputSlot(i)->resource()->width() && h <= outputSlot(i)->resource()->height())
 					needs_new_image = false;
 			}
-			else */if (nrInputSlots() > 0 && inputSlot(0)->resource())
+			else */
+			if (nrInputSlots() > 0 && inputSlot(0)->resource())
 			{
 				w = inputSlot(0)->width();
 				h = inputSlot(0)->height();
 
-				if (outputSlot(i)->resource() && w <= (unsigned int) outputSlot(i)->resource()->width() && h <= (unsigned int) outputSlot(i)->resource()->height())
+				if (outputSlot(i)->resource() && w <= (unsigned int)outputSlot(i)->resource()->width() && h <= (unsigned int)outputSlot(i)->resource()->height())
 					needs_new_image = false;
 			}
 

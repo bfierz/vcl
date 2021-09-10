@@ -33,41 +33,39 @@
 
 #if defined(VCL_VECTORIZE_SSE)
 
-#define VCL_M128I_SIGNBIT _mm_set1_epi32(int(0x80000000))
-#define VCL_M128I_ALLBITS _mm_set1_epi32(int(0xffffffff))
+#	define VCL_M128I_SIGNBIT _mm_set1_epi32(int(0x80000000))
+#	define VCL_M128I_ALLBITS _mm_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
-	namespace Core { namespace Simd { namespace SSE
-	{
+namespace Vcl {
+	namespace Core { namespace Simd { namespace SSE {
 		/// Per element absolut value
 		VCL_STRONG_INLINE __m128 abs_f32(__m128 a) noexcept
 		{
 			// Compute abs using logical operations
 			return _mm_andnot_ps(_mm_castsi128_ps(VCL_M128I_SIGNBIT), a);
-			
+
 			// Compute abs using shift operations
 			//return _mm_castsi128_ps(_mm_srli_epi32(_mm_slli_epi32(_mm_castps_si128(a), 1), 1));
 		}
 
 		VCL_STRONG_INLINE __m128i abs_s32(__m128i a) noexcept
 		{
-#ifdef VCL_VECTORIZE_SSSE3
+#	ifdef VCL_VECTORIZE_SSSE3
 			return _mm_abs_epi32(a);
-#else
+#	else
 			__m128i mask = _mm_cmplt_epi32(a, _mm_setzero_si128()); // FFFF   where a < 0
 			a = _mm_xor_si128(a, mask);                             // Invert where a < 0
 			mask = _mm_srli_epi32(mask, 31);                        // 0001   where a < 0
 			a = _mm_add_epi32(a, mask);                             // Add 1  where a < 0
 			return a;
-#endif
+#	endif
 		}
 
 		VCL_STRONG_INLINE __m128 blend_f32(__m128 a, __m128 b, __m128 mask) noexcept
 		{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_blendv_ps(a, b, mask);
-#else
+#	else
 			// Straight forward method
 			// (a & ~mask) | (b & mask)
 			return _mm_or_ps(_mm_andnot_ps(mask, a), _mm_and_ps(mask, b));
@@ -75,14 +73,14 @@ namespace Vcl
 			// xor-method
 			// (((a ^ b) & mask)^a)
 			//return _mm_xor_ps(a, _mm_and_ps(mask, _mm_xor_ps(a, b)));
-#endif
+#	endif
 		}
 
 		VCL_STRONG_INLINE __m128i blend_s32(__m128i a, __m128i b, __m128 mask) noexcept
 		{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(a), _mm_castsi128_ps(b), mask));
-#else
+#	else
 			// Straight forward method
 			// (a & ~mask) | (b & mask)
 			return _mm_or_si128(_mm_andnot_si128(_mm_castps_si128(mask), a), _mm_and_si128(_mm_castps_si128(mask), b));
@@ -90,28 +88,28 @@ namespace Vcl
 			// xor-method
 			// (((a ^ b) & mask)^a)
 			//return _mm_xor_si128(a, _mm_and_si128(_mm_castps_si128(mask), _mm_xor_si128(a, b)));
-#endif
+#	endif
 		}
 
 		VCL_STRONG_INLINE __m128i max_s32(__m128i a, __m128i b) noexcept
 		{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_max_epi32(a, b);
-#else
+#	else
 			__m128i mask = _mm_cmpgt_epi32(a, b);
 			a = blend_s32(b, a, _mm_castsi128_ps(mask));
 			return a;
-#endif
+#	endif
 		}
 		VCL_STRONG_INLINE __m128i min_s32(__m128i a, __m128i b) noexcept
 		{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 			return _mm_min_epi32(a, b);
-#else
+#	else
 			__m128i mask = _mm_cmplt_epi32(a, b);
 			a = blend_s32(b, a, _mm_castsi128_ps(mask));
 			return a;
-#endif
+#	endif
 		}
 
 		VCL_STRONG_INLINE __m128 sgn_f32(__m128 v) noexcept
@@ -143,7 +141,7 @@ namespace Vcl
 		return x;
 	}
 
-#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
+#	if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
 	__m128 _mm_sin_ps(__m128 v) noexcept;
 	__m128 _mm_cos_ps(__m128 v) noexcept;
 	__m128 _mm_log_ps(__m128 v) noexcept;
@@ -154,19 +152,19 @@ namespace Vcl
 	__m128 _mm_atan2_ps(__m128 in_y, __m128 in_x) noexcept;
 
 	__m128 _mm_pow_ps(__m128 x, __m128 y) noexcept;
-#endif
+#	endif
 
 	__m128 _mmVCL_floor_ps(__m128 x) noexcept;
 
 	VCL_STRONG_INLINE __m128i _mmVCL_mullo_epi32(__m128i a, __m128i b) noexcept
 	{
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 		return _mm_mullo_epi32(a, b);
-#else
-		const __m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
-		const __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
+#	else
+		const __m128i tmp1 = _mm_mul_epu32(a, b);                                                                                      /* mul 2,0*/
+		const __m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4));                                                /* mul 3,1 */
 		return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0))); /* shuffle results to [63..0] and pack */
-#endif
+#	endif
 	}
 
 	// AP-803 Newton-Raphson Method with Streaming SIMD Extensions
@@ -187,7 +185,7 @@ namespace Vcl
 		const __m128 muls = _mm_mul_ps(_mm_mul_ps(nr, nr), v);
 		const __m128 dbl = _mm_add_ps(nr, nr);
 
-		// Filter out zero input to ensure 
+		// Filter out zero input to ensure
 		const __m128 mask = _mm_cmpeq_ps(v, _mm_setzero_ps());
 		const __m128 filtered = _mm_andnot_ps(mask, muls);
 		const __m128 result = _mm_sub_ps(dbl, filtered);
@@ -197,9 +195,9 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m128 v) noexcept
 	{
-		const __m128 data = v;             /* [0, 1, 2, 3] */
-		const __m128 low = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
-		const __m128 low_accum = _mm_min_ps(low, data); /* [0|2, 1|3, 2|2, 3|3] */
+		const __m128 data = v;                                                              /* [0, 1, 2, 3] */
+		const __m128 low = _mm_movehl_ps(data, data);                                       /* [2, 3, 2, 3] */
+		const __m128 low_accum = _mm_min_ps(low, data);                                     /* [0|2, 1|3, 2|2, 3|3] */
 		const __m128 elem1 = _mm_shuffle_ps(low_accum, low_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
 		const __m128 accum = _mm_min_ss(low_accum, elem1);
 		return _mm_cvtss_f32(accum);
@@ -207,9 +205,9 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_hmax_ps(__m128 v) noexcept
 	{
-		const __m128 data = v;             /* [0, 1, 2, 3] */
-		const __m128 high = _mm_movehl_ps(data, data); /* [2, 3, 2, 3] */
-		const __m128 high_accum = _mm_max_ps(high, data); /* [0|2, 1|3, 2|2, 3|3] */
+		const __m128 data = v;                                                                /* [0, 1, 2, 3] */
+		const __m128 high = _mm_movehl_ps(data, data);                                        /* [2, 3, 2, 3] */
+		const __m128 high_accum = _mm_max_ps(high, data);                                     /* [0|2, 1|3, 2|2, 3|3] */
 		const __m128 elem1 = _mm_shuffle_ps(high_accum, high_accum, _MM_SHUFFLE(1, 1, 1, 1)); /* [1|3, 1|3, 1|3, 1|3] */
 		const __m128 accum = _mm_max_ss(high_accum, elem1);
 		return _mm_cvtss_f32(accum);
@@ -223,50 +221,50 @@ namespace Vcl
 			float a[4];
 		} F32;
 
-#ifdef VCL_VECTORIZE_SSE4_1
+#	ifdef VCL_VECTORIZE_SSE4_1
 		return F32{ _mm_dp_ps(a, b, 0xff) }.a[0];
-#elif defined VCL_VECTORIZE_SSE3
+#	elif defined VCL_VECTORIZE_SSE3
 		const __m128 ab = _mm_mul_ps(a, b);
 		const __m128 dp = _mm_hadd_ps(ab, ab);
 		return F32{ dp }.a[0] + F32{ dp }.a[1];
-#else
+#	else
 		const __m128 ab = _mm_mul_ps(a, b);
 		return F32{ ab }.a[0] + F32{ ab }.a[1] + F32{ ab }.a[2] + F32{ ab }.a[3];
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float _mmVCL_extract_ps(__m128 v, int i) noexcept
 	{
-#if 1
+#	if 1
 		typedef union
 		{
 			__m128 x;
 			float a[4];
 		} F32;
 
-		return F32 {v}.a[i];
-#else
-#ifdef VCL_VECTORIZE_SSE4_1
+		return F32{ v }.a[i];
+#	else
+#		ifdef VCL_VECTORIZE_SSE4_1
 		float dest;
 
 		switch (i)
 		{
 		case 0:
-			*((int*) &(dest)) = _mm_extract_ps(v, 0);
+			*((int*)&(dest)) = _mm_extract_ps(v, 0);
 			break;
 		case 1:
-			*((int*) &(dest)) = _mm_extract_ps(v, 1);
+			*((int*)&(dest)) = _mm_extract_ps(v, 1);
 			break;
 		case 2:
-			*((int*) &(dest)) = _mm_extract_ps(v, 2);
+			*((int*)&(dest)) = _mm_extract_ps(v, 2);
 			break;
 		case 3:
-			*((int*) &(dest)) = _mm_extract_ps(v, 3);
+			*((int*)&(dest)) = _mm_extract_ps(v, 3);
 			break;
 		}
 
 		return dest;
-#else
+#		else
 		// Shuffle v so that the element that you want is moved to the least-
 		// significant element of the vector (v[0])
 		switch (i)
@@ -290,13 +288,13 @@ namespace Vcl
 		_mm_store_ss(&ret, v);
 
 		return ret;
-#endif
-#endif
+#		endif
+#	endif
 	}
 
-#ifdef VCL_VECTORIZE_SSE4_1
-#	define _mmVCL_insert_ps _mm_insert_ps
-#else
+#	ifdef VCL_VECTORIZE_SSE4_1
+#		define _mmVCL_insert_ps _mm_insert_ps
+#	else
 	VCL_STRONG_INLINE __m128 _mmVCL_insert_ps(__m128 a, __m128 b, const int sel) noexcept
 	{
 		typedef union
@@ -308,13 +306,13 @@ namespace Vcl
 		float tmp;
 		int count_d, zmask;
 
-		F32 A,B;
+		F32 A, B;
 		A.x = a;
 		B.x = b;
 
-		tmp     = B.a[(sel & 0xC0)>>6]; // 0xC0 = sel[7:6]
-		count_d = (sel & 0x30)>>4;      // 0x30 = sel[5:4]
-		zmask   = sel & 0x0F;           // 0x0F = sel[3:0]
+		tmp = B.a[(sel & 0xC0) >> 6]; // 0xC0 = sel[7:6]
+		count_d = (sel & 0x30) >> 4;  // 0x30 = sel[5:4]
+		zmask = sel & 0x0F;           // 0x0F = sel[3:0]
 
 		A.a[count_d] = tmp;
 
@@ -324,20 +322,20 @@ namespace Vcl
 		A.a[3] = (zmask & 0x8) ? 0 : A.a[3];
 		return A.x;
 	}
-#endif
+#	endif
 
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int _mmVCL_extract_epi32(__m128i v, int i) noexcept
 	{
-#if 1
+#	if 1
 		typedef union
 		{
 			__m128i x;
 			int32_t a[4];
 		} U32;
 
-		return U32 {v}.a[i];
-#else
-#ifdef VCL_VECTORIZE_SSE4_1
+		return U32{ v }.a[i];
+#	else
+#		ifdef VCL_VECTORIZE_SSE4_1
 		int dest;
 
 		switch (i)
@@ -357,7 +355,7 @@ namespace Vcl
 		}
 
 		return dest;
-#else
+#		else
 		// Shuffle v so that the element that you want is moved to the least-
 		// significant element of the vector (v[0])
 		switch (i)
@@ -378,11 +376,11 @@ namespace Vcl
 
 		// Move the value in V[0] to "ret"
 		int ret;
-		_mm_store_ss((float*) &ret, _mm_castsi128_ps(v));
+		_mm_store_ss((float*)&ret, _mm_castsi128_ps(v));
 
 		return ret;
-#endif
-#endif
+#		endif
+#	endif
 	}
 }
 #endif // defined(VCL_VECTORIZE_SSE)

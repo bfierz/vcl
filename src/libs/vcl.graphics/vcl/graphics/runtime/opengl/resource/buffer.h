@@ -37,10 +37,9 @@
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+	// clang-format off
 	VCL_DECLARE_FLAGS(MapOptions,
 	
 		/*!
@@ -73,6 +72,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 */
 		InvalidateRange
 	)
+	// clang-format on
 
 	class BufferBindPoint
 	{
@@ -101,7 +101,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		 * \param offset Offset to the beginning of the currently mapped range
 		 */
 		void flushRange(size_t offset = 0, size_t length = std::numeric_limits<size_t>::max());
-		
+
 		//! Clear the contents of the buffer
 		void clear();
 
@@ -109,7 +109,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		//! \param rt Type of the input data
 		//! \param data Input data
 		void clear(const Graphics::OpenGL::AnyRenderType& rt, void* data);
-		
+
 		//! Clear the contents of the buffer
 		//! \param offset Offset into the buffer
 		//! \param size Size of the area to clear
@@ -151,4 +151,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void flushBufferRange(Runtime::Buffer&, size_t, size_t);
 }}}}
-#endif // VCL_OPENGL_SUPPORT

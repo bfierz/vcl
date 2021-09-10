@@ -30,16 +30,18 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_CULL_MODE toD3D12(CullModeMethod op)
 	{
 		switch (op)
 		{
-		case CullModeMethod::None:  return D3D12_CULL_MODE_NONE;
+		case CullModeMethod::None: return D3D12_CULL_MODE_NONE;
 		case CullModeMethod::Front: return D3D12_CULL_MODE_FRONT;
-		case CullModeMethod::Back:  return D3D12_CULL_MODE_BACK;
-		default: { VclDebugError("Enumeration value is valid."); }
+		case CullModeMethod::Back: return D3D12_CULL_MODE_BACK;
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+		}
 		}
 
 		return {};
@@ -49,9 +51,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	{
 		switch (op)
 		{
-		case FillModeMethod::Solid:     return D3D12_FILL_MODE_SOLID;
+		case FillModeMethod::Solid: return D3D12_FILL_MODE_SOLID;
 		case FillModeMethod::Wireframe: return D3D12_FILL_MODE_WIREFRAME;
-		default: { VclDebugError("Enumeration value is valid."); }
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+		}
 		}
 
 		return {};

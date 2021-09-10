@@ -31,7 +31,7 @@
 
 Vcl::owner_ptr<Vcl::Compute::Cuda::Context> default_ctx;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	using namespace Vcl::Compute::Cuda;
 

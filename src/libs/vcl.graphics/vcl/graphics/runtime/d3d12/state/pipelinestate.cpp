@@ -28,16 +28,15 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
 #include <vcl/graphics/runtime/d3d12/state/blendstate.h>
 #include <vcl/graphics/runtime/d3d12/state/depthstencilstate.h>
 #include <vcl/graphics/runtime/d3d12/state/inputlayout.h>
 #include <vcl/graphics/runtime/d3d12/state/rasterizerstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE convert(PrimitiveType type)
 	{
 		switch (type)
@@ -47,12 +46,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		case PrimitiveType::Linelist:
 		case PrimitiveType::Linestrip:
 		case PrimitiveType::LinelistAdj:
-		case PrimitiveType::LinestripAdj: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+		case PrimitiveType::LinestripAdj: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 		case PrimitiveType::Trianglelist:
 		case PrimitiveType::Trianglestrip:
 		case PrimitiveType::TrianglelistAdj:
-		case PrimitiveType::TrianglestripAdj: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		case PrimitiveType::Patch: return  D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+		case PrimitiveType::TrianglestripAdj: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		case PrimitiveType::Patch: return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
 		}
 
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
@@ -65,17 +64,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		auto d3d12_shader = static_cast<const D3D12::Shader*>(shader);
 		const auto cso = d3d12_shader->data();
-		return{ cso.data(), cso.size() };
+		return { cso.data(), cso.size() };
 	}
 
-	GraphicsPipelineState::GraphicsPipelineState
-	(
+	GraphicsPipelineState::GraphicsPipelineState(
 		Graphics::D3D12::Device* device,
 		const PipelineStateDescription& desc,
 		const RenderTargetLayout& rt_layout,
-		const Graphics::D3D12::DescriptorTableLayout* layout
-	)
-	: _inputLayout{desc.InputLayout}
+		const Graphics::D3D12::DescriptorTableLayout* layout)
+	: _inputLayout{ desc.InputLayout }
 	{
 		VclRequire(desc.InputAssembly.PrimitiveRestartEnable == false, "Primitive restart is not supported.");
 
@@ -98,7 +95,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		const auto input_layout = toD3D12(desc.InputLayout);
 		graphics_pipeline_desc.InputLayout.NumElements = input_layout.size();
 		graphics_pipeline_desc.InputLayout.pInputElementDescs = input_layout.data();
-		
+
 		graphics_pipeline_desc.IBStripCutValue = desc.InputAssembly.PrimitiveRestartEnable ? D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF : D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
 		graphics_pipeline_desc.PrimitiveTopologyType = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.NumRenderTargets = rt_layout.ColourFormats.size();
@@ -115,12 +112,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		_pipeline = device->createGraphicsPipelineState(graphics_pipeline_desc);
 	}
 
-	ComputePipelineState::ComputePipelineState
-	(
+	ComputePipelineState::ComputePipelineState(
 		Graphics::D3D12::Device* device,
 		const ComputePipelineStateDescription& desc,
-		const Graphics::D3D12::DescriptorTableLayout* layout
-	)
+		const Graphics::D3D12::DescriptorTableLayout* layout)
 	{
 		VclRequire(desc.ComputeShader, "Shader is set.");
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");

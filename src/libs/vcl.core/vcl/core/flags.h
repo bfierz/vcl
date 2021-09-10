@@ -35,50 +35,51 @@
 
 // Based on http://molecularmusings.wordpress.com/2011/08/23/flags-on-steroids/
 
-#define VCL_DECLARE_FLAGS_ENUM(name, n)                    name = (1u << n),
-#define VCL_DECLARE_FLAGS_BITS(name, n)                    uint32_t name : 1;
-#define VCL_DECLARE_FLAGS_TO_STRING(name, n)               case name: return VCL_PP_STRINGIZE(name);
+#define VCL_DECLARE_FLAGS_ENUM(name, n) name = (1u << n),
+#define VCL_DECLARE_FLAGS_BITS(name, n) uint32_t name : 1;
+#define VCL_DECLARE_FLAGS_TO_STRING(name, n) \
+	case name:                               \
+		return VCL_PP_STRINGIZE(name);
 
-#define VCL_DECLARE_FLAGS(name, ...)                                     \
-struct name		                                                         \
-{                                                                        \
-	static const size_t Count = VCL_PP_VA_NUM_ARGS(__VA_ARGS__);         \
-	static_assert(Count <= sizeof(uint32_t)*8, "Too many flags");        \
-	enum Enum                                                            \
-	{                                                                    \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_FLAGS_ENUM, __VA_ARGS__)      \
-	};                                                                   \
-	struct Bits                                                          \
-	{                                                                    \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_FLAGS_BITS, __VA_ARGS__)      \
-	};                                                                   \
-	static const char* toString(size_t value)                            \
-	{                                                                    \
-		switch (value)                                                   \
-		{                                                                \
-		VCL_PP_VA_EXPAND_ARGS (VCL_DECLARE_FLAGS_TO_STRING, __VA_ARGS__) \
-		default:                                                         \
-			VCL_NO_SWITCH_DEFAULT;                                       \
-		}                                                                \
-		return "";                                                       \
-	}                                                                    \
-};																		 \
-inline Vcl::Flags<name> operator|(name::Enum lhs, name::Enum rhs)        \
-{                                                                        \
-	return (Vcl::Flags<name>(lhs) | Vcl::Flags<name>(rhs));              \
-}																		 \
-inline Vcl::Flags<name> operator|(Vcl::Flags<name> lhs, name::Enum rhs)  \
-{                                                                        \
-	return (lhs | Vcl::Flags<name>(rhs));								 \
-}																		 \
-inline Vcl::Flags<name> operator|(name::Enum lhs, Vcl::Flags<name> rhs)  \
-{                                                                        \
-	return (Vcl::Flags<name>(lhs) | rhs);						         \
-}
+#define VCL_DECLARE_FLAGS(name, ...)                                            \
+	struct name                                                                 \
+	{                                                                           \
+		static const size_t Count = VCL_PP_VA_NUM_ARGS(__VA_ARGS__);            \
+		static_assert(Count <= sizeof(uint32_t) * 8, "Too many flags");         \
+		enum Enum                                                               \
+		{                                                                       \
+			VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_ENUM, __VA_ARGS__)          \
+		};                                                                      \
+		struct Bits                                                             \
+		{                                                                       \
+			VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_BITS, __VA_ARGS__)          \
+		};                                                                      \
+		static const char* toString(size_t value)                               \
+		{                                                                       \
+			switch (value)                                                      \
+			{                                                                   \
+				VCL_PP_VA_EXPAND_ARGS(VCL_DECLARE_FLAGS_TO_STRING, __VA_ARGS__) \
+			default:                                                            \
+				VCL_NO_SWITCH_DEFAULT;                                          \
+			}                                                                   \
+			return "";                                                          \
+		}                                                                       \
+	};                                                                          \
+	inline Vcl::Flags<name> operator|(name::Enum lhs, name::Enum rhs)           \
+	{                                                                           \
+		return (Vcl::Flags<name>(lhs) | Vcl::Flags<name>(rhs));                 \
+	}                                                                           \
+	inline Vcl::Flags<name> operator|(Vcl::Flags<name> lhs, name::Enum rhs)     \
+	{                                                                           \
+		return (lhs | Vcl::Flags<name>(rhs));                                   \
+	}                                                                           \
+	inline Vcl::Flags<name> operator|(name::Enum lhs, Vcl::Flags<name> rhs)     \
+	{                                                                           \
+		return (Vcl::Flags<name>(lhs) | rhs);                                   \
+	}
 
-namespace Vcl
-{
-	template <class T>
+namespace Vcl {
+	template<class T>
 	class Flags
 	{
 	private:

@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Derived, typename T = unsigned int>
 	class GenericId
 	{
@@ -40,43 +39,44 @@ namespace Vcl { namespace Geometry
 
 	public:
 		GenericId() = default;
-		explicit GenericId(T id) : _id(id) {}
+		explicit GenericId(T id)
+		: _id(id) {}
 		GenericId(const GenericId<Derived, T>& other) = default;
 
 	public:
-		GenericId<Derived, T>& operator = (const GenericId<Derived, T>& other) = default;
+		GenericId<Derived, T>& operator=(const GenericId<Derived, T>& other) = default;
 
 	public:
 		T id() const { return _id; }
 		bool isValid() const { return _id != InvalidId().id(); }
 
 	public:
-		bool operator < (const GenericId<Derived, T>& other) const
+		bool operator<(const GenericId<Derived, T>& other) const
 		{
 			return _id < other._id;
 		}
 
-		bool operator <= (const GenericId<Derived, T>& other) const
+		bool operator<=(const GenericId<Derived, T>& other) const
 		{
 			return _id <= other._id;
 		}
 
-		bool operator > (const GenericId<Derived, T>& other) const
+		bool operator>(const GenericId<Derived, T>& other) const
 		{
 			return _id > other._id;
 		}
 
-		bool operator >= (const GenericId<Derived, T>& other) const
+		bool operator>=(const GenericId<Derived, T>& other) const
 		{
 			return _id >= other._id;
 		}
 
-		bool operator == (const GenericId<Derived, T>& other) const
+		bool operator==(const GenericId<Derived, T>& other) const
 		{
 			return _id == other._id;
 		}
 
-		bool operator != (const GenericId<Derived, T>& other) const
+		bool operator!=(const GenericId<Derived, T>& other) const
 		{
 			return _id != other._id;
 		}
@@ -87,4 +87,10 @@ namespace Vcl { namespace Geometry
 }}
 
 // Instantiate a generic, typed ID
-#define VCL_CREATEID(type_name, idx_type_name) class type_name : public Vcl::Geometry::GenericId<type_name, idx_type_name> { public: type_name(){} explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {}}
+#define VCL_CREATEID(type_name, idx_type_name)                                            \
+	class type_name : public Vcl::Geometry::GenericId<type_name, idx_type_name>           \
+	{                                                                                     \
+	public:                                                                               \
+		type_name() {}                                                                    \
+		explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {} \
+	}

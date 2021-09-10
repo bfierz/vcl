@@ -24,11 +24,10 @@
  */
 #include <vcl/compute/cuda/buffer.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, size_t size)
 	: Compute::Buffer(hostAccess, size)
 	, _ownerCtx(ctx)
@@ -47,8 +46,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		{
 			// Allocate the required memory
 			VCL_CU_SAFE_CALL(cuMemAllocManaged(&_devicePtr, size(), CU_MEM_ATTACH_GLOBAL));
-		}
-		else
+		} else
 		{
 			// Allocate the required device memory
 			VCL_CU_SAFE_CALL(cuMemAlloc(&_devicePtr, size()));

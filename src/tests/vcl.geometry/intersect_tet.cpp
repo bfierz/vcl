@@ -39,8 +39,7 @@
 // Google test
 #include <gtest/gtest.h>
 
-std::array<Eigen::Vector3f, 8> large_positions =
-{
+std::array<Eigen::Vector3f, 8> large_positions = {
 	Eigen::Vector3f(0, 0, 0),
 	Eigen::Vector3f(1, 0, 0),
 	Eigen::Vector3f(0, 1, 0),
@@ -50,8 +49,7 @@ std::array<Eigen::Vector3f, 8> large_positions =
 	Eigen::Vector3f(0, 1, 1),
 	Eigen::Vector3f(1, 1, 1),
 };
-std::array<Eigen::Vector3f, 8> small_positions =
-{
+std::array<Eigen::Vector3f, 8> small_positions = {
 	Eigen::Vector3f(0.25f, 0.25f, 0.25f),
 	Eigen::Vector3f(0.75f, 0.25f, 0.25f),
 	Eigen::Vector3f(0.25f, 0.75f, 0.25f),
@@ -61,8 +59,7 @@ std::array<Eigen::Vector3f, 8> small_positions =
 	Eigen::Vector3f(0.25f, 0.75f, 0.75f),
 	Eigen::Vector3f(0.75f, 0.75f, 0.75f),
 };
-std::array<std::array<int, 4>, 5> tetrahedra =
-{
+std::array<std::array<int, 4>, 5> tetrahedra = {
 	std::make_array(0, 5, 3, 6),
 	std::make_array(0, 1, 3, 5),
 	std::make_array(0, 2, 3, 6),
@@ -76,16 +73,14 @@ TEST(TetTetIntersection, Same)
 	using Vcl::Geometry::intersects;
 	using Vcl::Mathematics::equal;
 
-	Tetrahedron<float, 3> a
-	{
+	Tetrahedron<float, 3> a{
 		large_positions[tetrahedra[0][0]],
 		large_positions[tetrahedra[0][1]],
 		large_positions[tetrahedra[0][2]],
 		large_positions[tetrahedra[0][3]],
 	};
 
-	Tetrahedron<float, 3> b
-	{
+	Tetrahedron<float, 3> b{
 		large_positions[tetrahedra[0][0]],
 		large_positions[tetrahedra[0][1]],
 		large_positions[tetrahedra[0][2]],
@@ -101,16 +96,14 @@ TEST(TetTetIntersection, Touch)
 	using Vcl::Geometry::intersects;
 	using Vcl::Mathematics::equal;
 
-	Tetrahedron<float, 3> a
-	{
+	Tetrahedron<float, 3> a{
 		large_positions[tetrahedra[0][0]],
 		large_positions[tetrahedra[0][1]],
 		large_positions[tetrahedra[0][2]],
 		large_positions[tetrahedra[0][3]],
 	};
 
-	Tetrahedron<float, 3> b
-	{
+	Tetrahedron<float, 3> b{
 		large_positions[tetrahedra[1][0]],
 		large_positions[tetrahedra[1][1]],
 		large_positions[tetrahedra[1][2]],
@@ -126,16 +119,14 @@ TEST(TetTetIntersection, LargeIntersect)
 	using Vcl::Geometry::intersects;
 	using Vcl::Mathematics::equal;
 
-	Tetrahedron<float, 3> a
-	{
+	Tetrahedron<float, 3> a{
 		large_positions[tetrahedra[2][0]],
 		large_positions[tetrahedra[2][1]],
 		large_positions[tetrahedra[2][2]],
 		large_positions[tetrahedra[2][3]],
 	};
 
-	Tetrahedron<float, 3> b
-	{
+	Tetrahedron<float, 3> b{
 		Eigen::Vector3f(0.0f, 0.5f, 0.0f) + large_positions[tetrahedra[3][0]],
 		Eigen::Vector3f(0.0f, 0.5f, 0.0f) + large_positions[tetrahedra[3][1]],
 		Eigen::Vector3f(0.0f, 0.5f, 0.0f) + large_positions[tetrahedra[3][2]],
@@ -151,16 +142,14 @@ TEST(TetTetIntersection, NonIntersect)
 	using Vcl::Geometry::intersects;
 	using Vcl::Mathematics::equal;
 
-	Tetrahedron<float, 3> a
-	{
+	Tetrahedron<float, 3> a{
 		large_positions[tetrahedra[0][0]],
 		large_positions[tetrahedra[0][1]],
 		large_positions[tetrahedra[0][2]],
 		large_positions[tetrahedra[0][3]],
 	};
 
-	Tetrahedron<float, 3> b
-	{
+	Tetrahedron<float, 3> b{
 		Eigen::Vector3f(2, 0, 0) + large_positions[tetrahedra[0][0]],
 		Eigen::Vector3f(2, 0, 0) + large_positions[tetrahedra[0][1]],
 		Eigen::Vector3f(2, 0, 0) + large_positions[tetrahedra[0][2]],
@@ -176,16 +165,14 @@ TEST(TetTetIntersection, Include)
 	using Vcl::Geometry::intersects;
 	using Vcl::Mathematics::equal;
 
-	Tetrahedron<float, 3> a
-	{
+	Tetrahedron<float, 3> a{
 		large_positions[tetrahedra[0][0]],
 		large_positions[tetrahedra[0][1]],
 		large_positions[tetrahedra[0][2]],
 		large_positions[tetrahedra[0][3]],
 	};
 
-	Tetrahedron<float, 3> b
-	{
+	Tetrahedron<float, 3> b{
 		small_positions[tetrahedra[0][0]],
 		small_positions[tetrahedra[0][1]],
 		small_positions[tetrahedra[0][2]],

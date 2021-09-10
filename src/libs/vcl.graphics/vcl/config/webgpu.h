@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
@@ -35,4 +35,3 @@ extern "C"
 }
 #endif
 VCL_END_EXTERNAL_HEADERS
-

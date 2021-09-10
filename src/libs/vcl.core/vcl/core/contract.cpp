@@ -37,8 +37,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #	include <fmt/printf.h>
 VCL_END_EXTERNAL_HEADERS
 
-namespace Vcl { namespace Assert
-{
+namespace Vcl { namespace Assert {
 	enum class QueryAnswer
 	{
 		IgnoreOnce = 1,
@@ -46,48 +45,48 @@ namespace Vcl { namespace Assert
 		Debug = 3
 	};
 
-#ifdef VCL_ABI_WINAPI
+#	ifdef VCL_ABI_WINAPI
 
-	#include <windows.h>
+#		include <windows.h>
 
 	// Register a windows hook to change the message box layout
 	thread_local HHOOK hhk = nullptr;
 
 	LRESULT CALLBACK CBTProc(INT nCode, WPARAM wParam, LPARAM lParam)
 	{
-	   HWND hChildWnd;    // msgbox is "child"
-	   // notification that a window is about to be activated
-	   // window handle is wParam
-	   if (nCode == HCBT_ACTIVATE)
-	   {
-		  // set window handles
-		  hChildWnd = (HWND)wParam;
-		  //to get the text of the Yes button
-		  UINT result;
-		  if (GetDlgItem(hChildWnd,IDIGNORE)!=NULL)
-		  {         
-			 result= SetDlgItemTextA(hChildWnd,IDIGNORE,"Ignore forever");
-		  }
-		  if (GetDlgItem(hChildWnd,IDRETRY)!=NULL)
-		  {
-			 
-			 result= SetDlgItemTextA(hChildWnd,IDRETRY,"Ignore once");
-		  }
-		  if (GetDlgItem(hChildWnd,IDABORT)!=NULL)
-		  {
-			 
-			 result= SetDlgItemTextA(hChildWnd,IDABORT,"Debug");
-		  }
+		HWND hChildWnd; // msgbox is "child"
+		// notification that a window is about to be activated
+		// window handle is wParam
+		if (nCode == HCBT_ACTIVATE)
+		{
+			// set window handles
+			hChildWnd = (HWND)wParam;
+			//to get the text of the Yes button
+			UINT result;
+			if (GetDlgItem(hChildWnd, IDIGNORE) != NULL)
+			{
+				result = SetDlgItemTextA(hChildWnd, IDIGNORE, "Ignore forever");
+			}
+			if (GetDlgItem(hChildWnd, IDRETRY) != NULL)
+			{
 
-		  // exit CBT hook
-		  UnhookWindowsHookEx(hhk);
-	   }
-	   // otherwise, continue with any possible chained hooks
-	   else
-	   {
-		   CallNextHookEx(hhk, nCode, wParam, lParam);
-	   }
-	   return 0;
+				result = SetDlgItemTextA(hChildWnd, IDRETRY, "Ignore once");
+			}
+			if (GetDlgItem(hChildWnd, IDABORT) != NULL)
+			{
+
+				result = SetDlgItemTextA(hChildWnd, IDABORT, "Debug");
+			}
+
+			// exit CBT hook
+			UnhookWindowsHookEx(hhk);
+		}
+		// otherwise, continue with any possible chained hooks
+		else
+		{
+			CallNextHookEx(hhk, nCode, wParam, lParam);
+		}
+		return 0;
 	}
 
 	INT CBTMessageBox(HWND hwnd, const char* message, const char* title, UINT type)
@@ -103,30 +102,30 @@ namespace Vcl { namespace Assert
 		if (result == IDIGNORE)
 		{
 			return QueryAnswer::IgnoreForEver;
-		}
-		else if (result == IDRETRY)
+		} else if (result == IDRETRY)
 		{
 			return QueryAnswer::IgnoreOnce;
-		}
-		else if (result == IDABORT)
+		} else if (result == IDABORT)
 		{
 			return QueryAnswer::Debug;
-		}
-		else
+		} else
 		{
 			return QueryAnswer::IgnoreOnce;
 		}
 	}
-#else
+#	else
 
 	QueryAnswer queryUser(const char* title, const char* message)
 	{
 		using namespace std;
 
 		char answer = 0;
-		cout << title << endl << message << endl << "(i)gnore for ever | ignore (o)nce | (d)ebug? ";
+		cout << title << endl
+			 << message << endl
+			 << "(i)gnore for ever | ignore (o)nce | (d)ebug? ";
 
-		while (true) {
+		while (true)
+		{
 			cin >> answer;
 			switch (answer)
 			{
@@ -137,12 +136,13 @@ namespace Vcl { namespace Assert
 			case 'd':
 				return QueryAnswer::Debug;
 			}
-			cout << endl << "Unexpected input('"<< answer << "')! Choose either (i)gnore | (d)ebug: ";
+			cout << endl
+				 << "Unexpected input('" << answer << "')! Choose either (i)gnore | (d)ebug: ";
 		}
 	}
 
-#endif
-	
+#	endif
+
 	bool handleAssert(const char* title, const char* message, bool* b)
 	{
 		QueryAnswer result = queryUser(title, message);
@@ -166,15 +166,13 @@ namespace Vcl { namespace Assert
 		return false;
 	}
 
-
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const char* note, bool& ignore)
 	{
 		if (note)
 		{
 			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n %s \n", type, file, line, expr, description, note);
 			return handleAssert("Contract Violation", msgbuf.data(), &ignore);
-		}
-		else
+		} else
 		{
 			auto msgbuf = fmt::sprintf("%s in %s:%d:\n '%s' \n %s \n", type, file, line, expr, description);
 			return handleAssert("Contract Violation", msgbuf.data(), &ignore);

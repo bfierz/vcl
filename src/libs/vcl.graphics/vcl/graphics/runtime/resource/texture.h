@@ -36,25 +36,23 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	VCL_DECLARE_FLAGS(TextureUsage,
 
-		//! Texture can be the source of copy opertions
-		CopySrc,
+					  //! Texture can be the source of copy opertions
+					  CopySrc,
 
-		//! Texture can be the destination of copy opertions
-		CopyDst,
+					  //! Texture can be the destination of copy opertions
+					  CopyDst,
 
-		//! Texture can be used to sample texels from in the shader
-		Sampled,
+					  //! Texture can be used to sample texels from in the shader
+					  Sampled,
 
-		//! Texture can be read as image (e.g. in compute shader)
-		Storage,
+					  //! Texture can be read as image (e.g. in compute shader)
+					  Storage,
 
-		//! Texture can be used as render-target
-		OutputAttachment
-	)
+					  //! Texture can be used as render-target
+					  OutputAttachment)
 
 	enum class TextureCubeFace
 	{
@@ -183,11 +181,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		TextureView() = default;
 		TextureView(const TextureView&) = default;
 
-		TextureView& operator= (const TextureView&) = delete;
+		TextureView& operator=(const TextureView&) = delete;
 
 	public:
 		virtual ~TextureView() = default;
-
 
 	public:
 		TextureType type() const { return _type; }
@@ -209,13 +206,17 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		size_t sizeInBytes() const { return _sizeInBytes; }
 
 	protected:
-		void initializeView
-		(
-			TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
-			int firstLvl, int nrLvls,
-			int firstLayer, int nrLayers,
-			int width, int height = 1, int depth = 1
-		);
+		void initializeView(
+			TextureType t,
+			SurfaceFormat f,
+			Flags<TextureUsage> usage,
+			int firstLvl,
+			int nrLvls,
+			int firstLayer,
+			int nrLayers,
+			int width,
+			int height = 1,
+			int depth = 1);
 
 	private:
 		//! Texture type
@@ -227,10 +228,10 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		//! Configured texture usages
 		Flags<TextureUsage> _usage;
 
-		int  _level;
-		int  _nrLevels;
-		int  _layer;
-		int  _nrLayers;
+		int _level;
+		int _nrLevels;
+		int _layer;
+		int _nrLayers;
 
 	private: // Size of a single sub resource of the lowest mip-map level
 		int _width;

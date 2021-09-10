@@ -52,8 +52,8 @@ TEST(Cuda, QueryDevices)
 	CUcontext curr{ 0 };
 	cuCtxPopCurrent(&curr);
 
-	EXPECT_EQ((CUcontext) *ctx, curr) << "Context was not set correctly";
-	
+	EXPECT_EQ((CUcontext)*ctx, curr) << "Context was not set correctly";
+
 	Platform::dispose();
 }
 
@@ -102,11 +102,10 @@ TEST(Cuda, InitUnifiedMemory)
 
 	std::vector<unsigned int> result(32);
 	auto src_ptr = (const void*)(CUdeviceptr)*Vcl::static_pointer_cast<Vcl::Compute::Cuda::Buffer>(buffer);
-	memcpy(result.data(), src_ptr, 32*sizeof(unsigned int));
+	memcpy(result.data(), src_ptr, 32 * sizeof(unsigned int));
 
 	for (unsigned int p : result)
 		EXPECT_EQ(pattern, p) << "Pattern was not set correctly";
 
 	Platform::dispose();
 }
-

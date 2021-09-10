@@ -32,10 +32,7 @@
 #include <vcl/graphics/opengl/type_traits.h>
 #include <vcl/graphics/surfaceformat.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	class GL
 	{
 	public: // Context info
@@ -56,4 +53,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		static bool checkGLFramebufferStatus(GLuint fbo);
 	};
 }}}
-#endif // VCL_OPENGL_SUPPORT

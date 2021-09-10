@@ -28,20 +28,20 @@
 #include <vcl/config/webgpu.h>
 
 #ifndef VCL_ARCH_WEBASM
-#include <dawn_native/DawnNative.h>
-#include <dawn/dawn_proc.h>
+#	include <dawn_native/DawnNative.h>
+#	include <dawn/dawn_proc.h>
 
 std::unique_ptr<dawn_native::Instance> instance;
 
 #else
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#include <emscripten/html5_webgpu.h>
+#	include <emscripten.h>
+#	include <emscripten/html5.h>
+#	include <emscripten/html5_webgpu.h>
 #endif
 
 WGPUDevice device;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifndef VCL_ARCH_WEBASM
 	instance = std::make_unique<dawn_native::Instance>();

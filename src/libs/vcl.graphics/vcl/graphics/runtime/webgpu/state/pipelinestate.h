@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/webgpu.h>
 
@@ -32,17 +32,14 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:
-		GraphicsPipelineState
-		(
+		GraphicsPipelineState(
 			WGPUDevice device,
 			const PipelineStateDescription& desc,
-			const RenderTargetLayout& rt_formats
-		);
+			const RenderTargetLayout& rt_formats);
 
 		//! WebGPU handle
 		WGPURenderPipeline handle() const { return _pipeline; }
@@ -58,11 +55,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 	class ComputePipelineState : public Runtime::PipelineState
 	{
 	public:
-		ComputePipelineState
-		(
+		ComputePipelineState(
 			WGPUDevice device,
-			const ComputePipelineStateDescription& desc
-		);
+			const ComputePipelineStateDescription& desc);
 
 		//! WebGPU handle
 		WGPUComputePipeline handle() const { return _pipeline; }

@@ -58,7 +58,7 @@ const int kMemorySize = 512;
 
 void BM_InitTempThread(benchmark::State& state)
 {
-	memory::temporary_stack stack{4096};
+	memory::temporary_stack stack{ 4096 };
 	while (state.KeepRunning())
 	{
 		memory::temporary_allocator alloc(stack);

@@ -58,7 +58,7 @@ public:
 	void render() override;
 	void synchronize(QQuickFramebufferObject* item) override;
 
-	QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
+	QOpenGLFramebufferObject* createFramebufferObject(const QSize& size);
 
 private:
 	void renderHandle(const Eigen::Matrix4f& M);
@@ -90,7 +90,6 @@ private: // States
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> _idTriMeshPipelineState;
 
 private: // Render targets
-
 	//! Store id of the rendered geometry
 	Vcl::owner_ptr<Vcl::Graphics::Runtime::GBuffer> _idBuffer;
 
@@ -122,7 +121,7 @@ class MeshView : public QQuickFramebufferObject
 	Q_PROPERTY(bool renderWireframe READ renderWireframe WRITE setRenderWireframe)
 
 public:
-	MeshView(QQuickItem *parent = Q_NULLPTR);
+	MeshView(QQuickItem* parent = Q_NULLPTR);
 
 public:
 	Q_INVOKABLE QPoint selectObject(int x, int y);
@@ -152,14 +151,13 @@ public:
 
 private: // Implementations
 	Renderer* createRenderer() const override;
-	void geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry) override;
+	void geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry) override;
 
 private:
 	Scene* _scene{ nullptr };
 	bool _renderWireframe{ false };
 
 private: // ID buffer
-
 	//! Store the on the host side
 	std::unique_ptr<Eigen::Vector2i[]> _idBuffer;
 
@@ -170,7 +168,6 @@ private: // ID buffer
 	uint32_t _idBufferHeight{ 0 };
 
 private: // Position manipulator
-	
 	//! Axis/plane that is currently manipulated
 	int _manip_axis_translation{ 0 };
 

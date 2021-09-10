@@ -36,8 +36,7 @@
 #include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson1DCgCtx : public EigenCgBaseContext<Real, Eigen::Dynamic>
 	{
@@ -56,30 +55,30 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				A.resize(_dim);
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
 			this->setX(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
-			auto& Ac   = _laplacian[0];
+			auto& Ac = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
 			auto& Ax_r = _laplacian[2];
 
 			makePoissonStencil(_dim, h, k, o, map_t{ Ac.data(), Ac.size() }, map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() }, skip);
 		}
-		
+
 	public:
 		// d = r = b - A*x
 		virtual void computeInitialResidual() override
 		{
 			auto X = static_cast<const ptrdiff_t>(_dim);
-			
-			const auto& Ac   = _laplacian[0];
+
+			const auto& Ac = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];
 			const auto& Ax_r = _laplacian[2];
 
@@ -92,8 +91,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			ptrdiff_t index = 0;
 			for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 			{
-				float q_c = unknowns[index    ] * Ac  [index];
-				float q_l = (index > 0)     ? unknowns[index - 1] * Ax_l[index] : 0;
+				float q_c = unknowns[index] * Ac[index];
+				float q_l = (index > 0) ? unknowns[index - 1] * Ax_l[index] : 0;
 				float q_r = (index < X - 1) ? unknowns[index + 1] * Ax_r[index] : 0;
 
 				float q = q_c + q_l + q_r;
@@ -109,8 +108,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual void computeQ() override
 		{
 			unsigned int X = _dim;
-			
-			const auto& Ac   = _laplacian[0];
+
+			const auto& Ac = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];
 			const auto& Ax_r = _laplacian[2];
 
@@ -120,7 +119,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 			{
 				float q = 0;
-					q += d[index    ] * Ac  [index];
+				q += d[index] * Ac[index];
 				if (index > 0)
 					q += d[index - 1] * Ax_l[index];
 				if (index < X - 1)
@@ -131,6 +130,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				this->_q[index] = q;
 			}
 		}
+
 	private:
 		//! Dimensions of the grid
 		unsigned int _dim;

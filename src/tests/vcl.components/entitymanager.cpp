@@ -37,8 +37,10 @@ VCL_END_EXTERNAL_HEADERS
 struct NameComponent
 {
 	NameComponent() = default;
-	NameComponent(const std::string& name) : Name(name) {}
-	NameComponent(const char* name) : Name(name) {}
+	NameComponent(const std::string& name)
+	: Name(name) {}
+	NameComponent(const char* name)
+	: Name(name) {}
 
 	std::string Name;
 };
@@ -46,15 +48,15 @@ struct NameComponent
 struct SecondaryNameComponent
 {
 	SecondaryNameComponent() = default;
-	SecondaryNameComponent(const std::string& name) : Name(name) {}
-	SecondaryNameComponent(const char* name) : Name(name) {}
+	SecondaryNameComponent(const std::string& name)
+	: Name(name) {}
+	SecondaryNameComponent(const char* name)
+	: Name(name) {}
 
 	std::string Name;
 };
 
-
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	template<>
 	struct ComponentTraits<SecondaryNameComponent>
 	{
@@ -102,10 +104,10 @@ TEST(EntityManagerTest, CreateDestroyUniqueComponents)
 	auto c2 = em.create<NameComponent>(e2, "E2");
 	auto c3 = em.create<NameComponent>(e3, "E3");
 
-	EXPECT_TRUE (em.has<NameComponent>(e0));
+	EXPECT_TRUE(em.has<NameComponent>(e0));
 	EXPECT_FALSE(em.has<NameComponent>(e1));
-	EXPECT_TRUE (em.has<NameComponent>(e2));
-	EXPECT_TRUE (em.has<NameComponent>(e3));
+	EXPECT_TRUE(em.has<NameComponent>(e2));
+	EXPECT_TRUE(em.has<NameComponent>(e3));
 
 	EXPECT_EQ("E0", c0->Name);
 	EXPECT_EQ("E2", c2->Name);
@@ -122,8 +124,7 @@ TEST(EntityManagerTest, CreateDestroyMultiComponents)
 	auto e2 = em.create();
 	auto e3 = em.create();
 
-	em.registerComponent<SecondaryNameComponent>([](const SecondaryNameComponent& c, const std::string& s)
-	{
+	em.registerComponent<SecondaryNameComponent>([](const SecondaryNameComponent& c, const std::string& s) {
 		return c.Name == s;
 	});
 

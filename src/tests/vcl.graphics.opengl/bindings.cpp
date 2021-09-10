@@ -37,7 +37,7 @@
 
 // Tests the shader compilation
 const char* MaxBindingsVS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in vec2 Position;
@@ -65,7 +65,7 @@ void main()
 )";
 
 const char* MaxBindingsFS =
-R"(
+	R"(
 #version 440 core
 
 layout(location = 0) in PerVertexData
@@ -90,13 +90,12 @@ void main()
 }
 )";
 
-
 TEST(OpenGL, MaxBindingPoints)
 {
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	int max_vert_bindings= 0;
+	int max_vert_bindings = 0;
 	int max_frag_bindings = 0;
 	int max_comb_bindings = 0;
 	int max_bindings = 0;
@@ -112,13 +111,12 @@ TEST(OpenGL, MaxBindingPoints)
 	EXPECT_TRUE(fs) << fs.get_unexpected().value();
 
 	// Create the input definition
-	InputLayoutDescription in =
-	{
+	InputLayoutDescription in = {
 		{
 			{ 0, sizeof(Eigen::Vector2f) + sizeof(Eigen::Vector3f), Vcl::Graphics::Runtime::VertexDataClassification::VertexDataPerObject },
 		},
 		{
-			{ "Position",  Vcl::Graphics::SurfaceFormat::R32G32_FLOAT, 0, 0, 0 },
+			{ "Position", Vcl::Graphics::SurfaceFormat::R32G32_FLOAT, 0, 0, 0 },
 		}
 	};
 
@@ -134,8 +132,7 @@ TEST(OpenGL, MaxBindingPoints)
 
 	prog.value()->bind();
 
-	BufferDescription buf_desc =
-	{
+	BufferDescription buf_desc = {
 		1024,
 		{}
 	};

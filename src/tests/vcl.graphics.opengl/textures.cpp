@@ -40,21 +40,22 @@
 
 std::vector<unsigned char> createTestPattern(int width, int height, int depth)
 {
-	std::array<unsigned char, 12> pattern =
-	{
+	// clang-format off
+	std::array<unsigned char, 12> pattern = {
 		0xff, 0x00, 0x00, 0xff,
 		0x00, 0xff, 0x00, 0xff,
 		0x00, 0x00, 0xff, 0xff,
 	};
+	// clang-format on
 
 	std::vector<unsigned char> image;
-	image.reserve(width*height*depth*4);
+	image.reserve(width * height * depth * 4);
 	for (int d = 0; d < depth; d++)
-	for (int h = 0; h < height; h++)
-	for (int w = 0; w < width*4; w++)
-	{
-		image.push_back(pattern[4*(h%3) + w%4]);
-	}
+		for (int h = 0; h < height; h++)
+			for (int w = 0; w < width * 4; w++)
+			{
+				image.push_back(pattern[4 * (h % 3) + w % 4]);
+			}
 	return image;
 }
 
@@ -77,11 +78,9 @@ void verifySize(const Vcl::Graphics::Runtime::OpenGL::Texture& tex, int exp_w, i
 		glGetTextureLevelParameterivEXT(tex.id(), tex_type, miplevel, GL_TEXTURE_WIDTH, &w);
 		glGetTextureLevelParameterivEXT(tex.id(), tex_type, miplevel, GL_TEXTURE_HEIGHT, &h);
 		glGetTextureLevelParameterivEXT(tex.id(), tex_type, miplevel, GL_TEXTURE_DEPTH, &d);
-	}
-	else
+	} else
 	{
-		const GLenum faces[] =
-		{
+		const GLenum faces[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -106,11 +105,9 @@ void verifySize(const Vcl::Graphics::Runtime::OpenGL::Texture& tex, int exp_w, i
 		glGetTexLevelParameteriv(tex_type, miplevel, GL_TEXTURE_WIDTH, &w);
 		glGetTexLevelParameteriv(tex_type, miplevel, GL_TEXTURE_HEIGHT, &h);
 		glGetTexLevelParameteriv(tex_type, miplevel, GL_TEXTURE_DEPTH, &d);
-	}
-	else
+	} else
 	{
-		const GLenum faces[] =
-		{
+		const GLenum faces[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
 			GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
 			GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -145,7 +142,7 @@ TEST(OpenGL, InitEmptyTexture1D)
 	desc1d.Width = 32;
 	desc1d.MipLevels = 1;
 	Runtime::OpenGL::Texture1D tex{ desc1d };
-	
+
 	verifySize(tex, 32, 1, 1);
 }
 

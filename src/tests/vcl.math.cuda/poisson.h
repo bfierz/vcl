@@ -49,9 +49,9 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	h = 1.0f / static_cast<float>(nr_pts - 1);
 
 	// Right-hand side and exact solution of the poisson problem
-	rhs.setZero(nr_pts*nr_pts*nr_pts);
-	sol.setZero(nr_pts*nr_pts*nr_pts);
-	boundary.assign(nr_pts*nr_pts*nr_pts, 0);
+	rhs.setZero(nr_pts * nr_pts * nr_pts);
+	sol.setZero(nr_pts * nr_pts * nr_pts);
+	boundary.assign(nr_pts * nr_pts * nr_pts, 0);
 	for (Eigen::VectorXf::Index k = 0; k < static_cast<Eigen::VectorXf::Index>(nr_pts); k++)
 	{
 		for (Eigen::VectorXf::Index j = 0; j < static_cast<Eigen::VectorXf::Index>(nr_pts); j++)
@@ -61,11 +61,11 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 				float x = 0 + i * h;
 				float y = 0 + j * h;
 				float z = 0 + k * h;
-				sol(k*nr_pts*nr_pts + j * nr_pts + i) = sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
-				rhs(k*nr_pts*nr_pts + j * nr_pts + i) = 3 * pi<float>()*pi<float>()*sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
+				sol(k * nr_pts * nr_pts + j * nr_pts + i) = sin(pi<float>() * x) * sin(pi<float>() * y) * sin(pi<float>() * z);
+				rhs(k * nr_pts * nr_pts + j * nr_pts + i) = 3 * pi<float>() * pi<float>() * sin(pi<float>() * x) * sin(pi<float>() * y) * sin(pi<float>() * z);
 
 				if (i == 0 || i == nr_pts - 1 || j == 0 || j == nr_pts - 1 || k == 0 || k == nr_pts - 1)
-					boundary[k*nr_pts*nr_pts + j * nr_pts + i] = 1;
+					boundary[k * nr_pts * nr_pts + j * nr_pts + i] = 1;
 			}
 		}
 	}
@@ -98,7 +98,8 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 	solver.solve(&ctx, &residual);
 
 	// Check for the solution
-	Eigen::VectorXf err; err.setZero(sol.size());
+	Eigen::VectorXf err;
+	err.setZero(sol.size());
 	for (Eigen::VectorXf::Index i = 0; i < sol.size(); i++)
 	{
 		err(i) = fabs(lhs(i) - sol(i));

@@ -35,8 +35,7 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/opencl/scan.h>
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
+namespace Vcl { namespace Core { namespace OpenCL {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */
@@ -55,12 +54,10 @@ namespace Vcl { namespace Core { namespace OpenCL
 		 *                    maxElements passed to the constructor
 		 * \param keyBits     The number of bits in each key to use for ordering
 		 */
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Compute::Buffer> keys,
 			unsigned int numElements,
-			unsigned int keyBits
-		);
+			unsigned int keyBits);
 
 	private:
 		/*!
@@ -87,7 +84,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		Vcl::Compute::OpenCL::Context* _ownerCtx;
 
 	private: // Module, Kernels
-
 		//! Module with the radix sort code
 		ref_ptr<Compute::Module> _radixSortModule;
 
@@ -100,7 +96,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		ScanExclusiveLarge _scan;
 
 	private: // Buffers
-
 		//! Warp size
 		static const unsigned int WarpSize = 32;
 

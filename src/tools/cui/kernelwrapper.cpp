@@ -77,8 +77,8 @@ class FunctionDeclaration
 {
 public:
 	FunctionDeclaration(CXCursor c, const std::string& ns)
-		: _cursor(c)
-		, _cudaType(CudaFunctionType::DeviceFunction)
+	: _cursor(c)
+	, _cudaType(CudaFunctionType::DeviceFunction)
 	{
 		// Store the type of the cursor
 		_kind = clang_getCursorKind(_cursor);
@@ -264,9 +264,9 @@ std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::v
 
 	std::vector<const char*> parser_params = {
 		"-nocudainc", "-nocudalib",
-		"-D__CUDA_LIBDEVICE__", // Required to have the location specifiers resolved correctly on Windows
+		"-D__CUDA_LIBDEVICE__",       // Required to have the location specifiers resolved correctly on Windows
 		"-include", "cuda_runtime.h", // Default include of CUDA applications
-		"-I" // Include command for CUDA runtime
+		"-I"                          // Include command for CUDA runtime
 	};
 	cuda_toolkit_root.append("\\include");
 	parser_params.emplace_back(cuda_toolkit_root.c_str());
@@ -276,8 +276,7 @@ std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::v
 	CXIndex index = clang_createIndex(0, 1);
 
 	// Parse a single translation unit
-	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, nullptr, parser_params.data(), static_cast<int>(parser_params.size()), 0, 0,
-		CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_Incomplete | CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_KeepGoing | CXTranslationUnit_IncludeAttributedTypes | CXTranslationUnit_VisitImplicitAttributes);
+	CXTranslationUnit translation_unit = clang_parseTranslationUnit(index, nullptr, parser_params.data(), static_cast<int>(parser_params.size()), 0, 0, CXTranslationUnit_DetailedPreprocessingRecord | CXTranslationUnit_Incomplete | CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_KeepGoing | CXTranslationUnit_IncludeAttributedTypes | CXTranslationUnit_VisitImplicitAttributes);
 
 	// Traverse AST and collect types
 	TraversalCtx type_ctx;
@@ -354,7 +353,7 @@ void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, cons
 {
 	using namespace kainjow::mustache;
 
-	mustache mod{module_template};
+	mustache mod{ module_template };
 
 	std::stringstream ss;
 	int cnt = 0;
@@ -381,7 +380,7 @@ void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, cons
 		}
 		func_data.set("func_params", func_params);
 
-#define ALIGN_UP(offset, alignment) (offset) = ((offset)+(alignment) -1) & ~((alignment) - 1)
+#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment)-1) & ~((alignment)-1)
 
 		// Compute the size of the kernel parameter buffer
 		long long param_set_size = 0;

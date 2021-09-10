@@ -32,16 +32,14 @@
 // VCL library
 #include <vcl/util/stringparser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	static int convertToIndex(const std::string& str, int latest_idx)
 	{
 		int idx = atoi(str.c_str());
 		if (idx < 0)
 		{
 			return latest_idx + 1 + idx;
-		}
-		else
+		} else
 		{
 			return idx - 1;
 		}
@@ -106,8 +104,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				vN = { p0, p1, p2 };
 				deserialiser->addNode(vN);
 				latest_v_idx++;
-			}
-			else if (token == "vn")
+			} else if (token == "vn")
 			{
 				parser.readFloat(&v3(0));
 				parser.readFloat(&v3(1));
@@ -115,16 +112,14 @@ namespace Vcl { namespace Geometry { namespace IO
 
 				deserialiser->addNormal(v3);
 				latest_vn_idx++;
-			}
-			else if (token == "vt")
+			} else if (token == "vt")
 			{
 				parser.readFloat(&v2(0));
 				parser.readFloat(&v2(1));
 
 				//deserialiser->addTexture(v2);
 				latest_vt_idx++;
-			}
-			else if (token == "vc") // Non standard extension
+			} else if (token == "vc") // Non standard extension
 			{
 				parser.readFloat(&v4(0));
 				parser.readFloat(&v4(1));
@@ -140,13 +135,11 @@ namespace Vcl { namespace Geometry { namespace IO
 			{
 				VclDebugError("Not implemented.");
 				//primitive_point
-			}
-			else if (token == "l")
+			} else if (token == "l")
 			{
 				VclDebugError("Not implemented.");
 				//primitive_line
-			}
-			else if (token == "f")
+			} else if (token == "f")
 			{
 				std::array<unsigned int, 4> corner;
 				corner.fill(0xffffffff);
@@ -200,9 +193,9 @@ namespace Vcl { namespace Geometry { namespace IO
 	void ObjSerialiser::store(AbstractSerialiser* serialiser, const std::string& path) const
 	{
 		using namespace std;
-		
+
 		if (serialiser == NULL) return;
-		
+
 		// Definition of the IO format
 		Eigen::IOFormat io_format(8, 0, "", " ", "", "", "", "");
 
@@ -223,7 +216,7 @@ namespace Vcl { namespace Geometry { namespace IO
 			std::vector<float> pos;
 			serialiser->fetchNode(pos);
 			fout << "v " << pos[0] << " " << pos[1] << " " << pos[2] << endl;
-			
+
 			if (serialiser->hasNormals())
 			{
 				Vector3f normal;
@@ -268,7 +261,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 		// Write footer
 		fout.close();
-		
+
 		// End writing the mesh
 		serialiser->end();
 	}

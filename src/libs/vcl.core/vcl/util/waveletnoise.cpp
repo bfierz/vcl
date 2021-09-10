@@ -30,47 +30,43 @@
 #include <vcl/util/waveletnoise_helpers.h>
 #include <vcl/util/waveletnoise_modulo.h>
 
- // C++ standard library
+// C++ standard library
 #include <array>
 #include <cmath>
 
 // Disable the core-guideline checker until this file is refactored
 #if defined(VCL_COMPILER_MSVC) && defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
 #	pragma warning(push, 1)
-#	pragma warning(disable: 26446)
-#	pragma warning(disable: 26451)
-#	pragma warning(disable: 26482)
+#	pragma warning(disable : 26446)
+#	pragma warning(disable : 26451)
+#	pragma warning(disable : 26482)
 #elif defined(VCL_COMPILER_CLANG)
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wsign-conversion"
 #endif
 
-namespace
-{
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> xIndices =
-	{ -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> yIndices =
-	{ -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> zIndices =
-	{ -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+namespace {
+	VCL_CPP_CONSTEXPR_11 std::array<int, 27> xIndices = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	VCL_CPP_CONSTEXPR_11 std::array<int, 27> yIndices = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	VCL_CPP_CONSTEXPR_11 std::array<int, 27> zIndices = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-#define ADD_WEIGHTED(x,y,z)\
-	weight = 1.0f;\
-	weight *= weights[0][(x) + 1];\
-	weight *= weights[1][(y) + 1];\
-	weight *= weights[2][(z) + 1];\
-	xC = Vcl::Util::FastMath<N>::modulo(mid_x + (x));\
-	yC = Vcl::Util::FastMath<N>::modulo(mid_y + (y));\
-	zC = Vcl::Util::FastMath<N>::modulo(mid_z + (z));\
+#define ADD_WEIGHTED(x, y, z)                         \
+	weight = 1.0f;                                    \
+	weight *= weights[0][(x) + 1];                    \
+	weight *= weights[1][(y) + 1];                    \
+	weight *= weights[2][(z) + 1];                    \
+	xC = Vcl::Util::FastMath<N>::modulo(mid_x + (x)); \
+	yC = Vcl::Util::FastMath<N>::modulo(mid_y + (y)); \
+	zC = Vcl::Util::FastMath<N>::modulo(mid_z + (z)); \
 	result += weight * data[(zC * N + yC) * N + xC]
 
 	template<int N>
-	float interpolate
-	(
-		int mid_x, int mid_y, int mid_z,
+	float interpolate(
+		int mid_x,
+		int mid_y,
+		int mid_z,
 		const std::array<std::array<float, 3>, 3>& weights,
-		stdext::span<const float> data
-	) noexcept
+		stdext::span<const float> data) noexcept
 	{
 		//float result = 0;
 		//for (int z = -1; z < 2; z++)
@@ -140,19 +136,18 @@ namespace
 #undef ADD_WEIGHTED
 }
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	using namespace Details;
 
 	template<int N>
 	WaveletNoise<N>::WaveletNoise() noexcept
-		: WaveletNoise(std::random_device{}())
+	: WaveletNoise(std::random_device{}())
 	{
 	}
 
 	template<int N>
 	WaveletNoise<N>::WaveletNoise(unsigned int seed)
-		: WaveletNoise(*make_twister(seed))
+	: WaveletNoise(*make_twister(seed))
 	{
 	}
 
@@ -166,8 +161,7 @@ namespace Vcl { namespace Util
 		noise_data_base.reserve(n3);
 
 		// Step 1. Fill the tile with random numbers in the range -1 to 1.
-		std::generate_n(std::back_inserter(noise_data_base), n3, [&normal, &rnd_gen]()
-		{
+		std::generate_n(std::back_inserter(noise_data_base), n3, [&normal, &rnd_gen]() {
 			return normal(rnd_gen);
 		});
 
@@ -185,7 +179,7 @@ namespace Vcl { namespace Util
 	{
 		static_assert(N >= 0, "N >= 0");
 		static_assert(N % 2 == 0, "N is even");
-		
+
 		VCL_CPP_CONSTEXPR_11 int n3 = N * N * N;
 
 		std::vector<float> temp1(n3, 0);
@@ -196,27 +190,27 @@ namespace Vcl { namespace Util
 		{
 			for (int iz = 0; iz < N; iz++)
 			{
-				const int i = iy * N + iz*N*N;
+				const int i = iy * N + iz * N * N;
 				downsample<N>(stdext::make_span(&noise_data_base[i], N), stdext::make_span(&temp1[i], N), N, 1);
-				upsample<N>(  stdext::make_span(&temp1[i], N), stdext::make_span(&temp2[i], N), N, 1);
+				upsample<N>(stdext::make_span(&temp1[i], N), stdext::make_span(&temp2[i], N), N, 1);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
 		{
 			for (int iz = 0; iz < N; iz++)
 			{
-				const int i = ix + iz*N*N;
-				downsample<N>(stdext::make_span(&temp2[i], N + N*N), stdext::make_span(&temp1[i], N + N*N), N, N);
-				upsample<N>(  stdext::make_span(&temp1[i], N + N*N), stdext::make_span(&temp2[i], N + N*N), N, N);
+				const int i = ix + iz * N * N;
+				downsample<N>(stdext::make_span(&temp2[i], N + N * N), stdext::make_span(&temp1[i], N + N * N), N, N);
+				upsample<N>(stdext::make_span(&temp1[i], N + N * N), stdext::make_span(&temp2[i], N + N * N), N, N);
 			}
 		}
 		for (int ix = 0; ix < N; ix++)
 		{
 			for (int iy = 0; iy < N; iy++)
 			{
-				const int i = ix + iy*N;
-				downsample<N>(stdext::make_span(&temp2[i], N*N*N), stdext::make_span(&temp1[i], N*N*N), N, N*N);
-				upsample<N>(  stdext::make_span(&temp1[i], N*N*N), stdext::make_span(&temp2[i], N*N*N), N, N*N);
+				const int i = ix + iy * N;
+				downsample<N>(stdext::make_span(&temp2[i], N * N * N), stdext::make_span(&temp1[i], N * N * N), N, N * N);
+				upsample<N>(stdext::make_span(&temp1[i], N * N * N), stdext::make_span(&temp2[i], N * N * N), N, N * N);
 			}
 		}
 
@@ -238,13 +232,13 @@ namespace Vcl { namespace Util
 			{
 				for (int iz = 0; iz < N; iz++)
 				{
-					temp1[icnt] = _noiseTileData[FastMath<N>::modulo(ix + offset) + FastMath<N>::modulo(iy + offset)*N + FastMath<N>::modulo(iz + offset)*N*N];
+					temp1[icnt] = _noiseTileData[FastMath<N>::modulo(ix + offset) + FastMath<N>::modulo(iy + offset) * N + FastMath<N>::modulo(iz + offset) * N * N];
 					icnt++;
 				}
 			}
 		}
 
-		_min =  std::numeric_limits<float>::max();
+		_min = std::numeric_limits<float>::max();
 		_max = -std::numeric_limits<float>::max();
 
 		for (int i = 0; i < n3; i++)
@@ -265,7 +259,7 @@ namespace Vcl { namespace Util
 		evaluateQuadraticSplineBasis(p[0], w[0], mid[0]);
 		evaluateQuadraticSplineBasis(p[1], w[1], mid[1]);
 		evaluateQuadraticSplineBasis(p[2], w[2], mid[2]);
-		
+
 		// Loop over the noise coefficients within the bound
 		return interpolate<N>(mid[0], mid[1], mid[2], w, _noiseTileData);
 	}
@@ -294,17 +288,23 @@ namespace Vcl { namespace Util
 					float t, t1, t2, t3, dot = 0.0f, weight = 1.0f;
 
 					// Dot the normal with the vector from c to p
-					for (int i = 0; i < 3; i++) { dot += normal[i] * (p[i] - static_cast<float>(c[i])); }
+					for (int i = 0; i < 3; i++)
+					{
+						dot += normal[i] * (p[i] - static_cast<float>(c[i]));
+					}
 
 					// Evaluate the basis function at c moved halfway to p along the normal
 					for (int i = 0; i < 3; i++)
 					{
-						t = (static_cast<float>(c[i]) + normal[i] * dot / 2.0f) - (p[i] - 1.5f); t1 = t - 1.0f; t2 = 2.0f - t; t3 = 3.0f - t;
-						weight *= (t <= 0 || t >= 3) ? 0 : (t<1.0f) ? t*t / 2.0f : (t<2.0f) ? 1.0f - (t1*t1 + t2*t2) / 2.0f : t3*t3 / 2.0f;
+						t = (static_cast<float>(c[i]) + normal[i] * dot / 2.0f) - (p[i] - 1.5f);
+						t1 = t - 1.0f;
+						t2 = 2.0f - t;
+						t3 = 3.0f - t;
+						weight *= (t <= 0 || t >= 3) ? 0 : (t < 1.0f) ? t * t / 2.0f : (t < 2.0f) ? 1.0f - (t1 * t1 + t2 * t2) / 2.0f : t3 * t3 / 2.0f;
 					}
 
 					// Evaluate noise by weighting noise coefficients by basis function values
-					result += weight * _noiseTileData[FastMath<N>::modulo(c[2])*N*N + FastMath<N>::modulo(c[1])*N + FastMath<N>::modulo(c[0])];
+					result += weight * _noiseTileData[FastMath<N>::modulo(c[2]) * N * N + FastMath<N>::modulo(c[1]) * N + FastMath<N>::modulo(c[0])];
 				}
 			}
 		}
@@ -348,9 +348,9 @@ namespace Vcl { namespace Util
 		Mat33 w;
 		std::array<int, 3> mid;
 		evaluateDQuadraticSplineBasis(p[0], w[0], mid[0]);
-		evaluateQuadraticSplineBasis (p[1], w[1], mid[1]);
-		evaluateQuadraticSplineBasis (p[2], w[2], mid[2]);
-		
+		evaluateQuadraticSplineBasis(p[1], w[1], mid[1]);
+		evaluateQuadraticSplineBasis(p[2], w[2], mid[2]);
+
 		// Evaluate noise by weighting noise coefficients by basis function values
 		return interpolate<N>(mid[0], mid[1], mid[2], w, _noiseTileData);
 	}
@@ -361,9 +361,9 @@ namespace Vcl { namespace Util
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
 		std::array<int, 3> mid;
-		evaluateQuadraticSplineBasis (p[0], w[0], mid[0]);
+		evaluateQuadraticSplineBasis(p[0], w[0], mid[0]);
 		evaluateDQuadraticSplineBasis(p[1], w[1], mid[1]);
-		evaluateQuadraticSplineBasis (p[2], w[2], mid[2]);
+		evaluateQuadraticSplineBasis(p[2], w[2], mid[2]);
 
 		// Evaluate noise by weighting noise coefficients by basis function values
 		return interpolate<N>(mid[0], mid[1], mid[2], w, _noiseTileData);
@@ -375,8 +375,8 @@ namespace Vcl { namespace Util
 		// Evaluate quadratic B-spline basis functions
 		Mat33 w;
 		std::array<int, 3> mid;
-		evaluateQuadraticSplineBasis (p[0], w[0], mid[0]);
-		evaluateQuadraticSplineBasis (p[1], w[1], mid[1]);
+		evaluateQuadraticSplineBasis(p[0], w[0], mid[0]);
+		evaluateQuadraticSplineBasis(p[1], w[1], mid[1]);
 		evaluateDQuadraticSplineBasis(p[2], w[2], mid[2]);
 
 		// Evaluate noise by weighting noise coefficients by basis function values
@@ -393,22 +393,22 @@ namespace Vcl { namespace Util
 		float result3 = 0;
 		float weight = 1;
 
-#define ADD_WEXT_INDEX(x,y,z) ( (FastMath<N>::modulo(midZ+(z))*N*N) + (FastMath<N>::modulo(midY+(y))*N)+ FastMath<N>::modulo(midX+(x)) )
+#define ADD_WEXT_INDEX(x, y, z) ((FastMath<N>::modulo(midZ + (z)) * N * N) + (FastMath<N>::modulo(midY + (y)) * N) + FastMath<N>::modulo(midX + (x)))
 
-#define ADD_WEIGHTED_EXTDX(x,y,z)\
-	  weight = dw[0][(x) + 1] * w[1][(y) + 1] * w[2][(z) + 1] ; \
-	  result2 += data[ADD_WEXT_INDEX(x,y,z)] * weight;\
-	  result3 += data[ADD_WEXT_INDEX(x,y,z)] * weight;
+#define ADD_WEIGHTED_EXTDX(x, y, z)                          \
+	weight = dw[0][(x) + 1] * w[1][(y) + 1] * w[2][(z) + 1]; \
+	result2 += data[ADD_WEXT_INDEX(x, y, z)] * weight;       \
+	result3 += data[ADD_WEXT_INDEX(x, y, z)] * weight;
 
-#define ADD_WEIGHTED_EXTDY(x,y,z)\
-	  weight = w[0][(x) + 1] * dw[1][(y) + 1] * w[2][(z) + 1] ; \
-	  result1 += data[ADD_WEXT_INDEX(x,y,z)] * weight;\
-	  result3 += data[ADD_WEXT_INDEX(x,y,z)] * weight;
+#define ADD_WEIGHTED_EXTDY(x, y, z)                          \
+	weight = w[0][(x) + 1] * dw[1][(y) + 1] * w[2][(z) + 1]; \
+	result1 += data[ADD_WEXT_INDEX(x, y, z)] * weight;       \
+	result3 += data[ADD_WEXT_INDEX(x, y, z)] * weight;
 
-#define ADD_WEIGHTED_EXTDZ(x,y,z)\
-	  weight = w[0][(x) + 1] * w[1][(y) + 1] * dw[2][(z) + 1] ; \
-	  result1 += data[ADD_WEXT_INDEX(x,y,z)] * weight;\
-	  result2 += data[ADD_WEXT_INDEX(x,y,z)] * weight;
+#define ADD_WEIGHTED_EXTDZ(x, y, z)                          \
+	weight = w[0][(x) + 1] * w[1][(y) + 1] * dw[2][(z) + 1]; \
+	result1 += data[ADD_WEXT_INDEX(x, y, z)] * weight;       \
+	result2 += data[ADD_WEXT_INDEX(x, y, z)] * weight;
 
 		const float midXf = ceil(p[0] - 0.5f);
 		const float midYf = ceil(p[1] - 0.5f);

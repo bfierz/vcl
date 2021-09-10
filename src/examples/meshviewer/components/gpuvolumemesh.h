@@ -42,13 +42,13 @@ public:
 	size_t nrSurfaceFaces() const { return _tetraMesh->nrSurfaceFaces(); }
 	size_t nrVolumes() const { return _tetraMesh->nrVolumes(); }
 
-	Vcl::Graphics::Runtime::OpenGL::Buffer* indices()       const { return _indices.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* positions()     const { return _positions.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* indices() const { return _indices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* positions() const { return _positions.get(); }
 	Vcl::Graphics::Runtime::OpenGL::Buffer* volumeColours() const { return _volumeColours.get(); }
 
-	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceIndices()       const { return _surfaceIndices.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceNormals()       const { return _surfaceNormals.get(); }
-	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceColours()       const { return _surfaceColours.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceIndices() const { return _surfaceIndices.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceNormals() const { return _surfaceNormals.get(); }
+	Vcl::Graphics::Runtime::OpenGL::Buffer* surfaceColours() const { return _surfaceColours.get(); }
 
 	size_t indexStride() const { return _indexStride; }
 	size_t surfaceIndexStride() const { return _surfaceIndexStride; }

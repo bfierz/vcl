@@ -36,8 +36,7 @@
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Forward declaration
 	class AttributeBase;
 	class Serializer;
@@ -49,7 +48,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<size_t N>
-		Type(const char(&name)[N], size_t size, size_t alignment)
+		Type(const char (&name)[N], size_t size, size_t alignment)
 		: Type({ name, N - 1 }, Vcl::Util::StringHash(name).hash(), size, alignment)
 		{
 		}
@@ -61,7 +60,7 @@ namespace Vcl { namespace RTTI
 		virtual ~Type();
 
 	public:
-		Type& operator= (const Type&) = delete;
+		Type& operator=(const Type&) = delete;
 
 	public: // Properties
 		stdext::string_view name() const noexcept { return _name; }
@@ -103,7 +102,7 @@ namespace Vcl { namespace RTTI
 
 		/// Destruct an instance of this type
 		virtual void destruct(void* ptr) const;
-		
+
 	private:
 		void serializeAttributes(Serializer& ser, const void* obj) const;
 
@@ -122,7 +121,7 @@ namespace Vcl { namespace RTTI
 
 		//! Version number
 		int _version;
-		
+
 	protected:
 		//! List of base types of this type
 		stdext::span<const Type*> _parents;

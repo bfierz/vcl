@@ -36,8 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/matrixfactory.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	/*!
 	 *	\brief	Basic camera, projection a 3D scene to a 2D space.
 	 *
@@ -97,7 +96,6 @@ namespace Vcl { namespace Graphics
 		Eigen::ParametrizedLine3f pickWorldSpace(int x, int y) const;
 
 	public: // Properties
-
 		//! Adjust the view port
 		void setViewport(int x, int y);
 
@@ -118,7 +116,7 @@ namespace Vcl { namespace Graphics
 
 		//! Set the far plane
 		void setFarPlane(float far);
-		
+
 		//! Get the near plane
 		float nearPlane() const { return _nearPlane; }
 
@@ -142,7 +140,7 @@ namespace Vcl { namespace Graphics
 
 		//! Get look-at position
 		const Eigen::Vector3f& target() const;
-		
+
 		//! Set look-at direction
 		void setDirection(const Eigen::Vector3f& direction);
 
@@ -160,7 +158,7 @@ namespace Vcl { namespace Graphics
 
 		//! Get the view matrix
 		const Eigen::Matrix<float, 4, 4, Eigen::DontAlign | Eigen::ColMajor>& view() const;
-		
+
 		//! Set camera parameters from a view matrix
 		void setView(const Eigen::Matrix4f& view);
 
@@ -189,7 +187,7 @@ namespace Vcl { namespace Graphics
 		//! Camera look-at point
 		mutable Eigen::Vector3f _target;
 		bool _useTarget;
-		
+
 		//! Camera look-at direction
 		mutable Eigen::Vector3f _direction;
 		bool _useDirection;

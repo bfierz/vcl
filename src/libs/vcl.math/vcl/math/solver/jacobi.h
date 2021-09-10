@@ -30,8 +30,7 @@
 // C++ standard library
 #include <limits>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	class JacobiContext
 	{
 	public:
@@ -79,7 +78,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual bool solve(JacobiContext* ctx, double* residual = nullptr);
 
 	private: // Solver configuration
-
 		//! Maximum number of iterations
 		int _maxIterations = 0;
 

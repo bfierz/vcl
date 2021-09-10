@@ -34,12 +34,11 @@
 #include <stack>
 #include <vector>
 
-// VCL 
+// VCL
 #include <vcl/graphics/imageprocessing/task.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class ImageProcessor
 	{
 	public:
@@ -50,25 +49,29 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		void execute(Task* filter);
 
 	public:
-		virtual void enqueKernel
-		(
-			size_t kernel, int w, int h,
-			const Runtime::Texture** outputs, Eigen::Vector4i* outRanges, size_t nr_outputs,
-			const Runtime::Texture** raw_inputs = nullptr, Eigen::Vector4i* rawInRanges = 0, size_t nr_raw_inputs = 0,
-			const Runtime::Texture** sampled_inputs = nullptr, Eigen::Vector4i* sampledInRanges = nullptr, size_t nr_sampled_inputs = 0
-		) = 0;
+		virtual void enqueKernel(
+			size_t kernel,
+			int w,
+			int h,
+			const Runtime::Texture** outputs,
+			Eigen::Vector4i* outRanges,
+			size_t nr_outputs,
+			const Runtime::Texture** raw_inputs = nullptr,
+			Eigen::Vector4i* rawInRanges = 0,
+			size_t nr_raw_inputs = 0,
+			const Runtime::Texture** sampled_inputs = nullptr,
+			Eigen::Vector4i* sampledInRanges = nullptr,
+			size_t nr_sampled_inputs = 0) = 0;
 
 	public: // Resource management
 		virtual ImagePtr requestImage(int w, int h, SurfaceFormat fmt) = 0;
 
 	private:
 		// Tarjan's algorithm
-		void visit
-		(
+		void visit(
 			Task* task,
 			std::stack<Task*, std::vector<Task*>>& queue,
 			std::set<Task*>& permanent,
-			std::set<Task*>& temporary
-		);
+			std::set<Task*>& temporary);
 	};
 }}}

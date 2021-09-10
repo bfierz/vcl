@@ -35,8 +35,7 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson3DJacobiCtx : public JacobiContext
 	{
@@ -47,21 +46,21 @@ namespace Vcl { namespace Mathematics { namespace Solver
 	public:
 		Poisson3DJacobiCtx(Eigen::Vector3ui dim)
 		: _dim(dim)
-		, _unknowns(nullptr, dim.x()*dim.y())
-		, _rhs(nullptr, dim.x()*dim.y())
+		, _unknowns(nullptr, dim.x() * dim.y())
+		, _rhs(nullptr, dim.x() * dim.y())
 		{
-			_next.setZero(dim.x()*dim.y()*dim.z());
+			_next.setZero(dim.x() * dim.y() * dim.z());
 			for (auto& A : _laplacian)
 			{
-				A.resize(_dim.x()*_dim.y()*_dim.z());
+				A.resize(_dim.x() * _dim.y() * _dim.z());
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
-			new(&_unknowns) map_t(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_unknowns) map_t(unknowns);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -74,20 +73,18 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Az_l = _laplacian[5];
 			auto& Az_r = _laplacian[6];
 
-			makePoissonStencil
-			(
+			makePoissonStencil(
 				_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 				map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
-				skip
-			);
+				skip);
 		}
 
 	public:
 		virtual int size() const override
 		{
-			return _dim.x()*_dim.y()*_dim.z();
+			return _dim.x() * _dim.y() * _dim.z();
 		}
 
 	public:
@@ -132,17 +129,17 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					{
 						float q = 0;
 						if (sx > 0)
-							q += unknowns[index - 1  ] * Ax_l[index];
+							q += unknowns[index - 1] * Ax_l[index];
 						if (sx < X - 1)
-							q += unknowns[index + 1  ] * Ax_r[index];
+							q += unknowns[index + 1] * Ax_r[index];
 						if (sy > 0)
-							q += unknowns[index - X  ] * Ay_l[index];
+							q += unknowns[index - X] * Ay_l[index];
 						if (sy < Y - 1)
-							q += unknowns[index + X  ] * Ay_r[index];
+							q += unknowns[index + X] * Ay_r[index];
 						if (sz > 0)
-							q += unknowns[index - X*Y] * Az_l[index];
+							q += unknowns[index - X * Y] * Az_l[index];
 						if (sz < Z - 1)
-							q += unknowns[index + X*Y] * Az_r[index];
+							q += unknowns[index + X * Y] * Az_r[index];
 
 						float n = (rhs[index] - q) / Ac[index];
 						n = (Ac[index] != 0) ? n : unknowns[index];
@@ -153,7 +150,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 						if (Ac[index])
 						{
 							float e = rhs[index] - (Ac[index] * unknowns[index] + q);
-							acc += e*e;
+							acc += e * e;
 						}
 					}
 				}
@@ -181,8 +178,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<vector_t, 7> _laplacian;
-		
-		//! Left-hand side 
+
+		//! Left-hand side
 		map_t _unknowns;
 
 		//! Right-hand side

@@ -24,26 +24,19 @@
  */
 #include <vcl/graphics/runtime/opengl/resource/texturecubearray.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
-	TextureCubeArray::TextureCubeArray
-	(
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
+	TextureCubeArray::TextureCubeArray(
 		const TextureCubeDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::TextureCubeArray, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
-			desc.Width, desc.Height, 1
-		);
+			desc.Width, desc.Height, 1);
 		initialise(init_data);
 	}
 
@@ -54,13 +47,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void TextureCubeArray::allocImpl(GLenum colour_fmt)
 	{
-#	if defined(VCL_GL_ARB_direct_state_access)
-		glTextureStorage3D(_glId, mipMapLevels(), colour_fmt, width(), height(), 6*layers());
-#	elif defined(VCL_GL_EXT_direct_state_access)
-		glTextureStorage3DEXT(_glId, GL_TEXTURE_CUBE_MAP_ARRAY, mipMapLevels(), colour_fmt, width(), height(), 6*layers());
-#	else
-		glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mipMapLevels(), colour_fmt, width(), height(), 6*layers());
-#	endif
+#if defined(VCL_GL_ARB_direct_state_access)
+		glTextureStorage3D(_glId, mipMapLevels(), colour_fmt, width(), height(), 6 * layers());
+#elif defined(VCL_GL_EXT_direct_state_access)
+		glTextureStorage3DEXT(_glId, GL_TEXTURE_CUBE_MAP_ARRAY, mipMapLevels(), colour_fmt, width(), height(), 6 * layers());
+#else
+		glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mipMapLevels(), colour_fmt, width(), height(), 6 * layers());
+#endif
 	}
 
 	void TextureCubeArray::updateImpl(const TextureResource& data)
@@ -71,13 +64,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLsizei l = (GLsizei)data.Layers;
 		GLsizei mip = (GLsizei)data.MipMap;
 
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, 6 * l, img_fmt.Format, img_fmt.Type, data.data());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureSubImage3DEXT(_glId, GL_TEXTURE_CUBE_MAP_ARRAY, 0, 0, 0, 0, w, h, 6 * l, img_fmt.Format, img_fmt.Type, data.data());
-#	else
+#else
 		glTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, 0, w, h, 6 * l, img_fmt.Format, img_fmt.Type, data.data());
-#	endif
+#endif
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

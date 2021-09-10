@@ -24,11 +24,10 @@
  */
 #include <vcl/geometry/tetramesh.h>
 
- // VCL
+// VCL
 #include <vcl/geometry/meshoperations.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	TetraMesh::TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes)
 	: _surfaceData("SurfaceGroup")
 	{
@@ -42,8 +41,7 @@ namespace Vcl { namespace Geometry
 
 		for (size_t i = 0; i < volumes.size(); ++i)
 		{
-			Volume v
-			{
+			Volume v{
 				VertexId{ volumes[i][0] },
 				VertexId{ volumes[i][1] },
 				VertexId{ volumes[i][2] },

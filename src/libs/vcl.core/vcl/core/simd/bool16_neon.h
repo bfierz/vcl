@@ -32,14 +32,13 @@
 #include <vcl/core/simd/intrinsics_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(16) VectorScalar<bool, 16> : protected Core::Simd::VectorScalarBase<bool, 16, Core::Simd::SimdExt::NEON>
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
-	
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, vandq_u32, 4)
 		VCL_SIMD_BINARY_OP(operator||, vorrq_u32, 4)
@@ -50,30 +49,30 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(3)) << 12;
-			mask |= vmovemaskq_u32(b.get(2)) <<  8;
-			mask |= vmovemaskq_u32(b.get(1)) <<  4;
-			mask |= vmovemaskq_u32(b.get(0));
+		int mask = vmovemaskq_u32(b.get(3)) << 12;
+		mask |= vmovemaskq_u32(b.get(2)) << 8;
+		mask |= vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(3)) << 12;
-			mask |= vmovemaskq_u32(b.get(2)) <<  8;
-			mask |= vmovemaskq_u32(b.get(1)) <<  4;
-			mask |= vmovemaskq_u32(b.get(0));
+		int mask = vmovemaskq_u32(b.get(3)) << 12;
+		mask |= vmovemaskq_u32(b.get(2)) << 8;
+		mask |= vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0xffff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 16>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(3)) << 12;
-			mask |= vmovemaskq_u32(b.get(2)) <<  8;
-			mask |= vmovemaskq_u32(b.get(1)) <<  4;
-			mask |= vmovemaskq_u32(b.get(0));
+		int mask = vmovemaskq_u32(b.get(3)) << 12;
+		mask |= vmovemaskq_u32(b.get(2)) << 8;
+		mask |= vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}

@@ -24,11 +24,10 @@
  */
 #include <vcl/compute/cuda/kernel.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Kernel::Kernel(const std::string& name, CUfunction func)
 	: Compute::Kernel(name)
 	, _func(func)
@@ -73,15 +72,13 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 	void Kernel::runImpl(CommandQueue& queue, dim3 gridDim, dim3 blockDim, unsigned int dynamicSharedMemory, void** params)
 	{
-		VCL_CU_SAFE_CALL(cuLaunchKernel
-		(
+		VCL_CU_SAFE_CALL(cuLaunchKernel(
 			_func,
 			gridDim.x, gridDim.y, gridDim.z,
 			blockDim.x, blockDim.y, blockDim.z,
 			dynamicSharedMemory,
-			(CUstream) queue,
-			nullptr, params
-		));
+			(CUstream)queue,
+			nullptr, params));
 #ifdef VCL_DEBUG
 		queue.sync();
 #endif

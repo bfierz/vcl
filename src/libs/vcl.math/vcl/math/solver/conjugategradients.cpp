@@ -27,8 +27,7 @@
 // C++ standard library
 #include <limits>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	bool ConjugateGradients::solve(ConjugateGradientsContext* ctx, double* residual)
 	{
 		int dofs = ctx->size();

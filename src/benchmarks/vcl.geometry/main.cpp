@@ -47,12 +47,12 @@ VCL_END_EXTERNAL_HEADERS
 // Tests the distance functions.
 static gte::Vector3<float> cast(const Eigen::Vector3f& vec)
 {
-	return{ vec.x(), vec.y(), vec.z() };
+	return { vec.x(), vec.y(), vec.z() };
 }
 
 static Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 {
-	return{ vec[0], vec[1], vec[2] };
+	return { vec[0], vec[1], vec[2] };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ void BM_Dist_TriTri(benchmark::State& state)
 {
 	using namespace Vcl::Geometry;
 	using Vcl::Mathematics::equal;
-	
+
 	using real_t = Real;
 	using int_t = Int;
 
@@ -192,7 +192,7 @@ void BM_Int_RayBoxEberly(benchmark::State& state)
 			Eigen::Vector3f bmax = box_max.at<float>(i);
 			Eigen::Vector3f rdir = ray_dir.at<float>(i);
 
-			gte::Ray3<float> ray{ {0, 0, 0}, cast(rdir) };
+			gte::Ray3<float> ray{ { 0, 0, 0 }, cast(rdir) };
 			gte::AlignedBox3<float> box{ cast(bmin), cast(bmax) };
 
 			benchmark::DoNotOptimize(gteQuery(ray, box));
@@ -289,17 +289,16 @@ void BM_Int_RayBox_MaxMult(benchmark::State& state)
 }
 
 // Register the function as a benchmark
-BENCHMARK(BM_Int_RayBoxEberly);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, float);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float4);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float8);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float16);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, float);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float4);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float8);//->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float16);//->ThreadRange(1, 16);
+BENCHMARK(BM_Int_RayBoxEberly);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, float);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float4);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float8);
+BENCHMARK_TEMPLATE(BM_Int_RayBox, Vcl::float16);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, float);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float4);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float8);
+BENCHMARK_TEMPLATE(BM_Int_RayBox_MaxMult, Vcl::float16);
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 BENCHMARK_MAIN();

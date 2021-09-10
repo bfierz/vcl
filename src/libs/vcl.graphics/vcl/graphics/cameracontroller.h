@@ -33,8 +33,7 @@
 // VCL configuration
 #include <vcl/graphics/camera.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	enum class CameraMode
 	{
 		Object,

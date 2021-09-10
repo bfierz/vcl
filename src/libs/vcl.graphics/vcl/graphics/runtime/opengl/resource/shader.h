@@ -28,8 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // C++ standard library
 #include <initializer_list>
 
@@ -40,16 +38,12 @@
 #include <vcl/graphics/runtime/resource/shader.h>
 #include <vcl/graphics/opengl/gl.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Shader : public Runtime::Shader, public Resource
 	{
 	public:
 		Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers = {});
-		Shader(ShaderType type, int tag,
-			stdext::span<const uint8_t> binary_data,
-			stdext::span<const unsigned int> spec_indices = {},
-			stdext::span<const unsigned int> spec_values = {});
+		Shader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices = {}, stdext::span<const unsigned int> spec_values = {});
 		Shader(Shader&& rhs);
 		virtual ~Shader();
 
@@ -73,4 +67,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	/// @returns The compiled shader, or the error-string in case of failure
 	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices = {}, stdext::span<const unsigned int> spec_values = {});
 }}}}
-#endif // VCL_OPENGL_SUPPORT

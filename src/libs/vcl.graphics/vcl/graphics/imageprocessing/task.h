@@ -37,8 +37,7 @@
 #include <vcl/graphics/imageprocessing/link.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class ImageProcessor;
 
 	enum class InputSlotType
@@ -52,7 +51,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		std::string Name;
 		InputSlotType Type;
 	};
-	
+
 	struct OutputSlotDescription
 	{
 		std::string Name;
@@ -82,7 +81,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		unsigned int nrInputSlots() const;
 
 		OutputSlot* outputSlot(unsigned int idx);
-		InputSlot*  inputSlot(unsigned int idx);
+		InputSlot* inputSlot(unsigned int idx);
 
 	public: // Process the task
 		virtual void process(ImageProcessor* processor) = 0;
@@ -97,7 +96,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	protected: // Slots
 		//! List of this tasks input slots
-		std::vector<std::unique_ptr<InputSlot>>  _inputSlots;
+		std::vector<std::unique_ptr<InputSlot>> _inputSlots;
 
 		//! List of this tasks output slots
 		std::vector<std::unique_ptr<OutputSlot>> _outputSlots;

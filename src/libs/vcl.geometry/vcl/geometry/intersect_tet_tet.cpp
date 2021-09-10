@@ -24,8 +24,7 @@
  */
 #include <vcl/geometry/intersect.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Scalar>
 	struct HalfSpaceCoordinates
 	{
@@ -49,11 +48,10 @@ namespace Vcl { namespace Geometry
 		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
 		const Eigen::Matrix<Scalar, 3, 1>& n,
 		std::array<Scalar, 4>& coord,
-		int& mask
-	)
+		int& mask)
 	{
 		mask = 000;
-		if ((coord[0] = diff[0].dot(n)) > 0) mask  = 001;
+		if ((coord[0] = diff[0].dot(n)) > 0) mask = 001;
 		if ((coord[1] = diff[1].dot(n)) > 0) mask |= 002;
 		if ((coord[2] = diff[2].dot(n)) > 0) mask |= 004;
 		if ((coord[3] = diff[3].dot(n)) > 0) mask |= 010;
@@ -68,13 +66,9 @@ namespace Vcl { namespace Geometry
 	template<typename Scalar>
 	inline bool detHalfSpace(
 		const std::array<Eigen::Matrix<Scalar, 3, 1>, 4>& diff,
-		const Eigen::Matrix<Scalar, 3, 1>& n
-	)
+		const Eigen::Matrix<Scalar, 3, 1>& n)
 	{
-		return ((diff[0].dot(n)>0) &&
-				(diff[1].dot(n)>0) &&
-				(diff[2].dot(n)>0) &&
-				(diff[3].dot(n)>0));
+		return ((diff[0].dot(n) > 0) && (diff[1].dot(n) > 0) && (diff[2].dot(n) > 0) && (diff[3].dot(n) > 0));
 	}
 
 	//! \brief Test if there is a separating edge between two faces
@@ -88,52 +82,52 @@ namespace Vcl { namespace Geometry
 		const auto& coord_f0 = ctx.Coord[f0];
 		const auto& coord_f1 = ctx.Coord[f1];
 
-		int  maskf0 = ctx.Masks[f0];
-		int  maskf1 = ctx.Masks[f1];
+		int maskf0 = ctx.Masks[f0];
+		int maskf1 = ctx.Masks[f1];
 
-		if ((maskf0 | maskf1) != 017) // if there is a vertex of b 
+		if ((maskf0 | maskf1) != 017) // if there is a vertex of b
 			return false;             // included in (-,-) return false
 
-		maskf0 &= (maskf0 ^ maskf1);  // exclude the vertices in (+,+)
+		maskf0 &= (maskf0 ^ maskf1); // exclude the vertices in (+,+)
 		maskf1 &= (maskf0 ^ maskf1);
 
 		// edge 0: 0--1
-		if (((maskf0 & 001) &&		// the vertex 0 of b is in (-,+)
-			(maskf1 & 002)) &&		// the vertex 1 of b is in (+,-)
+		if (((maskf0 & 001) &&  // the vertex 0 of b is in (-,+)
+			 (maskf1 & 002)) && // the vertex 1 of b is in (+,-)
 			(((coord_f0[1] * coord_f1[0]) -
-			(coord_f0[0] * coord_f1[1]))  >0))
+			  (coord_f0[0] * coord_f1[1])) > 0))
 			// the edge of b (0,1) intersect (-,-) (see the paper)
 			return false;
 
-		if (((maskf0 & 002) && (maskf1 & 001)) && (((coord_f0[1] * coord_f1[0]) - (coord_f0[0] * coord_f1[1]))  < 0))
+		if (((maskf0 & 002) && (maskf1 & 001)) && (((coord_f0[1] * coord_f1[0]) - (coord_f0[0] * coord_f1[1])) < 0))
 			return false;
 
 		// edge 1: 0--2
-		if (((maskf0 & 001) && (maskf1 & 004)) && (((coord_f0[2] * coord_f1[0]) - (coord_f0[0] * coord_f1[2]))  > 0))
+		if (((maskf0 & 001) && (maskf1 & 004)) && (((coord_f0[2] * coord_f1[0]) - (coord_f0[0] * coord_f1[2])) > 0))
 			return false;
 
-		if (((maskf0 & 004) && (maskf1 & 001)) && (((coord_f0[2] * coord_f1[0]) - (coord_f0[0] * coord_f1[2]))  < 0))
+		if (((maskf0 & 004) && (maskf1 & 001)) && (((coord_f0[2] * coord_f1[0]) - (coord_f0[0] * coord_f1[2])) < 0))
 			return false;
 
 		// edge 2: 0--3
-		if (((maskf0 & 001) && (maskf1 & 010)) && (((coord_f0[3] * coord_f1[0]) - (coord_f0[0] * coord_f1[3]))  > 0))
+		if (((maskf0 & 001) && (maskf1 & 010)) && (((coord_f0[3] * coord_f1[0]) - (coord_f0[0] * coord_f1[3])) > 0))
 			return false;
 
-		if (((maskf0 & 010) && (maskf1 & 001)) && (((coord_f0[3] * coord_f1[0]) - (coord_f0[0] * coord_f1[3]))  < 0))
+		if (((maskf0 & 010) && (maskf1 & 001)) && (((coord_f0[3] * coord_f1[0]) - (coord_f0[0] * coord_f1[3])) < 0))
 			return false;
 
 		// edge 3: 1--2
-		if (((maskf0 & 002) && (maskf1 & 004)) && (((coord_f0[2] * coord_f1[1]) - (coord_f0[1] * coord_f1[2]))  > 0))
+		if (((maskf0 & 002) && (maskf1 & 004)) && (((coord_f0[2] * coord_f1[1]) - (coord_f0[1] * coord_f1[2])) > 0))
 			return false;
 
-		if (((maskf0 & 004) && (maskf1 & 002)) && (((coord_f0[2] * coord_f1[1]) - (coord_f0[1] * coord_f1[2]))  < 0))
+		if (((maskf0 & 004) && (maskf1 & 002)) && (((coord_f0[2] * coord_f1[1]) - (coord_f0[1] * coord_f1[2])) < 0))
 			return false;
 
 		// edge 4: 1--3
-		if (((maskf0 & 002) && (maskf1 & 010)) && (((coord_f0[3] * coord_f1[1]) - (coord_f0[1] * coord_f1[3]))  > 0))
+		if (((maskf0 & 002) && (maskf1 & 010)) && (((coord_f0[3] * coord_f1[1]) - (coord_f0[1] * coord_f1[3])) > 0))
 			return false;
 
-		if (((maskf0 & 010) && (maskf1 & 002)) && (((coord_f0[3] * coord_f1[1]) - (coord_f0[1] * coord_f1[3]))  < 0))
+		if (((maskf0 & 010) && (maskf1 & 002)) && (((coord_f0[3] * coord_f1[1]) - (coord_f0[1] * coord_f1[3])) < 0))
 			return false;
 
 		// edge 5: 2--3

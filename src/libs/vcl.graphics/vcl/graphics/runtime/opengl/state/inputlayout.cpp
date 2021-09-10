@@ -51,8 +51,7 @@
 #	define glVertexArrayAttribFormatVCL(idx, loc, size, type, normalized, offset) glVertexAttribFormat(loc, size, type, normalized, offset)
 #endif
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	InputLayout::InputLayout(const Runtime::InputLayoutDescription& desc)
 	: _desc(desc)
 	{
@@ -87,8 +86,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 			// GL relevant enumerations
 			auto rt = Vcl::Graphics::OpenGL::GL::toRenderType(elem.Format);
-			
-			for (int sub_loc = 0; sub_loc < std::max(1, (int) elem.NumberLocations); sub_loc++)
+
+			for (int sub_loc = 0; sub_loc < std::max(1, (int)elem.NumberLocations); sub_loc++)
 			{
 				// Shader attribute location
 				int loc = desc.location(idx) + sub_loc;
@@ -103,8 +102,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				if (binding.InputRate == Runtime::VertexDataClassification::VertexDataPerObject)
 				{
 					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, 0);
-				}
-				else if (binding.InputRate == Runtime::VertexDataClassification::VertexDataPerInstance)
+				} else if (binding.InputRate == Runtime::VertexDataClassification::VertexDataPerInstance)
 				{
 					glVertexArrayBindingDivisorVCL(_vaoID, elem.InputSlot, 1);
 				}
@@ -114,8 +112,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				if (rt.isIntegral())
 				{
 					glVertexArrayAttribIFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), elementOffset);
-				}
-				else
+				} else
 				{
 					GLboolean normalized = !(rt.componentType() == GL_FLOAT || rt.componentType() == GL_HALF_FLOAT);
 					glVertexArrayAttribFormatVCL(_vaoID, loc, rt.nrComponents(), rt.componentType(), normalized, elementOffset);

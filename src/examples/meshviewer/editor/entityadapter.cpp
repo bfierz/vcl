@@ -28,8 +28,7 @@
 
 #include "componentadapter.h"
 
-namespace Editor
-{
+namespace Editor {
 	EntityAdapter::EntityAdapter(const QString& name, const Vcl::Components::Entity& entity)
 	: _name(name)
 	, _entity(entity)

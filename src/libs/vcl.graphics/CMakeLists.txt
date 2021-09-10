@@ -44,7 +44,7 @@ set(VCL_CONFIG_INC
 )
 
 set(SOURCE_OPENGL
-	vcl/graphics/imageprocessing/opengl/GaussianBlur.h
+	vcl/graphics/imageprocessing/opengl/3rdparty/GaussianBlur.h
 	vcl/graphics/imageprocessing/opengl/conversion.cpp
 	vcl/graphics/imageprocessing/opengl/conversion.h
 	vcl/graphics/imageprocessing/opengl/gaussian.cpp
@@ -265,6 +265,7 @@ if(VCL_OPENGL_SUPPORT)
 					${vcl_ext_glew}
 			)
 		elseif(WIN32)
+			include(FetchContent)
 			FetchContent_Declare(
 				glew
 				URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip

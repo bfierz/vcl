@@ -24,26 +24,19 @@
  */
 #include <vcl/graphics/runtime/opengl/resource/texture2darray.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
-	Texture2DArray::Texture2DArray
-	(
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
+	Texture2DArray::Texture2DArray(
 		const Texture2DDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::Texture2DArray, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, desc.ArraySize,
-			desc.Width, desc.Height, 1
-		);
+			desc.Width, desc.Height, 1);
 		initialise(init_data);
 	}
 
@@ -54,13 +47,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Texture2DArray::allocImpl(GLenum colour_fmt)
 	{
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureStorage3D(_glId, mipMapLevels(), colour_fmt, width(), height(), layers());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureStorage3DEXT(_glId, GL_TEXTURE_2D_ARRAY, mipMapLevels(), colour_fmt, width(), height(), layers());
-#	else
+#else
 		glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipMapLevels(), colour_fmt, width(), height(), layers());
-#	endif
+#endif
 	}
 
 	void Texture2DArray::updateImpl(const TextureResource& data)
@@ -71,13 +64,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLsizei l = (GLsizei)data.Layers;
 		GLsizei mip = (GLsizei)data.MipMap;
 
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureSubImage3DEXT(_glId, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
-#	else
+#else
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, mip, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
-#	endif
+#endif
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

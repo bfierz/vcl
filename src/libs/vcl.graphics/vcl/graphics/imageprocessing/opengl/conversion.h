@@ -32,15 +32,12 @@
 #include <vcl/graphics/imageprocessing/conversion.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	class IntegerConversion : public ImageProcessing::IntegerConversion
 	{
 	public:
 		IntegerConversion(ImageProcessor* processor);
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 
@@ -48,5 +45,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		size_t _kernelId;
 	};
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

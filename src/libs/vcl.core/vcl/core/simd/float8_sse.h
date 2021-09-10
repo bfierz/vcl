@@ -27,14 +27,13 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool8_sse.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/intrinsics_sse.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class VectorScalar<float, 8> : protected Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::SSE>
 	{
@@ -46,20 +45,20 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(operator-, _mm_sub_ps, 2)
 		VCL_SIMD_BINARY_OP(operator*, _mm_mul_ps, 2)
 		VCL_SIMD_BINARY_OP(operator/, _mm_div_ps, 2)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, _mm_add_ps, 2)
 		VCL_SIMD_ASSIGN_OP(operator-=, _mm_sub_ps, 2)
 		VCL_SIMD_ASSIGN_OP(operator*=, _mm_mul_ps, 2)
 		VCL_SIMD_ASSIGN_OP(operator/=, _mm_div_ps, 2)
-		
+
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps,  2)
+		VCL_SIMD_COMP_OP(operator==, _mm_cmpeq_ps, 2)
 		VCL_SIMD_COMP_OP(operator!=, _mm_cmpneq_ps, 2)
-		VCL_SIMD_COMP_OP(operator<,  _mm_cmplt_ps,  2)
-		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps,  2)
-		VCL_SIMD_COMP_OP(operator>,  _mm_cmpgt_ps,  2)
-		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps,  2)
+		VCL_SIMD_COMP_OP(operator<, _mm_cmplt_ps, 2)
+		VCL_SIMD_COMP_OP(operator<=, _mm_cmple_ps, 2)
+		VCL_SIMD_COMP_OP(operator>, _mm_cmpgt_ps, 2)
+		VCL_SIMD_COMP_OP(operator>=, _mm_cmpge_ps, 2)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, Core::Simd::SSE::abs_f32, 2)
@@ -74,36 +73,34 @@ namespace Vcl
 		VCL_SIMD_UNARY_OP(sqrt, _mm_sqrt_ps, 2)
 		VCL_SIMD_UNARY_OP(rcp, _mmVCL_rcp_ps, 2)
 		VCL_SIMD_UNARY_OP(rsqrt, _mmVCL_rsqrt_ps, 2)
-		
+
 		VCL_SIMD_QUERY_OP(isinf, _mm_isinf_ps, 2)
 
 	public:
 		VCL_SIMD_BINARY_OP(min, _mm_min_ps, 2)
 		VCL_SIMD_BINARY_OP(max, _mm_max_ps, 2)
-		
+
 		VCL_SIMD_BINARY_REDUCTION_OP(dot, _mmVCL_dp_ps, Core::Simd::Details::add, 2)
-		
+
 		VCL_SIMD_UNARY_REDUCTION_OP(min, _mmVCL_hmin_ps, Mathematics::min, 2)
 		VCL_SIMD_UNARY_REDUCTION_OP(max, _mmVCL_hmax_ps, Mathematics::max, 2)
 	};
 
 	VCL_STRONG_INLINE VectorScalar<float, 8> select(const VectorScalar<bool, 8>& mask, const VectorScalar<float, 8>& a, const VectorScalar<float, 8>& b) noexcept
 	{
-		return VectorScalar<float, 8>
-		(
+		return VectorScalar<float, 8>(
 			Core::Simd::SSE::blend_f32(b.get(0), a.get(0), mask.get(0)),
-			Core::Simd::SSE::blend_f32(b.get(1), a.get(1), mask.get(1))
-		);
+			Core::Simd::SSE::blend_f32(b.get(1), a.get(1), mask.get(1)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<float, 8>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<float, 8>& rhs)
 	{
 		alignas(16) float vars[8];
 		_mm_store_ps(vars + 0, rhs.get(0));
 		_mm_store_ps(vars + 4, rhs.get(1));
-		
+
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
-				 << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
 	}

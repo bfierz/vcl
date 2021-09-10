@@ -27,15 +27,12 @@
 // VCL
 #include <vcl/core/simd/memory.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Real>
-	Real distanceImpl
-	(
+	Real distanceImpl(
 		const Ray<Real, 3>& ray_a,
 		const Ray<Real, 3>& ray_b,
-		Result<Real>* result
-	)
+		Result<Real>* result)
 	{
 		// Ray Ray(s) = A + s*P
 		// Ray Ray(t) = B + t*Q
@@ -54,18 +51,18 @@ namespace Vcl { namespace Geometry
 		// | -PQ Q^2 | | t | = |  (A - B)Q |
 		const auto& A = ray_a.origin();
 		const auto& B = ray_b.origin();
-		
+
 		const auto& P = ray_a.direction();
 		const auto& Q = ray_b.direction();
-		const Real pp =  P.dot(P);
-		const Real qq =  Q.dot(Q);
+		const Real pp = P.dot(P);
+		const Real qq = Q.dot(Q);
 		const Real pq = -P.dot(Q);
 		const Real c1 = -(A - B).dot(P);
-		const Real c2 =  (A - B).dot(Q);
+		const Real c2 = (A - B).dot(Q);
 
-		const Real D  = pp*qq - pq*pq;
-		const Real Ds = c1*qq - pq*c2;
-		const Real Dt = pp*c2 - c1*pq;
+		const Real D = pp * qq - pq * pq;
+		const Real Ds = c1 * qq - pq * c2;
+		const Real Dt = pp * c2 - c1 * pq;
 
 		// Handle parallel rays (D == 0)
 		const Real s = select(D > 0, Ds / D, Real(0.0f));
@@ -86,39 +83,31 @@ namespace Vcl { namespace Geometry
 		return dist;
 	}
 
-	float distance
-	(
+	float distance(
 		const Ray<float, 3>& ray_a,
 		const Ray<float, 3>& ray_b,
-		Result<float>* result
-	)
+		Result<float>* result)
 	{
 		return distanceImpl(ray_a, ray_b, result);
 	}
-	float4 distance
-	(
+	float4 distance(
 		const Ray<float4, 3>& ray_a,
 		const Ray<float4, 3>& ray_b,
-		Result<float4>* result
-	)
+		Result<float4>* result)
 	{
 		return distanceImpl(ray_a, ray_b, result);
 	}
-	float8 distance
-	(
+	float8 distance(
 		const Ray<float8, 3>& ray_a,
 		const Ray<float8, 3>& ray_b,
-		Result<float8>* result
-	)
+		Result<float8>* result)
 	{
 		return distanceImpl(ray_a, ray_b, result);
 	}
-	float16 distance
-	(
+	float16 distance(
 		const Ray<float16, 3>& ray_a,
 		const Ray<float16, 3>& ray_b,
-		Result<float16>* result
-	)
+		Result<float16>* result)
 	{
 		return distanceImpl(ray_a, ray_b, result);
 	}

@@ -28,8 +28,7 @@
 #define VCL_MATH_JACOBIQR_USE_RSQRT
 #include <vcl/math/qr33_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	void JacobiQR(Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>& Q)
 	{
 		// Initialize Q

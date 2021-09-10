@@ -33,12 +33,10 @@
 // VCL
 #include <vcl/math/polardecomposition.h>
 
-void createRandomProblems
-(
+void createRandomProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -49,8 +47,8 @@ void createRandomProblems
 		// Rest-state
 		Eigen::Matrix3f M;
 		M << d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 		F.at<float>(i) = M;
 
 		if (R)
@@ -62,12 +60,10 @@ void createRandomProblems
 	}
 }
 
-void createSymmetricProblems
-(
+void createSymmetricProblems(
 	size_t nr_problems,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -78,8 +74,8 @@ void createSymmetricProblems
 		// Rest-state
 		Eigen::Matrix3f M;
 		M << d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng),
-		     d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 		Eigen::Matrix3f MtM = M.transpose() * M;
 		F.at<float>(i) = MtM;
 
@@ -92,14 +88,12 @@ void createSymmetricProblems
 	}
 }
 
-void createRotationProblems
-(
+void createRotationProblems(
 	size_t nr_problems,
 	float max_angle,
 	float max_compression,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
-	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R
-)
+	Vcl::Core::InterleavedArray<float, 3, 3, -1>* R)
 {
 	// Random number generator
 	std::mt19937_64 rng;
@@ -111,8 +105,8 @@ void createRotationProblems
 		// Rest-state
 		Eigen::Matrix3f X0;
 		X0 << d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng),
-		      d(rng), d(rng), d(rng);
+			d(rng), d(rng), d(rng),
+			d(rng), d(rng), d(rng);
 
 		// Rotation angle
 		float angle = a(rng);
@@ -130,7 +124,7 @@ void createRotationProblems
 		if (max_compression > 0)
 		{
 			Eigen::Matrix<float, 3, 1> scaling;
-			scaling << (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng)), (1.0f - max_compression*d(rng));
+			scaling << (1.0f - max_compression * d(rng)), (1.0f - max_compression * d(rng)), (1.0f - max_compression * d(rng));
 
 			Eigen::JacobiSVD<Eigen::Matrix3f> svd{ Rot, Eigen::ComputeFullU | Eigen::ComputeFullV };
 			Rot *= svd.matrixV() * scaling.asDiagonal() * svd.matrixV().transpose();
@@ -141,13 +135,11 @@ void createRotationProblems
 	}
 }
 
-void computeEigenReferenceSolution
-(
+void computeEigenReferenceSolution(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& ATA,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& S)
 {
 	// Compute reference using Eigen
 	for (int i = 0; i < static_cast<int>(nr_problems); i++)

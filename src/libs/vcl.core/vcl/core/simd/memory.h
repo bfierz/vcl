@@ -34,7 +34,6 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/core/interleavedarray.h>
 
-
 #if defined VCL_VECTORIZE_SSE
 #	include <vcl/core/simd/memory_sse.h>
 #endif //VCL_VECTORIZE_SSE
@@ -47,8 +46,7 @@
 #	include <vcl/core/simd/memory_neon.h>
 #endif //VCL_VECTORIZE_NEON
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE void load(float& value, const float* base) noexcept
 	{
 		VclRequire(base, "Load memory location is not null");
@@ -87,20 +85,18 @@ namespace Vcl
 	}
 
 	template<typename Scalar>
-	Scalar gather(Scalar const * base, int vindex)  noexcept
+	Scalar gather(Scalar const* base, int vindex) noexcept
 	{
 		return *(base + vindex * 1);
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
-	(
+	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather(
 		const Eigen::Matrix<Scalar, Rows, Cols>* base,
-		VectorScalar<int, Width>& vindex
-	)
+		VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
-		static_assert(sizeof(Eigen::Matrix<Scalar, Rows, Cols>) == Rows*Cols*sizeof(Scalar), "Size of matrix type does not contain any padding.");
+		static_assert(sizeof(Eigen::Matrix<Scalar, Rows, Cols>) == Rows * Cols * sizeof(Scalar), "Size of matrix type does not contain any padding.");
 
 		using wideint_t = VectorScalar<int, Width>;
 
@@ -110,9 +106,9 @@ namespace Vcl
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				const wideint_t scale = wideint_t(Rows*Cols);
-				const wideint_t offset = wideint_t(Rows*c + r);
-				const wideint_t idx = scale*vindex + offset;
+				const wideint_t scale = wideint_t(Rows * Cols);
+				const wideint_t offset = wideint_t(Rows * c + r);
+				const wideint_t idx = scale * vindex + offset;
 				res(r, c) = gather(base->data(), idx);
 			}
 		}
@@ -121,11 +117,9 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols, int Stride>
-	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather
-	(
+	Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> gather(
 		const Vcl::Core::InterleavedArray<Scalar, Rows, Cols, Stride>& base,
-		VectorScalar<int, Width>& vindex
-	)
+		VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
@@ -155,10 +149,8 @@ namespace Vcl
 		return base.template at<Scalar>(vindex * 1);
 	}
 
-
-
 	template<typename Scalar>
-	void scatter(Scalar value, Scalar * base, int vindex) noexcept
+	void scatter(Scalar value, Scalar* base, int vindex) noexcept
 	{
 		*(base + vindex * 1) = value;
 	}
@@ -179,12 +171,10 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	void scatter
-	(
-		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& value, 
+	void scatter(
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& value,
 		Eigen::Matrix<Scalar, Rows, Cols>* base,
-		const VectorScalar<int, Width>& vindex
-	)
+		const VectorScalar<int, Width>& vindex)
 	{
 		static_assert(Rows != Vcl::Core::DynamicStride && Cols != Vcl::Core::DynamicStride, "Only fixed size matrices are supported.");
 
@@ -193,9 +183,9 @@ namespace Vcl
 		{
 			for (int r = 0; r < Rows; r++)
 			{
-				const intN_t scale  = intN_t(Rows*Cols);
-				const intN_t offset = intN_t(Rows*c + r);
-				const intN_t idx = scale*vindex + offset;
+				const intN_t scale = intN_t(Rows * Cols);
+				const intN_t offset = intN_t(Rows * c + r);
+				const intN_t idx = scale * vindex + offset;
 				scatter(value(r, c), base->data(), idx);
 			}
 		}
@@ -208,41 +198,37 @@ namespace Vcl
 
 		base.template at<Scalar>(vindex * 1) = value;
 	}
-	
+
 #if !defined(VCL_VECTORIZE_SSE) && !defined(VCL_VECTORIZE_AVX) && !defined(VCL_VECTORIZE_NEON)
 	template<typename T, int Width>
 	VCL_STRONG_INLINE void load(VectorScalar<T, Width>& value, const T* base)
 	{
 		value = VectorScalar<T, Width>(base, 1);
 	}
-	
+
 	template<typename T, int Width>
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<VectorScalar<T, Width>, 3, 1>& loaded,
-		const Eigen::Matrix<T, 3, 1>* base
-	)
+		const Eigen::Matrix<T, 3, 1>* base)
 	{
 		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 3);
 		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 3);
 		loaded(2) = VectorScalar<T, Width>(base->data() + 2, 3);
 	}
-	
+
 	template<typename T, int Width>
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<VectorScalar<T, Width>, 4, 1>& loaded,
-		const Eigen::Matrix<T, 4, 1>* base
-	)
+		const Eigen::Matrix<T, 4, 1>* base)
 	{
 		loaded(0) = VectorScalar<T, Width>(base->data() + 0, 4);
 		loaded(1) = VectorScalar<T, Width>(base->data() + 1, 4);
 		loaded(2) = VectorScalar<T, Width>(base->data() + 2, 4);
 		loaded(3) = VectorScalar<T, Width>(base->data() + 3, 4);
 	}
-	
+
 	template<typename T, int Width>
-	VectorScalar<T, Width> gather(T const * base, VectorScalar<int, Width> vindex)
+	VectorScalar<T, Width> gather(T const* base, VectorScalar<int, Width> vindex)
 	{
 		VectorScalar<T, Width> gathered;
 		for (size_t i = 0; i < Width; i++)
@@ -257,15 +243,15 @@ namespace Vcl
 		static_assert(Width % 2 == 0, "Interleaving requires even number of entries");
 
 		VectorScalar<T, Width> low, high;
-		for (size_t i = 0; i < Width/2; i++)
+		for (size_t i = 0; i < Width / 2; i++)
 		{
-			low[2*i+0] = a[i];
-			low[2*i+1] = b[i];
+			low[2 * i + 0] = a[i];
+			low[2 * i + 1] = b[i];
 		}
-		for (size_t i = 0; i < Width/2; i++)
+		for (size_t i = 0; i < Width / 2; i++)
 		{
-			high[2 * i + 0] = a[Width/2 + i];
-			high[2 * i + 1] = b[Width/2 + i];
+			high[2 * i + 0] = a[Width / 2 + i];
+			high[2 * i + 1] = b[Width / 2 + i];
 		}
 
 		return { low, high };

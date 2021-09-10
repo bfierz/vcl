@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/rtti/metatype.h>
 
-namespace System { namespace Components
-{
+namespace System { namespace Components {
 	class Transform
 	{
 		VCL_DECLARE_PLAIN_METAOBJECT

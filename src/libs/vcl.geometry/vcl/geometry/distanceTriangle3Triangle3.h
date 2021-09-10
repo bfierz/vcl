@@ -33,8 +33,7 @@
 #include <vcl/geometry/segment.h>
 #include <vcl/geometry/triangle.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	/*!
 	 *	Triangle - Triangle distance function from: http://jcgt.org/published/0003/04/05/
 	 */
@@ -61,25 +60,19 @@ namespace Vcl { namespace Geometry
 	// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	// THE SOFTWARE.
 
-	float4 distance
-	(
+	float4 distance(
 		const Triangle<float4, 3>& iTri1,
 		const Triangle<float4, 3>& iTri2,
 		Eigen::Matrix<float4, 3, 1>& oTri1Point,
-		Eigen::Matrix<float4, 3, 1>& oTri2Point
-	);
-	float8 distance
-	(
+		Eigen::Matrix<float4, 3, 1>& oTri2Point);
+	float8 distance(
 		const Triangle<float8, 3>& iTri1,
 		const Triangle<float8, 3>& iTri2,
 		Eigen::Matrix<float8, 3, 1>& oTri1Point,
-		Eigen::Matrix<float8, 3, 1>& oTri2Point
-	);
-	float16 distance
-	(
+		Eigen::Matrix<float8, 3, 1>& oTri2Point);
+	float16 distance(
 		const Triangle<float16, 3>& iTri1,
 		const Triangle<float16, 3>& iTri2,
 		Eigen::Matrix<float16, 3, 1>& oTri1Point,
-		Eigen::Matrix<float16, 3, 1>& oTri2Point
-	);
+		Eigen::Matrix<float16, 3, 1>& oTri2Point);
 }}

@@ -34,8 +34,7 @@
 
 #include <vcl/compute/cuda/device.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	enum class ApiBinding
 	{
 		None,

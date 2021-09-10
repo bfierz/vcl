@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/geometry/io/serialiser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	class TetGenSerialiser : public Serialiser
 	{
 	public: // Read mesh file

@@ -34,8 +34,7 @@
 
 #include <vcl/compute/opencl/device.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class Context : public Compute::Context
 	{
 	public:

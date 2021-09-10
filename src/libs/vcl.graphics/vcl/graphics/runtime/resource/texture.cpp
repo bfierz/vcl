@@ -28,15 +28,18 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
-	void TextureView::initializeView
-	(
-		TextureType t, SurfaceFormat f, Flags<TextureUsage> usage,
-		int firstLvl, int nrLvls,
-		int firstLayer, int nrLayers,
-		int width, int height, int depth
-	)
+namespace Vcl { namespace Graphics { namespace Runtime {
+	void TextureView::initializeView(
+		TextureType t,
+		SurfaceFormat f,
+		Flags<TextureUsage> usage,
+		int firstLvl,
+		int nrLvls,
+		int firstLayer,
+		int nrLayers,
+		int width,
+		int height,
+		int depth)
 	{
 		_type = t;
 		_format = f;

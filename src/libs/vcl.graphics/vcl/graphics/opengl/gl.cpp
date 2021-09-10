@@ -27,10 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	const char* GL::getProfileInfo()
 	{
 		GLint profile;
@@ -50,14 +47,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	{
 		GLint val = getInteger(e);
 
-		return (GLenum) val;
+		return (GLenum)val;
 	}
-	
+
 	GLenum GL::getEnum(GLenum e, int i)
 	{
 		GLint val = getInteger(e, i);
 
-		return (GLenum) val;
+		return (GLenum)val;
 	}
 
 	GLint GL::getInteger(GLenum e)
@@ -75,13 +72,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		return val;
 	}
-	
+
 	AnyRenderType GL::toRenderType(SurfaceFormat fmt)
 	{
 		using namespace Vcl::Graphics::OpenGL;
 
-		switch (fmt)
-		{
+		// clang-format off
+		switch (fmt) {
 		case SurfaceFormat::R32G32B32A32_FLOAT  : return RenderType<Float4>();
 		case SurfaceFormat::R32G32B32A32_UINT   : return RenderType<UnsignedInt4>();
 		case SurfaceFormat::R32G32B32A32_SINT   : return RenderType<SignedInt4>();
@@ -131,10 +128,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		case SurfaceFormat::R8_SINT             : return RenderType<SignedByte>();
 		default: VclDebugError("Unsupported surface format.");
 		};
+		// clang-format on
 
 		return RenderType<void>();
 	}
-		
 
 	bool GL::checkGLError()
 	{
@@ -176,12 +173,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			return false;
 		}
 	}
-	
+
 	bool GL::checkGLFramebufferStatus(GLuint fbo)
 	{
 		// check FBO status
-		GLenum status = glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);   
-		switch(status)
+		GLenum status = glCheckNamedFramebufferStatus(fbo, GL_FRAMEBUFFER);
+		switch (status)
 		{
 		case GL_FRAMEBUFFER_COMPLETE:
 			return true;
@@ -221,4 +218,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		}
 	}
 }}}
-#endif // VCL_OPENGL_SUPPORT

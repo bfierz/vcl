@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 #include <vcl/config/webgpu.h>
@@ -33,8 +33,7 @@
 #include <vcl/core/flags.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class Buffer : public Runtime::Buffer
 	{
 	public:
@@ -49,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 
 		//! Unmap the buffer
 		void unmap() const;
-		
+
 		//void write(Graphics::D3D12::Device* device, ID3D12GraphicsCommandList* cmd_list, const void* data, size_t offset_in_bytes, size_t size_in_bytes);
 
 		//! \defgroup Data copy methods
@@ -62,7 +61,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		//! \}
 
 	private:
-		//! 
+		//!
 		WGPUBuffer _resource;
 	};
 }}}}

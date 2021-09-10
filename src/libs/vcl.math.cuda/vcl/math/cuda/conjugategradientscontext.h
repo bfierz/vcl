@@ -44,8 +44,7 @@
 #define VCL_MATH_CG_CUDA_BASIC 0
 
 #ifdef VCL_CUDA_SUPPORT
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	class ConjugateGradientsContext : public Vcl::Mathematics::Solver::ConjugateGradientsContext
 	{
 	public:
@@ -60,11 +59,11 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 	public:
 		// d = r = b - A*x
-		virtual void computeInitialResidual() =0;
-			
+		virtual void computeInitialResidual() = 0;
+
 		// q = A*d
-		virtual void computeQ() =0 ;
-			
+		virtual void computeQ() = 0;
+
 		// d_r = dot(r, r)
 		// d_g = dot(d, q)
 		// d_b = dot(r, q)
@@ -90,7 +89,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 	private:
 		//! Allocate internal memory structures
 		void init();
-		
+
 		//! Free internal memory structures
 		void destroy();
 
@@ -105,7 +104,7 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersG;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersB;
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 2> _reduceBuffersA;
-		
+
 		float* _hostR;
 		float* _hostG;
 		float* _hostB;

@@ -24,11 +24,10 @@
  */
 #include <vcl/graphics/runtime/state/sampler.h>
 
- // C++ Standard Library
+// C++ Standard Library
 #include <limits>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	SamplerDescription::SamplerDescription()
 	{
 		Filter = FilterType::MinMagMipLinear;
@@ -49,6 +48,5 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	Sampler::Sampler(const SamplerDescription& desc)
 	: _desc(desc)
 	{
-
 	}
 }}}

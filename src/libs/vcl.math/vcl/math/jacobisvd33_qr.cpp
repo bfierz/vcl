@@ -30,8 +30,7 @@
 #define VCL_MATH_JACOBIQR_USE_RSQRT
 #include <vcl/math/jacobisvd33_qr_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int QRJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V)
 	{
 		return QRJacobiSVD<float>(A, U, V);

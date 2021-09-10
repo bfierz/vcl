@@ -38,9 +38,10 @@
 // https://github.com/panaseleus/stack_unwinding/blob/master/standalone/stack_unwinding.hpp
 
 #if defined(VCL_COMPILER_MSVC) && (_MSC_VER <= 1800)
-namespace std
-{
-	namespace details { extern "C" char * _getptd(); }
+namespace std {
+	namespace details {
+		extern "C" char* _getptd();
+	}
 	inline int uncaught_exceptions()
 	{
 		// MSVC specific. Tested on {MSVC2005SP1,MSVC2008SP1,MSVC2010SP1,MSVC2012}x{x32,x64}.
@@ -49,9 +50,10 @@ namespace std
 }
 #elif defined(__APPLE__)
 #	include <cxxabi.h>
-namespace std
-{
-	namespace details { extern "C" char * __cxa_get_globals(); }
+namespace std {
+	namespace details {
+		extern "C" char* __cxa_get_globals();
+	}
 	inline int uncaught_exceptions() noexcept
 	{
 		return *(static_cast<unsigned*>(static_cast<void*>(reinterpret_cast<char*>(details::__cxa_get_globals()) + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
@@ -59,8 +61,7 @@ namespace std
 }
 #elif defined(__GLIBCXX__) || (defined(_LIBCPP_VERSION) && !defined(__EMSCRIPTEN__))
 #	include <cxxabi.h>
-namespace std
-{
+namespace std {
 	inline int uncaught_exceptions() noexcept
 	{
 		return *(static_cast<unsigned*>(static_cast<void*>(reinterpret_cast<char*>(__cxxabiv1::__cxa_get_globals()) + (sizeof(void*) == 8 ? 0x8 : 0x4)))); // x32 offset - 0x4 , x64 - 0x8
@@ -71,8 +72,7 @@ namespace std
 // Scope guard presentation:
 // https://github.com/CppCon/CppCon2015/blob/master/Presentations/Declarative%20Control%20Flow/Declarative%20Control%20Flow%20-%20Andrei%20Alexandrescu%20-%20CppCon%202015.pdf
 
-namespace Vcl { namespace Util { namespace Detail
-{
+namespace Vcl { namespace Util { namespace Detail {
 	class UncaughtExceptionCounter
 	{
 	public:
@@ -91,7 +91,7 @@ namespace Vcl { namespace Util { namespace Detail
 		int _exceptionCount;
 	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	class ScopeGuard
 	{
 	public:
@@ -122,7 +122,7 @@ namespace Vcl { namespace Util { namespace Detail
 		FunctionType _function;
 	};
 
-	template <typename FunctionType, bool executeOnException>
+	template<typename FunctionType, bool executeOnException>
 	class ScopeGuardForNewException
 	{
 	public:
@@ -158,51 +158,48 @@ namespace Vcl { namespace Util { namespace Detail
 		UncaughtExceptionCounter _exceptionCounter;
 	};
 
-	enum class ScopeGuardOnFail {};
+	enum class ScopeGuardOnFail
+	{
+	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	ScopeGuardForNewException<typename std::decay<FunctionType>::type, true>
-		operator+(ScopeGuardOnFail, FunctionType&& fn)
+	operator+(ScopeGuardOnFail, FunctionType&& fn)
 	{
-		return ScopeGuardForNewException<typename std::decay<FunctionType>::type, true>
-		(
-			std::forward<FunctionType>(fn)
-		);
+		return ScopeGuardForNewException<typename std::decay<FunctionType>::type, true>(
+			std::forward<FunctionType>(fn));
 	}
 
-	enum class ScopeGuardOnSuccess {};
+	enum class ScopeGuardOnSuccess
+	{
+	};
 
-	template <typename FunctionType>
+	template<typename FunctionType>
 	ScopeGuardForNewException<typename std::decay<FunctionType>::type, false>
-		operator+(ScopeGuardOnSuccess, FunctionType&& fn)
+	operator+(ScopeGuardOnSuccess, FunctionType&& fn)
 	{
-		return ScopeGuardForNewException<typename std::decay<FunctionType>::type, false>
-		(
-			std::forward<FunctionType>(fn)
-		);
+		return ScopeGuardForNewException<typename std::decay<FunctionType>::type, false>(
+			std::forward<FunctionType>(fn));
 	}
 
-	enum class ScopeGuardOnExit {};
-
-	template <typename FunctionType>
-	ScopeGuard<typename std::decay<FunctionType>::type>
-		operator+(ScopeGuardOnExit, FunctionType&& fn)
+	enum class ScopeGuardOnExit
 	{
-		return ScopeGuard<typename std::decay<FunctionType>::type>
-		(
-			std::forward<FunctionType>(fn)
-		);
+	};
+
+	template<typename FunctionType>
+	ScopeGuard<typename std::decay<FunctionType>::type>
+	operator+(ScopeGuardOnExit, FunctionType&& fn)
+	{
+		return ScopeGuard<typename std::decay<FunctionType>::type>(
+			std::forward<FunctionType>(fn));
 	}
 }}}
 
 #define VCL_SCOPE_EXIT \
-  auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_EXIT_STATE) \
-  = ::Vcl::Util::Detail::ScopeGuardOnExit() + [&]() noexcept
+	auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_EXIT_STATE) = ::Vcl::Util::Detail::ScopeGuardOnExit() + [&]() noexcept
 
 #define VCL_SCOPE_FAIL \
-  auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_FAIL_STATE) \
-  = ::Vcl::Util::Detail::ScopeGuardOnFail() + [&]() noexcept
+	auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_FAIL_STATE) = ::Vcl::Util::Detail::ScopeGuardOnFail() + [&]() noexcept
 
 #define VCL_SCOPE_SUCCESS \
-  auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_SUCCESS_STATE) \
-  = ::Vcl::Util::Detail::ScopeGuardOnSuccess() + [&]()
+	auto VCL_ANONYMOUS_VARIABLE(VCL_SCOPE_SUCCESS_STATE) = ::Vcl::Util::Detail::ScopeGuardOnSuccess() + [&]()

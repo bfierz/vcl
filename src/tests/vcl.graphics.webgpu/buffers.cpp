@@ -42,8 +42,7 @@ TEST(WebGPUBuffer, Create)
 	using namespace Vcl::Graphics::Runtime;
 
 	// Define the buffer
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::Vertex
 	};
@@ -192,16 +191,14 @@ TEST(WebGPUBuffer, ReadWrite)
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	BufferDescription desc0 =
-	{
+	BufferDescription desc0 = {
 		1024,
 		BufferUsage::MapWrite | BufferUsage::CopySrc
 	};
 	WebGPU::Buffer buf0(device, desc0);
 	EXPECT_TRUE(buf0.handle() != 0) << "Buffer not created.";
 
-	BufferDescription desc1 =
-	{
+	BufferDescription desc1 = {
 		1024,
 		BufferUsage::MapRead | BufferUsage::CopyDst
 	};

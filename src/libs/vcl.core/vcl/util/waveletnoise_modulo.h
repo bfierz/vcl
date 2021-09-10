@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	template<int N>
 	struct FastMath
 	{

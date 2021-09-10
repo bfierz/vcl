@@ -40,8 +40,7 @@ TEST(OpenGL, CreateBuffer)
 	using namespace Vcl::Graphics::Runtime;
 
 	// Define the buffer
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::Storage
 	};
@@ -65,15 +64,13 @@ TEST(OpenGL, ClearBuffer)
 	}
 
 	// Define the buffer
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::CopySrc | BufferUsage::MapRead
 	};
-	
+
 	std::vector<int> read_back(1024 / sizeof(int), 0xDEADC0DE);
-	BufferInitData data =
-	{
+	BufferInitData data = {
 		read_back.data(),
 		1024
 	};
@@ -81,11 +78,12 @@ TEST(OpenGL, ClearBuffer)
 	OpenGL::Buffer buf(desc, &data);
 	buf.clear();
 	buf.copyTo(read_back.data(), 0, 0, 1024);
-	
+
 	// Verify the result
 	bool equal = true;
 	int fault = 0;
-	for (int i : read_back) {
+	for (int i : read_back)
+	{
 		equal = equal && (i == 0);
 		if (i != 0)
 			fault = i;
@@ -98,8 +96,7 @@ TEST(OpenGL, SetBufferValue)
 	using namespace Vcl::Graphics::Runtime;
 
 	// Define the buffer
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::CopySrc | BufferUsage::MapRead
 	};
@@ -115,7 +112,8 @@ TEST(OpenGL, SetBufferValue)
 	// Verify the result
 	bool equal = true;
 	int fault = 0;
-	for (int i : read_back) {
+	for (int i : read_back)
+	{
 		equal = equal && (i == ref_data);
 		if (i != ref_data)
 			fault = i;
@@ -130,16 +128,14 @@ TEST(OpenGL, CheckBufferInit)
 	// Define the buffer
 	float numbers[256];
 	for (int i = 0; i < 256; i++)
-		numbers[i] = (float) i;
+		numbers[i] = (float)i;
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapRead
 	};
 
-	BufferInitData data =
-	{
+	BufferInitData data = {
 		numbers,
 		1024
 	};
@@ -147,7 +143,7 @@ TEST(OpenGL, CheckBufferInit)
 	OpenGL::Buffer buf(desc, &data);
 
 	bool equal = true;
-	auto ptr = (float*) buf.map(0, 1024);
+	auto ptr = (float*)buf.map(0, 1024);
 	for (int i = 0; i < 256; i++)
 	{
 		equal = equal && (ptr[i] == numbers[i]);
@@ -166,20 +162,18 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 	// Define the buffer
 	float numbers[256];
 	for (int i = 0; i < 256; i++)
-		numbers[i] = (float) i;
+		numbers[i] = (float)i;
 
 	float zeros[256];
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	BufferDescription desc =
-	{
+	BufferDescription desc = {
 		1024,
 		BufferUsage::MapWrite
 	};
 
-	BufferInitData data =
-	{
+	BufferInitData data = {
 		zeros,
 		1024
 	};
@@ -188,14 +182,14 @@ TEST(OpenGL, CheckExplicitBufferReadWrite)
 
 	EXPECT_TRUE(buf0.id() != 0) << "Buffer not created.";
 
-	auto writePtr = (float*) buf0.map(0, 1024);
+	auto writePtr = (float*)buf0.map(0, 1024);
 	for (int i = 0; i < 95; i++)
 	{
 		writePtr[i] = numbers[i];
 	}
 	buf0.unmap();
 
-	auto readPtr = (float*) buf0.map(0, 1024);
+	auto readPtr = (float*)buf0.map(0, 1024);
 	bool equal = true;
 	for (int i = 0; i < 95; i++)
 	{

@@ -39,8 +39,7 @@
 // Editor
 #include <components/transform.h>
 
-namespace Editor
-{
+namespace Editor {
 	class ComponentAdapter : public QObject
 	{
 		Q_OBJECT

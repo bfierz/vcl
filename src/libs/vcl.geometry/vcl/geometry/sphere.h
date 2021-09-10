@@ -28,8 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Scalar, int Dim>
 	class Sphere
 	{

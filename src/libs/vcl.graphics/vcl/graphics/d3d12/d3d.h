@@ -45,18 +45,30 @@
 // Support macros
 #ifndef VCL_DIRECT3D_SAFE_CALL
 #	ifdef VCL_DEBUG
-#		define VCL_DIRECT3D_SAFE_CALL(call) do { if (FAILED(call)) { std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << GetLastError() << std::endl; __debugbreak(); }} while (VCL_EVAL_FALSE)
+#		define VCL_DIRECT3D_SAFE_CALL(call)                                                                                 \
+			do                                                                                                               \
+			{                                                                                                                \
+				if (FAILED(call))                                                                                            \
+				{                                                                                                            \
+					std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << GetLastError() << std::endl; \
+					__debugbreak();                                                                                          \
+				}                                                                                                            \
+			} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_DIRECT3D_SAFE_CALL(call) call
 #	endif
 #endif
 
 #ifndef VCL_DIRECT3D_SAFE_RELEASE
-#	define VCL_DIRECT3D_SAFE_RELEASE(ptr) if (ptr != 0) { ptr->Release(); ptr = 0; }
+#	define VCL_DIRECT3D_SAFE_RELEASE(ptr) \
+		if (ptr != 0)                      \
+		{                                  \
+			ptr->Release();                \
+			ptr = 0;                       \
+		}
 #endif
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	class D3D
 	{
 	public:

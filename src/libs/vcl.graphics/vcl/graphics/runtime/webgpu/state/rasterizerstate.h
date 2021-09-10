@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/graphics/runtime/state/rasterizerstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUCullMode toWebGPU(CullModeMethod op);
 	void toWebGPU(const RasterizerDescription& desc, WGPUDepthStencilState* dss);
 }}}}

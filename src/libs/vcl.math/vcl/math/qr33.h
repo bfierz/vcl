@@ -31,15 +31,14 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl { namespace Mathematics
-{
-	void JacobiQR(Eigen::Matrix<float,  3, 3>& R, Eigen::Matrix<float,  3, 3>& Q);
+namespace Vcl { namespace Mathematics {
+	void JacobiQR(Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>& Q);
 	void JacobiQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q);
 	void JacobiQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q);
 
 	void JacobiQR(Matrix3d& R, Matrix3d& Q);
 
-	void HouseholderQR(Eigen::Matrix<float,  3, 3>& R, Eigen::Matrix<float,  3, 3>& Q);
+	void HouseholderQR(Eigen::Matrix<float, 3, 3>& R, Eigen::Matrix<float, 3, 3>& Q);
 	void HouseholderQR(Eigen::Matrix<float4, 3, 3>& R, Eigen::Matrix<float4, 3, 3>& Q);
 	void HouseholderQR(Eigen::Matrix<float8, 3, 3>& R, Eigen::Matrix<float8, 3, 3>& Q);
 

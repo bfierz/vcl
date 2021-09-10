@@ -35,8 +35,7 @@
 #include <vcl/graphics/cameracontroller.h>
 #include <vcl/graphics/trackball.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	class TrackballCameraController : public CameraController
 	{
 	public:
@@ -58,7 +57,7 @@ namespace Vcl { namespace Graphics
 
 	public:
 		void changeZoom(float delta);
-		
+
 	private:
 		void reset();
 
@@ -72,9 +71,8 @@ namespace Vcl { namespace Graphics
 		Eigen::Vector3f _initialTarget;
 
 	private: // Paremeters for object camera mode
-
 		//! Current rotation center
-		Eigen::Vector3f    _objRotationCenter{ Eigen::Vector3f::Zero() };
+		Eigen::Vector3f _objRotationCenter{ Eigen::Vector3f::Zero() };
 
 		//! Current rotation around the object
 		Eigen::Matrix4f _objCurrTransformation{ Eigen::Matrix4f::Identity() };

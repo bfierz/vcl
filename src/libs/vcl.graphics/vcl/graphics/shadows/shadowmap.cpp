@@ -22,10 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- #include <vcl/graphics/shadows/shadowmap.h>
+#include <vcl/graphics/shadows/shadowmap.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	ShadowMap::ShadowMap(ShadowMapType type, unsigned int width, unsigned int height, unsigned int count)
 	: _type(type)
 	, _width(width)
@@ -38,7 +37,7 @@ namespace Vcl { namespace Graphics
 	{
 		return _type;
 	}
-	
+
 	unsigned int ShadowMap::width() const
 	{
 		return _width;

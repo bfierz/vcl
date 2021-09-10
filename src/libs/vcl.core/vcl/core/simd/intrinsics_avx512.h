@@ -32,28 +32,23 @@
 
 #ifdef VCL_VECTORIZE_AVX512
 
-#include <vcl/core/simd/intrinsics_avx.h>
+#	include <vcl/core/simd/intrinsics_avx.h>
 
-#define VCL_M512I_SIGNBIT _mm512_set1_epi32(int(0x80000000))
-#define VCL_M512I_ALLBITS _mm512_set1_epi32(int(0xffffffff))
+#	define VCL_M512I_SIGNBIT _mm512_set1_epi32(int(0x80000000))
+#	define VCL_M512I_ALLBITS _mm512_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE __m512 _mm512_sgn_ps(__m512 v)
 	{
 		const __mmask16 is_eq_zero = _mm512_cmp_ps_mask(v, _mm512_setzero_ps(), _CMP_EQ_OQ);
-		return _mm512_castsi512_ps(_mm512_mask_set1_epi32
-		(
-			_mm512_or_epi32
-			(
+		return _mm512_castsi512_ps(_mm512_mask_set1_epi32(
+			_mm512_or_epi32(
 				_mm512_and_epi32(_mm512_castps_si512(v), VCL_M512I_SIGNBIT),
-				_mm512_castps_si512(_mm512_set1_ps(1.0f))
-			),
-			is_eq_zero, 0
-		));
+				_mm512_castps_si512(_mm512_set1_ps(1.0f))),
+			is_eq_zero, 0));
 	}
 
-#if !defined(VCL_COMPILER_MSVC)
+#	if !defined(VCL_COMPILER_MSVC)
 	__m512 _mm512_sin_ps(__m512 v);
 	__m512 _mm512_cos_ps(__m512 v);
 	__m512 _mm512_log_ps(__m512 v);
@@ -64,14 +59,17 @@ namespace Vcl
 	__m512 _mm512_atan2_ps(__m512 y, __m512 x);
 
 	__m512 _mm512_pow_ps(__m512 x, __m512 y);
-#endif
+#	endif
 
-	VCL_STRONG_INLINE __mmask16 _mm512_cmpeq_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_EQ_OQ); }
+	VCL_STRONG_INLINE __mmask16 _mm512_cmpeq_ps(__m512 a, __m512 b)
+	{
+		return _mm512_cmp_ps_mask(a, b, _CMP_EQ_OQ);
+	}
 	VCL_STRONG_INLINE __mmask16 _mm512_cmpneq_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_NEQ_OQ); }
-	VCL_STRONG_INLINE __mmask16 _mm512_cmplt_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_LT_OQ); }
-	VCL_STRONG_INLINE __mmask16 _mm512_cmple_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_LE_OQ); }
-	VCL_STRONG_INLINE __mmask16 _mm512_cmpgt_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_GT_OQ); }
-	VCL_STRONG_INLINE __mmask16 _mm512_cmpge_ps(__m512 a, __m512 b)  { return _mm512_cmp_ps_mask(a, b, _CMP_GE_OQ); }
+	VCL_STRONG_INLINE __mmask16 _mm512_cmplt_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_LT_OQ); }
+	VCL_STRONG_INLINE __mmask16 _mm512_cmple_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_LE_OQ); }
+	VCL_STRONG_INLINE __mmask16 _mm512_cmpgt_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_GT_OQ); }
+	VCL_STRONG_INLINE __mmask16 _mm512_cmpge_ps(__m512 a, __m512 b) { return _mm512_cmp_ps_mask(a, b, _CMP_GE_OQ); }
 
 	VCL_STRONG_INLINE __mmask16 _mm512_isinf_ps(__m512 x)
 	{

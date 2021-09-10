@@ -35,14 +35,12 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
-	Shader::Shader
-	(
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
+	Shader::Shader(
 		WGPUDevice device,
-		ShaderType type, int tag,
-		stdext::span<const uint8_t> binary_data
-	)
+		ShaderType type,
+		int tag,
+		stdext::span<const uint8_t> binary_data)
 	: Runtime::Shader(type, tag)
 	{
 		WGPUShaderModuleSPIRVDescriptor spirv_desc = {};

@@ -36,8 +36,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	/*!
 	 *	Wavelet noise implementation by Robert L. Cook and Tony DeRose
 	 */
@@ -79,17 +78,17 @@ namespace Vcl { namespace Util
 
 		//! Initialize the noise data
 		void initializeNoise(stdext::span<const float> noise_data_base);
+
 	private:
 		//! Noise data
 		std::vector<float> _noiseTileData;
 
 		float _min; //!< Minimum noise data
-		float _max;	//!< Maximum noise data
+		float _max; //!< Maximum noise data
 	};
 }}
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 #ifndef VCL_UTIL_WAVELETNOISE_INST
 	extern template class WaveletNoise<32>;
 	extern template class WaveletNoise<64>;

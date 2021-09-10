@@ -31,8 +31,7 @@
 // C++ standard library
 #include <string>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	enum class DeviceCapability
 	{
 		Sm10,

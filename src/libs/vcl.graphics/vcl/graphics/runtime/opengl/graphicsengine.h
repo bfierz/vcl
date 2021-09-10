@@ -39,8 +39,7 @@
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Frame;
 
 	class Fence final
@@ -84,7 +83,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Backend staging buffer
 		owner_ptr<Buffer> _stagingBuffer;
-		
+
 		//! Host copy of the GPU memory
 		std::unique_ptr<char[]> _hostBuffer;
 
@@ -139,7 +138,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			}
 			_readBackCallbacks.clear();
 		}
-		
+
 		OpenGL::Framebuffer* currentFramebuffer() { return _currentFramebuffer; }
 		void setRenderTargets(stdext::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target);
 		void setRenderTargets(stdext::span<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target);
@@ -171,7 +170,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Staging area for data read-back
 		StagingArea _readBackStage;
-		
+
 		//! Read-back requests
 		std::vector<std::pair<stdext::span<uint8_t>, std::function<void(stdext::span<uint8_t>)>>> _readBackCallbacks;
 
@@ -187,10 +186,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	public:
 		owner_ptr<Runtime::Texture> createResource(const Texture2DDescription& desc) override;
 		owner_ptr<Runtime::Buffer> createResource(const BufferDescription& desc) override;
-		
+
 		void beginFrame() override;
 		void endFrame() override;
-		
+
 		using Runtime::GraphicsEngine::requestPerFrameConstantBuffer;
 		BufferView requestPerFrameConstantBuffer(size_t size) override;
 		BufferView requestPerFrameLinearMemory(size_t size) override;
@@ -203,7 +202,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		using Runtime::GraphicsEngine::setRenderTargets;
 
 		[[deprecated]] void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
-		
+
 		void setConstantBuffer(int idx, BufferView buffer) override;
 		void setIndexBuffer(const Runtime::Buffer& buffer) override;
 		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
@@ -225,7 +224,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		[[deprecated]] void clear(float depth, int stencil) override;
 		[[deprecated]] void clear(float depth) override;
 		[[deprecated]] void clear(int stencil) override;
-		
+
 		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) override;
 		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) override;
 		void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) override;
@@ -245,13 +244,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		//! Current offset into the linear memory buffer
 		size_t _linearBufferOffset{ 0 };
-		
+
 		//! \brief Buffer index used for push constants
 		//! Uses the first available buffer as there is not upper limit
 		const int _pushConstantBufferIndex{ 0 };
 
 	private: // Command management
-
 		//! Command lock
 		std::mutex _cmdMutex;
 
@@ -263,12 +261,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Currently active blend-state
 		uint32_t _blendstate_hash{ 0 };
-		
+
 		//! The current primitive type to draw
 		PrimitiveType _currentPrimitiveType;
 
 		//! Number of vertices, if a patch is to be drawn
 		int _currentNrPatchVertices;
-
 	};
 }}}}

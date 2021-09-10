@@ -24,12 +24,10 @@
  */
 #include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf)
 	: ConstBufferView(buf, 0, buf->size())
 	{
-
 	}
 
 	ConstBufferView::ConstBufferView(ref_ptr<const Buffer> buf, size_t offset, size_t size)
@@ -37,19 +35,16 @@ namespace Vcl { namespace Compute
 	, _offsetInBytes(offset)
 	, _sizeInBytes(size)
 	{
-
 	}
-	
+
 	BufferView::BufferView(ref_ptr<Buffer> buf)
 	: ConstBufferView(buf)
 	{
-
 	}
 
 	BufferView::BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size)
 	: ConstBufferView(buf, offset, size)
 	{
-
 	}
 
 	Buffer::Buffer(BufferAccess hostAccess, size_t size)
@@ -57,6 +52,5 @@ namespace Vcl { namespace Compute
 	, _sizeInBytes(size)
 
 	{
-
 	}
 }}

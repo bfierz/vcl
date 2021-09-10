@@ -24,11 +24,10 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	inline constexpr uint32_t ceil(uint32_t val, uint32_t N) noexcept
 	{
 		const uint32_t div = (val + (N - 1)) / N;
@@ -38,35 +37,35 @@ namespace Vcl { namespace Mathematics
 	template<int N>
 	inline uint32_t ceil(uint32_t val) noexcept
 	{
-		const uint32_t div = (val + (N-1)) / N;
+		const uint32_t div = (val + (N - 1)) / N;
 		return div * N;
 	}
 
 	template<>
 	inline uint32_t ceil<8>(uint32_t val) noexcept
 	{
-		const uint32_t res = (val +   7) & 0xfffffff8;
+		const uint32_t res = (val + 7) & 0xfffffff8;
 		return res;
 	}
 
 	template<>
 	inline uint32_t ceil<16>(uint32_t val) noexcept
 	{
-		const uint32_t res = (val +  15) & 0xfffffff0;
+		const uint32_t res = (val + 15) & 0xfffffff0;
 		return res;
 	}
 
 	template<>
 	inline uint32_t ceil<32>(uint32_t val) noexcept
 	{
-		const uint32_t res = (val +  31) & 0xffffffe0;
+		const uint32_t res = (val + 31) & 0xffffffe0;
 		return res;
 	}
 
 	template<>
 	inline uint32_t ceil<64>(uint32_t val) noexcept
 	{
-		const uint32_t res = (val +  63) & 0xffffffc0;
+		const uint32_t res = (val + 63) & 0xffffffc0;
 		return res;
 	}
 
@@ -76,14 +75,14 @@ namespace Vcl { namespace Mathematics
 		const uint32_t res = (val + 127) & 0xffffff80;
 		return res;
 	}
-	
+
 	template<>
 	inline uint32_t ceil<256>(uint32_t val) noexcept
 	{
 		const uint32_t res = (val + 255) & 0xffffff00;
 		return res;
 	}
-	
+
 	template<>
 	inline uint32_t ceil<512>(uint32_t val) noexcept
 	{

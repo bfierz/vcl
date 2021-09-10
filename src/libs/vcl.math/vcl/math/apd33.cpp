@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/math/apd33_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int AnalyticPolarDecomposition(const Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& q)
 	{
 		return Impl::AnalyticPolarDecomposition(A, q);

@@ -33,18 +33,17 @@
 #ifdef VCL_STL_CHRONO
 #	include <chrono>
 #else
-	VCL_BEGIN_EXTERNAL_HEADERS
+VCL_BEGIN_EXTERNAL_HEADERS
 #	ifdef VCL_ABI_WINAPI
 #		include <windows.h>
 #	elif defined(VCL_ABI_POSIX)
 #		include <inttypes.h>
 #		include <time.h>
 #	endif
-	VCL_END_EXTERNAL_HEADERS
+VCL_END_EXTERNAL_HEADERS
 #endif // VCL_STL_CHRONO
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	class PreciseTimer
 	{
 	public:

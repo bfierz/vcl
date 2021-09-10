@@ -32,14 +32,13 @@
 #include <vcl/core/simd/intrinsics_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(16) VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::NEON>
 	{
 	public:
 		VCL_SIMD_VECTORSCALAR_SETUP(NEON)
-	
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&&, vandq_u32, 1)
 		VCL_SIMD_BINARY_OP(operator||, vorrq_u32, 1)

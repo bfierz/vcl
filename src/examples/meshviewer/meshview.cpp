@@ -38,8 +38,7 @@
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 
 // Application
-namespace
-{
+namespace {
 #include "shaders/3DSceneBindings.h"
 #include "shaders/MarchingCubes.h"
 }
@@ -48,8 +47,7 @@ namespace
 #include "util/shaderutils.h"
 #include "scene.h"
 
-namespace
-{
+namespace {
 	QString resolveShaderFile(QString full_path)
 	{
 		QRegularExpression dir_regex{ R"((.+/)(.+))" };
@@ -78,12 +76,10 @@ namespace
 			{
 				QString included_file = resolveShaderFile(dir + match_inc.captured(1));
 				builder = builder.append(included_file).append("\n");
-			}
-			else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
+			} else if (curr_tok.indexOf("GL_GOOGLE_include_directive") >= 0)
 			{
 				continue;
-			}
-			else
+			} else
 			{
 				builder = builder.append(curr_tok).append("\n");
 			}
@@ -98,18 +94,13 @@ namespace
 	{
 		QString data = resolveShaderFile(path);
 
-		return{ type, 0, data.toUtf8().data() };
+		return { type, 0, data.toUtf8().data() };
 	}
 }
 
 FboRenderer::FboRenderer()
 {
-	using Vcl::Graphics::Runtime::OpenGL::Buffer;
-	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
-	using Vcl::Graphics::Runtime::OpenGL::PipelineState;
-	using Vcl::Graphics::Runtime::OpenGL::Shader;
-	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
-	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
+	using Vcl::Graphics::SurfaceFormat;
 	using Vcl::Graphics::Runtime::BufferDescription;
 	using Vcl::Graphics::Runtime::BufferInitData;
 	using Vcl::Graphics::Runtime::BufferUsage;
@@ -117,7 +108,12 @@ FboRenderer::FboRenderer()
 	using Vcl::Graphics::Runtime::PipelineStateDescription;
 	using Vcl::Graphics::Runtime::ShaderType;
 	using Vcl::Graphics::Runtime::VertexDataClassification;
-	using Vcl::Graphics::SurfaceFormat;
+	using Vcl::Graphics::Runtime::OpenGL::Buffer;
+	using Vcl::Graphics::Runtime::OpenGL::InputLayout;
+	using Vcl::Graphics::Runtime::OpenGL::PipelineState;
+	using Vcl::Graphics::Runtime::OpenGL::Shader;
+	using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
+	using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 
 	using Vcl::Editor::Util::createShader;
 
@@ -128,8 +124,7 @@ FboRenderer::FboRenderer()
 
 	_engine = Vcl::make_owner<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 
-	InputLayoutDescription planeLayout =
-	{
+	InputLayoutDescription planeLayout = {
 		{
 			{ 0, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject },
 		},
@@ -137,31 +132,21 @@ FboRenderer::FboRenderer()
 			{ "PlaneEquation", SurfaceFormat::R32G32B32A32_FLOAT, 0, 0, 0 },
 		}
 	};
-	
-	InputLayoutDescription opaqueTriLayout =
-	{
-		{
-			{ 0, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
-			{ 1, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
-			{ 2, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
-		},
-		{
-			{ "Index0",  SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
-			{ "Index1",  SurfaceFormat::R32G32B32_SINT, 0, 1, 0 },
-			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0 }
-		}
+
+	InputLayoutDescription opaqueTriLayout = {
+		{ { 0, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+		  { 1, sizeof(Eigen::Vector3i), VertexDataClassification::VertexDataPerObject },
+		  { 2, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject } },
+		{ { "Index0", SurfaceFormat::R32G32B32_SINT, 0, 0, 0 },
+		  { "Index1", SurfaceFormat::R32G32B32_SINT, 0, 1, 0 },
+		  { "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 2, 0 } }
 	};
-	
-	InputLayoutDescription opaqueTetraLayout =
-	{
-		{
-			{ 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
-			{ 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject }
-		},
-		{
-			{ "Index",  SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
-			{ "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 }
-		}
+
+	InputLayoutDescription opaqueTetraLayout = {
+		{ { 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
+		  { 1, sizeof(Eigen::Vector4f), VertexDataClassification::VertexDataPerObject } },
+		{ { "Index", SurfaceFormat::R32G32B32A32_SINT, 0, 0, 0 },
+		  { "Colour", SurfaceFormat::R32G32B32A32_FLOAT, 0, 1, 0 } }
 	};
 
 	Shader boxVert = createShader(ShaderType::VertexShader, ":/shaders/debug/boundinggrid.vert");
@@ -289,7 +274,7 @@ void FboRenderer::render()
 		Eigen::Matrix4f M = scene->modelMatrix();
 		Eigen::Matrix4f V = scene->viewMatrix();
 		Eigen::Matrix4f P = scene->projMatrix();
-		
+
 		auto cbuffer_cam = _engine->requestPerFrameConstantBuffer<PerFrameCameraData>();
 		cbuffer_cam->Viewport = Eigen::Vector4f{ 0, 0, (float)_owner->width(), (float)_owner->height() };
 		cbuffer_cam->Frustum = scene->frustum();
@@ -310,14 +295,12 @@ void FboRenderer::render()
 			auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 			if (!surfaces->empty())
 			{
-				surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
-				{
+				surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh) {
 					Eigen::Matrix4f T;
 					if (transforms->has(id))
 					{
 						T = M * (*transforms)(id)->get();
-					}
-					else
+					} else
 					{
 						T = M;
 					}
@@ -331,20 +314,18 @@ void FboRenderer::render()
 			auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 			if (!volumes->empty())
 			{
-				volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh)
-				{
+				volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* volume_mesh) {
 					Eigen::Matrix4f T;
 					if (transforms->has(id))
 					{
 						T = M * (*transforms)(id)->get();
-					}
-					else
+					} else
 					{
 						T = M;
 					}
 
 					_idTetraMeshPipelineState->program().setUniform("ObjectIdx", static_cast<int>(id.id()));
-					
+
 					renderTetMesh(volume_mesh, _idTetraMeshPipelineState, T);
 				});
 			}
@@ -354,9 +335,8 @@ void FboRenderer::render()
 			_posManip->drawIds(_engine, pos_handle_id.id(), M * curr_transform->get());
 
 			// Queue a read-back
-			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](stdext::span<uint8_t> view)
-			{
-				if (_idBuffer->width()*_idBuffer->height()*sizeof(Eigen::Vector2i) == view.size())
+			_engine->enqueueReadback(_idBuffer->renderTarget(0), [this](stdext::span<uint8_t> view) {
+				if (_idBuffer->width() * _idBuffer->height() * sizeof(Eigen::Vector2i) == view.size())
 					std::memcpy(_idBufferHost.get(), view.data(), view.size());
 			});
 		}
@@ -379,17 +359,16 @@ void FboRenderer::render()
 		{
 			// Configure the layout
 			_engine->setPipelineState(_planePipelineState);
-		
+
 			_engine->setConstantBuffer(MARCHING_CUBES_TABLES_LOC, { _marchingCubesTables, 0, _marchingCubesTables->sizeInBytes(), nullptr });
 			_planePipelineState->program().setUniform("ModelMatrix", M);
-		
+
 			// Bind the buffers
-			Vcl::Graphics::Runtime::BufferView buffers[] = 
-			{
+			Vcl::Graphics::Runtime::BufferView buffers[] = {
 				{ _planeBuffer, 0, _planeBuffer->sizeInBytes() }
 			};
 			glBindVertexBuffer(0, _planeBuffer->id(), 0, sizeof(Eigen::Vector4f));
-		
+
 			// Render the mesh
 			_engine->setPrimitiveType(Vcl::Graphics::Runtime::PrimitiveType::Pointlist);
 			_engine->draw(1, 0);
@@ -440,14 +419,12 @@ void FboRenderer::render()
 		auto surfaces = scene->entityManager()->get<GPUSurfaceMesh>();
 		if (!surfaces->empty())
 		{
-			surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh)
-			{
+			surfaces->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUSurfaceMesh* mesh) {
 				Eigen::Matrix4f T;
 				if (transforms->has(id))
 				{
 					T = M * (*transforms)(id)->get();
-				}
-				else
+				} else
 				{
 					T = M;
 				}
@@ -460,14 +437,12 @@ void FboRenderer::render()
 		auto volumes = scene->entityManager()->get<GPUVolumeMesh>();
 		if (!volumes->empty())
 		{
-			volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh)
-			{
+			volumes->forEach([this, &transforms, &M](Vcl::Components::EntityId id, const GPUVolumeMesh* mesh) {
 				Eigen::Matrix4f T;
 				if (transforms->has(id))
 				{
 					T = M * (*transforms)(id)->get();
-				}
-				else
+				} else
 				{
 					T = M;
 				}
@@ -476,8 +451,7 @@ void FboRenderer::render()
 				{
 					renderTetMesh(mesh, _opaqueTetraMeshPointsPipelineState, T);
 					renderTetMesh(mesh, _opaqueTetraMeshWirePipelineState, T);
-				}
-				else
+				} else
 				{
 					renderTetMesh(mesh, _opaqueTetraMeshPipelineState, T);
 					renderTriMesh(mesh, _oulineTriMeshPS, T);
@@ -510,13 +484,11 @@ void FboRenderer::renderHandle(const Eigen::Matrix4f& M)
 	_posManip->draw(_engine, M * curr_transform->get());
 }
 
-void FboRenderer::renderBoundingBox
-(
+void FboRenderer::renderBoundingBox(
 	const Eigen::AlignedBox3f& bb,
-	unsigned int resolution, 
+	unsigned int resolution,
 	Vcl::ref_ptr<Vcl::Graphics::Runtime::OpenGL::PipelineState> ps,
-	const Eigen::Matrix4f& M
-)
+	const Eigen::Matrix4f& M)
 {
 	// Configure the layout
 	_engine->setPipelineState(ps);
@@ -617,11 +589,11 @@ void FboRenderer::synchronize(QQuickFramebufferObject* item)
 	}
 }
 
-QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize &size)
+QOpenGLFramebufferObject* FboRenderer::createFramebufferObject(const QSize& size)
 {
 	using Vcl::Graphics::Runtime::DepthBufferDescription;
-	using Vcl::Graphics::Runtime::RenderTargetDescription;
 	using Vcl::Graphics::Runtime::FramebufferDescription;
+	using Vcl::Graphics::Runtime::RenderTargetDescription;
 
 	FramebufferDescription id_fbo_desc;
 	id_fbo_desc.Width = size.width();
@@ -665,21 +637,20 @@ QPoint MeshView::selectObject(int x, int y)
 			uint32_t idx = y * _idBufferWidth + x;
 			auto ids = _idBuffer[idx];
 
-			return{ ids.x(), ids.y() };
+			return { ids.x(), ids.y() };
 		}
 	}
 
-	return{ -1, -1 };
+	return { -1, -1 };
 }
 
-namespace
-{
-	Eigen::Vector3f computePointForTranslationManipulation
-	(
+namespace {
+	Eigen::Vector3f computePointForTranslationManipulation(
 		const Vcl::Graphics::Camera& camera,
 		const Eigen::Matrix4f& transform,
-		int axis, int x, int y
-	)
+		int axis,
+		int x,
+		int y)
 	{
 		// Find ray into the scene and compute the target location
 		const auto line = camera.pickWorldSpace(x, y);
@@ -711,7 +682,7 @@ namespace
 		if (axis == 1 ||
 			axis == 2 ||
 			axis == 4)
-			// Handle axis'
+		// Handle axis'
 		{
 			using namespace Vcl::Geometry;
 
@@ -723,9 +694,8 @@ namespace
 			Vcl::Geometry::distance(disp_ray, cam_ray, &result);
 
 			return result.Point[0];
-		}
-		else
-			// Handle planes
+		} else
+		// Handle planes
 		{
 			const Eigen::Vector3f N = curr_trans_vs.block<3, 3>(0, 0) * ref_axis;
 			const float d = N.dot(center);
@@ -811,7 +781,7 @@ void MeshView::moveObjectToHandle(int object_id)
 void MeshView::syncIdBuffer(std::unique_ptr<Eigen::Vector2i[]>& data, uint32_t width, uint32_t height)
 {
 	if (_idBufferWidth != width || _idBufferHeight != height)
-		_idBuffer= std::make_unique<Eigen::Vector2i[]>(width * height);
+		_idBuffer = std::make_unique<Eigen::Vector2i[]>(width * height);
 
 	std::swap(_idBuffer, data);
 	_idBufferWidth = width;
@@ -823,7 +793,7 @@ MeshView::Renderer* MeshView::createRenderer() const
 	return new FboRenderer();
 }
 
-void MeshView::geometryChanged(const QRectF & newGeometry, const QRectF & oldGeometry)
+void MeshView::geometryChanged(const QRectF& newGeometry, const QRectF& oldGeometry)
 {
 	QQuickFramebufferObject::geometryChanged(newGeometry, oldGeometry);
 

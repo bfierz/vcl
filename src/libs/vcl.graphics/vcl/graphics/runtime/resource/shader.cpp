@@ -26,12 +26,10 @@
 // Header
 #include <vcl/graphics/runtime/resource/shader.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	Shader::Shader(ShaderType type, int tag)
 	: _tag(tag)
 	, _type(type)
 	{
-
 	}
 }}}

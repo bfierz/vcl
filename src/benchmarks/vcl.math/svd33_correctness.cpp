@@ -57,14 +57,12 @@
 #include "problems.h"
 
 template<typename Scalar>
-void computeReferenceSolution
-(
+void computeReferenceSolution(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& V,
-	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-)
+	Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S)
 {
 	// Compute reference using Eigen
 	for (size_t i = 0; i < nr_problems; i++)
@@ -78,21 +76,19 @@ void computeReferenceSolution
 }
 
 template<typename WideScalar, typename Func>
-void computeSolution
-(
+void computeSolution(
 	size_t nr_problems,
 	Func& func,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-	
+
 	int avg_nr_iter = 0;
 	for (size_t i = 0; i < nr_problems / width; i++)
 	{
@@ -100,7 +96,7 @@ void computeSolution
 		auto U = resU.at<real_t>(i);
 		auto V = resV.at<real_t>(i);
 		auto S = resS.at<real_t>(i);
-		
+
 		matrix3_t SV = F.at<real_t>(i);
 		matrix3_t matU = matrix3_t::Identity();
 		matrix3_t matV = matrix3_t::Identity();
@@ -115,14 +111,12 @@ void computeSolution
 }
 
 #ifdef VCL_CUDA_SUPPORT
-void cudaMcAdamsSVD
-(
+void cudaMcAdamsSVD(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::Cuda;
 
@@ -139,14 +133,12 @@ void cudaMcAdamsSVD
 #endif // defined VCL_CUDA_SUPPORT
 
 #ifdef VCL_OPENCL_SUPPORT
-void openCLMcAdamsSVD
-(
+void openCLMcAdamsSVD(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resV,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using namespace Vcl::Compute::OpenCL;
 
@@ -163,8 +155,7 @@ void openCLMcAdamsSVD
 #endif // defined VCL_OPENCL_SUPPORT
 
 template<typename Scalar>
-void checkSolution
-(
+void checkSolution(
 	const char* Name,
 	const char* file,
 	size_t nr_problems,
@@ -174,15 +165,14 @@ void checkSolution
 	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resVa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-)
+	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 {
 	using scalar_t = Scalar;
-	
+
 	int wrong_computations, wrong_v_computations, wrong_u_computations;
 	scalar_t accum_error, accum_v_error, accum_u_error;
 	std::ofstream fout;
-	
+
 	wrong_computations = 0;
 	wrong_v_computations = 0;
 	wrong_u_computations = 0;
@@ -190,8 +180,8 @@ void checkSolution
 	accum_v_error = 0;
 	accum_u_error = 0;
 	fout.open(file);
-	
-	for (int j = 0; j < (int) nr_problems; j++)
+
+	for (int j = 0; j < (int)nr_problems; j++)
 	{
 		Vcl::Matrix3f refU = refUa.template at<scalar_t>(j);
 		Vcl::Matrix3f refV = refVa.template at<scalar_t>(j);
@@ -230,24 +220,25 @@ void checkSolution
 		if (!eqS || !eqU || !eqV)
 			fout << std::endl;
 	}
-	
+
 	fout.close();
 	std::cout << Name << " - Errors: (" << wrong_computations << ", " << wrong_u_computations << ", " << wrong_v_computations << "), "
 			  << "Avg. Singular value error: " << accum_error / std::max(wrong_computations, 1) << ", "
 			  << "Avg. U error: " << accum_u_error / std::max(wrong_u_computations, 1) << ", "
 			  << "Avg. V error: " << accum_v_error / std::max(wrong_v_computations, 1) << std::endl;
 }
-	
+
 int main(int, char**)
 {
-	using Vcl::Mathematics::McAdamsJacobiSVD;
-	using Vcl::Mathematics::QRJacobiSVD;
-	using Vcl::Mathematics::TwoSidedJacobiSVD;
+	// clang-format off
 	using Vcl::float4;
 	using Vcl::float8;
 	using Vcl::float16;
+	using Vcl::Mathematics::McAdamsJacobiSVD;
+	using Vcl::Mathematics::QRJacobiSVD;
+	using Vcl::Mathematics::TwoSidedJacobiSVD;
 
-	const size_t nr_problems = 1024*1024;
+	const size_t nr_problems = 1024 * 1024;
 
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(nr_problems);
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resV(nr_problems);
@@ -256,7 +247,7 @@ int main(int, char**)
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> refU(nr_problems);
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> refV(nr_problems);
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> refS(nr_problems);
-	
+
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
 	createRandomProblems(nr_problems, F);
 	computeReferenceSolution(nr_problems, F, refU, refV, refS);
@@ -265,7 +256,7 @@ int main(int, char**)
 	using ComputeSvdFloat4  = int (*)(Eigen::Matrix<float4,  3, 3>&, Eigen::Matrix<float4,  3, 3>&, Eigen::Matrix<float4,  3, 3>&);
 	using ComputeSvdFloat8  = int (*)(Eigen::Matrix<float8,  3, 3>&, Eigen::Matrix<float8,  3, 3>&, Eigen::Matrix<float8,  3, 3>&);
 	using ComputeSvdFloat16 = int (*)(Eigen::Matrix<float16, 3, 3>&, Eigen::Matrix<float16, 3, 3>&, Eigen::Matrix<float16, 3, 3>&);
-	
+
 	// Test correctness: Two-sided Jacobi SVD (Brent)
 	auto two_sided_float   = static_cast<ComputeSvdFloat>  (TwoSidedJacobiSVD);
 	auto two_sided_float4  = static_cast<ComputeSvdFloat4> (TwoSidedJacobiSVD);
@@ -295,13 +286,15 @@ int main(int, char**)
 #ifdef VCL_VECTORIZE_AVX
 	auto mcadams_float8  = static_cast<ComputeSvdFloat8>(McAdamsJacobiSVD);
 	computeSolution<float8> (nr_problems, mcadams_float8,  F, resU, resV, resS); checkSolution("McAdamnsSVD - float8", "mc_adams_svd_float8_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_VECTORIZE_AVX
-	
+#endif
+
 #ifdef VCL_CUDA_SUPPORT
 	cudaMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - CUDA", "cuda_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_CUDA_SUPPORT
-	
+#endif
+
 #ifdef VCL_OPENCL_SUPPORT
 	openCLMcAdamsSVD(nr_problems, F, resU, resV, resS); checkSolution("McAdamsSVD - OpenCL", "opencl_mc_adams_svd_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
-#endif // defined VCL_OPENCL_SUPPORT
+#endif
+
+	// clang-format on
 }

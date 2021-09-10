@@ -32,9 +32,9 @@
 #include <cmath>
 
 VCL_BEGIN_EXTERNAL_HEADERS
-#	define FMT_NO_FMT_STRING_ALIAS
-#	include <fmt/format.h>
-#	include <fmt/ostream.h>
+#define FMT_NO_FMT_STRING_ALIAS
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL library
@@ -45,14 +45,14 @@ VCL_END_EXTERNAL_HEADERS
 //#define VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_USE_RCP
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(push, off) 
+#	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC
 
 	template<typename T>
-	struct JacobiTraits {};
+	struct JacobiTraits
+	{};
 
 	template<>
 	struct JacobiTraits<float>
@@ -98,7 +98,7 @@ namespace Vcl { namespace Mathematics
 		// 2^-51 (Machine eps: 2^-52)
 		VCL_STRONG_INLINE static double epsilon() { return 4.4408920985006261616945266723633e-16; }
 	};
-	
+
 	template<typename Real>
 	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> JacobiRotationAngle(const Real& a11, const Real& a12, const Real& a22)
 	{
@@ -111,7 +111,7 @@ namespace Vcl { namespace Mathematics
 		//t = select(rho < 0, -t, t);
 		//Real c = Real(1) / sqrt(t * t + 1);
 		//Real s = t * c;
-		
+
 		// Optimise by reformulating the cosine or sine:
 		// -> http://en.wikipedia.org/wiki/List_of_trigonometric_identities
 		// -> csc^2 = 1 + cot^2
@@ -123,40 +123,40 @@ namespace Vcl { namespace Mathematics
 		Real rho = u1 * rcp(u2);
 #else
 		Real rho = u1 / u2;
-#endif // defined(VCL_MATH_SELFADJOINTJACOBI_USE_RCP)
+#endif                                                  // defined(VCL_MATH_SELFADJOINTJACOBI_USE_RCP)
 		Real ct = abs(rho) + sqrt(rho * rho + Real(1)); // ct -> cotangens
 		ct = select(rho < 0, -ct, ct);
 #ifdef VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT
-		Real s = rsqrt(Real(1) + ct*ct);
+		Real s = rsqrt(Real(1) + ct * ct);
 #else
-		Real s = Real(1) / sqrt(Real(1) + ct*ct);
+		Real s = Real(1) / sqrt(Real(1) + ct * ct);
 #endif // defined(VCL_MATH_SELFADJOINTJACOBI_USE_RSQRT)
-		Real c = s*ct;
+		Real c = s * ct;
 
 		// Clamp the angle if it is to large
-        const Real eps = typename NumericTrait<Real>::base_t(1e-6);
-		auto b = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps*abs(u1));
+		const Real eps = typename NumericTrait<Real>::base_t(1e-6);
+		auto b = ((abs(u1) < eps) && (abs(u2) < eps)) || (abs(u2) < eps * abs(u1));
 		c = select(b, Real(1), c);
 		s = select(b, Real(0), s);
 
 		return Eigen::Matrix<Real, 2, 1>(c, s);
 	}
-	
+
 	/*!
 	 * Based on McAdams - Computing the Singular Value Decomposition of 3x3 matrices with minimal branching and elementary floating point operations
 	 */
 	template<typename Real>
 	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationAngle(const Real& a11, const Real& a12, const Real& a22)
 	{
-		auto b = a12*a12 < ((a11-a22)*(a11-a22));
-		Real omega = Real(1) / Real(sqrt(a12*a12 + (a11-a22)*(a11-a22)));
+		auto b = a12 * a12 < ((a11 - a22) * (a11 - a22));
+		Real omega = Real(1) / Real(sqrt(a12 * a12 + (a11 - a22) * (a11 - a22)));
 
-		Real s = select(b, omega*a12,       Real(sqrt(0.5)));
-		Real c = select(b, omega*(a11-a22), Real(sqrt(0.5)));
+		Real s = select(b, omega * a12, Real(sqrt(0.5)));
+		Real c = select(b, omega * (a11 - a22), Real(sqrt(0.5)));
 
 		return Eigen::Matrix<Real, 2, 1>(c, s);
 	}
-	
+
 	template<typename Real, int p, int q>
 	VCL_STRONG_INLINE void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q)
 	{
@@ -169,13 +169,15 @@ namespace Vcl { namespace Mathematics
 		Real s = cs(1);
 
 		Eigen::Matrix<Real, 3, 3> G = Eigen::Matrix<Real, 3, 3>::Identity();
-		G(p, p) =  c; G(p, q) = s;
-		G(q, p) = -s; G(q, q) = c;
+		G(p, p) = c;
+		G(p, q) = s;
+		G(q, p) = -s;
+		G(q, q) = c;
 
 		Q = Q * G;
 		R = G.transpose() * R * G;
 	}
-	
+
 	template<typename Real>
 	VCL_STRONG_INLINE void JacobiRotateGeneric(Eigen::Matrix<Real, 3, 3>& R, Eigen::Matrix<Real, 3, 3>& Q, int p, int q)
 	{
@@ -188,8 +190,10 @@ namespace Vcl { namespace Mathematics
 		Real s = cs(1);
 
 		Eigen::Matrix<Real, 3, 3> G = Eigen::Matrix<Real, 3, 3>::Identity();
-		G(p, p) =  c; G(p, q) = s;
-		G(q, p) = -s; G(q, q) = c;
+		G(p, p) = c;
+		G(p, q) = s;
+		G(q, p) = -s;
+		G(q, q) = c;
 
 		Q = Q * G;
 		R = G.transpose() * R * G;
@@ -201,7 +205,7 @@ namespace Vcl { namespace Mathematics
 		VclRequire(0 <= p && p < 3, "p in [0,3)");
 		VclRequire(0 <= q && q < 3, "q in [0,3)");
 		VclRequire(p < q, "p has to be smaller than q -> (p,q): (0,1),(0,2),(1,2)");
-		
+
 		// Rotates A through phi in pq-plane to set A(p, q) = 0.
 		// Rotation stored in R whose columns are eigenvectors of A
 		auto cs = JacobiRotationAngle(M(p, p), M(p, q), M(q, q));
@@ -210,17 +214,17 @@ namespace Vcl { namespace Mathematics
 		REAL s = cs(1);
 
 		// Compute rotation using sine/cosine
-		REAL App = c*c * M(p, p) + REAL(2)*c*s * M(p, q) + s*s * M(q, q);
-		REAL Aqq = s*s * M(p, p) - REAL(2)*c*s * M(p, q) + c*c * M(q, q);
+		REAL App = c * c * M(p, p) + REAL(2) * c * s * M(p, q) + s * s * M(q, q);
+		REAL Aqq = s * s * M(p, p) - REAL(2) * c * s * M(p, q) + c * c * M(q, q);
 
 #if defined VCL_CONTRACT && defined VCL_DEBUG
-		REAL Apq = (c*c-s*s) * M(p, q) - s*c * (M(p, p) - M(q, q));
+		REAL Apq = (c * c - s * s) * M(p, q) - s * c * (M(p, p) - M(q, q));
 
 		VclCheckEx(all(abs(Apq) < REAL(NumericTrait<REAL>::base_t(1e-5))), "Off diagonal element is 0.", fmt::format("Error: {}", Apq));
 #endif /* VCL_DEBUG */
 
-		M(p,q) = 0;
-		M(q,p) = 0;
+		M(p, q) = 0;
+		M(q, p) = 0;
 		M(p, p) = App;
 		M(q, q) = Aqq;
 
@@ -230,14 +234,14 @@ namespace Vcl { namespace Mathematics
 			if (k != p && k != q)
 			{
 				REAL Akp = c * M(k, p) + s * M(k, q);
-				REAL Akq =-s * M(k, p) + c * M(k, q);
+				REAL Akq = -s * M(k, p) + c * M(k, q);
 				M(k, p) = M(p, k) = Akp;
 				M(k, q) = M(q, k) = Akq;
 			}
 
 			// Store rotation in R
 			REAL Rkp = c * R(k, p) + s * R(k, q);
-			REAL Rkq =-s * R(k, p) + c * R(k, q);
+			REAL Rkq = -s * R(k, p) + c * R(k, q);
 			R(k, p) = Rkp;
 			R(k, q) = Rkq;
 		}
@@ -252,7 +256,7 @@ namespace Vcl { namespace Mathematics
 
 		JacobiRotateOptimised<REAL>(A, R, p, q);
 	}
-	
+
 	template<typename Real>
 	int SelfAdjointJacobiEigenSweeps(Eigen::Matrix<Real, 3, 3>& A, Eigen::Matrix<Real, 3, 3>& R, bool warm_start = false)
 	{
@@ -260,8 +264,7 @@ namespace Vcl { namespace Mathematics
 		if (warm_start)
 		{
 			A = R.transpose() * A * R;
-		}
-		else
+		} else
 		{
 			R.setIdentity();
 		}
@@ -269,30 +272,30 @@ namespace Vcl { namespace Mathematics
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal
 		// Iterate as long convergence is not reached
-	
+
 		// Sweeping over all elements repeatedly
 		int iter = 0;
 		while (iter < JacobiTraits<Real>::maxIterations())
 		{
 			// Find off diagonal element with maximum modulus
 			// Check only upper triangular matrix, assuming that the lower triangular values are handled accordingly
-			Real err = max(abs(A(0,1)), max(abs(A(0,2)), abs(A(1,2))));
-		
+			Real err = max(abs(A(0, 1)), max(abs(A(0, 2)), abs(A(1, 2))));
+
 			// All small enough -> done
 			if (all(err < JacobiTraits<Real>::epsilon()))
 				break;
-			
+
 			// Rotate matrix with respect to that element
 			JacobiRotateOptimised<Real, 0, 1>(A, R);
 			iter++;
-		
-			err = max(abs(A(0,1)), max(abs(A(0,2)), abs(A(1,2))));
+
+			err = max(abs(A(0, 1)), max(abs(A(0, 2)), abs(A(1, 2))));
 			if (iter >= JacobiTraits<Real>::maxIterations() || all(err < JacobiTraits<Real>::epsilon()))
 				break;
 			JacobiRotateOptimised<Real, 0, 2>(A, R);
 			iter++;
-		
-			err = max(abs(A(0,1)), max(abs(A(0,2)), abs(A(1,2))));
+
+			err = max(abs(A(0, 1)), max(abs(A(0, 2)), abs(A(1, 2))));
 			if (iter >= JacobiTraits<Real>::maxIterations() || all(err < JacobiTraits<Real>::epsilon()))
 				break;
 			JacobiRotateOptimised<Real, 1, 2>(A, R);
@@ -301,7 +304,7 @@ namespace Vcl { namespace Mathematics
 
 		return iter;
 	}
-	
+
 	template<typename Real>
 	int SelfAdjointJacobiEigenMaxElement(Eigen::Matrix<Real, 3, 3>& A, Eigen::Matrix<Real, 3, 3>& R, bool warm_start = false)
 	{
@@ -309,8 +312,7 @@ namespace Vcl { namespace Mathematics
 		if (warm_start)
 		{
 			A = R.transpose() * A * R;
-		}
-		else
+		} else
 		{
 			R.setIdentity();
 		}
@@ -321,11 +323,11 @@ namespace Vcl { namespace Mathematics
 
 		// Always largest remaining element
 		int iter = 0;
-		while (iter < JacobiTraits<Real>::maxIterations())	// 3 off diagonal elements
+		while (iter < JacobiTraits<Real>::maxIterations()) // 3 off diagonal elements
 		{
 			// Find off diagonal element with maximum modulus
 			int k = 0;
-		
+
 			Real max = abs(A(0, 1));
 			Real a = abs(A(0, 2));
 			if (any(a > max))
@@ -333,18 +335,18 @@ namespace Vcl { namespace Mathematics
 				k = 1;
 				max = a;
 			}
-		
+
 			a = abs(A(1, 2));
 			if (any(a > max))
 			{
 				k = 2;
 				max = a;
 			}
-		
+
 			// All small enough -> done
-			if(all(max < JacobiTraits<Real>::epsilon()))
+			if (all(max < JacobiTraits<Real>::epsilon()))
 				break;
-			
+
 			// Rotate matrix with respect to that element
 			switch (k)
 			{
@@ -358,13 +360,13 @@ namespace Vcl { namespace Mathematics
 				JacobiRotateOptimised<Real, 1, 2>(A, R);
 				break;
 			}
-		
+
 			iter++;
 		}
 
 		return iter;
 	}
-	
+
 	template<typename REAL>
 	int SelfAdjointJacobiEigenGeneric(Eigen::Matrix<REAL, 3, 3>& M, Eigen::Matrix<REAL, 3, 3>& R)
 	{
@@ -374,7 +376,7 @@ namespace Vcl { namespace Mathematics
 		// Only for symmetric matrices!
 		// A = R A' R^T, where A' is diagonal and R orthonormal
 		int iter = 0;
-		while (iter < JacobiTraits<REAL>::maxIterations())	// 3 off diagonal elements
+		while (iter < JacobiTraits<REAL>::maxIterations()) // 3 off diagonal elements
 		{
 			// Find off diagonal element with maximum modulus
 			int k = 0;
@@ -397,7 +399,7 @@ namespace Vcl { namespace Mathematics
 			// All small enough -> done
 			if (max < JacobiTraits<REAL>::epsilon())
 				break;
-			
+
 			// Rotate matrix with respect to that element
 			switch (k)
 			{
@@ -421,6 +423,6 @@ namespace Vcl { namespace Mathematics
 		return iter;
 	}
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(pop) 
+#	pragma strict_gs_check(pop)
 #endif // VCL_COMPILER_MSVC
 }}

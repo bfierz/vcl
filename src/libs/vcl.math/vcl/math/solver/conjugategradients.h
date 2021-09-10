@@ -30,8 +30,7 @@
 // C++ standard library
 #include <limits>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	class ConjugateGradientsContext
 	{
 	public:
@@ -83,7 +82,6 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual bool solve(ConjugateGradientsContext* ctx, double* residual = nullptr);
 
 	private: // Solver configuration
-
 		//! Maximum number of iterations
 		int _maxIterations = 0;
 		int _chunkSize = 1;

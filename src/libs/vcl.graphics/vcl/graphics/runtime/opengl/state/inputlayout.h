@@ -37,8 +37,7 @@
 #include <vcl/graphics/runtime/resource/buffer.h>
 #include <vcl/graphics/runtime/state/inputlayout.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	struct VertexLayoutElement
 	{
 		GLint NrComponents;

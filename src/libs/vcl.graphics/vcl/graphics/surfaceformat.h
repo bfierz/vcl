@@ -30,8 +30,7 @@
 // C++ standard library
 #include <functional>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	enum class SurfaceFormat
 	{
 		Unknown,
@@ -88,8 +87,7 @@ namespace Vcl { namespace Graphics
 	int sizeInBytes(SurfaceFormat fmt);
 }}
 
-namespace std
-{
+namespace std {
 	template<>
 	struct hash<Vcl::Graphics::SurfaceFormat>
 	{

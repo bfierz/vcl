@@ -33,8 +33,7 @@
 #	define M_PI 3.1415926535897932384626433832795
 #endif
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	Camera::Camera(std::shared_ptr<MatrixFactory> factory)
 	: Camera({ 1, 1, 1 }, { 0, 0, 0 }, std::move(factory))
 	{
@@ -48,7 +47,7 @@ namespace Vcl { namespace Graphics
 	, _direction(0, 0, 0)
 	, _useDirection(false)
 	, _up(0, 1, 0)
-	, _fov((float) M_PI / 4.0f)
+	, _fov((float)M_PI / 4.0f)
 	, _nearPlane(0.01f)
 	, _farPlane(100.0f)
 	, _zoom(1.0f)
@@ -80,19 +79,17 @@ namespace Vcl { namespace Graphics
 		_useDirection = true;
 		_direction = direction.normalized();
 	}
-	
+
 	const Eigen::Vector3f& Camera::target() const
 	{
 		if (_useTarget && !_useDirection)
 		{
 			return _target;
-		}
-		else if (_useDirection && !_useTarget)
+		} else if (_useDirection && !_useTarget)
 		{
 			_target = _position + _direction;
 			return _target;
-		}
-		else
+		} else
 		{
 			VclDebugError("Invalid state");
 		}
@@ -101,20 +98,18 @@ namespace Vcl { namespace Graphics
 	}
 
 	const Eigen::Vector3f& Camera::direction() const
-	{		
+	{
 		if (_useDirection && !_useTarget)
 		{
 			return _direction;
-		}
-		else if (_useTarget && !_useDirection)
+		} else if (_useTarget && !_useDirection)
 		{
 			_direction = (_target - _position).normalized();
-		}
-		else
+		} else
 		{
 			VclDebugError("Invalid state");
 		}
-		
+
 		return _direction;
 	}
 
@@ -171,14 +166,12 @@ namespace Vcl { namespace Graphics
 	{
 		if (_changedProjection)
 		{
-			_projection = 
-				_factory->createPerspectiveFov
-				(
+			_projection =
+				_factory->createPerspectiveFov(
 					_nearPlane, _farPlane,
-					(float) _viewportX / (float) _viewportY,
+					(float)_viewportX / (float)_viewportY,
 					_fov / nonLinearZoom(),
-					Handedness::RightHanded
-				);
+					Handedness::RightHanded);
 			_changedProjection = false;
 		}
 
@@ -190,13 +183,11 @@ namespace Vcl { namespace Graphics
 		if (_changedView)
 		{
 			_view =
-				_factory->createLookAt
-				(
+				_factory->createLookAt(
 					position(),
 					direction(),
 					up(),
-					Handedness::RightHanded
-				);
+					Handedness::RightHanded);
 			_changedView = false;
 		}
 
@@ -244,12 +235,12 @@ namespace Vcl { namespace Graphics
 		Eigen::Matrix4f unproject = projection().inverse();
 		return genericPick(x, y, unproject);
 	}
-	
+
 	Eigen::ParametrizedLine3f Camera::genericPick(int x, int y, Eigen::Matrix4f& unproject) const
 	{
 		// Convert the mouse point to screen space coordinates
-		float ratio_x = (float) x / (float) _viewportX;
-		float ratio_y = (float) y / (float) _viewportY;
+		float ratio_x = (float)x / (float)_viewportX;
+		float ratio_y = (float)y / (float)_viewportY;
 
 		Eigen::Vector4f v;
 		v.x() = 2.0f * ratio_x - 1.0f;

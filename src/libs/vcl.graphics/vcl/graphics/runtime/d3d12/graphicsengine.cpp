@@ -27,14 +27,13 @@
 // Abseil
 #include <absl/container/inlined_vector.h>
 
- // VCL
+// VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/runtime/d3d12/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	Frame::Frame(ref_ptr<Graphics::D3D12::Device> dev)
 	{
 		GraphicsCommandAllocator = dev->createCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -79,16 +78,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
 		const CD3DX12_HEAP_PROPERTIES heap_props(D3D12_HEAP_TYPE_DEFAULT);
-		const auto tex2d_desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height,
-			1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+		const auto tex2d_desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 		VCL_DIRECT3D_SAFE_CALL(dev->CreateCommittedResource(
 			&heap_props,
 			D3D12_HEAP_FLAG_NONE,
 			&tex2d_desc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&optimizedClearValue,
-			IID_PPV_ARGS(&DepthBuffer)
-		));
+			IID_PPV_ARGS(&DepthBuffer)));
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
 		dsv.Format = DXGI_FORMAT_D32_FLOAT;
@@ -96,8 +93,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		dsv.Texture2D.MipSlice = 0;
 		dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-		dev->CreateDepthStencilView(DepthBuffer.Get(), &dsv,
-			DsvHeap->GetCPUDescriptorHandleForHeapStart());
+		dev->CreateDepthStencilView(DepthBuffer.Get(), &dsv, DsvHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 	void DepthSurface::invalidate()
 	{
@@ -175,16 +171,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 	void CommandBuffer::bindPipeline(PipelineState* pipeline)
 	{
 		VclRequire(pipeline, "'pipeline' is set");
-		VclRequire(dynamic_cast<GraphicsPipelineState*>(pipeline) || dynamic_cast<ComputePipelineState*>(pipeline),
-			"'pipeline' is either graphics or compute pipeline");
+		VclRequire(dynamic_cast<GraphicsPipelineState*>(pipeline) || dynamic_cast<ComputePipelineState*>(pipeline), "'pipeline' is either graphics or compute pipeline");
 
 		if (dynamic_cast<GraphicsPipelineState*>(pipeline))
 		{
 			_currentGraphicsPipeline = pipeline;
 			_cmdList->SetPipelineState(static_cast<GraphicsPipelineState*>(pipeline)->handle());
-		}
-		else if (dynamic_cast<ComputePipelineState*>(pipeline))
-				_cmdList->SetPipelineState(static_cast<ComputePipelineState*>(pipeline)->handle());
+		} else if (dynamic_cast<ComputePipelineState*>(pipeline))
+			_cmdList->SetPipelineState(static_cast<ComputePipelineState*>(pipeline)->handle());
 	}
 	void CommandBuffer::bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table)
 	{
@@ -200,12 +194,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		if (bp == PipelineBindPoint::Graphics)
 		{
 			tables[0]->setToGraphics(_cmdList.Get(), root_index);
-		}
-		else if (bp == PipelineBindPoint::Compute)
+		} else if (bp == PipelineBindPoint::Compute)
 		{
 			tables[0]->setToCompute(_cmdList.Get(), root_index);
-		}
-		else
+		} else
 		{
 			VclDebugError("Pipeline bind point not implemented");
 		}
@@ -239,11 +231,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		const auto* pps = static_cast<GraphicsPipelineState*>(_currentGraphicsPipeline);
 		int idx = 0;
 		absl::InlinedVector<D3D12_VERTEX_BUFFER_VIEW, 16> vbos(buffers.size());
-		std::transform(buffers.begin(), buffers.end(), vbos.begin(), [pps, &idx](Buffer* buffer)
-			{
-				const auto stride = pps->inputLayout().binding(idx++).Stride;
-				return D3D12_VERTEX_BUFFER_VIEW{ buffer->handle()->GetGPUVirtualAddress(), static_cast<unsigned int>(buffer->sizeInBytes()), stride };
-			});
+		std::transform(buffers.begin(), buffers.end(), vbos.begin(), [pps, &idx](Buffer* buffer) {
+			const auto stride = pps->inputLayout().binding(idx++).Stride;
+			return D3D12_VERTEX_BUFFER_VIEW{ buffer->handle()->GetGPUVirtualAddress(), static_cast<unsigned int>(buffer->sizeInBytes()), stride };
+		});
 
 		_cmdList->IASetVertexBuffers(0, vbos.size(), vbos.data());
 	}
@@ -275,13 +266,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		_cmdList->Dispatch(thread_group_count_x, thread_group_count_y, thread_group_count_z);
 	}
 
-
-	GraphicsEngine::GraphicsEngine
-	(
+	GraphicsEngine::GraphicsEngine(
 		ref_ptr<Device> device,
-		const SwapChainDescription& swap_chain_desc
-	)
-	: _device{device}
+		const SwapChainDescription& swap_chain_desc)
+	: _device{ device }
 	{
 		_swapChain = std::make_unique<SwapChain>(_device.get(), _device->defaultQueue(), swap_chain_desc);
 
@@ -373,10 +361,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 	void GraphicsEngine::enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback)
 	{
-
 	}
 	void GraphicsEngine::enqueueCommand(std::function<void(void)>)
 	{
-
 	}
 }}}}

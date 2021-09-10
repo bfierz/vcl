@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/util/stringparser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	void NvidiaTetSerialiser::load(AbstractDeserialiser* deserialiser, const std::string& path) const
 	{
 		using namespace std;
@@ -70,8 +69,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 				position = { p0, p1, p2 };
 				deserialiser->addNode(position);
-			}
-			else if (buffer == "t")
+			} else if (buffer == "t")
 			{
 				int i0, i1, i2, i3;
 				parser.readInt(&i0);
@@ -81,8 +79,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 				volume = { static_cast<unsigned>(i0), static_cast<unsigned>(i1), static_cast<unsigned>(i2), static_cast<unsigned>(i3) };
 				deserialiser->addVolume(volume);
-			}
-			else if (buffer == "l")
+			} else if (buffer == "l")
 			{
 			}
 		}
@@ -131,7 +128,7 @@ namespace Vcl { namespace Geometry { namespace IO
 
 		// Write footer
 		fout.close();
-		
+
 		// End writing the mesh
 		serialiser->end();
 	}

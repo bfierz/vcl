@@ -45,8 +45,7 @@
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	class Device;
 
 	enum class DescriptorTableLayoutEntryType
@@ -105,13 +104,11 @@ namespace Vcl { namespace Graphics { namespace D3D12
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-		DescriptorTableLayout
-		(
+		DescriptorTableLayout(
 			Device* device,
 			std::vector<DescriptorTableLayoutEntry> entries = {},
 			std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers = {},
-			bool use_input_assembler = true
-		);
+			bool use_input_assembler = true);
 
 		ID3D12RootSignature* rootSignature() const { return _d3d12RootSignature.Get(); }
 

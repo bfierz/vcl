@@ -46,7 +46,7 @@ extern "C"
 	_declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	QGuiApplication app(argc, argv);
 	app.setOrganizationName("");
@@ -70,12 +70,12 @@ int main(int argc, char **argv)
 
 	engine.load(QUrl("qrc:///main.qml"));
 
-	QObject *topLevel = engine.rootObjects().value(0);
-	QQuickWindow *window = qobject_cast<QQuickWindow*>(topLevel);
+	QObject* topLevel = engine.rootObjects().value(0);
+	QQuickWindow* window = qobject_cast<QQuickWindow*>(topLevel);
 	if (!window)
 	{
 		qWarning("Error: Your root item has to be a Window.");
-		return -1;	
+		return -1;
 	}
 	window->show();
 

@@ -42,13 +42,12 @@
 #include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime 
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	class BufferRange
 	{
 	public:
 		BufferRange(ref_ptr<Buffer> buf, size_t offset, size_t size)
-			: _owner(buf), _offsetInBytes(offset), _sizeInBytes(size)
+		: _owner(buf), _offsetInBytes(offset), _sizeInBytes(size)
 		{
 		}
 
@@ -72,7 +71,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 	public:
 		BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size, void* base_data_ptr = nullptr, std::function<void(Buffer&, size_t, size_t)> release = nullptr)
-			: BufferRange(buf, offset, size), _release(std::move(release))
+		: BufferRange(buf, offset, size), _release(std::move(release))
 		{
 			if (base_data_ptr)
 			{
@@ -89,8 +88,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		BufferView(const BufferView&) = delete;
 		BufferView(BufferView&&) = default;
-		BufferView& operator =(const BufferView&) = delete;
-		BufferView& operator =(BufferView&&) = default;
+		BufferView& operator=(const BufferView&) = delete;
+		BufferView& operator=(BufferView&&) = default;
 
 		void* data() const { return _data; }
 
@@ -106,7 +105,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class ConstantBufferView : public BufferView
 	{
 	public:
-		ConstantBufferView(BufferView&& view) : BufferView(std::move(view)) {}
+		ConstantBufferView(BufferView&& view)
+		: BufferView(std::move(view)) {}
 		T* operator->() { return reinterpret_cast<T*>(data()); }
 	};
 
@@ -156,8 +156,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	};
 }}}
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	struct Frame
 	{
 	public:
@@ -185,7 +184,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		/// Pointer to mapped constant buffer
 		void* _mappedLinearMemory{ nullptr };
-
 	};
 
 	struct DepthSurface
@@ -195,7 +193,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		Microsoft::WRL::ComPtr<ID3D12Resource> DepthBuffer;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DsvHeap;
-
 	};
 
 	enum class PipelineBindPoint
@@ -316,6 +313,5 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		//! Current offset into the linear memory buffer
 		size_t _linearBufferOffset{ 0 };
-
 	};
 }}}}

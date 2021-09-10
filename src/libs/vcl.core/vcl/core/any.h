@@ -30,9 +30,7 @@
 // Abseil
 #include <absl/types/any.h>
 
-namespace stdext
-{
+namespace stdext {
 	using absl::any;
 	using absl::any_cast;
 }
-

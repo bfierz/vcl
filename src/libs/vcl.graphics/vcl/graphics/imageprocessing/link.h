@@ -35,8 +35,7 @@
 // VCL
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class InputSlot;
 	class OutputSlot;
 	class Task;
@@ -72,10 +71,10 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	public:
 		InputSlot(const std::string& id, Task* task);
 		virtual ~InputSlot() = default;
-		
+
 	public:
 		void setSource(OutputSlot* src);
-		
+
 		void setResource(const Runtime::Texture* input);
 		void setResource(const Runtime::Texture* input, unsigned int width, unsigned int height);
 		void setResource(const Runtime::Texture* input, unsigned int x, unsigned int y, unsigned int width, unsigned int height);
@@ -89,7 +88,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 		virtual unsigned int y() const override;
 		virtual unsigned int width() const override;
 		virtual unsigned int height() const override;
-		
+
 	private:
 		//! Disconnects this input slot from other task's output
 		void disconnect();
@@ -116,7 +115,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 	public:
 		OutputSlot(const std::string& id, Task* task);
 		virtual ~OutputSlot() = default;
-		
+
 	public:
 		const std::vector<InputSlot*> connections() const { return _connections; }
 
@@ -127,7 +126,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 	public:
 		virtual const Runtime::Texture* resource() const override;
-		
+
 	public:
 		virtual unsigned int x() const override;
 		virtual unsigned int y() const override;
@@ -140,7 +139,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing
 
 		// Resource used as output
 		std::shared_ptr<Runtime::Texture> _resource;
-		
+
 	private: // View configuration
 		unsigned int _x{ 0 };
 		unsigned int _y{ 0 };

@@ -32,26 +32,25 @@
 
 #ifdef VCL_VECTORIZE_AVX
 
-#include <vcl/core/simd/intrinsics_sse.h>
+#	include <vcl/core/simd/intrinsics_sse.h>
 
 // Macros for GCC compatibility
-#ifndef _mm256_set_m128
-#	define _mm256_set_m128(/* __m128 */ hi, /* __m128 */ lo) _mm256_insertf128_ps(_mm256_castps128_ps256(lo), (hi), 0x1)
-#endif // _mm256_set_m128
+#	ifndef _mm256_set_m128
+#		define _mm256_set_m128(/* __m128 */ hi, /* __m128 */ lo) _mm256_insertf128_ps(_mm256_castps128_ps256(lo), (hi), 0x1)
+#	endif // _mm256_set_m128
 
-#ifndef _mm256_set_m128d
-#	define _mm256_set_m128d(/* __m128d */ hi, /* __m128d */ lo) _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), (hi), 0x1)
-#endif // _mm256_set_m128d
+#	ifndef _mm256_set_m128d
+#		define _mm256_set_m128d(/* __m128d */ hi, /* __m128d */ lo) _mm256_insertf128_pd(_mm256_castpd128_pd256(lo), (hi), 0x1)
+#	endif // _mm256_set_m128d
 
-#ifndef _mm256_set_m128i
-#	define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
-#endif // _mm256_set_m128i
+#	ifndef _mm256_set_m128i
+#		define _mm256_set_m128i(/* __m128i */ hi, /* __m128i */ lo) _mm256_insertf128_si256(_mm256_castsi128_si256(lo), (hi), 0x1)
+#	endif // _mm256_set_m128i
 
-#define VCL_M256I_SIGNBIT _mm256_set1_epi32(int(0x80000000))
-#define VCL_M256I_ALLBITS _mm256_set1_epi32(int(0xffffffff))
+#	define VCL_M256I_SIGNBIT _mm256_set1_epi32(int(0x80000000))
+#	define VCL_M256I_ALLBITS _mm256_set1_epi32(int(0xffffffff))
 
-namespace Vcl
-{
+namespace Vcl {
 	VCL_STRONG_INLINE __m256 _mm256_abs_ps(__m256 v)
 	{
 		return _mm256_andnot_ps(_mm256_castsi256_ps(VCL_M256I_SIGNBIT), v);
@@ -61,7 +60,7 @@ namespace Vcl
 		return _mm256_and_ps(_mm256_or_ps(_mm256_and_ps(v, _mm256_castsi256_ps(VCL_M256I_SIGNBIT)), _mm256_set1_ps(1.0f)), _mm256_cmp_ps(v, _mm256_setzero_ps(), _CMP_NEQ_OQ));
 	}
 
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE __m256i _mm256_cmplt_epi32(__m256i a, __m256i b)
 	{
 		return _mm256_cmpgt_epi32(b, a);
@@ -69,7 +68,7 @@ namespace Vcl
 	VCL_STRONG_INLINE __m256i _mm256_cmpneq_epi32(__m256i a, __m256i b)
 	{
 		return _mm256_andnot_si256(_mm256_cmpeq_epi32(a, b), VCL_M256I_ALLBITS);
-	}	
+	}
 	VCL_STRONG_INLINE __m256i _mm256_cmple_epi32(__m256i a, __m256i b)
 	{
 		return _mm256_andnot_si256(_mm256_cmpgt_epi32(a, b), VCL_M256I_ALLBITS);
@@ -78,10 +77,10 @@ namespace Vcl
 	{
 		return _mm256_andnot_si256(_mm256_cmplt_epi32(a, b), VCL_M256I_ALLBITS);
 	}
-#endif // VCL_VECTORIZE_AVX2
+#	endif // VCL_VECTORIZE_AVX2
 
-#if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
-	__m256 _mm256_sin_ps(__m256 v);	
+#	if !defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920
+	__m256 _mm256_sin_ps(__m256 v);
 	__m256 _mm256_cos_ps(__m256 v);
 	__m256 _mm256_log_ps(__m256 v);
 	__m256 _mm256_exp_ps(__m256 v);
@@ -91,9 +90,12 @@ namespace Vcl
 	__m256 _mm256_atan2_ps(__m256 y, __m256 x);
 
 	__m256 _mm256_pow_ps(__m256 x, __m256 y);
-#endif
+#	endif
 
-	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_EQ_OQ); }
+	VCL_STRONG_INLINE __m256 _mm256_cmpeq_ps(__m256 a, __m256 b)
+	{
+		return _mm256_cmp_ps(a, b, _CMP_EQ_OQ);
+	}
 	VCL_STRONG_INLINE __m256 _mm256_cmpneq_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_NEQ_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmplt_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LT_OQ); }
 	VCL_STRONG_INLINE __m256 _mm256_cmple_ps(__m256 a, __m256 b) { return _mm256_cmp_ps(a, b, _CMP_LE_OQ); }
@@ -126,7 +128,7 @@ namespace Vcl
 		const __m256 muls = _mm256_mul_ps(_mm256_mul_ps(nr, nr), v);
 		const __m256 dbl = _mm256_add_ps(nr, nr);
 
-		// Filter out zero input to ensure 
+		// Filter out zero input to ensure
 		const __m256 mask = _mm256_cmpeq_ps(v, _mm256_setzero_ps());
 		const __m256 filtered = _mm256_andnot_ps(mask, muls);
 		const __m256 result = _mm256_sub_ps(dbl, filtered);
@@ -136,9 +138,9 @@ namespace Vcl
 
 	VCL_STRONG_INLINE __m256i _mmVCL_add_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_add_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -149,13 +151,13 @@ namespace Vcl
 		const __m128i z1 = _mm_add_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_sub_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_sub_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -166,13 +168,13 @@ namespace Vcl
 		const __m128i z1 = _mm_sub_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_mullo_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_mullo_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -183,14 +185,14 @@ namespace Vcl
 		const __m128i z1 = _mm_mullo_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_max_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_max_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -201,14 +203,14 @@ namespace Vcl
 		const __m128i z1 = _mm_max_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_min_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_min_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -219,14 +221,14 @@ namespace Vcl
 		const __m128i z1 = _mm_min_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_abs_epi32(__m256i x)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_abs_epi32(x);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -234,14 +236,14 @@ namespace Vcl
 		const __m128i y1 = _mm_abs_epi32(x1);
 
 		return _mm256_set_m128i(y1, y0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_cmpeq_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpeq_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -252,13 +254,13 @@ namespace Vcl
 		const __m128i z1 = _mm_cmpeq_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_cmpneq_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpneq_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -269,13 +271,13 @@ namespace Vcl
 		const __m128i z1 = _mm_cmpneq_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_cmplt_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmplt_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -286,13 +288,13 @@ namespace Vcl
 		const __m128i z1 = _mm_cmplt_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_cmple_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmple_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -303,13 +305,13 @@ namespace Vcl
 		const __m128i z1 = _mm_cmple_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_cmpgt_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpgt_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -320,13 +322,13 @@ namespace Vcl
 		const __m128i z1 = _mm_cmpgt_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_cmpge_epi32(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_cmpge_epi32(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -337,14 +339,14 @@ namespace Vcl
 		const __m128i z1 = _mm_cmpge_epi32(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE __m256i _mmVCL_and_si256(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_and_si256(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -355,13 +357,13 @@ namespace Vcl
 		const __m128i z1 = _mm_and_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_andnot_si256(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_andnot_si256(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -372,13 +374,13 @@ namespace Vcl
 		const __m128i z1 = _mm_andnot_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_or_si256(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_or_si256(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -389,13 +391,13 @@ namespace Vcl
 		const __m128i z1 = _mm_or_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 	VCL_STRONG_INLINE __m256i _mmVCL_xor_si256(__m256i x, __m256i y)
 	{
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 		return _mm256_xor_si256(x, y);
-#else
+#	else
 		const __m128i x0 = _mm256_extractf128_si256(x, 0);
 		const __m128i x1 = _mm256_extractf128_si256(x, 1);
 
@@ -406,7 +408,7 @@ namespace Vcl
 		const __m128i z1 = _mm_xor_si128(x1, y1);
 
 		return _mm256_set_m128i(z1, z0);
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE float _mmVCL_hmin_ps(__m256 v)
@@ -425,7 +427,7 @@ namespace Vcl
 		__m256 redux = _mm256_max_ps(v, hilo);
 		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x0e));
 		redux = _mm256_max_ps(redux, _mm256_shuffle_ps(redux, redux, 0x01));
-		
+
 		return _mm_cvtss_f32(_mm256_castps256_ps128(redux));
 	}
 
@@ -443,7 +445,7 @@ namespace Vcl
 
 	VCL_STRONG_INLINE float _mmVCL_extract_ps(__m256 v, int i)
 	{
-#if 1
+#	if 1
 		typedef union
 		{
 			__m256 x;
@@ -451,7 +453,7 @@ namespace Vcl
 		} F32;
 
 		return F32{ v }.a[i];
-#else
+#	else
 		float dest;
 
 		__m128 half;
@@ -468,26 +470,26 @@ namespace Vcl
 		switch (i % 4)
 		{
 		case 0:
-			*((int*) &(dest)) = _mm_extract_ps(half, 0);
+			*((int*)&(dest)) = _mm_extract_ps(half, 0);
 			break;
 		case 1:
-			*((int*) &(dest)) = _mm_extract_ps(half, 1);
+			*((int*)&(dest)) = _mm_extract_ps(half, 1);
 			break;
 		case 2:
-			*((int*) &(dest)) = _mm_extract_ps(half, 2);
+			*((int*)&(dest)) = _mm_extract_ps(half, 2);
 			break;
 		case 3:
-			*((int*) &(dest)) = _mm_extract_ps(half, 3);
+			*((int*)&(dest)) = _mm_extract_ps(half, 3);
 			break;
 		}
 
 		return dest;
-#endif
+#	endif
 	}
 
 	VCL_STRONG_INLINE int _mmVCL_extract_epi32(__m256i v, int i)
 	{
-#if 1
+#	if 1
 		typedef union
 		{
 			__m256i x;
@@ -495,7 +497,7 @@ namespace Vcl
 		} U32;
 
 		return U32{ v }.a[i];
-#else
+#	else
 		int dest;
 
 		__m128i half;
@@ -526,7 +528,7 @@ namespace Vcl
 		}
 
 		return dest;
-#endif
+#	endif
 	}
 }
 #endif // VCL_VECTORIZE_AVX

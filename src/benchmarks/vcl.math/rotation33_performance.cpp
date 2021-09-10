@@ -87,7 +87,7 @@ void perfPolarDecomposition(benchmark::State& state)
 
 			// Compute SVD using 2-sided Jacobi iterations (Brent)
 			matrix3_t A = F.at<real_t>(i);
-			matrix3_t RR= A;
+			matrix3_t RR = A;
 
 			Vcl::Mathematics::PolarDecomposition(A, RR, nullptr);
 
@@ -167,36 +167,36 @@ void perfRotationAPD(benchmark::State& state)
 	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
+using Vcl::float16;
 using Vcl::float4;
 using Vcl::float8;
-using Vcl::float16;
 
 // Test Performance: Eigen Jacobi SVD
-BENCHMARK(perfEigenSVD)->Arg(128);// ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK(perfEigenSVD)->Arg(128); // ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: Iterative jacobi polar decomposion
-BENCHMARK_TEMPLATE(perfPolarDecomposition, float)  ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfPolarDecomposition, float4) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfPolarDecomposition, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfPolarDecomposition, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfPolarDecomposition, float)->Arg(128);   //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfPolarDecomposition, float4)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfPolarDecomposition, float8)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfPolarDecomposition, float16)->Arg(128); //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: Iterative rotation estimation
-BENCHMARK_TEMPLATE(perfRotationTorque, float)  ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationTorque, float4) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationTorque, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationTorque, float)->Arg(128);   //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationTorque, float4)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationTorque, float8)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationTorque, float16)->Arg(128); //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: Iterative analytic polar decomposition
-BENCHMARK_TEMPLATE(perfRotationAPD, float)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationAPD, float4)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationAPD, float8)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfRotationAPD, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float)->Arg(128);   //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float4)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float8)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfRotationAPD, float16)->Arg(128); //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 int main(int argc, char** argv)
 {
 	// Initialize data
 	createRotationProblems(nr_problems, 90, 0, F);
-	
+
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
 }

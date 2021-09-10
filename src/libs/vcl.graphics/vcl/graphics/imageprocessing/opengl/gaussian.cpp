@@ -28,12 +28,9 @@
 #include <vcl/core/contract.h>
 
 // Local
-#include "GaussianBlur.h"
+#include "3rdparty/GaussianBlur.h"
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Gaussian::Gaussian(ImageProcessor* processor)
 	{
 		// Various Kernels from http://dev.theomader.com/gaussian-kernel-calculator/
@@ -189,9 +186,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		// Execute the vertical blurring kernel
 		const Runtime::Texture* voutput = _outputSlots[0]->resource();
 		const Runtime::Texture* vinput = tmp.get();
-		
+
 		processor->enqueKernel(_verticalKernelId, output_range.z(), output_range.w(), &voutput, &output_range, nr_outputs, &vinput, &input_range, nr_inputs);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

@@ -24,8 +24,7 @@
  */
 #include <vcl/components/entitymanager.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	Entity EntityManager::create()
 	{
 		uint32_t index, generation;
@@ -39,15 +38,14 @@ namespace Vcl { namespace Components
 
 			// Return the new generation for construction
 			generation = _generations.back();
-		}
-		else
+		} else
 		{
 			index = _freeIndices.back();
 			_freeIndices.pop_back();
 			generation = _generations[index];
 		}
 
-		return{ this, index, generation };
+		return { this, index, generation };
 	}
 
 	void EntityManager::destroy(Entity e)
@@ -59,4 +57,3 @@ namespace Vcl { namespace Components
 		_freeIndices.push_back(index);
 	}
 }}
-

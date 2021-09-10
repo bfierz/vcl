@@ -37,18 +37,18 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl
-{
-	namespace Core
-	{
+namespace Vcl {
+	namespace Core {
 		template<typename T>
 		class ref_ptr;
 
-		namespace Detail
-		{
-			struct StaticTag {};
-			struct DynamicTag {};
-			struct ConstTag {};
+		namespace Detail {
+			struct StaticTag
+			{};
+			struct DynamicTag
+			{};
+			struct ConstTag
+			{};
 
 			class ref_cnt
 			{
@@ -80,16 +80,17 @@ namespace Vcl
 		template<typename T>
 		class owner_ptr
 		{
-			template<typename U> friend class owner_ptr;
-			template<typename U> friend class ref_ptr;
+			template<typename U>
+			friend class owner_ptr;
+			template<typename U>
+			friend class ref_ptr;
+
 		public:
 			owner_ptr() = default;
 
-			template
-			<
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			owner_ptr(U* ptr)
 			: _ptr(ptr)
 			{
@@ -98,11 +99,9 @@ namespace Vcl
 				_cnt->setValid();
 #endif
 			}
-			template
-			<
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			owner_ptr(std::unique_ptr<U> ptr)
 			: _ptr(ptr.release())
 			{
@@ -112,17 +111,15 @@ namespace Vcl
 #endif
 			}
 			owner_ptr(const owner_ptr&) = delete;
-		
-			template
-			<
+
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			owner_ptr(owner_ptr<U>&& rhs)
 			{
 				_ptr = rhs._ptr;
 				rhs._ptr = nullptr;
-				
+
 #ifdef VCL_USE_CONTRACTS
 				std::swap(_cnt, rhs._cnt);
 #endif
@@ -162,7 +159,7 @@ namespace Vcl
 			}
 
 			T* get() const { return _ptr; }
-			
+
 #ifdef VCL_USE_CONTRACTS
 			long use_count() const
 			{
@@ -182,17 +179,16 @@ namespace Vcl
 		template<typename T>
 		class ref_ptr
 		{
-			template<typename U> friend class ref_ptr;
+			template<typename U>
+			friend class ref_ptr;
 
 		public:
 			ref_ptr() = default;
 			ref_ptr(std::nullptr_t) {}
 
-			template
-			<
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			ref_ptr(const owner_ptr<U>& ptr)
 			: _ptr(ptr.get())
 #ifdef VCL_USE_CONTRACTS
@@ -200,13 +196,11 @@ namespace Vcl
 #endif
 			{
 			}
-			
+
 			//! Constructor overload supporting std::unique_ptr
-			template
-			<
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			ref_ptr(const std::unique_ptr<U>& ptr)
 			: _ptr(ptr.get())
 			{
@@ -216,11 +210,9 @@ namespace Vcl
 #endif
 			}
 
-			template
-			<
+			template<
 				typename U,
-				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type
-			>
+				class = typename std::enable_if<std::is_convertible<U*, T*>::value, void>::type>
 			ref_ptr(const ref_ptr<U>& ptr)
 			: _ptr(ptr.get())
 #ifdef VCL_USE_CONTRACTS
@@ -228,7 +220,7 @@ namespace Vcl
 #endif
 			{
 			}
-			
+
 			template<typename U>
 			ref_ptr(const ref_ptr<U>& ptr, const Detail::StaticTag&)
 			{
@@ -241,7 +233,7 @@ namespace Vcl
 #endif
 				}
 			}
-			
+
 			template<typename U>
 			ref_ptr(const ref_ptr<U>& ptr, const Detail::DynamicTag&)
 			{
@@ -307,7 +299,7 @@ namespace Vcl
 
 		private:
 			T* _ptr{ nullptr };
-			
+
 #ifdef VCL_USE_CONTRACTS
 			//! Marker supporting checking if the owner still exists
 			std::shared_ptr<Detail::ref_cnt> _cnt;
@@ -323,44 +315,43 @@ namespace Vcl
 		template<typename T, typename U>
 		ref_ptr<T> static_pointer_cast(const owner_ptr<U>& ptr)
 		{
-			return{ ref_ptr<U>(ptr), Detail::StaticTag{} };
+			return { ref_ptr<U>(ptr), Detail::StaticTag{} };
 		}
-		
+
 		template<typename T, typename U>
 		ref_ptr<T> static_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			return{ ptr, Detail::StaticTag{} };
+			return { ptr, Detail::StaticTag{} };
 		}
 
 		template<typename T, typename U>
 		ref_ptr<T> dynamic_pointer_cast(const owner_ptr<U>& ptr)
 		{
-			return{ ref_ptr<U>(ptr), Detail::DynamicTag{} };
+			return { ref_ptr<U>(ptr), Detail::DynamicTag{} };
 		}
 
 		template<typename T, typename U>
 		ref_ptr<T> dynamic_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			return{ ptr, Detail::DynamicTag{} };
+			return { ptr, Detail::DynamicTag{} };
 		}
-		
+
 		template<typename T, typename U>
 		ref_ptr<T> const_pointer_cast(const owner_ptr<U>& ptr)
 		{
-			return{ ref_ptr<U>(ptr), Detail::ConstTag{} };
+			return { ref_ptr<U>(ptr), Detail::ConstTag{} };
 		}
 
 		template<typename T, typename U>
 		ref_ptr<T> const_pointer_cast(const ref_ptr<U>& ptr)
 		{
-			return{ ptr, Detail::ConstTag{} };
+			return { ptr, Detail::ConstTag{} };
 		}
 	}
 	using namespace Core;
 }
 
-namespace std
-{
+namespace std {
 	template<typename T>
 	struct hash<Vcl::Core::ref_ptr<T>>
 	{

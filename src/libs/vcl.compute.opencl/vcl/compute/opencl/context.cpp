@@ -33,8 +33,7 @@
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Context::Context(const Device& dev)
 	: Compute::Context()
 	, _dev(dev)
@@ -48,9 +47,8 @@ namespace Vcl { namespace Compute { namespace OpenCL
 
 		// Create context without graphics bindings
 		{
-			cl_context_properties props [] =
-			{
-				CL_CONTEXT_PLATFORM, (cl_context_properties) platform, // OpenCL platform
+			cl_context_properties props[] = {
+				CL_CONTEXT_PLATFORM, (cl_context_properties)platform, // OpenCL platform
 				0
 			};
 

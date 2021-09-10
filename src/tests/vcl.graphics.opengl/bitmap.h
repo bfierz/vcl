@@ -35,8 +35,7 @@
 #include <string>
 #include <vector>
 
-namespace Vcl { namespace IO
-{
+namespace Vcl { namespace IO {
 	class Bitmap
 	{
 	public:
@@ -50,23 +49,23 @@ namespace Vcl { namespace IO
 				short type;
 				int size;
 				short reserved1,
-					  reserved2;
-				int offset; 
+					reserved2;
+				int offset;
 			};
 
 			struct Info
 			{
-				int   Size;
-				long  Width;
-				long  Height;
+				int Size;
+				long Width;
+				long Height;
 				short Planes;
 				short BitCount;
-				int   Compression;
-				int   SizeImage;
-				long  XPelsPerMeter;
-				long  YPelsPerMeter;
-				int   ClrUsed;
-				int   ClrImportant;
+				int Compression;
+				int SizeImage;
+				long XPelsPerMeter;
+				long YPelsPerMeter;
+				int ClrUsed;
+				int ClrImportant;
 			};
 
 			struct Colour
@@ -78,11 +77,11 @@ namespace Vcl { namespace IO
 			};
 
 			// Create image
-			Header header = {19778, static_cast<int>(sizeof(Colour)*width*height), 0, 0, 54};
-			Info   info   = {sizeof(Info), width, height, 1, sizeof(Colour)*8, 0, static_cast<int>(sizeof(Colour) * width * height), 1, 1, 0, 0};
+			Header header = { 19778, static_cast<int>(sizeof(Colour) * width * height), 0, 0, 54 };
+			Info info = { sizeof(Info), width, height, 1, sizeof(Colour) * 8, 0, static_cast<int>(sizeof(Colour) * width * height), 1, 1, 0, 0 };
 
 			fstream img;
-			img.open(filename, ios::out|ios::binary);
+			img.open(filename, ios::out | ios::binary);
 			if (!img.is_open())
 				return;
 
@@ -99,13 +98,13 @@ namespace Vcl { namespace IO
 			{
 				for (int j = 0; j < width; j++)
 				{
-					const std::array<unsigned char, 4>& c = data[i*width + j];
+					const std::array<unsigned char, 4>& c = data[i * width + j];
 					Colour pixel;
 					pixel.a = c[3];
 					pixel.b = c[2];
 					pixel.g = c[1];
 					pixel.r = c[0];
-					
+
 					img.write(reinterpret_cast<char*>(&pixel), sizeof(Colour));
 				}
 			}

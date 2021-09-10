@@ -29,7 +29,7 @@
 
 std::unique_ptr<Vcl::Graphics::D3D12::Device> device;
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	using namespace Vcl::Graphics::D3D12;
 

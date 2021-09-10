@@ -27,10 +27,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	Tonemap::Tonemap(ImageProcessor* processor)
 	{
 		// Kernel source
@@ -135,8 +132,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		size_t nr_inputs = 2;
 		const Runtime::Texture* inputs[] = { _inputSlots[0]->resource(), _inputSlots[1]->resource() };
-		Eigen::Vector4i input_ranges[] = 
-		{
+		Eigen::Vector4i input_ranges[] = {
 			{ 0, 0, inputs[0]->width(), inputs[0]->height() },
 			{ 0, 0, inputs[1]->width(), inputs[1]->height() }
 		};
@@ -144,5 +140,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		processor->enqueKernel(_reinhardKernelId, output->width(), output->height(), &output, &output_range, nr_outputs, inputs, input_ranges, nr_inputs);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

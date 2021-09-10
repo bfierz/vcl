@@ -27,8 +27,7 @@
 // VCL
 #include <vcl/geometry/marchingcubestables.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum)
 	{
 		// tan(fov / 2)
@@ -43,7 +42,7 @@ namespace Vcl { namespace Util
 		float far_half_height = scale * far_dist;
 		float far_half_width = far_half_height * ratio;
 
-		return{ near_half_width, near_half_height, far_half_width, far_half_height };
+		return { near_half_width, near_half_height, far_half_width, far_half_height };
 	}
 
 	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane)
@@ -55,7 +54,7 @@ namespace Vcl { namespace Util
 		Eigen::Vector3f P = d * N;
 
 		float t = (P - p0).dot(N) / dir.dot(N);
-		return p0 + t*dir;
+		return p0 + t * dir;
 	}
 
 	// https://de.wikipedia.org/wiki/Hessesche_Normalform#Abstand_2
@@ -119,13 +118,13 @@ namespace Vcl { namespace Util
 
 		// Compute MC table index
 		int num_tri_idx = ((df3 >= 0) << 7) | ((df2 >= 0) << 6) | ((df1 >= 0) << 5) | ((df0 >= 0) << 4) |
-			              ((dn3 >= 0) << 3) | ((dn2 >= 0) << 2) | ((dn1 >= 0) << 1) | ((dn0 >= 0) << 0);
+						  ((dn3 >= 0) << 3) | ((dn2 >= 0) << 2) | ((dn1 >= 0) << 1) | ((dn0 >= 0) << 0);
 
 		// How many triangles are we generating
 		int num_tris = Vcl::Geometry::caseToNumPolys[num_tri_idx];
 
 		// List of triangles
-		auto tris = (Eigen::Vector4i*) Vcl::Geometry::edgeVertexList + (5 * num_tri_idx);
+		auto tris = (Eigen::Vector4i*)Vcl::Geometry::edgeVertexList + (5 * num_tri_idx);
 
 		// Prepare storage
 		vertices.reserve(vertices.size() + 15);
@@ -138,12 +137,10 @@ namespace Vcl { namespace Util
 				if (tri(i) < 4)
 				{
 					vertices.emplace_back(intersectRayPlane(fc[tri(i)], (fc[(tri(i) + 1) % 4] - fc[tri(i)]).normalized(), transformed_plane));
-				}
-				else if (tri(i) < 8)
+				} else if (tri(i) < 8)
 				{
 					vertices.emplace_back(intersectRayPlane(fc[tri(i)], (fc[4 + (tri(i) + 1) % 4] - fc[tri(i)]).normalized(), transformed_plane));
-				}
-				else
+				} else
 				{
 					vertices.emplace_back(intersectRayPlane(fc[tri(i) - 4], (fc[tri(i) - 8] - fc[tri(i) - 4]).normalized(), transformed_plane));
 				}

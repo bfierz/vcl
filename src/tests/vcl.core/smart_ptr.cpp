@@ -65,7 +65,7 @@ TEST(OwnerPtrTest, Simple)
 			EXPECT_TRUE(ref);
 			EXPECT_EQ(1, owner.use_count());
 		}
-		
+
 		EXPECT_TRUE(ref);
 	}
 }

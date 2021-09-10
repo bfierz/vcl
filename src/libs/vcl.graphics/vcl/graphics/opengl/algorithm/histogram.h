@@ -32,10 +32,7 @@
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	class Histogram
 	{
 	public:
@@ -43,33 +40,25 @@ namespace Vcl { namespace Graphics
 		virtual ~Histogram() = default;
 
 	public:
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Runtime::OpenGL::Buffer> histogram,
 			const ref_ptr<Runtime::OpenGL::Buffer> values,
-			unsigned int num_elements
-		);
+			unsigned int num_elements);
 
 	private:
-
-		void partialHistograms
-		(
+		void partialHistograms(
 			ref_ptr<Runtime::OpenGL::Buffer> buckets,
 			const ref_ptr<Runtime::OpenGL::Buffer> values,
 			unsigned int num_elements,
-			unsigned int num_buckets
-		);
+			unsigned int num_buckets);
 
-		void collectPartialHistograms
-		(
+		void collectPartialHistograms(
 			ref_ptr<Runtime::OpenGL::Buffer> histogram,
 			const ref_ptr<Runtime::OpenGL::Buffer> buckets,
 			unsigned int num_elements,
-			unsigned int num_buckets
-		);
+			unsigned int num_buckets);
 
 	private: // Limits
-
 		//! Warp size
 		static const unsigned int WarpSize = 32;
 
@@ -77,21 +66,16 @@ namespace Vcl { namespace Graphics
 		static const unsigned int LocalSize = 128;
 
 	private: // Configuration
-
 		unsigned int _maxNrElements{ 0 };
 
 		unsigned int _maxNrBuckets{ 0 };
 
 	private: // Module, Kernels
-
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _partialHistogramKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _collectPartialHistogramsKernel;
 
 	private: // Buffers
-
 		//! Buffer accumulating the partial results
 		owner_ptr<Runtime::OpenGL::Buffer> _partialHistograms;
 	};
 }}
-
-#endif // VCL_OPENGL_SUPPORT

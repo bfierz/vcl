@@ -34,10 +34,7 @@
 // Compute shader
 #include "histogram.comp"
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	Histogram::Histogram(unsigned int nr_elements, unsigned int nr_buckets)
 	: _maxNrElements(nr_elements)
 	, _maxNrBuckets(nr_buckets)
@@ -48,29 +45,26 @@ namespace Vcl { namespace Graphics
 		VclRequire(nr_buckets < 2048, "Shared memory buckets are limited to 2048.");
 
 		unsigned int totalBlocks = ceil(_maxNrElements, LocalSize) / LocalSize;
-		BufferDescription desc =
-		{
+		BufferDescription desc = {
 			totalBlocks * nr_buckets * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
-		
+
 		_partialHistograms = make_owner<Runtime::OpenGL::Buffer>(desc);
 
 		// Define the number of buckets for the shader
 		auto partials = fmt::format("#define partialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
-		auto collect  = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
+		auto collect = fmt::format("#define collectPartialHistograms\n#define NUM_BUCKETS {}u", nr_buckets);
 
 		// Load the kernels
-		_partialHistogramKernel         = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });
-		_collectPartialHistogramsKernel = Runtime::OpenGL::createComputeKernel(module, { collect.c_str()  });
+		_partialHistogramKernel = Runtime::OpenGL::createComputeKernel(module, { partials.c_str() });
+		_collectPartialHistogramsKernel = Runtime::OpenGL::createComputeKernel(module, { collect.c_str() });
 	}
 
-	void Histogram::operator()
-	(
+	void Histogram::operator()(
 		ref_ptr<Runtime::OpenGL::Buffer> histogram,
 		const ref_ptr<Runtime::OpenGL::Buffer> values,
-		unsigned int num_elements
-	)
+		unsigned int num_elements)
 	{
 		// Build the histogram per work-group
 		partialHistograms(_partialHistograms, values, num_elements, _maxNrBuckets);
@@ -79,13 +73,11 @@ namespace Vcl { namespace Graphics
 		collectPartialHistograms(histogram, _partialHistograms, num_elements, _maxNrBuckets);
 	}
 
-	void Histogram::partialHistograms
-	(
+	void Histogram::partialHistograms(
 		ref_ptr<Runtime::OpenGL::Buffer> buckets,
 		const ref_ptr<Runtime::OpenGL::Buffer> values,
 		unsigned int num_elements,
-		unsigned int num_buckets
-	)
+		unsigned int num_buckets)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -109,13 +101,11 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
-	void Histogram::collectPartialHistograms
-	(
+	void Histogram::collectPartialHistograms(
 		ref_ptr<Runtime::OpenGL::Buffer> histogram,
 		const ref_ptr<Runtime::OpenGL::Buffer> buckets,
 		unsigned int num_elements,
-		unsigned int num_buckets
-	)
+		unsigned int num_buckets)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -140,5 +130,3 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
-
-#endif // VCL_OPENGL_SUPPORT

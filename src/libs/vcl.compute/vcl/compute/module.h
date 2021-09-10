@@ -36,8 +36,7 @@
 #include <vcl/compute/kernel.h>
 #include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	class Module
 	{
 	public:
@@ -45,8 +44,8 @@ namespace Vcl { namespace Compute
 		Module(Module&&);
 		Module(const Module&) = delete;
 
-		Module& operator =(Module&&);
-		Module& operator =(const Module&) = delete;
+		Module& operator=(Module&&);
+		Module& operator=(const Module&) = delete;
 
 		virtual ~Module() = default;
 

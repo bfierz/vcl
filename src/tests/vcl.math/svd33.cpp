@@ -44,8 +44,7 @@ VCL_END_EXTERNAL_HEADERS
 
 // Common functions
 #define USE_PREGEN_DATA
-namespace
-{
+namespace {
 	// clang-format off
 	float predefinedProblems[] =
 	{
@@ -184,20 +183,20 @@ namespace
 	Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> createProblems(size_t nr_problems)
 	{
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1> F(nr_problems);
-	
+
 #ifdef USE_PREGEN_DATA
 		for (size_t i = 0; i < nr_problems; i++)
 		{
 			Eigen::Matrix<Scalar, 3, 3> A;
-			A << predefinedProblems[9*i + 0],
-			     predefinedProblems[9*i + 1],
-			     predefinedProblems[9*i + 2],
-			     predefinedProblems[9*i + 3],
-			     predefinedProblems[9*i + 4],
-			     predefinedProblems[9*i + 5],
-			     predefinedProblems[9*i + 6],
-			     predefinedProblems[9*i + 7],
-			     predefinedProblems[9*i + 8];
+			A << predefinedProblems[9 * i + 0],
+				predefinedProblems[9 * i + 1],
+				predefinedProblems[9 * i + 2],
+				predefinedProblems[9 * i + 3],
+				predefinedProblems[9 * i + 4],
+				predefinedProblems[9 * i + 5],
+				predefinedProblems[9 * i + 6],
+				predefinedProblems[9 * i + 7],
+				predefinedProblems[9 * i + 8];
 			F.template at<Scalar>(i) = A;
 		}
 #else
@@ -206,22 +205,20 @@ namespace
 		std::uniform_real_distribution<float> d;
 
 		// Initialize data
-		for (int i = 0; i < (int) nr_problems; i++)
+		for (int i = 0; i < (int)nr_problems; i++)
 		{
 			if (i < 8)
 			{
 				F.template at<Scalar>(i) = Eigen::Matrix<Scalar, 3, 3>::Identity();
-			}
-			else if (i < 16)
+			} else if (i < 16)
 			{
 				F.template at<Scalar>(i) = 0.35f * Eigen::Matrix<Scalar, 3, 3>::Identity();
-			}
-			else
+			} else
 			{
 				Eigen::Matrix<Scalar, 3, 3> rnd;
 				rnd << d(rng), d(rng), d(rng),
-					   d(rng), d(rng), d(rng),
-					   d(rng), d(rng), d(rng);
+					d(rng), d(rng), d(rng),
+					d(rng), d(rng), d(rng);
 				F.template at<Scalar>(i) = rnd;
 			}
 		}
@@ -231,14 +228,12 @@ namespace
 	}
 
 	template<typename Scalar>
-	void computeReferenceSolution
-	(
+	void computeReferenceSolution(
 		size_t nr_problems,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& F,
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& U,
 		Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& V,
-		Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S
-	)
+		Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& S)
 	{
 		// Compute reference using Eigen
 		for (size_t i = 0; i < nr_problems; i++)
@@ -252,8 +247,7 @@ namespace
 	}
 
 	template<typename Scalar>
-	void checkSolution
-	(
+	void checkSolution(
 		size_t nr_problems,
 		Scalar tol,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
@@ -261,8 +255,7 @@ namespace
 		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
 		const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resVa,
-		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-	)
+		const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 	{
 		using Vcl::Mathematics::equal;
 
@@ -341,7 +334,7 @@ namespace
 template<typename WideScalar>
 void runMcAdamsTest(float tol)
 {
-	using scalar_t  = float;
+	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
@@ -368,7 +361,7 @@ void runMcAdamsTest(float tol)
 		matrix3_t V = matrix3_t::Identity();
 
 		Vcl::Mathematics::McAdamsJacobiSVD(S, U, V, 5);
-		
+
 		resU.at<real_t>(i) = U;
 		resV.at<real_t>(i) = V;
 		resS.at<real_t>(i) = S.diagonal();
@@ -380,7 +373,7 @@ void runMcAdamsTest(float tol)
 template<typename WideScalar>
 void runMcAdamsQuatTest(float tol)
 {
-	using scalar_t  = float;
+	using scalar_t = float;
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 	using quat_t = Eigen::Quaternion<real_t>;
@@ -408,7 +401,7 @@ void runMcAdamsQuatTest(float tol)
 		quat_t V = quat_t::Identity();
 
 		Vcl::Mathematics::McAdamsJacobiSVD(S, U, V, 5);
-		
+
 		resU.at<real_t>(i) = U.toRotationMatrix();
 		resV.at<real_t>(i) = V.toRotationMatrix();
 		resS.at<real_t>(i) = S.diagonal();

@@ -54,24 +54,24 @@ TEST(Poisson3DCuda, MakeStencil)
 
 	std::vector<unsigned char> skip_cpu(10 * 10 * 10, 0);
 	for (int z = 0; z < 10; z++)
-	for (int y = 0; y < 10; y++)
-	for (int x = 0; x < 10; x++)
-	{
-		int idx = 10 * 10 * z + 10 * y + x;
-		if ((z > 0 && z < 4) || (z > 5 && z < 9) ||
-			(y > 0 && y < 4) || (y > 5 && y < 9) ||
-			(x > 0 && x < 4) || (x > 5 && x < 9))
-			skip_cpu[idx] = 1;
-	}
+		for (int y = 0; y < 10; y++)
+			for (int x = 0; x < 10; x++)
+			{
+				int idx = 10 * 10 * z + 10 * y + x;
+				if ((z > 0 && z < 4) || (z > 5 && z < 9) ||
+					(y > 0 && y < 4) || (y > 5 && y < 9) ||
+					(x > 0 && x < 4) || (x > 5 && x < 9))
+					skip_cpu[idx] = 1;
+			}
 	auto skip_dev = static_pointer_cast<Buffer>(default_ctx->createBuffer(BufferAccess::None, 10 * 10 * 10 * sizeof(unsigned char)));
 	queue->write(BufferView{ skip_dev }, skip_cpu.data(), false);
 
-	Cuda::Poisson3DJacobiCtx ctx_cpu{ default_ctx, queue, { 10, 10, 10} };
+	Cuda::Poisson3DJacobiCtx ctx_cpu{ default_ctx, queue, { 10, 10, 10 } };
 	ctx_cpu.updatePoissonStencil(0.1f, -1, 0, { skip_cpu.data(), (int64_t)skip_cpu.size() });
-	
-	Cuda::Poisson3DJacobiCtx ctx_dev{ default_ctx, queue, { 10, 10, 10} };
+
+	Cuda::Poisson3DJacobiCtx ctx_dev{ default_ctx, queue, { 10, 10, 10 } };
 	ctx_dev.updatePoissonStencil(0.1f, -1, 0, *skip_dev);
-	
+
 	const auto matrix_cpu = ctx_cpu.matrix();
 	const auto matrix_dev = ctx_dev.matrix();
 
@@ -110,7 +110,8 @@ TEST(Poisson3DCuda, SimpleJacobiNoBlocker)
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(nr_pts*nr_pts*nr_pts);
+	Eigen::VectorXf lhs;
+	lhs.setZero(nr_pts * nr_pts * nr_pts);
 	runPoissonTest<Jacobi, Cuda::Poisson3DJacobiCtx, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 1000, 5e-3f);
 }
 
@@ -136,6 +137,7 @@ TEST(Poisson3DCuda, SimpleCgNoBlocker)
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(nr_pts*nr_pts*nr_pts);
+	Eigen::VectorXf lhs;
+	lhs.setZero(nr_pts * nr_pts * nr_pts);
 	runPoissonTest<ConjugateGradients, Cuda::Poisson3DCgCtx, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 10, 1e-0f);
 }

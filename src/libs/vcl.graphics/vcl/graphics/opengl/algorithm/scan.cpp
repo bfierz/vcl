@@ -32,22 +32,18 @@
 #include "scan.glslinc"
 #include "scan.comp"
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics
-{
-	namespace
-	{
+namespace Vcl { namespace Graphics {
+	namespace {
 		unsigned int factorRadix2(unsigned int& log2L, unsigned int L)
 		{
 			if (!L)
 			{
 				log2L = 0;
 				return 0;
-			}
-			else
+			} else
 			{
-				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++);
+				for (log2L = 0; (L & 1) == 0; L >>= 1, log2L++)
+					;
 				return L;
 			}
 		}
@@ -57,9 +53,8 @@ namespace Vcl { namespace Graphics
 	: _maxElements(maxElements)
 	{
 		using namespace Vcl::Graphics::Runtime;
-		
-		BufferDescription desc =
-		{
+
+		BufferDescription desc = {
 			std::max(1u, maxElements / MaxWorkgroupInclusiveScanSize) * static_cast<unsigned int>(sizeof(unsigned int)),
 			BufferUsage::Storage
 		};
@@ -69,15 +64,13 @@ namespace Vcl { namespace Graphics
 		// Load the sorting kernels
 		_scanExclusiveLocal1Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal1\n", module_scan });
 		_scanExclusiveLocal2Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal2\n", module_scan });
-		_uniformUpdateKernel       = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
+		_uniformUpdateKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
 	}
-	
-	void ScanExclusive::operator()
-	(
+
+	void ScanExclusive::operator()(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
-		unsigned int arrayLength
-	)
+		unsigned int arrayLength)
 	{
 		// Check all work-groups to be fully packed with data
 		VclRequire(arrayLength % 4 == 0, "SCan works on multiles of 4");
@@ -86,21 +79,18 @@ namespace Vcl { namespace Graphics
 		if (arrayLength <= MaxShortArraySize)
 		{
 			scanExclusiveSmall(dst, src, 1, arrayLength);
-		}
-		else
+		} else
 		{
 			unsigned int batchSize = arrayLength / MaxWorkgroupInclusiveScanSize;
 			scanExclusiveLarge(dst, src, batchSize, MaxWorkgroupInclusiveScanSize);
 		}
 	}
 
-	void ScanExclusive::scanExclusiveSmall
-	(
+	void ScanExclusive::scanExclusiveSmall(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
 		unsigned int batchSize,
-		unsigned int arrayLength
-	)
+		unsigned int arrayLength)
 	{
 		// Check supported size range
 		VclCheck((arrayLength >= MinShortArraySize) && (arrayLength <= MaxShortArraySize), "Array is within size");
@@ -111,22 +101,18 @@ namespace Vcl { namespace Graphics
 		// Check all work-groups to be fully packed with data
 		VclCheck((batchSize * arrayLength) % 4 == 0, "All work-groups are fully packed");
 
-		return scanExclusiveLocal1
-		(
+		return scanExclusiveLocal1(
 			dst,
 			src,
 			batchSize,
-			arrayLength
-		);
+			arrayLength);
 	}
 
-	void ScanExclusive::scanExclusiveLarge
-	(
+	void ScanExclusive::scanExclusiveLarge(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
 		unsigned int batchSize,
-		unsigned int arrayLength
-	)
+		unsigned int arrayLength)
 	{
 		// Check power-of-two factorization
 		unsigned int log2L;
@@ -139,38 +125,30 @@ namespace Vcl { namespace Graphics
 		// Check total batch size limit
 		VclCheck((batchSize * arrayLength) <= MaxBatchElements, "Batch size is within range");
 
-		scanExclusiveLocal1
-		(
+		scanExclusiveLocal1(
 			dst,
 			src,
 			(batchSize * arrayLength) / (4 * WorkgroupSize),
-			4 * WorkgroupSize
-		);
+			4 * WorkgroupSize);
 
-		scanExclusiveLocal2
-		(
+		scanExclusiveLocal2(
 			_workSpace,
 			dst,
 			src,
 			batchSize,
-			arrayLength / (4 * WorkgroupSize)
-		);
-		
-		uniformUpdate
-		(
+			arrayLength / (4 * WorkgroupSize));
+
+		uniformUpdate(
 			dst,
 			_workSpace,
-			(batchSize * arrayLength) / (4 * WorkgroupSize)
-		);
+			(batchSize * arrayLength) / (4 * WorkgroupSize));
 	}
 
-	void ScanExclusive::scanExclusiveLocal1
-	(
+	void ScanExclusive::scanExclusiveLocal1(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
 		unsigned int n,
-		unsigned int size
-	)
+		unsigned int size)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -189,21 +167,19 @@ namespace Vcl { namespace Graphics
 		_scanExclusiveLocal1Kernel->setUniform(_scanExclusiveLocal1Kernel->uniform("N"), elements);
 
 		// Execute the compute shader
-		unsigned int nr_workgroups = ceil((n*size) / 4, WorkgroupSize) / WorkgroupSize;
+		unsigned int nr_workgroups = ceil((n * size) / 4, WorkgroupSize) / WorkgroupSize;
 		glDispatchCompute(nr_workgroups, 1, 1);
 
 		// Insert buffer write barrier
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
-	void ScanExclusive::scanExclusiveLocal2
-	(
+	void ScanExclusive::scanExclusiveLocal2(
 		ref_ptr<Runtime::OpenGL::Buffer> buffer,
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> src,
 		unsigned int n,
-		unsigned int size
-	)
+		unsigned int size)
 	{
 		using Vcl::Mathematics::ceil;
 
@@ -228,12 +204,10 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
-	void ScanExclusive::uniformUpdate
-	(
+	void ScanExclusive::uniformUpdate(
 		ref_ptr<Runtime::OpenGL::Buffer> dst,
 		ref_ptr<Runtime::OpenGL::Buffer> buffer,
-		unsigned int n
-	)
+		unsigned int n)
 	{
 		VclRequire(_uniformUpdateKernel, "Kernel is loaded.");
 
@@ -251,5 +225,3 @@ namespace Vcl { namespace Graphics
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}
-
-#endif // VCL_OPENGL_SUPPORT

@@ -28,8 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename Scalar, int Dim>
 	class Triangle
 	{
@@ -46,7 +45,7 @@ namespace Vcl { namespace Geometry
 		}
 
 	public:
-		const vector_t& operator[] (size_t idx) const
+		const vector_t& operator[](size_t idx) const
 		{
 			VclRequire(idx < 3, "Id is in [0, 3[");
 

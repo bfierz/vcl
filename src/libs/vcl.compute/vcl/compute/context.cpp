@@ -29,8 +29,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	Context::ref_ptr<CommandQueue> Context::defaultQueue() const
 	{
 		VclRequire(_queues.size() > 0, "At least one command queue exists.");
@@ -40,15 +39,12 @@ namespace Vcl { namespace Compute
 
 	void Context::release(ref_ptr<Module> h)
 	{
-
 	}
 	void Context::release(ref_ptr<Buffer> h)
 	{
-
 	}
 	void Context::release(ref_ptr<CommandQueue> h)
 	{
-
 	}
 
 }}

@@ -32,24 +32,21 @@
 #include <cmath>
 #include <cstring>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	{
-		Shader shader{type, tag, source, headers};
+		Shader shader{ type, tag, source, headers };
 		if (shader.checkCompilationState())
 			return std::move(shader);
 		else
 			return nonstd::make_unexpected(shader.readInfoLog());
 	}
-	
+
 	nonstd::expected<Shader, std::string> makeShader(ShaderType type, int tag, stdext::span<const uint8_t> binary_data, stdext::span<const unsigned int> spec_indices, stdext::span<const unsigned int> spec_values)
 	{
-		Shader shader{type, tag, binary_data, spec_indices, spec_values};
+		Shader shader{ type, tag, binary_data, spec_indices, spec_values };
 		if (shader.checkCompilationState())
 			return std::move(shader);
 		else
@@ -68,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			version_end = strchr(version_begin, '\n') + 1;
 		}
-		
+
 		// Build the source table
 		std::vector<const char*> table;
 		table.reserve(2 + headers.size());
@@ -83,7 +80,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		sizes.emplace_back(version_begin != version_end ? static_cast<int>(version_end - version_begin) : 0);
 		for (auto header : headers)
 			sizes.emplace_back(header ? static_cast<int>(strlen(header)) : 0);
-		
+
 		sizes.emplace_back(static_cast<int>(strlen(source) - (version_begin != version_end ? (version_end - source) : 0)));
 
 		// Create the shader object
@@ -94,13 +91,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclEnsure(_glId > 0 && glIsShader(_glId), "Shader is created");
 	}
 
-	Shader::Shader
-	(
-		ShaderType type, int tag,
+	Shader::Shader(
+		ShaderType type,
+		int tag,
 		stdext::span<const uint8_t> binary_data,
 		stdext::span<const unsigned int> spec_indices,
-		stdext::span<const unsigned int> spec_values
-	)
+		stdext::span<const unsigned int> spec_values)
 	: Runtime::Shader(type, tag)
 	{
 		VclRequire(GLEW_ARB_gl_spirv, "SPIR-V is supported.");
@@ -140,7 +136,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	std::string Shader::readInfoLog() const
 	{
 		if (_glId == 0)
-			return{};
+			return {};
 
 		int info_log_length = 0;
 		int chars_written = 0;
@@ -152,7 +148,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			glGetShaderInfoLog(_glId, info_log_length, &chars_written, const_cast<char*>(info_log.data()));
 			return info_log;
 		}
-		return{};
+		return {};
 	}
 
 	bool Shader::isSpirvSupported()
@@ -164,16 +160,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	{
 		switch (type)
 		{
-		case ShaderType::VertexShader:     return GL_VERTEX_SHADER;
-		case ShaderType::ControlShader:    return GL_TESS_CONTROL_SHADER;
+		case ShaderType::VertexShader: return GL_VERTEX_SHADER;
+		case ShaderType::ControlShader: return GL_TESS_CONTROL_SHADER;
 		case ShaderType::EvaluationShader: return GL_TESS_EVALUATION_SHADER;
-		case ShaderType::GeometryShader:   return GL_GEOMETRY_SHADER;
-		case ShaderType::FragmentShader:   return GL_FRAGMENT_SHADER;
-		case ShaderType::ComputeShader:    return GL_COMPUTE_SHADER;
-		default: { VclDebugError("Enumeration value is valid."); }
+		case ShaderType::GeometryShader: return GL_GEOMETRY_SHADER;
+		case ShaderType::FragmentShader: return GL_FRAGMENT_SHADER;
+		case ShaderType::ComputeShader: return GL_COMPUTE_SHADER;
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+		}
 		}
 
 		return GL_NONE;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

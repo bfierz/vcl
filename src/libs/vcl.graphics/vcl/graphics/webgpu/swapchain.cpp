@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/webgpu/webgpu.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	SwapChain::SwapChain(WGPUDevice device, const SwapChainDescription& desc)
 	: _device{ device }
 	, _desc{ desc }
@@ -62,7 +61,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		wgpu_desc.format = WGPUTextureFormat_RGBA8Unorm;
 		wgpu_desc.width = width;
 		wgpu_desc.height = height;
-		wgpu_desc.presentMode = (WGPUPresentMode) _desc.PresentMode;
+		wgpu_desc.presentMode = (WGPUPresentMode)_desc.PresentMode;
 
 		_swapChain = wgpuDeviceCreateSwapChain(_device, _desc.Surface, &wgpu_desc);
 #else
@@ -71,13 +70,11 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		wgpu_desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
 		_swapChain = wgpuDeviceCreateSwapChain(_device, nullptr, &wgpu_desc);
 
-		wgpuSwapChainConfigure
-		(
+		wgpuSwapChainConfigure(
 			_swapChain,
 			dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
 			WGPUTextureUsage_RenderAttachment,
-			width, height
-		);
+			width, height);
 #endif
 	}
 

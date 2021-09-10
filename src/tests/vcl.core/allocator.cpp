@@ -83,7 +83,8 @@ TEST(AllocatorTest, StandardAllocNoInitObject)
 	using namespace Vcl::Core;
 
 	std::vector<int, Allocator<int, StandardAllocPolicy<int>, NoInitObjectTraits<int>>> v(10, { 4 });
-	for (auto& e : v) {
+	for (auto& e : v)
+	{
 		e = { 10 };
 	}
 	// Check explicit initialization
@@ -101,7 +102,6 @@ TEST(AllocatorTest, StandardAllocNoInitObject)
 	// Check that default constructor was used to initialized objects
 	EXPECT_NE(5, v[5]);
 }
-
 
 TEST(AllocatorTest, AlignedAllocInitObject)
 {

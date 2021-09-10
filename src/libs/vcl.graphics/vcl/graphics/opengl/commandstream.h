@@ -34,10 +34,7 @@
 // VCL
 #include <vcl/core/span.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	enum class CommandType
 	{
 		None,
@@ -72,11 +69,11 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 	struct BindVertexBuffersConfig
 	{
-		GLuint   First;
-		GLsizei  Count;
-		GLuint   Buffers[16];
+		GLuint First;
+		GLsizei Count;
+		GLuint Buffers[16];
 		GLintptr Offsets[16];
-		GLsizei  Strides[16];
+		GLsizei Strides[16];
 	};
 
 	class CommandStream
@@ -109,5 +106,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		std::vector<uint32_t> _commands;
 	};
 }}}
-
-#endif // VCL_OPENGL_SUPPORT

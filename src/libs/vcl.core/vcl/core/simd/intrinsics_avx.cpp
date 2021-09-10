@@ -26,19 +26,18 @@
 
 #if defined VCL_VECTORIZE_AVX && (!defined(VCL_COMPILER_MSVC) || _MSC_VER < 1920)
 VCL_BEGIN_EXTERNAL_HEADERS
-#if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__ 
-#	define __AVX2__
-#endif
-#include <vcl/core/simd/detail/avx_mathfun.h>
+#	if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
+#		define __AVX2__
+#	endif
+#	include <vcl/core/simd/detail/avx_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
-#include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/simd/bool8_avx.h>
-#include <vcl/core/simd/float8_avx.h>
+#	include <vcl/core/simd/vectorscalar.h>
+#	include <vcl/core/simd/bool8_avx.h>
+#	include <vcl/core/simd/float8_avx.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	__m256 _mm256_sin_ps(__m256 v)
 	{
 		return sin256_ps(v);
@@ -98,7 +97,7 @@ namespace Vcl
 		ret -= 0.2121144f;
 		ret *= x;
 		ret += 1.5707288f;
-		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
+		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x) * ret;
 		return (ret - 2.0f * negate * ret).get(0);
 	}
 

@@ -26,19 +26,18 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // FMT
-#	include <fmt/format.h>
+#include <fmt/format.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
 #include <vcl/graphics/shadows/shadowmap.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	ShadowMapVolume::~ShadowMapVolume()
 	{
 	}
-	
+
 	ShadowMapAlgorithm ShadowMapVolume::shadowMapAlgorithm() const
 	{
 		return _shadowMapAlgorithm;
@@ -48,7 +47,7 @@ namespace Vcl { namespace Graphics
 	{
 		_shadowMapAlgorithm = algorithm;
 	}
-		
+
 	ShadowMap* ShadowMapVolume::shadowMap() const
 	{
 		return _shadowMap.get();
@@ -92,7 +91,7 @@ namespace Vcl { namespace Graphics
 	{
 		mDirection = dir;
 	}
-	
+
 	float PerspectiveShadowMapVolume::fieldOfView() const
 	{
 		return mFOV;
@@ -102,7 +101,7 @@ namespace Vcl { namespace Graphics
 	{
 		mFOV = fov;
 	}
-	
+
 	float PerspectiveShadowMapVolume::nearPlane() const
 	{
 		return mNearPlane;
@@ -112,7 +111,7 @@ namespace Vcl { namespace Graphics
 	{
 		mNearPlane = near_plane;
 	}
-		
+
 	float PerspectiveShadowMapVolume::farPlane() const
 	{
 		return mFarPlane;
@@ -126,8 +125,13 @@ namespace Vcl { namespace Graphics
 	Eigen::Matrix4f PerspectiveShadowMapVolume::lightMatrix() const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * computeProjectionMatrix() * computeViewMatrix();
 	}
 
@@ -138,7 +142,7 @@ namespace Vcl { namespace Graphics
 
 	Eigen::Matrix4f PerspectiveShadowMapVolume::computeProjectionMatrix() const
 	{
-		float aspect_ratio = (float) shadowMap()->width() / (float) shadowMap()->height();
+		float aspect_ratio = (float)shadowMap()->width() / (float)shadowMap()->height();
 		return mFactory->createPerspectiveFov(nearPlane(), farPlane(), aspect_ratio, fieldOfView(), Handedness::RightHanded);
 	}
 
@@ -164,14 +168,12 @@ namespace Vcl { namespace Graphics
 	{
 	}
 
-	OrthographicShadowMapVolume::OrthographicShadowMapVolume
-	(
+	OrthographicShadowMapVolume::OrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		const Eigen::Vector3f& position,
 		const Eigen::Vector3f& direction,
 		const Eigen::Vector3f& right,
-		const Eigen::Vector3f& up
-	)
+		const Eigen::Vector3f& up)
 	: mFactory(std::move(factory))
 	, mPosition(position)
 	, mDirection(direction)
@@ -227,7 +229,7 @@ namespace Vcl { namespace Graphics
 	{
 		mUp = up;
 	}
-	
+
 	float OrthographicShadowMapVolume::width() const
 	{
 		return mWidth;
@@ -237,7 +239,7 @@ namespace Vcl { namespace Graphics
 	{
 		mWidth = w;
 	}
-		
+
 	float OrthographicShadowMapVolume::height() const
 	{
 		return mHeight;
@@ -247,7 +249,7 @@ namespace Vcl { namespace Graphics
 	{
 		mHeight = h;
 	}
-	
+
 	float OrthographicShadowMapVolume::nearPlane() const
 	{
 		return mNearPlane;
@@ -257,7 +259,7 @@ namespace Vcl { namespace Graphics
 	{
 		mNearPlane = near_plane;
 	}
-		
+
 	float OrthographicShadowMapVolume::farPlane() const
 	{
 		return mFarPlane;
@@ -267,12 +269,17 @@ namespace Vcl { namespace Graphics
 	{
 		mFarPlane = far_plane;
 	}
-	
+
 	Eigen::Matrix4f OrthographicShadowMapVolume::lightMatrix() const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * computeProjectionMatrix() * computeViewMatrix();
 	}
 
@@ -291,28 +298,25 @@ namespace Vcl { namespace Graphics
 		VclRequire(mHeight > 0, "Height is valid");
 		VclRequire(mNearPlane > 0, "Near plane is valid");
 		VclRequire(mFarPlane > 0, "Far plane is valid");
-		
+
 		return mFactory->createOrtho(mWidth, mHeight, nearPlane(), farPlane(), Handedness::RightHanded);
 	}
 
-	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume
-	(
+	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		int nr_splits,
-		float lambda
-	)
+		float lambda)
 	: ParallelSplitOrthographicShadowMapVolume(factory, nr_splits, lambda, Eigen::Vector3f(0, -1, 0), nullptr)
 	{
 	}
 
-	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume
-	(
+	ParallelSplitOrthographicShadowMapVolume::ParallelSplitOrthographicShadowMapVolume(
 		std::shared_ptr<MatrixFactory> factory,
 		int nr_splits,
 		float lambda,
 		const Eigen::Vector3f& direction,
 		const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum /* = nullptr */
-	)
+		)
 	: OrthographicShadowMapVolume(std::move(factory))
 	, mSplits(nr_splits + 1)
 	, mLambda(lambda)
@@ -352,30 +356,28 @@ namespace Vcl { namespace Graphics
 
 			// Compute split positions based on
 			// GPU Gems 3 - Parallel-Split Shadow Maps on Programmable GPUs
-			int nr_splits = (int) mSplits.size();
+			int nr_splits = (int)mSplits.size();
 			float n = frustum->nearPlane();
 			float f = frustum->farPlane();
 
 			mSplits.front() = n;
 			for (int i = 1; i < nr_splits; i++)
 			{
-				float uniform_split = n + (f - n) * (float) i / (float) nr_splits;
-				float log_split = n * pow(f / n, (float) i / (float) nr_splits);
-				float split = mLambda*log_split + (1 - mLambda)*uniform_split;						
+				float uniform_split = n + (f - n) * (float)i / (float)nr_splits;
+				float log_split = n * pow(f / n, (float)i / (float)nr_splits);
+				float split = mLambda * log_split + (1 - mLambda) * uniform_split;
 				mSplits[i] = split;
 			}
 			mSplits.back() = f;
-			
+
 			// Compute orthographic volumes for each split
-			for (size_t i = 0; i < mSplits.size()-1; i++)
+			for (size_t i = 0; i < mSplits.size() - 1; i++)
 			{
 				// Compute the perspective split frustum
-				PerspectiveViewFrustum<float> psf
-				(
+				PerspectiveViewFrustum<float> psf(
 					frustum->width(), frustum->height(), frustum->fieldOfView(),
-					mSplits[i], mSplits[i+1],
-					frustum->position(), frustum->direction(), frustum->up(), frustum->right()
-				);
+					mSplits[i], mSplits[i + 1],
+					frustum->position(), frustum->direction(), frustum->up(), frustum->right());
 
 				mOrthoFrustums[i] = OrthographicViewFrustum<float>::enclose(psf, direction());
 			}
@@ -384,16 +386,21 @@ namespace Vcl { namespace Graphics
 
 	float ParallelSplitOrthographicShadowMapVolume::split(unsigned int idx) const
 	{
-		VclRequire(idx < mSplits.size()-1, "Index is valid.");
+		VclRequire(idx < mSplits.size() - 1, "Index is valid.");
 
-		return mSplits[idx+1];
+		return mSplits[idx + 1];
 	}
 
 	Eigen::Matrix4f ParallelSplitOrthographicShadowMapVolume::lightMatrix(unsigned int split) const
 	{
 		Eigen::Matrix4f bias = Eigen::Matrix4f::Zero();
-		bias(0, 0) = 0.5f; bias(1, 1) = 0.5f; bias(2, 2) = 0.5f;
-		bias(0, 3) = 0.5f; bias(1, 3) = 0.5f; bias(2, 3) = 0.5f; bias(3, 3) = 1.0f;
+		bias(0, 0) = 0.5f;
+		bias(1, 1) = 0.5f;
+		bias(2, 2) = 0.5f;
+		bias(0, 3) = 0.5f;
+		bias(1, 3) = 0.5f;
+		bias(2, 3) = 0.5f;
+		bias(3, 3) = 1.0f;
 		return bias * mOrthoFrustums[split].computeProjectionMatrix(*mFactory) * mOrthoFrustums[split].computeViewMatrix(*mFactory);
 	}
 

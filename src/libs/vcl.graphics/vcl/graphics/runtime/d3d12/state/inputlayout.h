@@ -36,7 +36,6 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/runtime/state/inputlayout.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	std::vector<D3D12_INPUT_ELEMENT_DESC> toD3D12(const InputLayoutDescription& desc);
 }}}}

@@ -33,8 +33,7 @@
 #include <vcl/core/simd/vectorscalar.h>
 #include <vcl/math/math.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class VectorScalar<float, 8> : protected Core::Simd::VectorScalarBase<float, 8, Core::Simd::SimdExt::None>
 	{
@@ -45,26 +44,26 @@ namespace Vcl
 			for (int i = 0; i < NrValues; i++)
 				_data[i] = scalars[i * stride];
 		}
-		VCL_STRONG_INLINE Scalar& operator[] (int idx) { return _data[idx]; }
+		VCL_STRONG_INLINE Scalar& operator[](int idx) { return _data[idx]; }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator+, Core::Simd::Details::add, 8)
 		VCL_SIMD_BINARY_OP(operator-, Core::Simd::Details::sub, 8)
 		VCL_SIMD_BINARY_OP(operator*, Core::Simd::Details::mul, 8)
 		VCL_SIMD_BINARY_OP(operator/, Core::Simd::Details::div, 8)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, Core::Simd::Details::add, 8)
 		VCL_SIMD_ASSIGN_OP(operator-=, Core::Simd::Details::sub, 8)
 		VCL_SIMD_ASSIGN_OP(operator*=, Core::Simd::Details::mul, 8)
 		VCL_SIMD_ASSIGN_OP(operator/=, Core::Simd::Details::div, 8)
-		
+
 	public:
 		VCL_SIMD_COMP_OP(operator==, Core::Simd::Details::cmpeq, 8)
 		VCL_SIMD_COMP_OP(operator!=, Core::Simd::Details::cmpne, 8)
-		VCL_SIMD_COMP_OP(operator<,  Core::Simd::Details::cmplt, 8)
+		VCL_SIMD_COMP_OP(operator<, Core::Simd::Details::cmplt, 8)
 		VCL_SIMD_COMP_OP(operator<=, Core::Simd::Details::cmple, 8)
-		VCL_SIMD_COMP_OP(operator>,  Core::Simd::Details::cmpgt, 8)
+		VCL_SIMD_COMP_OP(operator>, Core::Simd::Details::cmpgt, 8)
 		VCL_SIMD_COMP_OP(operator>=, Core::Simd::Details::cmpge, 8)
 
 	public:
@@ -80,7 +79,7 @@ namespace Vcl
 		VCL_SIMD_UNARY_OP(sqrt, std::sqrt, 8)
 		VCL_SIMD_UNARY_OP(rcp, Vcl::Mathematics::rcp, 8)
 		VCL_SIMD_UNARY_OP(rsqrt, Vcl::Mathematics::rsqrt, 8)
-		
+
 		VCL_SIMD_QUERY_OP(isinf, std::isinf, 8)
 
 	public:

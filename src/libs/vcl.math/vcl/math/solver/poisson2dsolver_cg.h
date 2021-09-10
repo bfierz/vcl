@@ -36,8 +36,7 @@
 #include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson2DCgCtx : public EigenCgBaseContext<Real, Eigen::Dynamic>
 	{
@@ -47,21 +46,21 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		Poisson2DCgCtx(Eigen::Vector2ui dim)
-		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y() }
+		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x() * dim.y() }
 		, _dim{ dim }
-		, _rhs{ nullptr, static_cast<Eigen::Index>(dim.x()*dim.y()) }
+		, _rhs{ nullptr, static_cast<Eigen::Index>(dim.x() * dim.y()) }
 		{
 			for (auto& A : _laplacian)
 			{
-				A.resize(_dim.x()*_dim.y());
+				A.resize(_dim.x() * _dim.y());
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
 			this->setX(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -72,15 +71,13 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Ay_l = _laplacian[3];
 			auto& Ay_r = _laplacian[4];
 
-			makePoissonStencil
-			(
+			makePoissonStencil(
 				_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
-				skip
-			);
+				skip);
 		}
-		
+
 	public:
 		// d = r = b - A*x
 		virtual void computeInitialResidual() override
@@ -106,7 +103,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 				{
 					float q = 0;
-						q += unknowns[index    ] * Ac  [index];
+					q += unknowns[index] * Ac[index];
 					if (sx > 0)
 						q += unknowns[index - 1] * Ax_l[index];
 					if (sx < X - 1)
@@ -145,7 +142,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 				{
 					float q = 0;
-						q += d[index    ] * Ac  [index];
+					q += d[index] * Ac[index];
 					if (sx > 0)
 						q += d[index - 1] * Ax_l[index];
 					if (sx < X - 1)
@@ -161,6 +158,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				}
 			}
 		}
+
 	private:
 		//! Dimensions of the grid
 		Eigen::Vector2ui _dim;

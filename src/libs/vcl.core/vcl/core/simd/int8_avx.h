@@ -27,13 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool8_avx.h>
 #include <vcl/core/simd/intrinsics_avx.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(32) VectorScalar<int, 8> : protected Core::Simd::VectorScalarBase<int, 8, Core::Simd::SimdExt::AVX>
 	{
@@ -44,23 +43,23 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(operator+, _mmVCL_add_epi32, 1)
 		VCL_SIMD_BINARY_OP(operator-, _mmVCL_sub_epi32, 1)
 		VCL_SIMD_BINARY_OP(operator*, _mmVCL_mullo_epi32, 1)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, _mmVCL_add_epi32, 1)
 		VCL_SIMD_ASSIGN_OP(operator-=, _mmVCL_sub_epi32, 1)
 		VCL_SIMD_ASSIGN_OP(operator*=, _mmVCL_mullo_epi32, 1)
-		
+
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mmVCL_cmpeq_epi32,  1)
+		VCL_SIMD_COMP_OP(operator==, _mmVCL_cmpeq_epi32, 1)
 		VCL_SIMD_COMP_OP(operator!=, _mmVCL_cmpneq_epi32, 1)
-		VCL_SIMD_COMP_OP(operator<,  _mmVCL_cmplt_epi32,  1)
-		VCL_SIMD_COMP_OP(operator<=, _mmVCL_cmple_epi32,  1)
-		VCL_SIMD_COMP_OP(operator>,  _mmVCL_cmpgt_epi32,  1)
-		VCL_SIMD_COMP_OP(operator>=, _mmVCL_cmpge_epi32,  1)
+		VCL_SIMD_COMP_OP(operator<, _mmVCL_cmplt_epi32, 1)
+		VCL_SIMD_COMP_OP(operator<=, _mmVCL_cmple_epi32, 1)
+		VCL_SIMD_COMP_OP(operator>, _mmVCL_cmpgt_epi32, 1)
+		VCL_SIMD_COMP_OP(operator>=, _mmVCL_cmpge_epi32, 1)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, _mmVCL_abs_epi32, 1)
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&, _mmVCL_and_si256, 1)
 		VCL_SIMD_BINARY_OP(operator|, _mmVCL_or_si256, 1)
@@ -74,13 +73,13 @@ namespace Vcl
 		return VectorScalar<int, 8>(_mmVCL_xor_si256(b.get(0), _mmVCL_and_si256(_mm256_castps_si256(mask.get(0)), _mmVCL_xor_si256(b.get(0), a.get(0)))));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 8>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 8>& rhs)
 	{
 		alignas(32) int vars[8];
 		_mm256_store_si256(reinterpret_cast<__m256i*>(vars + 0), rhs.get(0));
 
 		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3]
-			     << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << "'";
 
 		return s;
 	}

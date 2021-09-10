@@ -75,7 +75,7 @@ Scene::~Scene()
 void Scene::update()
 {
 	_boundingBox = _sceneBoundingBox;
-	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float) _camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
+	_frustumData = { tan(_camera->fieldOfView() / 2.0f), (float)_camera->viewportWidth() / (float)_camera->viewportHeight(), _camera->nearPlane(), _camera->farPlane() };
 
 	_modelMatrix = _cameraController.currObjectTransformation();
 	_viewMatrix = _camera->view();
@@ -143,13 +143,11 @@ void Scene::loadMesh(const QUrl& path)
 	{
 		NvidiaTetSerialiser loader;
 		loader.load(&deserialiser, path.toLocalFile().toUtf8().data());
-	}
-	else if (path.toString().endsWith(".ele") || path.toString().endsWith(".node"))
+	} else if (path.toString().endsWith(".ele") || path.toString().endsWith(".node"))
 	{
 		TetGenSerialiser loader;
 		loader.load(&deserialiser, path.toLocalFile().toUtf8().data());
-	}
-	else
+	} else
 	{
 		return;
 	}
@@ -176,8 +174,7 @@ void Scene::initializeTriMesh(std::unique_ptr<Vcl::Geometry::TriMesh> mesh)
 	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
 
 	// Create GPU buffers
-	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
-	{
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]() {
 		_entityManager.create<GPUSurfaceMesh>(mesh_entity, mesh_component);
 	});
 
@@ -206,8 +203,7 @@ void Scene::initializeTetraMesh(std::unique_ptr<Vcl::Geometry::TetraMesh> mesh)
 	_entityManager.create<MeshStatistics>(mesh_entity, mesh_component);
 
 	// Create GPU buffers
-	_engine->enqueueCommand([this, mesh_entity, mesh_component]()
-	{
+	_engine->enqueueCommand([this, mesh_entity, mesh_component]() {
 		_entityManager.create<GPUVolumeMesh>(mesh_entity, mesh_component);
 	});
 
@@ -221,8 +217,7 @@ void Scene::updateBoundingBox()
 	if (!meshes->empty())
 	{
 		Eigen::AlignedBox3f bb;
-		meshes->forEach([&bb](Vcl::Components::EntityId id, const MeshStatistics* stats)
-		{
+		meshes->forEach([&bb](Vcl::Components::EntityId id, const MeshStatistics* stats) {
 			bb.extend(stats->boundingBox());
 		});
 
@@ -230,7 +225,7 @@ void Scene::updateBoundingBox()
 		_cameraController.setRotationCenter(bb.center());
 
 		// Construct scene bounding box
-		_sceneBoundingBox = { bb.center().array() - 1.5f*bb.diagonal().norm(), bb.center().array() + 1.5f*bb.diagonal().norm() };
+		_sceneBoundingBox = { bb.center().array() - 1.5f * bb.diagonal().norm(), bb.center().array() + 1.5f * bb.diagonal().norm() };
 	}
 }
 
@@ -254,10 +249,9 @@ Editor::EntityAdapterModel* Scene::entityModel()
 
 Vcl::Components::Entity Scene::sceneEntity(uint32_t id)
 {
-	auto elem_itr = std::find_if(_meshes.begin(), _meshes.end(), [id](const Vcl::Components::Entity& e)
-	{
+	auto elem_itr = std::find_if(_meshes.begin(), _meshes.end(), [id](const Vcl::Components::Entity& e) {
 		return e.id().id() == id;
 	});
-	
+
 	return elem_itr != _meshes.end() ? *elem_itr : Vcl::Components::Entity();
 }

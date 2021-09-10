@@ -26,16 +26,14 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/device.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	using namespace Microsoft::WRL;
 
-	namespace
-	{
+	namespace {
 		ComPtr<IDXGIFactory4> queryDXGIFactory()
 		{
 			ComPtr<IDXGIFactory4> factory;
@@ -62,8 +60,8 @@ namespace Vcl { namespace Graphics { namespace D3D12
 				if (SUCCEEDED(factory4.As(&factory5)))
 				{
 					if (FAILED(factory5->CheckFeatureSupport(
-						DXGI_FEATURE_PRESENT_ALLOW_TEARING,
-						&allowTearing, sizeof(allowTearing))))
+							DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+							&allowTearing, sizeof(allowTearing))))
 					{
 						allowTearing = FALSE;
 					}
@@ -104,8 +102,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			&d3d12_swapchain_desc,
 			nullptr,
 			nullptr,
-			&d3d12_swap_chain
-		));
+			&d3d12_swap_chain));
 		VCL_DIRECT3D_SAFE_CALL(d3d12_swap_chain.As(&_d3d12SwapChain));
 		VCL_DIRECT3D_SAFE_CALL(factory->MakeWindowAssociation(desc.Surface, DXGI_MWA_NO_ALT_ENTER));
 
@@ -190,8 +187,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 			&desc,
 			nullptr,
 			nullptr,
-			&d3d12_swap_chain
-		));
+			&d3d12_swap_chain));
 		VCL_DIRECT3D_SAFE_CALL(d3d12_swap_chain.As(&_d3d12SwapChain));
 
 		_desc.Width = width;

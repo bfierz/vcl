@@ -28,13 +28,10 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Texture2D final : public Texture
 	{
 	public:
@@ -49,4 +46,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		void updateImpl(const TextureResource& data) override;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

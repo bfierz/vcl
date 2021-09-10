@@ -37,8 +37,7 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	class Shader : public Runtime::Shader
 	{
 	public:

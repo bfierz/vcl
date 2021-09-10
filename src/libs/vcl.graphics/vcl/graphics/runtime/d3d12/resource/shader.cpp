@@ -35,8 +35,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	Shader::Shader(ShaderType type, int tag, const char* source, std::initializer_list<const char*> headers)
 	: Runtime::Shader(type, tag)
 	{
@@ -44,11 +43,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		VclEnsure(!_compiled_shader.empty(), "Shader is created");
 	}
 
-	Shader::Shader
-	(
-		ShaderType type, int tag,
-		stdext::span<const uint8_t> binary_data
-	)
+	Shader::Shader(
+		ShaderType type,
+		int tag,
+		stdext::span<const uint8_t> binary_data)
 	: Runtime::Shader(type, tag)
 	{
 		_compiled_shader.assign(binary_data.begin(), binary_data.end());

@@ -28,8 +28,7 @@
 #include <vcl/geometry/meshoperations.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 
-namespace
-{
+namespace {
 	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::Buffer> createBuffer(const void* buffer, size_t nr_elements, size_t stride)
 	{
 		using namespace Vcl::Graphics::Runtime;
@@ -63,7 +62,7 @@ GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
 	const auto tri_adjs = convertToTriangleAdjacency<IndexDescriptionTrait<TetraMesh>::VertexId>({ _tetraMesh->surfaceFaces()->data(), _tetraMesh->nrSurfaceFaces() });
 	_surfaceIndexStride = sizeof(decltype(tri_adjs)::value_type);
 	_surfaceIndices = createBuffer(tri_adjs.data(), tri_adjs.size(), _surfaceIndexStride);
-	
+
 	// Create the position buffer
 	_positionStride = sizeof(IndexDescriptionTrait<TetraMesh>::Vertex);
 	_positions = createBuffer(_tetraMesh->vertices()->data(), _tetraMesh->nrVertices(), _positionStride);
@@ -77,8 +76,7 @@ GPUVolumeMesh::GPUVolumeMesh(Vcl::Geometry::TetraMesh* mesh)
 	computeNormals<IndexDescriptionTrait<TetraMesh>::VertexId>(
 		{ _tetraMesh->surfaceFaces()->data(), _tetraMesh->nrSurfaceFaces() },
 		{ _tetraMesh->vertices()->data(), _tetraMesh->nrVertices() },
-		{ face_normals->data(), _tetraMesh->nrVertices() }
-	);
+		{ face_normals->data(), _tetraMesh->nrVertices() });
 	_surfaceNormals = createBuffer(face_normals->data(), face_normals->size(), sizeof(Eigen::Vector3f));
 
 	// Create the face-colour buffer

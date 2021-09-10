@@ -31,10 +31,7 @@
 #include <vcl/graphics/runtime/opengl/resource/texture2d.h>
 #include <vcl/util/hashedstring.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	ImageProcessor::ImageProcessor()
 	{
 		Runtime::SamplerDescription desc;
@@ -45,8 +42,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	size_t ImageProcessor::buildKernel(const char* source)
 	{
 		using Runtime::OpenGL::Shader;
-		using Runtime::OpenGL::ShaderProgramDescription;
 		using Runtime::OpenGL::ShaderProgram;
+		using Runtime::OpenGL::ShaderProgramDescription;
 
 		size_t kernelId = Util::StringHash(source).hash();
 		Shader kernel{ Runtime::ShaderType::ComputeShader, 0, source };
@@ -61,15 +58,13 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 	ImageProcessor::ImagePtr ImageProcessor::requestImage(int w, int h, SurfaceFormat fmt)
 	{
 		auto& cache = _textures[fmt];
-		auto cache_entry = std::find_if(cache.begin(), cache.end(), [w, h](const ImagePtr& img)
-		{
+		auto cache_entry = std::find_if(cache.begin(), cache.end(), [w, h](const ImagePtr& img) {
 			return img->width() < w && img->height() < h;
 		});
 		if (cache_entry != cache.end())
 		{
 			return *cache_entry;
-		}
-		else
+		} else
 		{
 			Runtime::Texture2DDescription desc2d;
 			desc2d.Format = fmt;
@@ -84,13 +79,19 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		}
 	}
 
-	void ImageProcessor::enqueKernel
-	(
-		size_t kernel, int w, int h,
-		const Runtime::Texture** outputs,        Eigen::Vector4i* outRanges,       size_t nr_outputs,
-		const Runtime::Texture** raw_inputs,     Eigen::Vector4i* rawInRanges,     size_t nr_raw_inputs,
-		const Runtime::Texture** sampled_inputs, Eigen::Vector4i* sampledInRanges, size_t nr_sampled_inputs
-	)
+	void ImageProcessor::enqueKernel(
+		size_t kernel,
+		int w,
+		int h,
+		const Runtime::Texture** outputs,
+		Eigen::Vector4i* outRanges,
+		size_t nr_outputs,
+		const Runtime::Texture** raw_inputs,
+		Eigen::Vector4i* rawInRanges,
+		size_t nr_raw_inputs,
+		const Runtime::Texture** sampled_inputs,
+		Eigen::Vector4i* sampledInRanges,
+		size_t nr_sampled_inputs)
 	{
 		VclRequire(nr_raw_inputs + nr_sampled_inputs <= 8, "Supports 8 input slots");
 
@@ -113,8 +114,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		char raw_input_range_name[] = "inputRange0";
 		for (int i = 0; i < nr_raw_inputs; i++)
 		{
-			raw_input_name[5] = '0' + (char) i;
-			raw_input_range_name[10] = '0' + (char) i;
+			raw_input_name[5] = '0' + (char)i;
+			raw_input_range_name[10] = '0' + (char)i;
 
 			auto in_handle = prog->uniform(raw_input_name);
 			prog->setImage(in_handle, raw_inputs[i], true, false);
@@ -123,12 +124,12 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 			prog->setUniform(in_range_handle, Eigen::Vector4i{ rawInRanges[i].x(), rawInRanges[i].y(), rawInRanges[i].z(), rawInRanges[i].w() });
 		}
 
-		char sampled_input_name [] = "texture0";
-		char sampled_input_range_name [] = "textureRange0";
+		char sampled_input_name[] = "texture0";
+		char sampled_input_range_name[] = "textureRange0";
 		for (int i = 0; i < nr_sampled_inputs; i++)
 		{
-			sampled_input_name[7] = '0' + (char) i;
-			sampled_input_range_name[12] = '0' + (char) i;
+			sampled_input_name[7] = '0' + (char)i;
+			sampled_input_range_name[12] = '0' + (char)i;
 
 			auto in_handle = prog->uniform(sampled_input_name);
 			prog->setTexture(in_handle, sampled_inputs[i], _linearSampler.get());
@@ -148,5 +149,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		glDispatchCompute(w, h, 1);
 	}
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

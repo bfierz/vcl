@@ -32,8 +32,7 @@
 #include <cstdint>
 
 #if defined(VCL_VECTORIZE_NEON)
-namespace Vcl
-{
+namespace Vcl {
 	float32x4_t vsinq_f32(float32x4_t v);
 	float32x4_t vcosq_f32(float32x4_t v);
 	float32x4_t vlogq_f32(float32x4_t v);

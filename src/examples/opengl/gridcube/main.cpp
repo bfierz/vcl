@@ -69,14 +69,14 @@ public:
 	: ImGuiApplication("Grid Cube")
 	{
 
-		using Vcl::Graphics::Runtime::OpenGL::PipelineState;
-		using Vcl::Graphics::Runtime::OpenGL::Shader;
-		using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
-		using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
-		using Vcl::Graphics::Runtime::PipelineStateDescription;
-		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Camera;
 		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::PipelineStateDescription;
+		using Vcl::Graphics::Runtime::ShaderType;
+		using Vcl::Graphics::Runtime::OpenGL::PipelineState;
+		using Vcl::Graphics::Runtime::OpenGL::Shader;
+		using Vcl::Graphics::Runtime::OpenGL::ShaderProgram;
+		using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 
 		// Initialize the graphics engine
 		Vcl::Graphics::OpenGL::Context::initExtensions();
@@ -94,7 +94,7 @@ public:
 		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
 		_cameraController->setCamera(_camera.get());
 
-		Shader boxVert{ ShaderType::VertexShader,   0, BoundingGridVert };
+		Shader boxVert{ ShaderType::VertexShader, 0, BoundingGridVert };
 		Shader boxGeom{ ShaderType::GeometryShader, 0, BoundingGridGeom };
 		Shader boxFrag{ ShaderType::FragmentShader, 0, BoundingGridFrag };
 		PipelineStateDescription boxPSDesc;
@@ -129,12 +129,10 @@ public:
 		if (io.MouseClicked[0] && !io.WantCaptureMouse)
 		{
 			_cameraController->startRotate((float)x / (float)w, (float)y / (float)h);
-		}
-		else if (io.MouseDown[0])
+		} else if (io.MouseDown[0])
 		{
 			_cameraController->rotate((float)x / (float)w, (float)y / (float)h);
-		}
-		else if (io.MouseReleased[0])
+		} else if (io.MouseReleased[0])
 		{
 			_cameraController->endRotate();
 		}
@@ -144,12 +142,12 @@ public:
 	{
 		_engine->beginFrame();
 
-		_engine->clear(0, Eigen::Vector4f{0.0f, 0.0f, 0.0f, 1.0f});
+		_engine->clear(0, Eigen::Vector4f{ 0.0f, 0.0f, 0.0f, 1.0f });
 		_engine->clear(1.0f);
 
 		Eigen::Matrix4f vp = _camera->projection() * _camera->view();
 		Eigen::Matrix4f m = _cameraController->currObjectTransformation();
-		Eigen::AlignedBox3f bb{ Eigen::Vector3f{-10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f} };
+		Eigen::AlignedBox3f bb{ Eigen::Vector3f{ -10.0f, -10.0f, -10.0f }, Eigen::Vector3f{ 10.0f, 10.0f, 10.0f } };
 		renderBoundingBox(_engine.get(), bb, _gridResolution, _boxPipelineState, m, vp);
 
 		ImGuiApplication::renderFrame();
@@ -158,15 +156,13 @@ public:
 	}
 
 private:
-	void renderBoundingBox
-	(
+	void renderBoundingBox(
 		Vcl::Graphics::Runtime::GraphicsEngine* cmd_queue,
 		const Eigen::AlignedBox3f& bb,
 		unsigned int resolution,
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::PipelineState> ps,
 		const Eigen::Matrix4f& M,
-		const Eigen::Matrix4f& VP
-	)
+		const Eigen::Matrix4f& VP)
 	{
 		// Configure the layout
 		cmd_queue->setPipelineState(ps);

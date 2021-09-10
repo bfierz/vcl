@@ -28,11 +28,10 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/device.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	CommandQueue::CommandQueue(Device* device)
 	: _device{ device }
-	, _semaphore { device->nativeDevice() }
+	, _semaphore{ device->nativeDevice() }
 	{
 		_d3d12Queue = device->createCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	}

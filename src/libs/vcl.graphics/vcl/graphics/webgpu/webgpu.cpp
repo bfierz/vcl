@@ -27,8 +27,7 @@
 // VCL library
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	/*AnyRenderType D3D::toRenderType(SurfaceFormat fmt)
 	{
 		switch (fmt)
@@ -90,8 +89,8 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 	{
 		WGPUTextureFormat webgpu_format = WGPUTextureFormat_Undefined;
 
-		switch (type)
-		{
+		// clang-format off
+		switch (type) {
 		case SurfaceFormat::Unknown             : webgpu_format = WGPUTextureFormat_Undefined;           break;
 		case SurfaceFormat::R32G32B32A32_FLOAT  : webgpu_format = WGPUTextureFormat_RGBA32Float;         break;
 		case SurfaceFormat::R32G32B32A32_UINT   : webgpu_format = WGPUTextureFormat_RGBA32Uint;          break;
@@ -142,7 +141,8 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 		case SurfaceFormat::R8_SINT             : webgpu_format = WGPUTextureFormat_R8Sint;              break;
 		default: VclDebugError("Unsupported colour format.");
 		}
-		
+		// clang-format on
+
 		return webgpu_format;
 	}
 

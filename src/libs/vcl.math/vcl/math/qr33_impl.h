@@ -36,10 +36,9 @@
 // Set to use the rsqrt optimization
 //#define VCL_MATH_JACOBIQR_USE_RSQRT
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(push, off) 
+#	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC
 
 	template<typename Scalar>
@@ -47,9 +46,9 @@ namespace Vcl { namespace Mathematics
 	{
 		// Normalisation factor
 #ifdef VCL_MATH_JACOBIQR_USE_RSQRT
-		Scalar rho = rsqrt(a11*a11 + a21*a21);
+		Scalar rho = rsqrt(a11 * a11 + a21 * a21);
 #else
-		Scalar rho = Scalar(1) / Scalar(sqrt(a11*a11 + a21*a21));
+		Scalar rho = Scalar(1) / Scalar(sqrt(a11 * a11 + a21 * a21));
 #endif // defined(VCL_MATH_JACOBIQR_USE_RSQRT)
 
 		// Rotation angles
@@ -57,7 +56,7 @@ namespace Vcl { namespace Mathematics
 		Scalar s = a21 * rho;
 
 		// Check for singular case
-        auto b = (a11*a11 + a21*a21) < Scalar(typename NumericTrait<Scalar>::base_t(1e-5*1e-5));
+		auto b = (a11 * a11 + a21 * a21) < Scalar(typename NumericTrait<Scalar>::base_t(1e-5 * 1e-5));
 		c = select(b, sgn(a11), c);
 		s = select(b, Scalar(1), s);
 
@@ -73,7 +72,7 @@ namespace Vcl { namespace Mathematics
 
 		// Rotates A through phi in pq-plane to set R(p, q) = 0.
 		// Rotation stored in Q whose columns are eigenvectors of R
-		auto cs = JacobiRotationAngle(R(q, q), R(p, q));		
+		auto cs = JacobiRotationAngle(R(q, q), R(p, q));
 		Scalar c = cs(0);
 		Scalar s = cs(1);
 
@@ -104,7 +103,7 @@ namespace Vcl { namespace Mathematics
 
 			// Store rotation in Q
 			Scalar Qkq = c * Q(k, q) + s * Q(k, p);
-			Scalar Qkp =-s * Q(k, q) + c * Q(k, p);
+			Scalar Qkp = -s * Q(k, q) + c * Q(k, p);
 			Q(k, q) = Qkq;
 			Q(k, p) = Qkp;
 		}
@@ -156,6 +155,6 @@ namespace Vcl { namespace Mathematics
 		HouseholderQR<Scalar, 1>(R, Q);
 	}
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(pop) 
+#	pragma strict_gs_check(pop)
 #endif // VCL_COMPILER_MSVC
 }}

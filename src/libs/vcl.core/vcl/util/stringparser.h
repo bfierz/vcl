@@ -35,8 +35,7 @@
 
 // VCL
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	class StringParser
 	{
 	public:
@@ -56,25 +55,24 @@ namespace Vcl { namespace Util
 		bool readInt(int* i_ptr);
 
 	private: // Parser state
-
 		//! Stream to parse data from
 		std::istream* _stream{ nullptr };
-		
+
 		//! Size of the parse buffer
 		static const size_t BufferSize{ 512 * 1024 };
-		
+
 		//! Intermediate parse buffer
 		std::vector<char> _streamBuffer;
 
 		//! Start of the current buffer
 		char* _currentBuffer{ nullptr };
-		
+
 		//! Size of the current buffer
 		size_t _currentSizeAvailable{ 0 };
-		
+
 		//! Current read pointer
 		char* _bufferReadPtr{ nullptr };
-		
+
 		//! Reached end of stream?
 		bool _eos{ false };
 	};

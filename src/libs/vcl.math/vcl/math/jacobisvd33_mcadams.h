@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	/**
 	 *	Original implementation by:
 	 *		2011 - McAdams, Selle, Tamstorf, Teran, Sifakis - Computing the Singular Value Decomposition of 3 x 3 matrices with minimal branching and elementary floating point operations

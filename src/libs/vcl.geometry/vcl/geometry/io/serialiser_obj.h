@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/geometry/io/serialiser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	class ObjSerialiser : public Serialiser
 	{
 	public: // Read mesh file

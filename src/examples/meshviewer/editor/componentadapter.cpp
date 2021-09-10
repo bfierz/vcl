@@ -26,8 +26,7 @@
 
 #include "components/transform.h"
 
-namespace Editor
-{
+namespace Editor {
 	ComponentAdapter::ComponentAdapter(const QString& type, const QString& name)
 	: _type(type)
 	, _name(name)
@@ -48,7 +47,6 @@ namespace Editor
 	: ComponentAdapter("TransformComponent", "Transform")
 	, _component(comp)
 	{
-
 	}
 
 	QVector3D TransformComponentAdapter::translation() const

@@ -35,9 +35,9 @@
 // Check library configuration
 #if defined __ICC || defined __ICL
 #	define VCL_COMPILER_ICC
-#   if (__INTEL_COMPILER < 1700)
-#       warning "Minimum supported version is ICC 17. Good luck."
-#   endif
+#	if (__INTEL_COMPILER < 1700)
+#		warning "Minimum supported version is ICC 17. Good luck."
+#	endif
 #elif defined _MSC_VER && !defined __clang__
 #	define VCL_COMPILER_MSVC
 // Microsoft compiler versions
@@ -53,19 +53,19 @@
 // MSVC++ 14.15 _MSC_VER == 1915 (Visual Studio 2017 Update 8)
 // MSVC++ 14.16 _MSC_VER == 1916 (Visual Studio 2017 Update 9)
 // MSVC++ 14.20 _MSC_VER == 1920 (Visual Studio 2019)
-#   if (_MSC_VER < 1900)
-#       warning "Minimum supported version is MSVC 2015. Good luck."
-#   endif
+#	if (_MSC_VER < 1900)
+#		warning "Minimum supported version is MSVC 2015. Good luck."
+#	endif
 #elif defined __clang__
 #	define VCL_COMPILER_CLANG
-#   if (__clang_major__ < 3) || (__clang_major__ == 3 && __clang_minor__ < 5)
-#       warning "Minimum supported version is Clang 3.5. Good luck."
-#   endif
+#	if (__clang_major__ < 3) || (__clang_major__ == 3 && __clang_minor__ < 5)
+#		warning "Minimum supported version is Clang 3.5. Good luck."
+#	endif
 #elif defined __GNUC__
 #	define VCL_COMPILER_GNU
-#   if (__GNUC__ < 5)
-#       warning "Minimum supported version is GCC 5. Good luck."
-#   endif
+#	if (__GNUC__ < 5)
+#		warning "Minimum supported version is GCC 5. Good luck."
+#	endif
 #endif
 
 // Identify C++ standard
@@ -101,22 +101,19 @@
 #endif
 
 // Identify system ABI
-#if defined VCL_COMPILER_ICC \
- || defined VCL_COMPILER_MSVC \
- || defined VCL_COMPILER_CLANG \
- || defined VCL_COMPILER_GNU
+#if defined VCL_COMPILER_ICC || defined VCL_COMPILER_MSVC || defined VCL_COMPILER_CLANG || defined VCL_COMPILER_GNU
 #	if defined(_WIN32)
 #		define VCL_ABI_WINAPI
 #		if defined(_WIN64)
 #			define VCL_ABI_WIN64
 #		else
 #			define VCL_ABI_WIN32
-#		endif // _WIN64
-#	endif // _WIN32
+#		endif
+#	endif
 
 #	if defined(__unix) && __unix == 1
 #		define VCL_ABI_POSIX
-#	endif // __unix
+#	endif
 #endif
 
 // Identify CPU instruction set
@@ -180,7 +177,7 @@
 
 #	define VCL_CALLBACK __stdcall
 
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
 
 // Inlining
 #	define VCL_STRONG_INLINE inline
@@ -192,28 +189,26 @@
 #		pragma clang diagnostic ignored "-Wreserved-id-macro"
 #		define __ENABLE_MSVC_VECTOR_TYPES_IMP_DETAILS
 #		pragma clang diagnostic pop
-#		define VCL_CALLBACK __attribute__ ((__stdcall__))
+#		define VCL_CALLBACK __attribute__((__stdcall__))
 #	else
 #		define VCL_CALLBACK
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
-#if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER)
-#   if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
-#       if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T)  && \
-		   !defined(__DEFINED_max_align_t)
-			typedef struct {
-			long long __clang_max_align_nonce1
-				__attribute__((__aligned__(__alignof__(long long))));
-			long double __clang_max_align_nonce2
-				__attribute__((__aligned__(__alignof__(long double))));
-			} max_align_t;
-#			define __DEFINED_max_align_t
-#       endif
-#   endif
-#endif
+#	if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER)
+#		if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
+#			if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T) && !defined(__DEFINED_max_align_t)
+typedef struct
+{
+	long long __clang_max_align_nonce1 __attribute__((__aligned__(__alignof__(long long))));
+	long double __clang_max_align_nonce2 __attribute__((__aligned__(__alignof__(long double))));
+} max_align_t;
+#				define __DEFINED_max_align_t
+#			endif
+#		endif
+#	endif
 
-#elif defined (VCL_COMPILER_ICC)
+#elif defined(VCL_COMPILER_ICC)
 
 #	define VCL_STRONG_INLINE __forceinline
 #	define VCL_DEBUG_BREAK
@@ -225,28 +220,26 @@
 #	define VCL_CALLBACK
 #endif
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Evaluate compiler feature support
 ////////////////////////////////////////////////////////////////////////////////
 
 // alignas/alignof
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER <= 1800)
 #		include <xkeycheck.h>
 #		if defined alignof
 #			undef alignof
 #		endif
-//#		define alignof(x) __alignof(decltype(*static_cast<std::remove_reference<std::remove_pointer<(x)>::type>::type*>(0)))
 #		define alignof(x) __alignof(x)
 
 #		define alignas(x) __declspec(align(x))
 #	endif // _MSC_VER
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
 #endif
 
 // constexpr
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER < 1900)
 #		define VCL_HAS_CPP_CONSTEXPR_11 0
 #		define VCL_HAS_CPP_CONSTEXPR_14 0
@@ -263,32 +256,32 @@
 #		define VCL_CPP_CONSTEXPR_11 constexpr
 #		define VCL_CPP_CONSTEXPR_14 constexpr
 #	endif
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG) || defined (VCL_COMPILER_ICC)
+#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_ICC)
 #	define VCL_HAS_CPP_CONSTEXPR_11 1
 #	define VCL_HAS_CPP_CONSTEXPR_14 1
 #	define VCL_CPP_CONSTEXPR_11 constexpr
 #	define VCL_CPP_CONSTEXPR_14 constexpr
 #else
 #	define VCL_HAS_CPP_CONSTEXPR_11 0
-#	define VCL_HAS_CPP_CONSTEXPR_14	0
+#	define VCL_HAS_CPP_CONSTEXPR_14 0
 #	define VCL_CPP_CONSTEXPR_11
 #	define VCL_CPP_CONSTEXPR_14
 #endif
 
 // if constexpr
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER >= 1912 && VCL_HAS_STDCXX17)
 #		define VCL_IF_CONSTEXPR if constexpr
 #	else
 #		define VCL_IF_CONSTEXPR if
 #	endif
-#elif defined (VCL_COMPILER_GNU)
+#elif defined(VCL_COMPILER_GNU)
 #	if defined(__cpp_if_constexpr) && __cpp_if_constexpr >= 201606
 #		define VCL_IF_CONSTEXPR if constexpr
 #	else
 #		define VCL_IF_CONSTEXPR if
 #	endif
-#elif defined (VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_CLANG)
 #	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9) || __cplusplus < 201703l
 #		define VCL_IF_CONSTEXPR if
 #	else
@@ -297,29 +290,29 @@
 #endif
 
 // noexcept
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER <= 1800)
 #		define noexcept _NOEXCEPT
 #		define VCL_NOEXCEPT_PARAM(param)
 #	else
 #		define VCL_NOEXCEPT_PARAM(param) noexcept(param)
 #	endif // _MSC_VER
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG) || defined (VCL_COMPILER_ICC)
+#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_ICC)
 #	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
 #else
 #	define VCL_NOEXCEPT_PARAM(param)
 #endif
 
 // thread_local
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER <= 1900)
 #		define thread_local __declspec(thread)
 #	endif // _MSC_VER <= 1900
-#elif defined (VCL_COMPILER_GNU)
+#elif defined(VCL_COMPILER_GNU)
 #	if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
 #		define thread_local __thread
 #	endif
-#elif defined (VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_CLANG)
 #	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 3)
 #		define thread_local __thread
 #	endif
@@ -330,11 +323,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // chrono
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 #	if _MSC_VER >= 1700
 #		define VCL_STL_CHRONO
 #	endif
-#elif defined (VCL_COMPILER_GNU) || defined (VCL_COMPILER_CLANG)
+#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
 #	if __cplusplus >= 201103L
 #		define VCL_STL_CHRONO
 #	endif
@@ -388,13 +381,13 @@
 #	endif
 
 #	if defined VCL_VECTORIZE_AVX
-		extern "C"
-		{
-#			include <immintrin.h>
-		}
+extern "C"
+{
+#		include <immintrin.h>
+}
 #	elif defined(VCL_VECTORIZE_SSE)
-		extern "C"
-		{
+extern "C"
+{
 #		ifdef VCL_VECTORIZE_SSE4_2
 #			include <nmmintrin.h>
 #		elif defined VCL_VECTORIZE_SSE4_1
@@ -408,7 +401,7 @@
 #			include <xmmintrin.h>
 #			include <mmintrin.h>
 #		endif
-		}
+}
 #	endif // defined(VCL_VECTORIZE_SSE)
 
 #elif (defined(VCL_ARCH_ARM) || defined(VCL_ARCH_ARM64)) && defined VCL_VECTORIZE_NEON
@@ -416,12 +409,11 @@
 #endif
 
 // Implement missing standard function
-#if defined (VCL_COMPILER_MSVC)
+#if defined(VCL_COMPILER_MSVC)
 
 // Support for fmin/fmax with low overhead
 #	if (_MSC_VER < 1800)
-namespace std
-{
+namespace std {
 #		if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
 	inline float fmin(float x, float y)
 	{

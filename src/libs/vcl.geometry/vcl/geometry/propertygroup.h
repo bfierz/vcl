@@ -40,13 +40,12 @@
 #	define typename_msvc typename
 #endif
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	template<typename IndexT>
 	class PropertyGroup
 	{
 	public:
-		using map_type   = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
+		using map_type = std::unordered_map<std::string, std::unique_ptr<PropertyBase>>;
 		using index_type = IndexT;
 
 	public:
@@ -56,7 +55,7 @@ namespace Vcl { namespace Geometry
 		, _propertyAllocation(0)
 		{
 		}
-		
+
 		PropertyGroup(const PropertyGroup<IndexT>& other)
 		: _name(other._name)
 		, _propertySize(other._propertySize)
@@ -73,13 +72,13 @@ namespace Vcl { namespace Geometry
 			removeAll();
 		}
 
-		PropertyGroup& operator = (const PropertyGroup<IndexT>& other)
+		PropertyGroup& operator=(const PropertyGroup<IndexT>& other)
 		{
 			if (this != &other) // Protect against invalid self-assignment
 			{
 				_name = other._name;
 				_propertySize = other._propertySize;
-	 
+
 				for (const auto& entry : other._data)
 				{
 					_data[entry.first] = entry.second->clone();
@@ -107,7 +106,7 @@ namespace Vcl { namespace Geometry
 	public:
 		template<typename T>
 		Property<T, index_type>* add(const std::string& name, typename Property<T, index_type>::rvalue_reference init_value)
-		{		
+		{
 			if (_data.find(name) == _data.end())
 			{
 				auto data = std::make_unique<Property<T, index_type>>(name, std::move(init_value));
@@ -165,15 +164,14 @@ namespace Vcl { namespace Geometry
 			if (prop != _data.end())
 			{
 				return static_cast<Property<T, index_type>*>(prop->second.get());
-			}
-			else if (create_if_not_found)
+			} else if (create_if_not_found)
 			{
 				return add<T>(name, init_value);
 			}
 
 			return nullptr;
 		}
-		
+
 		template<typename T>
 		const Property<T, index_type>* property(const std::string& name) const
 		{
@@ -185,7 +183,7 @@ namespace Vcl { namespace Geometry
 
 			return nullptr;
 		}
-		
+
 		const PropertyBase* propertyBase(const std::string& name) const
 		{
 			auto prop = _data.find(name);
@@ -211,7 +209,7 @@ namespace Vcl { namespace Geometry
 		{
 			for (const auto& entry : _data)
 				entry.second->reserve(size);
-			
+
 			_propertyAllocation = size;
 		}
 
@@ -219,7 +217,7 @@ namespace Vcl { namespace Geometry
 		{
 			for (const auto& entry : _data)
 				entry.second->resize(size);
-			
+
 			_propertySize = size;
 			_propertyAllocation = std::max(_propertyAllocation, _propertySize);
 		}

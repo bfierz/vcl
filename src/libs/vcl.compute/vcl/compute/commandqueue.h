@@ -36,8 +36,7 @@
 #include <vcl/compute/buffer.h>
 #include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	class CommandQueue
 	{
 	protected:
@@ -47,8 +46,8 @@ namespace Vcl { namespace Compute
 		CommandQueue(CommandQueue&&);
 		CommandQueue(const CommandQueue&) = delete;
 
-		CommandQueue& operator =(CommandQueue&&);
-		CommandQueue& operator =(const CommandQueue&) = delete;
+		CommandQueue& operator=(CommandQueue&&);
+		CommandQueue& operator=(const CommandQueue&) = delete;
 
 		virtual ~CommandQueue() = default;
 

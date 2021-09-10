@@ -30,8 +30,8 @@
 
 // VCL
 #include <vcl/geometry/meshfactory.h>
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
 #include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/d3d12/swapchain.h>
@@ -71,10 +71,10 @@ public:
 	: Application("TetMesh Rendering Application")
 	{
 		using namespace Vcl::Graphics::D3D12;
-		using Vcl::Graphics::Runtime::D3D12::Buffer;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
+		using Vcl::Graphics::Runtime::D3D12::Buffer;
 
 		resetCommandList();
 
@@ -96,47 +96,40 @@ private:
 	void createMesh()
 	{
 		using namespace Vcl::Geometry;
-		using Vcl::Graphics::Runtime::D3D12::Buffer;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
+		using Vcl::Graphics::Runtime::D3D12::Buffer;
 
 		_mesh = MeshFactory<TetraMesh>::createHomogenousCubes(1, 1, 1);
 
-		BufferDescription vbo_desc =
-		{
+		BufferDescription vbo_desc = {
 			_mesh->nrVertices() * sizeof(TetraMesh::Vertex),
 			BufferUsage::Vertex | BufferUsage::Storage
 		};
-		BufferInitData vbo_data =
-		{
+		BufferInitData vbo_data = {
 			_mesh->vertices()->data(),
 			_mesh->vertices()->size() * sizeof(TetraMesh::Vertex)
 		};
 		_tetMeshVertices = std::make_unique<Buffer>(device(), vbo_desc, &vbo_data, cmdList());
 
-		BufferDescription ibo_desc =
-		{
+		BufferDescription ibo_desc = {
 			_mesh->nrVolumes() * sizeof(TetraMesh::Volume),
 			BufferUsage::Vertex | BufferUsage::Index | BufferUsage::Storage
 		};
-		BufferInitData ibo_data =
-		{
+		BufferInitData ibo_data = {
 			_mesh->volumes()->data(),
 			_mesh->volumes()->size() * sizeof(TetraMesh::Volume)
 		};
 		_tetMeshIndices = std::make_unique<Buffer>(device(), ibo_desc, &ibo_data, cmdList());
 
-
-		BufferDescription tri_vbo_desc =
-		{
+		BufferDescription tri_vbo_desc = {
 			4 * _mesh->nrVolumes() * sizeof(TetraMesh::Vertex),
 			BufferUsage::Vertex | BufferUsage::Storage
 		};
 		_triMeshVertices = std::make_unique<Buffer>(device(), tri_vbo_desc);
 
-		BufferDescription tri_ibo_desc =
-		{
+		BufferDescription tri_ibo_desc = {
 			3 * 4 * _mesh->nrVolumes() * sizeof(int),
 			BufferUsage::Index | BufferUsage::Storage
 		};
@@ -147,9 +140,7 @@ private:
 	{
 		using namespace Vcl::Geometry;
 		using namespace Vcl::Graphics::D3D12;
-		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
+		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
@@ -157,23 +148,27 @@ private:
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
-		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources =
-		{
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
 			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 2}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 		};
+		// clang-format on
+
 		_tetToTriMeshCtx.TableLayoutCompute = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
 		_tetToTriMeshCtx.TableCompute = std::make_unique<DescriptorTable>(device(), _tetToTriMeshCtx.TableLayoutCompute.get());
-		_tetToTriMeshCtx.TableCompute->addResource(0, _tetMeshIndices.get(),  0, 4*_mesh->nrVolumes(), sizeof(int));
+		_tetToTriMeshCtx.TableCompute->addResource(0, _tetMeshIndices.get(), 0, 4 * _mesh->nrVolumes(), sizeof(int));
 		_tetToTriMeshCtx.TableCompute->addResource(1, _tetMeshVertices.get(), 0, _mesh->nrVertices(), sizeof(TetraMesh::Vertex));
-		_tetToTriMeshCtx.TableCompute->addResource(2, _triMeshIndices.get(),  0, 3 * 4 * _mesh->nrVolumes(), sizeof(int));
+		_tetToTriMeshCtx.TableCompute->addResource(2, _triMeshIndices.get(), 0, 3 * 4 * _mesh->nrVolumes(), sizeof(int));
 		_tetToTriMeshCtx.TableCompute->addResource(3, _triMeshVertices.get(), 0, 4 * _mesh->nrVolumes(), sizeof(TetraMesh::Vertex));
 
 		Shader tet_to_tri_mesh_cs(ShaderType::ComputeShader, 0, TetToTriMeshCsoCS);
@@ -181,16 +176,14 @@ private:
 		cpsd.ComputeShader = &tet_to_tri_mesh_cs;
 		_tetToTriMeshCtx.TetToTriMeshPS = std::make_unique<ComputePipelineState>(device(), cpsd, _tetToTriMeshCtx.TableLayoutCompute.get());
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_VERTEX }
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX }
 		};
 		_tetToTriMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
 
 		Shader tri_mesh_vs(ShaderType::VertexShader, 0, TriMeshCsoVS);
 		Shader simple_ps(ShaderType::FragmentShader, 0, SimpleCsoPS);
-		InputLayoutDescription input_layout
-		{
+		InputLayoutDescription input_layout{
 			{
 				{ 0, sizeof(Eigen::Vector3f), VertexDataClassification::VertexDataPerObject },
 			},
@@ -214,9 +207,7 @@ private:
 	{
 		using namespace Vcl::Geometry;
 		using namespace Vcl::Graphics::D3D12;
-		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
+		using Vcl::Graphics::SurfaceFormat;
 		using Vcl::Graphics::Runtime::ComputePipelineStateDescription;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
@@ -224,15 +215,19 @@ private:
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
 		using Vcl::Graphics::Runtime::ShaderType;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
-		using Vcl::Graphics::SurfaceFormat;
+		using Vcl::Graphics::Runtime::D3D12::ComputePipelineState;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources =
-		{
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
 			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
 				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_ALL }
+			} }, D3D12_SHADER_VISIBILITY_ALL }
 		};
+		// clang-format on
+
 		_directTetMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
 		_directTetMeshCtx.TableGraphics = std::make_unique<DescriptorTable>(device(), _directTetMeshCtx.TableLayoutGraphics.get());
 		_directTetMeshCtx.TableGraphics->addResource(0, _tetMeshVertices.get(), 0, _mesh->nrVertices(), sizeof(TetraMesh::Vertex));
@@ -240,8 +235,7 @@ private:
 		Shader tet_mesh_vs(ShaderType::VertexShader, 0, TetMeshCsoVS);
 		Shader tet_mesh_gs(ShaderType::GeometryShader, 0, TetMeshCsoGS);
 		Shader simple_ps(ShaderType::FragmentShader, 0, SimpleCsoPS);
-		InputLayoutDescription input_layout
-		{
+		InputLayoutDescription input_layout{
 			{
 				{ 0, sizeof(Eigen::Vector4i), VertexDataClassification::VertexDataPerObject },
 			},
@@ -289,12 +283,12 @@ private:
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmd_buffer->bindIndexBuffer(_triMeshIndices.get());
 		cmd_buffer->bindVertexBuffer(_triMeshVertices.get());
-		
+
 		Eigen::Affine3f rot{ Eigen::AngleAxisf{ _tetMeshRotation, Eigen::Vector3f::UnitY() } };
 		Eigen::Affine3f trans{ Eigen::Translation3f{ -0.5f, -0.5f, -0.5f } };
 		Eigen::Matrix4f mvp = _camera.projection() * _camera.view() * rot.matrix() * trans.matrix();
 		cmd_buffer->handle()->SetGraphicsRoot32BitConstants(0, 16, mvp.data(), 0);
-		
+
 		cmd_buffer->drawIndexed(3 * 4 * _mesh->nrVolumes(), 1, 0, 0, 0);
 	}
 
@@ -322,7 +316,7 @@ private:
 
 		const auto size = swapChain()->bufferSize();
 		_camera.setViewport(0.5f * size.first, size.second);
-		_camera.setFieldOfView(0.5f * (float) size.first / (float) size.second);
+		_camera.setFieldOfView(0.5f * (float)size.first / (float)size.second);
 	}
 
 	void updateFrame() override
@@ -363,7 +357,7 @@ private:
 
 		D3D12_VIEWPORT vp2{ w, 0, w, h, 0, 1 };
 		cmd_buffer->handle()->RSSetViewports(1, &vp2);
-		D3D12_RECT sr2{ w, 0, w+w, h };
+		D3D12_RECT sr2{ w, 0, w + w, h };
 		cmd_buffer->handle()->RSSetScissorRects(1, &sr2);
 
 		renderFrameDirectTetMesh(cmd_buffer);

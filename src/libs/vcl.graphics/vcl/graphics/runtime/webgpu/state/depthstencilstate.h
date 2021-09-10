@@ -31,7 +31,6 @@
 // VCL
 #include <vcl/graphics/runtime/state/depthstencilstate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUDepthStencilState toWebGPU(const DepthStencilDescription& desc);
 }}}}

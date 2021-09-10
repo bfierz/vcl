@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 // VCL configuration
@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	/*!
 	 *	\note The heap order is ignored until the maximum size is reached
 	 */
@@ -62,8 +61,7 @@ namespace Vcl { namespace Core
 				{
 					std::make_heap(std::begin(_data), std::end(_data));
 				}
-			}
-			else
+			} else
 			{
 				// Remove the element with the least priority
 				std::pop_heap(std::begin(_data), std::end(_data));

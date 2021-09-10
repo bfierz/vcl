@@ -25,12 +25,12 @@
 
 #include "../common/app.h"
 
- // Eigen
+// Eigen
 #include <Eigen/Geometry>
 
 // VCL
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
 #include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/d3d12/swapchain.h>
@@ -50,19 +50,15 @@ class SpinningCubeApplication final : public Application
 {
 public:
 	SpinningCubeApplication()
-		: Application("SpinningCubes")
+	: Application("SpinningCubes")
 	{
-		using Vcl::Graphics::D3D12::ContantDescriptor;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
-		using Vcl::Graphics::D3D12::DescriptorTable;
-		using Vcl::Graphics::D3D12::TableDescriptor;
 		using Vcl::Graphics::SurfaceFormat;
-		using Vcl::Graphics::Runtime::D3D12::Buffer;
-		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
-		using Vcl::Graphics::Runtime::D3D12::Shader;
-		using Vcl::Graphics::Runtime::D3D12::Texture2D;
+		using Vcl::Graphics::D3D12::ContantDescriptor;
+		using Vcl::Graphics::D3D12::DescriptorTable;
+		using Vcl::Graphics::D3D12::DescriptorTableLayout;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
+		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
+		using Vcl::Graphics::D3D12::TableDescriptor;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
@@ -76,21 +72,26 @@ public:
 		using Vcl::Graphics::Runtime::TextureResource;
 		using Vcl::Graphics::Runtime::TextureUsage;
 		using Vcl::Graphics::Runtime::VertexDataClassification;
+		using Vcl::Graphics::Runtime::D3D12::Buffer;
+		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
+		using Vcl::Graphics::Runtime::D3D12::Shader;
+		using Vcl::Graphics::Runtime::D3D12::Texture2D;
 
 		resetCommandList();
 
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, CubeCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, CubeCsoPS);
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources =
-		{
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_VERTEX },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			}}, D3D12_SHADER_VISIBILITY_PIXEL }
+		// clang-format off
+		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
+			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX },
+			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
+				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND }
+			} }, D3D12_SHADER_VISIBILITY_PIXEL }
 		};
-		std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers =
-		{
+		// clang-format on
+
+		std::vector<D3D12_STATIC_SAMPLER_DESC> static_samplers = {
 			CD3DX12_STATIC_SAMPLER_DESC(
 				0,
 				D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT,
@@ -101,21 +102,21 @@ public:
 				0.f,
 				D3D12_FLOAT32_MAX,
 				D3D12_SHADER_VISIBILITY_PIXEL,
-				0
-			)
+				0)
 		};
 		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources), std::move(static_samplers));
 
-		InputLayoutDescription input_layout
-		{
+		// clang-format off
+		InputLayoutDescription input_layout{
 			{
-				{ 0, 5*sizeof(float), VertexDataClassification::VertexDataPerObject },
+				{ 0, 5 * sizeof(float), VertexDataClassification::VertexDataPerObject },
 			},
 			{
 				{ "Position", SurfaceFormat::R32G32B32_FLOAT, 0, 0,  0 },
 				{ "UV",       SurfaceFormat::R32G32_FLOAT,    0, 0, 12 },
 			}
 		};
+		// clang-format on
 
 		PipelineStateDescription psd;
 		psd.VertexShader = _vs.get();
@@ -131,8 +132,8 @@ public:
 		_camera.setFarPlane(10.0f);
 		_camera.setPosition({ 1.5f, 1.5f, 1.5f });
 
-		std::vector<float> cube_points =
-		{
+		// clang-format off
+		std::vector<float> cube_points = {
 			-1.0f,-1.0f,-1.0f, 0.0f, 0.0f,
 			-1.0f,-1.0f, 1.0f, 0.0f, 1.0f,
 			-1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -175,13 +176,13 @@ public:
 			-1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
 			+1.0f,-1.0f, 1.0f, 1.0f, 0.0f,
 		};
-		BufferDescription vbo_desc =
-		{
+		// clang-format on
+
+		BufferDescription vbo_desc = {
 			cube_points.size() * sizeof(float),
 			BufferUsage::Vertex
 		};
-		BufferInitData vbo_data =
-		{
+		BufferInitData vbo_data = {
 			cube_points.data(),
 			cube_points.size() * sizeof(float)
 		};
@@ -260,7 +261,7 @@ private:
 		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Graphics, 1, _table.get());
 		cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		D3D12_VERTEX_BUFFER_VIEW vbv[] = {
-			{ _vbo->handle()->GetGPUVirtualAddress(), _vbo->sizeInBytes(), 5*sizeof(float) }
+			{ _vbo->handle()->GetGPUVirtualAddress(), _vbo->sizeInBytes(), 5 * sizeof(float) }
 		};
 		cmd_list->IASetVertexBuffers(0, 1, vbv);
 

@@ -27,13 +27,12 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-// VCL 
+// VCL
 #include <vcl/core/simd/bool16_ref.h>
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::None>
 	{
@@ -44,29 +43,29 @@ namespace Vcl
 			for (int i = 0; i < NrValues; i++)
 				_data[i] = scalars[i * stride];
 		}
-		VCL_STRONG_INLINE Scalar& operator[] (int idx) { return _data[idx]; }
+		VCL_STRONG_INLINE Scalar& operator[](int idx) { return _data[idx]; }
 
 	public:
 		VCL_SIMD_BINARY_OP(operator+, Core::Simd::Details::add, 16)
 		VCL_SIMD_BINARY_OP(operator-, Core::Simd::Details::sub, 16)
 		VCL_SIMD_BINARY_OP(operator*, Core::Simd::Details::mul, 16)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, Core::Simd::Details::add, 16)
 		VCL_SIMD_ASSIGN_OP(operator-=, Core::Simd::Details::sub, 16)
 		VCL_SIMD_ASSIGN_OP(operator*=, Core::Simd::Details::mul, 16)
-		
+
 	public:
 		VCL_SIMD_COMP_OP(operator==, Core::Simd::Details::cmpeq, 16)
 		VCL_SIMD_COMP_OP(operator!=, Core::Simd::Details::cmpne, 16)
-		VCL_SIMD_COMP_OP(operator<,  Core::Simd::Details::cmplt, 16)
+		VCL_SIMD_COMP_OP(operator<, Core::Simd::Details::cmplt, 16)
 		VCL_SIMD_COMP_OP(operator<=, Core::Simd::Details::cmple, 16)
-		VCL_SIMD_COMP_OP(operator>,  Core::Simd::Details::cmpgt, 16)
+		VCL_SIMD_COMP_OP(operator>, Core::Simd::Details::cmpgt, 16)
 		VCL_SIMD_COMP_OP(operator>=, Core::Simd::Details::cmpge, 16)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, std::abs, 16)
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&, Core::Simd::Details::conj, 16)
 		VCL_SIMD_BINARY_OP(operator|, Core::Simd::Details::disj, 16)

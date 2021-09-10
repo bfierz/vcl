@@ -37,8 +37,7 @@
 #include <vcl/components/componentstore.h>
 #include <vcl/components/entity.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	/*!
 	 *	\class EntityManager
 	 *	\brief Create and manage the live time of all entities
@@ -90,7 +89,7 @@ namespace Vcl { namespace Components
 
 		template<typename C, typename... Args>
 		typename std::enable_if<ComponentTraits<C>::IsUnique, C*>::type
-			create(Entity e, Args&&... args)
+		create(Entity e, Args&&... args)
 		{
 			VclRequire(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
 			VclRequire(e._manager == this, "Entity belongs the this system.");
@@ -103,20 +102,20 @@ namespace Vcl { namespace Components
 
 		template<typename C, typename... Args>
 		typename std::enable_if<!ComponentTraits<C>::IsUnique, C*>::type
-			create(Entity e, Args&&... args)
+		create(Entity e, Args&&... args)
 		{
 			VclRequire(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 			VclRequire(e._manager == this, "Entity belongs the this system.");
 
 			size_t hash = typeid(C).hash_code();
 			auto c = static_cast<MultiComponentStoreBase<C>*>(_multiComponents[hash].get());
-			
+
 			return c->create(e._id, std::forward<Args>(args)...);
 		}
 
 		template<typename C>
 		typename std::enable_if<ComponentTraits<C>::IsUnique, ComponentStore<C>>::type*
-			get() const
+		get() const
 		{
 			VclRequire(_components.find(typeid(C).hash_code()) != _components.end(), "Component type registered.");
 
@@ -128,7 +127,7 @@ namespace Vcl { namespace Components
 
 		template<typename C>
 		typename std::enable_if<!ComponentTraits<C>::IsUnique, MultiComponentStoreBase<C>>::type*
-			get() const
+		get() const
 		{
 			VclRequire(_multiComponents.find(typeid(C).hash_code()) != _multiComponents.end(), "Component type registered.");
 
@@ -149,8 +148,7 @@ namespace Vcl { namespace Components
 				auto& c = *static_cast<ComponentStore<C>*>(_components.find(hash)->second.get());
 
 				return c.has(e._id);
-			}
-			else
+			} else
 			{
 				auto& c = *static_cast<MultiComponentStoreBase<C>*>(_multiComponents.find(hash)->second.get());
 
@@ -183,7 +181,6 @@ namespace Vcl { namespace Components
 		std::vector<uint32_t> _freeIndices;
 
 	private: // Component store
-
 		//! Per type storage of unique components per entity
 		std::unordered_map<size_t, std::unique_ptr<ComponentStoreBase>> _components;
 

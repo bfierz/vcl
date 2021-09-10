@@ -24,12 +24,11 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	Eigen::Vector4f computeFrustumSize(const Eigen::Vector4f& frustum);
 
 	Eigen::Vector3f intersectRayPlane(const Eigen::Vector3f& p0, const Eigen::Vector3f& dir, const Eigen::Vector4f& plane);

@@ -36,7 +36,6 @@
 #include <absl/meta/type_traits.h>
 #include <absl/utility/utility.h>
 
-
 #if defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_GNU)
 #	if __has_include(<experimental/array>)
 #		define VCL_HAS_STL_MAKE_ARRAY
@@ -45,48 +44,50 @@
 
 #ifdef VCL_HAS_STL_MAKE_ARRAY
 #	include <experimental/array>
-namespace std
-{
+namespace std {
 	using std::experimental::make_array;
 }
 #else
 ////////////////////////////////////////////////////////////////////////////////
 // http://en.cppreference.com/w/cpp/experimental/make_array
-namespace std
-{
-	namespace details
-	{
-		template<class> struct is_ref_wrapper : std::false_type {};
-		template<class T> struct is_ref_wrapper<std::reference_wrapper<T>> : std::true_type {};
+namespace std {
+	namespace details {
+		template<class>
+		struct is_ref_wrapper : std::false_type
+		{};
+		template<class T>
+		struct is_ref_wrapper<std::reference_wrapper<T> > : std::true_type
+		{};
 
 		template<class T>
-		using not_ref_wrapper = absl::negation<is_ref_wrapper<std::decay_t<T>>>;
+		using not_ref_wrapper = absl::negation<is_ref_wrapper<std::decay_t<T> > >;
 
-		template <class D, class...> struct return_type_helper { using type = D; };
-		template <class... Types>
-		struct return_type_helper<void, Types...> : std::common_type<Types...> {
-			static_assert(absl::conjunction<not_ref_wrapper<Types>...>::value,
-				"Types cannot contain reference_wrappers when D is void");
+		template<class D, class...>
+		struct return_type_helper
+		{
+			using type = D;
+		};
+		template<class... Types>
+		struct return_type_helper<void, Types...> : std::common_type<Types...>
+		{
+			static_assert(absl::conjunction<not_ref_wrapper<Types>...>::value, "Types cannot contain reference_wrappers when D is void");
 		};
 
-		template <class D, class... Types>
-		using return_type = std::array<typename return_type_helper<D, Types...>::type,
-			sizeof...(Types)>;
+		template<class D, class... Types>
+		using return_type = std::array<typename return_type_helper<D, Types...>::type, sizeof...(Types)>;
 	}
 
 	template<class D = void, class... Types>
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 details::return_type<D, Types...> make_array(Types&&... t)
 	{
-		return{ std::forward<Types>(t)... };
+		return { std::forward<Types>(t)... };
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////
 #endif
-	
-namespace Vcl { namespace Core
-{
-	namespace detail
-	{
+
+namespace Vcl { namespace Core {
+	namespace detail {
 		template<typename T, typename... Args, size_t... Is>
 		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 auto make_array_from_tuple_helper(const std::tuple<Args...>& attributes, absl::index_sequence<Is...>)
 		{

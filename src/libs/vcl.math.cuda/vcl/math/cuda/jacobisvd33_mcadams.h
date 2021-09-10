@@ -36,42 +36,38 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/interleavedarray.h>
 
-namespace Vcl { namespace Mathematics { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Cuda {
 	class JacobiSVD33
 	{
 	public:
 		JacobiSVD33(Core::ref_ptr<Compute::Context> ctx);
 
 	public:
-		void operator()
-		(
+		void operator()(
 			Vcl::Compute::CommandQueue& queue,
 			const Vcl::Core::InterleavedArray<float, 3, 3, -1>& A,
 			Vcl::Core::InterleavedArray<float, 3, 3, -1>& U,
 			Vcl::Core::InterleavedArray<float, 3, 3, -1>& V,
-			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S
-		);
+			Vcl::Core::InterleavedArray<float, 3, 1, -1>& S);
 
 	private:
 		// Device context
 		Core::ref_ptr<Compute::Context> _ownerCtx;
 
 	private: // Buffers
-
 		//! Number of allocated entries
 		size_t _capacity = 0;
 
-		//! Input buffer 
+		//! Input buffer
 		Core::ref_ptr<Compute::Buffer> _A;
 
-		//! Output buffer 
+		//! Output buffer
 		Core::ref_ptr<Compute::Buffer> _U;
 
-		//! Output buffer 
+		//! Output buffer
 		Core::ref_ptr<Compute::Buffer> _V;
 
-		//! Singular value buffer 
+		//! Singular value buffer
 		Core::ref_ptr<Compute::Buffer> _S;
 	};
 }}}

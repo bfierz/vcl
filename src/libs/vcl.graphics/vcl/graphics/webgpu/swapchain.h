@@ -37,15 +37,14 @@
 
 #ifndef VCL_ARCH_WEBASM
 // Dawn
-#include <dawn_native/D3D12Backend.h>
-#include <dawn_native/DawnNative.h>
+#	include <dawn_native/D3D12Backend.h>
+#	include <dawn_native/DawnNative.h>
 #endif
 
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace WebGPU {
 	enum class PresentMode
 	{
 		Immediate = 0x00000000,
@@ -95,7 +94,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU
 
 	private:
 		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc);
-		
+
 		//! Associated device
 		WGPUDevice _device;
 

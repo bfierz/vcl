@@ -38,8 +38,7 @@
 #include <vcl/compute/cuda/module.h>
 #include <vcl/math/cuda/conjugategradientscontext.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
-{
+namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda {
 	class Poisson3DCgCtx : public ConjugateGradientsContext
 	{
 		using vector_t = Eigen::Matrix<float, Eigen::Dynamic, 1>;
@@ -47,12 +46,10 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 		using const_map_t = Eigen::Map<const vector_t>;
 
 	public:
-		Poisson3DCgCtx
-		(
+		Poisson3DCgCtx(
 			ref_ptr<Compute::Context> ctx,
 			ref_ptr<Compute::CommandQueue> queue,
-			const Eigen::Vector3ui& dim
-		);
+			const Eigen::Vector3ui& dim);
 		~Poisson3DCgCtx();
 
 		void setData(map_t unknowns, const_map_t rhs);
@@ -86,8 +83,8 @@ namespace Vcl { namespace Mathematics { namespace Solver { namespace Cuda
 
 		//! Laplacian matrix (center, x(l/r), y(l/r), z(l/r))
 		std::array<ref_ptr<Compute::Cuda::Buffer>, 7> _laplacian;
-		
-		//! Left-hand side 
+
+		//! Left-hand side
 		std::tuple<ref_ptr<Compute::Cuda::Buffer>, map_t> _unknowns;
 
 		//! Right-hand side

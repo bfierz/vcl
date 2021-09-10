@@ -32,8 +32,7 @@
 #include <array>
 #include <memory>
 
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	// Forward declaration
 	class Camera;
 	class MatrixFactory;
@@ -48,7 +47,12 @@ namespace Vcl { namespace Graphics
 	public:
 		enum
 		{
-			Top = 0, Bottom, Left, Right, Near, Far
+			Top = 0,
+			Bottom,
+			Left,
+			Right,
+			Near,
+			Far
 		};
 
 	public:
@@ -56,10 +60,16 @@ namespace Vcl { namespace Graphics
 		PerspectiveViewFrustum();
 
 		//! Constructor.
-		PerspectiveViewFrustum
-		(
-			real_t width, real_t height, real_t fov, real_t near_plane, real_t far_plane, vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-		);
+		PerspectiveViewFrustum(
+			real_t width,
+			real_t height,
+			real_t fov,
+			real_t near_plane,
+			real_t far_plane,
+			vector3_t pos,
+			vector3_t dir,
+			vector3_t up,
+			vector3_t right);
 
 		//! Construct frustum from camera
 		PerspectiveViewFrustum(const Vcl::Graphics::Camera* cam);
@@ -72,21 +82,21 @@ namespace Vcl { namespace Graphics
 
 	public:
 		const vector3_t& position() const;
-					
+
 		const vector3_t& direction() const;
-		
+
 		const vector3_t& up() const;
-		
+
 		const vector3_t& right() const;
 
 		real_t width() const;
-	
+
 		real_t height() const;
 
 		real_t fieldOfView() const;
-	
+
 		real_t nearPlane() const;
-		
+
 		real_t farPlane() const;
 
 	public:
@@ -102,14 +112,14 @@ namespace Vcl { namespace Graphics
 		real_t _fov;
 		real_t _near, _far;
 		vector3_t _position, _direction, _up, _right;
-		
+
 		// Corners
 		std::array<vector3_t, 8> _corners;
 
 		// Bounding planes
 		std::array<Eigen::Hyperplane<real_t, 3>, 6> _planes;
 	};
-	
+
 	template<typename Scalar>
 	class OrthographicViewFrustum
 	{
@@ -120,7 +130,12 @@ namespace Vcl { namespace Graphics
 	public:
 		enum
 		{
-			Top = 0, Bottom, Left, Right, Near, Far
+			Top = 0,
+			Bottom,
+			Left,
+			Right,
+			Near,
+			Far
 		};
 
 	public:
@@ -128,35 +143,38 @@ namespace Vcl { namespace Graphics
 		OrthographicViewFrustum();
 
 		//! Constructor.
-		OrthographicViewFrustum
-		(
-			real_t width, real_t height, real_t near_plane, real_t far_plane, vector3_t pos, vector3_t dir, vector3_t up, vector3_t right
-		);
+		OrthographicViewFrustum(
+			real_t width,
+			real_t height,
+			real_t near_plane,
+			real_t far_plane,
+			vector3_t pos,
+			vector3_t dir,
+			vector3_t up,
+			vector3_t right);
 
 		//! Copy constructor
 		/*!
 		 *	\param rhs object to be copied
 		 */
-		OrthographicViewFrustum
-		(
-			const OrthographicViewFrustum<real_t>& rhs
-		);
+		OrthographicViewFrustum(
+			const OrthographicViewFrustum<real_t>& rhs);
 
 	public:
 		const vector3_t& position() const;
-					
+
 		const vector3_t& direction() const;
-		
+
 		const vector3_t& up() const;
-		
+
 		const vector3_t& right() const;
-		
+
 		real_t nearPlane() const;
-		
+
 		real_t farPlane() const;
-					
+
 		real_t width() const;
-					
+
 		real_t height() const;
 
 	public:
@@ -174,7 +192,7 @@ namespace Vcl { namespace Graphics
 
 	private:
 		void computePlanes();
-		
+
 	private:
 		real_t _x, _y;
 		real_t _near, _far;
@@ -186,13 +204,13 @@ namespace Vcl { namespace Graphics
 		// Bounding planes
 		std::array<Eigen::Hyperplane<real_t, 3>, 6> _planes;
 	};
-	
+
 // Extern template specialization
 #ifndef VCL_GRAPHICS_FRUSTUM_INST
-	extern template class PerspectiveViewFrustum<float>;
-	extern template class PerspectiveViewFrustum<double>;
+		extern template class PerspectiveViewFrustum<float>;
+		extern template class PerspectiveViewFrustum<double>;
 
-	extern template class OrthographicViewFrustum<float>;
-	extern template class OrthographicViewFrustum<double>;
+		extern template class OrthographicViewFrustum<float>;
+		extern template class OrthographicViewFrustum<double>;
 #endif /* VCL_GRAPHICS_FRUSTUM_INST */
 }}

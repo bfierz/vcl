@@ -42,8 +42,7 @@
 #include <vcl/geometry/propertygroup.h>
 #include <vcl/geometry/simplex.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	class TetraMesh;
 
 	template<>
@@ -52,9 +51,9 @@ namespace Vcl { namespace Geometry
 	public: // Idx Type
 		using IndexType = unsigned int;
 
-	public: // IDs
-		VCL_CREATEID(VertexId, IndexType);	// Size: n0
-		VCL_CREATEID(VolumeId, IndexType);	// Size: n3
+	public:                                // IDs
+		VCL_CREATEID(VertexId, IndexType); // Size: n0
+		VCL_CREATEID(VolumeId, IndexType); // Size: n3
 
 		VCL_CREATEID(SurfaceFaceId, IndexType);
 
@@ -95,8 +94,8 @@ namespace Vcl { namespace Geometry
 		TetraMesh(TetraMesh&& rhs);
 
 	public:
-		TetraMesh& operator= (const TetraMesh& rhs) = default;
-		TetraMesh& operator= (TetraMesh&& rhs) = default;
+		TetraMesh& operator=(const TetraMesh& rhs) = default;
+		TetraMesh& operator=(TetraMesh&& rhs) = default;
 
 	public: // Construct meshes from data
 		TetraMesh(const std::vector<IndexDescriptionTrait<TetraMesh>::Vertex>& vertices, const std::vector<std::array<IndexDescriptionTrait<TetraMesh>::IndexType, 4>>& volumes);
@@ -107,28 +106,23 @@ namespace Vcl { namespace Geometry
 
 		//! Add a new property to the vertex level
 		template<typename T>
-		PropertyPtr<T, IndexDescriptionTrait<TetraMesh>::VertexId> addVertexProperty
-		(
+		PropertyPtr<T, IndexDescriptionTrait<TetraMesh>::VertexId> addVertexProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::VertexId>::reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VertexId>::reference init_value)
 		{
 			return vertexProperties().add<T>(name, init_value);
 		}
 
 		//! Add a new property to the volume level
 		template<typename T>
-		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty
-		(
+		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::reference init_value)
 		{
 			return volumeProperties().add<T>(name, init_value);
 		}
 
 	public: // Surface
-
 		//! \returns the number of surface elements
 		unsigned int nrSurfaceFaces() const { return static_cast<unsigned int>(_surfaceData.propertySize()); }
 
@@ -140,11 +134,9 @@ namespace Vcl { namespace Geometry
 
 		//! Add a new property to the surface level
 		template<typename T>
-		Property<T, SurfaceFaceId>* addSurfaceProperty
-		(
+		Property<T, SurfaceFaceId>* addSurfaceProperty(
 			const std::string& name,
-			typename Property<T, SurfaceFaceId>::reference init_value
-		)
+			typename Property<T, SurfaceFaceId>::reference init_value)
 		{
 			return _surfaceData.add<T>(name, init_value);
 		}
@@ -153,7 +145,6 @@ namespace Vcl { namespace Geometry
 		void recomputeSurface();
 
 	private: // Surface properties
-
 		//! Data associated with a surface
 		PropertyGroup<SurfaceFaceId> _surfaceData;
 

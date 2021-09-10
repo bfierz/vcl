@@ -24,11 +24,10 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	extern int32_t caseToNumPolys[256];
 
 	extern int32_t edgeVertexList[256 * 5 * 4];

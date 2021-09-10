@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/imageprocessing/gaussian.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	Gaussian::Gaussian()
 	{
 		TaskDescription desc;

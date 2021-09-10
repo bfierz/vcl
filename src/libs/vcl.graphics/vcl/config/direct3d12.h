@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
 VCL_BEGIN_EXTERNAL_HEADERS
@@ -32,4 +32,3 @@ VCL_BEGIN_EXTERNAL_HEADERS
 #	include <d3d12.h>
 #endif
 VCL_END_EXTERNAL_HEADERS
-

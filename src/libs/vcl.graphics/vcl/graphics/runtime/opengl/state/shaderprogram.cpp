@@ -29,7 +29,7 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 // FMT
-#	include <fmt/format.h>
+#include <fmt/format.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
@@ -39,14 +39,16 @@ VCL_END_EXTERNAL_HEADERS
 #include <vcl/graphics/runtime/opengl/resource/texture.h>
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
 
-#ifdef VCL_OPENGL_SUPPORT
+#define VCL_TYPE_TO_ENUM(type, val, name) \
+	case ProgramResourceType::type:       \
+		return val;
+#define VCL_ENUM_TO_TYPE(type, val, name) \
+	case val:                             \
+		return ProgramResourceType::type;
+#define VCL_ENUM_TO_NAME(type, val, name) \
+	case val: return name;
 
-#define VCL_TYPE_TO_ENUM(type, val, name) case ProgramResourceType::type: return val;
-#define VCL_ENUM_TO_TYPE(type, val, name) case val: return ProgramResourceType::type;
-#define VCL_ENUM_TO_NAME(type, val, name) case val: return name;
-
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	ProgramAttributes::ProgramAttributes(GLuint program)
 	{
 		VclRequire(program > 0 && glIsProgram(program), "Shader program is defined.");
@@ -63,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Temporary for uniform names
 			std::vector<char> name(32);
 
-			const GLenum properties [] = { GL_LOCATION, GL_TYPE, GL_NAME_LENGTH };
+			const GLenum properties[] = { GL_LOCATION, GL_TYPE, GL_NAME_LENGTH };
 			const size_t num_properties = sizeof(properties) / sizeof(GLenum);
 			for (int u = 0; u < nr_active_attributes; ++u)
 			{
@@ -72,7 +74,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				// Read the uniform name
 				name.resize(values[2]);
-				glGetProgramResourceName(program, GL_PROGRAM_INPUT, u, (GLsizei) name.size(), nullptr, name.data());
+				glGetProgramResourceName(program, GL_PROGRAM_INPUT, u, (GLsizei)name.size(), nullptr, name.data());
 
 				// Construct the uniform
 				_attributes.emplace_back(AttributeData{ values[0], { name.begin(), name.end() - 1 }, ProgramResources::toResourceType(values[1]) });
@@ -96,7 +98,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Temporary for uniform names
 			std::vector<char> name(32);
 
-			const GLenum properties [] = { GL_LOCATION, GL_TYPE, GL_NAME_LENGTH };
+			const GLenum properties[] = { GL_LOCATION, GL_TYPE, GL_NAME_LENGTH };
 			const size_t num_properties = sizeof(properties) / sizeof(GLenum);
 			for (int u = 0; u < nr_active_outputs; ++u)
 			{
@@ -105,7 +107,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				// Read the uniform name
 				name.resize(values[2]);
-				glGetProgramResourceName(program, GL_PROGRAM_OUTPUT, u, (GLsizei) name.size(), nullptr, name.data());
+				glGetProgramResourceName(program, GL_PROGRAM_OUTPUT, u, (GLsizei)name.size(), nullptr, name.data());
 
 				// Construct the uniform
 				_outputs.emplace_back(ProgramOutputData{ values[0], { name.begin(), name.end() - 1 }, ProgramResources::toResourceType(values[1]) });
@@ -129,7 +131,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Temporary for uniform names
 			std::vector<char> name(32);
 
-			const GLenum properties [] = { GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION, GL_ARRAY_SIZE };
+			const GLenum properties[] = { GL_BLOCK_INDEX, GL_TYPE, GL_NAME_LENGTH, GL_LOCATION, GL_ARRAY_SIZE };
 			const size_t num_properties = sizeof(properties) / sizeof(GLenum);
 			for (int u = 0; u < nr_active_uniforms; ++u)
 			{
@@ -142,7 +144,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				// Read the uniform name
 				name.resize(values[2]);
-				glGetProgramResourceName(program, GL_UNIFORM, u, (GLsizei) name.size(), nullptr, name.data());
+				glGetProgramResourceName(program, GL_UNIFORM, u, (GLsizei)name.size(), nullptr, name.data());
 
 				// Concert the resource type
 				ProgramResourceType type = ProgramResources::toResourceType(values[1]);
@@ -175,7 +177,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Temporary for uniform names
 			std::vector<char> name(32);
 
-			const GLenum properties [] = { GL_NAME_LENGTH };
+			const GLenum properties[] = { GL_NAME_LENGTH };
 			const size_t num_properties = sizeof(properties) / sizeof(GLenum);
 			for (int u = 0; u < nr_active_uniforms; ++u)
 			{
@@ -184,7 +186,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				// Read the uniform name
 				name.resize(values[0]);
-				glGetProgramResourceName(program, GL_UNIFORM_BLOCK, u, (GLsizei) name.size(), nullptr, name.data());
+				glGetProgramResourceName(program, GL_UNIFORM_BLOCK, u, (GLsizei)name.size(), nullptr, name.data());
 
 				GLint loc = glGetProgramResourceIndex(program, GL_UNIFORM_BLOCK, name.data());
 				GLint res_loc = -1;
@@ -212,7 +214,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			// Temporary for uniform names
 			std::vector<char> name(32);
 
-			const GLenum properties [] = { GL_NAME_LENGTH, GL_BUFFER_BINDING };
+			const GLenum properties[] = { GL_NAME_LENGTH, GL_BUFFER_BINDING };
 			const size_t num_properties = sizeof(properties) / sizeof(GLenum);
 			for (int u = 0; u < nr_active_uniforms; ++u)
 			{
@@ -221,7 +223,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 				// Read the uniform name
 				name.resize(values[0]);
-				glGetProgramResourceName(program, GL_SHADER_STORAGE_BLOCK, u, (GLsizei) name.size(), nullptr, name.data());
+				glGetProgramResourceName(program, GL_SHADER_STORAGE_BLOCK, u, (GLsizei)name.size(), nullptr, name.data());
 
 				GLint loc = glGetProgramResourceIndex(program, GL_SHADER_STORAGE_BLOCK, name.data());
 				GLint res_loc = values[1];
@@ -240,11 +242,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	, _buffers(program)
 	{
 	}
-	
+
 	GLenum ProgramResources::toGLenum(ProgramResourceType type)
 	{
-		switch (type)
-		{
+		// clang-format off
+		switch (type) {
 		VCL_TYPE_TO_ENUM(Float,                GL_FLOAT,                   "float")
 		VCL_TYPE_TO_ENUM(Float2,               GL_FLOAT_VEC2,              "vec2")
 		VCL_TYPE_TO_ENUM(Float3,               GL_FLOAT_VEC3,              "vec3")
@@ -358,13 +360,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_NONE;
 	}
 	ProgramResourceType ProgramResources::toResourceType(GLenum type)
 	{
-		switch (type)
-		{
+		// clang-format off
+		switch (type) {
 		VCL_ENUM_TO_TYPE(Float,                GL_FLOAT,                   "float")
 		VCL_ENUM_TO_TYPE(Float2,               GL_FLOAT_VEC2,              "vec2")
 		VCL_ENUM_TO_TYPE(Float3,               GL_FLOAT_VEC3,              "vec3")
@@ -478,14 +481,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return ProgramResourceType::Invalid;
 	}
 
 	const char* ProgramResources::name(GLenum type)
 	{
-		switch (type)
-		{
+		// clang-format off
+		switch (type) {
 		VCL_ENUM_TO_NAME(Float,                GL_FLOAT,                   "float")
 		VCL_ENUM_TO_NAME(Float2,               GL_FLOAT_VEC2,              "vec2")
 		VCL_ENUM_TO_NAME(Float3,               GL_FLOAT_VEC3,              "vec3")
@@ -599,21 +603,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return "";
 	}
 
 	ShaderProgram::ShaderProgram(const ShaderProgramDescription& desc)
 	{
-		VclRequire
-		(
-			implies
-			(
-				desc.ComputeShader, 
-				!(desc.VertexShader || desc.TessControlShader || desc.TessEvalShader || desc.GeometryShader || desc.FragmentShader)
-			),
-			"Compute shader is not combined with graphics shaders."
-		);
+		VclRequire(
+			implies(
+				desc.ComputeShader,
+				!(desc.VertexShader || desc.TessControlShader || desc.TessEvalShader || desc.GeometryShader || desc.FragmentShader)),
+			"Compute shader is not combined with graphics shaders.");
 		VclRequire(implies(desc.ComputeShader, glewIsExtensionSupported("GL_ARB_compute_shader")), "Compute shaders are supported.");
 		VclRequire(implies(!desc.ComputeShader, desc.VertexShader && desc.FragmentShader), "VertexShader and Fragment shader are set.");
 
@@ -624,8 +625,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (desc.ComputeShader)
 		{
 			glAttachShader(_glId, desc.ComputeShader->id());
-		}
-		else
+		} else
 		{
 			if (desc.VertexShader)
 				glAttachShader(_glId, desc.VertexShader->id());
@@ -656,8 +656,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (desc.ComputeShader)
 		{
 			glDetachShader(_glId, desc.ComputeShader->id());
-		}
-		else
+		} else
 		{
 			if (desc.VertexShader)
 				glDetachShader(_glId, desc.VertexShader->id());
@@ -689,7 +688,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		glUseProgram(id());
 	}
 
-
 	void ShaderProgram::linkAttributes(const InputLayoutDescription& layout)
 	{
 		// If no layout is set, nothing needs to be done
@@ -704,8 +702,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			const auto& name = attrib.Name;
 
-			auto e = std::find_if(std::begin(layout.attributes()), std::end(layout.attributes()), [name](const InputAttributeElement& e)
-			{
+			auto e = std::find_if(std::begin(layout.attributes()), std::end(layout.attributes()), [name](const InputAttributeElement& e) {
 				return e.Name == name;
 			});
 
@@ -716,8 +713,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				int loc = layout.location(idx);
 
 				glBindAttribLocation(_glId, loc, name.c_str());
-			}
-			else if (name.find("gl_") != 0)
+			} else if (name.find("gl_") != 0)
 			{
 				// Append to error output
 				VclDebugError("Attribute could not be matched.");
@@ -778,7 +774,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	std::string ShaderProgram::readInfoLog() const
 	{
 		if (_glId == 0)
-			return{};
+			return {};
 
 		int info_log_length = 0;
 		int chars_written = 0;
@@ -789,23 +785,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			glGetProgramInfoLog(_glId, info_log_length, &chars_written, const_cast<char*>(info_log.data()));
 			return info_log;
 		}
-		return{};
+		return {};
 	}
 
 	UniformHandle ShaderProgram::uniform(const char* name) const
 	{
 		const auto& uniforms = _resources->uniforms();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformData& data)
-		{
+		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformData& data) {
 			return strcmp(data.Name.c_str(), name) == 0;
 		});
 		if (handle != std::end(uniforms))
 		{
-			return{ id(), (short) handle->Location, (short) handle->ResourceLocation };
-		}
-		else
+			return { id(), (short)handle->Location, (short)handle->ResourceLocation };
+		} else
 		{
-			return{ id(), -1, -1 };
+			return { id(), -1, -1 };
 		}
 	}
 
@@ -931,8 +925,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
 		const auto& uniforms = _resources->uniformBlocks();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformBlockData& data)
-		{
+		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const UniformBlockData& data) {
 			return strcmp(data.Name.c_str(), name) == 0;
 		});
 		if (handle != std::end(uniforms))
@@ -954,8 +947,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		VclRequire(offset + size < buf->sizeInBytes(), "Buffer region is valid.");
 
 		const auto& uniforms = _resources->buffers();
-		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const BufferBlockData& data)
-		{
+		auto handle = std::find_if(std::begin(uniforms), std::end(uniforms), [name](const BufferBlockData& data) {
 			return strcmp(data.Name.c_str(), name) == 0;
 		});
 		if (handle != std::end(uniforms))
@@ -979,4 +971,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			return nonstd::make_unexpected(prog->readInfoLog());
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

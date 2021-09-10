@@ -27,7 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-#if defined(VCL_USE_CONTRACTS) && (defined (DEBUG) || defined (_DEBUG))
+#if defined(VCL_USE_CONTRACTS) && (defined(DEBUG) || defined(_DEBUG))
 #	ifndef VCL_NO_CONTRACTS
 #		define VCL_CONTRACT
 #	endif
@@ -40,67 +40,64 @@
 #ifdef VCL_CONTRACT
 
 // C++ standard library
-#include <string>
+#	include <string>
 
-namespace Vcl { namespace Assert
-{
+namespace Vcl { namespace Assert {
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const char* note, bool& ignore);
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const std::string& note, bool& ignore);
 }}
-	/*!
+/*!
 	 *	\brief Defintion of a assert
 	 *
 	 *	This macro defines when the assert handler called and if the debugger should be invoked
 	 */
-#	define vcl_assert(type, expr, description)                                    \
-	if (!(expr))                                                                  \
-	{                                                                             \
-		static bool ignoreAlways = false;                                         \
-		if (!ignoreAlways && Vcl::Assert::handleAssert(type, __FILE__, __LINE__,  \
-			VCL_PP_STRINGIZE(expr), description, nullptr, ignoreAlways))          \
-		{                                                                         \
-			VCL_DEBUG_BREAK;                                                      \
-		}                                                                         \
-	}
+#	define vcl_assert(type, expr, description)                                                                                                   \
+		if (!(expr))                                                                                                                              \
+		{                                                                                                                                         \
+			static bool ignoreAlways = false;                                                                                                     \
+			if (!ignoreAlways && Vcl::Assert::handleAssert(type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr), description, nullptr, ignoreAlways)) \
+			{                                                                                                                                     \
+				VCL_DEBUG_BREAK;                                                                                                                  \
+			}                                                                                                                                     \
+		}
 
-#	define vcl_assert_ex(type, expr, description, note)                           \
-	if (!(expr))                                                                  \
-	{                                                                             \
-		static bool ignoreAlways = false;                                         \
-		if (!ignoreAlways && Vcl::Assert::handleAssert(type, __FILE__, __LINE__,  \
-			VCL_PP_STRINGIZE(expr), description, note, ignoreAlways))             \
-		{                                                                         \
-			VCL_DEBUG_BREAK;                                                      \
-		}                                                                         \
-	}
+#	define vcl_assert_ex(type, expr, description, note)                                                                                       \
+		if (!(expr))                                                                                                                           \
+		{                                                                                                                                      \
+			static bool ignoreAlways = false;                                                                                                  \
+			if (!ignoreAlways && Vcl::Assert::handleAssert(type, __FILE__, __LINE__, VCL_PP_STRINGIZE(expr), description, note, ignoreAlways)) \
+			{                                                                                                                                  \
+				VCL_DEBUG_BREAK;                                                                                                               \
+			}                                                                                                                                  \
+		}
 
-	// Define wrappers around the contract method
+// Define wrappers around the contract method
 #	ifndef VclCheck
-#		define VclCheck(expr, description)              vcl_assert("Check",   (expr), description)
-#	endif									     
-#	ifndef VclCheckEx							     
-#		define VclCheckEx(expr, description, note)   vcl_assert_ex("Check",   (expr), description, note)
-#	endif									     
-#	ifndef VclRequire							     
-#		define VclRequire(expr, description)            vcl_assert("Require", (expr), description)
+#		define VclCheck(expr, description) vcl_assert("Check", (expr), description)
+#	endif
+#	ifndef VclCheckEx
+#		define VclCheckEx(expr, description, note) vcl_assert_ex("Check", (expr), description, note)
+#	endif
+#	ifndef VclRequire
+#		define VclRequire(expr, description) vcl_assert("Require", (expr), description)
 #	endif
 #	ifndef VclRequireEx
 #		define VclRequireEx(expr, description, note) vcl_assert_ex("Require", (expr), description, note)
 #	endif
 #	ifndef VclEnsure
-#		define VclEnsure(expr, description)             vcl_assert("Ensure",  (expr), description)
+#		define VclEnsure(expr, description) vcl_assert("Ensure", (expr), description)
 #	endif
 #	ifndef VclEnsureEx
-#		define VclEnsureEx(expr, description, note)  vcl_assert_ex("Ensure",  (expr), description, note)
+#		define VclEnsureEx(expr, description, note) vcl_assert_ex("Ensure", (expr), description, note)
 #	endif
 #	ifndef VclDebugError
-#		define VclDebugError(description)               vcl_assert("Error",   (VCL_EVAL_FALSE), description)
+#		define VclDebugError(description) vcl_assert("Error", (VCL_EVAL_FALSE), description)
 #	endif
 #	ifndef VclDebugErrorEx
-#		define VclDebugErrorEx(description, note)    vcl_assert_ex("Error",   (VCL_EVAL_FALSE), description, note)
+#		define VclDebugErrorEx(description, note) vcl_assert_ex("Error", (VCL_EVAL_FALSE), description, note)
 #	endif
 #	ifndef VclAssertBlock
-#		define VclAssertBlock if(VCL_EVAL_TRUE)
+#		define VclAssertBlock if (VCL_EVAL_TRUE)
 #	endif
 #else
 #	ifndef VclCheck
@@ -128,6 +125,6 @@ namespace Vcl { namespace Assert
 #		define VclDebugErrorEx(description, note)
 #	endif
 #	ifndef VclAssertBlock
-#		define VclAssertBlock if(VCL_EVAL_FALSE)
+#		define VclAssertBlock if (VCL_EVAL_FALSE)
 #	endif
 #endif

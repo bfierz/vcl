@@ -53,7 +53,7 @@ private:
 	}
 	void renderFrame() override
 	{
-		glClearBufferfv(GL_COLOR, 0, (float*) &clear_color);
+		glClearBufferfv(GL_COLOR, 0, (float*)&clear_color);
 		glClearBufferfi(GL_DEPTH_STENCIL, 0, 1.0f, 0);
 
 		ImGuiApplication::renderFrame();
@@ -65,6 +65,6 @@ private:
 
 int main(int argc, char** argv)
 {
-	DemoImPlotApplication app{"ImGui Demo"};
+	DemoImPlotApplication app{ "ImGui Demo" };
 	return app.run();
 }

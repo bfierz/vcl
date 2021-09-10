@@ -55,12 +55,12 @@ VCL_END_EXTERNAL_HEADERS
 // Tests the distance functions.
 gte::Vector3<float> cast(const Eigen::Vector3f& vec)
 {
-	return{ vec.x(), vec.y(), vec.z() };
+	return { vec.x(), vec.y(), vec.z() };
 }
 
 Eigen::Vector3f cast(const gte::Vector3<float>& vec)
 {
-	return{ vec[0], vec[1], vec[2] };
+	return { vec[0], vec[1], vec[2] };
 }
 
 template<typename real_t>
@@ -91,12 +91,12 @@ void pointTriangleDistanceGeneric()
 
 	// Results
 	std::vector<float> d0(nr_problems);
-	WideVector         d1(nr_problems / width);
+	WideVector d1(nr_problems / width);
 
 	std::vector<float> s0(nr_problems);
-	WideVector         s1(nr_problems / width);
+	WideVector s1(nr_problems / width);
 	std::vector<float> t0(nr_problems);
-	WideVector         t1(nr_problems / width);
+	WideVector t1(nr_problems / width);
 
 	// Initialize data
 	for (size_t i = 0; i < nr_problems; i++)
@@ -250,21 +250,21 @@ TEST(TriangleTriangleDistance, Simple16)
 template<typename real_t>
 void distanceRayRayGeneric()
 {
+	using Vcl::all;
+	using Vcl::equal;
 	using Vcl::Geometry::distance;
 	using Vcl::Geometry::Ray;
 	using Vcl::Geometry::Result;
 	using Vcl::Mathematics::equal;
-	using Vcl::all;
-	using Vcl::equal;
 
-	const real_t zero{0.0f};
-	const real_t one{1.0f};
-	const real_t eps{1e-4f};
+	const real_t zero{ 0.0f };
+	const real_t one{ 1.0f };
+	const real_t eps{ 1e-4f };
 
 	// Simple crossing, intersection
 	{
-		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
-		Ray<real_t, 3> ray_b{ { 0, -1, 0 },{ 0, 1, 0 } };
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 }, { 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { 0, -1, 0 }, { 0, 1, 0 } };
 
 		Result<real_t> result;
 		const auto dist = distance(ray_a, ray_b, &result);
@@ -276,8 +276,8 @@ void distanceRayRayGeneric()
 
 	// Simple crossing, no intersection
 	{
-		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
-		Ray<real_t, 3> ray_b{ { 0, -1, 1 },{ 0, 1, 0 } };
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 }, { 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { 0, -1, 1 }, { 0, 1, 0 } };
 
 		Result<real_t> result;
 		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), one, eps)));
@@ -288,8 +288,8 @@ void distanceRayRayGeneric()
 
 	// Parallel crossing, intersection
 	{
-		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
-		Ray<real_t, 3> ray_b{ { -1, 0, 0 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 }, { 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { -1, 0, 0 }, { 1, 0, 0 } };
 
 		Result<real_t> result;
 		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), zero, eps)));
@@ -300,8 +300,8 @@ void distanceRayRayGeneric()
 
 	// Parallel crossing, no intersection
 	{
-		Ray<real_t, 3> ray_a{ { -1, 0, 0 },{ 1, 0, 0 } };
-		Ray<real_t, 3> ray_b{ { -1, 0, 1 },{ 1, 0, 0 } };
+		Ray<real_t, 3> ray_a{ { -1, 0, 0 }, { 1, 0, 0 } };
+		Ray<real_t, 3> ray_b{ { -1, 0, 1 }, { 1, 0, 0 } };
 
 		Result<real_t> result;
 		EXPECT_TRUE(all(equal(distance(ray_a, ray_b, &result), one, eps)));

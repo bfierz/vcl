@@ -37,8 +37,7 @@
 #include <vcl/compute/cuda/kernel.h>
 #include <vcl/compute/module.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	class Module : public Compute::Module
 	{
 	public:
@@ -46,10 +45,10 @@ namespace Vcl { namespace Compute { namespace Cuda
 		Module(CUmodule mod);
 
 		Module(Module&&);
-		Module& operator =(Module&&);
+		Module& operator=(Module&&);
 
 		Module(const Module&) = delete;
-		Module& operator =(const Module&) = delete;
+		Module& operator=(const Module&) = delete;
 
 		//! Destructor
 		virtual ~Module();

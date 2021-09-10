@@ -45,15 +45,15 @@ TEST(OpenGL, EngineFrameCounter)
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 0);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 1);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 2);
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	EXPECT_EQ(engine.currentFrame() % 3, 0);
 	engine.endFrame();
@@ -96,7 +96,7 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	auto rt_0 = engine.createResource(rt_desc);
 	auto rt_1 = engine.createResource(rt_desc);
 	auto rt_2 = engine.createResource(rt_desc);
-	
+
 	Texture2DDescription depth_rt_desc;
 	depth_rt_desc.Format = SurfaceFormat::D32_FLOAT;
 	depth_rt_desc.ArraySize = 1;
@@ -115,19 +115,19 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
 	engine.enqueueReadback(*rt_0, [&b_rt_0](stdext::span<uint8_t> view) { memcpy(b_rt_0.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_1 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(0.5f).eval());
 	engine.enqueueReadback(*rt_1, [&b_rt_1](stdext::span<uint8_t> view) { memcpy(b_rt_1.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_2 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(1.0f).eval());
 	engine.enqueueReadback(*rt_2, [&b_rt_2](stdext::span<uint8_t> view) { memcpy(b_rt_2.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	// Run three more frames in order to execute the read-back requests
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_0 }, depth_rt);
@@ -185,7 +185,9 @@ TEST(OpenGL, ConstantBufferUsage)
 	engine.beginFrame();
 	{
 		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
-		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		{
+			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		}
 		base_address = memory.data();
 
 		engine.setConstantBuffer(0, std::move(memory));
@@ -196,7 +198,9 @@ TEST(OpenGL, ConstantBufferUsage)
 	engine.beginFrame();
 	{
 		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
-		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		{
+			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		}
 		engine.setConstantBuffer(0, std::move(memory));
 	}
 	engine.endFrame();
@@ -205,7 +209,9 @@ TEST(OpenGL, ConstantBufferUsage)
 	engine.beginFrame();
 	{
 		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
-		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		{
+			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		}
 		engine.setConstantBuffer(0, std::move(memory));
 	}
 	engine.endFrame();
@@ -214,7 +220,9 @@ TEST(OpenGL, ConstantBufferUsage)
 	engine.beginFrame();
 	{
 		auto memory = engine.requestPerFrameConstantBuffer<ShaderConstants>();
-		{ auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>(); }
+		{
+			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
+		}
 		const void* new_base_address = memory.data();
 
 		engine.setConstantBuffer(0, std::move(memory));

@@ -129,8 +129,7 @@ private:
 			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 			viewManipulateRight = ImGui::GetWindowPos().x + windowWidth;
 			viewManipulateTop = ImGui::GetWindowPos().y;
-		}
-		else
+		} else
 		{
 			ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 		}
@@ -157,8 +156,7 @@ private:
 			//Perspective(_fov, io.DisplaySize.x / io.DisplaySize.y, 0.1f, 100.f, cameraProjection);
 			const float full_fov_rad = 2.0f * _fov * deg_to_rad;
 			_projection = _matrixFactory.createPerspectiveFov(0.1f, 100.f, io.DisplaySize.x / io.DisplaySize.y, full_fov_rad, Vcl::Graphics::Handedness::RightHanded);
-		}
-		else
+		} else
 		{
 			float viewHeight = _orthoViewWidth * io.DisplaySize.y / io.DisplaySize.x;
 			//OrthoGraphic(-_orthoViewWidth, _orthoViewWidth, -viewHeight, viewHeight, 1000.f, -1000.f, cameraProjection);
@@ -185,8 +183,7 @@ private:
 		if (_usePerspective)
 		{
 			ImGui::SliderFloat("Fov", &_fov, 20.f, 110.f);
-		}
-		else
+		} else
 		{
 			ImGui::SliderFloat("Ortho width", &_orthoViewWidth, 1, 20);
 		}
@@ -200,8 +197,7 @@ private:
 		if (ImGuizmo::IsUsing())
 		{
 			ImGui::Text("Using gizmo");
-		}
-		else
+		} else
 		{
 			ImGui::Text(ImGuizmo::IsOver() ? "Over gizmo" : "");
 			ImGui::SameLine();
@@ -308,6 +304,6 @@ private:
 
 int main(int argc, char** argv)
 {
-	DemoImGuizmoApplication app{"ImGui Demo"};
+	DemoImGuizmoApplication app{ "ImGui Demo" };
 	return app.run();
 }

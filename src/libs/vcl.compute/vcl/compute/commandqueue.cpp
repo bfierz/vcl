@@ -28,13 +28,11 @@
 
 // VCL
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	CommandQueue::CommandQueue(CommandQueue&&)
 	{
-
 	}
-	CommandQueue& CommandQueue::operator = (CommandQueue&&)
+	CommandQueue& CommandQueue::operator=(CommandQueue&&)
 	{
 		return *this;
 	}

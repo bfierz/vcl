@@ -39,19 +39,18 @@ VCL_END_EXTERNAL_HEADERS
 // Tests the scalar gather function.
 TEST(GatherTest, Scalar)
 {
+	using Vcl::float16;
 	using Vcl::float4;
 	using Vcl::float8;
-	using Vcl::float16;
 
+	using Vcl::int16;
 	using Vcl::int4;
 	using Vcl::int8;
-	using Vcl::int16;
 
 	using Vcl::all;
 
 	// Setup the memory
-	float mem[] =
-	{
+	float mem[] = {
 		11.3805f, 6.10116f, 11.6117f,
 		11.8436f, 6.2012501f, 12.3314f,
 		12.1044f, 17.7034f, 12.2123f,
@@ -64,29 +63,27 @@ TEST(GatherTest, Scalar)
 		10.0714f, 11.5502f, 11.5733f
 	};
 
-	EXPECT_EQ(mem[ 3], Vcl::gather(mem, 3)) << "Scalar code failed.";
+	EXPECT_EQ(mem[3], Vcl::gather(mem, 3)) << "Scalar code failed.";
 
 	int4 idx4{ 3, 26, 1, 15 };
-	float4 ref4{ mem[ 3], mem[26], mem[ 1], mem[15] };
+	float4 ref4{ mem[3], mem[26], mem[1], mem[15] };
 
 	EXPECT_TRUE(all(ref4 == Vcl::gather(mem, idx4))) << "4-way code failed.";
 
 	int8 idx8{ 3, 26, 1, 15, 12, 29, 0, 19 };
-	float8 ref8
-	{
-		mem[ 3], mem[26], mem[ 1], mem[15],
-		mem[12], mem[29], mem[ 0], mem[19]
+	float8 ref8{
+		mem[3], mem[26], mem[1], mem[15],
+		mem[12], mem[29], mem[0], mem[19]
 	};
 
 	EXPECT_TRUE(all(ref8 == Vcl::gather(mem, idx8))) << "8-way code failed.";
 
 	int16 idx16{ 3, 26, 1, 15, 12, 29, 0, 19, 4, 8, 2, 21, 25, 28, 11, 7 };
-	float16 ref16
-	{
-		mem[ 3], mem[26], mem[ 1], mem[15],
-		mem[12], mem[29], mem[ 0], mem[19],
-		mem[ 4], mem[ 8], mem[ 2], mem[21],
-		mem[25], mem[28], mem[11], mem[ 7]
+	float16 ref16{
+		mem[3], mem[26], mem[1], mem[15],
+		mem[12], mem[29], mem[0], mem[19],
+		mem[4], mem[8], mem[2], mem[21],
+		mem[25], mem[28], mem[11], mem[7]
 	};
 
 	EXPECT_TRUE(all(ref16 == Vcl::gather(mem, idx16))) << "16-way code failed.";
@@ -95,19 +92,18 @@ TEST(GatherTest, Scalar)
 // Tests the matrix gather function.
 TEST(GatherTest, Matrix)
 {
+	using Vcl::float16;
 	using Vcl::float4;
 	using Vcl::float8;
-	using Vcl::float16;
 
+	using Vcl::int16;
 	using Vcl::int4;
 	using Vcl::int8;
-	using Vcl::int16;
 
 	using Vcl::all;
 
 	// Setup the memory
-	Eigen::Vector3f mem [] =
-	{
+	Eigen::Vector3f mem[] = {
 		Eigen::Vector3f(11.3805f, 6.10116f, 11.6117f),
 		Eigen::Vector3f(11.8436f, 6.2012501f, 12.3314f),
 		Eigen::Vector3f(12.1044f, 17.7034f, 12.2123f),
@@ -139,15 +135,14 @@ TEST(GatherTest, Matrix)
 		Eigen::Vector3f(3.7431301f, 11.1153f, 15.519901f),
 		Eigen::Vector3f(18.2603f, 12.7318f, 18.630499f)
 	};
-	
-	EXPECT_EQ(mem[ 3], Vcl::gather(mem, 3)) << "Scalar code failed.";
+
+	EXPECT_EQ(mem[3], Vcl::gather(mem, 3)) << "Scalar code failed.";
 
 	int4 idx4{ 3, 26, 1, 15 };
-	Eigen::Matrix<float4, 3, 1> ref4
-	{
-		float4(mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0)),
-		float4(mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1)),
-		float4(mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2))
+	Eigen::Matrix<float4, 3, 1> ref4{
+		float4(mem[3](0), mem[26](0), mem[1](0), mem[15](0)),
+		float4(mem[3](1), mem[26](1), mem[1](1), mem[15](1)),
+		float4(mem[3](2), mem[26](2), mem[1](2), mem[15](2))
 	};
 
 	EXPECT_TRUE(all(ref4(0) == Vcl::gather<float, 4, 3, 1>(mem, idx4)(0))) << "4-way code failed.";
@@ -155,23 +150,16 @@ TEST(GatherTest, Matrix)
 	EXPECT_TRUE(all(ref4(2) == Vcl::gather<float, 4, 3, 1>(mem, idx4)(2))) << "4-way code failed.";
 
 	int8 idx8{ 3, 26, 1, 15, 12, 29, 0, 19 };
-	Eigen::Matrix<float8, 3, 1> ref8
-	{
-		float8
-		(
-			mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0),
-			mem[12](0), mem[29](0), mem[ 0](0), mem[19](0)
-		),
-		float8
-		(
-			mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1),
-			mem[12](1), mem[29](1), mem[ 0](1), mem[19](1)
-		),
-		float8
-		(
-			mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2),
-			mem[12](2), mem[29](2), mem[ 0](2), mem[19](2)
-		)
+	Eigen::Matrix<float8, 3, 1> ref8{
+		float8(
+			mem[3](0), mem[26](0), mem[1](0), mem[15](0),
+			mem[12](0), mem[29](0), mem[0](0), mem[19](0)),
+		float8(
+			mem[3](1), mem[26](1), mem[1](1), mem[15](1),
+			mem[12](1), mem[29](1), mem[0](1), mem[19](1)),
+		float8(
+			mem[3](2), mem[26](2), mem[1](2), mem[15](2),
+			mem[12](2), mem[29](2), mem[0](2), mem[19](2))
 	};
 
 	EXPECT_TRUE(all(ref8(0) == Vcl::gather<float, 8, 3, 1>(mem, idx8)(0))) << "8-way code failed.";
@@ -179,31 +167,24 @@ TEST(GatherTest, Matrix)
 	EXPECT_TRUE(all(ref8(2) == Vcl::gather<float, 8, 3, 1>(mem, idx8)(2))) << "8-way code failed.";
 
 	int16 idx16{ 3, 26, 1, 15, 12, 29, 0, 19, 4, 8, 2, 21, 25, 28, 11, 7 };
-	Eigen::Matrix<float16, 3, 1> ref16
-	{
-		float16
-		(
-			mem[ 3](0), mem[26](0), mem[ 1](0), mem[15](0),
-			mem[12](0), mem[29](0), mem[ 0](0), mem[19](0),
-			mem[ 4](0), mem[ 8](0), mem[ 2](0), mem[21](0),
-			mem[25](0), mem[28](0), mem[11](0), mem[ 7](0)
-		),
-		
-		float16
-		(
-			mem[ 3](1), mem[26](1), mem[ 1](1), mem[15](1),
-			mem[12](1), mem[29](1), mem[ 0](1), mem[19](1),
-			mem[ 4](1), mem[ 8](1), mem[ 2](1), mem[21](1),
-			mem[25](1), mem[28](1), mem[11](1), mem[ 7](1)
-		),
-		
-		float16
-		(
-			mem[ 3](2), mem[26](2), mem[ 1](2), mem[15](2),
-			mem[12](2), mem[29](2), mem[ 0](2), mem[19](2),
-			mem[ 4](2), mem[ 8](2), mem[ 2](2), mem[21](2),
-			mem[25](2), mem[28](2), mem[11](2), mem[ 7](2)
-		)
+	Eigen::Matrix<float16, 3, 1> ref16{
+		float16(
+			mem[3](0), mem[26](0), mem[1](0), mem[15](0),
+			mem[12](0), mem[29](0), mem[0](0), mem[19](0),
+			mem[4](0), mem[8](0), mem[2](0), mem[21](0),
+			mem[25](0), mem[28](0), mem[11](0), mem[7](0)),
+
+		float16(
+			mem[3](1), mem[26](1), mem[1](1), mem[15](1),
+			mem[12](1), mem[29](1), mem[0](1), mem[19](1),
+			mem[4](1), mem[8](1), mem[2](1), mem[21](1),
+			mem[25](1), mem[28](1), mem[11](1), mem[7](1)),
+
+		float16(
+			mem[3](2), mem[26](2), mem[1](2), mem[15](2),
+			mem[12](2), mem[29](2), mem[0](2), mem[19](2),
+			mem[4](2), mem[8](2), mem[2](2), mem[21](2),
+			mem[25](2), mem[28](2), mem[11](2), mem[7](2))
 	};
 
 	EXPECT_TRUE(all(ref16(0) == Vcl::gather<float, 16, 3, 1>(mem, idx16)(0))) << "16-way code failed.";

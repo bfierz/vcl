@@ -26,20 +26,19 @@
 
 #if defined VCL_VECTORIZE_AVX512
 VCL_BEGIN_EXTERNAL_HEADERS
-#if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
-#	define __AVX2__
-#endif
-#include <vcl/core/simd/detail/avx512_mathfun.h>
+#	if defined VCL_VECTORIZE_AVX2 && !defined __AVX2__
+#		define __AVX2__
+#	endif
+#	include <vcl/core/simd/detail/avx512_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
-#include <vcl/core/simd/vectorscalar.h>
-#include <vcl/core/simd/bool16_avx512.h>
-#include <vcl/core/simd/float16_avx512.h>
+#	include <vcl/core/simd/vectorscalar.h>
+#	include <vcl/core/simd/bool16_avx512.h>
+#	include <vcl/core/simd/float16_avx512.h>
 
-namespace Vcl
-{
-#if !defined(VCL_COMPILER_MSVC)
+namespace Vcl {
+#	if !defined(VCL_COMPILER_MSVC)
 	__m512 _mm512_sin_ps(__m512 v)
 	{
 		return sin512_ps(v);
@@ -99,7 +98,7 @@ namespace Vcl
 		ret -= 0.2121144f;
 		ret *= x;
 		ret += 1.5707288f;
-		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
+		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x) * ret;
 		return (ret - 2.0f * negate * ret).get(0);
 	}
 
@@ -137,6 +136,6 @@ namespace Vcl
 	{
 		return _mm512_exp_ps(_mm512_mul_ps(_mm512_log_ps(x), y));
 	}
-#endif
+#	endif
 }
 #endif // VCL_VECTORIZE_AVX

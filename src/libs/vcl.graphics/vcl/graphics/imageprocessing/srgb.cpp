@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/imageprocessing/srgb.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	SRGB::SRGB()
 	{
 		TaskDescription desc;

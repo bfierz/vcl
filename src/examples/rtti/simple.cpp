@@ -54,17 +54,17 @@ class DerivedObject : public BaseObject
 
 public:
 	DerivedObject()
-		: _size(42)
+	: _size(42)
 	{
 	}
 
 	DerivedObject(int a)
-		: _size((float)a)
+	: _size((float)a)
 	{
 	}
 
 	DerivedObject(int a, int b)
-		: _size((float)(a + b))
+	: _size((float)(a + b))
 	{
 	}
 
@@ -94,6 +94,7 @@ class ComplexDerivedObject : public DerivedObject, public AdditionalBase
 	VCL_DECLARE_METAOBJECT(ComplexDerivedObject)
 };
 
+// clang-format off
 VCL_RTTI_CTOR_TABLE_BEGIN(AdditionalBase)
 	Vcl::RTTI::Constructor<AdditionalBase>()
 VCL_RTTI_CTOR_TABLE_END(AdditionalBase)
@@ -131,6 +132,7 @@ VCL_DEFINE_METAOBJECT(ComplexDerivedObject)
 	type->registerBaseClasses(ComplexDerivedObject_parents);
 	type->registerConstructors(ComplexDerivedObject_constructor_bases);
 }
+// clang-format on
 
 int main(int, char**)
 {

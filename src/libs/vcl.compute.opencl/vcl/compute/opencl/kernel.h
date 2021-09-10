@@ -36,11 +36,11 @@
 #include <vcl/compute/opencl/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	struct LocalMemory
 	{
-		LocalMemory(size_t size) : Size(size) {}
+		LocalMemory(size_t size)
+		: Size(size) {}
 
 		size_t Size;
 	};
@@ -64,14 +64,15 @@ namespace Vcl { namespace Compute { namespace OpenCL
 	public:
 		Kernel(const std::string& name, cl_kernel func);
 		virtual ~Kernel() = default;
-		
+
 	public:
 		template<typename... Args>
-		void run
-		(
-			CommandQueue& queue, int dim, std::array<size_t, 3> globalDim, std::array<size_t, 3> localDim,
-			const Args&... args
-		)
+		void run(
+			CommandQueue& queue,
+			int dim,
+			std::array<size_t, 3> globalDim,
+			std::array<size_t, 3> localDim,
+			const Args&... args)
 		{
 			pushArgs<0>(args...);
 

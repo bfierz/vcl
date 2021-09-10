@@ -52,7 +52,7 @@ class Serializer : public Vcl::RTTI::Serializer
 public:
 	virtual void beginType(const stdext::string_view name, int version) override
 	{
-		_objects.emplace_back(_attrib, json{ {"Type", name.data() },  { "Version", version } });
+		_objects.emplace_back(_attrib, json{ { "Type", name.data() }, { "Version", version } });
 	}
 
 	virtual void endType() override
@@ -63,8 +63,7 @@ public:
 		if (!_objects.empty())
 		{
 			_objects.back().second["Attributes"][attrib_obj.first] = std::move(attrib_obj.second);
-		}
-		else
+		} else
 		{
 			_storage = std::move(attrib_obj.second);
 		}
@@ -133,7 +132,6 @@ public:
 	virtual void endType() override
 	{
 		_object_stack.pop_back();
-
 	}
 
 	virtual std::string readType() override
@@ -156,7 +154,6 @@ private:
 	const json& _storage;
 
 	std::vector<const json*> _object_stack;
-
 };
 
 // Test classes
@@ -168,11 +165,12 @@ class BaseObject
 
 public:
 	BaseObject() = default;
-	BaseObject(const char* name) : _name(name) {}
+	BaseObject(const char* name)
+	: _name(name) {}
 	BaseObject(const BaseObject&) = delete;
 	virtual ~BaseObject() = default;
 
-	BaseObject& operator = (const BaseObject&) = delete;
+	BaseObject& operator=(const BaseObject&) = delete;
 
 public:
 	const std::string& name() const { return _name; }
@@ -230,7 +228,7 @@ public:
 	BaseObject* ownedObj() const { return _ownedObj.get(); }
 	void setOwnedObj(std::unique_ptr<BaseObject> obj) { _ownedObj = std::move(obj); }
 
-	size_t size() const { return (size_t) _size; }
+	size_t size() const { return (size_t)_size; }
 
 private:
 	float _size;
@@ -238,7 +236,7 @@ private:
 	std::unique_ptr<BaseObject> _ownedObj;
 };
 
-
+// clang-format off
 VCL_RTTI_CTOR_TABLE_BEGIN(BaseObject)
 	Vcl::RTTI::Constructor<BaseObject>(),
 	Vcl::RTTI::Constructor<BaseObject, const char*>(Vcl::RTTI::Parameter<const char*>("Name"))
@@ -275,6 +273,7 @@ VCL_DEFINE_METAOBJECT(DerivedObject)
 	VCL_RTTI_REGISTER_CTORS(DerivedObject);
 	VCL_RTTI_REGISTER_ATTRS(DerivedObject);
 }
+// clang-format on
 
 TEST(RttiTest, DefaultConstructor)
 {
@@ -284,7 +283,7 @@ TEST(RttiTest, DefaultConstructor)
 	Constructor<BaseObject> def_constr{};
 
 	// Allocate memory for the test object
-	BaseObject* obj = (BaseObject*) malloc(sizeof(BaseObject));
+	BaseObject* obj = (BaseObject*)malloc(sizeof(BaseObject));
 
 	// Calls the default ctor
 	def_constr.call(obj);
@@ -302,17 +301,15 @@ TEST(RttiTest, MultiParamConstructor)
 	using namespace Vcl::RTTI;
 
 	// Defines a default ctor
-	Constructor<DerivedObject, int> def_constr_a
-	{
+	Constructor<DerivedObject, int> def_constr_a{
 		Parameter<int>("a")
 	};
-	Constructor<DerivedObject, int, int> def_constr_a_b
-	{
+	Constructor<DerivedObject, int, int> def_constr_a_b{
 		Parameter<int>("a"), Parameter<int>("b")
 	};
 
 	// Allocate memory for the test object
-	auto obj_a   = (DerivedObject*)malloc(sizeof(DerivedObject));
+	auto obj_a = (DerivedObject*)malloc(sizeof(DerivedObject));
 	auto obj_a_b = (DerivedObject*)malloc(sizeof(DerivedObject));
 
 	// Calls the default ctor
@@ -335,8 +332,7 @@ TEST(RttiTest, SimpleConstructor)
 	using namespace Vcl::RTTI;
 
 	// Defines a default ctor
-	Constructor<BaseObject, const char*> def_constr
-	{
+	Constructor<BaseObject, const char*> def_constr{
 		Parameter<const char*>("Name")
 	};
 
@@ -373,7 +369,7 @@ TEST(RttiTest, SimpleConstructableType)
 	void* obj_mem = type.allocate();
 	type.Type::construct(obj_mem);
 
-	auto obj = (BaseObject*) obj_mem;
+	auto obj = (BaseObject*)obj_mem;
 
 	// Check the expected output
 	EXPECT_TRUE(type.hasAttribute("Name")) << "Attribute 'Name' is not found.";
@@ -419,10 +415,9 @@ TEST(RttiTest, SimpleFactoryUse)
 	using namespace Vcl::RTTI;
 
 	// Create a new type
-	auto obj = (BaseObject*) Factory::create("BaseObject", "Param0");
+	auto obj = (BaseObject*)Factory::create("BaseObject", "Param0");
 
 	EXPECT_EQ(std::string{ "Param0" }, obj->name()) << "Default ctor was not called.";
-
 }
 
 TEST(RttiTest, AttributeSimpleSetter)
@@ -491,18 +486,13 @@ TEST(RttiTest, SimpleObjectSerialization)
 TEST(RttiTest, SimpleObjectDeserialization)
 {
 	using namespace Vcl::RTTI;
-	
+
 	// Serialize
-	json storage = 
-	{
-		{"Type", "BaseObject"},
-		{"Version", 1},
-		{
-			"Attributes", 
-			{
-				{"Name", "Loaded"}
-			}
-		}
+	json storage = {
+		{ "Type", "BaseObject" },
+		{ "Version", 1 },
+		{ "Attributes",
+		  { { "Name", "Loaded" } } }
 	};
 	::Deserializer loader(storage);
 	loader.beginType("");
@@ -540,29 +530,16 @@ TEST(RttiTest, ComplexObjectDeserialization)
 	using namespace Vcl::RTTI;
 
 	// Serialize
-	json storage =
-	{
+	json storage = {
 		{ "Type", "DerivedObject" },
 		{ "Version", 1 },
-		{
-			"Attributes",
-			{
-				{ "Name", "OuterLoaded" },
-				{
-					"OwnedMember", 
-					{
-						{ "Type", "BaseObject" },
-						{ "Version", 1 },
-						{
-							"Attributes",
-							{
-								{ "Name", "Loaded" }
-							}
-						}
-					}
-				}
-			}
-		}
+		{ "Attributes",
+		  { { "Name", "OuterLoaded" },
+			{ "OwnedMember",
+			  { { "Type", "BaseObject" },
+				{ "Version", 1 },
+				{ "Attributes",
+				  { { "Name", "Loaded" } } } } } } }
 	};
 	::Deserializer loader(storage);
 

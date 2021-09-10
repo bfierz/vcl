@@ -28,8 +28,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/d3d.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	Semaphore::Semaphore(ID3D12Device* device)
 	{
 		VCL_DIRECT3D_SAFE_CALL(device->CreateFence(_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_d3d12Fence)));
@@ -64,8 +63,7 @@ namespace Vcl { namespace Graphics { namespace D3D12
 
 			HANDLE waitableObjects[] = { additional_event, _event };
 			::WaitForMultipleObjects(2, waitableObjects, TRUE, static_cast<DWORD>(duration.count()));
-		}
-		else
+		} else
 		{
 			::WaitForSingleObject(additional_event, static_cast<DWORD>(duration.count()));
 		}

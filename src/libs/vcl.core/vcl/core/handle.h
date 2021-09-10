@@ -27,8 +27,7 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	uint32_t createResourceHandleTag(void* owner) noexcept;
 
 	template<typename T>
@@ -39,7 +38,7 @@ namespace Vcl
 		: _dataIdx(idx)
 		, _tag(tag)
 		{}
-		
+
 	public:
 		int32_t index() const
 		{
@@ -57,18 +56,18 @@ namespace Vcl
 		}
 
 	public:
-		bool operator == (Handle<T> h) const
+		bool operator==(Handle<T> h) const
 		{
 			return _dataIdx == h._dataIdx && _tag == h.tag;
 		}
 
-		bool operator < (Handle<T> h) const
+		bool operator<(Handle<T> h) const
 		{
 			return _tag < h._tag || (_tag == h._tag && _dataIdx < h._dataIdx);
 		}
 
 	private:
-		 int32_t _dataIdx;
+		int32_t _dataIdx;
 		uint32_t _tag;
 	};
 }

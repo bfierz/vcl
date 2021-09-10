@@ -23,18 +23,18 @@
  * SOFTWARE.
  */
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
- // Google test
+// Google test
 #include <gtest/gtest.h>
 
 // Windows
 #include <windows.h>
 
 // Include the relevant parts from the library
+#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/d3dx12.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 
@@ -87,7 +87,7 @@ TEST_F(D3D12SwapChainTest, CreateDestroy)
 	desc.Height = 512;
 	desc.PresentMode = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	desc.VSync = false;
-	
+
 	SwapChain swap_chain{ device.get(), device->defaultQueue(), desc };
 }
 

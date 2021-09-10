@@ -31,8 +31,7 @@
 // C++ standard library
 #include <string>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class Device
 	{
 	public:

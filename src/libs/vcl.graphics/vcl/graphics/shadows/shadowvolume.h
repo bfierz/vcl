@@ -34,12 +34,15 @@
 #include <vcl/graphics/matrixfactory.h>
 
 // Forward declaration
-namespace Vcl { namespace Graphics { class ShadowMap; }}
-namespace Vcl { namespace Graphics { class Camera; }}
+namespace Vcl { namespace Graphics {
+	class ShadowMap;
+}}
+namespace Vcl { namespace Graphics {
+	class Camera;
+}}
 
 // Declaration
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	class ShadowMapVolume
 	{
 	protected:
@@ -66,7 +69,7 @@ namespace Vcl { namespace Graphics
 	public:
 		PerspectiveShadowMapVolume(std::shared_ptr<MatrixFactory> factory);
 		virtual ~PerspectiveShadowMapVolume();
-		
+
 	public:
 		std::shared_ptr<MatrixFactory> matrixFactory() const
 		{
@@ -76,17 +79,17 @@ namespace Vcl { namespace Graphics
 	public:
 		const Eigen::Vector3f& position() const;
 		void setPosition(const Eigen::Vector3f& pos);
-		
+
 		const Eigen::Vector3f& direction() const;
 		void setDirection(const Eigen::Vector3f& dir);
 
 	public:
 		float fieldOfView() const;
-		void setFieldOfView(float fov); 
+		void setFieldOfView(float fov);
 
 		float nearPlane() const;
 		void setNearPlane(float near_plane);
-		
+
 		float farPlane() const;
 		void setFarPlane(float far_plane);
 
@@ -95,7 +98,7 @@ namespace Vcl { namespace Graphics
 		Eigen::Matrix4f computeViewMatrix() const;
 		Eigen::Matrix4f computeProjectionMatrix() const;
 		PerspectiveViewFrustum<float> computeFrustum() const;
-	
+
 	public: /* Factories */
 		std::shared_ptr<MatrixFactory> mFactory;
 
@@ -111,14 +114,12 @@ namespace Vcl { namespace Graphics
 	{
 	public:
 		OrthographicShadowMapVolume(std::shared_ptr<MatrixFactory> factory);
-		OrthographicShadowMapVolume
-		(
+		OrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			const Eigen::Vector3f& position,
 			const Eigen::Vector3f& direction,
 			const Eigen::Vector3f& right,
-			const Eigen::Vector3f& up
-		);
+			const Eigen::Vector3f& up);
 		virtual ~OrthographicShadowMapVolume();
 
 	public:
@@ -133,23 +134,23 @@ namespace Vcl { namespace Graphics
 
 		const Eigen::Vector3f& direction() const;
 		void setDirection(const Eigen::Vector3f& dir);
-		
+
 		const Eigen::Vector3f& right() const;
 		void setRight(const Eigen::Vector3f& pos);
-		
+
 		const Eigen::Vector3f& up() const;
 		void setUp(const Eigen::Vector3f& pos);
 
 	public:
 		float width() const;
 		void setWidth(float w);
-		
+
 		float height() const;
 		void setHeight(float h);
 
 		float nearPlane() const;
 		void setNearPlane(float near_plane);
-		
+
 		float farPlane() const;
 		void setFarPlane(float far_plane);
 
@@ -157,7 +158,7 @@ namespace Vcl { namespace Graphics
 		Eigen::Matrix4f lightMatrix() const;
 		Eigen::Matrix4f computeViewMatrix() const;
 		Eigen::Matrix4f computeProjectionMatrix() const;
-		
+
 	public: /* Factories */
 		std::shared_ptr<MatrixFactory> mFactory;
 
@@ -175,37 +176,33 @@ namespace Vcl { namespace Graphics
 	class ParallelSplitOrthographicShadowMapVolume : public OrthographicShadowMapVolume
 	{
 	public:
-		ParallelSplitOrthographicShadowMapVolume
-		(
+		ParallelSplitOrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			int nr_splits,
-			float lambda
-		);
-		ParallelSplitOrthographicShadowMapVolume
-		(
+			float lambda);
+		ParallelSplitOrthographicShadowMapVolume(
 			std::shared_ptr<MatrixFactory> factory,
 			int nr_splits,
 			float lambda,
 			const Eigen::Vector3f& direction,
-			const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum = nullptr
-		);
+			const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum = nullptr);
 		virtual ~ParallelSplitOrthographicShadowMapVolume();
-		
+
 	public:
 		void update(const Vcl::Graphics::PerspectiveViewFrustum<float>* frustum);
 
 	public:
-		int nrSplits() const { return (int) mSplits.size() - 1; }
+		int nrSplits() const { return (int)mSplits.size() - 1; }
 		float split(unsigned int idx) const;
 
 	public:
-		using OrthographicShadowMapVolume::lightMatrix;
-		using OrthographicShadowMapVolume::computeViewMatrix;
 		using OrthographicShadowMapVolume::computeProjectionMatrix;
+		using OrthographicShadowMapVolume::computeViewMatrix;
+		using OrthographicShadowMapVolume::lightMatrix;
 		Eigen::Matrix4f lightMatrix(unsigned int split) const;
 		Eigen::Matrix4f computeViewMatrix(unsigned int split) const;
 		Eigen::Matrix4f computeProjectionMatrix(unsigned int split) const;
-		
+
 	private: /* Configuration */
 		std::vector<float> mSplits;
 		float mLambda;
@@ -213,7 +210,7 @@ namespace Vcl { namespace Graphics
 		///! Orthographic frustums of the splits
 		std::vector<OrthographicViewFrustum<float>, Eigen::aligned_allocator<OrthographicViewFrustum<float>>> mOrthoFrustums;
 	};
-	
+
 	//class CascadedOrthographicShadowMapVolume : public OrthographicShadowMapVolume
 	//{
 	//public:

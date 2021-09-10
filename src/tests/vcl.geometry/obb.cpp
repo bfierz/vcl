@@ -43,22 +43,21 @@ VCL_END_EXTERNAL_HEADERS
 TEST(OrientedBoxTest, SimpleConstruction)
 {
 	using namespace Vcl::Geometry;
-	
+
 	// Basic box
 	Eigen::Vector3f min_pos = Eigen::Vector3f::Constant(-1);
-	Eigen::Vector3f max_pos = Eigen::Vector3f::Constant( 1);
+	Eigen::Vector3f max_pos = Eigen::Vector3f::Constant(1);
 	Eigen::AlignedBox3f aligned_box{ min_pos, max_pos };
-	
+
 	// Define random rotation
 	Eigen::AngleAxisf rot{ 0.785f, Eigen::Vector3f::Random().normalized() };
 
 	size_t c = 0;
 	std::vector<Eigen::Vector3f> points;
-	std::generate_n(std::back_inserter(points), 8, [&aligned_box, &rot, &c]()
-	{
+	std::generate_n(std::back_inserter(points), 8, [&aligned_box, &rot, &c]() {
 		return rot * aligned_box.corner(static_cast<Eigen::AlignedBox3f::CornerType>(c++));
 	});
-	
+
 	OrientedBox<float, 3> obb{ points };
 
 	EXPECT_FLOAT_EQ(obb.center().x(), 0);

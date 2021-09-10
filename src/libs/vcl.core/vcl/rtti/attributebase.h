@@ -34,8 +34,7 @@
 #include <vcl/core/string_view.h>
 #include <vcl/util/hashedstring.h>
 
-namespace Vcl { namespace RTTI 
-{
+namespace Vcl { namespace RTTI {
 	// Forward declaration
 	class Serializer;
 	class Deserializer;
@@ -64,7 +63,7 @@ namespace Vcl { namespace RTTI
 	public:
 		stdext::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
-		
+
 	public:
 		bool isEnum() const
 		{
@@ -133,7 +132,7 @@ namespace Vcl { namespace RTTI
 	{
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 EnumAttributeBase(const char(&name)[N])
+		VCL_CPP_CONSTEXPR_14 EnumAttributeBase(const char (&name)[N])
 		: AttributeBase(name)
 		{
 			setIsEnum();

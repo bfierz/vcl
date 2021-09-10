@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 #include <vcl/config/compiler.h>
@@ -31,45 +31,55 @@
 
 #ifdef _DEBUG
 #	define VCL_DEBUG
-#endif // _DEBUG
+#endif
 
 #ifdef NDEBUG
 #	ifdef VCL_DEBUG
 #		undef VCL_DEBUG
-#	endif // VCL_DEBUG
-#endif // NDEBUG
+#	endif
+#endif
 
 #ifndef NOMINMAX
 #	define NOMINMAX
-#endif // NOMINMAX
+#endif
 
 #if defined(VCL_COMPILER_MSVC) || (defined(VCL_COMPILER_ICC) && defined(VCL_ABI_WINAPI))
 #	define VCL_PREPROCESSOR_MICROSOFT
 #endif
 
-#define VCL_UNREFERENCED_PARAMETER(param) ((void) param)
+#define VCL_UNREFERENCED_PARAMETER(param) ((void)param)
 
-#define VCL_SAFE_DELETE(ptr) if (ptr != NULL) { delete(ptr); ptr = NULL; }
-#define VCL_SAFE_DELETE_ARRAY(ptr) if (ptr != NULL) { delete[](ptr); ptr = NULL; }
+#define VCL_SAFE_DELETE(ptr) \
+	if (ptr != nullptr)      \
+	{                        \
+		delete (ptr);        \
+		ptr = nullptr;       \
+	}
+#define VCL_SAFE_DELETE_ARRAY(ptr) \
+	if (ptr != nullptr)            \
+	{                              \
+		delete[](ptr);             \
+		ptr = nullptr;             \
+	}
 
-#define VCL_EVAL_TRUE  (::strlen("") == 0)
+#define VCL_EVAL_TRUE (::strlen("") == 0)
 #define VCL_EVAL_FALSE (::strlen("") > 0)
 
 // Stringizes a string, even macros
-#define VCL_PP_STRINGIZE_HELPER(token)    #token
-#define VCL_PP_STRINGIZE(str)             VCL_PP_STRINGIZE_HELPER(str)
+#define VCL_PP_STRINGIZE_HELPER(token) #token
+#define VCL_PP_STRINGIZE(str) VCL_PP_STRINGIZE_HELPER(str)
 
 // Concatenates two strings, even when the strings are macros themselves
-#define VCL_PP_JOIN(x, y)                    VCL_PP_JOIN_HELPER(x, y)
-#define VCL_PP_JOIN_HELPER(x, y)             VCL_PP_JOIN_HELPER_HELPER(x, y)
-#define VCL_PP_JOIN_HELPER_HELPER(x, y)      x##y
+#define VCL_PP_JOIN(x, y) VCL_PP_JOIN_HELPER(x, y)
+#define VCL_PP_JOIN_HELPER(x, y) VCL_PP_JOIN_HELPER_HELPER(x, y)
+#define VCL_PP_JOIN_HELPER_HELPER(x, y) x##y
 
 // VCL_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
 // unfortunately, VS 2010 (up to at least 2015) still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
 // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details
 #ifdef VCL_PREPROCESSOR_MICROSOFT
 #	define VCL_PP_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
-#	define VCL_PP_VA_NUM_ARGS_REVERSE_SEQUENCE   10, 9, 8, 7, 6, 5, 4, 3, 2, 1
+#	define VCL_PP_VA_NUM_ARGS_REVERSE_SEQUENCE 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
 #	define VCL_PP_LEFT_PARENTHESIS (
 #	define VCL_PP_RIGHT_PARENTHESIS )
 #	define VCL_PP_VA_NUM_ARGS(...) VCL_PP_VA_NUM_ARGS_HELPER VCL_PP_LEFT_PARENTHESIS __VA_ARGS__, VCL_PP_VA_NUM_ARGS_REVERSE_SEQUENCE VCL_PP_RIGHT_PARENTHESIS
@@ -80,24 +90,24 @@
 
 // VCL_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
 #ifdef VCL_PREPROCESSOR_MICROSOFT
-#	define VCL_PP_PASS_VA(...)	VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
+#	define VCL_PP_PASS_VA(...) VCL_PP_LEFT_PARENTHESIS __VA_ARGS__ VCL_PP_RIGHT_PARENTHESIS
 #else
-#	define VCL_PP_PASS_VA(...)	( __VA_ARGS__ )
+#	define VCL_PP_PASS_VA(...) (__VA_ARGS__)
 #endif
 
 /*
  *	Compiler specific macros
  */
 #ifdef VCL_PREPROCESSOR_MICROSOFT
-#	define __VCL_CONFIG_MACROS_STR2__(x) #x
+#	define __VCL_CONFIG_MACROS_STR2__(x) #    x
 #	define __VCL_CONFIG_MACROS_STR1__(x) __VCL_CONFIG_MACROS_STR2__(x)
-#	define __VCL_CONFIG_MACROS_LOC_WARNING__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__)") : warning Vcl: "
-#	define __VCL_CONFIG_MACROS_LOC_ERROR__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__)") : error Vcl: "
-#	define __VCL_CONFIG_MACROS_LOC_MESSAGE__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__)") : log Vcl: "
+#	define __VCL_CONFIG_MACROS_LOC_WARNING__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : warning Vcl: "
+#	define __VCL_CONFIG_MACROS_LOC_ERROR__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : error Vcl: "
+#	define __VCL_CONFIG_MACROS_LOC_MESSAGE__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : log Vcl: "
 
-#	define VCL_WARNING(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_WARNING__#msg))
-#	define VCL_ERROR(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_ERROR__#msg))
-#	define VCL_MESSAGE(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_MESSAGE__#msg))
+#	define VCL_WARNING(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_WARNING__ #    msg))
+#	define VCL_ERROR(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_ERROR__ #    msg))
+#	define VCL_MESSAGE(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_MESSAGE__ #    msg))
 
 // Used in switch-statements whose default-case can never be reached, resulting in more optimal code
 #	define VCL_NO_SWITCH_DEFAULT __assume(0)
@@ -109,8 +119,8 @@
 #	define VCL_NO_SWITCH_DEFAULT
 #endif // VCL_PREPROCESSOR_MICROSOFT
 
+// clang-format off
 #if defined(VCL_COMPILER_MSVC)
-
 #	if defined(VCL_CHECK_CORE_GUIDELINES) && (_MSC_VER >= 1910)
 #		include <CppCoreCheck/Warnings.h>
 #		define VCL_BEGIN_EXTERNAL_HEADERS \
@@ -132,6 +142,7 @@
 #	define VCL_BEGIN_EXTERNAL_HEADERS
 #	define VCL_END_EXTERNAL_HEADERS
 #endif
+// clang-format on
 
 // Logic functions
-#define implies(a,b) (!(a) || (b))
+#define implies(a, b) (!(a) || (b))

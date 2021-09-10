@@ -26,12 +26,11 @@
 
 // VCL
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUVertexFormat toWebGPU(SurfaceFormat format)
 	{
-		switch (format)
-		{
+		// clang-format off
+		switch (format) {
 		case SurfaceFormat::R8G8_UINT:          return WGPUVertexFormat_Uint8x2;
 		case SurfaceFormat::R8G8B8A8_UINT:      return WGPUVertexFormat_Uint8x4;
 		case SurfaceFormat::R8G8_SINT:          return WGPUVertexFormat_Sint8x2;
@@ -63,6 +62,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		case SurfaceFormat::R32G32B32_SINT:     return WGPUVertexFormat_Sint32x3;
 		case SurfaceFormat::R32G32B32A32_SINT:  return WGPUVertexFormat_Sint32x4;
 		}
+		// clang-format on
 
 		return WGPUVertexFormat_Force32;
 	}

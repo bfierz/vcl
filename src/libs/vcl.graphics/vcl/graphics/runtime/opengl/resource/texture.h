@@ -28,7 +28,6 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
 // C++ standard library
 #include <memory>
 
@@ -38,8 +37,7 @@
 #include <vcl/graphics/runtime/opengl/resource/resource.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class TextureBindPoint
 	{
 	public:
@@ -66,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	public:
 		virtual ~Texture();
-		
+
 	public:
 		static GLenum toSurfaceFormat(SurfaceFormat type);
 		static ImageFormat toImageFormat(SurfaceFormat fmt);
@@ -88,4 +86,3 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		virtual void updateImpl(const TextureResource& data) = 0;
 	};
 }}}}
-#endif // VCL_OPENGL_SUPPORT

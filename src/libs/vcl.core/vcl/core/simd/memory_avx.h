@@ -31,22 +31,21 @@
 #include <vcl/core/simd/vectorscalar.h>
 
 #if defined(VCL_VECTORIZE_AVX)
-namespace Vcl
-{
-#ifdef VCL_VECTORIZE_AVX512
+namespace Vcl {
+#	ifdef VCL_VECTORIZE_AVX512
 	VCL_STRONG_INLINE __m512 gather(float const* base, __m512i vindex)
 	{
 		return _mm512_i32gather_ps(vindex, base, 4);
 	}
-#endif
+#	endif
 
-#ifdef VCL_VECTORIZE_AVX2
+#	ifdef VCL_VECTORIZE_AVX2
 	VCL_STRONG_INLINE __m128 gather(float const* base, __m128i vindex)
 	{
 		return _mm_i32gather_ps(base, vindex, 4);
 	}
 
-	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const * base, const VectorScalar<int, 4>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 4> gather(float const* base, const VectorScalar<int, 4>& vindex)
 	{
 		__m128i idx = vindex.get(0);
 		__m128 val = gather(base, idx);
@@ -57,7 +56,7 @@ namespace Vcl
 	{
 		return _mm256_i32gather_ps(base, vindex, 4);
 	}
-#else
+#	else
 	VCL_STRONG_INLINE __m256 gather(float const* base, __m256i vindex)
 	{
 		typedef union
@@ -68,40 +67,36 @@ namespace Vcl
 
 		U32 idx{ vindex };
 
-		__m256 res = _mm256_set_ps
-		(
+		__m256 res = _mm256_set_ps(
 			*(base + idx.a[7]), *(base + idx.a[6]),
 			*(base + idx.a[5]), *(base + idx.a[4]),
 
 			*(base + idx.a[3]), *(base + idx.a[2]),
-			*(base + idx.a[1]), *(base + idx.a[0])
-		);
+			*(base + idx.a[1]), *(base + idx.a[0]));
 
 		return res;
 	}
-#endif
+#	endif
 
-	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const * base, const VectorScalar<int, 8>& vindex)
+	VCL_STRONG_INLINE VectorScalar<float, 8> gather(float const* base, const VectorScalar<int, 8>& vindex)
 	{
 		__m256i idx = vindex.get(0);
 		return VectorScalar<float, 8>(gather(base, idx));
 	}
 
-#ifdef VCL_VECTORIZE_AVX512
-	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
+#	ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const* base, const VectorScalar<int, 16>& vindex)
 	{
 		return VectorScalar<float, 16>(gather(base, vindex.get(0)));
 	}
-#else
-	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const * base, const VectorScalar<int, 16>& vindex)
+#	else
+	VCL_STRONG_INLINE VectorScalar<float, 16> gather(float const* base, const VectorScalar<int, 16>& vindex)
 	{
-		return VectorScalar<float, 16>
-		(
+		return VectorScalar<float, 16>(
 			gather(base, vindex.get(0)),
-			gather(base, vindex.get(1))
-		);
+			gather(base, vindex.get(1)));
 	}
-#endif
+#	endif
 
 	VCL_STRONG_INLINE void load(float8& value, const float* base)
 	{
@@ -113,27 +108,24 @@ namespace Vcl
 		value = int8{ _mm256_loadu_si256(reinterpret_cast<const __m256i*>(base)) };
 	}
 
-#ifdef VCL_VECTORIZE_AVX512
+#	ifdef VCL_VECTORIZE_AVX512
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
-		value = float16
-		{
+		value = float16{
 			_mm512_loadu_ps(base + 0)
 		};
 	}
 
 	VCL_STRONG_INLINE void load(int16& value, const int* base)
 	{
-		value = int16
-		{
+		value = int16{
 			_mm512_loadu_si512(reinterpret_cast<const __m256i*>(base + 0))
 		};
 	}
-#else
+#	else
 	VCL_STRONG_INLINE void load(float16& value, const float* base)
 	{
-		value = float16
-		{
+		value = float16{
 			_mm256_loadu_ps(base + 0),
 			_mm256_loadu_ps(base + 8)
 		};
@@ -141,23 +133,22 @@ namespace Vcl
 
 	VCL_STRONG_INLINE void load(int16& value, const int* base)
 	{
-		value = int16
-		{
+		value = int16{
 			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(base + 0)),
 			_mm256_loadu_si256(reinterpret_cast<const __m256i*>(base + 8))
 		};
 	}
-#endif
+#	endif
 
-#ifdef VCL_VECTORIZE_AVX512
-	VCL_STRONG_INLINE void load
-	(
-		__m512& x, __m512& y, __m512& z,
-		const Eigen::Vector3f* base
-	)
+#	ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE void load(
+		__m512& x,
+		__m512& y,
+		__m512& z,
+		const Eigen::Vector3f* base)
 	{
 		const float* p = base->data();
-		const __m512 m0123 = _mm512_loadu_ps(p +  0); //     x0y0z0x1     y1z1x2y2     z2x3y3z3     x4y4z4x5
+		const __m512 m0123 = _mm512_loadu_ps(p + 0);  //     x0y0z0x1     y1z1x2y2     z2x3y3z3     x4y4z4x5
 		const __m512 m4567 = _mm512_loadu_ps(p + 16); //     y5z5x6y6     z6x7y7z7     x8y8z8x9   y9z9x10y10
 		const __m512 m89ab = _mm512_loadu_ps(p + 32); // z10x11y11z11 x12y12z12x13 y13z13x14y14 z14x15y15z15
 
@@ -179,14 +170,15 @@ namespace Vcl
 		z = _mm512_shuffle_ps(y0z0y1z1, z2x3y3z3, _MM_SHUFFLE(3, 0, 3, 1)); // z0z1z2z3
 	}
 
-	VCL_STRONG_INLINE void load
-	(
-		__m512& x, __m512& y, __m512& z, __m512& w,
-		const Eigen::Vector4f* base
-	)
+	VCL_STRONG_INLINE void load(
+		__m512& x,
+		__m512& y,
+		__m512& z,
+		__m512& w,
+		const Eigen::Vector4f* base)
 	{
 		const float* p = base->data();
-		const __m512 m0123 = _mm512_loadu_ps(p +  0);
+		const __m512 m0123 = _mm512_loadu_ps(p + 0);
 		const __m512 m4567 = _mm512_loadu_ps(p + 16);
 		const __m512 m89ab = _mm512_loadu_ps(p + 32);
 		const __m512 mcdef = _mm512_loadu_ps(p + 48);
@@ -218,11 +210,11 @@ namespace Vcl
 		w = _mm512_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const __m512& x, const __m512& y, const __m512& z
-	)
+		const __m512& x,
+		const __m512& y,
+		const __m512& z)
 	{
 		const __m512 x0x2y0y2 = _mm512_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0));
 		const __m512 y1y3z1z3 = _mm512_shuffle_ps(y, z, _MM_SHUFFLE(3, 1, 3, 1));
@@ -241,18 +233,18 @@ namespace Vcl
 		const __m512 m89ab = _mm512_shuffle_f32x4(m2839, m4a5b, _MM_SHUFFLE(3, 1, 3, 1));
 
 		float* p = base->data();
-		_mm512_storeu_ps(p +  0, m0123);
+		_mm512_storeu_ps(p + 0, m0123);
 		_mm512_storeu_ps(p + 16, m4567);
 		_mm512_storeu_ps(p + 32, m89ab);
 	}
-#endif
+#	endif
 	// The load/store implementation for vectors are directly from or based on:
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
-	VCL_STRONG_INLINE void load
-	(
-		__m256& x, __m256& y, __m256& z,
-		const Eigen::Vector3f* base
-	)
+	VCL_STRONG_INLINE void load(
+		__m256& x,
+		__m256& y,
+		__m256& z,
+		const Eigen::Vector3f* base)
 	{
 		const float* p = base->data();
 		__m256 m03;
@@ -261,7 +253,7 @@ namespace Vcl
 		m03 = _mm256_castps128_ps256(_mm_loadu_ps(p + 0)); // load lower halves
 		m14 = _mm256_castps128_ps256(_mm_loadu_ps(p + 4));
 		m25 = _mm256_castps128_ps256(_mm_loadu_ps(p + 8));
-		m03 = _mm256_insertf128_ps(m03, _mm_loadu_ps(p + 12), 1);  // load upper halves
+		m03 = _mm256_insertf128_ps(m03, _mm_loadu_ps(p + 12), 1); // load upper halves
 		m14 = _mm256_insertf128_ps(m14, _mm_loadu_ps(p + 16), 1);
 		m25 = _mm256_insertf128_ps(m25, _mm_loadu_ps(p + 20), 1);
 
@@ -270,14 +262,14 @@ namespace Vcl
 		x = _mm256_shuffle_ps(m03, xy, _MM_SHUFFLE(2, 0, 3, 0));
 		y = _mm256_shuffle_ps(yz, xy, _MM_SHUFFLE(3, 1, 2, 0));
 		z = _mm256_shuffle_ps(yz, m25, _MM_SHUFFLE(3, 0, 3, 1));
-
 	}
 
-	VCL_STRONG_INLINE void load
-	(
-		__m256& x, __m256& y, __m256& z, __m256& w,
-		const Eigen::Vector4f* base
-	)
+	VCL_STRONG_INLINE void load(
+		__m256& x,
+		__m256& y,
+		__m256& z,
+		__m256& w,
+		const Eigen::Vector4f* base)
 	{
 		const float* p = base->data();
 		__m256 m04;
@@ -286,9 +278,9 @@ namespace Vcl
 		__m256 m37;
 
 		// Load the lower halves
-		m04 = _mm256_castps128_ps256(_mm_loadu_ps(p +  0));
-		m15 = _mm256_castps128_ps256(_mm_loadu_ps(p +  4));
-		m26 = _mm256_castps128_ps256(_mm_loadu_ps(p +  8));
+		m04 = _mm256_castps128_ps256(_mm_loadu_ps(p + 0));
+		m15 = _mm256_castps128_ps256(_mm_loadu_ps(p + 4));
+		m26 = _mm256_castps128_ps256(_mm_loadu_ps(p + 8));
 		m37 = _mm256_castps128_ps256(_mm_loadu_ps(p + 12));
 
 		// Load upper halves
@@ -308,11 +300,11 @@ namespace Vcl
 		w = _mm256_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const __m256& x, const __m256& y, const __m256& z
-	)
+		const __m256& x,
+		const __m256& y,
+		const __m256& z)
 	{
 		__m256 rxy = _mm256_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0));
 		__m256 ryz = _mm256_shuffle_ps(y, z, _MM_SHUFFLE(3, 1, 3, 1));
@@ -323,60 +315,50 @@ namespace Vcl
 		__m256 r25 = _mm256_shuffle_ps(rzx, ryz, _MM_SHUFFLE(3, 1, 3, 1));
 
 		float* p = base->data();
-		_mm_storeu_ps(p +  0, _mm256_castps256_ps128(r03));
-		_mm_storeu_ps(p +  4, _mm256_castps256_ps128(r14));
-		_mm_storeu_ps(p +  8, _mm256_castps256_ps128(r25));
+		_mm_storeu_ps(p + 0, _mm256_castps256_ps128(r03));
+		_mm_storeu_ps(p + 4, _mm256_castps256_ps128(r14));
+		_mm_storeu_ps(p + 8, _mm256_castps256_ps128(r25));
 		_mm_storeu_ps(p + 12, _mm256_extractf128_ps(r03, 1));
 		_mm_storeu_ps(p + 16, _mm256_extractf128_ps(r14, 1));
 		_mm_storeu_ps(p + 20, _mm256_extractf128_ps(r25, 1));
 	}
 
-
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float8, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		__m256 x0, y0, z0;
 		load(x0, y0, z0, base);
 
-		loaded =
-		{
+		loaded = {
 			float8(x0),
 			float8(y0),
 			float8(z0)
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int8, 3, 1>& loaded,
-		const Eigen::Vector3i* base
-	)
+		const Eigen::Vector3i* base)
 	{
 		__m256 x0, y0, z0;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
 
-		loaded =
-		{
+		loaded = {
 			int8{ _mm256_castps_si256(x0) },
 			int8{ _mm256_castps_si256(y0) },
 			int8{ _mm256_castps_si256(z0) }
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float8, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		__m256 x0, y0, z0, w0;
 		load(x0, y0, z0, w0, base);
 
-		loaded =
-		{
+		loaded = {
 			float8(x0),
 			float8(y0),
 			float8(z0),
@@ -384,17 +366,14 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int8, 4, 1>& loaded,
-		const Eigen::Vector4i* base
-	)
+		const Eigen::Vector4i* base)
 	{
 		__m256 x0, y0, z0, w0;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
 
-		loaded =
-		{
+		loaded = {
 			int8{ _mm256_castps_si256(x0) },
 			int8{ _mm256_castps_si256(y0) },
 			int8{ _mm256_castps_si256(z0) },
@@ -402,120 +381,97 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const Eigen::Matrix<float8, 3, 1>& value
-	)
+		const Eigen::Matrix<float8, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			base,
 			value(0).get(0),
 			value(1).get(0),
-			value(2).get(0)
-		);
+			value(2).get(0));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
-		const Eigen::Matrix<int8, 3, 1>& value
-	)
+		const Eigen::Matrix<int8, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base),
 			_mm256_castsi256_ps(value(0).get(0)),
 			_mm256_castsi256_ps(value(1).get(0)),
-			_mm256_castsi256_ps(value(2).get(0))
-		);
+			_mm256_castsi256_ps(value(2).get(0)));
 	}
 
-#ifdef VCL_VECTORIZE_AVX512
-	VCL_STRONG_INLINE void load
-	(
+#	ifdef VCL_VECTORIZE_AVX512
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		__m512 x0, y0, z0;
 		load(x0, y0, z0, base);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0),
 			float16(y0),
 			float16(z0)
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		__m512 x0, y0, z0, w0;
 		load(x0, y0, z0, w0, base);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0),
 			float16(y0),
 			float16(z0),
 			float16(w0)
 		};
 	}
-#else
-	VCL_STRONG_INLINE void load
-	(
+#	else
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 3, 1>& loaded,
-		const Eigen::Vector3f* base
-	)
+		const Eigen::Vector3f* base)
 	{
 		__m256 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, base);
 		load(x1, y1, z1, base + 8);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0, x1),
 			float16(y0, y1),
 			float16(z0, z1)
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int16, 3, 1>& loaded,
-		const Eigen::Vector3i* base
-	)
+		const Eigen::Vector3i* base)
 	{
 		__m256 x0, x1, y0, y1, z0, z1;
 		load(x0, y0, z0, reinterpret_cast<const Eigen::Vector3f*>(base));
 		load(x1, y1, z1, reinterpret_cast<const Eigen::Vector3f*>(base) + 8);
 
-		loaded =
-		{
+		loaded = {
 			int16{ _mm256_castps_si256(x0), _mm256_castps_si256(x1) },
 			int16{ _mm256_castps_si256(y0), _mm256_castps_si256(y1) },
 			int16{ _mm256_castps_si256(z0), _mm256_castps_si256(z1) }
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 4, 1>& loaded,
-		const Eigen::Vector4f* base
-	)
+		const Eigen::Vector4f* base)
 	{
 		__m256 x0, x1, y0, w0, y1, z0, z1, w1;
 		load(x0, y0, z0, w0, base);
 		load(x1, y1, z1, w1, base + 8);
 
-		loaded =
-		{
+		loaded = {
 			float16(x0, x1),
 			float16(y0, y1),
 			float16(z0, z1),
@@ -523,18 +479,15 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void load
-	(
+	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<int16, 4, 1>& loaded,
-		const Eigen::Vector4i* base
-	)
+		const Eigen::Vector4i* base)
 	{
 		__m256 x0, x1, y0, w0, y1, z0, z1, w1;
 		load(x0, y0, z0, w0, reinterpret_cast<const Eigen::Vector4f*>(base));
 		load(x1, y1, z1, w1, reinterpret_cast<const Eigen::Vector4f*>(base) + 8);
 
-		loaded =
-		{
+		loaded = {
 			int16{ _mm256_castps_si256(x0), _mm256_castps_si256(x1) },
 			int16{ _mm256_castps_si256(y0), _mm256_castps_si256(y1) },
 			int16{ _mm256_castps_si256(z0), _mm256_castps_si256(z1) },
@@ -542,39 +495,31 @@ namespace Vcl
 		};
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
-		const Eigen::Matrix<float16, 3, 1>& value
-	)
+		const Eigen::Matrix<float16, 3, 1>& value)
 	{
-		store(base    , value(0).get(0), value(1).get(0), value(2).get(0));
+		store(base, value(0).get(0), value(1).get(0), value(2).get(0));
 		store(base + 8, value(0).get(1), value(1).get(1), value(2).get(1));
 	}
 
-	VCL_STRONG_INLINE void store
-	(
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
-		const Eigen::Matrix<int16, 3, 1>& value
-	)
+		const Eigen::Matrix<int16, 3, 1>& value)
 	{
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base),
 			_mm256_castsi256_ps(value(0).get(0)),
 			_mm256_castsi256_ps(value(1).get(0)),
-			_mm256_castsi256_ps(value(2).get(0))
-		);
+			_mm256_castsi256_ps(value(2).get(0)));
 
-		store
-		(
+		store(
 			reinterpret_cast<Eigen::Vector3f*>(base) + 8,
 			_mm256_castsi256_ps(value(0).get(1)),
 			_mm256_castsi256_ps(value(1).get(1)),
-			_mm256_castsi256_ps(value(2).get(1))
-		);
+			_mm256_castsi256_ps(value(2).get(1)));
 	}
-#endif
+#	endif
 
 	/*
 	VCL_STRONG_INLINE void load
@@ -696,19 +641,19 @@ namespace Vcl
 		const __m256 l{ _mm256_permute2f128_ps(low, high, 0x20) };
 		const __m256 h{ _mm256_permute2f128_ps(low, high, 0x31) };
 
-		return { float8{l}, float8{h} };
+		return { float8{ l }, float8{ h } };
 	}
-#ifdef VCL_VECTORIZE_AVX512
+#	ifdef VCL_VECTORIZE_AVX512
 	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b) noexcept
 	{
-		const int16 idx0{0x00, 0x10, 0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 0x05, 0x15, 0x06, 0x16, 0x07, 0x17 };
-		const int16 idx1{0x08, 0x18, 0x09, 0x19, 0x0a, 0x1a, 0x0b, 0x1b, 0x0c, 0x1c, 0x0d, 0x1d, 0x0e, 0x1e, 0x0f, 0x1f };
+		const int16 idx0{ 0x00, 0x10, 0x01, 0x11, 0x02, 0x12, 0x03, 0x13, 0x04, 0x14, 0x05, 0x15, 0x06, 0x16, 0x07, 0x17 };
+		const int16 idx1{ 0x08, 0x18, 0x09, 0x19, 0x0a, 0x1a, 0x0b, 0x1b, 0x0c, 0x1c, 0x0d, 0x1d, 0x0e, 0x1e, 0x0f, 0x1f };
 		const __m512 low = _mm512_permutex2var_ps(a.get(0), idx0.get(0), b.get(0));
 		const __m512 high = _mm512_permutex2var_ps(a.get(0), idx1.get(0), b.get(0));
 
-		return { float16{low}, float16{high} };
+		return { float16{ low }, float16{ high } };
 	}
-#else
+#	else
 	VCL_STRONG_INLINE std::array<float16, 2> interleave(const float16& a, const float16& b) noexcept
 	{
 		const float16 low{ _mm256_unpacklo_ps(a.get(0), b.get(0)), _mm256_unpackhi_ps(a.get(0), b.get(0)) };
@@ -718,6 +663,6 @@ namespace Vcl
 
 		return { l, h };
 	}
-#endif
+#	endif
 }
 #endif // VCL_VECTORIZE_AVX

@@ -46,7 +46,7 @@
 #include "problems.h"
 
 // Global data store for one time problem setup
-const size_t nr_problems = 1024*1024;
+const size_t nr_problems = 1024 * 1024;
 
 // Problem set
 Vcl::Core::InterleavedArray<float, 3, 3, -1> F(nr_problems);
@@ -69,7 +69,7 @@ void perfEigenIterative(benchmark::State& state)
 			resS.at<float>(i) = solver.eigenvalues();
 		}
 	}
-	
+
 	state.counters["Iterations"] = 0;
 	benchmark::DoNotOptimize(resU);
 	benchmark::DoNotOptimize(resS);
@@ -87,7 +87,7 @@ void perfEigenDirect(benchmark::State& state)
 		for (int i = 0; i < state.range(0); ++i)
 		{
 			Vcl::Matrix3f A = F.at<float>(i);
-			
+
 			Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> solver;
 			solver.computeDirect(A, Eigen::ComputeEigenvectors);
 
@@ -95,7 +95,7 @@ void perfEigenDirect(benchmark::State& state)
 			resS.at<float>(i) = solver.eigenvalues();
 		}
 	}
-	
+
 	state.counters["Iterations"] = 0;
 	benchmark::DoNotOptimize(resU);
 	benchmark::DoNotOptimize(resS);
@@ -113,7 +113,7 @@ void perfJacobi(benchmark::State& state)
 
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
-	
+
 	int avg_nr_iter = 0;
 	for (auto _ : state)
 	{
@@ -130,7 +130,7 @@ void perfJacobi(benchmark::State& state)
 		}
 	}
 
-	state.counters["Iterations"] = (double) (avg_nr_iter * width) / (double) state.range(0);
+	state.counters["Iterations"] = (double)(avg_nr_iter * width) / (double)state.range(0);
 	benchmark::DoNotOptimize(resU);
 	benchmark::DoNotOptimize(resS);
 
@@ -147,7 +147,7 @@ void perfJacobiQuat(benchmark::State& state)
 
 	Vcl::Core::InterleavedArray<float, 3, 3, -1> resU(state.range(0));
 	Vcl::Core::InterleavedArray<float, 3, 1, -1> resS(state.range(0));
-	
+
 	int avg_nr_iter = 0;
 	for (auto _ : state)
 	{
@@ -163,36 +163,36 @@ void perfJacobiQuat(benchmark::State& state)
 			resS.at<real_t>(i) = A.diagonal();
 		}
 	}
-	
-	state.counters["Iterations"] = (double) (avg_nr_iter * width) / (double) state.range(0);
+
+	state.counters["Iterations"] = (double)(avg_nr_iter * width) / (double)state.range(0);
 	benchmark::DoNotOptimize(resU);
 	benchmark::DoNotOptimize(resS);
 
 	state.SetItemsProcessed(state.iterations() * state.range(0));
 }
 
+using Vcl::float16;
 using Vcl::float4;
 using Vcl::float8;
-using Vcl::float16;
 
-BENCHMARK(perfEigenIterative)->Arg(128);// ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK(perfEigenDirect)   ->Arg(128);// ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK(perfEigenIterative)->Arg(128); // ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK(perfEigenDirect)->Arg(128);    // ->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
-BENCHMARK_TEMPLATE(perfJacobi, float)  ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobi, float4) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobi, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobi, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobi, float)->Arg(128);   //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobi, float4)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobi, float8)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobi, float16)->Arg(128); //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
-BENCHMARK_TEMPLATE(perfJacobiQuat, float)  ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobiQuat, float4) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobiQuat, float8) ->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
-BENCHMARK_TEMPLATE(perfJacobiQuat, float16)->Arg(128);//->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiQuat, float)->Arg(128);   //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiQuat, float4)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiQuat, float8)->Arg(128);  //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+BENCHMARK_TEMPLATE(perfJacobiQuat, float16)->Arg(128); //->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 int main(int argc, char** argv)
 {
 	// Initialize data
 	createSymmetricProblems(nr_problems, F);
-	
+
 	::benchmark::Initialize(&argc, argv);
 	::benchmark::RunSpecifiedBenchmarks();
 }

@@ -64,7 +64,8 @@ TEST(Poisson3D, SimpleJacobiNoBlocker)
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(sol.size());
+	Eigen::VectorXf lhs;
+	lhs.setZero(sol.size());
 	runPoissonTest<Jacobi, Poisson3DJacobiCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, 1000, 2e-2f);
 }
 
@@ -90,6 +91,7 @@ TEST(Poisson3D, SimpleCgNoBlocker)
 	std::vector<unsigned char> skip;
 	unsigned int nr_pts = createPoisson3DProblem(h, rhs, sol, skip);
 
-	Eigen::VectorXf lhs; lhs.setZero(sol.size());
-	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, nr_pts*nr_pts*nr_pts, 2e-2f);
+	Eigen::VectorXf lhs;
+	lhs.setZero(sol.size());
+	runPoissonTest<ConjugateGradients, Poisson3DCgCtx<float>, Eigen::Vector3ui>({ nr_pts, nr_pts, nr_pts }, h, lhs, rhs, sol, skip, nr_pts * nr_pts * nr_pts, 2e-2f);
 }

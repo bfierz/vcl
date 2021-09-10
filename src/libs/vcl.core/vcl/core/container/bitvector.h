@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{	
+namespace Vcl { namespace Core {
 	/*!
 	 *	Picking up an idea formulated in:
 	 *	http://upcoder.com/9/fast-resettable-flag-vector/
@@ -71,14 +70,14 @@ namespace Vcl { namespace Core
 				return *_dataPtr == *_generationPtr;
 			}
 
-			reference& operator= (const bool x) noexcept
+			reference& operator=(const bool x) noexcept
 			{
 				*_dataPtr = x ? *_generationPtr : 0;
 
 				return *this;
 			}
 
-			reference& operator= (const reference& x) noexcept
+			reference& operator=(const reference& x) noexcept
 			{
 				*_dataPtr = *x._dataPtr;
 				_generationPtr = x._generationPtr;
@@ -91,8 +90,7 @@ namespace Vcl { namespace Core
 				if (*_dataPtr == *_generationPtr)
 				{
 					*_dataPtr = 0;
-				}
-				else
+				} else
 				{
 					*_dataPtr = *_generationPtr;
 				}
@@ -108,7 +106,6 @@ namespace Vcl { namespace Core
 		: _generation(1)
 		, _bits(alloc)
 		{
-
 		}
 
 		explicit BitVector(size_t n, const allocator_t& alloc = allocator_t())
@@ -121,22 +118,21 @@ namespace Vcl { namespace Core
 		: _generation(1)
 		, _bits(n, val, alloc)
 		{
-
 		}
 
 	public: // Element access
-		reference operator[] (size_t idx)
+		reference operator[](size_t idx)
 		{
 			VclRequire(idx < _bits.size(), "Index is valid");
 
-			return{ _bits.data() + idx, &_generation };
+			return { _bits.data() + idx, &_generation };
 		}
 
-		const reference operator[] (size_t idx) const
+		const reference operator[](size_t idx) const
 		{
 			VclRequire(idx < _bits.size(), "Index is valid");
 
-			return{ const_cast<uint16_t*>(_bits.data()) + idx, &_generation };
+			return { const_cast<uint16_t*>(_bits.data()) + idx, &_generation };
 		}
 
 	public: // Modifiers
@@ -158,8 +154,7 @@ namespace Vcl { namespace Core
 					_generation = 0;
 				}
 				++_generation;
-			}
-			else
+			} else
 			{
 				// Reset the generation and assign every entry
 				_generation = 1;

@@ -32,16 +32,13 @@
 #include <vcl/graphics/imageprocessing/gaussian.h>
 #include <vcl/graphics/runtime/resource/shader.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenGL {
 	class Gaussian : public ImageProcessing::Gaussian
 	{
 	public:
 		Gaussian(ImageProcessor* processor);
 		virtual ~Gaussian() = default;
-		
+
 	public:
 		virtual void process(ImageProcessing::ImageProcessor* processor) override;
 
@@ -50,5 +47,3 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		size_t _verticalKernelId;
 	};
 }}}}
-
-#endif // VCL_OPENGL_SUPPORT

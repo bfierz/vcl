@@ -54,20 +54,17 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 	for (int i = 0; i < size; i++)
 		histogram[numbers[i]]++;
 
-	Runtime::BufferDescription desc =
-	{
+	Runtime::BufferDescription desc = {
 		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size()),
 		Runtime::BufferUsage::Storage
 	};
 
-	Runtime::BufferInitData data =
-	{
+	Runtime::BufferInitData data = {
 		numbers.data(),
 		static_cast<unsigned int>(sizeof(unsigned int) * numbers.size())
 	};
 
-	Runtime::BufferDescription out_desc =
-	{
+	Runtime::BufferDescription out_desc = {
 		static_cast<unsigned int>(sizeof(unsigned int)) * buckets,
 		Runtime::BufferUsage::MapRead | Runtime::BufferUsage::Storage
 	};

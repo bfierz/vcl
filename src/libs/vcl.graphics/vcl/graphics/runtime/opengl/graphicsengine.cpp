@@ -35,8 +35,7 @@
 #include <vcl/graphics/runtime/opengl/state/sampler.h>
 #include <vcl/math/ceil.h>
 
-namespace
-{
+namespace {
 	GLenum toGLenum(Vcl::Graphics::Runtime::PrimitiveType topology)
 	{
 		using Vcl::Graphics::Runtime::PrimitiveType;
@@ -65,18 +64,20 @@ namespace
 			return GL_TRIANGLE_STRIP_ADJACENCY;
 		case PrimitiveType::Patch:
 			return GL_PATCHES;
-		default: { VclDebugError("Enumeration value is valid."); return GL_INVALID_ENUM; }
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+			return GL_INVALID_ENUM;
 		}
-	}	
+		}
+	}
 
 }
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	Fence::Fence(GLsync sync)
 	: _sync(sync)
 	{
-
 	}
 
 	Fence::Fence(Fence&& rhs)
@@ -133,10 +134,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		// Request size from the staging buffer
 		size_t size_incr = ceil(view.size(), _alignment);
-		
+
 		// Check the available size
 		updateIfNeeded(size_incr);
-		
+
 		// Copy the content to the readback buffer
 		dynamic_cast<const OpenGL::Buffer&>(view.owner()).copyTo(*_stagingBuffer, 0, _stagingBufferOffset, view.size());
 
@@ -179,7 +180,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			BufferDescription desc;
 			desc.Usage = BufferUsage::CopySrc | BufferUsage::CopyDst;
-			desc.SizeInBytes = (uint32_t) _stagingBuffer->sizeInBytes() * 2;
+			desc.SizeInBytes = (uint32_t)_stagingBuffer->sizeInBytes() * 2;
 
 			// Allocate a new buffer
 			auto tmp = make_owner<Buffer>(desc);
@@ -222,7 +223,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		_linearMemoryBuffer->unmap();
 		_constantBuffer->unmap();
 	}
-	
+
 	void Frame::setRenderTargets(stdext::span<Runtime::Texture*> colour_targets, Runtime::Texture* depth_target)
 	{
 		// Calculate the hash for the set of textures
@@ -240,8 +241,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (cache_entry != _fbos.end())
 		{
 			cache_entry->second.bind();
-		}
-		else
+		} else
 		{
 			const Runtime::Texture* colours[8];
 			for (size_t i = 0; i < colour_targets.size(); i++)
@@ -249,7 +249,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				colours[i] = colour_targets[i];
 			}
 			auto depth = depth_target;
-			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
+			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t)colour_targets.size(), depth });
 			_currentFramebuffer = &new_entry.first->second;
 			_currentFramebuffer->bind();
 		}
@@ -278,8 +278,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (cache_entry != _fbos.end())
 		{
 			cache_entry->second.bind();
-		}
-		else
+		} else
 		{
 			const Runtime::Texture* colours[8];
 			for (size_t i = 0; i < colour_targets.size(); i++)
@@ -287,7 +286,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 				colours[i] = colour_targets[i].get();
 			}
 			auto depth = depth_target.get();
-			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t) colour_targets.size(), depth });
+			auto new_entry = _fbos.emplace(hash, OpenGL::Framebuffer{ colours, (size_t)colour_targets.size(), depth });
 			_currentFramebuffer = &new_entry.first->second;
 			_currentFramebuffer->bind();
 		}
@@ -311,12 +310,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// 3. which the GPU is processing
 		_frames.resize(_numConcurrentFrames);
 	}
-	
+
 	owner_ptr<Runtime::Texture> GraphicsEngine::createResource(const Texture2DDescription& desc)
 	{
 		return make_owner<OpenGL::Texture2D>(desc);
 	}
-	
+
 	owner_ptr<Runtime::Buffer> GraphicsEngine::createResource(const BufferDescription& desc)
 	{
 		return make_owner<OpenGL::Buffer>(desc);
@@ -378,7 +377,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		// Flush the OpenGL command pipeline to ensure command processing before the
 		// UI command list is build
 		glFlush();
-		
+
 		// Increment the frame counter to indicate the start of the next frame
 		incrFrameCounter();
 	}
@@ -388,7 +387,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		BufferView view{ _currentFrame->constantBuffer(), _cbufferOffset, size, _currentFrame->mappedConstantBuffer() };
 
 		// Calculate the next offset
-		size_t aligned_size =  ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
+		size_t aligned_size = ((size + (_cbufferAlignment - 1)) / _cbufferAlignment) * _cbufferAlignment;
 		_cbufferOffset += aligned_size;
 
 		return view;
@@ -469,7 +468,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 	void GraphicsEngine::setTexture(int idx, const Runtime::Texture& texture)
 	{
 		auto& gl_texture = static_cast<const OpenGL::Texture&>(texture);
-	
+
 		GLuint tex_id = gl_texture.id();
 		glBindTextures(idx, 1, &tex_id);
 	}
@@ -487,7 +486,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 		gl_state->bind();
 	}
-	
+
 	void GraphicsEngine::pushConstants(void* data, size_t size)
 	{
 		VclRequire(size <= 128, "Push-constants less than 128 bytes");
@@ -513,33 +512,30 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			if (pass_desc.RenderTargetAttachments[i].LoadOp == AttachmentLoadOp::Clear)
 			{
 				const auto& colour = pass_desc.RenderTargetAttachments[i].ClearColor;
-				clear(i, Eigen::Vector4f{colour[0], colour[1], colour[2], colour[3]});
+				clear(i, Eigen::Vector4f{ colour[0], colour[1], colour[2], colour[3] });
 			}
 		}
 		if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear && pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
 		{
 			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth, pass_desc.DepthStencilTargetAttachment.ClearStencil);
-		}
-		else if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear)
+		} else if (pass_desc.DepthStencilTargetAttachment.DepthLoadOp == AttachmentLoadOp::Clear)
 		{
 			clear(pass_desc.DepthStencilTargetAttachment.ClearDepth);
-		}
-		else if (pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
+		} else if (pass_desc.DepthStencilTargetAttachment.StencilLoadOp == AttachmentLoadOp::Clear)
 		{
-			clear((int) pass_desc.DepthStencilTargetAttachment.ClearStencil);
+			clear((int)pass_desc.DepthStencilTargetAttachment.ClearStencil);
 		}
 	}
 	void GraphicsEngine::endRenderPass()
 	{
 	}
-	
+
 	void GraphicsEngine::clear(int idx, const Eigen::Vector4f& colour)
 	{
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(idx, colour);
-		}
-		else
+		} else
 		{
 			glClearBufferfv(GL_COLOR, idx, colour.data());
 		}
@@ -549,8 +545,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(idx, colour);
-		}
-		else
+		} else
 		{
 			glClearBufferiv(GL_COLOR, idx, colour.data());
 		}
@@ -560,8 +555,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(idx, colour);
-		}
-		else
+		} else
 		{
 			glClearBufferuiv(GL_COLOR, idx, colour.data());
 		}
@@ -571,8 +565,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(depth, stencil);
-		}
-		else
+		} else
 		{
 			glClearBufferfi(GL_DEPTH_STENCIL, 0, depth, stencil);
 		}
@@ -582,8 +575,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(depth);
-		}
-		else
+		} else
 		{
 			glClearBufferfv(GL_DEPTH, 0, &depth);
 		}
@@ -593,15 +585,14 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		if (_currentFrame->currentFramebuffer())
 		{
 			_currentFrame->currentFramebuffer()->clear(stencil);
-		}
-		else
+		} else
 		{
 			glClearBufferiv(GL_STENCIL, 0, &stencil);
 		}
 	}
-	
+
 	void GraphicsEngine::setPrimitiveType(PrimitiveType type, int nr_vertices)
-	{	
+	{
 		_currentPrimitiveType = type;
 		_currentNrPatchVertices = nr_vertices;
 
@@ -610,7 +601,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 			glPatchParameteri(GL_PATCH_VERTICES, _currentNrPatchVertices);
 		}
 	}
-	
+
 	void GraphicsEngine::draw(int count, int first, int instance_count, int base_instance)
 	{
 		GLenum mode = toGLenum(_currentPrimitiveType);

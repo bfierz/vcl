@@ -24,11 +24,10 @@
  */
 #include <vcl/compute/kernel.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	Kernel::Kernel(const std::string& name)
 	: _name(name)
 	{

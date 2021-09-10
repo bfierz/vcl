@@ -31,14 +31,13 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	Device::Device(CUdevice dev)
 	: _device(dev)
 	{
 		// Read the device name
 		std::vector<char> buffer(1024, 0);
-		VCL_CU_SAFE_CALL(cuDeviceGetName(buffer.data(), (int) buffer.size(), _device));
+		VCL_CU_SAFE_CALL(cuDeviceGetName(buffer.data(), (int)buffer.size(), _device));
 		_name = buffer.data();
 
 		// Read the compute capability
@@ -48,19 +47,16 @@ namespace Vcl { namespace Compute { namespace Cuda
 		if (capMajor >= 5)
 		{
 			_capability = DeviceCapability::Sm50;
-		}
-		else if (capMajor == 3)
+		} else if (capMajor == 3)
 		{
 			if (capMinor >= 5)
 				_capability = DeviceCapability::Sm35;
 			else
 				_capability = DeviceCapability::Sm30;
-		}
-		else if (capMajor == 2)
+		} else if (capMajor == 2)
 		{
 			_capability = DeviceCapability::Sm20;
-		}
-		else
+		} else
 		{
 			_capability = DeviceCapability::Sm10;
 		}

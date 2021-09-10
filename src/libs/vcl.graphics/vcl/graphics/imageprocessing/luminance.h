@@ -30,8 +30,7 @@
 // VCL
 #include <vcl/graphics/imageprocessing/task.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	class Luminance : public Task
 	{
 	public:

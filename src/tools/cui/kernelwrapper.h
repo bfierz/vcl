@@ -46,7 +46,7 @@ struct Kernel
 	std::vector<Parameter> Parameters;
 
 	Kernel(std::string name, std::vector<Parameter> parameters)
-		: Name(std::move(name)), Parameters(std::move(parameters)) {}
+	: Name(std::move(name)), Parameters(std::move(parameters)) {}
 };
 
 std::vector<Kernel> parseCudaKernels(std::string cuda_toolkit_root, const std::vector<std::string>& params);

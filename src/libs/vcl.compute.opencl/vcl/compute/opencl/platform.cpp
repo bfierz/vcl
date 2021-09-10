@@ -31,8 +31,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Platform* Platform::_implementation = nullptr;
 
 	void Platform::initialise()
@@ -78,11 +77,11 @@ namespace Vcl { namespace Compute { namespace OpenCL
 			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_NAME, buffer.size(), buffer.data(), NULL);
 			success = success && (err == CL_SUCCESS);
 			desc.Name = buffer.data();
-			
+
 			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_PROFILE, buffer.size(), buffer.data(), NULL);
 			success = success && (err == CL_SUCCESS);
 			desc.Profile = buffer.data();
-			
+
 			err = clGetPlatformInfo(platforms[ui], CL_PLATFORM_VERSION, buffer.size(), buffer.data(), NULL);
 			success = success && (err == CL_SUCCESS);
 			desc.Version = buffer.data();
@@ -120,7 +119,7 @@ namespace Vcl { namespace Compute { namespace OpenCL
 				_platforms.emplace_back(desc);
 			}
 		}
-		
+
 		// Query devices
 		for (cl_uint ui = 0; ui < nr_platforms; ui++)
 		{

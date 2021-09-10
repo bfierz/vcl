@@ -31,9 +31,7 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/opengl/gl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	using namespace Vcl::Graphics::OpenGL;
 
 	DepthStencilState::DepthStencilState(const DepthStencilDescription& desc)
@@ -48,8 +46,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(toGLenum(desc().DepthFunc));
-		}
-		else
+		} else
 		{
 			glDisable(GL_DEPTH_TEST);
 		}
@@ -83,8 +80,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		{
 			valid &= glIsEnabled(GL_DEPTH_TEST) == GL_TRUE;
 			valid &= GL::getEnum(GL_DEPTH_FUNC) == toGLenum(desc().DepthFunc);
-		}
-		else
+		} else
 		{
 			valid &= glIsEnabled(GL_DEPTH_TEST) == GL_FALSE;
 		}
@@ -96,8 +92,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	GLenum DepthStencilState::toGLenum(ComparisonFunction op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case ComparisonFunction::Never:        return GL_NEVER;
 		case ComparisonFunction::Less:         return GL_LESS;
 		case ComparisonFunction::Equal:        return GL_EQUAL;
@@ -108,14 +104,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case ComparisonFunction::Always:       return GL_ALWAYS;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 
 	GLenum DepthStencilState::toGLenum(StencilOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case StencilOperation::Keep:             return GL_KEEP;
 		case StencilOperation::Zero:             return GL_ZERO;
 		case StencilOperation::Replace:          return GL_REPLACE;
@@ -126,8 +123,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		case StencilOperation::DecreaseWrap:     return GL_DECR_WRAP;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return GL_INVALID_ENUM;
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

@@ -44,26 +44,24 @@
 #include "problems.h"
 
 template<typename WideScalar>
-void jacobiEig
-(
+void jacobiEig(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-	
+
 	int avg_nr_iter = 0;
 	for (size_t i = 0; i < nr_problems / width; i++)
 	{
 		// Map data
 		auto U = resU.at<real_t>(i);
 		auto S = resS.at<real_t>(i);
-		
+
 		// Compute SVD using 2-sided Jacobi iterations (Brent)
 		matrix3_t SV = F.at<real_t>(i);
 		matrix3_t matU = matrix3_t::Identity();
@@ -75,21 +73,19 @@ void jacobiEig
 		S = SV.diagonal();
 	}
 }
-	
+
 template<typename WideScalar>
-void jacobiEigQuat
-(
+void jacobiEigQuat(
 	size_t nr_problems,
 	const Vcl::Core::InterleavedArray<float, 3, 3, -1>& F,
 	Vcl::Core::InterleavedArray<float, 3, 3, -1>& resU,
-	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS
-)
+	Vcl::Core::InterleavedArray<float, 3, 1, -1>& resS)
 {
 	using real_t = WideScalar;
 	using matrix3_t = Eigen::Matrix<real_t, 3, 3>;
 
 	size_t width = sizeof(real_t) / sizeof(float);
-	
+
 	int avg_nr_iter = 0;
 	for (size_t i = 0; i < nr_problems / width; i++)
 	{
@@ -135,8 +131,7 @@ void SortEigenvalues(Eigen::Matrix<REAL, 3, 1>& A, Eigen::Matrix<REAL, 3, 3>& B)
 }
 
 template<typename Scalar>
-void checkSolution
-(
+void checkSolution(
 	const char* Name,
 	const char* file,
 	size_t nr_problems,
@@ -145,21 +140,20 @@ void checkSolution
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& refUa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& refSa,
 	const Vcl::Core::InterleavedArray<Scalar, 3, 3, -1>& resUa,
-	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa
-)
+	const Vcl::Core::InterleavedArray<Scalar, 3, 1, -1>& resSa)
 {
 	using scalar_t = Scalar;
-	
+
 	int wrong_computations, wrong_u_computations;
 	scalar_t accum_error, accum_u_error;
 	std::ofstream fout;
-	
+
 	wrong_computations = 0;
 	wrong_u_computations = 0;
 	accum_error = 0;
 	accum_u_error = 0;
 	fout.open(file);
-	
+
 	for (size_t j = 0; j < nr_problems; j++)
 	{
 		Vcl::Matrix3f A = F.template at<scalar_t>(j);
@@ -193,16 +187,16 @@ void checkSolution
 		if (!eqS || !eqU)
 			fout << std::endl;
 	}
-	
+
 	fout.close();
 	std::cout << Name << " - Errors: (" << wrong_computations << ", " << wrong_u_computations << "), "
 			  << "Avg. Singular value error: " << accum_error / std::max(wrong_computations, 1) << ", "
 			  << "Avg. U error: " << accum_u_error / std::max(wrong_u_computations, 1) << std::endl;
 }
-	
+
 int main(int, char**)
 {
-	size_t nr_problems = 1024*1024;
+	size_t nr_problems = 1024 * 1024;
 
 	using scalar_t = float;
 
@@ -218,14 +212,22 @@ int main(int, char**)
 	computeEigenReferenceSolution(nr_problems, F, refU, refS);
 
 	// Test correctness: Two-sided Jacobi SVD (Brent)
-	jacobiEig<float>(nr_problems, F, resU, resS);        checkSolution("JacobiEigen - float",   "jacobi_eigen_float_errors.txt",   nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEig<Vcl::float4>(nr_problems, F, resU, resS);  checkSolution("JacobiEigen - float4",  "jacobi_eigen_float4_errors.txt",  nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEig<Vcl::float8>(nr_problems, F, resU, resS);  checkSolution("JacobiEigen - float8",  "jacobi_eigen_float8_errors.txt",  nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEig<Vcl::float16>(nr_problems, F, resU, resS); checkSolution("JacobiEigen - float16", "jacobi_eigen_float16_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	
+	jacobiEig<float>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigen - float", "jacobi_eigen_float_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEig<Vcl::float4>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigen - float4", "jacobi_eigen_float4_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEig<Vcl::float8>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigen - float8", "jacobi_eigen_float8_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEig<Vcl::float16>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigen - float16", "jacobi_eigen_float16_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+
 	// Test correctness: Jacobi SVD with symmetric EV computation and QR decomposition
-	jacobiEigQuat<float>(nr_problems, F, resU, resS);        checkSolution("JacobiEigenQuat - float",   "jacobi_eigen_quat_float_errors.txt",   nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEigQuat<Vcl::float8>(nr_problems, F, resU, resS);	 checkSolution("JacobiEigenQuat - float8",  "jacobi_eigen_quat_float8_errors.txt",  nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEigQuat<Vcl::float4>(nr_problems, F, resU, resS);	 checkSolution("JacobiEigenQuat - float4",  "jacobi_eigen_quat_float4_errors.txt",  nr_problems, 1e-5f, F, refU, refS, resU, resS);
-	jacobiEigQuat<Vcl::float16>(nr_problems, F, resU, resS); checkSolution("JacobiEigenQuat - float16", "jacobi_eigen_quat_float16_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEigQuat<float>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigenQuat - float", "jacobi_eigen_quat_float_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEigQuat<Vcl::float8>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigenQuat - float8", "jacobi_eigen_quat_float8_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEigQuat<Vcl::float4>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigenQuat - float4", "jacobi_eigen_quat_float4_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
+	jacobiEigQuat<Vcl::float16>(nr_problems, F, resU, resS);
+	checkSolution("JacobiEigenQuat - float16", "jacobi_eigen_quat_float16_errors.txt", nr_problems, 1e-5f, F, refU, refS, resU, resS);
 }

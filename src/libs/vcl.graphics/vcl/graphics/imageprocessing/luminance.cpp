@@ -24,8 +24,7 @@
  */
 #include <vcl/graphics/imageprocessing/luminance.h>
 
-namespace Vcl { namespace Graphics { namespace ImageProcessing
-{
+namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	Luminance::Luminance()
 	{
 		TaskDescription desc;

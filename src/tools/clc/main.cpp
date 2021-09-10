@@ -59,17 +59,13 @@ VCL_END_EXTERNAL_HEADERS
 
 // Copy entire file to container
 // Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
-template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
-std::basic_string<Char, Traits, Allocator> read_stream_into_string
-(
+template<typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+std::basic_string<Char, Traits, Allocator> read_stream_into_string(
 	std::basic_istream<Char, Traits>& in,
-	Allocator alloc = {}
-)
+	Allocator alloc = {})
 {
-	std::basic_ostringstream<Char, Traits, Allocator> ss
-	(
-		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
-	);
+	std::basic_ostringstream<Char, Traits, Allocator> ss(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc)));
 
 	if (!(ss << in.rdbuf()))
 		throw std::ios_base::failure{ "error" };
@@ -77,8 +73,7 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-namespace Vcl { namespace Tools { namespace Clc
-{
+namespace Vcl { namespace Tools { namespace Clc {
 	enum class Compiler
 	{
 		Msvc,
@@ -86,22 +81,14 @@ namespace Vcl { namespace Tools { namespace Clc
 		Gcc,
 		Intel
 	};
-	
+
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");
 
-		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM
-			| FORMAT_MESSAGE_IGNORE_INSERTS
-			| FORMAT_MESSAGE_MAX_WIDTH_MASK;
+		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK;
 
-		FormatMessage(flags,
-			nullptr,
-			errorCode,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			errorMessage,
-			sizeof(errorMessage) / sizeof(TCHAR),
-			nullptr);
+		FormatMessage(flags, nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errorMessage, sizeof(errorMessage) / sizeof(TCHAR), nullptr);
 
 #ifdef _UNICODE
 		std::wcerr << L"Error : " << errorDesc << std::endl;
@@ -118,12 +105,12 @@ namespace Vcl { namespace Tools { namespace Clc
 	{
 		SECURITY_ATTRIBUTES saAttr;
 
-		// Set the bInheritHandle flag so pipe handles are inherited. 
+		// Set the bInheritHandle flag so pipe handles are inherited.
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
 		saAttr.lpSecurityDescriptor = nullptr;
 
-		// Create a pipe for the child process's IO 
+		// Create a pipe for the child process's IO
 		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
 			return;
 
@@ -142,7 +129,7 @@ namespace Vcl { namespace Tools { namespace Clc
 		for (;;)
 		{
 			DWORD exit_code;
-			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			GetExitCodeProcess(hProcess, &exit_code); //while the process is running
 			if (exit_code != STILL_ACTIVE)
 				break;
 
@@ -172,11 +159,11 @@ namespace Vcl { namespace Tools { namespace Clc
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
-		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdError = hWrite;  //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-		
+
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -193,17 +180,17 @@ namespace Vcl { namespace Tools { namespace Clc
 		std::copy(terminator, terminator + 1, std::back_inserter(cmd));
 
 		if (CreateProcess(
-			nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
-			cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			TRUE,       //_In_         BOOL bInheritHandles,
-			0,          //_In_         DWORD dwCreationFlags,
-			nullptr,    //_In_opt_     LPVOID lpEnvironment,
-			nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
-			&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
-			&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
-		) == FALSE)
+				nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
+				cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
+				TRUE,       //_In_         BOOL bInheritHandles,
+				0,          //_In_         DWORD dwCreationFlags,
+				nullptr,    //_In_opt_     LPVOID lpEnvironment,
+				nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
+				&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
+				&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
+				) == FALSE)
 		{
 			DWORD err = GetLastError();
 			displayError(TEXT("Unable to execute."), err);
@@ -231,7 +218,7 @@ namespace Vcl { namespace Tools { namespace Clc
 	}
 }}}
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Clc;
 
@@ -249,6 +236,7 @@ int main(int argc, char* argv [])
 
 	try
 	{
+		// clang-format off
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
@@ -258,6 +246,7 @@ int main(int argc, char* argv [])
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
 			;
+		// clang-format on
 		options.parse_positional("input-file");
 
 		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
@@ -285,20 +274,17 @@ int main(int argc, char* argv [])
 				compiler = "cl";
 				param_tok = '/';
 				format = Compiler::Msvc;
-			}
-			else if (parsed_options["compiler"].as<std::string>() == "clang")
+			} else if (parsed_options["compiler"].as<std::string>() == "clang")
 			{
 				compiler = "clang";
 				param_tok = '-';
 				format = Compiler::Clang;
-			}
-			else if (parsed_options["compiler"].as<std::string>() == "gcc")
+			} else if (parsed_options["compiler"].as<std::string>() == "gcc")
 			{
 				compiler = "gcc";
 				param_tok = '-';
 				format = Compiler::Gcc;
-			}
-			else
+			} else
 			{
 				std::cerr << "Invalid compiler string" << std::endl;
 				std::cout << options.help({ "" }) << std::endl;
@@ -350,8 +336,8 @@ int main(int argc, char* argv [])
 				std::string source = read_stream_into_string(ifile);
 				ifile.close();
 
-				const char* sources [] = { source.data() };
-				size_t sizes [] = { source.size() };
+				const char* sources[] = { source.data() };
+				size_t sizes[] = { source.size() };
 
 				const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_30";
 
@@ -362,8 +348,7 @@ int main(int argc, char* argv [])
 				{
 					std::cout << log << std::endl;
 					Nvidia::freeLog(log);
-				}
-				else
+				} else
 				{
 					// Append the compiled source to the output
 					Nvidia::freeProgramBinary(binary);
@@ -388,8 +373,7 @@ int main(int argc, char* argv [])
 
 		// Invoke the binary file translator
 		exec("bin2c", cmd.str().c_str());
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;

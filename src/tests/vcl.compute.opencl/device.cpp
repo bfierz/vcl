@@ -47,7 +47,7 @@ TEST(OpenCL, QueryDevices)
 	{
 		auto& dev = Platform::instance()->device(d);
 
-		EXPECT_NE((cl_device_id) 0, (cl_device_id) dev) << "Device could not be created";
+		EXPECT_NE((cl_device_id)0, (cl_device_id)dev) << "Device could not be created";
 	}
 
 	Platform::dispose();

@@ -42,8 +42,7 @@
 #include <vcl/geometry/propertygroup.h>
 #include <vcl/geometry/simplex.h>
 
-namespace Vcl { namespace Geometry
-{
+namespace Vcl { namespace Geometry {
 	class MultiIndexTriMesh;
 
 	template<>
@@ -52,9 +51,9 @@ namespace Vcl { namespace Geometry
 	public: // Idx Type
 		using IndexType = unsigned int;
 
-	public: // IDs
-		VCL_CREATEID(VertexId, IndexType);	// Size: n0
-		VCL_CREATEID(FaceId, IndexType);	// Size: n2
+	public:                                // IDs
+		VCL_CREATEID(VertexId, IndexType); // Size: n0
+		VCL_CREATEID(FaceId, IndexType);   // Size: n2
 
 	public: // Basic types
 		struct VertexMetaData
@@ -94,8 +93,8 @@ namespace Vcl { namespace Geometry
 		virtual ~MultiIndexTriMesh() = default;
 
 	public:
-		MultiIndexTriMesh& operator= (const MultiIndexTriMesh& rhs) = default;
-		MultiIndexTriMesh& operator= (MultiIndexTriMesh&& rhs) = default;
+		MultiIndexTriMesh& operator=(const MultiIndexTriMesh& rhs) = default;
+		MultiIndexTriMesh& operator=(MultiIndexTriMesh&& rhs) = default;
 
 	public: // Construct meshes from data
 		MultiIndexTriMesh(const std::vector<IndexDescriptionTrait<MultiIndexTriMesh>::Vertex>& vertices, const std::vector<IndexDescriptionTrait<MultiIndexTriMesh>::Face>& faces);
@@ -106,17 +105,15 @@ namespace Vcl { namespace Geometry
 
 		//! Add a new property to the volume level
 		template<typename T>
-		Property<T, IndexDescriptionTrait<MultiIndexTriMesh>::FaceId>* addFaceProperty
-		(
+		Property<T, IndexDescriptionTrait<MultiIndexTriMesh>::FaceId>* addFaceProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<MultiIndexTriMesh>::FaceId>::reference init_value
-		)
+			typename Property<T, IndexDescriptionTrait<MultiIndexTriMesh>::FaceId>::reference init_value)
 		{
 			faceProperties().add<T>(name, init_value);
 		}
 
 	private: // Additional layers
 		std::vector<PropertyPtr<DependentFace, FaceId>> _additionalFaceLayers;
-		std::vector<PropertyGroup<DependentVertedId>>   _additionalVertexLayers;
+		std::vector<PropertyGroup<DependentVertedId>> _additionalVertexLayers;
 	};
 }}

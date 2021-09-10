@@ -34,8 +34,7 @@
 // Windows Runtime Library
 #include <wrl.h>
 
-namespace Vcl { namespace Graphics { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace D3D12 {
 	class Semaphore
 	{
 	public:

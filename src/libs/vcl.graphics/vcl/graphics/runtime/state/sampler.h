@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/graphics/runtime/state/common.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class FilterType
 	{
 		MinMagMipPoint = 0,
@@ -70,16 +69,16 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	{
 		SamplerDescription();
 
-		FilterType 		     Filter;
-		TextureAddressMode   AddressU;
-		TextureAddressMode   AddressV;
-		TextureAddressMode   AddressW;
-		float			     MipLODBias;
-		unsigned int	     MaxAnisotropy;
-		ComparisonFunction   ComparisonFunc;
+		FilterType Filter;
+		TextureAddressMode AddressU;
+		TextureAddressMode AddressV;
+		TextureAddressMode AddressW;
+		float MipLODBias;
+		unsigned int MaxAnisotropy;
+		ComparisonFunction ComparisonFunc;
 		std::array<float, 4> BorderColor;
-		float				 MinLOD;
-		float				 MaxLOD;
+		float MinLOD;
+		float MaxLOD;
 	};
 
 	class Sampler
@@ -90,7 +89,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	public:
 		const SamplerDescription& desc() const { return _desc; }
-		
+
 	private: // Descriptor
 		SamplerDescription _desc;
 	};

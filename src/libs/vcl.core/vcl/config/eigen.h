@@ -21,7 +21,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */ 
+ */
 #pragma once
 
 // VCL configuration
@@ -63,42 +63,53 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Cwise ops
-namespace Eigen
-{
+namespace Eigen {
 	template<typename Scalar>
 	struct CwiseClampOp
 	{
-		CwiseClampOp(const Scalar& inf, const Scalar& sup) : m_inf(inf), m_sup(sup) {}
-		const Scalar operator()(const Scalar& x) const { return x<m_inf ? m_inf : (x>m_sup ? m_sup : x); }
+		CwiseClampOp(const Scalar& inf, const Scalar& sup)
+		: m_inf(inf), m_sup(sup) {}
+		const Scalar operator()(const Scalar& x) const { return x < m_inf ? m_inf : (x > m_sup ? m_sup : x); }
 		Scalar m_inf, m_sup;
 	};
 
 	template<typename Scalar>
 	struct CwiseThresholdOp
 	{
-		CwiseThresholdOp(const Scalar& inf) : mInf(inf) {}
+		CwiseThresholdOp(const Scalar& inf)
+		: mInf(inf) {}
 		const Scalar operator()(const Scalar& x) const { return x < mInf ? 0 : x; }
 		Scalar mInf;
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseInverseWithThresholdOp
 	{
-		CwiseInverseWithThresholdOp(const Scalar& tol) : mTol(tol) {}
+		CwiseInverseWithThresholdOp(const Scalar& tol)
+		: mTol(tol) {}
 		const Scalar operator()(const Scalar& x) const { return x < mTol ? 0 : 1.0 / x; }
 		Scalar mTol;
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseFractionalPartOp
 	{
-		const Scalar operator()(const Scalar& x) const { Scalar intPart = 0; return std::modf(x, &intPart); }
+		const Scalar operator()(const Scalar& x) const
+		{
+			Scalar intPart = 0;
+			return std::modf(x, &intPart);
+		}
 	};
-	
+
 	template<typename Scalar>
 	struct CwiseIntegralPartOp
 	{
-		const Scalar operator()(const Scalar& x) const { Scalar intPart = 0; std::modf(x, &intPart); return intPart; }
+		const Scalar operator()(const Scalar& x) const
+		{
+			Scalar intPart = 0;
+			std::modf(x, &intPart);
+			return intPart;
+		}
 	};
 
 	template<typename Scalar>
@@ -115,8 +126,7 @@ namespace Eigen
 }
 
 // Some additional Eigen typedefs
-namespace Eigen
-{
+namespace Eigen {
 	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
 	typedef Eigen::ParametrizedLine<float, 3> ParametrizedLine3f;
 	typedef Eigen::Hyperplane<float, 3> Hyperplane3f;
@@ -133,8 +143,7 @@ namespace Eigen
 }
 
 // Typedefs for VCL
-namespace Vcl
-{
+namespace Vcl {
 	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
 
 	typedef Eigen::Matrix<float, 2, 1> Vector2f;
@@ -143,10 +152,10 @@ namespace Vcl
 	typedef Eigen::Matrix<float, 2, 2> Matrix2f;
 	typedef Eigen::Matrix<float, 3, 3> Matrix3f;
 	typedef Eigen::Matrix<float, 4, 4> Matrix4f;
-	
-	typedef Eigen::Matrix<float, 2, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector2f;
-	typedef Eigen::Matrix<float, 3, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector3f;
-	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor|Eigen::Unaligned> UnalignedVector4f;
+
+	typedef Eigen::Matrix<float, 2, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector2f;
+	typedef Eigen::Matrix<float, 3, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector3f;
+	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor | Eigen::Unaligned> UnalignedVector4f;
 
 	typedef Eigen::Quaternion<float, Eigen::Unaligned> UnalignedQuaternionf;
 

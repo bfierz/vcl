@@ -33,8 +33,7 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	template<typename Derived, typename T = unsigned int>
 	class GenericId
 	{
@@ -45,47 +44,49 @@ namespace Vcl { namespace Core
 		static Derived InvalidId() { return Derived(std::numeric_limits<T>::max()); }
 
 	public:
-		GenericId() : _id(InvalidId().id()) {}
-		explicit GenericId(T id) : _id(id) {}
+		GenericId()
+		: _id(InvalidId().id()) {}
+		explicit GenericId(T id)
+		: _id(id) {}
 
 	public:
 		T id() const { return _id; }
 		bool isValid() const { return _id != InvalidId().id(); }
 
 	public:
-		GenericId<Derived, T>& operator = (const GenericId<Derived, T>& rhs)
+		GenericId<Derived, T>& operator=(const GenericId<Derived, T>& rhs)
 		{
 			_id = rhs._id;
 			return *this;
 		}
 
 	public:
-		bool operator < (const GenericId<Derived, T>& rhs) const
+		bool operator<(const GenericId<Derived, T>& rhs) const
 		{
 			return _id < rhs._id;
 		}
 
-		bool operator <= (const GenericId<Derived, T>& rhs) const
+		bool operator<=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id <= rhs._id;
 		}
 
-		bool operator > (const GenericId<Derived, T>& rhs) const
+		bool operator>(const GenericId<Derived, T>& rhs) const
 		{
 			return _id > rhs._id;
 		}
 
-		bool operator >= (const GenericId<Derived, T>& rhs) const
+		bool operator>=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id >= rhs._id;
 		}
 
-		bool operator == (const GenericId<Derived, T>& rhs) const
+		bool operator==(const GenericId<Derived, T>& rhs) const
 		{
 			return _id == rhs._id;
 		}
 
-		bool operator != (const GenericId<Derived, T>& rhs) const
+		bool operator!=(const GenericId<Derived, T>& rhs) const
 		{
 			return _id != rhs._id;
 		}
@@ -120,32 +121,32 @@ namespace Vcl { namespace Core
 		bool isValid() const { return _id != InvalidId().id() && _generation != InvalidId().generation(); }
 
 	public:
-		bool operator < (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator<(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation < rhs._generation && _id < rhs._id;
 		}
 
-		bool operator <= (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator<=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation <= rhs._generation && _id <= rhs._id;
 		}
 
-		bool operator >(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator>(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation > rhs._generation && _id > rhs._id;
 		}
 
-		bool operator >= (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator>=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation >= rhs._generation && _id >= rhs._id;
 		}
 
-		bool operator == (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator==(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation == rhs._generation && _id == rhs._id;
 		}
 
-		bool operator != (const GenerationalId<Derived, IdType, GenerationType>& rhs) const
+		bool operator!=(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation != rhs._generation && _id != rhs._id;
 		}
@@ -157,12 +158,22 @@ namespace Vcl { namespace Core
 }}
 
 // Instantiate a generic, typed ID
-#define VCL_CREATE_ID(type_name, idx_type_name) class type_name : public Vcl::Core::GenericId<type_name, idx_type_name> { public: type_name() = default; explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {}}
-#define VCL_CREATE_GENERATIONALID(type_name, idx_type_name, gen_type_name) class type_name : public Vcl::Core::GenerationalId<type_name, idx_type_name, gen_type_name> { public: type_name() = default; explicit type_name(idx_type_name id, gen_type_name gen) : GenerationalId(id, gen) {}}
+#define VCL_CREATE_ID(type_name, idx_type_name)                                           \
+	class type_name : public Vcl::Core::GenericId<type_name, idx_type_name>               \
+	{                                                                                     \
+	public:                                                                               \
+		type_name() = default;                                                            \
+		explicit type_name(idx_type_name id) : GenericId<type_name, idx_type_name>(id) {} \
+	}
+#define VCL_CREATE_GENERATIONALID(type_name, idx_type_name, gen_type_name)                      \
+	class type_name : public Vcl::Core::GenerationalId<type_name, idx_type_name, gen_type_name> \
+	{                                                                                           \
+	public:                                                                                     \
+		type_name() = default;                                                                  \
+		explicit type_name(idx_type_name id, gen_type_name gen) : GenerationalId(id, gen) {}    \
+	}
 
-
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	// Forward declaration
 	class EntityManager;
 
@@ -179,6 +190,7 @@ namespace Vcl { namespace Components
 	class Entity
 	{
 		friend class EntityManager;
+
 	public:
 		Entity() = default;
 
@@ -204,8 +216,7 @@ namespace Vcl { namespace Components
 	};
 }}
 
-namespace std
-{
+namespace std {
 	template<>
 	struct hash<Vcl::Components::EntityId>
 	{

@@ -32,8 +32,7 @@
 // VCL
 #include <vcl/util/stringparser.h>
 
-namespace Vcl { namespace Geometry { namespace IO
-{
+namespace Vcl { namespace Geometry { namespace IO {
 	void TetGenSerialiser::load(AbstractDeserialiser* deserialiser, const std::string& path) const
 	{
 		using namespace std;
@@ -48,8 +47,7 @@ namespace Vcl { namespace Geometry { namespace IO
 		{
 			node_path = path;
 			ele_path = path.substr(0, path.length() - 5) + ".ele";
-		}
-		else if (path.substr(path.length() - 4) == ".ele")
+		} else if (path.substr(path.length() - 4) == ".ele")
 		{
 			node_path = path.substr(0, path.length() - 4) + ".node";
 			ele_path = path;
@@ -89,8 +87,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					node_parser.skipLine();
-				}
-				else
+				} else
 				{
 					int size = stoi(token);
 					int dim;
@@ -107,7 +104,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the position data
 		while (node_parser.loadLine())
 		{
@@ -118,8 +115,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					node_parser.skipLine();
-				}
-				else
+				} else
 				{
 					node_parser.readFloat(&position[0]);
 					node_parser.readFloat(&position[1]);
@@ -129,7 +125,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the element header
 		while (ele_parser.loadLine())
 		{
@@ -140,8 +136,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					ele_parser.skipLine();
-				}
-				else
+				} else
 				{
 					int size = stoi(token);
 					int dim;
@@ -156,7 +151,7 @@ namespace Vcl { namespace Geometry { namespace IO
 				}
 			}
 		}
-		
+
 		// Read the element data
 		while (ele_parser.loadLine())
 		{
@@ -167,19 +162,22 @@ namespace Vcl { namespace Geometry { namespace IO
 				{
 					// Ignore the rest of the line
 					ele_parser.skipLine();
-				}
-				else
+				} else
 				{
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[0])); tetrahedron[0] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[1])); tetrahedron[1] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[2])); tetrahedron[2] -= 1;
-					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[3])); tetrahedron[3] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[0]));
+					tetrahedron[0] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[1]));
+					tetrahedron[1] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[2]));
+					tetrahedron[2] -= 1;
+					ele_parser.readInt(reinterpret_cast<int*>(&tetrahedron[3]));
+					tetrahedron[3] -= 1;
 
 					deserialiser->addVolume(tetrahedron);
 				}
 			}
 		}
-		
+
 		deserialiser->end();
 
 		fin_node.close();

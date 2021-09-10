@@ -31,13 +31,12 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/d3d12/d3d.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 	D3D12_LOGIC_OP toD3D12(LogicOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case LogicOperation::Clear       : return D3D12_LOGIC_OP_CLEAR;
 		case LogicOperation::Set         : return D3D12_LOGIC_OP_SET;
 		case LogicOperation::Copy        : return D3D12_LOGIC_OP_COPY;
@@ -56,30 +55,31 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		case LogicOperation::OrInverted  : return D3D12_LOGIC_OP_OR_INVERTED;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return {};
 	}
 
 	D3D12_BLEND_OP toD3D12(BlendOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case BlendOperation::Add        :  return D3D12_BLEND_OP_ADD;
 		case BlendOperation::Subtract   :  return D3D12_BLEND_OP_SUBTRACT;
 		case BlendOperation::RevSubtract:  return D3D12_BLEND_OP_REV_SUBTRACT;
 		case BlendOperation::Min        :  return D3D12_BLEND_OP_MIN;
 		case BlendOperation::Max        :  return D3D12_BLEND_OP_MAX;
-
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return {};
 	}
 
 	D3D12_BLEND toD3D12(Blend factor)
 	{
-		switch (factor)
-		{
+		// clang-format off
+		switch (factor) {
 		case Blend::Zero          : return D3D12_BLEND_ZERO;
 		case Blend::One           : return D3D12_BLEND_ONE;
 		case Blend::SrcColour     : return D3D12_BLEND_SRC_COLOR;
@@ -99,6 +99,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		case Blend::InvSrc1Alpha  : return D3D12_BLEND_INV_SRC1_ALPHA;
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return {};
 	}
@@ -137,7 +138,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 			tgt.RenderTargetWriteMask = rt.RenderTargetWriteMask.bits();
 			i++;
 		}
-		
+
 		return d3d12_desc;
 	}
 }}}}

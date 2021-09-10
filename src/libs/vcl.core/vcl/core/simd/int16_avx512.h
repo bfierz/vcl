@@ -33,8 +33,7 @@
 #include <vcl/core/simd/intrinsics_avx512.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(64) VectorScalar<int, 16> : protected Core::Simd::VectorScalarBase<int, 16, Core::Simd::SimdExt::AVX512>
 	{
@@ -52,12 +51,12 @@ namespace Vcl
 		VCL_SIMD_ASSIGN_OP(operator*=, _mm512_mullo_epi32, 1)
 
 	public:
-		VCL_SIMD_COMP_OP(operator==, _mm512_cmpeq_epi32_mask,  1)
+		VCL_SIMD_COMP_OP(operator==, _mm512_cmpeq_epi32_mask, 1)
 		VCL_SIMD_COMP_OP(operator!=, _mm512_cmpneq_epi32_mask, 1)
-		VCL_SIMD_COMP_OP(operator<,  _mm512_cmplt_epi32_mask,  1)
-		VCL_SIMD_COMP_OP(operator<=, _mm512_cmple_epi32_mask,  1)
-		VCL_SIMD_COMP_OP(operator>,  _mm512_cmpgt_epi32_mask,  1)
-		VCL_SIMD_COMP_OP(operator>=, _mm512_cmpge_epi32_mask,  1)
+		VCL_SIMD_COMP_OP(operator<, _mm512_cmplt_epi32_mask, 1)
+		VCL_SIMD_COMP_OP(operator<=, _mm512_cmple_epi32_mask, 1)
+		VCL_SIMD_COMP_OP(operator>, _mm512_cmpgt_epi32_mask, 1)
+		VCL_SIMD_COMP_OP(operator>=, _mm512_cmpge_epi32_mask, 1)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, _mm512_abs_epi32, 1)
@@ -72,21 +71,19 @@ namespace Vcl
 
 	VCL_STRONG_INLINE VectorScalar<int, 16> select(const VectorScalar<bool, 16>& mask, const VectorScalar<int, 16>& a, const VectorScalar<int, 16>& b)
 	{
-		return VectorScalar<int, 16>
-		(
-			_mm512_mask_blend_epi32(mask.get(0), b.get(0), a.get(0))
-		);
+		return VectorScalar<int, 16>(
+			_mm512_mask_blend_epi32(mask.get(0), b.get(0), a.get(0)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 16>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 16>& rhs)
 	{
 		alignas(64) int vars[16];
 		_mm512_store_si512(reinterpret_cast<__m512i*>(vars + 0), rhs.get(0));
 
-		s << "'" << vars[ 0] << ", " << vars[ 1] << ", " << vars[ 2] << ", " << vars[ 3] << ", "
-				 << vars[ 4] << ", " << vars[ 5] << ", " << vars[ 6] << ", " << vars[ 7] << ", "
-				 << vars[ 8] << ", " << vars[ 9] << ", " << vars[10] << ", " << vars[11] << ", "
-				 << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
+		s << "'" << vars[0] << ", " << vars[1] << ", " << vars[2] << ", " << vars[3] << ", "
+		  << vars[4] << ", " << vars[5] << ", " << vars[6] << ", " << vars[7] << ", "
+		  << vars[8] << ", " << vars[9] << ", " << vars[10] << ", " << vars[11] << ", "
+		  << vars[12] << ", " << vars[13] << ", " << vars[14] << ", " << vars[15] << "'";
 
 		return s;
 	}

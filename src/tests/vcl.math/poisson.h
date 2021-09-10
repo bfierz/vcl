@@ -55,8 +55,7 @@ inline Eigen::MatrixXf createStencilMatrix1D(unsigned int size, std::vector<unsi
 				stencil(i, i) -= 1;
 				stencil(i, i - 1) = 1;
 			}
-		}
-		else
+		} else
 		{
 			stencil(i, i) = 1;
 		}
@@ -83,16 +82,16 @@ public:
 
 	void setData(map_t unknowns, map_t rhs)
 	{
-		new(&_unknowns) map_t(unknowns);
-		new(&_rhs) map_t(rhs);
+		new (&_unknowns) map_t(unknowns);
+		new (&_rhs) map_t(rhs);
 	}
 
 	void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 	{
 		std::vector<unsigned char> boundary(skip.data(), skip.data() + skip.size());
 
-		const real_t s = k / (h*h);
-		_M = s*createStencilMatrix1D(_size, boundary);
+		const real_t s = k / (h * h);
+		_M = s * createStencilMatrix1D(_size, boundary);
 		_M += vector_t::Constant(_M.rows(), o).asDiagonal();
 
 		_D = (1.0f / (_M.diagonal()).array()).matrix().asDiagonal();
@@ -157,7 +156,7 @@ private:
 	matrix_t _D;
 	matrix_t _R;
 
-	//! Left-hand side 
+	//! Left-hand side
 	map_t _unknowns;
 
 	//! Right-hand side
@@ -184,7 +183,7 @@ inline unsigned int createPoisson1DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	{
 		float x = i * h;
 		rhs(i) = -x * (x + 3) * exp(x);
-		sol(i) =  x * (x - 1) * exp(x);
+		sol(i) = x * (x - 1) * exp(x);
 	}
 
 	// Configure boundary condition
@@ -211,20 +210,20 @@ inline unsigned int createPoisson2DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	h = 1.0f / static_cast<float>(nr_pts - 1);
 
 	// Right-hand side and exact solution of the poisson problem
-	rhs.setZero(nr_pts*nr_pts);
-	sol.setZero(nr_pts*nr_pts);
-	boundary.assign(nr_pts*nr_pts, 0);
+	rhs.setZero(nr_pts * nr_pts);
+	sol.setZero(nr_pts * nr_pts);
+	boundary.assign(nr_pts * nr_pts, 0);
 	for (Eigen::VectorXf::Index j = 0; j < static_cast<Eigen::VectorXf::Index>(nr_pts); j++)
 	{
 		for (Eigen::VectorXf::Index i = 0; i < static_cast<Eigen::VectorXf::Index>(nr_pts); i++)
 		{
 			float x = 0 + i * h;
 			float y = 0 + j * h;
-			sol(j*nr_pts + i) = sin(pi<float>()*x)*sin(pi<float>()*y);
-			rhs(j*nr_pts + i) = 2*pi<float>()*pi<float>()*sin(pi<float>()*x)*sin(pi<float>()*y);
+			sol(j * nr_pts + i) = sin(pi<float>() * x) * sin(pi<float>() * y);
+			rhs(j * nr_pts + i) = 2 * pi<float>() * pi<float>() * sin(pi<float>() * x) * sin(pi<float>() * y);
 
 			if (i == 0 || i == nr_pts - 1 || j == 0 || j == nr_pts - 1)
-				boundary[j*nr_pts + i] = 1;
+				boundary[j * nr_pts + i] = 1;
 		}
 	}
 
@@ -242,9 +241,9 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 	h = 1.0f / static_cast<float>(nr_pts - 1);
 
 	// Right-hand side and exact solution of the poisson problem
-	rhs.setZero(nr_pts*nr_pts*nr_pts);
-	sol.setZero(nr_pts*nr_pts*nr_pts);
-	boundary.assign(nr_pts*nr_pts*nr_pts, 0);
+	rhs.setZero(nr_pts * nr_pts * nr_pts);
+	sol.setZero(nr_pts * nr_pts * nr_pts);
+	boundary.assign(nr_pts * nr_pts * nr_pts, 0);
 	for (Eigen::VectorXf::Index k = 0; k < static_cast<Eigen::VectorXf::Index>(nr_pts); k++)
 	{
 		for (Eigen::VectorXf::Index j = 0; j < static_cast<Eigen::VectorXf::Index>(nr_pts); j++)
@@ -254,11 +253,11 @@ inline unsigned int createPoisson3DProblem(float& h, Eigen::VectorXf& rhs, Eigen
 				float x = 0 + i * h;
 				float y = 0 + j * h;
 				float z = 0 + k * h;
-				sol(k*nr_pts*nr_pts + j*nr_pts + i) = sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
-				rhs(k*nr_pts*nr_pts + j*nr_pts + i) = 3*pi<float>()*pi<float>()*sin(pi<float>()*x)*sin(pi<float>()*y)*sin(pi<float>()*z);
+				sol(k * nr_pts * nr_pts + j * nr_pts + i) = sin(pi<float>() * x) * sin(pi<float>() * y) * sin(pi<float>() * z);
+				rhs(k * nr_pts * nr_pts + j * nr_pts + i) = 3 * pi<float>() * pi<float>() * sin(pi<float>() * x) * sin(pi<float>() * y) * sin(pi<float>() * z);
 
 				if (i == 0 || i == nr_pts - 1 || j == 0 || j == nr_pts - 1 || k == 0 || k == nr_pts - 1)
-					boundary[k*nr_pts*nr_pts + j*nr_pts + i] = 1;
+					boundary[k * nr_pts * nr_pts + j * nr_pts + i] = 1;
 			}
 		}
 	}
@@ -283,7 +282,8 @@ void runPoissonTest(Dim dim, float h, Eigen::VectorXf& lhs, Eigen::VectorXf& rhs
 	solver.solve(&ctx);
 
 	// Check for the solution
-	Eigen::VectorXf err; err.setZero(sol.size());
+	Eigen::VectorXf err;
+	err.setZero(sol.size());
 	for (Eigen::VectorXf::Index i = 0; i < sol.size(); i++)
 	{
 		err(i) = fabs(lhs(i) - sol(i));

@@ -35,8 +35,7 @@
 #include <vcl/math/solver/jacobi.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson1DJacobiCtx : public JacobiContext
 	{
@@ -56,17 +55,17 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				A.resize(_dim);
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
-			new(&_unknowns) map_t(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_unknowns) map_t(unknowns);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
 		{
-			auto& Ac   = _laplacian[0];
+			auto& Ac = _laplacian[0];
 			auto& Ax_l = _laplacian[1];
 			auto& Ax_r = _laplacian[2];
 
@@ -92,8 +91,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 		virtual void updateSolution() override
 		{
 			auto X = static_cast<const ptrdiff_t>(_dim);
-			
-			const auto& Ac   = _laplacian[0];
+
+			const auto& Ac = _laplacian[0];
 			const auto& Ax_l = _laplacian[1];
 			const auto& Ax_r = _laplacian[2];
 
@@ -124,7 +123,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				if (Ac[index])
 				{
 					float e = rhs[index] - (Ac[index] * unknowns[index] + q);
-					acc += e*e;
+					acc += e * e;
 				}
 			}
 
@@ -150,8 +149,8 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 		//! Laplacian matrix (center, x-left, x-right)
 		std::array<vector_t, 3> _laplacian;
-		
-		//! Left-hand side 
+
+		//! Left-hand side
 		map_t _unknowns;
 
 		//! Right-hand side

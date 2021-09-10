@@ -30,28 +30,27 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUBlendOperation toWebGPU(BlendOperation op)
 	{
-		switch (op)
-		{
+		// clang-format off
+		switch (op) {
 		case BlendOperation::Add        :  return WGPUBlendOperation_Add;
 		case BlendOperation::Subtract   :  return WGPUBlendOperation_Subtract;
 		case BlendOperation::RevSubtract:  return WGPUBlendOperation_ReverseSubtract;
 		case BlendOperation::Min        :  return WGPUBlendOperation_Min;
 		case BlendOperation::Max        :  return WGPUBlendOperation_Max;
-
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return WGPUBlendOperation_Force32;
 	}
 
 	WGPUBlendFactor toWebGPU(Blend factor)
 	{
-		switch (factor)
-		{
+		// clang-format off
+		switch (factor) {
 		case Blend::Zero          : return WGPUBlendFactor_Zero;
 		case Blend::One           : return WGPUBlendFactor_One;
 		case Blend::SrcColour     : return WGPUBlendFactor_SrcColor;
@@ -71,6 +70,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 		case Blend::InvSrc1Alpha:
 		default: { VclDebugError("Enumeration value is valid."); }
 		}
+		// clang-format on
 
 		return WGPUBlendFactor_Force32;
 	}
@@ -101,8 +101,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 				tgt.color.operation = toWebGPU(rt.BlendOp);
 				tgt.color.srcFactor = toWebGPU(rt.SrcBlend);
 				tgt.color.dstFactor = toWebGPU(rt.DestBlend);
-			}
-			else
+			} else
 			{
 				tgt.alpha.operation = WGPUBlendOperation_Add;
 				tgt.alpha.srcFactor = WGPUBlendFactor_One;
@@ -113,7 +112,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
 			}
 			i++;
 		}
-		
+
 		return webgpu_desc;
 	}
 }}}}

@@ -28,18 +28,15 @@
 #include <vcl/core/contract.h>
 #include <vcl/math/math.h>
 
-namespace Vcl { namespace Graphics
-{
-	Eigen::Matrix4f MatrixFactory::createLookAt
-	(
+namespace Vcl { namespace Graphics {
+	Eigen::Matrix4f MatrixFactory::createLookAt(
 		const Eigen::Vector3f& position,
 		const Eigen::Vector3f& direction,
 		const Eigen::Vector3f& world_up,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VclRequire(Vcl::Mathematics::equal(direction.norm(), 1.f, 1e-4f), "Direction vector is normalized.");
-		VclRequire(Vcl::Mathematics::equal(world_up.norm(),  1.f, 1e-4f), "Up vector is normalized.");
+		VclRequire(Vcl::Mathematics::equal(world_up.norm(), 1.f, 1e-4f), "Up vector is normalized.");
 
 		if (handedness == Handedness::RightHanded)
 		{
@@ -48,30 +45,32 @@ namespace Vcl { namespace Graphics
 			right = dir.cross(world_up);
 			up = right.cross(dir);
 
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << right.x(), right.y(), right.z(), -right.dot(position),
-				         up.x(),    up.y(),    up.z(),    -up.dot(position),
-				       -dir.x(),  -dir.y(),  -dir.z(),    dir.dot(position),
-				           0.0f,      0.0f,      0.0f,                 1.0f;
+			             up.x(),    up.y(),    up.z(),    -up.dot(position),
+			           -dir.x(),  -dir.y(),  -dir.z(),    dir.dot(position),
+			               0.0f,      0.0f,      0.0f,                 1.0f;
+			// clang-format on
 
 			return matrix;
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
 			Eigen::Vector3f right, up, dir;
 			dir = direction;
 			right = world_up.cross(dir);
 			up = dir.cross(right);
 
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << right.x(), right.y(), right.z(), -right.dot(position),
-				         up.x(),    up.y(),    up.z(),    -up.dot(position),
-				        dir.x(),   dir.y(),   dir.z(),   -dir.dot(position),
-				           0.0f,      0.0f,      0.0f,                 1.0f;
+			             up.x(),    up.y(),    up.z(),    -up.dot(position),
+			            dir.x(),   dir.y(),   dir.z(),   -dir.dot(position),
+			               0.0f,      0.0f,      0.0f,                 1.0f;
+			// clang-format on
 
 			return matrix;
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Zero();
@@ -79,16 +78,13 @@ namespace Vcl { namespace Graphics
 	}
 }}
 
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
-	Eigen::Matrix4f MatrixFactory::createPerspective
-	(
+namespace Vcl { namespace Graphics { namespace OpenGL {
+	Eigen::Matrix4f MatrixFactory::createPerspective(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(width);
 		VCL_UNREFERENCED_PARAMETER(height);
@@ -97,11 +93,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -110,14 +104,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveFov
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveFov(
 		float near_plane,
 		float far_plane,
 		float aspect_ratio,
 		float fov_vertical,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -131,16 +123,17 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			// z device coordinates [-1, 1]
 			float _33 = (near_plane + far_plane) / (near_plane - far_plane);
 			float _34 = (2 * near_plane * far_plane) / (near_plane - far_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << w, 0, 0, 0,
-					  0, h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, -1, 0;
-			
+			          0, h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, -1, 0;
+			// clang-format on
+
 			return matrix;
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
 			float h = 1.0f / tan(fov_vertical / 2.0f);
 			float w = h / aspect_ratio;
@@ -152,32 +145,31 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			// z device coordinates [-1, 1]
 			float _33 = (near_plane + far_plane) / (far_plane - near_plane);
 			float _34 = -(2 * near_plane * far_plane) / (far_plane - near_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << w, 0, 0, 0,
-					  0, h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 1, 0;
-			
+			          0, h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, 1, 0;
+			// clang-format on
+
 			return matrix;
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -188,11 +180,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -201,14 +191,12 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrtho
-	(
+	Eigen::Matrix4f MatrixFactory::createOrtho(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -222,12 +210,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			// z device coordinates [-1, 1]
 			float _33 = 2 / (near_plane - far_plane);
 			float _34 = (near_plane + far_plane) / (near_plane - far_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
-			matrix << 2/w, 0, 0, 0,
-					  0, 2/h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 0, 1;
+			matrix << 2/w,   0,   0,   0,
+			            0, 2/h,   0,   0,
+			            0,   0, _33, _34,
+			            0,   0,   0,   1;
+			// clang-format ob
 			
 			return matrix;
 		}
@@ -244,31 +234,30 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 			float _33 = 2 / (far_plane - near_plane);
 			float _34 = -(near_plane + far_plane) / (far_plane - near_plane);
 			
+			// clang-format off
 			Eigen::Matrix4f matrix;
-			matrix << 2/w, 0, 0, 0,
-					  0, 2/h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 0, 1;
-			
+			matrix << 2/w,   0,   0,   0,
+			            0, 2/h,   0,   0,
+			            0,   0, _33, _34,
+			            0,   0,   0,   1;
+			// clang-format on
+
 			return matrix;
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -279,11 +268,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -293,16 +280,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	}
 }}}
 
-namespace Vcl { namespace Graphics { namespace Direct3D
-{
-	Eigen::Matrix4f MatrixFactory::createPerspective
-	(
+namespace Vcl { namespace Graphics { namespace Direct3D {
+	Eigen::Matrix4f MatrixFactory::createPerspective(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(width);
 		VCL_UNREFERENCED_PARAMETER(height);
@@ -311,11 +295,9 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -324,14 +306,12 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveFov
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveFov(
 		float near_plane,
 		float far_plane,
 		float aspect_ratio,
 		float fov_vertical,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -345,16 +325,17 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 			// z device coordinates [-1, 1]
 			//float _33 = (near_plane + far_plane) / (near_plane - far_plane);
 			//float _34 = (2 * near_plane * far_plane) / (near_plane - far_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << w, 0, 0, 0,
-					  0, h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, -1, 0;
-			
+			          0, h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, -1, 0;
+			// clang-format on
+
 			return matrix;
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
 			float h = 1.0f / tan(fov_vertical / 2.0f);
 			float w = h / aspect_ratio;
@@ -366,32 +347,31 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 			// z device coordinates [-1, 1]
 			//float _33 = (near_plane + far_plane) / (far_plane - near_plane);
 			//float _34 = -(2 * near_plane * far_plane) / (far_plane - near_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << w, 0, 0, 0,
-					  0, h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 1, 0;
-			
+			          0, h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, 1, 0;
+			// clang-format on
+
 			return matrix;
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createPerspectiveOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -402,11 +382,9 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}
@@ -415,14 +393,12 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 		return Eigen::Matrix4f::Identity();
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrtho
-	(
+	Eigen::Matrix4f MatrixFactory::createOrtho(
 		float width,
 		float height,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		if (handedness == Handedness::RightHanded)
 		{
@@ -436,16 +412,17 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 			// z device coordinates [-1, 1]
 			//float _33 = 2 / (near_plane - far_plane);
 			//float _34 = (near_plane + far_plane) / (near_plane - far_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << 2/w, 0, 0, 0,
-					  0, 2/h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 0, 1;
-			
+			          0, 2/h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, 0, 1;
+			// clang-format on
+
 			return matrix;
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
 			float h = height;
 			float w = width;
@@ -457,32 +434,31 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 			// z device coordinates [-1, 1]
 			//float _33 = 2 / (far_plane - near_plane);
 			//float _34 = -(near_plane + far_plane) / (far_plane - near_plane);
-			
+
+			// clang-format off
 			Eigen::Matrix4f matrix;
 			matrix << 2/w, 0, 0, 0,
-					  0, 2/h, 0, 0,
-					  0, 0, _33, _34,
-					  0, 0, 0, 1;
-			
+			          0, 2/h, 0, 0,
+			          0, 0, _33, _34,
+			          0, 0, 0, 1;
+			// clang-format on
+
 			return matrix;
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 			return Eigen::Matrix4f::Identity();
 		}
 	}
 
-	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter
-	(
+	Eigen::Matrix4f MatrixFactory::createOrthoOffCenter(
 		float left,
 		float right,
 		float bottom,
 		float top,
 		float near_plane,
 		float far_plane,
-		Handedness handedness
-	) const
+		Handedness handedness) const
 	{
 		VCL_UNREFERENCED_PARAMETER(left);
 		VCL_UNREFERENCED_PARAMETER(right);
@@ -493,11 +469,9 @@ namespace Vcl { namespace Graphics { namespace Direct3D
 
 		if (handedness == Handedness::RightHanded)
 		{
-		}
-		else if (handedness == Handedness::LeftHanded)
+		} else if (handedness == Handedness::LeftHanded)
 		{
-		}
-		else
+		} else
 		{
 			VclDebugError("Not implemented.");
 		}

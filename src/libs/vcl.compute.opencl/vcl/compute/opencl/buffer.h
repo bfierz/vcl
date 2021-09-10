@@ -35,14 +35,13 @@
 #include <vcl/compute/opencl/context.h>
 #include <vcl/compute/buffer.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{	
+namespace Vcl { namespace Compute { namespace OpenCL {
 	class Buffer : public Compute::Buffer
 	{
 	public:
 		Buffer(Context* owner, BufferAccess hostAccess, int size);
 		virtual ~Buffer();
-		
+
 	public:
 		void resize(size_t new_size);
 

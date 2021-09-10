@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 #include <vcl/config/direct3d12.h>
@@ -35,21 +35,18 @@
 #include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-		GraphicsPipelineState
-		(
+		GraphicsPipelineState(
 			Graphics::D3D12::Device* device,
 			const PipelineStateDescription& desc,
 			const RenderTargetLayout& rt_layout,
-			const Graphics::D3D12::DescriptorTableLayout* layout
-		);
+			const Graphics::D3D12::DescriptorTableLayout* layout);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }
@@ -68,12 +65,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-		ComputePipelineState
-		(
+		ComputePipelineState(
 			Graphics::D3D12::Device* device,
 			const ComputePipelineStateDescription& desc,
-			const Graphics::D3D12::DescriptorTableLayout* layout
-		);
+			const Graphics::D3D12::DescriptorTableLayout* layout);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }

@@ -31,11 +31,11 @@
 #	if VCL_HAS_STDCXX17
 #		include <filesystem>
 #	else
-#	define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#		define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 #		include <experimental/filesystem>
 #	endif
 #elif defined(VCL_ABI_POSIX)
-#include <boost/filesystem.hpp>
+#	include <boost/filesystem.hpp>
 #endif
 #include <iostream>
 #include <vector>
@@ -57,17 +57,13 @@ VCL_ERROR("No compatible process API found.")
 
 // Copy entire file to container
 // Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
-template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
-static std::basic_string<Char, Traits, Allocator> read_stream_into_string
-(
+template<typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+static std::basic_string<Char, Traits, Allocator> read_stream_into_string(
 	std::basic_istream<Char, Traits>& in,
-	Allocator alloc = {}
-)
+	Allocator alloc = {})
 {
-	std::basic_ostringstream<Char, Traits, Allocator> ss
-	(
-		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
-	);
+	std::basic_ostringstream<Char, Traits, Allocator> ss(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc)));
 
 	if (!(ss << in.rdbuf()))
 		throw std::ios_base::failure{ "error" };
@@ -75,23 +71,14 @@ static std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-namespace Vcl { namespace Tools { namespace Cui
-{
+namespace Vcl { namespace Tools { namespace Cui {
 	void displayError(LPCTSTR errorDesc, DWORD errorCode)
 	{
 		TCHAR errorMessage[1024] = TEXT("");
 
-		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM
-			| FORMAT_MESSAGE_IGNORE_INSERTS
-			| FORMAT_MESSAGE_MAX_WIDTH_MASK;
+		DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK;
 
-		FormatMessage(flags,
-			nullptr,
-			errorCode,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			errorMessage,
-			sizeof(errorMessage) / sizeof(TCHAR),
-			nullptr);
+		FormatMessage(flags, nullptr, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errorMessage, sizeof(errorMessage) / sizeof(TCHAR), nullptr);
 
 #ifdef _UNICODE
 		std::wcerr << L"Error : " << errorDesc << std::endl;
@@ -108,12 +95,12 @@ namespace Vcl { namespace Tools { namespace Cui
 	{
 		SECURITY_ATTRIBUTES saAttr;
 
-		// Set the bInheritHandle flag so pipe handles are inherited. 
+		// Set the bInheritHandle flag so pipe handles are inherited.
 		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 		saAttr.bInheritHandle = TRUE;
 		saAttr.lpSecurityDescriptor = nullptr;
 
-		// Create a pipe for the child process's IO 
+		// Create a pipe for the child process's IO
 		if (!CreatePipe(&hRead, &hWrite, &saAttr, 0))
 			return;
 
@@ -132,7 +119,7 @@ namespace Vcl { namespace Tools { namespace Cui
 		for (;;)
 		{
 			DWORD exit_code;
-			GetExitCodeProcess(hProcess, &exit_code);      //while the process is running
+			GetExitCodeProcess(hProcess, &exit_code); //while the process is running
 			if (exit_code != STILL_ACTIVE)
 				break;
 
@@ -162,11 +149,11 @@ namespace Vcl { namespace Tools { namespace Cui
 		// Initialize memory
 		ZeroMemory(&si, sizeof(STARTUPINFO));
 		si.cb = sizeof(STARTUPINFO);
-		si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+		si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 		si.hStdOutput = hWrite; //GetStdHandle(STD_OUTPUT_HANDLE);
-		si.hStdError  = hWrite; //GetStdHandle(STD_ERROR_HANDLE);
+		si.hStdError = hWrite;  //GetStdHandle(STD_ERROR_HANDLE);
 		si.dwFlags |= STARTF_USESTDHANDLES;
-		
+
 		// Construct the command line
 		const char* separator = " ";
 		const char* terminator = "\0";
@@ -183,17 +170,17 @@ namespace Vcl { namespace Tools { namespace Cui
 		std::copy(terminator, terminator + 1, std::back_inserter(cmd));
 
 		if (CreateProcess(
-			nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
-			cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
-			nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
-			TRUE,       //_In_         BOOL bInheritHandles,
-			0,          //_In_         DWORD dwCreationFlags,
-			nullptr,    //_In_opt_     LPVOID lpEnvironment,
-			nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
-			&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
-			&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
-		) == FALSE)
+				nullptr,    //_In_opt_     LPCTSTR lpApplicationName,
+				cmd.data(), //_Inout_opt_  LPTSTR lpCommandLine,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpProcessAttributes,
+				nullptr,    //_In_opt_     LPSECURITY_ATTRIBUTES lpThreadAttributes,
+				TRUE,       //_In_         BOOL bInheritHandles,
+				0,          //_In_         DWORD dwCreationFlags,
+				nullptr,    //_In_opt_     LPVOID lpEnvironment,
+				nullptr,    //_In_opt_     LPCTSTR lpCurrentDirectory,
+				&si,        //_In_         LPSTARTUPINFO lpStartupInfo,
+				&pi         //_Out_        LPPROCESS_INFORMATION lpProcessInformation
+				) == FALSE)
 		{
 			DWORD err = GetLastError();
 			displayError(TEXT("Unable to execute."), err);
@@ -221,7 +208,7 @@ namespace Vcl { namespace Tools { namespace Cui
 	}
 }}}
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Cui;
 
@@ -239,6 +226,7 @@ int main(int argc, char* argv [])
 
 	try
 	{
+		// clang-format off
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
@@ -248,6 +236,7 @@ int main(int argc, char* argv [])
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
 			;
+		// clang-format on
 		options.parse_positional("input-file");
 
 		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
@@ -263,8 +252,7 @@ int main(int argc, char* argv [])
 		{
 			fs::path exe_path = parsed_options["nvcc"].as<std::string>();
 			nvcc_bin_path = exe_path.parent_path();
-		}
-		else
+		} else
 		{
 			nvcc_bin_path = getenv("CUDA_PATH");
 			nvcc_bin_path.append("bin");
@@ -314,8 +302,7 @@ int main(int argc, char* argv [])
 		ww.open(parsed_options["output-file"].as<std::string>(), std::ios_base::binary);
 		createWrappers(ww, kernels, module_buffer);
 		ww.close();
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;

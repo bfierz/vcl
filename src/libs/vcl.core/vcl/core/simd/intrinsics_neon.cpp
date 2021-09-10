@@ -26,14 +26,13 @@
 
 #if defined(VCL_VECTORIZE_NEON)
 VCL_BEGIN_EXTERNAL_HEADERS
-#include <vcl/core/simd/detail/neon_mathfun.h>
+#	include <vcl/core/simd/detail/neon_mathfun.h>
 VCL_END_EXTERNAL_HEADERS
 
 // VCL
-#include <vcl/core/simd/vectorscalar.h>
+#	include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 
 	float32x4_t vsinq_f32(float32x4_t v)
 	{
@@ -54,7 +53,7 @@ namespace Vcl
 	{
 		return exp_ps(v);
 	}
-	
+
 	float32x4_t vpowq_f32(float32x4_t x, float32x4_t y)
 	{
 		return vexpq_f32(vmulq_f32(vlogq_f32(x), y));
@@ -103,10 +102,9 @@ namespace Vcl
 		ret -= 0.2121144f;
 		ret *= x;
 		ret += 1.5707288f;
-		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x)*ret;
+		ret = 3.14159265358979f * 0.5f - sqrt(1.0f - x) * ret;
 		return (ret - 2.0f * negate * ret).get(0);
 	}
-
 
 	float32x4_t vatan2q_f32(float32x4_t in_y, float32x4_t in_x)
 	{
@@ -145,25 +143,5 @@ namespace Vcl
 		const float4 v{ x };
 		return select(v == 0.0f, 0.0f, v * rsqrt(v)).get(0);
 	}
-
-//	float32x4_t _mmVCL_floor_ps(float32x4_t x)
-//	{
-//#ifdef VCL_VECTORIZE_SSE4_1
-//		return _mm_floor_ps(x);
-//#else
-//		// The following implementations are taken from:
-//		// http://dss.stephanierct.com/DevBlog/?p=8
-//
-//		float32x4_ti v0 = _mm_setzero_si128();
-//		float32x4_ti v1 = _mm_cmpeq_epi32(v0,v0);
-//		float32x4_ti ji = _mm_srli_epi32( v1, 25);
-//		float32x4_t j = _mm_castsi128_ps(_mm_slli_epi32(ji, 23)); //create vector 1.0f
-//		float32x4_ti i = _mm_cvttps_epi32(x);
-//		float32x4_t fi = _mm_cvtepi32_ps(i);
-//		float32x4_t igx = _mm_cmpgt_ps(fi, x);
-//		j = _mm_and_ps(igx, j);
-//		return _mm_sub_ps(fi, j);
-//#endif
-//	}
 }
-#endif // defined(VCL_VECTORIZE_NEON)
+#endif

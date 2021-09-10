@@ -24,12 +24,11 @@
  */
 #include <vcl/compute/cuda/commandqueue.h>
 
-// VCL 
+// VCL
 #include <vcl/compute/cuda/buffer.h>
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace Cuda
-{
+namespace Vcl { namespace Compute { namespace Cuda {
 	CommandQueue::CommandQueue(Context* owner)
 	: Compute::CommandQueue()
 	, _ownerCtx(owner)
@@ -58,7 +57,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 		auto& dstBuffer = static_cast<Buffer&>(dst.owner());
 		auto& srcBuffer = static_cast<const Buffer&>(src.owner());
 
-		VCL_CU_SAFE_CALL(cuMemcpyDtoDAsync((CUdeviceptr) dstBuffer + src.offset(), (CUdeviceptr) srcBuffer + src.offset(), src.size(), _queue));
+		VCL_CU_SAFE_CALL(cuMemcpyDtoDAsync((CUdeviceptr)dstBuffer + src.offset(), (CUdeviceptr)srcBuffer + src.offset(), src.size(), _queue));
 	}
 
 	void CommandQueue::read(void* dst, ConstBufferView src, bool blocking)
@@ -68,7 +67,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		auto& cuBuffer = static_cast<const Buffer&>(src.owner());
 
-		VCL_CU_SAFE_CALL(cuMemcpyDtoHAsync(dst, (CUdeviceptr) cuBuffer + src.offset(), src.size(), _queue));
+		VCL_CU_SAFE_CALL(cuMemcpyDtoHAsync(dst, (CUdeviceptr)cuBuffer + src.offset(), src.size(), _queue));
 
 		if (blocking)
 			sync();
@@ -81,7 +80,7 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		auto& cuBuffer = static_cast<Buffer&>(dst.owner());
 
-		VCL_CU_SAFE_CALL(cuMemcpyHtoDAsync((CUdeviceptr) cuBuffer + dst.offset(), src, dst.size(), _queue));
+		VCL_CU_SAFE_CALL(cuMemcpyHtoDAsync((CUdeviceptr)cuBuffer + dst.offset(), src, dst.size(), _queue));
 
 		if (blocking)
 			sync();
@@ -96,15 +95,13 @@ namespace Vcl { namespace Compute { namespace Cuda
 
 		if (pattern_size == 1)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD8Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint8_t*) pattern, dst.size() / sizeof(uint8_t), _queue));
-		}
-		else if (pattern_size == 2)
+			VCL_CU_SAFE_CALL(cuMemsetD8Async((CUdeviceptr)cuBuffer + dst.offset(), *(const uint8_t*)pattern, dst.size() / sizeof(uint8_t), _queue));
+		} else if (pattern_size == 2)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD16Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint16_t*) pattern, dst.size() / sizeof(uint16_t), _queue));
-		}
-		else if (pattern_size == 4)
+			VCL_CU_SAFE_CALL(cuMemsetD16Async((CUdeviceptr)cuBuffer + dst.offset(), *(const uint16_t*)pattern, dst.size() / sizeof(uint16_t), _queue));
+		} else if (pattern_size == 4)
 		{
-			VCL_CU_SAFE_CALL(cuMemsetD32Async((CUdeviceptr) cuBuffer + dst.offset(), *(const uint32_t*) pattern, dst.size() / sizeof(uint32_t), _queue));
+			VCL_CU_SAFE_CALL(cuMemsetD32Async((CUdeviceptr)cuBuffer + dst.offset(), *(const uint32_t*)pattern, dst.size() / sizeof(uint32_t), _queue));
 		}
 	}
 }}}

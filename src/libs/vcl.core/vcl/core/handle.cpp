@@ -27,8 +27,7 @@
 // C++ standard library
 #include <chrono>
 
-namespace Vcl
-{
+namespace Vcl {
 	uint32_t createResourceHandleTag(void* owner) noexcept
 	{
 		// Generate a new resource tag

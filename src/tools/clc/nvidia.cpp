@@ -48,23 +48,20 @@ tNvCliCompileProgram nvCompileProgram;
 tNvCliCompileLogFree nvCompileLogFree;
 tNvCliCompiledProgramFree nvCompiledProgramFree;
 
-namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
-{
+namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia {
 #ifdef VCL_ABI_WINAPI
 
 	void print_error()
 	{
 		char* message = nullptr;
-		FormatMessage
-		(
+		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 			nullptr,
 			GetLastError(),
 			0,
-			(LPSTR) &message,
+			(LPSTR)&message,
 			0,
-			nullptr
-		);
+			nullptr);
 #	ifdef VCL_ABI_WIN64
 		std::cerr << "nvcompiler.dll: " << message << std::endl;
 #	else
@@ -77,7 +74,7 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 	{
 #	ifdef VCL_ABI_WIN64
 		nvCompilerModule = LoadLibrary("nvcompiler.dll");
-#	else 
+#	else
 		nvCompilerModule = LoadLibrary("nvcompiler32.dll");
 #	endif
 		if (!nvCompilerModule)
@@ -86,21 +83,21 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 			return false;
 		}
 
-		nvCompileProgram = (tNvCliCompileProgram) GetProcAddress(nvCompilerModule, "NvCliCompileProgram");
+		nvCompileProgram = (tNvCliCompileProgram)GetProcAddress(nvCompilerModule, "NvCliCompileProgram");
 		if (!nvCompileProgram)
 		{
 			print_error();
 			return false;
 		}
 
-		nvCompileLogFree = (tNvCliCompileLogFree) GetProcAddress(nvCompilerModule, "NvCliCompileLogFree");
+		nvCompileLogFree = (tNvCliCompileLogFree)GetProcAddress(nvCompilerModule, "NvCliCompileLogFree");
 		if (!nvCompileLogFree)
 		{
 			print_error();
 			return false;
 		}
 
-		nvCompiledProgramFree = (tNvCliCompiledProgramFree) GetProcAddress(nvCompilerModule, "NvCliCompiledProgramFree");
+		nvCompiledProgramFree = (tNvCliCompiledProgramFree)GetProcAddress(nvCompilerModule, "NvCliCompiledProgramFree");
 		if (!nvCompiledProgramFree)
 		{
 			print_error();
@@ -109,7 +106,7 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 
 		return true;
 	}
-	
+
 	void releaseCompiler()
 	{
 		nvCompileProgram = nullptr;
@@ -122,15 +119,17 @@ namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
 			nvCompilerModule = nullptr;
 		}
 	}
-	
+
 #elif defined(VCL_ABI_POSIX)
 #endif
 
-	int compileProgram
-	(
-		const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
-		const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
-	)
+	int compileProgram(
+		const char** sourceStrings,
+		unsigned int sourceStringsCount,
+		const size_t* sourceStringsLengths,
+		const char* compilerOptions,
+		char** compileLogRet,
+		char** compiledProgramRet)
 	{
 		return nvCompileProgram(sourceStrings, sourceStringsCount, sourceStringsLengths, compilerOptions, compileLogRet, compiledProgramRet);
 	}

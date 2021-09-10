@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
 	unsigned int ui = 0;
 	for (const auto& plat : Platform::instance()->availablePlatforms())
 	{
-		std::cout << ui << ": OpenCL name: "      << plat.Name << std::endl;
-		std::cout << ui << ": OpenCL profile: "   << plat.Profile << std::endl;
-		std::cout << ui << ": OpenCL version: "   << plat.Version << std::endl;
-		std::cout << ui << ": OpenCL vendor: "    << plat.Vendor << std::endl;
+		std::cout << ui << ": OpenCL name: " << plat.Name << std::endl;
+		std::cout << ui << ": OpenCL profile: " << plat.Profile << std::endl;
+		std::cout << ui << ": OpenCL version: " << plat.Version << std::endl;
+		std::cout << ui << ": OpenCL vendor: " << plat.Vendor << std::endl;
 
 		std::cout << ui << ": OpenCL extensions:" << std::endl;
 		for (const auto& ext : plat.Extensions)

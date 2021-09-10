@@ -80,8 +80,8 @@ static FP32 half_to_float_fast5(FP16 h)
 	FP32 o;
 
 	o.u = (h.u & 0x7fff) << 13; // exponent/mantissa bits
-	o.f *= magic.f; // exponent adjust
-	if (o.f >= was_infnan.f) // make sure Inf/NaN survive
+	o.f *= magic.f;             // exponent adjust
+	if (o.f >= was_infnan.f)    // make sure Inf/NaN survive
 		o.u |= 255 << 23;
 	o.u |= (h.u & 0x8000) << 16; // sign bit
 	return o;
@@ -113,7 +113,6 @@ static FP16 approx_float_to_half(FP32 f)
 	o.u |= sign >> 16;
 	return o;
 }
-
 
 TEST(OpenGL, ImageProcessingTaskSRGB)
 {
@@ -388,7 +387,7 @@ TEST(OpenGL, ImageProcessingTaskGaussian)
 
 	// Read the output
 	auto& out_tex = static_cast<const Runtime::OpenGL::Texture2D&>(*output);
-	out_tex.read(4*blurred_image.size(), blurred_image.data());
+	out_tex.read(4 * blurred_image.size(), blurred_image.data());
 
 	bool equal = true;
 	for (int y = 0; y < 81; y++)
@@ -396,11 +395,12 @@ TEST(OpenGL, ImageProcessingTaskGaussian)
 		for (int x = 0; x < 81; x++)
 		{
 			// Account for off-by-one OpenGL implementation based differences
-			const auto cmp = [](unsigned char a, unsigned char b)
-			{
+			const auto cmp = [](unsigned char a, unsigned char b) {
 				unsigned char res = 0;
-				if (a >= b) res = a - b;
-				else res = b - a;
+				if (a >= b)
+					res = a - b;
+				else
+					res = b - a;
 				return res == 0 || res == 1;
 			};
 			bool r = cmp(blurred_image[y * 81 + x][0], blurred_image_ref[y * 81 + x][0]);
@@ -439,7 +439,7 @@ TEST(OpenGL, ImageProcessingSimpleGraph)
 	init_res.Width = 81;
 	init_res.Height = 81;
 	init_res.Format = SurfaceFormat::R8G8B8A8_UNORM;
-	init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(input_image.data()), input_image.size()*sizeof(decltype(input_image)::value_type));
+	init_res.Data = stdext::make_span(reinterpret_cast<const uint8_t*>(input_image.data()), input_image.size() * sizeof(decltype(input_image)::value_type));
 
 	Runtime::Texture2DDescription desc2d;
 	desc2d.Format = SurfaceFormat::R16G16B16A16_FLOAT;
@@ -481,11 +481,12 @@ TEST(OpenGL, ImageProcessingSimpleGraph)
 		for (int x = 0; x < 81; x++)
 		{
 			// Account for off-by-one OpenGL implementation based differences
-			const auto cmp = [](unsigned char a, unsigned char b)
-			{
+			const auto cmp = [](unsigned char a, unsigned char b) {
 				unsigned char res = 0;
-				if (a >= b) res = a - b;
-				else res = b - a;
+				if (a >= b)
+					res = a - b;
+				else
+					res = b - a;
 				return res == 0 || res == 1;
 			};
 			bool r = cmp(blurred_image[y * 81 + x][0], blurred_image_ref[y * 81 + x][0]);

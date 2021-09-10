@@ -36,8 +36,7 @@
 #include <vcl/math/solver/eigenconjugategradientscontext.h>
 #include <vcl/math/solver/poisson.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	template<typename Real>
 	class Poisson3DCgCtx : public EigenCgBaseContext<Real, Eigen::Dynamic>
 	{
@@ -47,21 +46,21 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 	public:
 		Poisson3DCgCtx(Eigen::Vector3ui dim)
-		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x()*dim.y()*dim.z() }
+		: EigenCgBaseContext<Real, Eigen::Dynamic>{ dim.x() * dim.y() * dim.z() }
 		, _dim{ dim }
-		, _rhs{ nullptr, static_cast<Eigen::Index>(dim.x()*dim.y()*dim.z()) }
+		, _rhs{ nullptr, static_cast<Eigen::Index>(dim.x() * dim.y() * dim.z()) }
 		{
 			for (auto& A : _laplacian)
 			{
-				A.resize(_dim.x()*_dim.y()*_dim.z());
+				A.resize(_dim.x() * _dim.y() * _dim.z());
 			}
 		}
-		
+
 	public:
 		void setData(map_t unknowns, map_t rhs)
 		{
 			this->setX(unknowns);
-			new(&_rhs) map_t(rhs);
+			new (&_rhs) map_t(rhs);
 		}
 
 		void updatePoissonStencil(real_t h, real_t k, real_t o, Eigen::Map<const Eigen::Matrix<unsigned char, Eigen::Dynamic, 1>> skip)
@@ -74,14 +73,12 @@ namespace Vcl { namespace Mathematics { namespace Solver
 			auto& Az_l = _laplacian[5];
 			auto& Az_r = _laplacian[6];
 
-			makePoissonStencil
-			(
+			makePoissonStencil(
 				_dim, h, k, o, map_t{ Ac.data(), Ac.size() },
 				map_t{ Ax_l.data(), Ax_l.size() }, map_t{ Ax_r.data(), Ax_r.size() },
 				map_t{ Ay_l.data(), Ay_l.size() }, map_t{ Ay_r.data(), Ay_r.size() },
 				map_t{ Az_l.data(), Az_l.size() }, map_t{ Az_r.data(), Az_r.size() },
-				skip
-			);
+				skip);
 		}
 
 	public:
@@ -114,19 +111,19 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 					{
 						float q = 0;
-							q += unknowns[index      ] * Ac[index];
+						q += unknowns[index] * Ac[index];
 						if (sx > 0)
-							q += unknowns[index - 1  ] * Ax_l[index];
+							q += unknowns[index - 1] * Ax_l[index];
 						if (sx < X - 1)
-							q += unknowns[index + 1  ] * Ax_r[index];
+							q += unknowns[index + 1] * Ax_r[index];
 						if (sy > 0)
-							q += unknowns[index - X  ] * Ay_l[index];
+							q += unknowns[index - X] * Ay_l[index];
 						if (sy < Y - 1)
-							q += unknowns[index + X  ] * Ay_r[index];
+							q += unknowns[index + X] * Ay_r[index];
 						if (sz > 0)
-							q += unknowns[index - X*Y] * Az_l[index];
+							q += unknowns[index - X * Y] * Az_l[index];
 						if (sz < Z - 1)
-							q += unknowns[index + X*Y] * Az_r[index];
+							q += unknowns[index + X * Y] * Az_r[index];
 
 						q = (Ac[index] != 0) ? (rhs[index] - q) : 0;
 
@@ -163,19 +160,19 @@ namespace Vcl { namespace Mathematics { namespace Solver
 					for (ptrdiff_t sx = 0; sx < X; sx++, index++)
 					{
 						float q = 0;
-							q += d[index      ] * Ac[index];
+						q += d[index] * Ac[index];
 						if (sx > 0)
-							q += d[index - 1  ] * Ax_l[index];
+							q += d[index - 1] * Ax_l[index];
 						if (sx < X - 1)
-							q += d[index + 1  ] * Ax_r[index];
+							q += d[index + 1] * Ax_r[index];
 						if (sy > 0)
-							q += d[index - X  ] * Ay_l[index];
+							q += d[index - X] * Ay_l[index];
 						if (sy < Y - 1)
-							q += d[index + X  ] * Ay_r[index];
+							q += d[index + X] * Ay_r[index];
 						if (sz > 0)
-							q += d[index - X*Y] * Az_l[index];
+							q += d[index - X * Y] * Az_l[index];
 						if (sz < Z - 1)
-							q += d[index + X*Y] * Az_r[index];
+							q += d[index + X * Y] * Az_r[index];
 
 						q = (Ac[index] != 0) ? q : 0;
 
@@ -184,6 +181,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 				}
 			}
 		}
+
 	private:
 		//! Dimensions of the grid
 		Eigen::Vector3ui _dim;

@@ -39,17 +39,13 @@
 
 // Copy entire file to container
 // Source: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
-template <typename Char, typename Traits, typename Allocator = std::allocator<Char>>
-std::basic_string<Char, Traits, Allocator> read_stream_into_string
-(
+template<typename Char, typename Traits, typename Allocator = std::allocator<Char>>
+std::basic_string<Char, Traits, Allocator> read_stream_into_string(
 	std::basic_istream<Char, Traits>& in,
-	Allocator alloc = {}
-)
+	Allocator alloc = {})
 {
-	std::basic_ostringstream<Char, Traits, Allocator> ss
-	(
-		std::basic_string<Char, Traits, Allocator>(std::move(alloc))
-	);
+	std::basic_ostringstream<Char, Traits, Allocator> ss(
+		std::basic_string<Char, Traits, Allocator>(std::move(alloc)));
 
 	if (!(ss << in.rdbuf()))
 		throw std::ios_base::failure{ "error" };
@@ -57,16 +53,16 @@ std::basic_string<Char, Traits, Allocator> read_stream_into_string
 	return ss.str();
 }
 
-int main(int argc, char* argv [])
+int main(int argc, char* argv[])
 {
 	cxxopts::Options options(argv[0], "bin2c - command line options");
-	
+
 	// Output width
 	int width = 1;
-	
+
 	// Export symbol name
 	std::string export_symbol{ "BinData" };
-	
+
 	// Input file
 	std::ifstream ifile;
 
@@ -75,6 +71,7 @@ int main(int argc, char* argv [])
 
 	try
 	{
+		// clang-format off
 		options.add_options()
 			("help", "Print this help information on this tool.")
 			("version", "Print version information on this tool.")
@@ -83,10 +80,11 @@ int main(int argc, char* argv [])
 			("o,output-file", "Specify the output file.", cxxopts::value<std::string>())
 			("input-file", "Specify the input file.", cxxopts::value<std::string>())
 			;
+		// clang-format on
 		options.parse_positional("input-file");
 
 		cxxopts::ParseResult parsed_options = options.parse(argc, argv);
-		
+
 		if (parsed_options.count("help") > 0)
 		{
 			std::cout << options.help({ "" }) << std::endl;
@@ -110,7 +108,7 @@ int main(int argc, char* argv [])
 
 			width = group;
 		}
-		
+
 		if (parsed_options.count("symbol") > 0)
 		{
 			export_symbol = parsed_options["symbol"].as<std::string>();
@@ -118,8 +116,7 @@ int main(int argc, char* argv [])
 
 		ifile.open(parsed_options["input-file"].as<std::string>(), std::ios_base::binary | std::ios_base::in);
 		ofile.open(parsed_options["output-file"].as<std::string>());
-	}
-	catch (const cxxopts::OptionException& e)
+	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;
 		return 1;
@@ -157,22 +154,24 @@ int main(int argc, char* argv [])
 		if (ofile.is_open())
 		{
 			// Write header
-			ofile << R"(#include <cstddef>)" << "\n";
-			ofile << R"(#include <cstdint>)" << "\n";
+			ofile << R"(#include <cstddef>)"
+				  << "\n";
+			ofile << R"(#include <cstdint>)"
+				  << "\n";
 			ofile << width_symbol << " " << export_symbol << "[] = \n{\n";
 
 			// Write data
 			ofile << "\t";
-			for (int e = 0; e + width <= (int) tmp_buffer.size(); e += width)
+			for (int e = 0; e + width <= (int)tmp_buffer.size(); e += width)
 			{
 				ofile << "0x";
 				for (int i = width - 1; i >= 0; i--)
 				{
-					unsigned int content = (unsigned int) (unsigned char) tmp_buffer[e + i];
+					unsigned int content = (unsigned int)(unsigned char)tmp_buffer[e + i];
 					ofile << std::setfill('0') << std::hex << std::setw(2) << content;
 				}
 
-				if (e + 2*width <= (int) tmp_buffer.size())
+				if (e + 2 * width <= (int)tmp_buffer.size())
 				{
 					ofile << ", ";
 

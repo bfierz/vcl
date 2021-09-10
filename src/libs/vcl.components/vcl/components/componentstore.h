@@ -38,8 +38,7 @@
 #include <vcl/components/entity.h>
 #include <vcl/rtti/metatypelookup.h>
 
-namespace Vcl { namespace Components
-{
+namespace Vcl { namespace Components {
 	template<typename T>
 	struct ComponentTraits
 	{
@@ -53,7 +52,8 @@ namespace Vcl { namespace Components
 	class ComponentStoreBase
 	{
 	public:
-		ComponentStoreBase(const Vcl::RTTI::Type* type) : _type(type) {}
+		ComponentStoreBase(const Vcl::RTTI::Type* type)
+		: _type(type) {}
 		virtual ~ComponentStoreBase() = default;
 
 		//! \returns the type of the components in this store
@@ -71,7 +71,7 @@ namespace Vcl { namespace Components
 		//! The type of the components in this store
 		const Vcl::RTTI::Type* _type;
 	};
-	
+
 	/*!
 	 *	\class ComponentStore
 	 *	\brief Manage the live time of a single component type
@@ -86,7 +86,8 @@ namespace Vcl { namespace Components
 		using ComponentType = T;
 
 	public:
-		ComponentStore() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+		ComponentStore()
+		: ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
 
 		bool empty() const override
 		{
@@ -150,7 +151,8 @@ namespace Vcl { namespace Components
 		using Store = std::unordered_multimap<EntityId, ComponentType>;
 
 	public:
-		MultiComponentStoreBase() : ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
+		MultiComponentStoreBase()
+		: ComponentStoreBase(vcl_meta_type<ComponentType>()) {}
 
 		bool empty() const override
 		{
@@ -167,7 +169,7 @@ namespace Vcl { namespace Components
 			auto itr = (*this)(id);
 			for (auto it = itr.first; it != itr.second; ++it)
 			{
-				components.emplace_back((void*) &it->second, type());
+				components.emplace_back((void*)&it->second, type());
 			}
 		}
 
@@ -214,7 +216,6 @@ namespace Vcl { namespace Components
 		MultiComponentStore(Func&& f)
 		: _func(std::forward<Func&&>(f))
 		{
-
 		}
 
 	public:

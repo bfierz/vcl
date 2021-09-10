@@ -28,24 +28,27 @@
 
 // Prototypes of the NV compiler
 // Description of prototypes is taken from: https://github.com/ljbade/clcc
-typedef int (*tNvCliCompileProgram)
-(
-	const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
-	const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
-);
-typedef void (*tNvCliCompileLogFree) (const char* compileLog);
-typedef void (*tNvCliCompiledProgramFree) (const char* compiledProgram);
+typedef int (*tNvCliCompileProgram)(
+	const char** sourceStrings,
+	unsigned int sourceStringsCount,
+	const size_t* sourceStringsLengths,
+	const char* compilerOptions,
+	char** compileLogRet,
+	char** compiledProgramRet);
+typedef void (*tNvCliCompileLogFree)(const char* compileLog);
+typedef void (*tNvCliCompiledProgramFree)(const char* compiledProgram);
 
-namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia
-{
+namespace Vcl { namespace Tools { namespace Clc { namespace Nvidia {
 	bool loadCompiler();
 	void releaseCompiler();
 
-	int compileProgram
-	(
-		const char** sourceStrings, unsigned int sourceStringsCount, const size_t* sourceStringsLengths,
-		const char*  compilerOptions, char** compileLogRet, char** compiledProgramRet
-	);
+	int compileProgram(
+		const char** sourceStrings,
+		unsigned int sourceStringsCount,
+		const size_t* sourceStringsLengths,
+		const char* compilerOptions,
+		char** compileLogRet,
+		char** compiledProgramRet);
 
 	void freeLog(const char* compileLog);
 	void freeProgramBinary(const char* compiledProgram);

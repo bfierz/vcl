@@ -30,16 +30,18 @@
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	WGPUCullMode toWebGPU(CullModeMethod op)
 	{
 		switch (op)
 		{
-		case CullModeMethod::None:  return WGPUCullMode_None;
+		case CullModeMethod::None: return WGPUCullMode_None;
 		case CullModeMethod::Front: return WGPUCullMode_Front;
-		case CullModeMethod::Back:  return WGPUCullMode_Back;
-		default: { VclDebugError("Enumeration value is valid."); }
+		case CullModeMethod::Back: return WGPUCullMode_Back;
+		default:
+		{
+			VclDebugError("Enumeration value is valid.");
+		}
 		}
 
 		return WGPUCullMode_Force32;

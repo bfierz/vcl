@@ -25,18 +25,20 @@
 #define VCL_UTIL_VECTORNOISE_INST
 #include <vcl/util/vectornoise.h>
 
-namespace Vcl { namespace Util
-{
-	template<int N> VectorNoise<N>::VectorNoise()
+namespace Vcl { namespace Util {
+	template<int N>
+	VectorNoise<N>::VectorNoise()
 	{
 		_noise1 = std::make_unique<WaveletNoise<N>>();
 		_noise2 = std::make_unique<WaveletNoise<N>>();
 		_noise3 = std::make_unique<WaveletNoise<N>>();
 	}
 
-	template<int N> VectorNoise<N>::~VectorNoise() = default;
+	template<int N>
+	VectorNoise<N>::~VectorNoise() = default;
 
-	template<int N> Eigen::Vector3f VectorNoise<N>::evaluate(const typename WaveletNoise<N>::Vec3& p) const
+	template<int N>
+	Eigen::Vector3f VectorNoise<N>::evaluate(const typename WaveletNoise<N>::Vec3& p) const
 	{
 		const float f1y = _noise1->dy(p);
 		const float f1z = _noise1->dz(p);

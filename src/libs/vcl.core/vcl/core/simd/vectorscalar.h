@@ -37,8 +37,7 @@
 #include <vcl/core/preprocessor.h>
 #include <vcl/math/math.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename Scalar, int Width>
 	class VectorScalar
 	{
@@ -92,15 +91,12 @@ namespace Vcl
 #	include <vcl/core/simd/int4_ref.h>
 #	include <vcl/core/simd/int8_ref.h>
 #	include <vcl/core/simd/int16_ref.h>
-namespace Vcl
-{
+namespace Vcl {
 	template<typename Scalar, int Width>
-	VectorScalar<Scalar, Width> select
-	(
+	VectorScalar<Scalar, Width> select(
 		const VectorScalar<bool, Width>& mask,
 		const VectorScalar<Scalar, Width>& a,
-		const VectorScalar<Scalar, Width>& b
-	)
+		const VectorScalar<Scalar, Width>& b)
 	{
 		VectorScalar<Scalar, Width> res;
 		for (int i = 0; i < Width; i++)
@@ -138,7 +134,7 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	std::ostream& operator<< (std::ostream &s, const VectorScalar<Scalar, Width>& rhs)
+	std::ostream& operator<<(std::ostream& s, const VectorScalar<Scalar, Width>& rhs)
 	{
 		s << "'" << rhs[0];
 		for (int i = 1; i < Width; i++)
@@ -149,8 +145,7 @@ namespace Vcl
 }
 #endif
 
-namespace Vcl
-{
+namespace Vcl {
 	template<typename T>
 	struct VectorTypes
 	{};
@@ -167,8 +162,8 @@ namespace Vcl
 	struct VectorTypes<VectorScalar<float, 4>>
 	{
 		using float_t = VectorScalar<float, 4>;
-		using int_t   = VectorScalar<int, 4>;
-		using bool_t  = VectorScalar<bool, 4>;
+		using int_t = VectorScalar<int, 4>;
+		using bool_t = VectorScalar<bool, 4>;
 	};
 
 	template<>
@@ -244,26 +239,27 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator +(Scalar a, const VectorScalar<Scalar, Width>& b)
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator+(Scalar a, const VectorScalar<Scalar, Width>& b)
 	{
 		return VectorScalar<Scalar, Width>(a) + b;
 	}
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator -(Scalar a, const VectorScalar<Scalar, Width>& b)
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator-(Scalar a, const VectorScalar<Scalar, Width>& b)
 	{
-		return VectorScalar<Scalar, Width>(a) -b;
+		return VectorScalar<Scalar, Width>(a) - b;
 	}
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator *(Scalar a, const VectorScalar<Scalar, Width>& b)
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator*(Scalar a, const VectorScalar<Scalar, Width>& b)
 	{
 		return VectorScalar<Scalar, Width>(a) * b;
 	}
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator /(Scalar a, const VectorScalar<Scalar, Width>& b)
+	VCL_STRONG_INLINE VectorScalar<Scalar, Width> operator/(Scalar a, const VectorScalar<Scalar, Width>& b)
 	{
 		return VectorScalar<Scalar, Width>(a) / b;
 	}
 
+	// clang-format off
 	template<int Width> VCL_STRONG_INLINE Vcl::VectorScalar<bool, Width> isinf(const Vcl::VectorScalar<float, Width>& x) { return x.isinf(); }
 
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> abs  (const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.abs(); }
@@ -285,6 +281,7 @@ namespace Vcl
 
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar min(const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.min(); }
 	template<typename Scalar, int Width> VCL_STRONG_INLINE Scalar max(const Vcl::VectorScalar<Scalar, Width>& x) noexcept { return x.max(); }
+	// clang-format on
 
 	template<int Width>
 	VCL_STRONG_INLINE Vcl::VectorScalar<float, Width> sgn(const Vcl::VectorScalar<float, Width>& x)
@@ -330,12 +327,10 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width, int Rows, int Cols>
-	VCL_STRONG_INLINE Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> select
-	(
+	VCL_STRONG_INLINE Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> select(
 		const VectorScalar<bool, Width>& mask,
 		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& a,
-		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& b
-	)
+		const Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols>& b)
 	{
 		Eigen::Matrix<VectorScalar<Scalar, Width>, Rows, Cols> selected;
 		for (int c = 0; c < Cols; c++)
@@ -350,12 +345,10 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width, size_t N>
-	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select
-	(
+	VCL_STRONG_INLINE std::array<VectorScalar<Scalar, Width>, N> select(
 		const VectorScalar<bool, Width>& mask,
 		const std::array<VectorScalar<Scalar, Width>, N>& a,
-		const std::array<VectorScalar<Scalar, Width>, N>& b
-	)
+		const std::array<VectorScalar<Scalar, Width>, N>& b)
 	{
 		std::array<VectorScalar<Scalar, Width>, N> selected;
 
@@ -414,32 +407,30 @@ namespace Vcl
 	}
 
 	template<typename Scalar, int Width>
-	VCL_STRONG_INLINE VectorScalar<bool, Width> equal
-	(
+	VCL_STRONG_INLINE VectorScalar<bool, Width> equal(
 		const VectorScalar<Scalar, Width>& x,
 		const VectorScalar<Scalar, Width>& y,
-		const VectorScalar<Scalar, Width>& tol = 0
-	)
+		const VectorScalar<Scalar, Width>& tol = 0)
 	{
 		return abs(x - y) <= tol * max(VectorScalar<Scalar, Width>(1), max(abs(x), abs(y)));
 	}
 
-	typedef VectorScalar<float,  4> float4;
-	typedef VectorScalar<float,  8> float8;
+	typedef VectorScalar<float, 4> float4;
+	typedef VectorScalar<float, 8> float8;
 	typedef VectorScalar<float, 16> float16;
 
-	typedef VectorScalar<int,  4> int4;
-	typedef VectorScalar<int,  8> int8;
+	typedef VectorScalar<int, 4> int4;
+	typedef VectorScalar<int, 8> int8;
 	typedef VectorScalar<int, 16> int16;
 
-	typedef VectorScalar<bool,  4> bool4;
-	typedef VectorScalar<bool,  8> bool8;
+	typedef VectorScalar<bool, 4> bool4;
+	typedef VectorScalar<bool, 8> bool8;
 	typedef VectorScalar<bool, 16> bool16;
 }
 
-namespace Eigen
-{
-	template<> struct NumTraits<Vcl::float4> : GenericNumTraits<Vcl::float4>
+namespace Eigen {
+	template<>
+	struct NumTraits<Vcl::float4> : GenericNumTraits<Vcl::float4>
 	{
 		enum
 		{
@@ -460,7 +451,8 @@ namespace Eigen
 		EIGEN_STRONG_INLINE static Vcl::float4 infinity() noexcept { return std::numeric_limits<float>::infinity(); }
 		EIGEN_STRONG_INLINE static Vcl::float4 quiet_NaN() noexcept { return std::numeric_limits<float>::quiet_NaN(); }
 	};
-	template<> struct NumTraits<Vcl::float8> : GenericNumTraits<Vcl::float8>
+	template<>
+	struct NumTraits<Vcl::float8> : GenericNumTraits<Vcl::float8>
 	{
 		enum
 		{
@@ -481,7 +473,8 @@ namespace Eigen
 		EIGEN_STRONG_INLINE static Vcl::float8 infinity() noexcept { return std::numeric_limits<float>::infinity(); }
 		EIGEN_STRONG_INLINE static Vcl::float8 quiet_NaN() noexcept { return std::numeric_limits<float>::quiet_NaN(); }
 	};
-	template<> struct NumTraits<Vcl::float16> : GenericNumTraits<Vcl::float16>
+	template<>
+	struct NumTraits<Vcl::float16> : GenericNumTraits<Vcl::float16>
 	{
 		enum
 		{
@@ -504,8 +497,8 @@ namespace Eigen
 	};
 }
 
-namespace Eigen { namespace numext
-{
+// clang-format off
+namespace Eigen { namespace numext {
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& conj(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE const Vcl::VectorScalar<Scalar, Width>& real(const Vcl::VectorScalar<Scalar, Width>& x)  { return x; }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> imag(const Vcl::VectorScalar<Scalar, Width>&)   { return Vcl::VectorScalar<Scalar, Width>(0); }
@@ -518,3 +511,4 @@ namespace Eigen { namespace numext
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> cos (const Vcl::VectorScalar<Scalar, Width>& x) { return x.cos(); }
 	template<typename Scalar, int Width> EIGEN_STRONG_INLINE Vcl::VectorScalar<Scalar, Width> pow (const Vcl::VectorScalar<Scalar, Width>& x, const Vcl::VectorScalar<Scalar, Width>& y)  { return x.pow(y); }
 }}
+// clang-format on

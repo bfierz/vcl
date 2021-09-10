@@ -31,8 +31,7 @@
 #include <vcl/rtti/metatype.h>
 #include <vcl/rtti/metatyperegistry.h>
 
-namespace Vcl { namespace RTTI
-{
+namespace Vcl { namespace RTTI {
 	class Factory
 	{
 	public:

@@ -27,7 +27,7 @@
 // C++ Standard Library
 #include <array>
 
- // Windows Runtime Library
+// Windows Runtime Library
 #define NOMINMAX
 #include <tchar.h>
 #include <wrl.h>
@@ -53,7 +53,7 @@ public:
 
 	HWND windowHandle() const { return _windowHandle; }
 	Vcl::Graphics::D3D12::Device* device() const { return _device.get(); }
-	Vcl::Graphics::D3D12::SwapChain* swapChain() const{ return _swapChain.get(); }
+	Vcl::Graphics::D3D12::SwapChain* swapChain() const { return _swapChain.get(); }
 
 	int run();
 

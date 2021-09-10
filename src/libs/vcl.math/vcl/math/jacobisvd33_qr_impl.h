@@ -37,10 +37,9 @@
 #include <vcl/math/math.h>
 #include <vcl/math/qr33_impl.h>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(push, off) 
+#	pragma strict_gs_check(push, off)
 #endif // VCL_COMPILER_MSVC
 
 	/*
@@ -75,17 +74,17 @@ namespace Vcl { namespace Mathematics
 		auto c0 = r0 < r1;
 		cnswap(c0, b0, b1);
 		cnswap(c0, v0, v1);
-		cswap (c0, r0, r1);
+		cswap(c0, r0, r1);
 
 		auto c1 = r0 < r2;
 		cnswap(c1, b0, b2);
 		cnswap(c1, v0, v2);
-		cswap (c1, r0, r2);
+		cswap(c1, r0, r2);
 
 		auto c2 = r1 < r2;
 		cnswap(c2, b1, b2);
 		cnswap(c2, v1, v2);
-		cswap (c2, r1, r2);
+		cswap(c2, r1, r2);
 
 		A.col(0) = b0;
 		A.col(1) = b1;
@@ -100,6 +99,6 @@ namespace Vcl { namespace Mathematics
 		return iter_eig33 + 3;
 	}
 #ifdef VCL_COMPILER_MSVC
-#	pragma strict_gs_check(pop) 
+#	pragma strict_gs_check(pop)
 #endif // VCL_COMPILER_MSVC
 }}

@@ -24,26 +24,19 @@
  */
 #include <vcl/graphics/runtime/opengl/resource/texture1d.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
 // VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
-{
-	Texture1D::Texture1D
-	(
+namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
+	Texture1D::Texture1D(
 		const Texture1DDescription& desc,
-		const TextureResource* init_data
-	)
+		const TextureResource* init_data)
 	{
-		initializeView
-		(
+		initializeView(
 			TextureType::Texture1D, desc.Format, desc.Usage,
 			0, desc.MipLevels,
 			0, 1,
-			desc.Width, 1, 1
-		);
+			desc.Width, 1, 1);
 		initialise(init_data);
 	}
 
@@ -54,13 +47,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 
 	void Texture1D::allocImpl(GLenum colour_fmt)
 	{
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureStorage1D(_glId, mipMapLevels(), colour_fmt, width());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureStorage1DEXT(_glId, GL_TEXTURE_1D, mipMapLevels(), colour_fmt, width());
-#	else
+#else
 		glTexStorage1D(GL_TEXTURE_1D, mipMapLevels(), colour_fmt, width());
-#	endif
+#endif
 	}
 
 	void Texture1D::updateImpl(const TextureResource& data)
@@ -69,13 +62,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL
 		GLsizei w = (GLsizei)data.Width;
 		GLsizei mip = (GLsizei)data.MipMap;
 
-#	if defined(VCL_GL_ARB_direct_state_access)
+#if defined(VCL_GL_ARB_direct_state_access)
 		glTextureSubImage1D(_glId, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
-#	elif defined(VCL_GL_EXT_direct_state_access)
+#elif defined(VCL_GL_EXT_direct_state_access)
 		glTextureSubImage1DEXT(_glId, GL_TEXTURE_1D, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
-#	else
+#else
 		glTexSubImage1D(GL_TEXTURE_1D, mip, 0, w, img_fmt.Format, img_fmt.Type, data.data());
-#	endif
+#endif
 	}
 }}}}
-#endif // VCL_OPENGL_SUPPORT

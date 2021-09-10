@@ -24,8 +24,7 @@
  */
 #include <vcl/math/solver/jacobi.h>
 
-namespace Vcl { namespace Mathematics { namespace Solver
-{
+namespace Vcl { namespace Mathematics { namespace Solver {
 	bool Jacobi::solve(JacobiContext* ctx, double* residual)
 	{
 		int dofs = ctx->size();
@@ -62,7 +61,7 @@ namespace Vcl { namespace Mathematics { namespace Solver
 
 			// x^{n+1} = c + C x^{n}
 			ctx->updateSolution();
-			
+
 			if (sub_iteration == _chunkSize)
 			{
 				if (_maxIterations == _chunkSize)

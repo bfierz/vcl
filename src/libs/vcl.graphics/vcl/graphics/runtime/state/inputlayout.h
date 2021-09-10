@@ -36,15 +36,14 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	template<typename VertexDataType>
 	struct InputLayoutTypeTrait
 	{
 		typedef VertexDataType Type;
 		static const SurfaceFormat Format;
 	};
-	
+
 	enum class VertexDataClassification
 	{
 		VertexDataPerObject,
@@ -53,8 +52,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 	struct InputBindingElement
 	{
-		unsigned int             Binding;
-		unsigned int             Stride;
+		unsigned int Binding;
+		unsigned int Stride;
 		VertexDataClassification InputRate;
 	};
 
@@ -85,16 +84,16 @@ namespace Vcl { namespace Graphics { namespace Runtime
 				VclCheck(elem.InputSlot < unsigned int(_bindings.size()), "Input slot declaration is in range.");
 
 				_locations.emplace_back(loc);
-				loc += std::max(1, (int) elem.NumberLocations);
+				loc += std::max(1, (int)elem.NumberLocations);
 			}
 		}
 		InputLayoutDescription(const InputLayoutDescription& rhs)
 		{
-			_bindings  = rhs._bindings;
-			_elements  = rhs._elements;
+			_bindings = rhs._bindings;
+			_elements = rhs._elements;
 			_locations = rhs._locations;
 		}
-		InputLayoutDescription(InputLayoutDescription&& rhs) 
+		InputLayoutDescription(InputLayoutDescription&& rhs)
 		{
 			std::swap(_bindings, rhs._bindings);
 			std::swap(_elements, rhs._elements);

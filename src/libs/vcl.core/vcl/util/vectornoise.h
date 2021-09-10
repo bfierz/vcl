@@ -34,8 +34,7 @@
 // VCL
 #include <vcl/util/waveletnoise.h>
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 	/*!
 	 *	Vector noise based on the SIGGRAPH 2007 paper by Bridson
 	 */
@@ -63,8 +62,7 @@ namespace Vcl { namespace Util
 	};
 }}
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 #ifndef VCL_UTIL_VECTORNOISE_INST
 	extern template class VectorNoise<32>;
 	extern template class VectorNoise<64>;

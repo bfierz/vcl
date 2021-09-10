@@ -54,8 +54,7 @@ void consecutiveLayoutTest(size_t size)
 
 	// Create reference data
 	std::vector<Eigen::Matrix<float, ROWS, COLS>, Eigen::aligned_allocator<Eigen::Matrix<float, ROWS, COLS>>> ref_data(size);
-	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data)
-	{
+	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data) {
 		for (ptrdiff_t c = 0; c < data.cols(); c++)
 		{
 			for (ptrdiff_t r = 0; r < data.rows(); r++)
@@ -85,10 +84,10 @@ void consecutiveLayoutTest(size_t size)
 
 	float* data_ptr0 = data0.data();
 	float* data_ptr1 = data1.data();
-	size_t stride = ROWS*cCols;
+	size_t stride = ROWS * cCols;
 	for (size_t i = 0; i < size; i++)
 	{
-		size_t base = i*stride;
+		size_t base = i * stride;
 
 		bool check0 = true;
 		bool check1 = true;
@@ -96,10 +95,10 @@ void consecutiveLayoutTest(size_t size)
 		{
 			for (size_t r = 0; r < cRows; r++)
 			{
-				bool equal0 = equal(data_ptr0[base + c*cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
+				bool equal0 = equal(data_ptr0[base + c * cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
 				check0 = check0 && equal0;
 
-				bool equal1 = equal(data_ptr1[base + c*cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
+				bool equal1 = equal(data_ptr1[base + c * cRows + r], ref_data[i](VCL_EIGEN_IDX(r, c)));
 				check1 = check1 && equal1;
 			}
 		}
@@ -121,7 +120,6 @@ void consecutiveLayoutTest(size_t size)
 	}
 	EXPECT_TRUE(check0);
 	EXPECT_TRUE(check1);
-
 }
 
 template<int ROWS, int COLS, int STRIDE>
@@ -134,8 +132,7 @@ void stridedLayoutTest(size_t size)
 
 	// Create reference data
 	std::vector<Eigen::Matrix<float, ROWS, COLS>, Eigen::aligned_allocator<Eigen::Matrix<float, ROWS, COLS>>> ref_data(size);
-	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data)
-	{
+	std::for_each(std::begin(ref_data), std::end(ref_data), [&rnd](Eigen::Matrix<float, ROWS, COLS>& data) {
 		for (int c = 0; c < data.cols(); c++)
 		{
 			for (int r = 0; r < data.rows(); r++)
@@ -166,10 +163,10 @@ void stridedLayoutTest(size_t size)
 
 	float* data_ptr0 = data0.data();
 	float* data_ptr1 = data1.data();
-	size_t stride = cStride*cRows*cCols;
+	size_t stride = cStride * cRows * cCols;
 	for (size_t i = 0; i < size; i++)
 	{
-		size_t base = (i / cStride)*stride;
+		size_t base = (i / cStride) * stride;
 		size_t j = (i / cStride) * cStride;
 
 		for (size_t s = 0; s < cStride && j + s < size; s++)
@@ -180,10 +177,10 @@ void stridedLayoutTest(size_t size)
 			{
 				for (size_t r = 0; r < cRows; r++)
 				{
-					bool equal0 = equal(data_ptr0[base + c*cRows*cStride + r*cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
+					bool equal0 = equal(data_ptr0[base + c * cRows * cStride + r * cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
 					check0 = check0 && equal0;
 
-					bool equal1 = equal(data_ptr1[base + c*cRows*cStride + r*cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
+					bool equal1 = equal(data_ptr1[base + c * cRows * cStride + r * cStride + s], ref_data[j + s](VCL_EIGEN_IDX(r, c)));
 					check1 = check1 && equal1;
 				}
 			}

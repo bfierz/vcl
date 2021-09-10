@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 #include <vcl/config/eigen.h>
 
@@ -33,8 +33,7 @@
 #include <vcl/graphics/runtime/state/sampler.h>
 #include <vcl/graphics/runtime/graphicsengine.h>
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	class RendertargetDebugger
 	{
 	public:
@@ -50,8 +49,7 @@ namespace Vcl { namespace Editor { namespace Util
 			Vcl::ref_ptr<Vcl::Graphics::Runtime::GraphicsEngine> engine,
 			const Vcl::Graphics::Runtime::Texture& texture,
 			const unsigned int max_value,
-			const Eigen::Vector4f& loc_size
-		);
+			const Eigen::Vector4f& loc_size);
 
 	private:
 		//! Image processor used to display the render-target

@@ -33,10 +33,7 @@
 #include <vcl/graphics/runtime/opengl/state/shaderprogram.h>
 #include <vcl/graphics/opengl/algorithm/scan.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics
-{
+namespace Vcl { namespace Graphics {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */
@@ -55,12 +52,10 @@ namespace Vcl { namespace Graphics
 		 *                    maxElements passed to the constructor
 		 * \param keyBits     The number of bits in each key to use for ordering
 		 */
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Runtime::OpenGL::Buffer> keys,
 			unsigned int numElements,
-			unsigned int keyBits
-		);
+			unsigned int keyBits);
 
 	private:
 		/*!
@@ -81,9 +76,8 @@ namespace Vcl { namespace Graphics
 		void radixSortBlocksKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int nbits, unsigned int startbit, unsigned int numElements);
 		void findRadixOffsetsOCL(unsigned int startbit, unsigned int numElements);
 		void reorderDataKeysOnlyOCL(ref_ptr<Runtime::OpenGL::Buffer> keys, unsigned int startbit, unsigned int numElements);
-		
-	private: // Module, Kernels
 
+	private: // Module, Kernels
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _radixSortBlocksKeysOnlyKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _findRadixOffsetsKernel;
 		std::unique_ptr<Runtime::OpenGL::ShaderProgram> _reorderDataKeysOnlyKernel;
@@ -92,7 +86,6 @@ namespace Vcl { namespace Graphics
 		ScanExclusive _scan;
 
 	private: // Buffers
-
 		//! Work group size
 		static const unsigned int LocalSize = 128;
 
@@ -112,5 +105,3 @@ namespace Vcl { namespace Graphics
 		owner_ptr<Runtime::OpenGL::Buffer> _blockOffsets;
 	};
 }}
-
-#endif // VCL_OPENGL_SUPPORT

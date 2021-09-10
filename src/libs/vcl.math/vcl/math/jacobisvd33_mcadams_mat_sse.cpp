@@ -27,48 +27,47 @@
 #ifdef VCL_VECTORIZE_SSE
 
 // VCL
-#include <vcl/core/contract.h>
+#	include <vcl/core/contract.h>
 
 // McAdams SVD library
-#define USE_SSE_IMPLEMENTATION
+#	define USE_SSE_IMPLEMENTATION
 
-#define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
+#	define USE_ACCURATE_RSQRT_IN_JACOBI_CONJUGATION
 // #define PERFORM_STRICT_QUATERNION_RENORMALIZATION
 // #define PRINT_DEBUGGING_OUTPUT
 
-#define COMPUTE_V_AS_MATRIX
+#	define COMPUTE_V_AS_MATRIX
 // #define COMPUTE_V_AS_QUATERNION
-#define COMPUTE_U_AS_MATRIX
+#	define COMPUTE_U_AS_MATRIX
 // #define COMPUTE_U_AS_QUATERNION
 
 // Disable runtime asserts usage of uninitialized variables. Necessary for constructs like 'var = xor(var, var)'
-#ifdef VCL_COMPILER_MSVC
-#	pragma runtime_checks("u", off)
-#	pragma warning(disable: 4700)
-#elif defined VCL_COMPILER_GNU
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wuninitialized"
-#	pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#	pragma GCC diagnostic ignored "-Wunused-variable"
-#elif defined VCL_COMPILER_CLANG
-#	pragma clang diagnostic push
-#	pragma clang diagnostic ignored "-Wmissing-prototypes"
-#	pragma clang diagnostic ignored "-Wold-style-cast"
-#	pragma clang diagnostic ignored "-Wuninitialized"
-#	pragma clang diagnostic ignored "-Wunused-variable"
-#endif
+#	ifdef VCL_COMPILER_MSVC
+#		pragma runtime_checks("u", off)
+#		pragma warning(disable : 4700)
+#	elif defined VCL_COMPILER_GNU
+#		pragma GCC diagnostic push
+#		pragma GCC diagnostic ignored "-Wuninitialized"
+#		pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#		pragma GCC diagnostic ignored "-Wunused-variable"
+#	elif defined VCL_COMPILER_CLANG
+#		pragma clang diagnostic push
+#		pragma clang diagnostic ignored "-Wmissing-prototypes"
+#		pragma clang diagnostic ignored "-Wold-style-cast"
+#		pragma clang diagnostic ignored "-Wuninitialized"
+#		pragma clang diagnostic ignored "-Wunused-variable"
+#	endif
 
-#include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
+#	include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
 
-namespace Vcl { namespace Mathematics
-{
+namespace Vcl { namespace Mathematics {
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps)
 	{
 		using ::sqrt;
 
-#define JACOBI_CONJUGATION_SWEEPS (int) sweeps
-		
-#include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
+#	define JACOBI_CONJUGATION_SWEEPS (int)sweeps
+
+#	include <vcl/math/mcadams/Singular_Value_Decomposition_Kernel_Declarations.hpp>
 
 		ENABLE_SSE_IMPLEMENTATION(Va11 = _mm_loadu_ps(reinterpret_cast<float*>(&A(0, 0)));)
 		ENABLE_SSE_IMPLEMENTATION(Va21 = _mm_loadu_ps(reinterpret_cast<float*>(&A(1, 0)));)
@@ -80,7 +79,7 @@ namespace Vcl { namespace Mathematics
 		ENABLE_SSE_IMPLEMENTATION(Va23 = _mm_loadu_ps(reinterpret_cast<float*>(&A(1, 2)));)
 		ENABLE_SSE_IMPLEMENTATION(Va33 = _mm_loadu_ps(reinterpret_cast<float*>(&A(2, 2)));)
 
-#include <vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp>
+#	include <vcl/math/mcadams/Singular_Value_Decomposition_Main_Kernel_Body.hpp>
 
 		ENABLE_SSE_IMPLEMENTATION(_mm_storeu_ps(reinterpret_cast<float*>(&U(0, 0)), Vu11);)
 		ENABLE_SSE_IMPLEMENTATION(_mm_storeu_ps(reinterpret_cast<float*>(&U(1, 0)), Vu21);)
@@ -109,12 +108,12 @@ namespace Vcl { namespace Mathematics
 		return JACOBI_CONJUGATION_SWEEPS * 3 + 3;
 	}
 }}
-#ifdef VCL_COMPILER_MSVC
-#	pragma warning(default: 4700)
-#	pragma runtime_checks("u", restore)
-#elif defined VCL_COMPILER_GNU
-#	pragma GCC diagnostic pop
-#elif defined VCL_COMPILER_CLANG
-#	pragma clang diagnostic pop
-#endif
+#	ifdef VCL_COMPILER_MSVC
+#		pragma warning(default : 4700)
+#		pragma runtime_checks("u", restore)
+#	elif defined VCL_COMPILER_GNU
+#		pragma GCC diagnostic pop
+#	elif defined VCL_COMPILER_CLANG
+#		pragma clang diagnostic pop
+#	endif
 #endif // defined(VCL_VECTORIZE_SSE)

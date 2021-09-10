@@ -40,8 +40,7 @@
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/runtime/state/sampler.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime
-{
+namespace Vcl { namespace Graphics { namespace Runtime {
 	class BufferRange
 	{
 	public:
@@ -87,8 +86,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		BufferView(const BufferView&) = delete;
 		BufferView(BufferView&&) = default;
-		BufferView& operator =(const BufferView&) = delete;
-		BufferView& operator =(BufferView&&) = default;
+		BufferView& operator=(const BufferView&) = delete;
+		BufferView& operator=(BufferView&&) = default;
 
 		void* data() const { return _data; }
 
@@ -104,7 +103,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	class ConstantBufferView : public BufferView
 	{
 	public:
-		ConstantBufferView(BufferView&& view) : BufferView(std::move(view)) {}
+		ConstantBufferView(BufferView&& view)
+		: BufferView(std::move(view)) {}
 		T* operator->() { return reinterpret_cast<T*>(data()); }
 	};
 
@@ -119,8 +119,8 @@ namespace Vcl { namespace Graphics { namespace Runtime
 	public:
 		//! \defgroup ResourceAllocation Resource allocation
 		//! \{
-		virtual owner_ptr<Texture> createResource(const Texture2DDescription& desc) =0;
-		virtual owner_ptr<Buffer> createResource(const BufferDescription& desc) =0;
+		virtual owner_ptr<Texture> createResource(const Texture2DDescription& desc) = 0;
+		virtual owner_ptr<Buffer> createResource(const BufferDescription& desc) = 0;
 		//! \}
 
 	public:
@@ -129,13 +129,12 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		//! End the current frame
 		virtual void endFrame() = 0;
-		
+
 		//! Query the current frame index
 		//! \returns The index of the current frame
 		uint64_t currentFrame() const { return _currentFrame; }
 
 	public: // Dynamic resource allocation
-
 		//! Request a new constant buffer for per frame data
 		template<typename T>
 		ConstantBufferView<T> requestPerFrameConstantBuffer()
@@ -170,7 +169,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 		virtual void setSamplers(int idx, stdext::span<const ref_ptr<Sampler>> samplers) = 0;
 		virtual void setTexture(int idx, const Runtime::Texture& texture) = 0;
 		virtual void setTextures(int idx, stdext::span<const ref_ptr<Texture>> textures) = 0;
-		
+
 		[[deprecated]] virtual void pushConstants(void* data, size_t size) = 0;
 
 	public:
@@ -192,7 +191,7 @@ namespace Vcl { namespace Graphics { namespace Runtime
 
 		//! Set a new pipeline state
 		virtual void setPipelineState(ref_ptr<PipelineState> state) = 0;
-		
+
 		//! \defgroup DrawCommannds Draw commands
 		//! \{
 		virtual void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) = 0;

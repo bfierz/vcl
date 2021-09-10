@@ -33,8 +33,7 @@
 #include <vcl/core/simd/intrinsics_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(16) VectorScalar<int, 4> : protected Core::Simd::VectorScalarBase<int, 4, Core::Simd::SimdExt::NEON>
 	{
@@ -45,23 +44,23 @@ namespace Vcl
 		VCL_SIMD_BINARY_OP(operator+, vaddq_s32, 1)
 		VCL_SIMD_BINARY_OP(operator-, vsubq_s32, 1)
 		VCL_SIMD_BINARY_OP(operator*, vmulq_s32, 1)
-		
+
 	public:
 		VCL_SIMD_ASSIGN_OP(operator+=, vaddq_s32, 1)
 		VCL_SIMD_ASSIGN_OP(operator-=, vsubq_s32, 1)
 		VCL_SIMD_ASSIGN_OP(operator*=, vmulq_s32, 1)
-		
+
 	public:
 		VCL_SIMD_COMP_OP(operator==, vceqq_s32, 1)
 		//VCL_SIMD_COMP_OP(operator!=, vcneqq_s32, 1)
-		VCL_SIMD_COMP_OP(operator<,  vcltq_s32, 1)
+		VCL_SIMD_COMP_OP(operator<, vcltq_s32, 1)
 		VCL_SIMD_COMP_OP(operator<=, vcleq_s32, 1)
-		VCL_SIMD_COMP_OP(operator>,  vcgtq_s32, 1)
+		VCL_SIMD_COMP_OP(operator>, vcgtq_s32, 1)
 		VCL_SIMD_COMP_OP(operator>=, vcgeq_s32, 1)
 
 	public:
 		VCL_SIMD_UNARY_OP(abs, vabsq_s32, 1)
-		
+
 	public:
 		VCL_SIMD_BINARY_OP(operator&, vandq_s32, 1)
 		VCL_SIMD_BINARY_OP(operator|, vorrq_s32, 1)
@@ -76,7 +75,7 @@ namespace Vcl
 		return VectorScalar<int, 4>(vbslq_s32(mask.get(0), a.get(0), b.get(0)));
 	}
 
-	VCL_STRONG_INLINE std::ostream& operator<< (std::ostream &s, const VectorScalar<int, 4>& rhs)
+	VCL_STRONG_INLINE std::ostream& operator<<(std::ostream& s, const VectorScalar<int, 4>& rhs)
 	{
 		alignas(8) int vars[4];
 		vst1q_s32(vars + 0, rhs.get(0));

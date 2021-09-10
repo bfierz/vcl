@@ -38,13 +38,14 @@
 #include <vcl/compute/module.h>
 #include <vcl/core/memory/smart_ptr.h>
 
-namespace Vcl { namespace Compute
-{
+namespace Vcl { namespace Compute {
 	class Context
 	{
 	public:
-		template<typename T> using owner_ptr = Vcl::Core::owner_ptr<T>;
-		template<typename T> using ref_ptr = Vcl::Core::ref_ptr<T>;
+		template<typename T>
+		using owner_ptr = Vcl::Core::owner_ptr<T>;
+		template<typename T>
+		using ref_ptr = Vcl::Core::ref_ptr<T>;
 
 	public:
 		//! Constructor
@@ -52,7 +53,7 @@ namespace Vcl { namespace Compute
 
 		//! Context is not copyable
 		Context(const Context&) = delete;
-		Context& operator= (const Context&) = delete;
+		Context& operator=(const Context&) = delete;
 
 		//! Destructor
 		virtual ~Context() = default;
@@ -61,7 +62,6 @@ namespace Vcl { namespace Compute
 		ref_ptr<CommandQueue> defaultQueue() const;
 
 	public: // Resource allocation
-
 		virtual ref_ptr<Module> createModuleFromSource(const int8_t* source, size_t size) = 0;
 
 		virtual ref_ptr<Buffer> createBuffer(BufferAccess access, size_t size) = 0;

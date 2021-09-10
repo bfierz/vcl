@@ -24,11 +24,10 @@
  */
 #include <vcl/compute/opencl/buffer.h>
 
-// VCL 
+// VCL
 #include <vcl/core/contract.h>
 
-namespace Vcl { namespace Compute { namespace OpenCL
-{
+namespace Vcl { namespace Compute { namespace OpenCL {
 	Buffer::Buffer(Context* ctx, BufferAccess hostAccess, int size)
 	: Compute::Buffer(hostAccess, size)
 	, _ownerCtx(ctx)

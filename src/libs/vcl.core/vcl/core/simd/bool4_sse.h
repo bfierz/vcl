@@ -31,8 +31,7 @@
 #include <vcl/core/simd/common.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(16) VectorScalar<bool, 4> : protected Core::Simd::VectorScalarBase<bool, 4, Core::Simd::SimdExt::SSE>
 	{

@@ -35,18 +35,16 @@
 // http://www.altdevblogaday.com/2011/10/27/quasi-compile-time-string-hashing/
 // https://notes.underscorediscovery.com/constexpr-fnv1a/
 
-namespace Vcl { namespace Util
-{
+namespace Vcl { namespace Util {
 #if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
 	// Source for prime-numbers:
 	// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 	constexpr uint32_t fnv1a_32_offset = 0x811c9dc5;
-	constexpr uint32_t fnv1a_32_prime  = 0x01000193;
+	constexpr uint32_t fnv1a_32_prime = 0x01000193;
 	constexpr uint64_t fnv1a_64_offset = 0xcbf29ce484222325;
-	constexpr uint64_t fnv1a_64_prime  = 0x100000001b3;
+	constexpr uint64_t fnv1a_64_prime = 0x100000001b3;
 
-	namespace Details
-	{
+	namespace Details {
 		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, const uint32_t value) noexcept
 		{
 			return (str[0] == '\0') ? value : calculateFnv1a32(&str[1], (value ^ uint32_t(str[0])) * fnv1a_32_prime);
@@ -94,7 +92,7 @@ namespace Vcl { namespace Util
 			hash ^= uint32_t(*str++);
 			hash *= 0x01000193;
 		}
- 
+
 		return hash;
 	}
 
@@ -138,16 +136,16 @@ namespace Vcl { namespace Util
 	}
 #endif
 
-	template <unsigned int N, unsigned int I>
+	template<unsigned int N, unsigned int I>
 	struct FnvHash
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
-			return (FnvHash<N, I-1>::hash(str) ^ static_cast<unsigned int>(str[I-2])) * 0x01000193;
+			return (FnvHash<N, I - 1>::hash(str) ^ static_cast<unsigned int>(str[I - 2])) * 0x01000193;
 		}
 	};
- 
-	template <unsigned int N>
+
+	template<unsigned int N>
 	struct FnvHash<N, 1>
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
@@ -158,21 +156,22 @@ namespace Vcl { namespace Util
 	};
 
 	class StringHash
-	{ 
+	{
 	public:
 		struct DynamicConstCharString
 		{
-			VCL_STRONG_INLINE DynamicConstCharString(const char* s) : str(s) {}
+			VCL_STRONG_INLINE DynamicConstCharString(const char* s)
+			: str(s) {}
 			const char* str;
 		};
 
 	public:
-		template <size_t N>
+		template<size_t N>
 		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 StringHash(const char (&str)[N])
 		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}
-		
+
 		VCL_STRONG_INLINE StringHash(DynamicConstCharString str)
 		: _hash(calculateFnv1a32(str.str))
 		{
@@ -187,32 +186,30 @@ namespace Vcl { namespace Util
 		{
 			return _hash;
 		}
- 
+
 	private:
 		//! Computed hash value
 		uint32_t _hash;
 	};
 
 #if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
-	namespace Literals
-	{
-		constexpr uint32_t operator "" _fnv1a32(const char* str, size_t)
+	namespace Literals {
+		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t)
 		{
 			return calculateFnv1a32(str);
 		}
-		constexpr uint64_t operator "" _fnv1a64(const char* str, size_t)
+		constexpr uint64_t operator"" _fnv1a64(const char* str, size_t)
 		{
 			return calculateFnv1a64(str);
 		}
 	}
 #elif VCL_HAS_CPP_CONSTEXPR_14
-	namespace Literals
-	{
-		constexpr uint32_t operator "" _fnv1a32(const char* str, size_t N)
+	namespace Literals {
+		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t N)
 		{
 			return calculateFnv1a32(str, N);
 		}
-		constexpr uint64_t operator "" _fnv1a64(const char* str, size_t N)
+		constexpr uint64_t operator"" _fnv1a64(const char* str, size_t N)
 		{
 			return calculateFnv1a64(str, N);
 		}

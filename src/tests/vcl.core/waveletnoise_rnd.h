@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 
+// clang-format off
 namespace {
 float random_numbers[] = {
     1.16308f,      2.21221f,      0.483805f,     0.774004f,     0.299563f,
@@ -6580,3 +6581,4 @@ float random_numbers[] = {
     1.49281f,      -1.05866f,     -0.4218f,      -0.302124f,    1.87889f,
     -0.678741f,    0.755585f,     -0.774489f};
 }
+// clang-format on

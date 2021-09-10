@@ -26,15 +26,14 @@
 
 // VCL configuration
 #include <vcl/config/global.h>
-#include <vcl/config/opengl.h>
+#include <vcl/config/direct3d12.h>
 
 // VCL
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 
-namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
-{
+namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	struct GenericTextureDescription : public TextureBaseDescription
 	{
 		GenericTextureDescription(const Texture1DDescription& desc);
@@ -63,7 +62,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 		void copyTo(ID3D12GraphicsCommandList* cmd_queue, Texture& target);
 
 	private:
-		//! 
+		//!
 		ComPtr<ID3D12Resource> _uploadResource;
 	};
 
@@ -95,7 +94,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv() const override;
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav() const override;
-
 	};
 
 	class Texture2DArray final : public Texture

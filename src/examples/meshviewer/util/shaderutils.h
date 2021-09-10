@@ -24,7 +24,7 @@
  */
 #pragma once
 
- // VCL configuration
+// VCL configuration
 #include <vcl/config/global.h>
 
 // Qt
@@ -33,7 +33,6 @@
 // VCL
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 
-namespace Vcl { namespace Editor { namespace Util
-{
+namespace Vcl { namespace Editor { namespace Util {
 	Vcl::Graphics::Runtime::OpenGL::Shader createShader(Vcl::Graphics::Runtime::ShaderType type, QString path);
 }}}

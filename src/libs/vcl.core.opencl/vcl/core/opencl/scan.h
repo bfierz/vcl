@@ -34,8 +34,7 @@
 #include <vcl/compute/buffer.h>
 #include <vcl/compute/module.h>
 
-namespace Vcl { namespace Core { namespace OpenCL
-{
+namespace Vcl { namespace Core { namespace OpenCL {
 	/*!
 	 * Note: This implementation is base on NVIDIAs OpenCL radix sort sample
 	 */
@@ -46,42 +45,33 @@ namespace Vcl { namespace Core { namespace OpenCL
 		virtual ~ScanExclusiveLarge() = default;
 
 	public:
-		void operator()
-		(
+		void operator()(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int batchSize,
-			unsigned int arrayLength
-		);
+			unsigned int arrayLength);
 
 	private:
-		void scanExclusiveLocal1
-		(
+		void scanExclusiveLocal1(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void scanExclusiveLocal2
-		(
+			unsigned int size);
+		void scanExclusiveLocal2(
 			ref_ptr<Compute::Buffer> buffer,
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> src,
 			unsigned int n,
-			unsigned int size
-		);
-		void uniformUpdate
-		(
+			unsigned int size);
+		void uniformUpdate(
 			ref_ptr<Compute::Buffer> dst,
 			ref_ptr<Compute::Buffer> buffer,
-			unsigned int n
-		);
+			unsigned int n);
 
 	private: // Device context
 		Vcl::Compute::OpenCL::Context* _ownerCtx;
 
 	private: // Module, Kernels
-
 		//! Module with the radix sort code
 		ref_ptr<Compute::Module> _scanModule;
 
@@ -90,7 +80,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		ref_ptr<Compute::OpenCL::Kernel> _uniformUpdateKernel = nullptr;
 
 	private: // Configurations
-
 		const unsigned int MaxWorkgroupInclusiveScanSize = 1024;
 
 		static const int WorkgroupSize = 256;
@@ -101,7 +90,6 @@ namespace Vcl { namespace Core { namespace OpenCL
 		static const unsigned int MaxLargeArraySize = 4 * WorkgroupSize * WorkgroupSize;
 
 	private: // Buffers
-
 		//! Maximum number of stored entries
 		size_t _maxElements = 0;
 

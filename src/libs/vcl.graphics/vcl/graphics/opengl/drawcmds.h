@@ -28,10 +28,7 @@
 #include <vcl/config/global.h>
 #include <vcl/config/opengl.h>
 
-#ifdef VCL_OPENGL_SUPPORT
-
-namespace Vcl { namespace Graphics { namespace OpenGL
-{
+namespace Vcl { namespace Graphics { namespace OpenGL {
 	struct DrawCommand
 	{
 		DrawCommand(int count, int inst_count, int first, int base_inst)
@@ -65,5 +62,3 @@ namespace Vcl { namespace Graphics { namespace OpenGL
 	};
 
 }}}
-
-#endif // VCL_OPENGL_SUPPORT

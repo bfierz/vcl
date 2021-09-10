@@ -32,8 +32,7 @@
 #include <vcl/core/simd/intrinsics_neon.h>
 #include <vcl/core/simd/vectorscalar.h>
 
-namespace Vcl
-{
+namespace Vcl {
 	template<>
 	class alignas(16) VectorScalar<bool, 8> : protected Core::Simd::VectorScalarBase<bool, 8, Core::Simd::SimdExt::NEON>
 	{
@@ -50,24 +49,24 @@ namespace Vcl
 
 	VCL_STRONG_INLINE bool any(const VectorScalar<bool, 8>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(1)) << 4;
-		    mask |= vmovemaskq_u32(b.get(0));
+		int mask = vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
 
 		return mask != 0;
 	}
 
 	VCL_STRONG_INLINE bool all(const VectorScalar<bool, 8>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(1)) << 4;
-		    mask |= vmovemaskq_u32(b.get(0));
-			
+		int mask = vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
+
 		return static_cast<unsigned int>(mask) == 0xff;
 	}
 
 	VCL_STRONG_INLINE bool none(const VectorScalar<bool, 8>& b) noexcept
 	{
-		int mask  = vmovemaskq_u32(b.get(1)) << 4;
-		    mask |= vmovemaskq_u32(b.get(0));
+		int mask = vmovemaskq_u32(b.get(1)) << 4;
+		mask |= vmovemaskq_u32(b.get(0));
 
 		return static_cast<unsigned int>(mask) == 0x0;
 	}
