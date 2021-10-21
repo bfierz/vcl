@@ -161,7 +161,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");
 
 		WGPUComputePipelineDescriptor compute_pipeline_desc = {};
-		compute_pipeline_desc.computeStage = getProgammableStageDesc(desc.ComputeShader);
+		compute_pipeline_desc.compute = getProgammableStageDesc(desc.ComputeShader);
 
 		_pipeline = wgpuDeviceCreateComputePipeline(device, &compute_pipeline_desc);
 	}

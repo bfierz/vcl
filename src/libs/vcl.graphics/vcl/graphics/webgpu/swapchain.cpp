@@ -57,7 +57,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 
 #ifdef VCL_ARCH_WEBASM
 		WGPUSwapChainDescriptor wgpu_desc = {};
-		wgpu_desc.usage = WGPUTextureUsage_OutputAttachment;
+		wgpu_desc.usage = WGPUTextureUsage_RenderAttachment;
 		wgpu_desc.format = WGPUTextureFormat_RGBA8Unorm;
 		wgpu_desc.width = width;
 		wgpu_desc.height = height;

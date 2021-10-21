@@ -71,7 +71,7 @@ private:
 		const auto w = size.first / 2;
 		const auto h = size.second / 2;
 
-		std::array<WGPURenderPassColorAttachmentDescriptor, 1> color_attachments = {};
+		std::array<WGPURenderPassColorAttachment, 1> color_attachments = {};
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
 		color_attachments[0].clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };

@@ -69,9 +69,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		return WGPUStencilOperation_Force32;
 	}
 
-	WGPUStencilStateFaceDescriptor toWebGPU(DepthStencilOperationDescription desc)
+	WGPUStencilFaceState toWebGPU(DepthStencilOperationDescription desc)
 	{
-		WGPUStencilStateFaceDescriptor webgpu_desc = {};
+		WGPUStencilFaceState webgpu_desc = {};
 		webgpu_desc.failOp = toWebGPU(desc.StencilFailOp);
 		webgpu_desc.depthFailOp = toWebGPU(desc.StencilDepthFailOp);
 		webgpu_desc.passOp = toWebGPU(desc.StencilPassOp);

@@ -67,11 +67,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		return WGPUVertexFormat_Force32;
 	}
 
-	std::pair<std::vector<WGPUVertexBufferLayoutDescriptor>, std::vector<WGPUVertexAttributeDescriptor>> toWebGPU(const InputLayoutDescription& desc)
+	std::pair<std::vector<WGPUVertexBufferLayout>, std::vector<WGPUVertexAttribute>> toWebGPU(const InputLayoutDescription& desc)
 	{
-		std::vector<WGPUVertexBufferLayoutDescriptor> webgpu_buffer_desc;
+		std::vector<WGPUVertexBufferLayout> webgpu_buffer_desc;
 		webgpu_buffer_desc.reserve(desc.attributes().size());
-		std::vector<WGPUVertexAttributeDescriptor> webgpu_attrib_desc;
+		std::vector<WGPUVertexAttribute> webgpu_attrib_desc;
 		webgpu_attrib_desc.reserve(desc.attributes().size());
 
 		int idx = 0;
@@ -79,15 +79,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		{
 			const auto& binding = desc.binding(elem.InputSlot);
 
-			WGPUVertexBufferLayoutDescriptor webgpu_elem;
+			WGPUVertexBufferLayout webgpu_elem;
 			webgpu_elem.arrayStride = binding.Stride;
-			webgpu_elem.stepMode = binding.InputRate == VertexDataClassification::VertexDataPerObject ? WGPUInputStepMode_Vertex : WGPUInputStepMode_Instance;
+			webgpu_elem.stepMode = binding.InputRate == VertexDataClassification::VertexDataPerObject ? WGPUVertexStepMode_Vertex : WGPUVertexStepMode_Instance;
 			webgpu_elem.attributeCount = elem.NumberLocations;
 			webgpu_buffer_desc.emplace_back(webgpu_elem);
 
 			for (int sub_loc = 0; sub_loc < std::max(1, (int)elem.NumberLocations); sub_loc++)
 			{
-				WGPUVertexAttributeDescriptor webgpu_attribute;
+				WGPUVertexAttribute webgpu_attribute;
 				webgpu_attribute.format = toWebGPU(elem.Format);
 				webgpu_attribute.offset = elem.Offset;
 				webgpu_attribute.shaderLocation = desc.location(idx) + sub_loc;

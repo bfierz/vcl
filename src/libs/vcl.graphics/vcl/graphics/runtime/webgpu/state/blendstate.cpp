@@ -53,17 +53,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		switch (factor) {
 		case Blend::Zero          : return WGPUBlendFactor_Zero;
 		case Blend::One           : return WGPUBlendFactor_One;
-		case Blend::SrcColour     : return WGPUBlendFactor_SrcColor;
-		case Blend::InvSrcColour  : return WGPUBlendFactor_OneMinusSrcColor;
+		case Blend::SrcColour     : return WGPUBlendFactor_Src;
+		case Blend::InvSrcColour  : return WGPUBlendFactor_OneMinusSrc;
 		case Blend::SrcAlpha      : return WGPUBlendFactor_SrcAlpha;
 		case Blend::InvSrcAlpha   : return WGPUBlendFactor_OneMinusSrcAlpha;
 		case Blend::DestAlpha     : return WGPUBlendFactor_DstAlpha;
 		case Blend::InvDestAlpha  : return WGPUBlendFactor_OneMinusDstAlpha;
-		case Blend::DestColour    : return WGPUBlendFactor_DstColor;
-		case Blend::InvDestColour : return WGPUBlendFactor_OneMinusDstColor;
+		case Blend::DestColour    : return WGPUBlendFactor_Dst;
+		case Blend::InvDestColour : return WGPUBlendFactor_OneMinusDst;
 		case Blend::SrcAlphaSat   : return WGPUBlendFactor_SrcAlphaSaturated;
-		case Blend::BlendFactor   : return WGPUBlendFactor_BlendColor;
-		case Blend::InvBlendFactor: return WGPUBlendFactor_OneMinusBlendColor;
+		case Blend::BlendFactor   : return WGPUBlendFactor_Constant;
+		case Blend::InvBlendFactor: return WGPUBlendFactor_OneMinusConstant;
 		case Blend::Src1Colour:
 		case Blend::InvSrc1Colour:
 		case Blend::Src1Alpha:
