@@ -51,7 +51,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		tex_desc.sampleCount = 1;
 		tex_desc.format = toWebGPUEnum(type);
 		tex_desc.mipLevelCount = 1;
-		tex_desc.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_Sampled;
+		tex_desc.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding;
 		std::get<0>(texture_data) = wgpuDeviceCreateTexture(device, &tex_desc);
 
 		WGPUTextureViewDescriptor tex_view_desc = {};
@@ -68,7 +68,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		{
 			uint32_t pp_size = sizeInBytes(type);
 
-			WGPUTextureCopyView dst_view = {};
+			WGPUImageCopyTexture dst_view = {};
 			dst_view.texture = std::get<0>(texture_data);
 			dst_view.mipLevel = 0;
 			dst_view.origin = { 0, 0, 0 };

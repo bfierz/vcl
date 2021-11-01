@@ -74,7 +74,7 @@ private:
 	}
 	void renderFrame(WGPUTextureView back_buffer) override
 	{
-		std::array<WGPURenderPassColorAttachmentDescriptor, 1> color_attachments = {};
+		std::array<WGPURenderPassColorAttachment, 1> color_attachments = {};
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
 		color_attachments[0].clearColor = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };

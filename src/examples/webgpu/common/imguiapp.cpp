@@ -96,7 +96,7 @@ void ImGuiApplication::renderFrame(WGPUTextureView back_buffer)
 {
 	wgpu::Device device{ _wgpuDevice };
 
-	auto color_attachments = wgpu::RenderPassColorAttachmentDescriptor{};
+	auto color_attachments = wgpu::RenderPassColorAttachment{};
 	color_attachments.loadOp = wgpu::LoadOp::Load;
 	color_attachments.storeOp = wgpu::StoreOp::Store;
 	color_attachments.clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
