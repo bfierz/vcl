@@ -42,7 +42,7 @@ endif()
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
 set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
 message(STATUS "Using C++${VCL_CXX_STANDARD}")
 
 # Determine platform architecture
