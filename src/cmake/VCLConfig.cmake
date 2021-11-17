@@ -116,7 +116,7 @@ function(vcl_configure tgt)
 	# Configure MSVC compiler
 	if(VCL_COMPILER_MSVC)
 		# Configure release configuration
-		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->" "$<$<CONFIG:RELEASE>:/fp:fast>")
+		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->")
 
 		# Configure all configuration
 		# * Enable all warnings
