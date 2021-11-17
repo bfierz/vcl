@@ -115,16 +115,15 @@ function(vcl_configure tgt)
 
 	# Configure MSVC compiler
 	if(VCL_COMPILER_MSVC)
-		# Configure release configuration
-		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->")
-
-		# Configure all configuration
-		# * Enable all warnings
-		# * Exceptions
-		# * RTTI
-		# * Don't be permissive
-		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/EHsc>" "$<$<COMPILE_LANGUAGE:CXX>:/GR>")
+		# Disable buffer security checks
+		target_compile_options(${tgt} PRIVATE "$<$<CONFIG:RELEASE>:/GS->")
+		# * Enable level 4 warnings
 		target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/W4>")
+		# * Exceptions
+		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/EHsc>")
+		# * RTTI
+		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/GR>")
+		# * Don't be permissive
 		if (MSVC_VERSION GREATER 1900)
 			target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/permissive->")
 		endif()
