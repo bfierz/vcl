@@ -53,6 +53,7 @@
 // MSVC++ 14.15 _MSC_VER == 1915 (Visual Studio 2017 Update 8)
 // MSVC++ 14.16 _MSC_VER == 1916 (Visual Studio 2017 Update 9)
 // MSVC++ 14.20 _MSC_VER == 1920 (Visual Studio 2019)
+// MSVC++ 14.30 _MSC_VER == 1930 (Visual Studio 2022)
 #	if (_MSC_VER < 1900)
 #		warning "Minimum supported version is MSVC 2015. Good luck."
 #	endif
@@ -70,6 +71,9 @@
 
 // Identify C++ standard
 #if defined _MSVC_LANG
+#	if _MSVC_LANG >= 202002L
+#		define VCL_HAS_STDCXX20 1
+#	endif
 #	if _MSVC_LANG >= 201703L
 #		define VCL_HAS_STDCXX17 1
 #	endif
@@ -80,6 +84,9 @@
 #		define VCL_HAS_STDCXX11 1
 #	endif
 #elif defined __cplusplus
+#	if __cplusplus >= 202002L
+#		define VCL_HAS_STDCXX20 1
+#	endif
 #	if __cplusplus >= 201703L
 #		define VCL_HAS_STDCXX17 1
 #	endif
@@ -89,6 +96,9 @@
 #	if __cplusplus >= 201103L
 #		define VCL_HAS_STDCXX11 1
 #	endif
+#endif
+#ifndef VCL_HAS_STDCXX20
+#	define VCL_HAS_STDCXX20 0
 #endif
 #ifndef VCL_HAS_STDCXX17
 #	define VCL_HAS_STDCXX17 0
