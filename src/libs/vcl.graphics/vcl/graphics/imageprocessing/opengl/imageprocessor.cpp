@@ -147,5 +147,8 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 
 		// Execute the compute shader
 		glDispatchCompute(w, h, 1);
+
+		// Insert buffer write barrier
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }}}}

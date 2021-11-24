@@ -248,7 +248,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		VclRequire(glewIsSupported("GL_ARB_clear_buffer_object"), "Clearning buffer objects is supported.");
 		VclRequire(_glId > 0, "GL buffer is created.");
 
-		glClearNamedBufferDataVCL(_glId, GL_R8I, GL_RED, GL_BYTE, nullptr);
+		glClearNamedBufferDataVCL(_glId, GL_R32F, GL_RED, GL_FLOAT, nullptr);
 	}
 
 	void Buffer::clear(const Graphics::OpenGL::AnyRenderType& rt, void* data)
@@ -265,7 +265,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		VclRequire(_glId > 0, "GL buffer is created.");
 		VclRequire(offset + size <= sizeInBytes(), "Size and the offset lie within the buffer.");
 
-		glClearNamedBufferSubDataVCL(_glId, GL_R8I, offset, size, GL_RED, GL_BYTE, nullptr);
+		glClearNamedBufferSubDataVCL(_glId, GL_R32F, offset, size, GL_RED, GL_FLOAT, nullptr);
 	}
 
 	void Buffer::clear(size_t offset, size_t size, const Graphics::OpenGL::AnyRenderType& rt, void* data)

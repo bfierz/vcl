@@ -26,6 +26,7 @@
 
 // C++ standard library
 #include <algorithm>
+#include <regex>
 
 // VCL
 #include <vcl/graphics/opengl/context.h>
@@ -38,7 +39,8 @@ extern "C"
 }
 #endif
 
-bool isLlvmPipe = false;
+bool isLlvmPipe = false; // true, if environment variable GALLIUM_DRIVER=llvmpipe is set
+bool isZink = false;     // true, if environment variable GALLIUM_DRIVER=zink is set
 
 int main(int argc, char** argv)
 {
@@ -56,8 +58,37 @@ int main(int argc, char** argv)
 	ctx_desc.Debug = true;
 	Vcl::Graphics::OpenGL::Context ctx(ctx_desc);
 
-	// Check if we're running on MESAs LLVMPipe
-	isLlvmPipe = strncmp((const char*)glGetString(GL_RENDERER), "llvmpipe", 8) == 0;
+	// Check if we're running on Mesa
+	std::regex word_regex(R"(Mesa (\d+)\.(\d+)\.(\d+))");
+	std::string opengl_version((const char*)glGetString(GL_VERSION));
+
+	std::smatch match;
+	if (std::regex_search(opengl_version, match, word_regex) && match.size() == 4)
+	{
+		// Check if we're running on MESAs LLVMPipe
+		isLlvmPipe = strncmp((const char*)glGetString(GL_RENDERER), "llvmpipe", 8) == 0;
+		isZink = strncmp((const char*)glGetString(GL_RENDERER), "zink", 4) == 0;
+
+		// Check minimum required version
+		const auto major = std::atoi(match[1].str().c_str());
+		const auto minor = std::atoi(match[2].str().c_str());
+		const auto patch = std::atoi(match[3].str().c_str());
+
+		// Require at least Mesa 21.3
+		if (major < 21 || (major == 21 && minor < 3))
+		{
+			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
+			std::cerr << "Required minimum version is 21.3.0" << std::endl;
+			return 1;
+		}
+
+		if (isZink)
+		{
+			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << " using Zink.";
+			std::cerr << "Zink is currently not for sequences of compute shaders" << std::endl;
+			return 1;
+		}
+	}
 
 	// Run the tests
 	::testing::InitGoogleTest(&argc, argv);

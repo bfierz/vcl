@@ -72,16 +72,8 @@ void ExecuteScanTest(unsigned int size)
 	output->unmap();
 }
 
-extern bool isLlvmPipe;
-
 TEST(OpenGL, ScanExclusiveSmall)
 {
-	if (isLlvmPipe)
-	{
-		std::cout << "[ SKIPPED  ] Test does not work under LLVM-pipe" << std::endl;
-		return;
-	}
-
 	ExecuteScanTest(4);
 	ExecuteScanTest(12);
 	ExecuteScanTest(16);
@@ -93,12 +85,6 @@ TEST(OpenGL, ScanExclusiveSmall)
 
 TEST(OpenGL, ScanExclusiveLarge)
 {
-	if (isLlvmPipe)
-	{
-		std::cout << "[ SKIPPED  ] Test does not work under LLVM-pipe" << std::endl;
-		return;
-	}
-
 	ExecuteScanTest(2048);
 	ExecuteScanTest(3072);
 }
