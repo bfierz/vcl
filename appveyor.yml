@@ -21,13 +21,13 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# 
-version: "{build}"
+#
+version: '{build}'
 
 image:
-  - Visual Studio 2017
+  - Visual Studio 2019
 
-platform: 
+platform:
   - Win32
   - x64
 
@@ -39,22 +39,25 @@ environment:
   MSVC_DEFAULT_OPTIONS: ON
 
   matrix:
-    - tool_set: "v140"
-      vec_type: "AVX"
-    
-    - tool_set: "v141"
-      vec_type: "SSE 2"
-    - tool_set: "v141"
-      vec_type: "SSE 3"
-    - tool_set: "v141"
-      vec_type: "SSE 4.1"
-    - tool_set: "v141"
-      vec_type: "SSE 4.2"
-    - tool_set: "v141"
-      vec_type: "AVX"
+    - tool_set: 'v140'
+      vec_type: 'AVX'
 
-    - tool_set: "llvm"
-      vec_type: "AVX"
+    - tool_set: 'v141'
+      vec_type: 'AVX'
+
+    - tool_set: 'v142'
+      vec_type: 'SSE 2'
+    - tool_set: 'v142'
+      vec_type: 'SSE 3'
+    - tool_set: 'v142'
+      vec_type: 'SSE 4.1'
+    - tool_set: 'v142'
+      vec_type: 'SSE 4.2'
+    - tool_set: 'v142'
+      vec_type: 'AVX'
+
+    - tool_set: 'ClangCL'
+      vec_type: 'AVX'
 
 branches:
   only:
@@ -62,34 +65,27 @@ branches:
 
 init:
   - cmd: msbuild /version
-  - cmd: if "%tool_set%"=="llvm" clang --version
 
 clone_folder: C:\projects\vcl
 
 install:
-  # Make LLVM discoverable
-  - cmd: if "%tool_set%"=="llvm" reg add HKEY_LOCAL_MACHINE\SOFTWARE\LLVM\LLVM /d "C:\Program Files\LLVM" /t REG_SZ /f
-  # Install the LLVM toolchain 
-  - cmd: if "%tool_set%"=="llvm" C:\projects\vcl\ci\appveyor-install-vsix.bat C:\projects\vcl\ci\llvm-toolchain-1.0.340780.vsix
-  # Disable vcpkg as it interferes with the LLVM toolchain
-  - cmd: if "%tool_set%"=="llvm" vcpkg integrate remove
   # Update all the submodules of the project
   - cmd: git submodule update --init --recursive
-  
+
 before_build:
+  # Disable vcpkg integration as it interferes with clang-cl and cmake
+  - cmd: vcpkg integrate remove
   - cmd: cd C:\projects\vcl
   - cmd: md build
   - cmd: cd build
-  - cmd: if "%platform%"=="Win32" if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017
-  - cmd: if "%platform%"=="x64"   if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" set CMAKE_GENERATOR_NAME=Visual Studio 15 2017 Win64
-  - cmd: 'cmake -G "%CMAKE_GENERATOR_NAME%" -T "%tool_set%" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ..'
+  - cmd: 'cmake -G "Visual Studio 16 2019" -A "%platform%" -T "%tool_set%,host=x64" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ..'
 
 build_script:
   - cmd: cd C:\projects\vcl
   - cmd: cmake --build build --config %configuration% --target vcl.components.test
   - cmd: cmake --build build --config %configuration% --target vcl.core.test
   - cmd: cmake --build build --config %configuration% --target vcl.geometry.test
-  - cmd: cmake --build build --config %configuration% --target vcl.math.test
+  - cmd: if "%configuration%"=="Debug" cmake --build build --config %configuration% --target vcl.math.test
 
 test_script:
   - cmd: cd C:\projects\vcl\build\src\tests
