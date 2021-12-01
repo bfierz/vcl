@@ -33,6 +33,7 @@
 // VCL
 #include <vcl/core/any.h>
 #include <vcl/core/span.h>
+#include <vcl/core/string_view.h>
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 

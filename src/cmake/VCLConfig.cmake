@@ -42,7 +42,7 @@ endif()
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
 set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
 message(STATUS "Using C++${VCL_CXX_STANDARD}")
 
 # Determine platform architecture
@@ -115,16 +115,15 @@ function(vcl_configure tgt)
 
 	# Configure MSVC compiler
 	if(VCL_COMPILER_MSVC)
-		# Configure release configuration
-		target_compile_options(${tgt} PUBLIC "$<$<CONFIG:RELEASE>:/GS->" "$<$<CONFIG:RELEASE>:/fp:fast>")
-
-		# Configure all configuration
-		# * Enable all warnings
-		# * Exceptions
-		# * RTTI
-		# * Don't be permissive
-		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/EHsc>" "$<$<COMPILE_LANGUAGE:CXX>:/GR>")
+		# Disable buffer security checks
+		target_compile_options(${tgt} PRIVATE "$<$<CONFIG:RELEASE>:/GS->")
+		# * Enable level 4 warnings
 		target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/W4>")
+		# * Exceptions
+		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/EHsc>")
+		# * RTTI
+		target_compile_options(${tgt} PUBLIC "$<$<COMPILE_LANGUAGE:CXX>:/GR>")
+		# * Don't be permissive
 		if (MSVC_VERSION GREATER 1900)
 			target_compile_options(${tgt} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/permissive->")
 		endif()

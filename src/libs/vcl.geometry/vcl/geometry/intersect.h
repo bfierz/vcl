@@ -39,6 +39,31 @@
 #include <vcl/math/math.h>
 
 namespace Vcl { namespace Geometry {
+
+	enum class RayBoxIntersectionAlgorithm
+	{
+		Default, ///< Selectes one of the defined implementations
+		Barnes,  ///< Implementation by Tavian Barnes
+		Ize,     ///< Implementation by Thiago Ize
+		Pharr    ///< Implementation from the PBR book by Pharr, Jakob, Humphreys
+	};
+
+	template<RayBoxIntersectionAlgorithm Algorithm>
+	class RayBoxIntersectionAlgorithmSelector
+	{};
+	template<>
+	class RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Barnes>
+	{};
+	template<>
+	class RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Ize>
+	{};
+	template<>
+	class RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Pharr>
+	{};
+	template<>
+	class RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Default> : public RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Ize>
+	{};
+
 	/*!
 	 *	\brief Ray-AABB intersection
 	 *
@@ -48,22 +73,25 @@ namespace Vcl { namespace Geometry {
 	 *
 	 *	\note Rays aligned with the border of the bounding box produce only very inconsistent intersections
 	 */
-	inline bool intersects_Barnes(
+	inline bool intersects(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& ray)
+		const Ray<float, 3>& ray,
+		RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Barnes>)
 	{
 		using namespace Vcl::Mathematics;
 
-		float tmin = -std::numeric_limits<float>::infinity();
-		float tmax = std::numeric_limits<float>::infinity();
+		constexpr float ctmin = -std::numeric_limits<float>::infinity();
+		constexpr float ctmax = std::numeric_limits<float>::infinity();
+		float tmin = ctmin;
+		float tmax = ctmax;
 
 		for (int i = 0; i < 3; ++i)
 		{
 			float t1 = (box.min()[i] - ray.origin()[i]) * ray.invDirection()[i];
 			float t2 = (box.max()[i] - ray.origin()[i]) * ray.invDirection()[i];
 
-			tmin = max(tmin, min(min(t1, t2), std::numeric_limits<float>::infinity()));
-			tmax = min(tmax, max(max(t1, t2), -std::numeric_limits<float>::infinity()));
+			tmin = max(tmin, min(min(t1, t2), ctmax));
+			tmax = min(tmax, max(max(t1, t2), ctmin));
 		}
 
 		return tmax > max(tmin, { 0.0f });
@@ -75,9 +103,10 @@ namespace Vcl { namespace Geometry {
 	 *	Implementation from
 	 *	https://www.solidangle.com/research/jcgt2013_robust_BVH-revised.pdf
 	 */
-	inline bool intersects_MaxMult(
+	inline bool intersects(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& r)
+		const Ray<float, 3>& r,
+		RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Ize>)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -100,15 +129,16 @@ namespace Vcl { namespace Geometry {
 
 		tmin = max(tzmin, max(tymin, max(txmin, tmin)));
 		tmax = min(tzmax, min(tymax, min(txmax, tmax)));
-		tmax *= 1.00000024f;
+		tmax *= 1.00000024f; // 4*eps, see eqs 28-32
 
 		return tmin <= tmax;
 	}
 
 	template<typename Real, int Width>
-	Vcl::VectorScalar<bool, Width> intersects_MaxMult(
+	Vcl::VectorScalar<bool, Width> intersects(
 		const Eigen::AlignedBox<Vcl::VectorScalar<Real, Width>, 3>& box,
-		const Ray<Vcl::VectorScalar<Real, Width>, 3>& r)
+		const Ray<Vcl::VectorScalar<Real, Width>, 3>& r,
+		RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Ize>)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -149,11 +179,13 @@ namespace Vcl { namespace Geometry {
 	/*!
 	*	\brief Ray-AABB intersection
 	*
-	*	Method from Pharr, Humphrey
+	*	Method from Pharr, Humphrey:
+	*	https://pbr-book.org/3ed-2018/Shapes/Basic_Shape_Interface#RayndashBoundsIntersections
 	*/
-	inline bool intersects_Pharr(
+	inline bool intersects(
 		const Eigen::AlignedBox<float, 3>& box,
-		const Ray<float, 3>& ray)
+		const Ray<float, 3>& ray,
+		RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Pharr>)
 	{
 		using namespace Vcl::Mathematics;
 

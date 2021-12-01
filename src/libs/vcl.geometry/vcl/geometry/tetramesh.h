@@ -108,7 +108,7 @@ namespace Vcl { namespace Geometry {
 		template<typename T>
 		PropertyPtr<T, IndexDescriptionTrait<TetraMesh>::VertexId> addVertexProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::VertexId>::reference init_value)
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VertexId>::const_reference init_value)
 		{
 			return vertexProperties().add<T>(name, init_value);
 		}
@@ -117,7 +117,7 @@ namespace Vcl { namespace Geometry {
 		template<typename T>
 		Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>* addVolumeProperty(
 			const std::string& name,
-			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::reference init_value)
+			typename Property<T, IndexDescriptionTrait<TetraMesh>::VolumeId>::const_reference init_value)
 		{
 			return volumeProperties().add<T>(name, init_value);
 		}
@@ -136,7 +136,7 @@ namespace Vcl { namespace Geometry {
 		template<typename T>
 		Property<T, SurfaceFaceId>* addSurfaceProperty(
 			const std::string& name,
-			typename Property<T, SurfaceFaceId>::reference init_value)
+			typename Property<T, SurfaceFaceId>::const_reference init_value)
 		{
 			return _surfaceData.add<T>(name, init_value);
 		}
