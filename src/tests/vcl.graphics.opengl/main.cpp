@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 	if (std::any_of(argv, argv + argc, [](const char* arg) { return strcmp(arg, "--gtest_list_tests") == 0; }))
 	{
 		::testing::InitGoogleTest(&argc, argv);
-		return 0;
+		return RUN_ALL_TESTS();
 	}
 
 	// OpenGL context used during the unit-tests
