@@ -46,9 +46,9 @@ Most, however, are managed as linked submodule.
 
 | Library                       | License    | Version  | Source                                       | Notes                     |
 |-------------------------------|------------|----------|----------------------------------------------|---------------------------|
-| Abseil Common Libraries (C++) | Apache-2.0 | 284378a  | https://abseil.io                            | Release 20181200 + bugfix |
+| Abseil Common Libraries (C++) | Apache-2.0 | 20211102 | https://abseil.io                            | Release 20211102          |
 | C++ commandline parsing       | MIT        | 2.1.2    | https://github.com/jarro2783/cxxopts         | In source tree            |
-| Eigen 3                       | MPL2       | 3.3.7    | https://eigen.tuxfamily.org                  |                           |
+| Eigen 3                       | MPL2       | 3.4.0    | https://eigen.tuxfamily.org                  |                           |
 | Expected lite                 | BSL-1.0    | 0.2.0    | https://github.com/martinmoene/expected-lite | In source tree            |
 | Google Test                   | BSD-3      | 1.11.0   | https://github.com/google/googletest         |                           |
 | Google Benchmark              | Apache-2.0 | 1.5.5    | https://github.com/google/benchmark          |                           |
