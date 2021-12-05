@@ -13,21 +13,25 @@ jobs:
         configVectorization: 'SSE 2'
         configCodeCoverage: 'on'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Debug_AVX:
         buildConfig: 'Debug'
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Release_AVX:
         buildConfig: 'Release'
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Release_AVX2:
         buildConfig: 'Release'
         configVectorization: 'AVX 2'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
@@ -41,12 +45,14 @@ jobs:
         configVectorization: 'NEON'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Release_NEON:
         buildTargetArch: 'arm'
         buildConfig: 'Release'
         configVectorization: 'NEON'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
   pool:
     vmImage: 'ubuntu-20.04'
   steps:
@@ -59,11 +65,13 @@ jobs:
         configVectorization: 'NEON'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Release_NEON:
         buildConfig: 'Release'
         configVectorization: 'NEON'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
   pool:
     name: 'Linux ARM64'
   steps:
@@ -76,11 +84,13 @@ jobs:
         configVectorization: 'SSE 2'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
       Release_SSE2:
         buildConfig: 'Release'
         configVectorization: 'SSE 2'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'off'
+        configGraphicsOpenGL: 'off'
   pool:
     vmImage: 'macos-latest'
   steps:
@@ -93,21 +103,25 @@ jobs:
         configVectorization: 'SSE 2'
         configCodeCoverage: 'on'
         configGraphicsD3D12: 'on'
+        configGraphicsOpenGL: 'on'
       Debug_AVX:
         buildConfig: 'Debug'
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'on'
+        configGraphicsOpenGL: 'on'
       Release_AVX:
         buildConfig: 'Release'
         configVectorization: 'AVX'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'on'
+        configGraphicsOpenGL: 'on'
       Release_AVX2:
         buildConfig: 'Release'
         configVectorization: 'AVX 2'
         configCodeCoverage: 'off'
         configGraphicsD3D12: 'on'
+        configGraphicsOpenGL: 'on'
   pool:
     vmImage: 'windows-2019'
   steps:

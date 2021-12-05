@@ -73,16 +73,8 @@ void ExecuteRadixSortTest(unsigned int size)
 	keys->unmap();
 }
 
-extern bool isLlvmPipe;
-
 TEST(OpenGL, RadixSort)
 {
-	if (isLlvmPipe)
-	{
-		std::cout << "[ SKIPPED  ] Test does not work under LLVM-pipe" << std::endl;
-		return;
-	}
-
 	// Test range of valid input sizes
 	for (int i = 512; i < (1 << 14); i += 512)
 	{
