@@ -65,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 
 		_swapChain = wgpuDeviceCreateSwapChain(_device, _desc.Surface, &wgpu_desc);
 #else
-		_swapChainImpl = dawn_native::d3d12::CreateNativeSwapChainImpl(_device, reinterpret_cast<HWND>(_desc.NativeSurfaceHandle));
+		_swapChainImpl = dawn::native::d3d12::CreateNativeSwapChainImpl(_device, reinterpret_cast<HWND>(_desc.NativeSurfaceHandle));
 		WGPUSwapChainDescriptor wgpu_desc = {};
 		wgpu_desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
 		_swapChain = wgpuDeviceCreateSwapChain(_device, nullptr, &wgpu_desc);

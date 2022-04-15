@@ -37,8 +37,8 @@
 
 #ifndef VCL_ARCH_WEBASM
 // Dawn
-#	include <dawn_native/D3D12Backend.h>
-#	include <dawn_native/DawnNative.h>
+#	include <dawn/native/D3D12Backend.h>
+#	include <dawn/native/DawnNative.h>
 #endif
 
 // VCL

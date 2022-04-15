@@ -76,7 +76,7 @@ private:
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
 		color_attachments[0].clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
 		color_attachments[0].view = back_buffer;
-		WGPURenderPassDepthStencilAttachmentDescriptor depth_attachment = {};
+		WGPURenderPassDepthStencilAttachment depth_attachment = {};
 		depth_attachment.clearDepth = 1.0f;
 		depth_attachment.clearStencil = 0;
 		depth_attachment.depthLoadOp = WGPULoadOp_Clear;
@@ -96,7 +96,7 @@ private:
 			wgpuRenderPassEncoderSetScissorRect(pass, x, y, w, h);
 			wgpuRenderPassEncoderSetPipeline(pass, _gps->handle());
 			wgpuRenderPassEncoderDraw(pass, 6, 1, 0, 0);
-			wgpuRenderPassEncoderEndPass(pass);
+			wgpuRenderPassEncoderEnd(pass);
 			wgpuRenderPassEncoderRelease(pass);
 		}
 

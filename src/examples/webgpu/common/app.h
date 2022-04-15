@@ -35,8 +35,8 @@
 
 #ifndef VCL_ARCH_WEBASM
 // Dawn
-#	include <dawn_native/D3D12Backend.h>
-#	include <dawn_native/DawnNative.h>
+#	include <dawn/native/D3D12Backend.h>
+#	include <dawn/native/DawnNative.h>
 #endif
 
 // WebGPU
@@ -68,16 +68,20 @@ protected:
 	static const int NumberOfFrames;
 
 private:
+	//! Select a GPU adapter for the this application
+	static void requestAdapterCallback(WGPURequestAdapterStatus status, WGPUAdapter adapter, char const* message, void* userdata);
+
 	//! Resize the swapchain
 	void resizeSwapChain(GLFWwindow* window, unsigned int width, unsigned int height);
 
 	//! Handle to the GLFW window
 	GLFWwindow* _windowHandle{ nullptr };
 
-#ifndef VCL_ARCH_WEBASM
-	//! Dawn WebGPU instance
-	std::unique_ptr<dawn_native::Instance> _wgpuInstance;
-#endif
+	//! WebGPU instance
+	WGPUInstance _wgpuInstance{ nullptr };
+
+	//! WebGPU adapter
+	WGPUAdapter _wgpuAdapter{ nullptr };
 
 	//! WebGPU surface
 	WGPUSurface _wgpuSurface{ nullptr };

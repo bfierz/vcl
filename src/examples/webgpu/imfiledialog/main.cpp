@@ -123,7 +123,7 @@ private:
 		WGPUCommandEncoderDescriptor enc_desc = {};
 		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(_wgpuDevice, &enc_desc);
 		WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
-		wgpuRenderPassEncoderEndPass(pass);
+		wgpuRenderPassEncoderEnd(pass);
 
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
