@@ -181,7 +181,7 @@ bool Application::initWebGpu(GLFWwindow* window)
 
 	WGPUInstanceDescriptor inst_desc{};
 	_wgpuInstance = wgpuCreateInstance(&inst_desc);
-	
+
 	WGPURequestAdapterOptions adapter_options = {};
 	wgpuInstanceRequestAdapter(_wgpuInstance, &adapter_options, requestAdapterCallback, this);
 
