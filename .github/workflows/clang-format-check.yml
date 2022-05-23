@@ -8,11 +8,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format style check for C/C++ programs.
-      uses: jidicula/clang-format-action@v3.4.0
+      uses: jidicula/clang-format-action@v4.5.0
       with:
         clang-format-version: '10'
         check-path: 'src'
-        exclude-regex: '(externals|3rdparty|simd/detail|math/mcadams|tests/vcl.geometry/ref)'
+        exclude-regex: "'.*/externals/.*|.*/3rdparty/.*|.*/simd/detail/.*|.*/math/mcadams/.*|.*/tests/vcl.geometry/ref/.*'"
 
 # Alternative https://github.com/marketplace/actions/clang-format-lint
 # Format all: find ./src -path "*/externals/*" -prune -o -path "*/3rdparty/*" -prune -o -path "*/simd/detail/*" -prune -o -path "*/tests/vcl.geometry/ref/*" -prune -o -name \*.h -print0 -o -name \*.cpp -print0 -o -name \*.inl -print0 | xargs -0 clang-format-10 -i

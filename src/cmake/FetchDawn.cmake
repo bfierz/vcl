@@ -29,7 +29,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 	if ((IS_MULTI_CONFIG AND "Debug" IN_LIST CMAKE_CONFIGURATION_TYPES) OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 		FetchContent_Declare(
 			webgpu_library_debug
-			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210904-2e40f90e/dawn_win_x64_debug.zip
+			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20220412-5752bbf63/dawn_win_x64_debug.zip
 		)
 		FetchContent_GetProperties(webgpu_library_debug)
 		if(NOT webgpu_library_debug_POPULATED)
@@ -40,7 +40,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 	if (IS_MULTI_CONFIG OR NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 		FetchContent_Declare(
 			webgpu_library_release
-			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210904-2e40f90e/dawn_win_x64_release.zip
+			URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20220412-5752bbf63/dawn_win_x64_release.zip
 		)
 		FetchContent_GetProperties(webgpu_library_release)
 		if(NOT webgpu_library_release_POPULATED)
@@ -51,7 +51,7 @@ if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 	FetchContent_Declare(
 		webgpu_library_release
-		URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20210904-2e40f90e/dawn_linux_x64_release.zip
+		URL      https://github.com/bfierz/dawn-builds/releases/download/0.0.20220412-5752bbf63/dawn_linux_x64_release.zip
 	)
 	FetchContent_GetProperties(webgpu_library_release)
 	if(NOT webgpu_library_release_POPULATED)
@@ -62,8 +62,9 @@ endif()
 
 set(DAWN_SORCE_DIRECTORY "$<$<CONFIG:Debug>:${webgpu_library_debug_SOURCE_DIR}>$<$<NOT:$<CONFIG:Debug>>:${webgpu_library_release_SOURCE_DIR}>")
 set(DAWN_INCLUDE_DIR "${DAWN_SORCE_DIRECTORY}/include" CACHE PATH "Dawn WebGPU include path")
-set(DAWN_NATIVE_LIBRARY "${DAWN_SORCE_DIRECTORY}/lib/dawn_native.dll.lib" CACHE FILEPATH "Dawn WebGPU library")
+set(DAWN_NATIVE_LIBRARY "${DAWN_SORCE_DIRECTORY}/lib/dawn_native.dll.lib" CACHE FILEPATH "Dawn WebGPU native library")
 set(DAWN_PROC_LIBRARY "${DAWN_SORCE_DIRECTORY}/lib/dawn_proc.dll.lib" CACHE FILEPATH "Dawn WebGPU procedure hooks library")
 
 set(WEBGPU_INCLUDE_DIR "${DAWN_SORCE_DIRECTORY}/include" CACHE PATH "WebGPU include path")
+set(WEBGPU_LIBRARY "${DAWN_SORCE_DIRECTORY}/lib/dawn_webgpu_dawn.dll.lib" CACHE FILEPATH "WebGPU library")
 set(WEBGPU_CPP_LIBRARY "${DAWN_SORCE_DIRECTORY}/lib/webgpu_cpp.lib" CACHE FILEPATH "WebGPU C++ library")

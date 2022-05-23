@@ -392,8 +392,8 @@ namespace Vcl { namespace Geometry {
 		}
 
 	public:
-		operator Property<value_type, index_type>*() const { return _property; }
-		operator const Property<value_type, index_type>*() const { return _property; }
+		operator Property<value_type, index_type> *() const { return _property; }
+		operator const Property<value_type, index_type> *() const { return _property; }
 
 		Property<value_type, index_type>* ptr() const { return _property; }
 
@@ -471,7 +471,7 @@ namespace Vcl { namespace Geometry {
 		}
 
 	public:
-		operator const Property<value_type, index_type>*() const { return _property; }
+		operator const Property<value_type, index_type> *() const { return _property; }
 
 		const Property<value_type, index_type>* ptr() const { return _property; }
 

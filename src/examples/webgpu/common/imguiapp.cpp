@@ -113,7 +113,7 @@ void ImGuiApplication::renderFrame(WGPUTextureView back_buffer)
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
 
-	wgpuRenderPassEncoderEndPass(pass.Get());
+	pass.End();
 
 	auto cmd_buffer_desc = wgpu::CommandBufferDescriptor{};
 	auto cmd_buffer = encoder.Finish(&cmd_buffer_desc);

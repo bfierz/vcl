@@ -76,6 +76,13 @@ static void printDeviceError(WGPUErrorType errorType, const char* message, void*
 	std::cout << error_type << " error: " << message << std::endl;
 }
 
+void Application::requestAdapterCallback(WGPURequestAdapterStatus status, WGPUAdapter adapter, char const* message, void* userdata)
+{
+	auto app = reinterpret_cast<Application*>(userdata);
+	if (!app->_wgpuAdapter && status == WGPURequestAdapterStatus_Success)
+		app->_wgpuAdapter = adapter;
+}
+
 Application::Application(const char* title)
 {
 	glfwSetErrorCallback(printGlfwError);
@@ -168,16 +175,19 @@ bool Application::initWebGpu(GLFWwindow* window)
 	wgpu::Instance instance{};
 	_wgpuSurface = instance.CreateSurface(&surface_desc).Release();
 #else
-	_wgpuInstance = std::make_unique<dawn_native::Instance>();
-#	ifdef VCL_DEBUG
-	_wgpuInstance->EnableBackendValidation(true);
-#	endif
-	_wgpuInstance->DiscoverDefaultAdapters();
-	dawn_native::Adapter adapter = _wgpuInstance->GetAdapters()[0];
-	_wgpuDevice = adapter.CreateDevice();
 
-	DawnProcTable procs = dawn_native::GetProcs();
+	DawnProcTable procs = dawn::native::GetProcs();
 	dawnProcSetProcs(&procs);
+
+	WGPUInstanceDescriptor inst_desc{};
+	_wgpuInstance = wgpuCreateInstance(&inst_desc);
+
+	WGPURequestAdapterOptions adapter_options = {};
+	wgpuInstanceRequestAdapter(_wgpuInstance, &adapter_options, requestAdapterCallback, this);
+
+	WGPUDeviceDescriptor device_desc = {};
+	_wgpuDevice = wgpuAdapterCreateDevice(_wgpuAdapter, &device_desc);
+
 	wgpuDeviceSetUncapturedErrorCallback(_wgpuDevice, printDeviceError, nullptr);
 
 	HWND hWnd = glfwGetWin32Window(window);
@@ -189,7 +199,7 @@ bool Application::initWebGpu(GLFWwindow* window)
 
 	WGPUSurfaceDescriptor surface_desc = {};
 	surface_desc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&hwnd_surface_desc);
-	_wgpuSurface = wgpuInstanceCreateSurface(_wgpuInstance->Get(), &surface_desc);
+	_wgpuSurface = wgpuInstanceCreateSurface(_wgpuInstance, &surface_desc);
 #endif
 
 	return true;
