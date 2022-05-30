@@ -41,9 +41,23 @@ steps:
 
     if ('$(configGraphicsOpenGL)' -eq 'on') {
       if ($IsWindows) {
-        Invoke-WebRequest https://github.com/pal1000/mesa-dist-win/releases/download/21.3.0/mesa3d-21.3.0-release-msvc.7z -OutFile mesa3d-21.3.0-release-msvc.7z
-        7z x -omesa mesa3d-21.3.0-release-msvc.7z
+        Invoke-WebRequest https://github.com/pal1000/mesa-dist-win/releases/download/22.1.0/mesa3d-22.1.0-release-msvc.7z -OutFile mesa3d-22.1.0-release-msvc.7z
+        7z x -omesa mesa3d-22.1.0-release-msvc.7z
         mesa/systemwidedeploy.cmd 1
+      }
+      if ($IsLinux) {
+        # Software OpenGL support (LLVMpipe)
+        sudo add-apt-repository ppa:kisak/kisak-mesa
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dri
+        # OpenGL development
+        sudo apt-get install -y libgl1-mesa-dev
+        sudo apt-get install -y libglew-dev
+        # X11 development
+        sudo apt-get install -y libxrandr-dev
+        sudo apt-get install -y libxinerama-dev
+        sudo apt-get install -y libxcursor-dev
+        sudo apt-get install -y libxi-dev
       }
     }
 
