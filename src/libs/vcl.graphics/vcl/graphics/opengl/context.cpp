@@ -152,7 +152,14 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		// 1. Create a surface if non is supplied
 		if (!display)
 		{
+#	ifdef VCL_ABI_POSIX
+#		ifndef EGL_PLATFORM_SURFACELESS_MESA
+#			define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
+#		endif
+			_display = eglGetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, nullptr);
+#	else
 			_display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+#	endif
 			_allocated_display = _display != nullptr;
 
 			EGLint major, minor;
@@ -264,17 +271,17 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
 			1,
-			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
-			PFD_TYPE_RGBA,                                              //The kind of framebuffer. RGBA or palette.
-			32,                                                         //Colordepth of the framebuffer.
+			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, // Flags
+			PFD_TYPE_RGBA,                                              // The kind of framebuffer. RGBA or palette.
+			32,                                                         // Colordepth of the framebuffer.
 			0, 0, 0, 0, 0, 0,
 			0,
 			0,
 			0,
 			0, 0, 0, 0,
-			24, //Number of bits for the depthbuffer
-			8,  //Number of bits for the stencilbuffer
-			0,  //Number of Aux buffers in the framebuffer.
+			24, // Number of bits for the depthbuffer
+			8,  // Number of bits for the stencilbuffer
+			0,  // Number of Aux buffers in the framebuffer.
 			PFD_MAIN_PLANE,
 			0,
 			0, 0, 0
@@ -410,7 +417,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		// Disable specific messages
 		GLuint perf_messages_ids[] = {
 			131154, // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering
-					//131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
+					// 131218, // NVIDIA: "shader will be recompiled due to GL state mismatches"
 		};
 		glDebugMessageControl(
 			GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_PERFORMANCE, GL_DONT_CARE,
