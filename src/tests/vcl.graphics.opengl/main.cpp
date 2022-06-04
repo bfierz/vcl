@@ -76,6 +76,7 @@ int main(int argc, char** argv)
 		const auto minor = std::atoi(match[2].str().c_str());
 		const auto patch = std::atoi(match[3].str().c_str());
 
+#ifdef VCL_ABI_WINAPI
 		// Require at least Mesa 22.1 for proper Windows support
 		if (major < 22 || (major == 22 && minor < 1))
 		{
@@ -83,6 +84,15 @@ int main(int argc, char** argv)
 			std::cerr << "Required minimum version is 22.1.0" << std::endl;
 			return 1;
 		}
+#else
+		// Require at least Mesa 21.3 for proper Linux support
+		if (major < 21 || (major == 21 && minor < 3))
+		{
+			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
+			std::cerr << "Required minimum version is 21.3.0" << std::endl;
+			return 1;
+		}
+#endif
 
 		if (isD3D)
 		{

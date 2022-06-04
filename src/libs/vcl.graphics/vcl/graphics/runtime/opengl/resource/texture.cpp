@@ -254,16 +254,16 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	void Texture::read(size_t size, void* data) const
 	{
-		GLenum tex_type = toTextureType(type());
 		SurfaceFormat fmt = this->format();
 		ImageFormat gl_fmt = toImageFormat(fmt);
 
 		// Read to 'data', not to a device buffer
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
+		// glBindBuffer(GL_PIXEL_PACK_BUFFER, GL_NONE);
 
 #if defined(VCL_GL_ARB_direct_state_access)
 		glGetTextureImage(_glId, 0, gl_fmt.Format, gl_fmt.Type, (GLsizei)size, data);
 #else
+		GLenum tex_type = toTextureType(type());
 		TextureBindPoint bp(tex_type, _glId);
 		if (tex_type != GL_TEXTURE_CUBE_MAP)
 		{

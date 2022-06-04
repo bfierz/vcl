@@ -64,8 +64,6 @@ void verifySize(const Vcl::Graphics::Runtime::OpenGL::Texture& tex, int exp_w, i
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	GLenum tex_type = tex.toTextureType(tex.type());
-
 	int w, h, d;
 	int miplevel = 0;
 #if defined(VCL_GL_ARB_direct_state_access)
@@ -73,6 +71,7 @@ void verifySize(const Vcl::Graphics::Runtime::OpenGL::Texture& tex, int exp_w, i
 	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_HEIGHT, &h);
 	glGetTextureLevelParameteriv(tex.id(), miplevel, GL_TEXTURE_DEPTH, &d);
 #elif defined(VCL_GL_EXT_direct_state_access)
+	GLenum tex_type = tex.toTextureType(tex.type());
 	if (tex_type != GL_TEXTURE_CUBE_MAP)
 	{
 		glGetTextureLevelParameterivEXT(tex.id(), tex_type, miplevel, GL_TEXTURE_WIDTH, &w);
@@ -99,6 +98,7 @@ void verifySize(const Vcl::Graphics::Runtime::OpenGL::Texture& tex, int exp_w, i
 		}
 	}
 #else
+	GLenum tex_type = tex.toTextureType(tex.type());
 	Runtime::OpenGL::TextureBindPoint bp(tex_type, tex.id());
 	if (tex_type != GL_TEXTURE_CUBE_MAP)
 	{

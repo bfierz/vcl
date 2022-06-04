@@ -65,11 +65,8 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 	struct RenderTargetAttachmentDescription
 	{
-		union
-		{
-			void* Attachment = nullptr;
-			Core::ref_ptr<Texture> View;
-		};
+		void* Attachment = nullptr;
+		Core::ref_ptr<Texture> View;
 		AttachmentLoadOp LoadOp = AttachmentLoadOp::DontCare;
 		AttachmentStoreOp StoreOp = AttachmentStoreOp::Store;
 		std::array<float, 4> ClearColor = { 0, 0, 0, 0 };
@@ -77,11 +74,8 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 	struct DepthStencilAttachmentTargetDescription
 	{
-		union
-		{
-			void* Attachment = nullptr;
-			Core::ref_ptr<Texture> View;
-		};
+		void* Attachment = nullptr;
+		Core::ref_ptr<Texture> View;
 		AttachmentLoadOp DepthLoadOp = AttachmentLoadOp::DontCare;
 		AttachmentStoreOp DepthStoreOp = AttachmentStoreOp::Store;
 		float ClearDepth = 1.0f;
