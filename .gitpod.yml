@@ -7,6 +7,7 @@ vscode:
     - editorconfig.editorconfig
     - github.vscode-pull-request-github
     - ms-azuretools.vscode-docker
+    - ms-vscode.cpptools
     - ms-vscode.cmake-tools
 
 tasks:
