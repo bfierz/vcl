@@ -110,36 +110,78 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	std::vector<uint32_t> b_rt_1(32 * 32, 0);
 	std::vector<uint32_t> b_rt_2(32 * 32, 0);
 
+	RenderPassDescription rp_desc_0 = {};
+	rp_desc_0.RenderTargetAttachments.resize(1);
+	rp_desc_0.RenderTargetAttachments[0].View = rt_0;
+	rp_desc_0.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_0.RenderTargetAttachments[0].ClearColor = { 0.25f, 0.25f, 0.25f, 0.25f };
+	rp_desc_0.DepthStencilTargetAttachment.View = depth_rt;
+
+	RenderPassDescription rp_desc_1 = {};
+	rp_desc_1.RenderTargetAttachments.resize(1);
+	rp_desc_1.RenderTargetAttachments[0].View = rt_1;
+	rp_desc_1.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_1.RenderTargetAttachments[0].ClearColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	rp_desc_1.DepthStencilTargetAttachment.View = depth_rt;
+
+	RenderPassDescription rp_desc_2 = {};
+	rp_desc_2.RenderTargetAttachments.resize(1);
+	rp_desc_2.RenderTargetAttachments[0].View = rt_2;
+	rp_desc_2.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_2.RenderTargetAttachments[0].ClearColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	rp_desc_2.DepthStencilTargetAttachment.View = depth_rt;
+
+	RenderPassDescription rp_desc_3 = {};
+	rp_desc_3.RenderTargetAttachments.resize(1);
+	rp_desc_3.RenderTargetAttachments[0].View = rt_0;
+	rp_desc_3.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_3.RenderTargetAttachments[0].ClearColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	rp_desc_3.DepthStencilTargetAttachment.View = depth_rt;
+
+	RenderPassDescription rp_desc_4 = {};
+	rp_desc_4.RenderTargetAttachments.resize(1);
+	rp_desc_4.RenderTargetAttachments[0].View = rt_1;
+	rp_desc_4.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_4.RenderTargetAttachments[0].ClearColor = { 0.5f, 0.5f, 0.5f, 0.5f };
+	rp_desc_4.DepthStencilTargetAttachment.View = depth_rt;
+
+	RenderPassDescription rp_desc_5 = {};
+	rp_desc_5.RenderTargetAttachments.resize(1);
+	rp_desc_5.RenderTargetAttachments[0].View = rt_2;
+	rp_desc_5.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
+	rp_desc_5.RenderTargetAttachments[0].ClearColor = { 0.25f, 0.25f, 0.25f, 0.25f };
+	rp_desc_5.DepthStencilTargetAttachment.View = depth_rt;
+
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_0 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
+	engine.beginRenderPass(rp_desc_0);
 	engine.enqueueReadback(*rt_0, [&b_rt_0](stdext::span<uint8_t> view) { memcpy(b_rt_0.data(), view.data(), view.size()); });
+	engine.endRenderPass();
 	engine.endFrame();
 
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_1 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(0.5f).eval());
+	engine.beginRenderPass(rp_desc_1);
 	engine.enqueueReadback(*rt_1, [&b_rt_1](stdext::span<uint8_t> view) { memcpy(b_rt_1.data(), view.data(), view.size()); });
+	engine.endRenderPass();
 	engine.endFrame();
 
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_2 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(1.0f).eval());
+	engine.beginRenderPass(rp_desc_2);
 	engine.enqueueReadback(*rt_2, [&b_rt_2](stdext::span<uint8_t> view) { memcpy(b_rt_2.data(), view.data(), view.size()); });
+	engine.endRenderPass();
 	engine.endFrame();
 
 	// Run three more frames in order to execute the read-back requests
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_0 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(1.0f).eval());
+	engine.beginRenderPass(rp_desc_3);
+	engine.endRenderPass();
 	engine.endFrame();
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_1 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(0.5f).eval());
+	engine.beginRenderPass(rp_desc_4);
+	engine.endRenderPass();
 	engine.endFrame();
 	engine.beginFrame();
-	engine.setRenderTargets({ rt_2 }, depth_rt);
-	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
+	engine.beginRenderPass(rp_desc_5);
+	engine.endRenderPass();
 	engine.endFrame();
 
 	constexpr uint32_t quarter_0 = 0x3f3f3f3f;
@@ -151,7 +193,7 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	// Check read values from each frame
 	EXPECT_TRUE(std::all_of(b_rt_0.cbegin(), b_rt_0.cend(), [=](uint32_t v) { return v == quarter_0 || v == quarter_1; }));
 	EXPECT_TRUE(std::all_of(b_rt_1.cbegin(), b_rt_1.cend(), [=](uint32_t v) { return v == half_0 || v == half_1; }));
-	EXPECT_TRUE(std::all_of(b_rt_2.cbegin(), b_rt_2.cend(), [=](uint32_t v) { return v == 0xffffffff; }));
+	EXPECT_TRUE(std::all_of(b_rt_2.cbegin(), b_rt_2.cend(), [=](uint32_t v) { return v == one; }));
 
 	// Check the values of each frame
 	std::vector<uint32_t> d_rt_0(32 * 32, 0);
@@ -161,7 +203,7 @@ TEST(OpenGL, EngineRenderTargetUsage)
 	static_pointer_cast<Runtime::OpenGL::Texture2D>(rt_1)->read(d_rt_1.size() * sizeof(uint32_t), d_rt_1.data());
 	static_pointer_cast<Runtime::OpenGL::Texture2D>(rt_2)->read(d_rt_2.size() * sizeof(uint32_t), d_rt_2.data());
 
-	EXPECT_TRUE(std::all_of(d_rt_0.cbegin(), d_rt_0.cend(), [=](uint32_t v) { return v == 0xffffffff; }));
+	EXPECT_TRUE(std::all_of(d_rt_0.cbegin(), d_rt_0.cend(), [=](uint32_t v) { return v == one; }));
 	EXPECT_TRUE(std::all_of(d_rt_1.cbegin(), d_rt_1.cend(), [=](uint32_t v) { return v == half_0 || v == half_1; }));
 	EXPECT_TRUE(std::all_of(d_rt_2.cbegin(), d_rt_2.cend(), [=](uint32_t v) { return v == quarter_0 || v == quarter_1; }));
 }

@@ -132,8 +132,6 @@ void main()
 }
 )";
 
-extern bool isLlvmPipe;
-
 TEST(OpenGL, CompileShaderError)
 {
 	using namespace Vcl::Graphics::Runtime;
@@ -228,7 +226,7 @@ TEST(OpenGL, BuildSimpleSpirvGraphicsShaderProgram)
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	if (!glewIsExtensionSupported("GL_ARB_gl_spirv") || isLlvmPipe)
+	if (!glewIsExtensionSupported("GL_ARB_gl_spirv"))
 	{
 		std::cout << "[ SKIPPED  ] SPIR-V not supported" << std::endl;
 		return;

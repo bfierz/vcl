@@ -177,7 +177,7 @@ TEST(OpenGL, ImageProcessingTaskSRGB)
 			bool b = physiological_average_gray[4 * (y * 256 + x) + 2] == 188;
 			bool a = physiological_average_gray[4 * (y * 256 + x) + 3] == 128;
 
-			equal = equal && r && g && b;
+			equal = equal && r && g && b && a;
 		}
 	}
 

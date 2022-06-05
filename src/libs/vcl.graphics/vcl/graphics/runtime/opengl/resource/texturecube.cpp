@@ -59,13 +59,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	void TextureCube::updateImpl(const TextureResource& data)
 	{
 		ImageFormat img_fmt = toImageFormat(data.Format != SurfaceFormat::Unknown ? data.Format : format());
-		int pixel_size = Vcl::Graphics::sizeInBytes(data.Format);
 		GLsizei w = (GLsizei)data.Width;
 		GLsizei h = (GLsizei)data.Height;
 		GLsizei mip = (GLsizei)data.MipMap;
 
 #if defined(VCL_GL_ARB_direct_state_access)
-		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, 6, img_fmt.Format, img_fmt.Type, data.data());
+		glTextureSubImage3D(_glId, mip, 0, 0, 0, w, h, 6, img_fmt.Format, img_fmt.Type, data.data());
 #else
 		const GLenum faces[] = {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -75,6 +74,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
 			GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 		};
+		int pixel_size = Vcl::Graphics::sizeInBytes(data.Format);
 		auto data_ptr = data.Data.data();
 		for (const auto face : faces)
 		{

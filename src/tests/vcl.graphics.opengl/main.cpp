@@ -40,7 +40,8 @@ extern "C"
 #endif
 
 bool isLlvmPipe = false; // true, if environment variable GALLIUM_DRIVER=llvmpipe is set
-bool isZink = false;     // true, if environment variable GALLIUM_DRIVER=zink is set
+bool isZink = false;     // true, if environment variable GALLIUM_DRIVER=zink is set (use software vulkan: ZINK_USE_LAVAPIPE=true)
+bool isD3D = false;      // true, if environment variable GALLIUM_DRIVER=d3d12 is set (use D3D12 WARP: LIBGL_ALWAYS_SOFTWARE=1)
 
 int main(int argc, char** argv)
 {
@@ -68,24 +69,35 @@ int main(int argc, char** argv)
 		// Check if we're running on MESAs LLVMPipe
 		isLlvmPipe = strncmp((const char*)glGetString(GL_RENDERER), "llvmpipe", 8) == 0;
 		isZink = strncmp((const char*)glGetString(GL_RENDERER), "zink", 4) == 0;
+		isD3D = strncmp((const char*)glGetString(GL_RENDERER), "D3D12", 5) == 0;
 
 		// Check minimum required version
 		const auto major = std::atoi(match[1].str().c_str());
 		const auto minor = std::atoi(match[2].str().c_str());
 		const auto patch = std::atoi(match[3].str().c_str());
 
-		// Require at least Mesa 21.3
+#ifdef VCL_ABI_WINAPI
+		// Require at least Mesa 22.1 for proper Windows support
+		if (major < 22 || (major == 22 && minor < 1))
+		{
+			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
+			std::cerr << "Required minimum version is 22.1.0" << std::endl;
+			return 1;
+		}
+#else
+		// Require at least Mesa 21.3 for proper Linux support
 		if (major < 21 || (major == 21 && minor < 3))
 		{
 			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
 			std::cerr << "Required minimum version is 21.3.0" << std::endl;
 			return 1;
 		}
+#endif
 
-		if (isZink)
+		if (isD3D)
 		{
-			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << " using Zink.";
-			std::cerr << "Zink is currently not for sequences of compute shaders" << std::endl;
+			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
+			std::cerr << "D3D12 is currently not supporting compute shaders" << std::endl;
 			return 1;
 		}
 	}

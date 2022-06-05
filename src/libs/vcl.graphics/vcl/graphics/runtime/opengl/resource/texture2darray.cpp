@@ -65,9 +65,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		GLsizei mip = (GLsizei)data.MipMap;
 
 #if defined(VCL_GL_ARB_direct_state_access)
-		glTextureSubImage3D(_glId, 0, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
+		glTextureSubImage3D(_glId, mip, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
 #elif defined(VCL_GL_EXT_direct_state_access)
-		glTextureSubImage3DEXT(_glId, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
+		glTextureSubImage3DEXT(_glId, GL_TEXTURE_2D_ARRAY, mip, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
 #else
 		glTexSubImage3D(GL_TEXTURE_2D_ARRAY, mip, 0, 0, 0, w, h, l, img_fmt.Format, img_fmt.Type, data.data());
 #endif
