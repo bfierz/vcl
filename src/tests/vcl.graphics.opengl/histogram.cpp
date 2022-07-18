@@ -47,11 +47,11 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 
 	// Define the input buffer
 	std::vector<int> numbers(size);
-	for (int i = 0; i < size; i++)
+	for (unsigned int i = 0; i < size; i++)
 		numbers[i] = dist(rnd);
 
 	std::vector<int> histogram(buckets, 0);
-	for (int i = 0; i < size; i++)
+	for (unsigned int i = 0; i < size; i++)
 		histogram[numbers[i]]++;
 
 	Runtime::BufferDescription desc = {
@@ -76,7 +76,7 @@ void BuildHistogramTest(unsigned int buckets, unsigned int size)
 
 	int* ptr = (int*)output->map(0, output->sizeInBytes());
 
-	for (int i = 0; i < buckets; i++)
+	for (unsigned int i = 0; i < buckets; i++)
 	{
 		EXPECT_EQ(histogram[i], ptr[i]) << "Prefix sum is wrong: " << i;
 	}
