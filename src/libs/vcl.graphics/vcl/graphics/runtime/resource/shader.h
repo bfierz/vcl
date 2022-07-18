@@ -31,10 +31,12 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	enum class ShaderType
 	{
 		VertexShader,     //!< Shader executing programs on single vertices
-		ControlShader,    //!< Shader executing programs on entire tesellation patches
+		ControlShader,    //!< Shader executing programs on entire tessellation patches
 		EvaluationShader, //!< Shader executing programs on each vertex generated from tessellation
 		GeometryShader,   //!< Shader executing programs on entire primitives (lines, triangles)
-		FragmentShader,   //!< Shader executing programs on single fragments
+		FragmentShader,   //!< Shader executing programs to generate mesh shader work groups
+		TaskShader,       //!< Shader executing programs on work group to generate primitives
+		MeshShader,       //!< Shader executing programs on single fragments
 		ComputeShader     //!< Shader executing generic programs
 	};
 

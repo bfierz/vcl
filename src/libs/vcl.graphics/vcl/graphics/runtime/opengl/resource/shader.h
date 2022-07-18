@@ -55,6 +55,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		//! \returns The shader log
 		std::string readInfoLog() const;
 
+		static bool areMeshShadersSupported();
 		static bool isSpirvSupported();
 		static GLenum toGLenum(ShaderType type);
 	};

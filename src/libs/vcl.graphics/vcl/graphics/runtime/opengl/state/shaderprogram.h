@@ -67,6 +67,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		Runtime::OpenGL::Shader* ComputeShader{ nullptr };
 	};
 
+	struct MeshShaderProgramDescription
+	{
+		//! Input layout
+		InputLayoutDescription InputLayout;
+
+		//! Task shader
+		Runtime::OpenGL::Shader* TaskShader{ nullptr };
+
+		//! Mesh shader
+		Runtime::OpenGL::Shader* MeshShader{ nullptr };
+
+		//! Fragment shader
+		Runtime::OpenGL::Shader* FragmentShader{ nullptr };
+	};
+
 	enum class ProgramResourceType
 	{
 		Float,
@@ -390,6 +405,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	{
 	public:
 		ShaderProgram(const ShaderProgramDescription& desc);
+		ShaderProgram(const MeshShaderProgramDescription& desc);
 
 	public:
 		void bind();
@@ -448,8 +464,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	};
 
 	/// Create a new shader program from a OpenGL shader objects
-	/// @returns The compiled shader progam, or the error-string in case of failure
+	/// @returns The compiled shader program, or the error-string in case of failure
 	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const ShaderProgramDescription& desc);
+
+	/// Create a new shader program from a OpenGL shader objects
+	/// @returns The compiled shader program, or the error-string in case of failure
+	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const MeshShaderProgramDescription& desc);
 
 	inline std::unique_ptr<Runtime::OpenGL::ShaderProgram> createComputeKernel(const char* source, std::initializer_list<const char*> headers = {})
 	{

@@ -151,6 +151,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		return {};
 	}
 
+	bool Shader::areMeshShadersSupported()
+	{
+		return glewIsSupported("GL_NV_mesh_shader");
+	}
+
 	bool Shader::isSpirvSupported()
 	{
 		return glewIsSupported("GL_ARB_gl_spirv") && glewIsSupported("GL_ARB_spirv_extensions");
@@ -165,6 +170,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case ShaderType::EvaluationShader: return GL_TESS_EVALUATION_SHADER;
 		case ShaderType::GeometryShader: return GL_GEOMETRY_SHADER;
 		case ShaderType::FragmentShader: return GL_FRAGMENT_SHADER;
+		case ShaderType::TaskShader: return GL_TASK_SHADER_NV;
+		case ShaderType::MeshShader: return GL_MESH_SHADER_NV;
 		case ShaderType::ComputeShader: return GL_COMPUTE_SHADER;
 		default:
 		{

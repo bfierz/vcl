@@ -681,6 +681,50 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		VclEnsure(id() > 0, "Shader program is created");
 	}
 
+	ShaderProgram::ShaderProgram(const MeshShaderProgramDescription& desc)
+	{
+		VclRequire(glewIsExtensionSupported("GL_NV_mesh_shader"), " shaders are supported.");
+		VclRequire(desc.MeshShader, "Task shader, Mesh shader and Fragment shader are set.");
+
+		// Create a program for the shader
+		_glId = glCreateProgram();
+
+		// Attach shaders to the program
+		if (desc.TaskShader)
+			glAttachShader(_glId, desc.TaskShader->id());
+
+		if (desc.MeshShader)
+			glAttachShader(_glId, desc.MeshShader->id());
+
+		if (desc.FragmentShader)
+			glAttachShader(_glId, desc.FragmentShader->id());
+
+		// Link the program
+		glLinkProgram(id());
+
+		bool linked = checkLinkState();
+
+		// Link the program to the input layout
+		if (linked)
+			linkAttributes(desc.InputLayout);
+
+		// Detach shaders for deferred deletion
+		if (desc.TaskShader)
+			glDetachShader(_glId, desc.TaskShader->id());
+
+		if (desc.MeshShader)
+			glDetachShader(_glId, desc.MeshShader->id());
+
+		if (desc.FragmentShader)
+			glDetachShader(_glId, desc.FragmentShader->id());
+
+		// Collect the uniforms of this program
+		if (linked)
+			_resources = std::make_unique<ProgramResources>(id());
+
+		VclEnsure(id() > 0, "Shader program is created");
+	}
+
 	void ShaderProgram::bind()
 	{
 		VclRequire(id() > 0, "Shader program is created");
@@ -963,6 +1007,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	}
 
 	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const ShaderProgramDescription& desc)
+	{
+		auto prog = std::make_unique<ShaderProgram>(desc);
+		if (prog->checkLinkState())
+			return std::move(prog);
+		else
+			return nonstd::make_unexpected(prog->readInfoLog());
+	}
+
+	nonstd::expected<std::unique_ptr<ShaderProgram>, std::string> makeShaderProgram(const MeshShaderProgramDescription& desc)
 	{
 		auto prog = std::make_unique<ShaderProgram>(desc);
 		if (prog->checkLinkState())
