@@ -197,6 +197,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		virtual void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) = 0;
 		virtual void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) = 0;
 		virtual void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) = 0;
+		virtual void drawMeshTasks(unsigned int first, unsigned int count) = 0;
 		//! \}
 
 	protected:

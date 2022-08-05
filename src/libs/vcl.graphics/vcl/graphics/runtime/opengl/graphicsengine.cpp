@@ -482,9 +482,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	void GraphicsEngine::setPipelineState(ref_ptr<Runtime::PipelineState> state)
 	{
-		auto gl_state = static_pointer_cast<OpenGL::PipelineState>(state);
+		auto gl_mesh_state = dynamic_pointer_cast<OpenGL::GraphicsMeshShaderPipelineState>(state);
+		if (gl_mesh_state)
+		{
+			gl_mesh_state->bind();
+			return;
+		}
 
-		gl_state->bind();
+		auto gl_state = dynamic_pointer_cast<OpenGL::PipelineState>(state);
+		if (gl_state)
+		{
+			gl_state->bind();
+			return;
+		}
 	}
 
 	void GraphicsEngine::pushConstants(void* data, size_t size)
@@ -618,4 +628,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		glDrawElementsInstancedBaseInstance(mode, count, GL_UNSIGNED_INT, nullptr, instance_count, base_instance);
 	}
 
+	void GraphicsEngine::drawMeshTasks(unsigned int first, unsigned int count)
+	{
+		VclRequire(glewIsExtensionSupported("GL_NV_mesh_shader"), " shaders are supported.");
+
+		glDrawMeshTasksNV(first, count);
+	}
 }}}}

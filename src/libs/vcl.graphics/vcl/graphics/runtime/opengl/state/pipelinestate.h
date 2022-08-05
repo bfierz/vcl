@@ -63,4 +63,29 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		DepthStencilState _depthStencilState;
 		RasterizerState _rasterizerState;
 	};
+
+	class GraphicsMeshShaderPipelineState : public Runtime::PipelineState
+	{
+	public:
+		GraphicsMeshShaderPipelineState(const GraphicsMeshShaderPipelineStateDescription& desc);
+
+	public:
+		InputLayout& layout() { return _inputLayout; }
+
+		ShaderProgram& program() { return *_shaderProgram; }
+
+		BlendState& blendState() { return _blendState; }
+
+	public:
+		void bind();
+
+	private:
+		InputLayout _inputLayout;
+		InputAssemblyDescription _inputAssembly;
+		std::unique_ptr<ShaderProgram> _shaderProgram;
+
+		BlendState _blendState;
+		DepthStencilState _depthStencilState;
+		RasterizerState _rasterizerState;
+	};
 }}}}

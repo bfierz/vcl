@@ -51,7 +51,41 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		// Bind the input description
 		_inputLayout.bind();
 
-		// Bind the rasterizer configueration
+		// Bind the rasterizer configuration
+		_rasterizerState.bind();
+
+		// Bind the depth-stencil configuration
+		_depthStencilState.bind();
+
+		// Bind the blending configuration
+		_blendState.bind();
+	}
+
+	GraphicsMeshShaderPipelineState::GraphicsMeshShaderPipelineState(const GraphicsMeshShaderPipelineStateDescription& desc)
+	: _inputLayout(desc.InputLayout)
+	, _inputAssembly(desc.InputAssembly)
+	, _blendState(desc.Blend)
+	, _depthStencilState(desc.DepthStencil)
+	, _rasterizerState(desc.Rasterizer)
+	{
+		MeshShaderProgramDescription shader_desc;
+		shader_desc.InputLayout = desc.InputLayout;
+		shader_desc.TaskShader = static_cast<Runtime::OpenGL::Shader*>(desc.TaskShader);
+		shader_desc.MeshShader = static_cast<Runtime::OpenGL::Shader*>(desc.MeshShader);
+		shader_desc.FragmentShader = static_cast<Runtime::OpenGL::Shader*>(desc.FragmentShader);
+
+		_shaderProgram = std::make_unique<ShaderProgram>(shader_desc);
+	}
+
+	void GraphicsMeshShaderPipelineState::bind()
+	{
+		// Bind the shader
+		_shaderProgram->bind();
+
+		// Bind the input description
+		_inputLayout.bind();
+
+		// Bind the rasterizer configuration
 		_rasterizerState.bind();
 
 		// Bind the depth-stencil configuration

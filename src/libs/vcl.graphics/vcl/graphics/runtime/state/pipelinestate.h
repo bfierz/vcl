@@ -101,6 +101,33 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		Runtime::DepthStencilDescription DepthStencil;
 	};
 
+	struct GraphicsMeshShaderPipelineStateDescription
+	{
+		// Task shader
+		Runtime::Shader* TaskShader{ nullptr };
+
+		// Mesh shader
+		Runtime::Shader* MeshShader{ nullptr };
+
+		// Fragment shader
+		Runtime::Shader* FragmentShader{ nullptr };
+
+		// Input assembly state
+		Runtime::InputAssemblyDescription InputAssembly;
+
+		// Input layout
+		Runtime::InputLayoutDescription InputLayout;
+
+		// Blend state
+		Runtime::BlendDescription Blend;
+
+		// Rasterizer state
+		Runtime::RasterizerDescription Rasterizer;
+
+		// Depth stencil state
+		Runtime::DepthStencilDescription DepthStencil;
+	};
+
 	struct ComputePipelineStateDescription
 	{
 		// Compute shader

@@ -228,6 +228,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) override;
 		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) override;
 		void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) override;
+		void drawMeshTasks(unsigned int first, unsigned int count) override;
 
 	private:
 		//! Number of parallel frames

@@ -128,12 +128,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		{
 			valid &= glIsEnabled(GL_CULL_FACE) == GL_TRUE;
 			valid &= OpenGL::GL::getEnum(GL_CULL_FACE_MODE) == toGLenum(desc().CullMode);
-			valid &= OpenGL::GL::getEnum(GL_FRONT_FACE) == (desc().FrontCounterClockwise ? GL_CCW : GL_CW);
+			valid &= OpenGL::GL::getEnum(GL_FRONT_FACE) == static_cast<GLenum>(desc().FrontCounterClockwise ? GL_CCW : GL_CW);
 		}
 
 		GLint values[2];
 		glGetIntegerv(GL_POLYGON_MODE, values);
-		valid &= (values[0] == toGLenum(desc().FillMode));
+		valid &= (static_cast<GLenum>(values[0]) == toGLenum(desc().FillMode));
 
 		return valid;
 	}
