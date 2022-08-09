@@ -83,6 +83,8 @@ set(SOURCE
 	vcl/geometry/marchingcubestables.cpp
 	vcl/geometry/marchingcubestables.h
 
+	vcl/geometry/meshlets.cpp
+	vcl/geometry/meshlets.h
 	vcl/geometry/meshoperations.h
 )
 vcl_target_sources(vcl.geometry "vcl/geometry" ${SOURCE})
@@ -90,6 +92,8 @@ vcl_target_sources(vcl.geometry "vcl/geometry" ${SOURCE})
 target_link_libraries(vcl.geometry
 	PUBLIC
 		vcl_core
+	PRIVATE
+		meshoptimizer
 )
 
 # Setup installation

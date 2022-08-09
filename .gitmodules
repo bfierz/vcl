@@ -37,3 +37,6 @@
 [submodule "src/examples/3rdparty/stb"]
 	path = src/examples/3rdparty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "src/externals/meshoptimizer"]
+	path = src/externals/meshoptimizer
+	url = https://github.com/zeux/meshoptimizer.git

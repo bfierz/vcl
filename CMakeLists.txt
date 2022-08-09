@@ -99,6 +99,11 @@ if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json/CMakeLists.txt")
 	add_subdirectory(src/externals/json)
 endif()
 
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/meshoptimizer/CMakeLists.txt")
+	add_subdirectory(src/externals/meshoptimizer)
+	set_property(TARGET meshoptimizer PROPERTY FOLDER 3rd-party)
+endif()
+
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
 	cmake_policy(SET CMP0072 NEW)
 endif()
