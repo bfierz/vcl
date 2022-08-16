@@ -607,20 +607,20 @@ namespace Vcl { namespace Geometry {
 		}
 
 		// Define triangles
-		size_t nr_faces = vertices.size();
+		size_t nr_faces = nr_radial_segments * nr_sides;
 		size_t nr_triangles = nr_faces * 2;
 
 		using face_t = std::array<unsigned int, 3>;
 		std::vector<face_t> triangles(nr_triangles);
 
-		for (uint32_t i = 0, seg = 0; seg <= nr_radial_segments; seg++)
+		for (uint32_t i = 0, seg = 0; seg <= nr_radial_segments - 1; seg++)
 		{
 			for (uint32_t side = 0; side <= nr_sides - 1; side++)
 			{
 				uint32_t current = side + seg * (nr_sides + 1);
 				uint32_t next = side + (seg < (nr_radial_segments) ? (seg + 1) * (nr_sides + 1) : 0);
 
-				if (i < triangles.size() - 6)
+				if (i < triangles.size())
 				{
 					triangles[i][0] = current;
 					triangles[i][1] = next + 1;
