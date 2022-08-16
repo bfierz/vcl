@@ -135,21 +135,23 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			};
 
 			// Suppress individual messages by their ID
-			//D3D12_MESSAGE_ID DenyIds[] = {
-			//	D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
-			//	D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
-			//	D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
-			//};
+			// Some recommendations: https://stackoverflow.com/a/69833651
+			D3D12_MESSAGE_ID DenyIds[] = {
+				D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                             // This warning occurs when using capture frame while graphics debugging.
+				D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                           // This warning occurs when using capture frame while graphics debugging.
+				D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE,    // Windows 11 related debug layer issue
+				D3D12_MESSAGE_ID_EXECUTECOMMANDLISTS_WRONGSWAPCHAINBUFFERREFERENCE, // Workaround for debug layer issues on hybrid-graphics systems
+			};
 
-			D3D12_INFO_QUEUE_FILTER NewFilter = {};
-			//NewFilter.DenyList.NumCategories = _countof(Categories);
-			//NewFilter.DenyList.pCategoryList = Categories;
-			NewFilter.DenyList.NumSeverities = _countof(Severities);
-			NewFilter.DenyList.pSeverityList = Severities;
-			//NewFilter.DenyList.NumIDs = _countof(DenyIds);
-			//NewFilter.DenyList.pIDList = DenyIds;
+			D3D12_INFO_QUEUE_FILTER filter = {};
+			//filter.DenyList.NumCategories = _countof(Categories);
+			//filter.DenyList.pCategoryList = Categories;
+			filter.DenyList.NumSeverities = _countof(Severities);
+			filter.DenyList.pSeverityList = Severities;
+			filter.DenyList.NumIDs = _countof(DenyIds);
+			filter.DenyList.pIDList = DenyIds;
 
-			VCL_DIRECT3D_SAFE_CALL(info_queue->PushStorageFilter(&NewFilter));
+			VCL_DIRECT3D_SAFE_CALL(info_queue->PushStorageFilter(&filter));
 		}
 #endif
 
