@@ -48,7 +48,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		spirv_desc.codeSize = static_cast<uint32_t>(binary_data.size()) / sizeof(uint32_t);
 		spirv_desc.code = reinterpret_cast<const uint32_t*>(binary_data.data());
 
-		WGPUShaderModuleDescriptor desc;
+		WGPUShaderModuleDescriptor desc = {};
 		desc.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&spirv_desc);
 
 		_module = wgpuDeviceCreateShaderModule(device, &desc);

@@ -44,10 +44,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		case PrimitiveType::Pointlist:        return WGPUPrimitiveTopology_PointList;
 		case PrimitiveType::Linelist:         return WGPUPrimitiveTopology_LineList;
 		case PrimitiveType::Linestrip:        return WGPUPrimitiveTopology_LineStrip;
-		case PrimitiveType::LinelistAdj:      return WGPUPrimitiveTopology_Force32;
-		case PrimitiveType::LinestripAdj:     return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::Trianglelist:     return WGPUPrimitiveTopology_TriangleList;
 		case PrimitiveType::Trianglestrip:    return WGPUPrimitiveTopology_TriangleStrip;
+		case PrimitiveType::LinelistAdj:      return WGPUPrimitiveTopology_Force32;
+		case PrimitiveType::LinestripAdj:     return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::TrianglelistAdj:  return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::TrianglestripAdj: return WGPUPrimitiveTopology_Force32;
 		case PrimitiveType::Patch:            return WGPUPrimitiveTopology_Force32;
@@ -95,15 +95,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(desc.TessControlShader == nullptr, "Tessellation Control Shader not supported");
 		VclRequire(desc.TessEvalShader == nullptr, "Tessellation Evaluation Shader not supported");
 		VclRequire(desc.GeometryShader == nullptr, "Geometry Shader not supported");
-		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending")
-			VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported")
+		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending");
+		VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported");
 
-				WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
+		WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
 
-		WGPUPipelineLayoutDescriptor layout_desc = {};
-		graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
+		//WGPUPipelineLayoutDescriptor layout_desc = {};
+		//graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
+		graphics_pipeline_desc.layout = nullptr;
 
-		WGPUVertexState vertex_state_desc = {};
 		auto vertex_buffer_desc = toWebGPU(desc.InputLayout);
 		auto* attrib_base = vertex_buffer_desc.second.data();
 		for (auto& vb : vertex_buffer_desc.first)
@@ -111,8 +111,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 			vb.attributes = attrib_base;
 			attrib_base += vb.attributeCount;
 		}
-		vertex_state_desc.bufferCount = vertex_buffer_desc.first.size();
-		vertex_state_desc.buffers = vertex_buffer_desc.first.data();
+		graphics_pipeline_desc.vertex.bufferCount = vertex_buffer_desc.first.size();
+		graphics_pipeline_desc.vertex.buffers = vertex_buffer_desc.first.data();
 		const auto vertex_shader_desc = getProgammableStageDesc(desc.VertexShader);
 		graphics_pipeline_desc.vertex.module = vertex_shader_desc.module;
 		graphics_pipeline_desc.vertex.entryPoint = vertex_shader_desc.entryPoint;
@@ -120,7 +120,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		graphics_pipeline_desc.primitive.topology = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.primitive.stripIndexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
 		graphics_pipeline_desc.primitive.frontFace = desc.Rasterizer.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;
-		;
 		graphics_pipeline_desc.primitive.cullMode = toWebGPU(desc.Rasterizer.CullMode);
 		graphics_pipeline_desc.multisample.count = 1;
 		graphics_pipeline_desc.multisample.mask = UINT_MAX;
@@ -139,7 +138,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		for (size_t i = 0; i < rt_formats.ColourFormats.size(); i++)
 		{
 			colour_states[i].format = toWebGPUEnum(rt_formats.ColourFormats[i]);
-			colour_states[i].blend = &blend_states[i];
+			colour_states[i].blend = blend_states[i].second ? &blend_states[i].first : nullptr;
 			colour_states[i].writeMask = desc.Blend.RenderTarget[i].RenderTargetWriteMask.bits();
 		}
 

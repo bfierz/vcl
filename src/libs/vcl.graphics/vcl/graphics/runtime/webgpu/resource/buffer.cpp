@@ -61,7 +61,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 			"Generic buffer",
 			toWGPU(desc.Usage),
 			desc.SizeInBytes,
-			init_data != nullptr
+			false
 		};
 
 		_resource = wgpuDeviceCreateBuffer(device, &wgpu_desc);

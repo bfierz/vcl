@@ -142,7 +142,7 @@ public:
 		};
 		BufferDescription ibo_desc = {
 			cube_indices.size() * sizeof(int),
-			BufferUsage::Vertex
+			BufferUsage::Index
 		};
 		BufferInitData ibo_data = {
 			cube_indices.data(),

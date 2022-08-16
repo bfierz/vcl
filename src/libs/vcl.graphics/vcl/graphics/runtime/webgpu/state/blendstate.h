@@ -35,5 +35,5 @@
 #include <vcl/graphics/runtime/state/blendstate.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
-	std::array<WGPUBlendState, 8> toWebGPU(const BlendDescription& desc);
+	std::array<std::pair<WGPUBlendState, bool>, 8> toWebGPU(const BlendDescription& desc);
 }}}}

@@ -75,7 +75,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		return WGPUBlendFactor_Force32;
 	}
 
-	std::array<WGPUBlendState, 8> toWebGPU(const BlendDescription& desc)
+	std::array<std::pair<WGPUBlendState, bool>, 8> toWebGPU(const BlendDescription& desc)
 	{
 		VclRequire(desc.LogicOpEnable == false, "WebGPU does not support logic ops");
 
@@ -88,11 +88,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(desc.RenderTarget[6].BlendOp < BlendOperation::Multiply, "Advanced blending operations are not supported");
 		VclRequire(desc.RenderTarget[7].BlendOp < BlendOperation::Multiply, "Advanced blending operations are not supported");
 
-		std::array<WGPUBlendState, 8> webgpu_desc = {};
+		std::array<std::pair<WGPUBlendState, bool>, 8> webgpu_desc = {};
 		int i = 0;
 		for (const auto& rt : desc.RenderTarget)
 		{
-			auto& tgt = webgpu_desc[i];
+
+			auto& tgt = webgpu_desc[i].first;
 			if (rt.BlendEnable)
 			{
 				tgt.alpha.operation = toWebGPU(rt.BlendOpAlpha);
@@ -101,15 +102,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 				tgt.color.operation = toWebGPU(rt.BlendOp);
 				tgt.color.srcFactor = toWebGPU(rt.SrcBlend);
 				tgt.color.dstFactor = toWebGPU(rt.DestBlend);
-			} else
-			{
-				tgt.alpha.operation = WGPUBlendOperation_Add;
-				tgt.alpha.srcFactor = WGPUBlendFactor_One;
-				tgt.alpha.dstFactor = WGPUBlendFactor_Zero;
-				tgt.color.operation = WGPUBlendOperation_Add;
-				tgt.color.srcFactor = WGPUBlendFactor_One;
-				tgt.color.dstFactor = WGPUBlendFactor_Zero;
 			}
+			webgpu_desc[i].second = rt.BlendEnable;
 			i++;
 		}
 
