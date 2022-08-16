@@ -235,6 +235,7 @@ vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE})
 target_link_libraries(vcl_graphics
 	PUBLIC
 		vcl_core
+		vcl.geometry
 )
 
 if(VCL_OPENGL_SUPPORT)
@@ -339,7 +340,7 @@ if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${DAWN_SORCE_DIRECTORY}/bin/dawn_native.dll
+			${DAWN_SORCE_DIRECTORY}/bin/dawn_webgpu_dawn.dll
 			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD
@@ -351,6 +352,11 @@ if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
 			${DAWN_SORCE_DIRECTORY}/bin/dawn_proc.dll
 			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${DAWN_SORCE_DIRECTORY}/bin/dawn_native.dll
+			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
 	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
@@ -359,6 +365,7 @@ if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 		PUBLIC
 			${DAWN_NATIVE_LIBRARY}
 			${DAWN_PROC_LIBRARY}
+			${WEBGPU_LIBRARY}
 			${WEBGPU_CPP_LIBRARY}
 	)
 elseif(VCL_WEBGPU_SUPPORT)

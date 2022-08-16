@@ -53,6 +53,7 @@ public:
 	virtual ~Application();
 
 	GLFWwindow* windowHandle() const { return _windowHandle; }
+	WGPUDevice device() const { return _wgpuDevice; }
 
 	int run();
 	void step();
