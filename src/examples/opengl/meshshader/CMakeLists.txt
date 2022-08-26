@@ -98,6 +98,7 @@ target_include_directories(opengl_meshshader
 		../../3rdparty/imgui/backends
 )
 target_link_libraries(opengl_meshshader
+	vcl.geometry
 	vcl_graphics
 	glfw
 )

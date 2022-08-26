@@ -30,15 +30,33 @@
 
 // C++ standard library
 #include <iostream>
+#include <vector>
 
 // VCL
+#include <vcl/geometry/meshfactory.h>
+#include <vcl/geometry/trimesh.h>
+
 #include <vcl/graphics/opengl/glsl/uniformbuffer.h>
 #include <vcl/graphics/opengl/context.h>
+#include <vcl/graphics/opengl/gl.h>
 #include <vcl/graphics/runtime/opengl/resource/shader.h>
 #include <vcl/graphics/runtime/opengl/state/pipelinestate.h>
 #include <vcl/graphics/runtime/opengl/graphicsengine.h>
 #include <vcl/graphics/camera.h>
 #include <vcl/graphics/trackballcameracontroller.h>
+
+
+#include <vcl/graphics/opengl/glsl/uniformbuffer.h>
+
+UNIFORM_BUFFER(0)
+TransformData
+{
+	// Transform to world space
+	mat4 ModelMatrix;
+
+	// Transform from world to normalized device coordinates
+	mat4 ViewProjectionMatrix;
+};
 
 //#include "shaders/boundinggrid.h"
 //#include "boundinggrid.vert.spv.h"
@@ -52,7 +70,6 @@
 const char* SimpleTriangleMS =
 	R"(
 #version 450
- 
 #extension GL_NV_mesh_shader : require
  
 layout(local_size_x = 1) in;
@@ -90,6 +107,108 @@ void main()
 }
 )";
 
+const char* SimpleMeshletMS =
+	R"(
+#version 450
+ 
+#extension GL_NV_mesh_shader : require
+ 
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(triangles, max_vertices = 64, max_primitives = 126) out;
+ 
+//-------------------------------------
+// transform_ub: Uniform buffer for transformations
+//
+layout (std140, binding = 0) uniform uniforms_t
+{ 
+  mat4 ViewProjectionMatrix;
+  mat4 ModelMatrix;
+} transform_ub;
+ 
+//-------------------------------------
+// vb: storage buffer for vertices.
+//
+struct s_vertex
+{
+  vec4 position;
+  vec4 color;
+};
+ 
+layout (std430, binding = 1) buffer _vertices
+{
+  s_vertex vertices[];
+} vb;
+ 
+//-------------------------------------
+// mbuf: storage buffer for meshlets.
+//
+struct s_meshlet
+{
+  uint vertices[64];
+  uint indices[378]; // up to 126 triangles
+  uint vertex_count;
+  uint index_count;
+};
+ 
+layout (std430, binding = 2) buffer _meshlets
+{
+  s_meshlet meshlets[];
+} mbuf;
+ 
+// Mesh shader output block.
+//
+layout (location = 0) out PerVertexData
+{
+  vec4 color;
+} v_out[];   // [max_vertices]
+ 
+// Color table for drawing each meshlet with a different color.
+//
+#define MAX_COLORS 10
+vec3 meshletcolors[MAX_COLORS] = {
+  vec3(1,0,0), 
+  vec3(0,1,0),
+  vec3(0,0,1),
+  vec3(1,1,0),
+  vec3(1,0,1),
+  vec3(0,1,1),
+  vec3(1,0.5,0),
+  vec3(0.5,1,0),
+  vec3(0,0.5,1),
+  vec3(1,1,1)
+  };
+ 
+void main()
+{
+  uint mi = gl_WorkGroupID.x;
+  uint thread_id = gl_LocalInvocationID.x;
+ 
+  uint vertex_count = mbuf.meshlets[mi].vertex_count;
+  for (uint i = 0; i < vertex_count; ++i)
+  {
+    uint vi = mbuf.meshlets[mi].vertices[i];
+ 
+    vec4 Pw = transform_ub.ModelMatrix * vb.vertices[vi].position;
+    vec4 P = transform_ub.ViewProjectionMatrix * Pw;
+ 
+    // GL->VK conventions...
+    P.y = -P.y; P.z = (P.z + P.w) / 2.0;
+ 
+    gl_MeshVerticesNV[i].gl_Position = P;
+ 
+    v_out[i].color = vb.vertices[vi].color * vec4(meshletcolors[mi%MAX_COLORS], 1.0);
+  }
+ 
+  uint index_count = mbuf.meshlets[mi].index_count;
+  gl_PrimitiveCountNV = uint(index_count) / 3;
+ 
+  for (uint i = 0; i < index_count; ++i)
+  {
+    gl_PrimitiveIndicesNV[i] = uint(mbuf.meshlets[mi].indices[i]);
+  }
+}
+)";
+
 const char* SimpleTriangleFS =
 	R"(
 #version 450
@@ -122,6 +241,51 @@ bool InputUInt(const char* label, unsigned int* v, int step, int step_fast, ImGu
 	return ImGui::InputScalar(label, ImGuiDataType_U32, (void*)v, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), format, flags);
 }
 
+class SimpleMeshletMesh
+{
+public:
+	struct Meshlet
+	{
+		std::array<uint32_t, 60> Vertices; ///< Indices into the vertex data
+		std::array<uint32_t, 384> Indices; ///< Primitive indices into the \see Vertices array
+		uint32_t VertexCount;
+		uint32_t PrimitiveCount;
+	};
+
+	SimpleMeshletMesh(const Vcl::Geometry::TriMesh& mesh)
+	{
+		// Copy position data
+
+		// Create meshlets
+		// * Pick triangle
+		// * Add vertices to meshlet (if enough space, else start new meshlet)
+		// * Append indices
+	}
+
+	/// Position data
+	std::vector<Eigen::Vector3f> _positions;
+
+	/// Meshlets
+	std::vector<Meshlet> _meshlets;
+};
+
+// Sample implementation according to https://developer.nvidia.com/blog/introduction-turing-mesh-shaders/
+class MeshletMesh
+{
+public:
+	struct MeshletDesc
+	{
+		uint32_t VertexCount; // number of vertices used
+		uint32_t PrimCount;   // number of primitives (triangles) used
+		uint32_t VertexBegin; // offset into vertexIndices
+		uint32_t PrimBegin;   // offset into primitiveIndices
+	};
+
+	std::vector<MeshletDesc> MeshletInfos;
+	std::vector<uint8_t> PrimitiveIndices;
+	std::vector<uint32_t> VertexIndices;
+};
+
 class MeshShaderExample final : public ImGuiApplication
 {
 public:
@@ -146,6 +310,9 @@ public:
 			throw std::runtime_error("Mesh shaders are not supported.");
 		if (!Shader::isSpirvSupported())
 			throw std::runtime_error("SPIR-V is not supported.");
+
+		_maxMeshOutputVertices = Vcl::Graphics::OpenGL::GL::getInteger(GL_MAX_MESH_OUTPUT_VERTICES_NV);
+		_maxMeshOutputPrimitives = Vcl::Graphics::OpenGL::GL::getInteger(GL_MAX_MESH_OUTPUT_PRIMITIVES_NV);
 
 		// Initialize content
 		_camera = std::make_unique<Camera>(std::make_shared<Vcl::Graphics::OpenGL::MatrixFactory>());
@@ -175,9 +342,11 @@ public:
 		ImGuiApplication::updateFrame();
 
 		// Update UI
-		// ImGui::Begin("Grid parameters");
-		// InputUInt("Resolution", &_gridResolution, 1, 10, ImGuiInputTextFlags_None);
-		// ImGui::End();
+		ImGui::LabelText("Mesh Shader Maximum Output Vertices", "%d", _maxMeshOutputVertices);
+		ImGui::LabelText("Mesh Shader Maximum Output Primitives", "%d", _maxMeshOutputPrimitives);
+		//ImGui::Begin("Exmpales parameters");
+		//InputUInt("Example", &_example, 1, 1, ImGuiInputTextFlags_None);
+		//ImGui::End();
 
 		// Update camera
 		ImGuiIO& io = ImGui::GetIO();
@@ -221,6 +390,24 @@ private:
 		cmd_queue->drawMeshTasks(0, 1);
 	}
 
+	void renderMeshlet(
+		Vcl::Graphics::Runtime::GraphicsEngine* cmd_queue,
+		Vcl::ref_ptr<Vcl::Graphics::Runtime::PipelineState> ps,
+		const Eigen::Matrix4f& M,
+		const Eigen::Matrix4f& VP)
+	{
+		// View on the scene
+		auto cbuf_transform = cmd_queue->requestPerFrameConstantBuffer<TransformData>();
+		cbuf_transform->ModelMatrix = M;
+		cbuf_transform->ViewProjectionMatrix = VP;
+		cmd_queue->setConstantBuffer(0, std::move(cbuf_transform));
+
+
+
+		cmd_queue->setPipelineState(ps);
+		cmd_queue->drawMeshTasks(0, 1);
+	}
+
 private:
 	std::unique_ptr<Vcl::Graphics::Runtime::GraphicsEngine> _engine;
 
@@ -232,7 +419,12 @@ private:
 	std::unique_ptr<Vcl::Graphics::Runtime::PipelineState> _simpleTrianglePS;
 
 private:
-	// unsigned int _gridResolution{ 10 };
+	/// OpenGL device constant: GL_MAX_MESH_OUTPUT_VERTICES_NV
+	int _maxMeshOutputVertices{ 0 };
+	/// OpenGL device constant: GL_MAX_MESH_OUTPUT_PRIMITIVES_NV
+	int _maxMeshOutputPrimitives{ 0 };
+
+	unsigned int _example{ 0 };
 };
 
 int main(int argc, char** argv)
