@@ -63,7 +63,7 @@ protected:
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
-	virtual void renderFrame(WGPUTextureView back_buffer) {}
+	virtual void renderFrame(WGPUTextureView back_buffer, WGPUTextureView depth_buffer) {}
 
 	//! Number of frames in the swap-queue
 	static const int NumberOfFrames;
@@ -84,17 +84,22 @@ private:
 	//! WebGPU adapter
 	WGPUAdapter _wgpuAdapter{ nullptr };
 
-	//! WebGPU surface
-	WGPUSurface _wgpuSurface{ nullptr };
-
-protected:
 	//! WebGPU device
 	WGPUDevice _wgpuDevice{ nullptr };
 
-	//! SwapChain size
-	std::pair<uint32_t, uint32_t> _swapChainSize;
+	//! WebGPU surface
+	WGPUSurface _wgpuSurface{ nullptr };
 
-private:
 	//! WebGPU SwapChain
 	std::unique_ptr<Vcl::Graphics::WebGPU::SwapChain> _swapChain;
+
+	//! Depth buffer
+	WGPUTexture _depthBuffer{ nullptr };
+
+	//! Render view on the depth buffer
+	WGPUTextureView _depthBufferView{ nullptr };
+
+protected:
+	//! SwapChain size
+	std::pair<uint32_t, uint32_t> _swapChainSize;
 };

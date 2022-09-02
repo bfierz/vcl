@@ -123,7 +123,7 @@ void Application::step()
 	updateFrame();
 
 	auto back_buffer = _swapChain->currentBackBuffer();
-	renderFrame(back_buffer);
+	renderFrame(back_buffer, _depthBufferView);
 	_swapChain->present(wgpuDeviceGetQueue(_wgpuDevice), false);
 }
 
@@ -150,10 +150,33 @@ int Application::run()
 
 void Application::invalidateDeviceObjects()
 {
+	if (_depthBufferView)
+		wgpuTextureViewRelease(_depthBufferView);
+	if (_depthBuffer)
+		wgpuTextureRelease(_depthBuffer);
 }
 
 void Application::createDeviceObjects()
 {
+	WGPUTextureDescriptor depth_desc = {};
+	depth_desc.dimension = WGPUTextureDimension_2D;
+	depth_desc.size.width = _swapChainSize.first;
+	depth_desc.size.height = _swapChainSize.second;
+	depth_desc.size.depthOrArrayLayers = 1;
+	depth_desc.sampleCount = 1;
+	depth_desc.format = WGPUTextureFormat_Depth32Float;
+	depth_desc.mipLevelCount = 1;
+	depth_desc.usage = WGPUTextureUsage_RenderAttachment;
+	_depthBuffer = wgpuDeviceCreateTexture(device(), &depth_desc);
+	WGPUTextureViewDescriptor depth_view_desc = {};
+	depth_view_desc.format = WGPUTextureFormat_Depth32Float;
+	depth_view_desc.dimension = WGPUTextureViewDimension_2D;
+	depth_view_desc.baseMipLevel = 0;
+	depth_view_desc.mipLevelCount = 1;
+	depth_view_desc.baseArrayLayer = 0;
+	depth_view_desc.arrayLayerCount = 1;
+	depth_view_desc.aspect = WGPUTextureAspect_All;
+	_depthBufferView = wgpuTextureCreateView(_depthBuffer, &depth_view_desc);
 }
 
 bool Application::initWebGpu(GLFWwindow* window)

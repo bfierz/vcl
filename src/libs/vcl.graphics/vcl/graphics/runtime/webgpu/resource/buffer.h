@@ -31,14 +31,36 @@
 
 // VCL
 #include <vcl/core/flags.h>
+#include <vcl/core/span.h>
 #include <vcl/graphics/runtime/resource/buffer.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	class Buffer : public Runtime::Buffer
 	{
 	public:
-		Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data = nullptr, WGPUQueue queue_id = 0);
-		virtual ~Buffer();
+		Buffer(WGPUDevice device, const BufferDescription& desc);
+		Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data, WGPUQueue queue_id);
+		template<typename T>
+		Buffer(WGPUDevice device, const BufferDescription& desc, stdext::span<const T> init_data, WGPUQueue queue_id)
+		: Buffer(device, desc)
+		{
+			BufferInitData init_data_desc = {
+				init_data.data(),
+				init_data.size() * sizeof(T)
+			};
+			initializeData(&init_data_desc, queue_id);
+		}
+		template<typename T>
+		Buffer(WGPUDevice device, const BufferDescription& desc, stdext::span<T> init_data, WGPUQueue queue_id)
+		: Buffer(device, desc)
+		{
+			BufferInitData init_data_desc = {
+				init_data.data(),
+				init_data.size() * sizeof(T)
+			};
+			initializeData(&init_data_desc, queue_id);
+		}
+		~Buffer() override;
 
 		//! Resource handle
 		WGPUBuffer handle() const { return _resource; }
@@ -49,19 +71,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		//! Unmap the buffer
 		void unmap() const;
 
-		//void write(Graphics::D3D12::Device* device, ID3D12GraphicsCommandList* cmd_list, const void* data, size_t offset_in_bytes, size_t size_in_bytes);
-
-		//! \defgroup Data copy methods
-		//! \{
-
+		//! Copy the content of this buffer to the target \p tgt
 		void copyTo(WGPUCommandEncoder cmd_encoder, Buffer tgt);
-		//void copyTo(ID3D11DeviceContext* ctx, void* dst, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
-		//void copyTo(ID3D11DeviceContext* ctx, Buffer& target, size_t srcOffset = 0, size_t dstOffset = 0, size_t size = std::numeric_limits<size_t>::max()) const;
-
-		//! \}
 
 	private:
-		//!
+		void initializeData(const BufferInitData* init_data, WGPUQueue queue_id);
+
+		//! WebGPU resource
 		WGPUBuffer _resource;
 	};
 }}}}

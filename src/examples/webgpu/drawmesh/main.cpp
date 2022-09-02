@@ -51,7 +51,6 @@ public:
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
-		using Vcl::Graphics::Runtime::CullModeMethod;
 		using Vcl::Graphics::Runtime::InputLayoutDescription;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
@@ -62,30 +61,10 @@ public:
 		using Vcl::Graphics::Runtime::WebGPU::GraphicsPipelineState;
 		using Vcl::Graphics::Runtime::WebGPU::Shader;
 
-		WGPUQueue queue = wgpuDeviceGetQueue(_wgpuDevice);
+		WGPUQueue queue = wgpuDeviceGetQueue(device());
 
-		WGPUTextureDescriptor depth_desc = {};
-		depth_desc.dimension = WGPUTextureDimension_2D;
-		depth_desc.size.width = 1280;
-		depth_desc.size.height = 720;
-		depth_desc.size.depthOrArrayLayers = 1;
-		depth_desc.sampleCount = 1;
-		depth_desc.format = WGPUTextureFormat_Depth32Float;
-		depth_desc.mipLevelCount = 1;
-		depth_desc.usage = WGPUTextureUsage_RenderAttachment;
-		_depthBuffer = wgpuDeviceCreateTexture(device(), &depth_desc);
-		WGPUTextureViewDescriptor depth_view_desc = {};
-		depth_view_desc.format = WGPUTextureFormat_Depth32Float;
-		depth_view_desc.dimension = WGPUTextureViewDimension_2D;
-		depth_view_desc.baseMipLevel = 0;
-		depth_view_desc.mipLevelCount = 1;
-		depth_view_desc.baseArrayLayer = 0;
-		depth_view_desc.arrayLayerCount = 1;
-		depth_view_desc.aspect = WGPUTextureAspect_All;
-		_depthBufferView = wgpuTextureCreateView(_depthBuffer, &depth_view_desc);
-
-		_vs = std::make_unique<Shader>(_wgpuDevice, ShaderType::VertexShader, 0, MeshSpirvVS);
-		_fs = std::make_unique<Shader>(_wgpuDevice, ShaderType::FragmentShader, 0, MeshSpirvFS);
+		_vs = std::make_unique<Shader>(device(), ShaderType::VertexShader, 0, MeshSpirvVS);
+		_fs = std::make_unique<Shader>(device(), ShaderType::FragmentShader, 0, MeshSpirvFS);
 
 		InputLayoutDescription input_layout{
 			{
@@ -103,11 +82,10 @@ public:
 		psd.FragmentShader = _fs.get();
 		psd.InputAssembly.Topology = PrimitiveType::Trianglelist;
 		psd.InputLayout = input_layout;
-		psd.Rasterizer.CullMode = CullModeMethod::None;
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_gps = std::make_unique<GraphicsPipelineState>(_wgpuDevice, psd, rtd);
+		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, rtd);
 
 		BufferDescription consts_desc = {
 			2 * sizeof(Eigen::Matrix4f),
@@ -131,9 +109,6 @@ public:
 		// Initialize content
 		_camera = std::make_unique<Camera>(std::make_shared<Vcl::Graphics::Direct3D::MatrixFactory>());
 
-		const auto size = std::make_pair(1280, 720);
-		_camera->setViewport(size.first, size.second);
-		_camera->setFieldOfView((float)size.first / (float)size.second);
 		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
 		_cameraController->setCamera(_camera.get());
 
@@ -143,67 +118,35 @@ public:
 private:
 	void updateMesh(WGPUQueue queue)
 	{
+		using namespace Vcl::Geometry;
+
+		std::unique_ptr<TriMesh> mesh;
 		switch (_meshSelection)
 		{
 		case 0:
-			createCube(queue);
-			break;
-		case 1:
-			createTorus(queue);
+		{
+			_camera->encloseInFrustum({ 0, 0, 0 }, { 0, 1, -1 }, 1.0f, { 0, 1, 0 });
+			mesh = TriMeshFactory::createCube(50, 50, 50);
 			break;
 		}
-	}
-
-	void createCube(WGPUQueue queue)
-	{
-		// clang-format off
-		std::vector<float> points = {
-			 1,  1, -1,
-			-1,  1, -1,
-			-1,  1,  1,
-			 1,  1,  1,
-			 1, -1, -1,
-			-1, -1, -1,
-			-1, -1,  1,
-			 1, -1,  1
-		};
-		std::vector<int> colours(8, 0);
-		std::vector<int> indices = {
-			0, 1, 2,
-			0, 2, 3,
-			0, 4, 5,
-			0, 5, 1,
-			1, 5, 6,
-			1, 6, 2,
-			2, 6, 7,
-			2, 7, 3,
-			3, 7, 4,
-			3, 4, 0,
-			4, 7, 6,
-			4, 6, 5
-		};
-		// clang-format on
-
-		allocateMeshBuffers(queue, stdext::make_span(points), stdext::make_span(colours), stdext::make_span(indices));
-		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, 1, -1 }, 1.0f, { 0, 1, 0 });
-	}
-
-	void createTorus(WGPUQueue queue)
-	{
-		using namespace Vcl::Geometry;
-		const auto torus = TriMeshFactory::createTorus(4, 1, 50, 50);
-		const auto points = stdext::make_span(torus->vertices()->data()->data(), torus->nrVertices() * 3);
-		const auto indices = stdext::make_span(reinterpret_cast<int*>(torus->faces()->data()->data()), torus->nrFaces() * 3);
+		case 1:
+		{
+			_camera->encloseInFrustum({ 0, 0, 0 }, { 0, 1, -1 }, 5.0f, { 0, 1, 0 });
+			mesh = TriMeshFactory::createTorus(4, 1, 50, 50);
+			break;
+		}
+		}
+		const auto points = stdext::make_span(mesh->vertices()->data()->data(), mesh->nrVertices() * 3);
+		const auto indices = stdext::make_span(reinterpret_cast<int*>(mesh->faces()->data()->data()), mesh->nrFaces() * 3);
 
 		if (_meshletGenerator > 0)
 		{
 			createMeshlet(queue, static_cast<MeshletGenerator>(_meshletGenerator - 1), points, indices);
 		} else
 		{
-			std::vector<int> colours(torus->nrVertices(), 0);
+			std::vector<int> colours(mesh->nrVertices(), 0);
 			allocateMeshBuffers(queue, stdext::make_span(points), stdext::make_span(colours), stdext::make_span(indices));
 		}
-		_camera->encloseInFrustum({ 0, 0, 0 }, { 0, 1, -1 }, 5.0f, { 0, 1, 0 });
 	}
 
 	void createMeshlet(WGPUQueue queue, Vcl::Geometry::MeshletGenerator gen, stdext::span<float> points, stdext::span<int> indices)
@@ -253,37 +196,28 @@ private:
 			points.size() * sizeof(float),
 			BufferUsage::CopyDst | BufferUsage::Vertex
 		};
-		BufferInitData vbo_pos_data = {
-			points.data(),
-			points.size() * sizeof(float)
-		};
-		_vboPos = std::make_unique<Buffer>(device(), vbo_pos_desc, &vbo_pos_data, queue);
+		_vboPos = std::make_unique<Buffer>(device(), vbo_pos_desc, points, queue);
 
 		BufferDescription vbo_col_desc = {
 			colours.size() * sizeof(int),
 			BufferUsage::CopyDst | BufferUsage::Vertex
 		};
-		BufferInitData vbo_col_data = {
-			colours.data(),
-			colours.size() * sizeof(int)
-		};
-		_vboCol = std::make_unique<Buffer>(device(), vbo_col_desc, &vbo_col_data, queue);
+		_vboCol = std::make_unique<Buffer>(device(), vbo_col_desc, colours, queue);
 
 		BufferDescription ibo_desc = {
 			indices.size() * sizeof(int),
 			BufferUsage::CopyDst | BufferUsage::Index
 		};
-		BufferInitData ibo_data = {
-			indices.data(),
-			indices.size() * sizeof(int)
-		};
-		_ibo = std::make_unique<Buffer>(device(), ibo_desc, &ibo_data, queue);
+		_ibo = std::make_unique<Buffer>(device(), ibo_desc, indices, queue);
 		_nrIndices = indices.size();
 	}
 
 	void createDeviceObjects() override
 	{
 		Application::createDeviceObjects();
+
+		_camera->setViewport(_swapChainSize.first, _swapChainSize.second);
+		_camera->setFieldOfView((float)_swapChainSize.first / (float)_swapChainSize.second);
 	}
 
 	void updateFrame() override
@@ -294,9 +228,11 @@ private:
 			_meshRotation -= two_pi;
 	}
 
-	void renderFrame(WGPUTextureView back_buffer) override
+	void renderFrame(WGPUTextureView back_buffer, WGPUTextureView depth_buffer) override
 	{
-		WGPUQueue queue = wgpuDeviceGetQueue(_wgpuDevice);
+		using namespace Vcl::Graphics::Runtime;
+
+		WGPUQueue queue = wgpuDeviceGetQueue(device());
 
 		const auto size = _swapChainSize;
 		const auto x = 0;
@@ -316,7 +252,7 @@ private:
 		depth_attachment.depthStoreOp = WGPUStoreOp_Store;
 		depth_attachment.stencilLoadOp = WGPULoadOp_Undefined;
 		depth_attachment.stencilStoreOp = WGPUStoreOp_Undefined;
-		depth_attachment.view = _depthBufferView;
+		depth_attachment.view = depth_buffer;
 		WGPURenderPassDescriptor render_pass_desc = {};
 		render_pass_desc.colorAttachmentCount = static_cast<uint32_t>(color_attachments.size());
 		render_pass_desc.colorAttachments = color_attachments.data();
@@ -333,7 +269,7 @@ private:
 		wgpuQueueWriteBuffer(queue, _constants->handle(), 0, &transform, sizeof(transform));
 
 		WGPUCommandEncoderDescriptor enc_desc = {};
-		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(_wgpuDevice, &enc_desc);
+		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device(), &enc_desc);
 		{
 			WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
 			wgpuRenderPassEncoderSetViewport(pass, x, y, w, h, 0, 1);
@@ -354,9 +290,6 @@ private:
 		wgpuQueueSubmit(queue, 1, &cmd_buffer);
 		wgpuCommandBufferRelease(cmd_buffer);
 	}
-
-	WGPUTexture _depthBuffer;
-	WGPUTextureView _depthBufferView;
 
 	std::unique_ptr<Vcl::Graphics::Runtime::WebGPU::Shader> _vs;
 	std::unique_ptr<Vcl::Graphics::Runtime::WebGPU::Shader> _fs;

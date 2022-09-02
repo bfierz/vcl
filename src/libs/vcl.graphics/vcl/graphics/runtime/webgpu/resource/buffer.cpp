@@ -49,7 +49,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		return wgpu_flags;
 	}
 
-	Buffer::Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data, WGPUQueue queue_id)
+	Buffer::Buffer(WGPUDevice device, const BufferDescription& desc)
 	: Runtime::Buffer(desc.SizeInBytes, desc.Usage)
 	{
 		VclRequire(implies(usage().isSet(BufferUsage::MapRead), !usage().isSet(BufferUsage::MapWrite)), "Buffer mappable for reading is not mappable for writing");
@@ -65,15 +65,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		};
 
 		_resource = wgpuDeviceCreateBuffer(device, &wgpu_desc);
+	}
 
-		if (init_data)
-		{
-			wgpuQueueWriteBuffer(queue_id, _resource, 0, reinterpret_cast<const uint8_t*>(init_data->Data), init_data->SizeInBytes);
-		}
+	Buffer::Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data, WGPUQueue queue_id)
+	: Buffer(device, desc)
+	{
+		initializeData(init_data, queue_id);
 	}
 
 	Buffer::~Buffer()
 	{
+	}
+
+	void Buffer::initializeData(const BufferInitData* init_data, WGPUQueue queue_id)
+	{
+		if (init_data)
+		{
+			wgpuQueueWriteBuffer(queue_id, _resource, 0, reinterpret_cast<const uint8_t*>(init_data->Data), init_data->SizeInBytes);
+		}
 	}
 
 	void Buffer::unmap() const
