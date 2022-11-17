@@ -45,7 +45,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
 set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
 
 set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
