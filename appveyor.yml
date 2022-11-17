@@ -25,7 +25,7 @@
 version: '{build}'
 
 image:
-  - Visual Studio 2019
+  - Visual Studio 2022
 
 platform:
   - Win32
@@ -46,14 +46,17 @@ environment:
       vec_type: 'AVX'
 
     - tool_set: 'v142'
+      vec_type: 'AVX'
+
+    - tool_set: 'v143'
       vec_type: 'SSE 2'
-    - tool_set: 'v142'
+    - tool_set: 'v143'
       vec_type: 'SSE 3'
-    - tool_set: 'v142'
+    - tool_set: 'v143'
       vec_type: 'SSE 4.1'
-    - tool_set: 'v142'
+    - tool_set: 'v143'
       vec_type: 'SSE 4.2'
-    - tool_set: 'v142'
+    - tool_set: 'v143'
       vec_type: 'AVX'
 
     - tool_set: 'ClangCL'
@@ -78,7 +81,7 @@ before_build:
   - cmd: cd C:\projects\vcl
   - cmd: md build
   - cmd: cd build
-  - cmd: 'cmake -G "Visual Studio 16 2019" -A "%platform%" -T "%tool_set%,host=x64" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ..'
+  - cmd: 'cmake -G "Visual Studio 17 2022" -A "%platform%" -T "%tool_set%,host=x64" -DVCL_CODE_COVERAGE:BOOL=off -DVCL_ENABLE_CORE_GUIDELINE_CHECKER:BOOL=off -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="%vec_type%" ..'
 
 build_script:
   - cmd: cd C:\projects\vcl
