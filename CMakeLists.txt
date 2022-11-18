@@ -45,7 +45,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
 # As MSVC is not able to define the minimum level, software needs
 # to implement per feature detection
 set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17")
+set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
 
 set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -74,18 +74,15 @@ if (NOT vcl_ext_eigen)
 endif()
 
 if (NOT vcl_ext_absl)
-	option(BUILD_TESTING "" OFF)
-	option(BUILD_EXAMPLES "" OFF)
+	option(ABSL_BUILD_TESTING "" OFF)
+	option(ABSL_PROPAGATE_CXX_STD "" ON)
 	add_subdirectory(src/externals/abseil EXCLUDE_FROM_ALL)
 	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast)
 	set(vcl_ext_absl "vcl_ext_absl_tgt")
 	
-	set_property(TARGET absl_any PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_bad_any_cast PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_base PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_dynamic_annotations PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_utility PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_bad_any_cast_impl PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_log_severity PROPERTY FOLDER 3rd-party/absl)
+	set_property(TARGET absl_raw_logging_internal PROPERTY FOLDER 3rd-party/absl)
 endif()
 
 if (NOT vcl_ext_fmt)
