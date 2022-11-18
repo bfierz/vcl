@@ -765,22 +765,22 @@ namespace Vcl { namespace Core { namespace Simd {
 		}
 
 		//! Logical conjunction
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool conj(bool a, bool b) noexcept
+		VCL_STRONG_INLINE constexpr bool conj(bool a, bool b) noexcept
 		{
 			return a && b;
 		}
 		//! Bitwise conjunction
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int conj(int a, int b) noexcept
+		VCL_STRONG_INLINE constexpr int conj(int a, int b) noexcept
 		{
 			return a & b;
 		}
 		//! Logical disjunction
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool disj(bool a, bool b) noexcept
+		VCL_STRONG_INLINE constexpr bool disj(bool a, bool b) noexcept
 		{
 			return a || b;
 		}
 		//! Bitwise disjunction
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int disj(int a, int b) noexcept
+		VCL_STRONG_INLINE constexpr int disj(int a, int b) noexcept
 		{
 			return a | b;
 		}

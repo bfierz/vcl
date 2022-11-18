@@ -43,7 +43,7 @@ namespace Vcl { namespace RTTI {
 	{
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 AttributeBase(const char (&name)[N])
+		constexpr AttributeBase(const char (&name)[N])
 		: _name(name, N - 1)
 		, _hash(Vcl::Util::StringHash(name).hash())
 		{
@@ -132,7 +132,7 @@ namespace Vcl { namespace RTTI {
 	{
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 EnumAttributeBase(const char (&name)[N])
+		constexpr EnumAttributeBase(const char (&name)[N])
 		: AttributeBase(name)
 		{
 			setIsEnum();

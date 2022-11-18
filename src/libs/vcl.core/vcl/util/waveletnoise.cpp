@@ -46,9 +46,9 @@
 #endif
 
 namespace {
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> xIndices = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> yIndices = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
-	VCL_CPP_CONSTEXPR_11 std::array<int, 27> zIndices = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	constexpr std::array<int, 27> xIndices = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	constexpr std::array<int, 27> yIndices = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	constexpr std::array<int, 27> zIndices = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 #define ADD_WEIGHTED(x, y, z)                         \
 	weight = 1.0f;                                    \
@@ -154,7 +154,7 @@ namespace Vcl { namespace Util {
 	template<int N>
 	WaveletNoise<N>::WaveletNoise(std::mt19937& rnd_gen)
 	{
-		VCL_CPP_CONSTEXPR_11 int n3 = N * N * N;
+		constexpr int n3 = N * N * N;
 
 		std::normal_distribution<float> normal;
 		std::vector<float> noise_data_base;
@@ -180,7 +180,7 @@ namespace Vcl { namespace Util {
 		static_assert(N >= 0, "N >= 0");
 		static_assert(N % 2 == 0, "N is even");
 
-		VCL_CPP_CONSTEXPR_11 int n3 = N * N * N;
+		constexpr int n3 = N * N * N;
 
 		std::vector<float> temp1(n3, 0);
 		std::vector<float> temp2(n3, 0);

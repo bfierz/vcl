@@ -295,27 +295,27 @@ namespace Vcl {
 		return select(int_t(0) < a, int_t(1), int_t(0)) - select(a < int_t(0), int_t(1), int_t(0));
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float min(float x) noexcept
+	VCL_STRONG_INLINE constexpr float min(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float max(float x) noexcept
+	VCL_STRONG_INLINE constexpr float max(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool any(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool any(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool all(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool all(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool none(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool none(bool b) noexcept
 	{
 		return !b;
 	}

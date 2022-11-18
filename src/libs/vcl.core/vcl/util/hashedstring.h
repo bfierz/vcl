@@ -36,7 +36,6 @@
 // https://notes.underscorediscovery.com/constexpr-fnv1a/
 
 namespace Vcl { namespace Util {
-#if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
 	// Source for prime-numbers:
 	// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 	constexpr uint32_t fnv1a_32_offset = 0x811c9dc5;
@@ -44,104 +43,64 @@ namespace Vcl { namespace Util {
 	constexpr uint64_t fnv1a_64_offset = 0xcbf29ce484222325;
 	constexpr uint64_t fnv1a_64_prime = 0x100000001b3;
 
-	namespace Details {
-		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, const uint32_t value) noexcept
-		{
-			return (str[0] == '\0') ? value : calculateFnv1a32(&str[1], (value ^ uint32_t(str[0])) * fnv1a_32_prime);
-		}
-		VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* const str, size_t length, const uint32_t value) noexcept
-		{
-			return (str[0] == '\0' || length == 0) ? value : calculateFnv1a32(&str[1], length - 1, (value ^ uint32_t(str[0])) * fnv1a_32_prime);
-		}
-
-		VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str, const uint64_t value) noexcept
-		{
-			return (str[0] == '\0') ? value : calculateFnv1a64(&str[1], (value ^ uint64_t(str[0])) * fnv1a_64_prime);
-		}
-		VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* const str, size_t length, const uint64_t value) noexcept
-		{
-			return (str[0] == '\0' || length == 0) ? value : calculateFnv1a64(&str[1], length - 1, (value ^ uint64_t(str[0])) * fnv1a_64_prime);
-		}
-	}
-
 	VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* str) noexcept
 	{
-		return Details::calculateFnv1a32(str, fnv1a_32_offset);
+		uint32_t hash = fnv1a_32_offset;
+
+		while (*str != 0)
+		{
+			hash ^= uint32_t(*str++);
+			hash *= fnv1a_32_prime;
+		}
+
+		return hash;
 	}
+
 	VCL_STRONG_INLINE constexpr uint32_t calculateFnv1a32(const char* str, size_t length) noexcept
 	{
-		return Details::calculateFnv1a32(str, length, fnv1a_32_offset);
+		uint32_t hash = fnv1a_32_offset;
+
+		for (size_t i = 0; i < length; ++i)
+		{
+			hash ^= uint32_t(*str++);
+			hash *= fnv1a_32_prime;
+		}
+
+		return hash;
 	}
 
 	VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* str) noexcept
 	{
-		return Details::calculateFnv1a64(str, fnv1a_64_offset);
+		uint64_t hash = fnv1a_64_offset;
+
+		while (*str != 0)
+		{
+			hash ^= uint32_t(*str++);
+			hash *= fnv1a_64_prime;
+		}
+
+		return hash;
 	}
+
 	VCL_STRONG_INLINE constexpr uint64_t calculateFnv1a64(const char* str, size_t length) noexcept
 	{
-		return Details::calculateFnv1a64(str, length, fnv1a_64_offset);
-	}
-#elif VCL_HAS_CPP_CONSTEXPR_14
-
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint32_t calculateFnv1a32(const char* str) noexcept
-	{
-		uint32_t hash = 0x811c9dc5;
-
-		while (*str != 0)
-		{
-			hash ^= uint32_t(*str++);
-			hash *= 0x01000193;
-		}
-
-		return hash;
-	}
-
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint32_t calculateFnv1a32(const char* str, size_t length) noexcept
-	{
-		uint32_t hash = 0x811c9dc5;
+		uint64_t hash = fnv1a_64_offset;
 
 		for (size_t i = 0; i < length; ++i)
 		{
 			hash ^= uint32_t(*str++);
-			hash *= 0x01000193;
+			hash *= fnv1a_64_prime;
 		}
 
 		return hash;
 	}
-
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint64_t calculateFnv1a64(const char* str) noexcept
-	{
-		uint64_t hash = 0xcbf29ce484222325;
-
-		while (*str != 0)
-		{
-			hash ^= uint32_t(*str++);
-			hash *= 0x100000001b3;
-		}
-
-		return hash;
-	}
-
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_14 uint64_t calculateFnv1a64(const char* str, size_t length) noexcept
-	{
-		uint64_t hash = 0xcbf29ce484222325;
-
-		for (size_t i = 0; i < length; ++i)
-		{
-			hash ^= uint32_t(*str++);
-			hash *= 0x100000001b3;
-		}
-
-		return hash;
-	}
-#endif
 
 	template<unsigned int N, unsigned int I>
 	struct FnvHash
 	{
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
-			return (FnvHash<N, I - 1>::hash(str) ^ static_cast<unsigned int>(str[I - 2])) * 0x01000193;
+			return (FnvHash<N, I - 1>::hash(str) ^ static_cast<unsigned int>(str[I - 2])) * fnv1a_32_prime;
 		}
 	};
 
@@ -151,7 +110,7 @@ namespace Vcl { namespace Util {
 		VCL_STRONG_INLINE static unsigned int hash(const char (&str)[N])
 		{
 			VCL_UNREFERENCED_PARAMETER(str);
-			return 0x811c9dc5;
+			return fnv1a_32_offset;
 		}
 	};
 
@@ -167,7 +126,7 @@ namespace Vcl { namespace Util {
 
 	public:
 		template<size_t N>
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 StringHash(const char (&str)[N])
+		VCL_STRONG_INLINE constexpr StringHash(const char (&str)[N])
 		: _hash(FnvHash<N, N>::hash(str))
 		{
 		}
@@ -177,12 +136,12 @@ namespace Vcl { namespace Util {
 		{
 		}
 
-		VCL_CPP_CONSTEXPR_14 VCL_STRONG_INLINE explicit StringHash(const char* s, size_t length)
+		constexpr VCL_STRONG_INLINE explicit StringHash(const char* s, size_t length)
 		: _hash(calculateFnv1a32(s, length))
 		{
 		}
 
-		VCL_CPP_CONSTEXPR_11 uint32_t hash() const
+		constexpr uint32_t hash() const
 		{
 			return _hash;
 		}
@@ -192,18 +151,6 @@ namespace Vcl { namespace Util {
 		uint32_t _hash;
 	};
 
-#if VCL_HAS_CPP_CONSTEXPR_11 && !VCL_HAS_CPP_CONSTEXPR_14
-	namespace Literals {
-		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t)
-		{
-			return calculateFnv1a32(str);
-		}
-		constexpr uint64_t operator"" _fnv1a64(const char* str, size_t)
-		{
-			return calculateFnv1a64(str);
-		}
-	}
-#elif VCL_HAS_CPP_CONSTEXPR_14
 	namespace Literals {
 		constexpr uint32_t operator"" _fnv1a32(const char* str, size_t N)
 		{
@@ -214,5 +161,4 @@ namespace Vcl { namespace Util {
 			return calculateFnv1a64(str, N);
 		}
 	}
-#endif
 }}

@@ -233,7 +233,7 @@ namespace Vcl {
 #	endif
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float _mmVCL_extract_ps(__m128 v, int i) noexcept
+	VCL_STRONG_INLINE constexpr float _mmVCL_extract_ps(__m128 v, int i) noexcept
 	{
 #	if 1
 		using F32 = union
@@ -324,7 +324,7 @@ namespace Vcl {
 	}
 #	endif
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int _mmVCL_extract_epi32(__m128i v, int i) noexcept
+	VCL_STRONG_INLINE constexpr int _mmVCL_extract_epi32(__m128i v, int i) noexcept
 	{
 #	if 1
 		typedef union
