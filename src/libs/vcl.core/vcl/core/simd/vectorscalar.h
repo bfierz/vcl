@@ -415,17 +415,17 @@ namespace Vcl {
 		return abs(x - y) <= tol * max(VectorScalar<Scalar, Width>(1), max(abs(x), abs(y)));
 	}
 
-	typedef VectorScalar<float, 4> float4;
-	typedef VectorScalar<float, 8> float8;
-	typedef VectorScalar<float, 16> float16;
+	using float4 = VectorScalar<float, 4>;
+	using float8 = VectorScalar<float, 8>;
+	using float16 = VectorScalar<float, 16>;
 
-	typedef VectorScalar<int, 4> int4;
-	typedef VectorScalar<int, 8> int8;
-	typedef VectorScalar<int, 16> int16;
+	using int4 = VectorScalar<int, 4>;
+	using int8 = VectorScalar<int, 8>;
+	using int16 = VectorScalar<int, 16>;
 
-	typedef VectorScalar<bool, 4> bool4;
-	typedef VectorScalar<bool, 8> bool8;
-	typedef VectorScalar<bool, 16> bool16;
+	using bool4 = VectorScalar<bool, 4>;
+	using bool8 = VectorScalar<bool, 8>;
+	using bool16 = VectorScalar<bool, 16>;
 }
 
 namespace Eigen {

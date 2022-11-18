@@ -37,7 +37,7 @@ namespace Vcl { namespace Geometry {
 		const unsigned int ymax = count_y;
 		const unsigned int zmax = count_z;
 
-		typedef std::array<unsigned int, 4> volume_t;
+		using volume_t = std::array<unsigned int, 4>;
 		std::vector<Vector3f> positions;
 		std::vector<volume_t> volumes;
 

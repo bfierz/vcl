@@ -215,11 +215,11 @@ namespace Vcl {
 
 	VCL_STRONG_INLINE float _mmVCL_dp_ps(__m128 a, __m128 b) noexcept
 	{
-		typedef union
+		using F32 = union
 		{
 			__m128 x;
 			float a[4];
-		} F32;
+		};
 
 #	ifdef VCL_VECTORIZE_SSE4_1
 		return F32{ _mm_dp_ps(a, b, 0xff) }.a[0];
@@ -236,11 +236,11 @@ namespace Vcl {
 	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float _mmVCL_extract_ps(__m128 v, int i) noexcept
 	{
 #	if 1
-		typedef union
+		using F32 = union
 		{
 			__m128 x;
 			float a[4];
-		} F32;
+		};
 
 		return F32{ v }.a[i];
 #	else

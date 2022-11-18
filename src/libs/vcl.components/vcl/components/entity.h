@@ -38,29 +38,24 @@ namespace Vcl { namespace Core {
 	class GenericId
 	{
 	public:
-		typedef T IdType;
+		using IdType = T;
 
-	public:
 		static Derived InvalidId() { return Derived(std::numeric_limits<T>::max()); }
 
-	public:
 		GenericId()
 		: _id(InvalidId().id()) {}
 		explicit GenericId(T id)
 		: _id(id) {}
 
-	public:
 		T id() const { return _id; }
 		bool isValid() const { return _id != InvalidId().id(); }
 
-	public:
 		GenericId<Derived, T>& operator=(const GenericId<Derived, T>& rhs)
 		{
 			_id = rhs._id;
 			return *this;
 		}
 
-	public:
 		bool operator<(const GenericId<Derived, T>& rhs) const
 		{
 			return _id < rhs._id;
@@ -99,13 +94,11 @@ namespace Vcl { namespace Core {
 	class GenerationalId
 	{
 	public:
-		typedef T IdType;
-		typedef U GenerationType;
+		using IdType = T;
+		using GenerationType = U;
 
-	public:
 		static Derived InvalidId() { return Derived(std::numeric_limits<IdType>::max(), std::numeric_limits<GenerationType>::max()); }
 
-	public:
 		GenerationalId()
 		: _id(InvalidId().id())
 		, _generation(InvalidId().generation())
@@ -115,12 +108,10 @@ namespace Vcl { namespace Core {
 		, _generation(generation)
 		{}
 
-	public:
 		IdType id() const { return _id; }
 		GenerationType generation() const { return _generation; }
 		bool isValid() const { return _id != InvalidId().id() && _generation != InvalidId().generation(); }
 
-	public:
 		bool operator<(const GenerationalId<Derived, IdType, GenerationType>& rhs) const
 		{
 			return _generation < rhs._generation && _id < rhs._id;

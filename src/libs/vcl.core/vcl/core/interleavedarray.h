@@ -164,10 +164,9 @@ namespace Vcl { namespace Core {
 				implies(Stride != DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= static_cast<size_t>(Stride)) && (static_cast<size_t>(Stride) % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
 				"Output size and stride size are compatible.");
 
-			typedef Eigen::Stride<
+			using StrideType = Eigen::Stride<
 				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? ROWS : (ROWS * STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value))),
-				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))>
-				StrideType;
+				((STRIDE == DynamicStride) ? DynamicStride : ((STRIDE == 0 || STRIDE == 1) ? 1 : (STRIDE / VectorWidth<SCALAR_OUT, SCALAR>::value)))>;
 
 			VclRequire(
 				implies(Stride == DynamicStride, (sizeof(SCALAR_OUT) / sizeof(SCALAR) <= mAllocated) && (mAllocated % (sizeof(SCALAR_OUT) / sizeof(SCALAR)) == 0)),
