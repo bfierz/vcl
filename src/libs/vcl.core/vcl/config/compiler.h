@@ -24,12 +24,6 @@
  */
 #pragma once
 
-// C++ standard library
-#include <type_traits>
-
-// C runtime
-#include <cstddef>
-
 #include <vcl/config/config.h>
 
 // Check library configuration
@@ -244,38 +238,7 @@ typedef struct
 #		define alignof(x) __alignof(x)
 
 #		define alignas(x) __declspec(align(x))
-#	endif // _MSC_VER
-#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
-#endif
-
-// constexpr
-#if defined(VCL_COMPILER_MSVC)
-#	if (_MSC_VER < 1900)
-#		define VCL_HAS_CPP_CONSTEXPR_11 0
-#		define VCL_HAS_CPP_CONSTEXPR_14 0
-#		define VCL_CPP_CONSTEXPR_11
-#		define VCL_CPP_CONSTEXPR_14
-#	elif (_MSC_VER <= 1900)
-#		define VCL_HAS_CPP_CONSTEXPR_11 1
-#		define VCL_HAS_CPP_CONSTEXPR_14 0
-#		define VCL_CPP_CONSTEXPR_11 constexpr
-#		define VCL_CPP_CONSTEXPR_14
-#	elif (_MSC_VER > 1900)
-#		define VCL_HAS_CPP_CONSTEXPR_11 1
-#		define VCL_HAS_CPP_CONSTEXPR_14 1
-#		define VCL_CPP_CONSTEXPR_11 constexpr
-#		define VCL_CPP_CONSTEXPR_14 constexpr
 #	endif
-#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_ICC)
-#	define VCL_HAS_CPP_CONSTEXPR_11 1
-#	define VCL_HAS_CPP_CONSTEXPR_14 1
-#	define VCL_CPP_CONSTEXPR_11 constexpr
-#	define VCL_CPP_CONSTEXPR_14 constexpr
-#else
-#	define VCL_HAS_CPP_CONSTEXPR_11 0
-#	define VCL_HAS_CPP_CONSTEXPR_14 0
-#	define VCL_CPP_CONSTEXPR_11
-#	define VCL_CPP_CONSTEXPR_14
 #endif
 
 // if constexpr
@@ -416,40 +379,4 @@ extern "C"
 
 #elif (defined(VCL_ARCH_ARM) || defined(VCL_ARCH_ARM64)) && defined VCL_VECTORIZE_NEON
 #	include <arm_neon.h>
-#endif
-
-// Implement missing standard function
-#if defined(VCL_COMPILER_MSVC)
-
-// Support for fmin/fmax with low overhead
-#	if (_MSC_VER < 1800)
-namespace std {
-#		if (defined(VCL_VECTORIZE_AVX) || defined(VCL_VECTORIZE_SSE))
-	inline float fmin(float x, float y)
-	{
-		float z;
-		_mm_store_ss(&z, _mm_min_ss(_mm_set_ss(x), _mm_set_ss(y)));
-		return z;
-	}
-	inline double fmin(double x, double y)
-	{
-		double z;
-		_mm_store_sd(&z, _mm_min_sd(_mm_set_sd(x), _mm_set_sd(y)));
-		return z;
-	}
-	inline float fmax(float x, float y)
-	{
-		float z;
-		_mm_store_ss(&z, _mm_max_ss(_mm_set_ss(x), _mm_set_ss(y)));
-		return z;
-	}
-	inline double fmax(double x, double y)
-	{
-		double z;
-		_mm_store_sd(&z, _mm_max_sd(_mm_set_sd(x), _mm_set_sd(y)));
-		return z;
-	}
-#		endif
-}
-#	endif // _MSC_VER < 1800
 #endif
