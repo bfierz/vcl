@@ -199,7 +199,7 @@
 #	endif // defined(_MSC_VER) && defined(VCL_COMPILER_CLANG)
 
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
-#	if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER)
+#	if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER) && !defined(__APPLE_CC__)
 #		if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
 #			if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T) && !defined(__DEFINED_max_align_t)
 typedef struct
