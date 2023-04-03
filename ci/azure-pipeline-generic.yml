@@ -9,152 +9,152 @@
 # - configGraphicsEGL: 'off'
 
 steps:
-- pwsh: |
-    if ('$(buildTargetArch)' -eq 'arm') {
-      # Setup: https://gist.github.com/luk6xff/9f8d2520530a823944355e59343eadc1
-      sudo apt-get update
-      sudo apt-get install qemu-user
-      sudo apt-get install gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
-      sudo apt-get install g++-arm-linux-gnueabihf libstdc++-10-dev-armhf-cross libc6-armhf-cross
-    }
-
-    if ('$(configCodeCoverage)' -eq 'on') {
-      if ($IsWindows) {
-        # Install OpenCppCoverage
-        Invoke-WebRequest https://github.com/OpenCppCoverage/OpenCppCoverage/releases/download/release-0.9.7.0/OpenCppCoverageSetup-x64-0.9.7.0.exe -OutFile OpenCppCoverageSetup.exe
-        $proc = Start-Process -filePath ./OpenCppCoverageSetup.exe -ArgumentList "/verysilent" -workingdirectory . -PassThru
-        $proc | Wait-Process
-      } elseif ($IsLinux) {
-        # Install latest lcov
-        Invoke-WebRequest https://github.com/linux-test-project/lcov/releases/download/v1.15/lcov-1.15.tar.gz -OutFile lcov-1.15.tar.gz
-        tar xf lcov-1.15.tar.gz
-        sudo make -C lcov-1.15/ install
-
-        # Update link to gcov
-        sudo ln -sf /usr/bin/gcov-9 /usr/bin/gcov
-        gcov --version
-
-        # Install gcovr
-        pip install --user gcovr
-        gcovr --version
-      }
-    }
-
-    if ('$(configGraphicsOpenGL)' -eq 'on') {
-      if ($IsWindows) {
-        Invoke-WebRequest https://github.com/pal1000/mesa-dist-win/releases/download/22.1.0/mesa3d-22.1.0-release-msvc.7z -OutFile mesa3d-22.1.0-release-msvc.7z
-        7z x -omesa mesa3d-22.1.0-release-msvc.7z
-        mesa/systemwidedeploy.cmd 1
-      }
-      if ($IsLinux) {
-        # Software OpenGL support (LLVMpipe)
-        sudo add-apt-repository ppa:kisak/kisak-mesa
+  - pwsh: |
+      if ('$(buildTargetArch)' -eq 'arm') {
+        # Setup: https://gist.github.com/luk6xff/9f8d2520530a823944355e59343eadc1
         sudo apt-get update
-        sudo apt-get install -y libgl1-mesa-dri
-        # OpenGL development
-        sudo apt-get install -y libgl1-mesa-dev
-        sudo apt-get install -y libglew-dev
-        # X11 development
-        sudo apt-get install -y libxrandr-dev
-        sudo apt-get install -y libxinerama-dev
-        sudo apt-get install -y libxcursor-dev
-        sudo apt-get install -y libxi-dev
+        sudo apt-get install qemu-user
+        sudo apt-get install gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+        sudo apt-get install g++-arm-linux-gnueabihf libstdc++-10-dev-armhf-cross libc6-armhf-cross
       }
-    }
 
-    # Install retuired python packages
-    pip install --user lxml
+      if ('$(configCodeCoverage)' -eq 'on') {
+        if ($IsWindows) {
+          # Install OpenCppCoverage
+          Invoke-WebRequest https://github.com/OpenCppCoverage/OpenCppCoverage/releases/download/release-0.9.9.0/OpenCppCoverageSetup-x64-0.9.9.0.exe -OutFile OpenCppCoverageSetup.exe
+          $proc = Start-Process -filePath ./OpenCppCoverageSetup.exe -ArgumentList "/verysilent" -workingdirectory . -PassThru
+          $proc | Wait-Process
+        } elseif ($IsLinux) {
+          # Install latest lcov
+          Invoke-WebRequest https://github.com/linux-test-project/lcov/releases/download/v1.15/lcov-1.15.tar.gz -OutFile lcov-1.15.tar.gz
+          tar xf lcov-1.15.tar.gz
+          sudo make -C lcov-1.15/ install
 
-  displayName: 'Prepare Environment'
+          # Update link to gcov
+          sudo ln -sf /usr/bin/gcov-9 /usr/bin/gcov
+          gcov --version
 
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/cmake
-- task: CMake@1
-  inputs:
-    workingDirectory: 'build'
-    cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_EGL_SUPPORT=$(configGraphicsEGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-  condition: eq(variables['buildTargetArch'], '')
-
-- task: CMake@1
-  inputs:
-    workingDirectory: 'build'
-    cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-  condition: eq(variables['buildTargetArch'], 'arm')
-
-- pwsh: |
-    # MacOS requires a specific SDK root for C++
-    if ($IsMacOS) {
-      $env:SDKROOT = xcrun --sdk macosx --show-sdk-path
-    }
-
-    cmake --build build --config $(buildConfig) --target vcl.core.test
-    if ($LastExitCode -ne "0") { exit $LastExitCode }
-    cmake --build build --config $(buildConfig) --target vcl.components.test
-    if ($LastExitCode -ne "0") { exit $LastExitCode }
-    cmake --build build --config $(buildConfig) --target vcl.geometry.test
-    if ($LastExitCode -ne "0") { exit $LastExitCode }
-    cmake --build build --config $(buildConfig) --target vcl.math.test
-    if ($LastExitCode -ne "0") { exit $LastExitCode }
-
-    if ('$(configGraphicsD3D12)' -eq 'on') {
-      cmake --build build --config $(buildConfig) --target vcl.graphics.d3d12.test
-      if ($LastExitCode -ne "0") { exit $LastExitCode }
-    }
-    if ('$(configGraphicsOpenGL)' -eq 'on') {
-      cmake --build build --config $(buildConfig) --target vcl.graphics.opengl.test
-      if ($LastExitCode -ne "0") { exit $LastExitCode }
-    }
-  displayName: 'Build'
-  continueOnError: false
-
-- pwsh: |
-    # Execute unit-tests and report success/failure of tests using task commands
-    # https://github.com/Microsoft/azure-pipelines-tasks/blob/master/docs/authoring/commands.md
-
-    $env:CTEST_OUTPUT_ON_FAILURE = "1"
-    $env:GALLIUM_DRIVER = "llvmpipe"
-    cmake --build build --config $(buildConfig) --target vcl.test
-    $runTestSuccess=$?
-    # Convert ctest output to junit-format
-    # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
-    pushd build/src/tests
-    if (Test-Path "Testing/TAG") {
-      python ../../../ci/ctest2junit.py . ../../../ci/ctest2junit.xsl > JUnitResults.xml
-      if (!(Test-Path "JUnitResults.xml")) {
-        echo '##vso[task.complete result=Failed;]FAILED'
-        exit 1
+          # Install gcovr
+          pip install --user gcovr
+          gcovr --version
+        }
       }
-    }
-    popd
-    if ($runTestSuccess) {
-      echo '##vso[task.complete result=Succeeded;]DONE'
-    } else {
-      echo '##vso[task.complete result=Failed;]DONE'
-    }
-  displayName: 'Run Unit Tests'
 
-# Publish unit test results
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
-    testResultsFiles: 'build/src/tests/**/JUnitResults.xml'
-    #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
-    mergeTestResults: true # Optional
-    #testRunTitle: # Optional
-    #buildPlatform: # Optional
-    #buildConfiguration: # Optional
-    #publishRunAttachments: true # Optional
-  displayName: 'Publish Test Results'
-  condition: succeededOrFailed()
+      if ('$(configGraphicsOpenGL)' -eq 'on') {
+        if ($IsWindows) {
+          Invoke-WebRequest https://github.com/pal1000/mesa-dist-win/releases/download/22.1.0/mesa3d-22.1.0-release-msvc.7z -OutFile mesa3d-22.1.0-release-msvc.7z
+          7z x -omesa mesa3d-22.1.0-release-msvc.7z
+          mesa/systemwidedeploy.cmd 1
+        }
+        if ($IsLinux) {
+          # Software OpenGL support (LLVMpipe)
+          sudo add-apt-repository ppa:kisak/turtle
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dri
+          # OpenGL development
+          sudo apt-get install -y libgl1-mesa-dev
+          sudo apt-get install -y libglew-dev
+          # X11 development
+          sudo apt-get install -y libxrandr-dev
+          sudo apt-get install -y libxinerama-dev
+          sudo apt-get install -y libxcursor-dev
+          sudo apt-get install -y libxi-dev
+        }
+      }
 
-# Publish Code Coverage Results
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-code-coverage-results
-- task: PublishCodeCoverageResults@1
-  inputs:
-    codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '**/vcl.test.xml'
-    #reportDirectory: # Optional
-    #additionalCodeCoverageFiles: # Optional
-    failIfCoverageEmpty: true
-  displayName: 'Publish Code Coverage Report'
-  condition: and(succeededOrFailed(), eq(variables['configCodeCoverage'], 'on'))
+      # Install retuired python packages
+      pip install --user lxml
+
+    displayName: 'Prepare Environment'
+
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/cmake
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build'
+      cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_EGL_SUPPORT=$(configGraphicsEGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+    condition: eq(variables['buildTargetArch'], '')
+
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build'
+      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+    condition: eq(variables['buildTargetArch'], 'arm')
+
+  - pwsh: |
+      # MacOS requires a specific SDK root for C++
+      if ($IsMacOS) {
+        $env:SDKROOT = xcrun --sdk macosx --show-sdk-path
+      }
+
+      cmake --build build --config $(buildConfig) --target vcl.core.test
+      if ($LastExitCode -ne "0") { exit $LastExitCode }
+      cmake --build build --config $(buildConfig) --target vcl.components.test
+      if ($LastExitCode -ne "0") { exit $LastExitCode }
+      cmake --build build --config $(buildConfig) --target vcl.geometry.test
+      if ($LastExitCode -ne "0") { exit $LastExitCode }
+      cmake --build build --config $(buildConfig) --target vcl.math.test
+      if ($LastExitCode -ne "0") { exit $LastExitCode }
+
+      if ('$(configGraphicsD3D12)' -eq 'on') {
+        cmake --build build --config $(buildConfig) --target vcl.graphics.d3d12.test
+        if ($LastExitCode -ne "0") { exit $LastExitCode }
+      }
+      if ('$(configGraphicsOpenGL)' -eq 'on') {
+        cmake --build build --config $(buildConfig) --target vcl.graphics.opengl.test
+        if ($LastExitCode -ne "0") { exit $LastExitCode }
+      }
+    displayName: 'Build'
+    continueOnError: false
+
+  - pwsh: |
+      # Execute unit-tests and report success/failure of tests using task commands
+      # https://github.com/Microsoft/azure-pipelines-tasks/blob/master/docs/authoring/commands.md
+
+      $env:CTEST_OUTPUT_ON_FAILURE = "1"
+      $env:GALLIUM_DRIVER = "llvmpipe"
+      cmake --build build --config $(buildConfig) --target vcl.test
+      $runTestSuccess=$?
+      # Convert ctest output to junit-format
+      # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
+      pushd build/src/tests
+      if (Test-Path "Testing/TAG") {
+        python ../../../ci/ctest2junit.py . ../../../ci/ctest2junit.xsl > JUnitResults.xml
+        if (!(Test-Path "JUnitResults.xml")) {
+          echo '##vso[task.complete result=Failed;]FAILED'
+          exit 1
+        }
+      }
+      popd
+      if ($runTestSuccess) {
+        echo '##vso[task.complete result=Succeeded;]DONE'
+      } else {
+        echo '##vso[task.complete result=Failed;]DONE'
+      }
+    displayName: 'Run Unit Tests'
+
+  # Publish unit test results
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
+      testResultsFiles: 'build/src/tests/**/JUnitResults.xml'
+      #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
+      mergeTestResults: true # Optional
+      #testRunTitle: # Optional
+      #buildPlatform: # Optional
+      #buildConfiguration: # Optional
+      #publishRunAttachments: true # Optional
+    displayName: 'Publish Test Results'
+    condition: succeededOrFailed()
+
+  # Publish Code Coverage Results
+  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-code-coverage-results
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '**/vcl.test.xml'
+      #reportDirectory: # Optional
+      #additionalCodeCoverageFiles: # Optional
+      failIfCoverageEmpty: true
+    displayName: 'Publish Code Coverage Report'
+    condition: and(succeededOrFailed(), eq(variables['configCodeCoverage'], 'on'))
