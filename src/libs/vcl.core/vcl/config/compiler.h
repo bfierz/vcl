@@ -278,9 +278,9 @@ typedef struct
 
 // thread_local
 #if defined(VCL_COMPILER_MSVC)
-#	if (_MSC_VER <= 1900)
+#	if (_MSC_VER < 1900)
 #		define thread_local __declspec(thread)
-#	endif // _MSC_VER <= 1900
+#	endif
 #elif defined(VCL_COMPILER_GNU)
 #	if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
 #		define thread_local __thread
