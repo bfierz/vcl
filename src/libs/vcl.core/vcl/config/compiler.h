@@ -48,8 +48,8 @@
 // MSVC++ 14.16 _MSC_VER == 1916 (Visual Studio 2017 Update 9)
 // MSVC++ 14.20 _MSC_VER == 1920 (Visual Studio 2019)
 // MSVC++ 14.30 _MSC_VER == 1930 (Visual Studio 2022)
-#	if (_MSC_VER < 1900)
-#		warning "Minimum supported version is MSVC 2015. Good luck."
+#	if (_MSC_VER < 1910)
+#		warning "Minimum supported version is MSVC 2017. Good luck."
 #	endif
 #elif defined __clang__
 #	define VCL_COMPILER_CLANG
