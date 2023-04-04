@@ -73,13 +73,13 @@ namespace Vcl { namespace RTTI {
 	{
 	public:
 		template<int N>
-		VCL_CPP_CONSTEXPR_11 ParameterMetaData(const char (&name)[N])
+		constexpr ParameterMetaData(const char (&name)[N])
 		: _name(name, N - 1)
 		{
 		}
 
-		VCL_CPP_CONSTEXPR_11 ParameterMetaData(const ParameterMetaData& rhs) = default;
-		VCL_CPP_CONSTEXPR_11 ParameterMetaData(ParameterMetaData&& rhs) = default;
+		constexpr ParameterMetaData(const ParameterMetaData& rhs) = default;
+		constexpr ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
 		stdext::string_view name() const { return _name; }
@@ -188,7 +188,7 @@ namespace Vcl { namespace RTTI {
 	class ConstructorBase
 	{
 	protected:
-		VCL_CPP_CONSTEXPR_11 ConstructorBase(int numParams)
+		constexpr ConstructorBase(int numParams)
 		: _numParams(numParams)
 		{
 		}

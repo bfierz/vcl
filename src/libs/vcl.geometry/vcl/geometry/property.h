@@ -370,8 +370,8 @@ namespace Vcl { namespace Geometry {
 	class PropertyPtr
 	{
 	public:
-		typedef ValueT value_type;
-		typedef IndexT index_type;
+		using value_type = ValueT;
+		using index_type = IndexT;
 
 	public:
 		PropertyPtr()
@@ -441,8 +441,8 @@ namespace Vcl { namespace Geometry {
 	class ConstPropertyPtr
 	{
 	public:
-		typedef ValueT value_type;
-		typedef IndexT index_type;
+		using value_type = ValueT;
+		using index_type = IndexT;
 
 	public:
 		ConstPropertyPtr()

@@ -132,7 +132,7 @@ TEST(DISABLED_AxisAlignedBoxRayIntersection, ScalarBarnes)
 	Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 	Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
+	using Func = bool (*)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
 	Func f = [](const Eigen::AlignedBox<float, 3>& box,
 				const Ray<float, 3>& ray) { return intersects(box, ray, RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Barnes>{}); };
 	testAxisAlignedIntersection(r0, f, true);
@@ -153,7 +153,7 @@ TEST(AxisAlignedBoxRayIntersection, ScalarIze)
 	Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 	Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
+	using Func = bool (*)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
 	Func f = [](const Eigen::AlignedBox<float, 3>& box,
 				const Ray<float, 3>& ray) { return intersects(box, ray, RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Ize>{}); };
 	testAxisAlignedIntersection(r0, f, true);
@@ -175,7 +175,7 @@ TEST(AxisAlignedBoxRayIntersection, ScalarPharr)
 	Ray<float, 3> r3{ { 1.0f, 0.0f, 0.0f }, { 0, 0, 1 } };
 	Ray<float, 3> r4{ { 1.0f, 0.0f, 1.000001f }, { 0, 0, 1 } };
 
-	typedef bool (*Func)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
+	using Func = bool (*)(const Eigen::AlignedBox<float, 3>&, const Ray<float, 3>&);
 	Func f = [](const Eigen::AlignedBox<float, 3>& box,
 				const Ray<float, 3>& ray) { return intersects(box, ray, RayBoxIntersectionAlgorithmSelector<RayBoxIntersectionAlgorithm::Pharr>{}); };
 	testAxisAlignedIntersection(r0, f, true);

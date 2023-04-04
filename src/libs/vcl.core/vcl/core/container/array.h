@@ -78,7 +78,7 @@ namespace std {
 	}
 
 	template<class D = void, class... Types>
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 details::return_type<D, Types...> make_array(Types&&... t)
+	VCL_STRONG_INLINE constexpr details::return_type<D, Types...> make_array(Types&&... t)
 	{
 		return { std::forward<Types>(t)... };
 	}
@@ -89,14 +89,14 @@ namespace std {
 namespace Vcl { namespace Core {
 	namespace detail {
 		template<typename T, typename... Args, size_t... Is>
-		VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 auto make_array_from_tuple_helper(const std::tuple<Args...>& attributes, absl::index_sequence<Is...>)
+		VCL_STRONG_INLINE constexpr auto make_array_from_tuple_helper(const std::tuple<Args...>& attributes, absl::index_sequence<Is...>)
 		{
 			return std::array<T, sizeof...(Args)>{ (&(std::get<Is>(attributes)))... };
 		}
 	}
 
 	template<typename T, typename... Args>
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 auto make_array_from_tuple(const std::tuple<Args...>& attributes)
+	VCL_STRONG_INLINE constexpr auto make_array_from_tuple(const std::tuple<Args...>& attributes)
 	{
 		return detail::make_array_from_tuple_helper<T>(attributes, absl::index_sequence_for<Args...>{});
 	}

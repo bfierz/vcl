@@ -27,7 +27,7 @@ Detailed reports at the vendor's pages:
 
 Supported compilers:
 
-* MSVC >= 2015
+* MSVC >= 2017
 * Clang >= 3.9
 * GCC >= 5.1
 * Intel ICC >= 17

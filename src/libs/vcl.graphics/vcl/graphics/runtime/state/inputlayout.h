@@ -40,7 +40,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	template<typename VertexDataType>
 	struct InputLayoutTypeTrait
 	{
-		typedef VertexDataType Type;
+		using Type = VertexDataType;
 		static const SurfaceFormat Format;
 	};
 

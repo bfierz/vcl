@@ -40,11 +40,10 @@ namespace Vcl { namespace Graphics {
 	template<typename Scalar>
 	class PerspectiveViewFrustum
 	{
-	public: // Typedefs
+	public:
 		using real_t = Scalar;
 		using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
-	public:
 		enum
 		{
 			Top = 0,
@@ -55,7 +54,6 @@ namespace Vcl { namespace Graphics {
 			Far
 		};
 
-	public:
 		//! Default constructor.
 		PerspectiveViewFrustum();
 
@@ -80,7 +78,6 @@ namespace Vcl { namespace Graphics {
 		 */
 		PerspectiveViewFrustum(const PerspectiveViewFrustum<real_t>& rhs);
 
-	public:
 		const vector3_t& position() const;
 
 		const vector3_t& direction() const;
@@ -99,7 +96,6 @@ namespace Vcl { namespace Graphics {
 
 		real_t farPlane() const;
 
-	public:
 		bool isInside(vector3_t p);
 
 		const vector3_t& corner(unsigned int i) const;
@@ -107,27 +103,25 @@ namespace Vcl { namespace Graphics {
 	private:
 		void computePlanes();
 
-	private:
 		real_t _x, _y;
 		real_t _fov;
 		real_t _near, _far;
 		vector3_t _position, _direction, _up, _right;
 
-		// Corners
+		///! Corners
 		std::array<vector3_t, 8> _corners;
 
-		// Bounding planes
+		///! Bounding planes
 		std::array<Eigen::Hyperplane<real_t, 3>, 6> _planes;
 	};
 
 	template<typename Scalar>
 	class OrthographicViewFrustum
 	{
-	public: // Typedefs
+	public:
 		using real_t = Scalar;
 		using vector3_t = Eigen::Matrix<real_t, 3, 1>;
 
-	public:
 		enum
 		{
 			Top = 0,
@@ -138,7 +132,6 @@ namespace Vcl { namespace Graphics {
 			Far
 		};
 
-	public:
 		//! Default constructor.
 		OrthographicViewFrustum();
 
@@ -160,7 +153,6 @@ namespace Vcl { namespace Graphics {
 		OrthographicViewFrustum(
 			const OrthographicViewFrustum<real_t>& rhs);
 
-	public:
 		const vector3_t& position() const;
 
 		const vector3_t& direction() const;
@@ -177,31 +169,27 @@ namespace Vcl { namespace Graphics {
 
 		real_t height() const;
 
-	public:
 		bool isInside(vector3_t p);
 
 		const vector3_t& corner(unsigned int i) const;
 
-	public:
 		Eigen::Matrix<real_t, 4, 4> computeViewMatrix(const MatrixFactory& factory) const;
 
 		Eigen::Matrix<real_t, 4, 4> computeProjectionMatrix(const MatrixFactory& factory) const;
 
-	public:
 		static OrthographicViewFrustum<real_t> enclose(const PerspectiveViewFrustum<real_t>& frustum, const vector3_t& orthographic_direction);
 
 	private:
 		void computePlanes();
 
-	private:
 		real_t _x, _y;
 		real_t _near, _far;
 		vector3_t _position, _direction, _up, _right;
 
-		// Corners
+		///! Corners
 		std::array<vector3_t, 8> _corners;
 
-		// Bounding planes
+		///! Bounding planes
 		std::array<Eigen::Hyperplane<real_t, 3>, 6> _planes;
 	};
 
@@ -212,5 +200,5 @@ namespace Vcl { namespace Graphics {
 
 		extern template class OrthographicViewFrustum<float>;
 		extern template class OrthographicViewFrustum<double>;
-#endif /* VCL_GRAPHICS_FRUSTUM_INST */
+#endif
 }}

@@ -39,10 +39,6 @@ environment:
   MSVC_DEFAULT_OPTIONS: ON
 
   matrix:
-    - tool_set: 'v140'
-      vec_type: 'AVX'
-      cpp_std: '14'
-
     - tool_set: 'v141'
       vec_type: 'AVX'
       cpp_std: '14'

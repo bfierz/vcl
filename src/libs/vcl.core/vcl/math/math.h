@@ -29,7 +29,7 @@
 #include <vcl/config/eigen.h>
 
 namespace Vcl { namespace Mathematics {
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float sq(float a) noexcept
+	VCL_STRONG_INLINE constexpr float sq(float a) noexcept
 	{
 		return a * a;
 	}
@@ -39,12 +39,12 @@ namespace Vcl { namespace Mathematics {
 		return 1.0 / ::sqrt(in);
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 double rcp(double in) noexcept
+	VCL_STRONG_INLINE constexpr double rcp(double in) noexcept
 	{
 		return 1.0 / in;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 double sgn(double x) noexcept
+	VCL_STRONG_INLINE constexpr double sgn(double x) noexcept
 	{
 		return static_cast<double>(static_cast<int>(0.0 < x) - static_cast<int>(x < 0.0));
 	}
@@ -82,24 +82,24 @@ namespace Vcl { namespace Mathematics {
 	}
 
 	template<typename T>
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x, std::false_type) noexcept
+	VCL_STRONG_INLINE constexpr int sgn(T x, std::false_type) noexcept
 	{
 		return T(0) < x ? 1 : 0;
 	}
 
 	template<typename T>
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x, std::true_type) noexcept
+	VCL_STRONG_INLINE constexpr int sgn(T x, std::true_type) noexcept
 	{
 		return (T(0) < x ? 1 : 0) - (x < T(0) ? 1 : 0);
 	}
 
 	template<typename T>
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 int sgn(T x) noexcept
+	VCL_STRONG_INLINE constexpr int sgn(T x) noexcept
 	{
 		return sgn(x, std::is_signed<T>());
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float sgn(float x) noexcept
+	VCL_STRONG_INLINE constexpr float sgn(float x) noexcept
 	{
 		return static_cast<float>((0.0f < x) - (x < 0.0f));
 	}
@@ -202,19 +202,19 @@ namespace Vcl { namespace Mathematics {
 	}
 
 	template<typename T>
-	VCL_CPP_CONSTEXPR_11 T pi()
+	constexpr T pi()
 	{
 		return static_cast<T>(3.14159265358979323846);
 	}
 
 	template<typename T>
-	VCL_CPP_CONSTEXPR_11 T rad2deg()
+	constexpr T rad2deg()
 	{
 		return static_cast<T>(180) / pi<T>();
 	}
 
 	template<typename T>
-	VCL_CPP_CONSTEXPR_11 T deg2rad()
+	constexpr T deg2rad()
 	{
 		return pi<T>() / static_cast<T>(180);
 	}

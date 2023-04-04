@@ -36,23 +36,17 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 using namespace Vcl::Util;
-#if VCL_HAS_CPP_CONSTEXPR_11
 using namespace Vcl::Util::Literals;
-#endif
 
 TEST(Fnv1aTest, 32bit)
 {
 	EXPECT_EQ(StringHash("Hello, World!").hash(), 0x5aecf734);
 	EXPECT_EQ(calculateFnv1a32("Hello, World!"), 0x5aecf734);
-#if VCL_HAS_CPP_CONSTEXPR_11
 	EXPECT_EQ("Hello, World!"_fnv1a32, 0x5aecf734);
-#endif
 }
 
 TEST(Fnv1aTest, 64bit)
 {
 	EXPECT_EQ(calculateFnv1a64("Hello, World!"), 0x6ef05bd7cc857c54);
-#if VCL_HAS_CPP_CONSTEXPR_11
 	EXPECT_EQ("Hello, World!"_fnv1a64, 0x6ef05bd7cc857c54);
-#endif
 }

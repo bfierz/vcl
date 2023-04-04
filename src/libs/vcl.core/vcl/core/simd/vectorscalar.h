@@ -295,27 +295,27 @@ namespace Vcl {
 		return select(int_t(0) < a, int_t(1), int_t(0)) - select(a < int_t(0), int_t(1), int_t(0));
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float min(float x) noexcept
+	VCL_STRONG_INLINE constexpr float min(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 float max(float x) noexcept
+	VCL_STRONG_INLINE constexpr float max(float x) noexcept
 	{
 		return x;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool any(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool any(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool all(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool all(bool b) noexcept
 	{
 		return b;
 	}
 
-	VCL_STRONG_INLINE VCL_CPP_CONSTEXPR_11 bool none(bool b) noexcept
+	VCL_STRONG_INLINE constexpr bool none(bool b) noexcept
 	{
 		return !b;
 	}
@@ -415,17 +415,17 @@ namespace Vcl {
 		return abs(x - y) <= tol * max(VectorScalar<Scalar, Width>(1), max(abs(x), abs(y)));
 	}
 
-	typedef VectorScalar<float, 4> float4;
-	typedef VectorScalar<float, 8> float8;
-	typedef VectorScalar<float, 16> float16;
+	using float4 = VectorScalar<float, 4>;
+	using float8 = VectorScalar<float, 8>;
+	using float16 = VectorScalar<float, 16>;
 
-	typedef VectorScalar<int, 4> int4;
-	typedef VectorScalar<int, 8> int8;
-	typedef VectorScalar<int, 16> int16;
+	using int4 = VectorScalar<int, 4>;
+	using int8 = VectorScalar<int, 8>;
+	using int16 = VectorScalar<int, 16>;
 
-	typedef VectorScalar<bool, 4> bool4;
-	typedef VectorScalar<bool, 8> bool8;
-	typedef VectorScalar<bool, 16> bool16;
+	using bool4 = VectorScalar<bool, 4>;
+	using bool8 = VectorScalar<bool, 8>;
+	using bool16 = VectorScalar<bool, 16>;
 }
 
 namespace Eigen {

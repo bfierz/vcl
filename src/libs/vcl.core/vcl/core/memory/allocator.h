@@ -51,7 +51,7 @@ namespace Vcl { namespace Core {
 	template<typename T>
 	class ObjectTraits
 	{
-	public: // Typedefs
+	public:
 		using value_type = T;
 		using pointer = value_type*;
 
@@ -99,7 +99,7 @@ namespace Vcl { namespace Core {
 	template<typename T>
 	class NoInitObjectTraits
 	{
-	public: // Typedefs
+	public:
 		using value_type = T;
 		using pointer = value_type*;
 
@@ -146,7 +146,7 @@ namespace Vcl { namespace Core {
 	template<typename T>
 	class StandardAllocPolicy
 	{
-	public: // Typedefs
+	public:
 		using value_type = T;
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
@@ -204,7 +204,7 @@ namespace Vcl { namespace Core {
 	template<typename T, int Alignment = 16>
 	class AlignedAllocPolicy
 	{
-	public: // Typedefs
+	public:
 		using value_type = T;
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
@@ -271,11 +271,11 @@ namespace Vcl { namespace Core {
 	template<typename T, typename Policy = StandardAllocPolicy<T>, typename Traits = ObjectTraits<T>>
 	class Allocator : public Policy, public Traits
 	{
-	private: /* Typedefs */
+	private:
 		using AllocationPolicy = Policy;
 		using TTraits = Traits;
 
-	public: /* Typedefs */
+	public:
 		using size_type = typename AllocationPolicy::size_type;
 		using difference_type = typename AllocationPolicy::difference_type;
 		using pointer = typename AllocationPolicy::pointer;

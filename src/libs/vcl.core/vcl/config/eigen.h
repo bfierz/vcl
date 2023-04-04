@@ -127,42 +127,42 @@ namespace Eigen {
 
 // Some additional Eigen typedefs
 namespace Eigen {
-	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
-	typedef Eigen::ParametrizedLine<float, 3> ParametrizedLine3f;
-	typedef Eigen::Hyperplane<float, 3> Hyperplane3f;
-	typedef Eigen::Quaternion<float> Quaternionf;
+	using AlignedBox3f = Eigen::AlignedBox<float, 3>;
+	using ParametrizedLine3f = Eigen::ParametrizedLine<float, 3>;
+	using Hyperplane3f = Eigen::Hyperplane<float, 3>;
+	using Quaternionf = Eigen::Quaternion<float>;
 
-	typedef Eigen::AlignedBox<double, 3> AlignedBox3d;
-	typedef Eigen::ParametrizedLine<double, 3> ParametrizedLine3d;
-	typedef Eigen::Hyperplane<double, 3> Hyperplane3d;
-	typedef Eigen::Quaternion<double> Quaterniond;
+	using AlignedBox3d = Eigen::AlignedBox<double, 3>;
+	using ParametrizedLine3d = Eigen::ParametrizedLine<double, 3>;
+	using Hyperplane3d = Eigen::Hyperplane<double, 3>;
+	using Quaterniond = Eigen::Quaternion<double>;
 
-	typedef Eigen::Matrix<unsigned int, 2, 1> Vector2ui;
-	typedef Eigen::Matrix<unsigned int, 3, 1> Vector3ui;
-	typedef Eigen::Matrix<unsigned int, 4, 1> Vector4ui;
+	using Vector2ui = Eigen::Matrix<unsigned int, 2, 1>;
+	using Vector3ui = Eigen::Matrix<unsigned int, 3, 1>;
+	using Vector4ui = Eigen::Matrix<unsigned int, 4, 1>;
 }
 
 // Typedefs for VCL
 namespace Vcl {
-	typedef Eigen::AlignedBox<float, 3> AlignedBox3f;
+	using AlignedBox3f = Eigen::AlignedBox<float, 3>;
 
-	typedef Eigen::Matrix<float, 2, 1> Vector2f;
-	typedef Eigen::Matrix<float, 3, 1> Vector3f;
-	typedef Eigen::Matrix<float, 4, 1> Vector4f;
-	typedef Eigen::Matrix<float, 2, 2> Matrix2f;
-	typedef Eigen::Matrix<float, 3, 3> Matrix3f;
-	typedef Eigen::Matrix<float, 4, 4> Matrix4f;
+	using Vector2f = Eigen::Matrix<float, 2, 1>;
+	using Vector3f = Eigen::Matrix<float, 3, 1>;
+	using Vector4f = Eigen::Matrix<float, 4, 1>;
+	using Matrix2f = Eigen::Matrix<float, 2, 2>;
+	using Matrix3f = Eigen::Matrix<float, 3, 3>;
+	using Matrix4f = Eigen::Matrix<float, 4, 4>;
 
-	typedef Eigen::Matrix<float, 2, 1, Eigen::ColMajor | Eigen::DontAlign> UnalignedVector2f;
-	typedef Eigen::Matrix<float, 3, 1, Eigen::ColMajor | Eigen::DontAlign> UnalignedVector3f;
-	typedef Eigen::Matrix<float, 4, 1, Eigen::ColMajor | Eigen::DontAlign> UnalignedVector4f;
+	using UnalignedVector2f = Eigen::Matrix<float, 2, 1, Eigen::ColMajor | Eigen::DontAlign>;
+	using UnalignedVector3f = Eigen::Matrix<float, 3, 1, Eigen::ColMajor | Eigen::DontAlign>;
+	using UnalignedVector4f = Eigen::Matrix<float, 4, 1, Eigen::ColMajor | Eigen::DontAlign>;
 
-	typedef Eigen::Quaternion<float, Eigen::DontAlign> UnalignedQuaternionf;
+	using UnalignedQuaternionf = Eigen::Quaternion<float, Eigen::DontAlign>;
 
-	typedef Eigen::Matrix<double, 2, 1> Vector2d;
-	typedef Eigen::Matrix<double, 3, 1> Vector3d;
-	typedef Eigen::Matrix<double, 4, 1> Vector4d;
-	typedef Eigen::Matrix<double, 2, 2> Matrix2d;
-	typedef Eigen::Matrix<double, 3, 3> Matrix3d;
-	typedef Eigen::Matrix<double, 4, 4> Matrix4d;
+	using Vector2d = Eigen::Matrix<double, 2, 1>;
+	using Vector3d = Eigen::Matrix<double, 3, 1>;
+	using Vector4d = Eigen::Matrix<double, 4, 1>;
+	using Matrix2d = Eigen::Matrix<double, 2, 2>;
+	using Matrix3d = Eigen::Matrix<double, 3, 3>;
+	using Matrix4d = Eigen::Matrix<double, 4, 4>;
 }

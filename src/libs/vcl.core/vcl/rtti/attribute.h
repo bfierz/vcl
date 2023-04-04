@@ -58,7 +58,7 @@ namespace Vcl { namespace RTTI {
 	{
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 EnumAttribute(const char (&name)[N])
+		constexpr EnumAttribute(const char (&name)[N])
 		: EnumAttributeBase(name)
 		{
 		}
@@ -88,7 +88,7 @@ namespace Vcl { namespace RTTI {
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
+		constexpr Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -176,7 +176,7 @@ namespace Vcl { namespace RTTI {
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
+		constexpr Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: Base(name)
 		, _getter(getter)
 		, _setter(setter)
@@ -259,7 +259,7 @@ namespace Vcl { namespace RTTI {
 
 	public:
 		template<size_t N>
-		VCL_CPP_CONSTEXPR_14 Attribute(const char (&name)[N], Getter getter, Setter setter)
+		constexpr Attribute(const char (&name)[N], Getter getter, Setter setter)
 		: AttributeBase(name)
 		, _getter(getter)
 		, _setter(setter)

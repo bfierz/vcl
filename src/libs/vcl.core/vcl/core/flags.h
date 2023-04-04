@@ -83,8 +83,8 @@ namespace Vcl {
 	class Flags
 	{
 	private:
-		typedef typename T::Enum Enum;
-		typedef typename T::Bits Bits;
+		using Enum = typename T::Enum;
+		using Bits = typename T::Bits;
 
 	public:
 		inline Flags()
@@ -119,7 +119,7 @@ namespace Vcl {
 			_flags = 0;
 		}
 
-		inline uint32_t data()
+		inline uint32_t data() const
 		{
 			return _flags;
 		}
@@ -136,7 +136,7 @@ namespace Vcl {
 
 		inline bool areAllSet() const
 		{
-			return (_flags == ((1ull << T::Count) - 1u));
+			return (_flags == ((1uLL << T::Count) - 1u));
 		}
 
 		inline uint32_t bits() const
@@ -144,7 +144,6 @@ namespace Vcl {
 			return _flags;
 		}
 
-	public: // Operators
 		inline bool operator==(Flags other) const
 		{
 			return _flags == other._flags;

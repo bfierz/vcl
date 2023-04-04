@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -57,7 +57,7 @@
 	};                                                                             \
 	namespace Vcl {                                                                \
 		template<>                                                                 \
-		VCL_CPP_CONSTEXPR_11 unsigned int enumCount<type_name>()                   \
+		constexpr unsigned int enumCount<type_name>()                              \
 		{                                                                          \
 			return VCL_PP_VA_NUM_ARGS(__VA_ARGS__);                                \
 		}                                                                          \
@@ -103,7 +103,7 @@
 
 namespace Vcl {
 	template<typename T>
-	VCL_CPP_CONSTEXPR_11 unsigned int enumCount()
+	constexpr unsigned int enumCount()
 	{
 		return 0;
 	}
