@@ -54,6 +54,16 @@ namespace Vcl {
 		value = base[0];
 	}
 
+	VCL_STRONG_INLINE void load(Eigen::Vector2f& value, const Eigen::Vector2f* base)
+	{
+		value = base[0];
+	}
+
+	VCL_STRONG_INLINE void load(Eigen::Vector2i& value, const Eigen::Vector2i* base)
+	{
+		value = base[0];
+	}
+
 	VCL_STRONG_INLINE void load(Eigen::Vector3f& value, const Eigen::Vector3f* base)
 	{
 		value = base[0];
