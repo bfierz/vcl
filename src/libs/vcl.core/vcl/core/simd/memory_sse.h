@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -78,6 +78,19 @@ namespace Vcl {
 		value = int4{ _mm_loadu_si128(reinterpret_cast<const __m128i*>(base)) };
 	}
 
+	VCL_STRONG_INLINE void load(
+		__m128& x,
+		__m128& y,
+		const Eigen::Vector2f* base) noexcept
+	{
+		const float* p = base->data();
+		const __m128 x0y0x1y1 = _mm_loadu_ps(p + 0);
+		const __m128 x2y2x3y3 = _mm_loadu_ps(p + 4);
+
+		x = _mm_shuffle_ps(x0y0x1y1, x2y2x3y3, _MM_SHUFFLE(2, 0, 2, 0));
+		y = _mm_shuffle_ps(x0y0x1y1, x2y2x3y3, _MM_SHUFFLE(3, 1, 3, 1));
+	}
+
 	// https://software.intel.com/en-us/articles/3d-vector-normalization-using-256-bit-intel-advanced-vector-extensions-intel-avx
 	VCL_STRONG_INLINE void load(
 		__m128& x,
@@ -120,6 +133,29 @@ namespace Vcl {
 		w = _mm_shuffle_ps(zw0, zw1, _MM_SHUFFLE(3, 1, 3, 1));
 	}
 
+	VCL_STRONG_INLINE void store(float* base, const float4& value) noexcept
+	{
+		_mm_storeu_ps(base, value.get(0));
+	}
+
+	VCL_STRONG_INLINE void store(int* base, const int4& value) noexcept
+	{
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(base), value.get(0));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector2f* base,
+		const __m128& x,
+		const __m128& y) noexcept
+	{
+		const __m128 x0y0x1y1 = _mm_unpacklo_ps(x, y);
+		const __m128 x2y2x3y3 = _mm_unpackhi_ps(x, y);
+
+		float* p = base->data();
+		_mm_storeu_ps(p + 0, x0y0x1y1);
+		_mm_storeu_ps(p + 4, x2y2x3y3);
+	}
+
 	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
 		const __m128& x,
@@ -138,6 +174,28 @@ namespace Vcl {
 		_mm_storeu_ps(p + 0, rx0y0z0x1);
 		_mm_storeu_ps(p + 4, ry1z1x2y2);
 		_mm_storeu_ps(p + 8, rz2x3y3z3);
+	}
+
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<float4, 2, 1>& loaded,
+		const Eigen::Vector2f* base)
+	{
+		__m128 x0, y0;
+		load(x0, y0, base);
+
+		loaded(0) = float4(x0);
+		loaded(1) = float4(y0);
+	}
+
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<int4, 2, 1>& loaded,
+		const Eigen::Vector2i* base)
+	{
+		__m128 x0, y0;
+		load(x0, y0, reinterpret_cast<const Eigen::Vector2f*>(base));
+
+		loaded(0) = int4{ _mm_castps_si128(x0) };
+		loaded(1) = int4{ _mm_castps_si128(y0) };
 	}
 
 	VCL_STRONG_INLINE void load(
@@ -190,6 +248,25 @@ namespace Vcl {
 	}
 
 	VCL_STRONG_INLINE void store(
+		Eigen::Vector2f* base,
+		const Eigen::Matrix<float4, 2, 1>& value)
+	{
+		store(
+			base,
+			value(0).get(0),
+			value(1).get(0));
+	}
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector2i* base,
+		const Eigen::Matrix<int4, 2, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base),
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)));
+	}
+
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
 		const Eigen::Matrix<float4, 3, 1>& value)
 	{
@@ -199,7 +276,6 @@ namespace Vcl {
 			value(1).get(0),
 			value(2).get(0));
 	}
-
 	VCL_STRONG_INLINE void store(
 		Eigen::Vector3i* base,
 		const Eigen::Matrix<int4, 3, 1>& value)
@@ -258,6 +334,58 @@ namespace Vcl {
 		};
 	}
 
+	VCL_STRONG_INLINE void store(float* base, const float8& value) noexcept
+	{
+		_mm_storeu_ps(base + 0, value.get(0));
+		_mm_storeu_ps(base + 4, value.get(1));
+	}
+
+	VCL_STRONG_INLINE void store(int* base, const int8& value) noexcept
+	{
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(base + 0), value.get(0));
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(base + 4), value.get(1));
+	}
+
+	VCL_STRONG_INLINE void store(float* base, const float16& value) noexcept
+	{
+		_mm_storeu_ps(base + 0, value.get(0));
+		_mm_storeu_ps(base + 4, value.get(1));
+		_mm_storeu_ps(base + 8, value.get(2));
+		_mm_storeu_ps(base + 12, value.get(3));
+	}
+
+	VCL_STRONG_INLINE void store(int* base, const int16& value) noexcept
+	{
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(base), value.get(0));
+	}
+
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<float8, 2, 1>& loaded,
+		const Eigen::Vector2f* base) noexcept
+	{
+		__m128 x0, x1, y0, y1;
+		load(x0, y0, base);
+		load(x1, y1, base + 4);
+
+		loaded = {
+			float8(x0, x1),
+			float8(y0, y1)
+		};
+	}
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<int8, 2, 1>& loaded,
+		const Eigen::Vector2i* base) noexcept
+	{
+		__m128 x0, x1, y0, y1;
+		load(x0, y0, reinterpret_cast<const Eigen::Vector2f*>(base));
+		load(x1, y1, reinterpret_cast<const Eigen::Vector2f*>(base) + 4);
+
+		loaded = {
+			int8{ _mm_castps_si128(x0), _mm_castps_si128(x1) },
+			int8{ _mm_castps_si128(y0), _mm_castps_si128(y1) }
+		};
+	}
+
 	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float8, 3, 1>& loaded,
 		const Eigen::Vector3f* base) noexcept
@@ -312,6 +440,38 @@ namespace Vcl {
 		loaded(1) = int8{ _mm_castps_si128(y0), _mm_castps_si128(y1) };
 		loaded(2) = int8{ _mm_castps_si128(z0), _mm_castps_si128(z1) };
 		loaded(3) = int8{ _mm_castps_si128(w0), _mm_castps_si128(w1) };
+	}
+
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<float16, 2, 1>& loaded,
+		const Eigen::Vector2f* base) noexcept
+	{
+		__m128 x0, x1, x2, x3, y0, y1, y2, y3;
+		load(x0, y0, base);
+		load(x1, y1, base + 4);
+		load(x2, y2, base + 8);
+		load(x3, y3, base + 12);
+
+		loaded = {
+			float16(x0, x1, x2, x3),
+			float16(y0, y1, y2, y3)
+		};
+	}
+
+	VCL_STRONG_INLINE void load(
+		Eigen::Matrix<int16, 2, 1>& loaded,
+		const Eigen::Vector2i* base) noexcept
+	{
+		__m128 x0, x1, x2, x3, y0, y1, y2, y3;
+		load(x0, y0, reinterpret_cast<const Eigen::Vector2f*>(base));
+		load(x1, y1, reinterpret_cast<const Eigen::Vector2f*>(base) + 4);
+		load(x2, y2, reinterpret_cast<const Eigen::Vector2f*>(base) + 8);
+		load(x3, y3, reinterpret_cast<const Eigen::Vector2f*>(base) + 12);
+
+		loaded = {
+			int16{ _mm_castps_si128(x0), _mm_castps_si128(x1), _mm_castps_si128(x2), _mm_castps_si128(x3) },
+			int16{ _mm_castps_si128(y0), _mm_castps_si128(y1), _mm_castps_si128(y2), _mm_castps_si128(y3) }
+		};
 	}
 
 	VCL_STRONG_INLINE void load(
@@ -385,6 +545,29 @@ namespace Vcl {
 	}
 
 	VCL_STRONG_INLINE void store(
+		Eigen::Vector2f* base,
+		const Eigen::Matrix<float8, 2, 1>& value)
+	{
+		store(base + 0, value(0).get(0), value(1).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector2i* base,
+		const Eigen::Matrix<int8, 2, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 0,
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)));
+
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 4,
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)));
+	}
+
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector3f* base,
 		const Eigen::Matrix<float8, 3, 1>& value)
 	{
@@ -407,6 +590,40 @@ namespace Vcl {
 			_mm_castsi128_ps(value(0).get(1)),
 			_mm_castsi128_ps(value(1).get(1)),
 			_mm_castsi128_ps(value(2).get(1)));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector2f* base,
+		const Eigen::Matrix<float16, 2, 1>& value)
+	{
+		store(base + 0, value(0).get(0), value(1).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1));
+		store(base + 8, value(0).get(2), value(1).get(2));
+		store(base + 12, value(0).get(3), value(1).get(3));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector2i* base,
+		const Eigen::Matrix<int16, 2, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 0,
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)));
+
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 4,
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)));
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 8,
+			_mm_castsi128_ps(value(0).get(2)),
+			_mm_castsi128_ps(value(1).get(2)));
+
+		store(
+			reinterpret_cast<Eigen::Vector2f*>(base) + 12,
+			_mm_castsi128_ps(value(0).get(3)),
+			_mm_castsi128_ps(value(1).get(3)));
 	}
 
 	VCL_STRONG_INLINE void store(

@@ -47,41 +47,20 @@
 #endif //VCL_VECTORIZE_NEON
 
 namespace Vcl {
-	VCL_STRONG_INLINE void load(float& value, const float* base) noexcept
+	template<typename T>
+	VCL_STRONG_INLINE void load(T& value, const T* base) noexcept
 	{
 		VclRequire(base, "Load memory location is not null");
 
 		value = base[0];
 	}
 
-	VCL_STRONG_INLINE void load(Eigen::Vector3f& value, const Eigen::Vector3f* base)
+	template<typename T>
+	VCL_STRONG_INLINE void store(T* base, const T& value) noexcept
 	{
-		value = base[0];
-	}
+		VclRequire(base, "Store memory location is not null");
 
-	VCL_STRONG_INLINE void load(Eigen::Vector3i& value, const Eigen::Vector3i* base)
-	{
-		value = base[0];
-	}
-
-	VCL_STRONG_INLINE void load(Eigen::Vector4f& value, const Eigen::Vector4f* base)
-	{
-		value = base[0];
-	}
-
-	VCL_STRONG_INLINE void load(Eigen::Vector4i& value, const Eigen::Vector4i* base)
-	{
-		value = base[0];
-	}
-
-	VCL_STRONG_INLINE void store(Eigen::Vector3f* base, const Eigen::Vector3f& loaded)
-	{
-		base[0] = loaded;
-	}
-
-	VCL_STRONG_INLINE void store(Eigen::Vector3i* base, const Eigen::Vector3i& loaded)
-	{
-		base[0] = loaded;
+		base[0] = value;
 	}
 
 	template<typename Scalar>

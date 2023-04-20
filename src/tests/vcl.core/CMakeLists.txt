@@ -47,6 +47,7 @@ set(SOURCE_FILES
 	scopeguard.cpp
 	simd.cpp
 	smart_ptr.cpp
+	store.cpp
 	waveletnoise.cpp
 )
 vcl_add_test(vcl.core.test)

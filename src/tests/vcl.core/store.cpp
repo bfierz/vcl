@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2014 Basil Fierz
+ * Copyright (c) 2023 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ VCL_BEGIN_EXTERNAL_HEADERS
 VCL_END_EXTERNAL_HEADERS
 
 // Tests the scalar gather function.
-TEST(LoadTest, Scalar)
+TEST(StoreTest, Scalar)
 {
 	using Vcl::float16;
 	using Vcl::float4;
@@ -50,7 +50,7 @@ TEST(LoadTest, Scalar)
 	using Vcl::all;
 
 	// Setup the memory
-	alignas(64) float mem[] = {
+	alignas(64) const float mem[] = {
 		11.3805f, 6.10116f, 11.6117f,
 		11.8436f, 6.2012501f, 12.3314f,
 		12.1044f, 17.7034f, 12.2123f,
@@ -62,40 +62,35 @@ TEST(LoadTest, Scalar)
 		10.1965f, 11.632f, 11.3976f,
 		10.0714f, 11.5502f, 11.5733f
 	};
+	alignas(64) float store[30];
 
-	float f;
-	Vcl::load(f, mem + 3);
-	EXPECT_EQ(mem[3], f) << "Scalar code failed.";
+	float f = mem[3];
+	Vcl::store(store + 3, f);
+	EXPECT_EQ(store[3], mem[3]) << "Scalar code failed.";
 
-	float4 ref4{ mem[5], mem[6], mem[7], mem[8] };
+	float4 f4{ mem[5], mem[6], mem[7], mem[8] };
+	Vcl::store(store + 5, f4);
+	EXPECT_EQ(memcmp(mem + 5, store + 5, 4 * sizeof(float)), 0) << "4-way code failed.";
 
-	float4 f4;
-	Vcl::load(f4, mem + 5);
-	EXPECT_TRUE(all(ref4 == f4)) << "4-way code failed.";
-
-	float8 ref8{
+	float8 f8{
 		mem[9], mem[10], mem[11], mem[12],
 		mem[13], mem[14], mem[15], mem[16]
 	};
+	Vcl::store(store + 9, f8);
+	EXPECT_EQ(memcmp(mem + 9, store + 9, 8 * sizeof(float)), 0) << "8-way code failed.";
 
-	float8 f8;
-	Vcl::load(f8, mem + 9);
-	EXPECT_TRUE(all(ref8 == f8)) << "8-way code failed.";
-
-	float16 ref16{
+	float16 f16{
 		mem[7], mem[8], mem[9], mem[10],
 		mem[11], mem[12], mem[13], mem[14],
 		mem[15], mem[16], mem[17], mem[18],
 		mem[19], mem[20], mem[21], mem[22]
 	};
-
-	float16 f16;
-	Vcl::load(f16, mem + 7);
-	EXPECT_TRUE(all(ref16 == f16)) << "16-way code failed.";
+	Vcl::store(store + 7, f16);
+	EXPECT_EQ(memcmp(mem + 7, store + 7, 16 * sizeof(float)), 0) << "16-way code failed.";
 }
 
 // Tests the matrix gather function.
-TEST(LoadTest, Vector2)
+TEST(StoreTest, Vector2)
 {
 	using Vcl::float16;
 	using Vcl::float4;
@@ -108,7 +103,7 @@ TEST(LoadTest, Vector2)
 	using Vcl::all;
 
 	// Setup the memory
-	alignas(64) Eigen::Vector2f mem[] = {
+	alignas(64) const Eigen::Vector2f mem[] = {
 		Eigen::Vector2f(11.3805f, 6.10116f),
 		Eigen::Vector2f(11.8436f, 6.2012501f),
 		Eigen::Vector2f(12.1044f, 17.7034f),
@@ -140,22 +135,20 @@ TEST(LoadTest, Vector2)
 		Eigen::Vector2f(3.7431301f, 11.1153f),
 		Eigen::Vector2f(18.2603f, 12.7318f)
 	};
+	alignas(64) Eigen::Vector2f store[30];
 
-	Eigen::Vector2f f;
-	Vcl::load(f, mem + 3);
-	EXPECT_EQ(mem[3], f) << "Scalar code failed.";
+	Eigen::Vector2f f = mem[3];
+	Vcl::store(store + 3, f);
+	EXPECT_EQ(memcmp(mem + 3, store + 3, 1 * sizeof(Eigen::Vector2f)), 0) << "Scalar code failed.";
 
-	Eigen::Matrix<float4, 2, 1> ref4{
+	Eigen::Matrix<float4, 2, 1> f4{
 		float4(mem[5](0), mem[6](0), mem[7](0), mem[8](0)),
 		float4(mem[5](1), mem[6](1), mem[7](1), mem[8](1))
 	};
+	Vcl::store(store + 5, f4);
+	EXPECT_EQ(memcmp(mem + 5, store + 5, 4 * sizeof(Eigen::Vector2f)), 0) << "4-way code failed.";
 
-	Eigen::Matrix<float4, 2, 1> f4;
-	Vcl::load(f4, mem + 5);
-	EXPECT_TRUE(all(ref4(0) == f4(0))) << "4-way code failed.";
-	EXPECT_TRUE(all(ref4(1) == f4(1))) << "4-way code failed.";
-
-	Eigen::Matrix<float8, 2, 1> ref8{
+	Eigen::Matrix<float8, 2, 1> f8{
 		float8(
 			mem[9](0), mem[10](0), mem[11](0), mem[12](0),
 			mem[13](0), mem[14](0), mem[15](0), mem[16](0)),
@@ -163,13 +156,10 @@ TEST(LoadTest, Vector2)
 			mem[9](1), mem[10](1), mem[11](1), mem[12](1),
 			mem[13](1), mem[14](1), mem[15](1), mem[16](1))
 	};
+	Vcl::store(store + 9, f8);
+	EXPECT_EQ(memcmp(mem + 9, store + 9, 8 * sizeof(Eigen::Vector2f)), 0) << "8-way code failed.";
 
-	Eigen::Matrix<float8, 2, 1> f8;
-	Vcl::load(f8, mem + 9);
-	EXPECT_TRUE(all(ref8(0) == f8(0))) << "8-way code failed.";
-	EXPECT_TRUE(all(ref8(1) == f8(1))) << "8-way code failed.";
-
-	Eigen::Matrix<float16, 2, 1> ref16{
+	Eigen::Matrix<float16, 2, 1> f16{
 		float16(
 			mem[7](0), mem[8](0), mem[9](0), mem[10](0),
 			mem[11](0), mem[12](0), mem[13](0), mem[14](0),
@@ -182,14 +172,11 @@ TEST(LoadTest, Vector2)
 			mem[15](1), mem[16](1), mem[17](1), mem[18](1),
 			mem[19](1), mem[20](1), mem[21](1), mem[22](1))
 	};
-
-	Eigen::Matrix<float16, 2, 1> f16;
-	Vcl::load(f16, mem + 7);
-	EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
-	EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
+	Vcl::store(store + 7, f16);
+	EXPECT_EQ(memcmp(mem + 7, store + 7, 16 * sizeof(Eigen::Vector2f)), 0) << "16-way code failed.";
 }
 
-TEST(LoadTest, Vector3)
+TEST(StoreTest, Vector3)
 {
 	using Vcl::float16;
 	using Vcl::float4;
@@ -202,7 +189,7 @@ TEST(LoadTest, Vector3)
 	using Vcl::all;
 
 	// Setup the memory
-	alignas(64) Eigen::Vector3f mem[] = {
+	alignas(64) const Eigen::Vector3f mem[] = {
 		Eigen::Vector3f(11.3805f, 6.10116f, 11.6117f),
 		Eigen::Vector3f(11.8436f, 6.2012501f, 12.3314f),
 		Eigen::Vector3f(12.1044f, 17.7034f, 12.2123f),
@@ -234,24 +221,21 @@ TEST(LoadTest, Vector3)
 		Eigen::Vector3f(3.7431301f, 11.1153f, 15.519901f),
 		Eigen::Vector3f(18.2603f, 12.7318f, 18.630499f)
 	};
+	alignas(64) Eigen::Vector3f store[30];
 
-	Eigen::Vector3f f;
-	Vcl::load(f, mem + 3);
-	EXPECT_EQ(mem[3], f) << "Scalar code failed.";
+	Eigen::Vector3f f = mem[3];
+	Vcl::store(store + 3, f);
+	EXPECT_EQ(memcmp(mem + 3, store + 3, 1 * sizeof(Eigen::Vector3f)), 0) << "Scalar code failed.";
 
-	Eigen::Matrix<float4, 3, 1> ref4{
+	Eigen::Matrix<float4, 3, 1> f4{
 		float4(mem[5](0), mem[6](0), mem[7](0), mem[8](0)),
 		float4(mem[5](1), mem[6](1), mem[7](1), mem[8](1)),
 		float4(mem[5](2), mem[6](2), mem[7](2), mem[8](2))
 	};
+	Vcl::store(store + 5, f4);
+	EXPECT_EQ(memcmp(mem + 5, store + 5, 4 * sizeof(Eigen::Vector3f)), 0) << "4-way code failed.";
 
-	Eigen::Matrix<float4, 3, 1> f4;
-	Vcl::load(f4, mem + 5);
-	EXPECT_TRUE(all(ref4(0) == f4(0))) << "4-way code failed.";
-	EXPECT_TRUE(all(ref4(1) == f4(1))) << "4-way code failed.";
-	EXPECT_TRUE(all(ref4(2) == f4(2))) << "4-way code failed.";
-
-	Eigen::Matrix<float8, 3, 1> ref8{
+	Eigen::Matrix<float8, 3, 1> f8{
 		float8(
 			mem[9](0), mem[10](0), mem[11](0), mem[12](0),
 			mem[13](0), mem[14](0), mem[15](0), mem[16](0)),
@@ -262,14 +246,10 @@ TEST(LoadTest, Vector3)
 			mem[9](2), mem[10](2), mem[11](2), mem[12](2),
 			mem[13](2), mem[14](2), mem[15](2), mem[16](2))
 	};
+	Vcl::store(store + 9, f8);
+	EXPECT_EQ(memcmp(mem + 9, store + 9, 8 * sizeof(Eigen::Vector3f)), 0) << "8-way code failed.";
 
-	Eigen::Matrix<float8, 3, 1> f8;
-	Vcl::load(f8, mem + 9);
-	EXPECT_TRUE(all(ref8(0) == f8(0))) << "8-way code failed.";
-	EXPECT_TRUE(all(ref8(1) == f8(1))) << "8-way code failed.";
-	EXPECT_TRUE(all(ref8(2) == f8(2))) << "8-way code failed.";
-
-	Eigen::Matrix<float16, 3, 1> ref16{
+	Eigen::Matrix<float16, 3, 1> f16{
 		float16(
 			mem[7](0), mem[8](0), mem[9](0), mem[10](0),
 			mem[11](0), mem[12](0), mem[13](0), mem[14](0),
@@ -288,15 +268,11 @@ TEST(LoadTest, Vector3)
 			mem[15](2), mem[16](2), mem[17](2), mem[18](2),
 			mem[19](2), mem[20](2), mem[21](2), mem[22](2))
 	};
-
-	Eigen::Matrix<float16, 3, 1> f16;
-	Vcl::load(f16, mem + 7);
-	EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
-	EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
-	EXPECT_TRUE(all(ref16(2) == f16(2))) << "16-way code failed.";
+	Vcl::store(store + 7, f16);
+	EXPECT_EQ(memcmp(mem + 7, store + 7, 16 * sizeof(Eigen::Vector3f)), 0) << "16-way code failed.";
 }
 
-TEST(LoadTest, Vector4)
+/*TEST(StoreTest, Vector4)
 {
 	using Vcl::float16;
 	using Vcl::float4;
@@ -309,7 +285,7 @@ TEST(LoadTest, Vector4)
 	using Vcl::all;
 
 	// Setup the memory
-	alignas(64) Eigen::Vector4f mem[] = {
+	alignas(64) const Eigen::Vector4f mem[] = {
 		Eigen::Vector4f(0, 1, 3, 4),
 		Eigen::Vector4f(5, 6, 7, 8),
 		Eigen::Vector4f(9, 10, 11, 12),
@@ -335,9 +311,10 @@ TEST(LoadTest, Vector4)
 		Eigen::Vector4f(89, 90, 91, 92),
 		Eigen::Vector4f(93, 94, 95, 96)
 	};
+	alignas(64) Eigen::Vector4f store[30];
 
 	Eigen::Vector4f f;
-	Vcl::load(f, mem + 3);
+	Vcl::store(f, mem + 3);
 	EXPECT_TRUE(mem[3] == f) << "Scalar code failed.";
 
 	Eigen::Matrix<float4, 4, 1> ref4{
@@ -348,7 +325,7 @@ TEST(LoadTest, Vector4)
 	};
 
 	Eigen::Matrix<float4, 4, 1> f4;
-	Vcl::load(f4, mem + 5);
+	Vcl::store(f4, mem + 5);
 	EXPECT_TRUE(all(ref4(0) == f4(0))) << "4-way code failed.";
 	EXPECT_TRUE(all(ref4(1) == f4(1))) << "4-way code failed.";
 	EXPECT_TRUE(all(ref4(2) == f4(2))) << "4-way code failed.";
@@ -370,7 +347,7 @@ TEST(LoadTest, Vector4)
 	};
 
 	Eigen::Matrix<float8, 4, 1> f8;
-	Vcl::load(f8, mem + 9);
+	Vcl::store(f8, mem + 9);
 	EXPECT_TRUE(all(ref8(0) == f8(0))) << "8-way code failed.";
 	EXPECT_TRUE(all(ref8(1) == f8(1))) << "8-way code failed.";
 	EXPECT_TRUE(all(ref8(2) == f8(2))) << "8-way code failed.";
@@ -403,9 +380,9 @@ TEST(LoadTest, Vector4)
 	};
 
 	Eigen::Matrix<float16, 4, 1> f16;
-	Vcl::load(f16, mem + 7);
+	Vcl::store(f16, mem + 7);
 	EXPECT_TRUE(all(ref16(0) == f16(0))) << "16-way code failed.";
 	EXPECT_TRUE(all(ref16(1) == f16(1))) << "16-way code failed.";
 	EXPECT_TRUE(all(ref16(2) == f16(2))) << "16-way code failed.";
 	EXPECT_TRUE(all(ref16(3) == f16(3))) << "16-way code failed.";
-}
+}*/
