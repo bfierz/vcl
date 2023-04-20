@@ -14,8 +14,15 @@ steps:
         # Setup: https://gist.github.com/luk6xff/9f8d2520530a823944355e59343eadc1
         sudo apt-get update
         sudo apt-get install qemu-user
-        sudo apt-get install gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
-        sudo apt-get install g++-arm-linux-gnueabihf libstdc++-10-dev-armhf-cross libc6-armhf-cross
+        sudo apt-get install gcc-arm-linux-gnueabi libc6-armhf-cross binutils-arm-linux-gnueabi
+        sudo apt-get install g++-arm-linux-gnueabihf libstdc++-10-dev-armhf-cross
+      }
+      if ('$(buildTargetArch)' -eq 'aarch64') {
+        # Setup: https://gist.github.com/luk6xff/9f8d2520530a823944355e59343eadc1
+        sudo apt-get update
+        sudo apt-get install qemu-user
+        sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-arm64-cross binutils-aarch64-linux-gnu
+        sudo apt-get install g++-aarch64-linux-gnu libstdc++-10-dev-arm64-cross
       }
 
       if ('$(configCodeCoverage)' -eq 'on') {
@@ -79,6 +86,12 @@ steps:
       workingDirectory: 'build'
       cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
     condition: eq(variables['buildTargetArch'], 'arm')
+
+  - task: CMake@1
+    inputs:
+      workingDirectory: 'build'
+      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/aarch64-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+    condition: eq(variables['buildTargetArch'], 'aarch64')
 
   - pwsh: |
       # MacOS requires a specific SDK root for C++
