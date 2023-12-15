@@ -119,7 +119,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		create_info.flags = 0;
 
 		// Information about the application
-		create_info.pApplicationInfo = nullptr;
+		VkApplicationInfo application_info = {};
+		application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		application_info.pNext = nullptr;
+		application_info.apiVersion = VK_MAKE_VERSION(1, 3, 0);
+		create_info.pApplicationInfo = &application_info;
 
 		// Enable additional layers
 		std::vector<const char*> req_layers;

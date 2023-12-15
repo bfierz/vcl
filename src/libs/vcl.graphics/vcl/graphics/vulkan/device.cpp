@@ -93,23 +93,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	std::unique_ptr<Context> Device::createContext(stdext::span<const char*> extensions)
 	{
-		// Enable additional layers
-		std::vector<const char*> req_layers;
-#ifdef VCL_DEBUG
-		// Enable standard validation layers ba default, if they are available
-		if (std::find_if(std::begin(_availableLayers), std::end(_availableLayers), [](const VkLayerProperties& l)
-		{
-			return strcmp(l.layerName, "VK_LAYER_LUNARG_standard_validation") == 0;
-		}) != std::end(_availableLayers))
-		{
-			req_layers.push_back("VK_LAYER_LUNARG_standard_validation");
-		}
-#endif // VCL_DEBUG
-
-		// Enable additional extensions
-		std::vector<const char*> req_ext(std::begin(extensions), std::end(extensions));
-
-		return std::make_unique<Context>(this, stdext::make_span(req_layers), stdext::make_span(req_ext));
+		return std::make_unique<Context>(this, extensions);
 	}
 
 	stdext::span<const VkMemoryType> Device::nativeMemoryTypes() const

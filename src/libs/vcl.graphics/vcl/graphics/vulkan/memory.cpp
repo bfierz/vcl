@@ -45,8 +45,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	Memory::Memory(Context* ctx, const MemoryHeap* heap, size_t size)
 	: _context(ctx)
-	, _sizeInBytes(size)
 	, _heap(heap)
+	, _sizeInBytes(size)
 	{
 		VkMemoryAllocateInfo alloc = {};
 		alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

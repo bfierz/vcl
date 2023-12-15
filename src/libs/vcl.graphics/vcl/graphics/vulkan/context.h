@@ -59,7 +59,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	{
 	public:
 		//! Constructor
-		Context(Device* dev, stdext::span<const char*> layers, stdext::span<const char*> extensions);
+		Context(Device* dev, stdext::span<const char*> extensions);
 
 		//! Destructor
 		~Context();

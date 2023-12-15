@@ -34,7 +34,7 @@
 
 namespace Vcl { namespace Graphics { namespace Vulkan
 {
-	Context::Context(Device* dev, stdext::span<const char*> layers, stdext::span<const char*> extensions)
+	Context::Context(Device* dev, stdext::span<const char*> extensions)
 	: _physicalDevice(dev)
 	{
 		// Collect information about the available command queues
@@ -46,19 +46,22 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		// Properties of the device
 		VkDeviceCreateInfo dev_info;
 		dev_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		dev_info.pNext = nullptr;
 		dev_info.flags = 0;
 
-		// Enable additional layers
-		dev_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
-		dev_info.ppEnabledLayerNames = layers.data();
+		// Zero deprecated feature
+		dev_info.enabledLayerCount = 0;
+		dev_info.ppEnabledLayerNames = nullptr;
 
 		// Enable additional extensions
 		dev_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		dev_info.ppEnabledExtensionNames = extensions.data();
 
 		// Enable features
+		VkPhysicalDeviceVulkan13Features vk13_features = {};
+		vk13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		vk13_features.synchronization2 = VK_TRUE;
 		dev_info.pEnabledFeatures = nullptr;
+		dev_info.pNext = &vk13_features;
 		
 		// Queue info
 		float queuePriorities[] = { 0.0f, 0.0f };

@@ -42,44 +42,12 @@
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 {
-	VCL_DECLARE_FLAGS(BufferUsage,
-		
-		//! The buffer can be used as the source operand of transfer operations (vkCmdCopyBuffer, vkCmdCopyBufferToImage). 
-		TransferSource,
-		
-		//! The buffer can be used as the destination operand of transfer operations(vkCmdCopyBuffer, vkCmdCopyImageToBuffer, vkCmdUpdateBuffer, vkCmdFillBuffer, vkCmdWriteTimestamp, vkCmdCopyQueryPoolResults).
-		TransferDestination,
-
-		//! The buffer supports reads via uniform texel buffer descriptors.
-		UniformTexelBuffer,
-
-		//! The buffer supports loads, stores, and atomic operations via storage texel buffer descriptors.
-		StorageTexelBuffer,
-
-		//! The buffer supports reads via uniform buffer descriptors.
-		UniformBuffer,
-
-		//! The buffer supports loads, stores, and atomic operations via storage buffer descriptors.
-		StorageBuffer,
-
-		//! The buffer can be bound as an index buffer using the vkCmdBindIndexBuffer command.
-		IndexBuffer,
-
-		//! The buffer can be bound as a vertex buffer using the vkCmdBindVertexBuffers command.
-		VertexBuffer,
-
-		//! The buffer can be used as the source of indirect commands(vkCmdDrawIndirect, vkCmdDrawIndexedIndirect, vkCmdDispatchIndirect).
-		IndirectBuffer
-	);
-
-
 	class Buffer final : public Runtime::Buffer
 	{
 	public:
-		Buffer(Vcl::Graphics::Vulkan::Context* context, const BufferDescription& desc, Flags<BufferUsage> usage, const BufferInitData* init_data = nullptr, Vcl::Graphics::Vulkan::Memory* memory = nullptr);
+		Buffer(Vcl::Graphics::Vulkan::Context* context, const BufferDescription& desc, const BufferInitData* init_data = nullptr, Vcl::Graphics::Vulkan::Memory* memory = nullptr);
 		virtual ~Buffer();
 		
-	public:
 		Vcl::Graphics::Vulkan::Memory* memory() const { return _memory; }
 
 		VkBuffer id() const { return _buffer; }

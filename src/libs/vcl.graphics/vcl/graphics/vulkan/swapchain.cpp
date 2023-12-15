@@ -371,7 +371,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 		// Submit the image create to the driver
 		cmd_buffer.end();
-		queue.submit(cmd_buffer);
+		queue.submit(cmd_buffer, VK_NULL_HANDLE);
 		queue.waitIdle();
 
 		return surface;

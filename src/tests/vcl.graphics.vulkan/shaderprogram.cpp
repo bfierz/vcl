@@ -40,8 +40,8 @@
 // Additional shaders
 #include "quad.vert.spv.h"
 #include "quad.frag.spv.h"
-const stdext::span<const uint32_t> QuadSpirvVS32{ reinterpret_cast<uint32_t*>(QuadSpirvVSData), QuadSpirvVSDataSize / 4 };
-const stdext::span<const uint32_t> QuadSpirvFS32{ reinterpret_cast<uint32_t*>(QuadSpirvFSData), QuadSpirvFSDataSize / 4 };
+const stdext::span<const uint32_t> QuadSpirvVS32{ reinterpret_cast<uint32_t*>(QuadSpirvVSData), QuadSpirvVSSize / 4 };
+const stdext::span<const uint32_t> QuadSpirvFS32{ reinterpret_cast<uint32_t*>(QuadSpirvFSData), QuadSpirvFSSize / 4 };
 
 class VulkanShaderTest : public VulkanTest
 {

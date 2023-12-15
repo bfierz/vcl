@@ -41,7 +41,7 @@
 
 // Shaders
 #include "quad.vert.spv.h"
-const stdext::span<const uint32_t> QuadSpirvVS32{ reinterpret_cast<uint32_t*>(QuadSpirvVSData), QuadSpirvVSDataSize / 4 };
+const stdext::span<const uint32_t> QuadSpirvVS32{ reinterpret_cast<uint32_t*>(QuadSpirvVSData), QuadSpirvVSSize / 4 };
 
 class VulkanDescriptorSetsTest : public VulkanTest
 {
@@ -185,8 +185,7 @@ TEST_F(VulkanDescriptorSetsTest, Descriptor)
 	BufferDescription buffer_desc =
 	{
 		1024,
-		ResourceUsage::Dynamic,
-		{}
+		Runtime::BufferUsage::MapWrite | Runtime::BufferUsage::Storage | Runtime::BufferUsage::Uniform
 	};
 	std::vector<float> buffer_init(256, 1.0f);
 	BufferInitData buffer_init_dat =
@@ -194,10 +193,10 @@ TEST_F(VulkanDescriptorSetsTest, Descriptor)
 		buffer_init.data(),
 		buffer_init.size() * sizeof(float)
 	};
-	Runtime::Vulkan::Buffer b0(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::UniformBuffer, &buffer_init_dat);
-	Runtime::Vulkan::Buffer b1(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::UniformBuffer, &buffer_init_dat);
-	Runtime::Vulkan::Buffer b2(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::StorageBuffer, &buffer_init_dat);
-	Runtime::Vulkan::Buffer b3(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::StorageBuffer, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b0(_context.get(), buffer_desc, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b1(_context.get(), buffer_desc, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b2(_context.get(), buffer_desc, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b3(_context.get(), buffer_desc, &buffer_init_dat);
 
 	std::vector<DescriptorSet::UpdateDescriptor> descriptors =
 	{

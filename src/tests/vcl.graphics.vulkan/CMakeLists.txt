@@ -30,7 +30,7 @@ INCLUDE(../../cmake/VCLCompileGLSL.cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Generate test executable
-add_executable(vcl_graphics_vulkan_test "")
+add_executable(vcl.graphics.vulkan.test "")
 
 set(VCL_TEST_SRC
 	backbuffer.cpp
@@ -77,7 +77,7 @@ vclcompileglsl(
 )
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
 
-target_sources(vcl_graphics_vulkan_test
+target_sources(vcl.graphics.vulkan.test
 	PRIVATE
 		${VCL_TEST_INC}
 		${VCL_TEST_SRC}
@@ -85,9 +85,9 @@ target_sources(vcl_graphics_vulkan_test
 )
 
 source_group("" FILES ${VCL_TEST_SRC} ${VCL_TEST_INC})
-set_target_properties(vcl_graphics_vulkan_test PROPERTIES FOLDER tests)
+set_target_properties(vcl.graphics.vulkan.test PROPERTIES FOLDER tests)
 
-target_link_libraries(vcl_graphics_vulkan_test
+target_link_libraries(vcl.graphics.vulkan.test
 	vcl_graphics
 	gtest
 	gtest_main

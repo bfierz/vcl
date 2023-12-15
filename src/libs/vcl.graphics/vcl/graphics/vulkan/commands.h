@@ -167,12 +167,14 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	public:
 		void submit
 		(
-			const CommandBuffer& buffer
+			const CommandBuffer& buffer,
+			VkFence fence
 		);
 		
 		void submit
 		(
 			stdext::span<VkCommandBuffer> buffers,
+			VkFence fence,
 			VkPipelineStageFlags flags = 0,
 			stdext::span<VkSemaphore> waiting = {},
 			stdext::span<VkSemaphore> signaling = {}

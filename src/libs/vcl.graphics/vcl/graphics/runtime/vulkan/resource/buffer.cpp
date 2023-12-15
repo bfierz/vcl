@@ -39,31 +39,43 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 	{
 		VkBufferUsageFlags flags = 0;
 
-		if (usage.isSet(BufferUsage::TransferSource))      flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-		if (usage.isSet(BufferUsage::TransferDestination)) flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		if (usage.isSet(BufferUsage::UniformTexelBuffer))  flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::StorageTexelBuffer))  flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::UniformBuffer))       flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::StorageBuffer))       flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::IndexBuffer))         flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::VertexBuffer))        flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		if (usage.isSet(BufferUsage::IndirectBuffer))      flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::CopySrc))      flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		if (usage.isSet(BufferUsage::CopyDst))      flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+		if (usage.isSet(BufferUsage::UniformTexel)) flags |= VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::StorageTexel)) flags |= VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::Uniform))      flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::Storage))      flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::Index))        flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::Vertex))       flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		if (usage.isSet(BufferUsage::Indirect))     flags |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 
 		return flags;
+	}
+
+	//! Determine the heap-type according to the buffer usage.
+	//! Mappable buffers are mutually exclusive and have dedicated heap-types
+	Vcl::Graphics::Vulkan::MemoryHeapType determineHeapType(Flags<BufferUsage> usage)
+	{
+		using Vcl::Graphics::Vulkan::MemoryHeapType;
+
+		if (usage.isSet(BufferUsage::MapRead))
+			return MemoryHeapType::Download;
+		else if (usage.isSet(BufferUsage::MapWrite))
+			return MemoryHeapType::Upload;
+		else
+			return MemoryHeapType::Default;
 	}
 
 	Buffer::Buffer
 	(
 		Vcl::Graphics::Vulkan::Context* context,
 		const BufferDescription& desc,
-		Flags<BufferUsage> buffer_usage,
 		const BufferInitData* init_data,
 		Vcl::Graphics::Vulkan::Memory* memory
 	)
-	: Runtime::Buffer(desc.SizeInBytes, desc.Usage, desc.CPUAccess)
+	: Runtime::Buffer(desc.SizeInBytes, desc.Usage)
 	{
-		VclRequire(implies(usage() == ResourceUsage::Immutable, cpuAccess().isAnySet() == false), "No CPU access requested for immutable buffer.");
-		VclRequire(implies(usage() == ResourceUsage::Dynamic, cpuAccess().isSet(ResourceAccess::Read) == false), "Dynamic buffer is not mapped for reading.");
+		VclRequire(implies(init_data, usage().isSet(BufferUsage::MapWrite)), "Initializaiton data requires write mappable buffer.");
 		VclRequire(implies(init_data, init_data->SizeInBytes == desc.SizeInBytes), "Initialization data has same size as buffer.");
 		
 		VkBufferCreateInfo buffer_info;
@@ -71,7 +83,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 		buffer_info.pNext = nullptr;
 		buffer_info.flags = 0;
 		buffer_info.size = desc.SizeInBytes;
-		buffer_info.usage = convert(buffer_usage);
+		buffer_info.usage = convert(usage());
 		buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE; // Buffer not shared between queues
 		buffer_info.queueFamilyIndexCount = 0;
 		buffer_info.pQueueFamilyIndices = nullptr;
@@ -89,36 +101,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan
 			using Vcl::Graphics::Vulkan::MemoryHeapType;
 			using Vcl::Graphics::Vulkan::MemoryHeap;
 
-			MemoryHeapType heap_type = MemoryHeapType::None;
-			const MemoryHeap* heap = nullptr;
-
-			switch (desc.Usage)
+			MemoryHeapType heap_type = determineHeapType(usage());
+			const MemoryHeap* heap = context->device()->findMemoryHeap(reqs, heap_type);
+			if (!heap && (heap_type == MemoryHeapType::Upload || heap_type == MemoryHeapType::Download))
 			{
-			case ResourceUsage::Default:
-			case ResourceUsage::Immutable:
-				heap_type = MemoryHeapType::Default;
-				heap = context->device()->findMemoryHeap(reqs, heap_type);
-				break;
-			case ResourceUsage::Staging:
-				if (cpuAccess().isSet(ResourceAccess::Read))
-				{
-					heap_type = MemoryHeapType::Download;
-				}
-				else if (cpuAccess().isSet(ResourceAccess::Write))
-				{
-					heap_type = MemoryHeapType::Upload;
-				}
-				heap = context->device()->findMemoryHeap(reqs, heap_type);
-				break;
-			case ResourceUsage::Dynamic:
-				heap_type = MemoryHeapType::Streaming;
-				heap = context->device()->findMemoryHeap(reqs, heap_type);
-				if (!heap)
-				{
-					heap_type = MemoryHeapType::Upload;
-					heap = context->device()->findMemoryHeap(reqs, heap_type);
-				}
-				break;
+				heap = context->device()->findMemoryHeap(reqs, MemoryHeapType::Streaming);
 			}
 
 			VclCheck(heap, "Suitable heap found.");

@@ -217,6 +217,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	void CommandQueue::submit
 	(
 		stdext::span<VkCommandBuffer> buffers,
+		VkFence fence,
 		VkPipelineStageFlags flags,
 		stdext::span<VkSemaphore> waiting,
 		stdext::span<VkSemaphore> signaling
@@ -233,17 +234,18 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		info.signalSemaphoreCount = uint32_t(signaling.size());
 		info.pSignalSemaphores = signaling.data();
 
-		VkResult res = vkQueueSubmit(_queue, 1, &info, VK_NULL_HANDLE);
+		VkResult res = vkQueueSubmit(_queue, 1, &info, fence);
 		VclCheck(res == VK_SUCCESS, "Command buffer recording began.");
 	}
 
 	void CommandQueue::submit
 	(
-		const CommandBuffer& buffer
+		const CommandBuffer& buffer,
+		VkFence fence
 	)
 	{
 		VkCommandBuffer buf = buffer;
-		submit({ &buf, 1 });
+		submit({ &buf, 1 }, fence);
 	}
 
 	void CommandQueue::waitIdle()

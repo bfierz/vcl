@@ -43,7 +43,7 @@
 
 // Additional shaders
 #include "saxpy.comp.spv.h"
-const stdext::span<const uint32_t> SaxpySpirvCS32{ reinterpret_cast<uint32_t*>(SaxpySpirvCSData), SaxpySpirvCSDataSize/4 };
+const stdext::span<const uint32_t> SaxpySpirvCS32{ reinterpret_cast<uint32_t*>(SaxpySpirvCSData), SaxpySpirvCSSize / 4 };
 
 class VulkanComputeTest : public VulkanTest
 {
@@ -95,11 +95,14 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	DescriptorSet desc_set(&descriptor_set_layout);
 
 	// Buffer for the test
-	BufferDescription buffer_desc =
+	BufferDescription b0_desc =
 	{
 		1024,
-		ResourceUsage::Dynamic,
-		{}
+		Runtime::BufferUsage::MapWrite | Runtime::BufferUsage::CopySrc | Runtime::BufferUsage::Storage
+	};
+	BufferDescription b1_desc = {
+		1024,
+		Runtime::BufferUsage::MapRead | Runtime::BufferUsage::CopyDst | Runtime::BufferUsage::Storage
 	};
 	std::vector<float> buffer_init(256, 1.0f);
 	BufferInitData buffer_init_dat = 
@@ -107,8 +110,8 @@ TEST_F(VulkanComputeTest, ComputeShader)
 		buffer_init.data(),
 		buffer_init.size() * sizeof(float)
 	};
-	Runtime::Vulkan::Buffer b0(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::StorageBuffer, &buffer_init_dat);
-	Runtime::Vulkan::Buffer b1(_context.get(), buffer_desc, Runtime::Vulkan::BufferUsage::StorageBuffer, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b0(_context.get(), b0_desc, &buffer_init_dat);
+	Runtime::Vulkan::Buffer b1(_context.get(), b1_desc);
 
 	std::vector<DescriptorSet::UpdateDescriptor> descriptors =
 	{
@@ -121,12 +124,14 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	CommandQueue queue(_context.get(), VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT, 0);
 	CommandBuffer cmd_buffer{ *_context, _context->commandPool(0, CommandBufferType::Transient) };
 	cmd_buffer.begin();
+	VkBufferCopy cpy_rgn = { 0, 0, 1024 };
+	cmd_buffer.copy(b0.id(), b1.id(), { &cpy_rgn, 1 });
 	cmd_buffer.bind(desc_set, pps.layout());
 	cmd_buffer.bind(pps);
 	cmd_buffer.pushConstants<KernelParameters>(pps.layout(), ShaderStage::Compute, 16, 16, 1.0f);
 	cmd_buffer.dispatch(16, 16);
 	cmd_buffer.end();
-	queue.submit(cmd_buffer);
+	queue.submit(cmd_buffer, VK_NULL_HANDLE);
 	queue.waitIdle();
 
 	std::vector<float> read_back(1024 / sizeof(float), 0);

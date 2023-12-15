@@ -52,11 +52,10 @@ TEST_F(VulkanBufferTest, CreateBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Default,
-		{}
+		BufferUsage::CopyDst
 	};
 
-	Vulkan::Buffer buf(_context.get(), desc, Vulkan::BufferUsage::TransferDestination);
+	Vulkan::Buffer buf(_context.get(), desc);
 
 	// Verify the result
 	EXPECT_TRUE(buf.id()) << "Buffer not created.";
@@ -75,10 +74,9 @@ TEST_F(VulkanBufferTest, ClearBuffer)
 	BufferDescription desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		ResourceAccess::Read
+		BufferUsage::MapRead | BufferUsage::CopyDst
 	};
-	Vulkan::Buffer buffer(_context.get(), desc, Vulkan::BufferUsage::TransferDestination);
+	Vulkan::Buffer buffer(_context.get(), desc);
 	
 	// Clear the buffer
 	cmd_buffer.begin();
@@ -86,7 +84,7 @@ TEST_F(VulkanBufferTest, ClearBuffer)
 	cmd_buffer.end();
 
 	std::array<VkCommandBuffer, 1> cmd_buffers = { cmd_buffer };
-	cmd_queue.submit(stdext::make_span(cmd_buffers), VK_PIPELINE_STAGE_TRANSFER_BIT);
+	cmd_queue.submit(stdext::make_span(cmd_buffers), VK_NULL_HANDLE);
 	cmd_queue.waitIdle();
 
 	std::vector<int> read_back(1024 / sizeof(int), 0);
@@ -121,30 +119,32 @@ TEST_F(VulkanBufferTest, CopyBuffer)
 	BufferDescription write_buffer_desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		ResourceAccess::Write
+		BufferUsage::MapWrite | BufferUsage::CopySrc | BufferUsage::CopyDst
 	};
-	Vulkan::Buffer write_buffer(_context.get(), write_buffer_desc, Vulkan::BufferUsage::TransferSource | Vulkan::BufferUsage::TransferDestination);
+	Vulkan::Buffer write_buffer(_context.get(), write_buffer_desc);
 
 	// Define the destination buffer
 	BufferDescription read_buffer_desc =
 	{
 		1024,
-		ResourceUsage::Staging,
-		ResourceAccess::Read
+		BufferUsage::MapRead | BufferUsage::CopyDst
 	};
-	Vulkan::Buffer read_buffer(_context.get(), read_buffer_desc, Vulkan::BufferUsage::TransferDestination);
+	Vulkan::Buffer read_buffer(_context.get(), read_buffer_desc);
+
+	unsigned* mem = (unsigned*)write_buffer.memory()->map(0, 1024);
+	for (int i = 0; i < 256; i++)
+		mem[i] = 0xDEADC0DE;
+	write_buffer.memory()->unmap();
 
 	// Clear the buffer
 	cmd_buffer.begin();
-	cmd_buffer.fillBuffer(write_buffer.id(), 0, VK_WHOLE_SIZE, 0xDEADC0DE);
 
 	VkBufferCopy cpy_rgn = {0, 0, 1024};
 	cmd_buffer.copy(write_buffer.id(), read_buffer.id(), { &cpy_rgn, 1 });
 	cmd_buffer.end();
 
 	std::array<VkCommandBuffer, 1> cmd_buffers = { cmd_buffer };
-	cmd_queue.submit(stdext::make_span(cmd_buffers), VK_PIPELINE_STAGE_TRANSFER_BIT);
+	cmd_queue.submit(stdext::make_span(cmd_buffers), VK_NULL_HANDLE);
 	cmd_queue.waitIdle();
 
 	std::vector<int> read_back(1024 / sizeof(int), 0);

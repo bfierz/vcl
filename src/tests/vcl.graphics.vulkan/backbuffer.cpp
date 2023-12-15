@@ -170,12 +170,11 @@ TEST_F(VulkanBackbufferTest, Create)
 
 	// Iterate through all images in the swap chain and present them
 	CommandBuffer post_present{ *_context, _context->commandPool(0, CommandBufferType::Default) };
-	Semaphore present_complete{ _context.get() };
-	Semaphore render_complete{ _context.get() };
 	for (int i = 0; i < 4; i++)
 	{
 		// Render the scene
 		uint32_t curr_buf;
+		Semaphore present_complete{ _context.get() };
 		VkResult err = surface->swapChain()->acquireNextImage(present_complete, &curr_buf);
 		if (err != VK_SUCCESS)
 			continue;
@@ -186,14 +185,14 @@ TEST_F(VulkanBackbufferTest, Create)
 		post_present.end();
 
 		// Submit to the queue
-		queue.submit(post_present);
+		queue.submit(post_present, VK_NULL_HANDLE);
 		queue.waitIdle();
 
 		// Present the current buffer to the swap chain
 		// We pass the signal semaphore from the submit info
 		// to ensure that the image is not rendered until
 		// all commands have been submitted
-		surface->swapChain()->queuePresent(queue, curr_buf, render_complete);
+		surface->swapChain()->queuePresent(queue, curr_buf, VK_NULL_HANDLE);
 	}
 
 }

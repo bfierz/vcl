@@ -31,6 +31,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/VCLConfig.cmake)
 set(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
 set(VCL_EGL_SUPPORT CACHE BOOL "Enable EGL support")
 set(VCL_D3D12_SUPPORT CACHE BOOL "Enable Direct3D 12 support")
+set(VCL_VULKAN_SUPPORT CACHE BOOL "Enable Vulkan support")
 set(VCL_DAWN_WEBGPU_SUPPORT CACHE BOOL "Enable Google Dawn WebGPU support")
 set(VCL_WEBGPU_SUPPORT CACHE BOOL "Enable WebGPU support")
 
@@ -350,6 +351,8 @@ if(VCL_D3D12_SUPPORT)
 endif()
 
 if(VCL_VULKAN_SUPPORT)
+	find_package(Vulkan REQUIRED)
+
 	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_VULKAN})
 
 	target_compile_definitions(vcl_graphics PUBLIC VCL_VULKAN_SUPPORT)
@@ -358,6 +361,9 @@ if(VCL_VULKAN_SUPPORT)
 		PUBLIC
 			absl_variant
 			${Vulkan_LIBRARY}
+			spirv-cross-core
+			spirv-cross-cpp
+			spirv-cross-reflect
 	)
 endif()
 
