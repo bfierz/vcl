@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
 		post_present.end();
 
 		// Submit to the queue
-		queue.submit(post_present);
+		queue.submit(post_present, VK_NULL_HANDLE);
 		queue.waitIdle();
 
 		// Submit to the graphics queue
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
 		VkSemaphore s0 = presentComplete;
 		VkSemaphore s1 = renderComplete;
 		VkCommandBuffer b0 = cmds[curr_buf];
-		queue.submit({ &b0, 1 }, pipelineStages, { &s0, 1 }, { &s1, 1 });
+		queue.submit({ &b0, 1 }, VK_NULL_HANDLE, pipelineStages, { &s0, 1 }, { &s1, 1 });
 
 		// Present the current buffer to the swap chain
 		// We pass the signal semaphore from the submit info

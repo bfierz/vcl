@@ -84,7 +84,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		uint32_t Binding;
 	};
 
-	//! Merges to descriptor set layouts if they are compatible
+	//! Merges two descriptor set layouts if they are compatible
 	//! \returns The merged list of bindings. Returns an empty list if the input is not compatible
 	std::vector<DescriptorSetLayoutBinding> merge
 	(

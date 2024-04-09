@@ -36,7 +36,7 @@
 #include <vcl/graphics/vulkan/platform.h>
 
 // Map the memory heap types to strings
-std::array<std::string, 6> MemoryHeapTypeString =
+const std::array<std::string, 6> MemoryHeapTypeString =
 {
 	"None",
 	"Default",
