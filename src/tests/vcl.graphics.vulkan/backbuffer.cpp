@@ -175,7 +175,7 @@ TEST_F(VulkanBackbufferTest, Create)
 		// Render the scene
 		uint32_t curr_buf;
 		Semaphore present_complete{ _context.get() };
-		VkResult err = surface->swapChain()->acquireNextImage(present_complete, &curr_buf);
+		VkResult err = surface->swapChain()->acquireNextImage(present_complete, VK_NULL_HANDLE, &curr_buf);
 		if (err != VK_SUCCESS)
 			continue;
 

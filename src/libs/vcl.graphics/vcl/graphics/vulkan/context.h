@@ -54,6 +54,25 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		Transient = 2
 	};
 
+	class CommandPool
+	{
+	public:
+		CommandPool() = default;
+		CommandPool(VkDevice device, uint32_t queue_index);
+		CommandPool(CommandPool&& rhs) noexcept;
+		~CommandPool();
+
+		CommandPool& operator=(CommandPool&& rhs) noexcept;
+
+		VkCommandPool operator[](CommandBufferType type);
+
+		void reset();
+
+	private:
+		VkDevice _device{ VK_NULL_HANDLE };
+		std::array<VkCommandPool, 3> _pools{ VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE };
+	};
+
 	class Context final
 	{
 	public:
@@ -91,6 +110,6 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		VkPipelineCache _pipelineCache;
 
 		//! Pre-allocated command pools
-		std::vector<std::array<VkCommandPool, 3>> _cmdPools;
+		std::vector<CommandPool> _cmdPools;
 	};
 }}}

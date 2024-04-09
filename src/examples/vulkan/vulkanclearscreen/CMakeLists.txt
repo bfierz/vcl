@@ -1,17 +1,13 @@
-PROJECT(vkclearscreen)
+project(vkclearscreen)
 
-SET(SRC
+set(SRC
 	main.cpp
 )
+source_group("" FILES ${SRC})
 
-SOURCE_GROUP("" FILES ${SRC})
-
-INCLUDE_DIRECTORIES(../../glfw/include)
-
-ADD_EXECUTABLE(vkclearscreen ${SRC})
-SET_TARGET_PROPERTIES(vkclearscreen PROPERTIES FOLDER examples/vulkan)
-
-TARGET_LINK_LIBRARIES(vkclearscreen
+add_executable(vkclearscreen ${SRC})
+set_target_properties(vkclearscreen PROPERTIES FOLDER examples/vulkan)
+target_link_libraries(vkclearscreen
 	vcl_graphics
 	glfw
 )
