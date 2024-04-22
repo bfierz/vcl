@@ -32,8 +32,69 @@
 #include <vcl/core/contract.h>
 #include <vcl/graphics/vulkan/device.h>
 
-namespace Vcl { namespace Graphics { namespace Vulkan
-{
+namespace Vcl { namespace Graphics { namespace Vulkan {
+
+	CommandPool::CommandPool(VkDevice device, uint32_t queue_index)
+	: _device(device)
+	{
+		// Allocate different command pools.
+		// For each queue family, we allocate three command pools:
+		// 1) For in-frequently reset buffers
+		// 2) For static command buffers that are never deleted or reset
+		// 3) For short-lived command buffers
+
+		VkResult res;
+		VkCommandPoolCreateInfo cmd_pool_info;
+		cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		cmd_pool_info.pNext = nullptr;
+		cmd_pool_info.queueFamilyIndex = queue_index;
+
+		cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		res = vkCreateCommandPool(device, &cmd_pool_info, nullptr, &_pools[int(CommandBufferType::Default)]);
+		VclCheck(res == VK_SUCCESS, "Command pool was created.");
+
+		cmd_pool_info.flags = 0;
+		res = vkCreateCommandPool(device, &cmd_pool_info, nullptr, &_pools[int(CommandBufferType::Static)]);
+		VclCheck(res == VK_SUCCESS, "Command pool was created.");
+
+		cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+		res = vkCreateCommandPool(device, &cmd_pool_info, nullptr, &_pools[int(CommandBufferType::Transient)]);
+		VclCheck(res == VK_SUCCESS, "Command pool was created.");
+	}
+	CommandPool::CommandPool(CommandPool&& rhs) noexcept
+	{
+		*this = std::move(rhs);
+	}
+	CommandPool::~CommandPool()
+	{
+		for (int i = 0; i < 3; i++)
+		{
+			if (_pools[i] != nullptr)
+			{
+				vkDestroyCommandPool(_device, _pools[i], nullptr);
+				_pools[i] = nullptr;
+			}
+		}
+	}
+	CommandPool& CommandPool::operator=(CommandPool&& rhs) noexcept
+	{
+		std::swap(_device, rhs._device);
+		std::swap(_pools, rhs._pools);
+		return *this;
+	}
+	VkCommandPool CommandPool::operator[](CommandBufferType type)
+	{
+		return _pools[int(type)];
+	}
+	void CommandPool::reset()
+	{
+		VkResult res;
+		res = vkResetCommandPool(_device, _pools[int(CommandBufferType::Default)], 0);
+		VclCheck(res == VK_SUCCESS, "Command pool was reset.");
+		res = vkResetCommandPool(_device, _pools[int(CommandBufferType::Transient)], 0);
+		VclCheck(res == VK_SUCCESS, "Command pool was reset.");
+	}
+
 	Context::Context(Device* dev, stdext::span<const char*> extensions)
 	: _physicalDevice(dev)
 	{
@@ -92,41 +153,12 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		if (res != VkResult::VK_SUCCESS)
 			throw "";
 
-		// Allocate different command pools.
-		// For each queue family, we allocate three command pools:
-		// 1) For in-frequently reset buffers
-		// 2) For static command buffers that are never deleted or reset
-		// 3) For short-lived command buffers
-		_cmdPools.resize(1);
-
-		VkCommandPoolCreateInfo cmd_pool_info;
-		cmd_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		cmd_pool_info.pNext = nullptr;
-		cmd_pool_info.queueFamilyIndex = 0;
-
-		cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		res = vkCreateCommandPool(_device, &cmd_pool_info, nullptr, &_cmdPools[0][int(CommandBufferType::Default)]);
-		VclCheck(res == VK_SUCCESS, "Command pool was created.");
-
-		cmd_pool_info.flags = 0;
-		res = vkCreateCommandPool(_device, &cmd_pool_info, nullptr, &_cmdPools[0][int(CommandBufferType::Static)]);
-		VclCheck(res == VK_SUCCESS, "Command pool was created.");
-
-		cmd_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT | VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-		res = vkCreateCommandPool(_device, &cmd_pool_info, nullptr, &_cmdPools[0][int(CommandBufferType::Transient)]);
-		VclCheck(res == VK_SUCCESS, "Command pool was created.");
+		_cmdPools.emplace_back(_device, 0);
 	}
 
 	Context::~Context()
 	{
-		// Cleanup the allocated data
-		for (const auto& pools : _cmdPools)
-		{
-			vkDestroyCommandPool(_device, pools[0], nullptr);
-			vkDestroyCommandPool(_device, pools[1], nullptr);
-			vkDestroyCommandPool(_device, pools[2], nullptr);
-		}
-
+		_cmdPools.clear();
 		vkDestroyPipelineCache(_device, _pipelineCache, nullptr);
 		vkDestroyDevice(_device, nullptr);
 	}
@@ -149,6 +181,6 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	VkCommandPool Context::commandPool(uint32_t queueIdx, CommandBufferType type)
 	{
-		return _cmdPools[queueIdx][int(type)];
+		return _cmdPools[queueIdx][type];
 	}
 }}}

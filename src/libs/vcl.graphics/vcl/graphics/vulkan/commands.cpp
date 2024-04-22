@@ -34,6 +34,8 @@
 
 namespace Vcl { namespace Graphics { namespace Vulkan
 {
+	Semaphore::Semaphore() = default;
+
 	Semaphore::Semaphore(Context* context)
 	: _context(context)
 	{
@@ -45,9 +47,81 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VclCheck(res == VK_SUCCESS, "Semaphore was created.");
 	}
 
+	Semaphore::Semaphore(Semaphore&& rhs)
+	{
+		*this = std::move(rhs);
+	}
+
 	Semaphore::~Semaphore()
 	{
-		vkDestroySemaphore(*_context, _semaphore, nullptr);
+		if (_semaphore != nullptr)
+		{
+			vkDestroySemaphore(*_context, _semaphore, nullptr);
+		}
+	}
+
+	Semaphore& Semaphore::operator= (Semaphore&& rhs) noexcept
+	{
+		std::swap(_context, rhs._context);
+		std::swap(_semaphore, rhs._semaphore);
+		return *this;
+	}
+
+	void Semaphore::wait()
+	{
+		VkSemaphoreWaitInfo wait_info = {};
+		wait_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+		wait_info.pNext = nullptr;
+		wait_info.flags = VK_SEMAPHORE_WAIT_ANY_BIT;
+		wait_info.semaphoreCount = 1;
+		wait_info.pSemaphores = &_semaphore;
+		wait_info.pValues = nullptr;
+		vkWaitSemaphores(*_context, &wait_info, UINT64_MAX);
+	}
+
+	Fence::Fence() = default;
+
+	Fence::Fence(Context* context, VkFenceCreateFlags flags)
+	: _context(context)
+	{
+		VkFenceCreateInfo fenceCreateInfo = {};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.pNext = nullptr;
+		fenceCreateInfo.flags = flags;
+
+		VkResult res = vkCreateFence(*_context, &fenceCreateInfo, nullptr, &_fence);
+		VclCheck(res == VK_SUCCESS, "Fence was created.");
+	}
+
+	Fence::Fence(Fence&& rhs)
+	{
+		*this = std::move(rhs);
+	}
+
+	Fence::~Fence()
+	{
+		if (_fence != nullptr)
+		{
+			vkDestroyFence(*_context, _fence, nullptr);
+		}
+	}
+
+	Fence& Fence::operator=(Fence&& rhs) noexcept
+	{
+		std::swap(_context, rhs._context);
+		std::swap(_fence, rhs._fence);
+		return *this;
+	}
+	 
+	void Fence::reset()
+	{
+		vkResetFences(*_context, 1, &_fence);
+	}
+
+	void Fence::wait()
+	{
+		VkResult res = vkWaitForFences(*_context, 1, &_fence, VK_TRUE, UINT64_MAX);
+		VclEnsure(res == VK_SUCCESS, "Fence was waited for.");
 	}
 
 	CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool pool)
@@ -56,18 +130,39 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	{
 		VkCommandBufferAllocateInfo info;
 		info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		info.pNext = nullptr;
 		info.commandPool = pool;
 		info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		info.commandBufferCount = 1;
-		info.pNext = nullptr;
 
 		VkResult res = vkAllocateCommandBuffers(device, &info, &_cmdBuffer);
-		VclCheck(res == VK_SUCCESS, "Command buffer was created.");
+		VclEnsure(res == VK_SUCCESS, "Command buffer was created.");
+	}
+
+	CommandBuffer::CommandBuffer(CommandBuffer&& rhs) noexcept
+	{
+		*this = std::move(rhs);
+	}
+	CommandBuffer& CommandBuffer::operator=(CommandBuffer&& rhs) noexcept
+	{
+		std::swap(_device, rhs._device);
+		std::swap(_pool, rhs._pool);
+		std::swap(_cmdBuffer, rhs._cmdBuffer);
+		return *this;
 	}
 
 	CommandBuffer::~CommandBuffer()
 	{
-		vkFreeCommandBuffers(_device, _pool, 1, &_cmdBuffer);
+		if (_cmdBuffer != nullptr)
+		{
+			vkFreeCommandBuffers(_device, _pool, 1, &_cmdBuffer);
+			_cmdBuffer = nullptr;
+		}
+	}
+
+	void CommandBuffer::reset()
+	{
+		vkResetCommandBuffer(_cmdBuffer, 0);
 	}
 
 	void CommandBuffer::begin()
@@ -173,7 +268,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		postPresentBarrier.srcAccessMask = 0;
 		postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };

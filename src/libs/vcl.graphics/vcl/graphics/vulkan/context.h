@@ -38,8 +38,7 @@
 // VCL
 #include <vcl/core/span.h>
 
-namespace Vcl { namespace Graphics { namespace Vulkan
-{
+namespace Vcl { namespace Graphics { namespace Vulkan {
 	class Device;
 
 	struct ContextQueueInfo
@@ -54,7 +53,26 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		Static = 1,
 		Transient = 2
 	};
-	
+
+	class CommandPool
+	{
+	public:
+		CommandPool() = default;
+		CommandPool(VkDevice device, uint32_t queue_index);
+		CommandPool(CommandPool&& rhs) noexcept;
+		~CommandPool();
+
+		CommandPool& operator=(CommandPool&& rhs) noexcept;
+
+		VkCommandPool operator[](CommandBufferType type);
+
+		void reset();
+
+	private:
+		VkDevice _device{ VK_NULL_HANDLE };
+		std::array<VkCommandPool, 3> _pools{ VK_NULL_HANDLE, VK_NULL_HANDLE, VK_NULL_HANDLE };
+	};
+
 	class Context final
 	{
 	public:
@@ -77,7 +95,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	public:
 		VkQueue queue(VkQueueFlags flags, uint32_t idx);
-		
+
 	private:
 		//! Vulkan physical device
 		Device* _physicalDevice{ nullptr };
@@ -92,6 +110,6 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VkPipelineCache _pipelineCache;
 
 		//! Pre-allocated command pools
-		std::vector<std::array<VkCommandPool, 3>> _cmdPools;
+		std::vector<CommandPool> _cmdPools;
 	};
 }}}

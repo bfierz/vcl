@@ -32,8 +32,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(IMGUI
 	../../3rdparty/imgui/backends/imgui_impl_vulkan.cpp
 	../../3rdparty/imgui/backends/imgui_impl_vulkan.h
-	../../3rdparty/imgui/backends/imgui_impl_win32.cpp
-	../../3rdparty/imgui/backends/imgui_impl_win32.h
+	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
+	../../3rdparty/imgui/backends/imgui_impl_glfw.h
 	../../3rdparty/imgui/imconfig.h
 	../../3rdparty/imgui/imgui.cpp
 	../../3rdparty/imgui/imgui.h

@@ -88,7 +88,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 		Context* context() const { return _context; }
 
-	public:
+		//! Swap-chain description
+		const SwapChainDescription& desc() const { return _desc; }
+
 		//! Number of images in the swap-chain
 		uint32_t nrImages() const { return _desc.NumberOfImages; }
 
@@ -97,13 +99,13 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 
 	public:
 		//! Aquire the next image of the swap-chain
-		VkResult acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* currentBuffer);
+		VkResult acquireNextImage(VkSemaphore presentCompleteSemaphore, VkFence presentCompleteFence, uint32_t* currentBuffer);
 
 		//! Present the buffer to the queue
 		VkResult queuePresent(VkQueue queue, uint32_t currentBuffer);
 
 		//! Present the buffer to the queue
-		void queuePresent(VkQueue queue, uint32_t currentBuffer, VkSemaphore waitSemaphore);
+		VkResult queuePresent(VkQueue queue, uint32_t currentBuffer, VkSemaphore waitSemaphore);
 
 
 	private:
@@ -140,6 +142,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		Context* context() const { return _swapchain->context(); }
 
 		SwapChain* swapChain() const { return _swapchain; }
+
+		VkImageView depthBufferView() { return _depthBufferView; }
 
 		//! Create a new frame buffer object for a swap-chain image
 		VkFramebuffer createFramebuffer(uint32_t idx, VkRenderPass pass);

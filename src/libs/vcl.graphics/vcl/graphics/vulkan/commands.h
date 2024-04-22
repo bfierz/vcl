@@ -44,8 +44,12 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	class Semaphore
 	{
 	public:
+		Semaphore();
 		Semaphore(Context* context);
+		Semaphore(Semaphore&& rhs);
 		~Semaphore();
+
+		Semaphore& operator=(Semaphore&& rhs) noexcept;
 
 		//! Convert to Vulkan ID
 		inline operator VkSemaphore() const
@@ -53,19 +57,52 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			return _semaphore;
 		}
 
+		void wait();
+
 	private:
 		//! Owner
-		Context* _context;
+		Context* _context{ nullptr };
 
 		//! Vulkan semaphore handle
 		VkSemaphore _semaphore{ nullptr };
 	};
 
+	class Fence
+	{
+	public:
+		Fence();
+		Fence(Context* context, VkFenceCreateFlags flags);
+		Fence(Fence&& rhs);
+		~Fence();
+
+		Fence& operator=(Fence&& rhs) noexcept;
+
+		//! Convert to Vulkan ID
+		inline operator VkFence() const
+		{
+			return _fence;
+		}
+
+		void reset();
+		void wait();
+
+	private:
+		//! Owner
+		Context* _context{ nullptr };
+
+		//! Vulkan fence handle
+		VkFence _fence{ nullptr };
+	};
+
 	class CommandBuffer
 	{
 	public:
+		CommandBuffer() = default;
 		CommandBuffer(VkDevice device, VkCommandPool pool);
+		CommandBuffer(CommandBuffer&& rhs) noexcept;
 		~CommandBuffer();
+
+		CommandBuffer& operator=(CommandBuffer&& rhs) noexcept;
 
 		//! Convert to Vulkan ID
 		inline operator VkCommandBuffer() const
@@ -73,7 +110,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			return _cmdBuffer;
 		}
 
-	public:
+		void reset();
 
 		//! \name General commands
 		//! \{
@@ -139,9 +176,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		//! \}
 
 	private:
-		VkDevice _device;
-		VkCommandPool _pool;
-		VkCommandBuffer _cmdBuffer{ nullptr };
+		VkDevice _device{ VK_NULL_HANDLE };
+		VkCommandPool _pool{ VK_NULL_HANDLE };
+		VkCommandBuffer _cmdBuffer{ VK_NULL_HANDLE };
 	};
 
 	class CommandQueue final

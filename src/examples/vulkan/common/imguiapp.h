@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2024 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,18 +32,24 @@
 class ImGuiApplication : public Application
 {
 public:
-	ImGuiApplication(LPCSTR title);
-	~ImGuiApplication();
+	explicit ImGuiApplication(const char* title);
+	~ImGuiApplication() override;
 
 protected:
-	ID3D12DescriptorHeap* imGuiDescriptorHeap() const { return _imguiDescrHeap.Get(); }
-	void updateFrame() override;
-	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override;
-
-private:
-	LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 	void invalidateDeviceObjects() override;
 	void createDeviceObjects() override;
+	void updateFrame() override;
+	void renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) override;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _imguiDescrHeap;
+private:
+	void createStaticVulkanObjects();
+
+	//! Descriptor pool for ImGUI rendering
+	VkDescriptorPool _descriptorPool;
+
+	//! Render pass for ImGUI rendering
+	VkRenderPass _renderPass;
+
+	//! Framebuffers
+	std::array<VkFramebuffer, 3> _frameBuffer;
 };

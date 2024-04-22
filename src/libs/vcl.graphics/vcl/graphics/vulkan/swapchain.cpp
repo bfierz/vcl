@@ -198,9 +198,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			vkDestroySwapchainKHR(*_context, _swapchain, nullptr);
 	}
 
-	VkResult SwapChain::acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* currentBuffer)
+	VkResult SwapChain::acquireNextImage(VkSemaphore presentCompleteSemaphore, VkFence presentCompleteFence, uint32_t* currentBuffer)
 	{
-		return vkAcquireNextImageKHR(*_context, _swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, currentBuffer);
+		return vkAcquireNextImageKHR(*_context, _swapchain, UINT64_MAX, presentCompleteSemaphore, presentCompleteFence, currentBuffer);
 	}
 
 	VkResult SwapChain::queuePresent(VkQueue queue, uint32_t currentBuffer)
@@ -215,7 +215,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		return vkQueuePresentKHR(queue, &presentInfo);
 	}
 
-	void SwapChain::queuePresent(VkQueue queue, uint32_t currentBuffer, VkSemaphore waitSemaphore)
+	VkResult SwapChain::queuePresent(VkQueue queue, uint32_t currentBuffer, VkSemaphore waitSemaphore)
 	{
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -229,12 +229,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			presentInfo.pWaitSemaphores = &waitSemaphore;
 			presentInfo.waitSemaphoreCount = 1;
 		}
-		VkResult res = vkQueuePresentKHR(queue, &presentInfo);
-		if (res == VK_ERROR_OUT_OF_DATE_KHR)
-		{
-			return;
-		}
-		VclEnsure(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR, "Queue present was submitted successfully.");
+		return vkQueuePresentKHR(queue, &presentInfo);
 	}
 
 	Backbuffer::Backbuffer(SwapChain* swapchain, VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height, VkFormat depth_format)

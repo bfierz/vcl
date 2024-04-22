@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2024 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -75,23 +75,6 @@ private:
 				show_another_window = false;
 			ImGui::End();
 		}
-	}
-	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override
-	{
-		using namespace Vcl::Graphics::Runtime;
-
-		RenderPassDescription rp_desc = {};
-		rp_desc.RenderTargetAttachments.resize(1);
-		rp_desc.RenderTargetAttachments[0].Attachment = reinterpret_cast<void*>(rtv.ptr);
-		rp_desc.RenderTargetAttachments[0].ClearColor = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-		rp_desc.RenderTargetAttachments[0].LoadOp = AttachmentLoadOp::Clear;
-		rp_desc.DepthStencilTargetAttachment.Attachment = reinterpret_cast<void*>(dsv.ptr);
-		rp_desc.DepthStencilTargetAttachment.ClearDepth = 1.0f;
-		rp_desc.DepthStencilTargetAttachment.DepthLoadOp = AttachmentLoadOp::Clear;
-		cmd_buffer->beginRenderPass(rp_desc);
-		cmd_buffer->endRenderPass();
-
-		ImGuiApplication::renderFrame(cmd_buffer, rtv, dsv);
 	}
 
 	bool show_demo_window = true;

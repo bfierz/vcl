@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2020 Basil Fierz
+ * Copyright (c) 2024 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,8 @@
 #include <vulkan/vulkan.h>
 
 // GLFW
+#define GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 
@@ -94,46 +96,55 @@ class Application
 public:
 	struct FrameContext
 	{
+		Vcl::Graphics::Vulkan::Fence frameFence;
+		Vcl::Graphics::Vulkan::Semaphore presentComplete;
+		Vcl::Graphics::Vulkan::Semaphore renderComplete;
+		Vcl::Graphics::Vulkan::CommandPool CommandPool;
+		Vcl::Graphics::Vulkan::CommandBuffer CommandBuffer;
 	};
 
 	Application(const char* title);
 	virtual ~Application();
 
-	GLFWwindow windowHandle() const { return _windowHandle; }
-	Vcl::Graphics::Vulkan::Device* device() const { return _device.get(); }
-	Vcl::Graphics::Vulkan::SwapChain* swapChain() const { return _swapChain.get(); }
+	GLFWwindow* windowHandle() const { return _windowHandle; }
 
 	int run();
 
 protected:
-	virtual LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) { return 0; }
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
-	virtual void renderFrame(Vcl::Graphics::Vulkan::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) {}
+	virtual void renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) {}
 
-	ID3D12GraphicsCommandList* cmdList() const { return _graphicsCommandBuffer->handle(); }
-	void resetCommandList();
+	Vcl::Graphics::Vulkan::Platform* platform() const { return _platform.get(); }
+	Vcl::Graphics::Vulkan::Context* context() const { return _context.get(); }
+	Vcl::Graphics::Vulkan::Surface* surface() const { return _surface.get(); }
+	Vcl::Graphics::Vulkan::CommandQueue* queue() const { return _graphicsCommandQueue.get(); }
+
+	FrameContext* frame(int i) { return &_frames[i]; }
 
 	//! Number of frames in the swap-queue
 	static const int NumberOfFrames;
 
 private:
-	bool initVulkan(HWND hWnd);
+	bool initVulkan(const GlfwInstance& glfw, GLFWwindow* windowHandle);
+
+	//! GLFW instance
+	std::unique_ptr<GlfwInstance> _glfw;
 
 	//! Handle to the GLFW window
 	GLFWwindow* _windowHandle{ nullptr };
 
+	//! Vulkan platorm
+	std::unique_ptr<Vcl::Graphics::Vulkan::Platform> _platform;
+
 	//! Abstraction of the render device
-	std::unique_ptr<Vcl::Graphics::Vulkan::Device> _device;
+	std::unique_ptr<Vcl::Graphics::Vulkan::Context> _context;
 
-	//! Swap-chain used to display rendered images
-	std::unique_ptr<Vcl::Graphics::Vulkan::SwapChain> _swapChain;
+	//! Surface used to display rendered images
+	std::unique_ptr<Vcl::Graphics::Vulkan::Surface> _surface;
 
-	ComPtr<ID3D12Resource> _depthBuffer;
-	ComPtr<ID3D12DescriptorHeap> _dsvHeap;
-
-	std::unique_ptr<Vcl::Graphics::Vulkan::CommandBuffer> _graphicsCommandBuffer;
+	std::unique_ptr<Vcl::Graphics::Vulkan::CommandQueue> _graphicsCommandQueue;
 
 	std::array<FrameContext, 3> _frames;
 };
