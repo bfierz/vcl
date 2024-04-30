@@ -307,6 +307,45 @@ namespace Vcl {
 		_mm512_storeu_ps(p + 16, m4567);
 		_mm512_storeu_ps(p + 32, m89ab);
 	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const __m512& x,
+		const __m512& y,
+		const __m512& z,
+		const __m512& w)
+	{
+		const __m512 x0x2y0y2 = _mm512_shuffle_ps(x, y, _MM_SHUFFLE(2, 0, 2, 0)); // 02'46'8a'ce
+		const __m512 x1x3y1y3 = _mm512_shuffle_ps(x, y, _MM_SHUFFLE(3, 1, 3, 1)); // 13'57'9b'df
+		const __m512 z0z2w0w2 = _mm512_shuffle_ps(z, w, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 z1z3w1w3 = _mm512_shuffle_ps(z, w, _MM_SHUFFLE(3, 1, 3, 1));
+
+		const __m512 x0y0x1y1 = _mm512_shuffle_ps(x0x2y0y2, x1x3y1y3, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 x2y2x3y3 = _mm512_shuffle_ps(x0x2y0y2, x1x3y1y3, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m512 z0w0z1w1 = _mm512_shuffle_ps(z0z2w0w2, z1z3w1w3, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 z2w2z3w3 = _mm512_shuffle_ps(z0z2w0w2, z1z3w1w3, _MM_SHUFFLE(3, 1, 3, 1));
+
+		const __m512 m048c = _mm512_shuffle_ps(x0y0x1y1, z0w0z1w1, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m159d = _mm512_shuffle_ps(x0y0x1y1, z0w0z1w1, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m512 m26ae = _mm512_shuffle_ps(x2y2x3y3, z2w2z3w3, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m37bf = _mm512_shuffle_ps(x2y2x3y3, z2w2z3w3, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m512 m0415 = _mm512_shuffle_f32x4(m048c, m159d, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m2637 = _mm512_shuffle_f32x4(m26ae, m37bf, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m512 m8c9d = _mm512_shuffle_f32x4(m048c, m159d, _MM_SHUFFLE(3, 2, 3, 2));
+		const __m512 maebf = _mm512_shuffle_f32x4(m26ae, m37bf, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m512 m0123 = _mm512_shuffle_f32x4(m0415, m2637, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 m4567 = _mm512_shuffle_f32x4(m0415, m2637, _MM_SHUFFLE(3, 1, 3, 1));
+		const __m512 m89ab = _mm512_shuffle_f32x4(m8c9d, maebf, _MM_SHUFFLE(2, 0, 2, 0));
+		const __m512 mcdef = _mm512_shuffle_f32x4(m8c9d, maebf, _MM_SHUFFLE(3, 1, 3, 1));
+
+		float* p = base->data();
+		_mm512_storeu_ps(p + 0, m0123);
+		_mm512_storeu_ps(p + 16, m4567);
+		_mm512_storeu_ps(p + 32, m89ab);
+		_mm512_storeu_ps(p + 48, mcdef);
+	}
 #	endif
 
 	VCL_STRONG_INLINE void load(
@@ -425,6 +464,41 @@ namespace Vcl {
 		_mm_storeu_ps(p + 12, _mm256_extractf128_ps(r03, 1));
 		_mm_storeu_ps(p + 16, _mm256_extractf128_ps(r14, 1));
 		_mm_storeu_ps(p + 20, _mm256_extractf128_ps(r25, 1));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const __m256& x,
+		const __m256& y,
+		const __m256& z,
+		const __m256& w)
+	{
+		const __m256 x0y0x1y1x4y4x5y5 = _mm256_unpacklo_ps(x, y);
+		const __m256 x2y2x3y3x6y6x7y7 = _mm256_unpackhi_ps(x, y);
+		const __m256 z0w0z1w1z4w4z5w5 = _mm256_unpacklo_ps(z, w);
+		const __m256 z2w2z3w3z6w6z7w7 = _mm256_unpackhi_ps(z, w);
+
+		const __m256 x0y0x2y2x4y4x6y6 = _mm256_shuffle_ps(x0y0x1y1x4y4x5y5, x2y2x3y3x6y6x7y7, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m256 x1y1x3y3x5y5x7y7 = _mm256_shuffle_ps(x0y0x1y1x4y4x5y5, x2y2x3y3x6y6x7y7, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m256 z0w0z2w2z4w4z6w6 = _mm256_shuffle_ps(z0w0z1w1z4w4z5w5, z2w2z3w3z6w6z7w7, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m256 z1w1z3w3z5w5z7w7 = _mm256_shuffle_ps(z0w0z1w1z4w4z5w5, z2w2z3w3z6w6z7w7, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m256 r04 = _mm256_shuffle_ps(x0y0x2y2x4y4x6y6, z0w0z2w2z4w4z6w6, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m256 r26 = _mm256_shuffle_ps(x0y0x2y2x4y4x6y6, z0w0z2w2z4w4z6w6, _MM_SHUFFLE(3, 2, 3, 2));
+
+		const __m256 r15 = _mm256_shuffle_ps(x1y1x3y3x5y5x7y7, z1w1z3w3z5w5z7w7, _MM_SHUFFLE(1, 0, 1, 0));
+		const __m256 r37 = _mm256_shuffle_ps(x1y1x3y3x5y5x7y7, z1w1z3w3z5w5z7w7, _MM_SHUFFLE(3, 2, 3, 2));
+
+		float* p = base->data();
+		_mm_storeu_ps(p + 0, _mm256_castps256_ps128(r04));
+		_mm_storeu_ps(p + 4, _mm256_castps256_ps128(r15));
+		_mm_storeu_ps(p + 8, _mm256_castps256_ps128(r26));
+		_mm_storeu_ps(p + 12, _mm256_castps256_ps128(r37));
+		_mm_storeu_ps(p + 16, _mm256_extractf128_ps(r04, 1));
+		_mm_storeu_ps(p + 20, _mm256_extractf128_ps(r15, 1));
+		_mm_storeu_ps(p + 24, _mm256_extractf128_ps(r26, 1));
+		_mm_storeu_ps(p + 28, _mm256_extractf128_ps(r37, 1));
 	}
 
 	VCL_STRONG_INLINE void load(
@@ -553,6 +627,30 @@ namespace Vcl {
 			_mm256_castsi256_ps(value(2).get(0)));
 	}
 
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float8, 4, 1>& value)
+	{
+		store(
+			base,
+			value(0).get(0),
+			value(1).get(0),
+			value(2).get(0),
+			value(3).get(0));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int8, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base),
+			_mm256_castsi256_ps(value(0).get(0)),
+			_mm256_castsi256_ps(value(1).get(0)),
+			_mm256_castsi256_ps(value(2).get(0)),
+			_mm256_castsi256_ps(value(3).get(0)));
+	}
+
 #	ifdef VCL_VECTORIZE_AVX512
 	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float16, 2, 1>& loaded,
@@ -636,6 +734,30 @@ namespace Vcl {
 			_mm512_castsi512_ps(value(0).get(0)),
 			_mm512_castsi512_ps(value(1).get(0)),
 			_mm512_castsi512_ps(value(2).get(0)));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float16, 4, 1>& value)
+	{
+		store(
+			base,
+			value(0).get(0),
+			value(1).get(0),
+			value(2).get(0),
+			value(3).get(0));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int16, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base),
+			_mm512_castsi512_ps(value(0).get(0)),
+			_mm512_castsi512_ps(value(1).get(0)),
+			_mm512_castsi512_ps(value(2).get(0)),
+			_mm512_castsi512_ps(value(3).get(0)));
 	}
 #	else
 	VCL_STRONG_INLINE void load(
@@ -774,6 +896,33 @@ namespace Vcl {
 			_mm256_castsi256_ps(value(0).get(1)),
 			_mm256_castsi256_ps(value(1).get(1)),
 			_mm256_castsi256_ps(value(2).get(1)));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float16, 4, 1>& value)
+	{
+		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0), value(3).get(0));
+		store(base + 8, value(0).get(1), value(1).get(1), value(2).get(1), value(3).get(1));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int16, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base),
+			_mm256_castsi256_ps(value(0).get(0)),
+			_mm256_castsi256_ps(value(1).get(0)),
+			_mm256_castsi256_ps(value(2).get(0)),
+			_mm256_castsi256_ps(value(3).get(0)));
+
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 8,
+			_mm256_castsi256_ps(value(0).get(1)),
+			_mm256_castsi256_ps(value(1).get(1)),
+			_mm256_castsi256_ps(value(2).get(1)),
+			_mm256_castsi256_ps(value(3).get(1)));
 	}
 #	endif
 
