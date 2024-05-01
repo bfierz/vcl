@@ -92,29 +92,15 @@ ImGuiApplication::ImGuiApplication(const char* title)
 	// Upload Fonts
 	{
 		// Use any command queue
-		VkCommandPool command_pool = frame(0)->CommandPool[CommandBufferType::Default];
-		VkCommandBuffer command_buffer = frame(0)->CommandBuffer;
-
-		VkResult err = vkResetCommandPool(*context(), command_pool, 0);
-		check_vk_result(err);
-		VkCommandBufferBeginInfo begin_info = {};
-		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		err = vkBeginCommandBuffer(command_buffer, &begin_info);
-		check_vk_result(err);
+		CommandBuffer command_buffer{ *context(), context()->commandPool(0, CommandBufferType::Default) };
+		command_buffer.begin();
 
 		ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
-		VkSubmitInfo end_info = {};
-		end_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		end_info.commandBufferCount = 1;
-		end_info.pCommandBuffers = &command_buffer;
-		err = vkEndCommandBuffer(command_buffer);
-		check_vk_result(err);
-		err = vkQueueSubmit(*queue(), 1, &end_info, VK_NULL_HANDLE);
-		check_vk_result(err);
+		command_buffer.end();
+		queue()->submit(command_buffer, VK_NULL_HANDLE);
 
-		err = vkDeviceWaitIdle(*context());
+		VkResult err = vkDeviceWaitIdle(*context());
 		check_vk_result(err);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
@@ -132,12 +118,11 @@ ImGuiApplication::~ImGuiApplication()
 
 void ImGuiApplication::invalidateDeviceObjects()
 {
-	Application::invalidateDeviceObjects();
-
 	for (int i = 0; i < NumberOfFrames; i++)
 	{
 		vkDestroyFramebuffer(*context(), _frameBuffer[i], nullptr);
 	}
+	Application::invalidateDeviceObjects();
 }
 
 void ImGuiApplication::createDeviceObjects()
@@ -182,7 +167,7 @@ void ImGuiApplication::createStaticVulkanObjects()
 
 		std::array<VkAttachmentDescription, 2> attachments = {};
 		VkAttachmentDescription attachment = {};
-		attachment.format = surface()->swapChain()->desc().ColourFormat;
+		attachment.format = VK_FORMAT_B8G8R8A8_UNORM;
 		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		attachment.loadOp = clear_attachment ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -243,7 +228,7 @@ void ImGuiApplication::renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::Comman
 {
 	ImGui::Render();
 
-	auto& cmd_buffer = this->frame(frame)->CommandBuffer;
+	auto& cmd_buffer = this->frame(frame)->PresentCmdBuffer;
 	{
 		std::array<VkClearValue, 2> clear_values;
 		clear_values[0].color = {};

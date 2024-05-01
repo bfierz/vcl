@@ -60,7 +60,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		}
 	}
 
-	Semaphore& Semaphore::operator= (Semaphore&& rhs) noexcept
+	Semaphore& Semaphore::operator=(Semaphore&& rhs) noexcept
 	{
 		std::swap(_context, rhs._context);
 		std::swap(_semaphore, rhs._semaphore);
@@ -112,7 +112,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		std::swap(_fence, rhs._fence);
 		return *this;
 	}
-	 
+
 	void Fence::reset()
 	{
 		vkResetFences(*_context, 1, &_fence);
@@ -198,10 +198,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		vkCmdFillBuffer(_cmdBuffer, dst_buffer, offset, size, data);
 	}
 
-	void CommandBuffer::pushConstants
-	(
-		VkPipelineLayout layout, const PushConstantDescriptor& desc, void* data
-	)
+	void CommandBuffer::pushConstants(
+		VkPipelineLayout layout,
+		const PushConstantDescriptor& desc,
+		void* data)
 	{
 		vkCmdPushConstants(_cmdBuffer, layout, convert(desc.StageFlags), desc.Offset, desc.Size, data);
 	}
@@ -230,7 +230,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	{
 		// Add a present memory barrier to the end of the command buffer
 		// This will transform the frame buffer color attachment to a
-		// new layout for presenting it to the windowing system integration 
+		// new layout for presenting it to the windowing system integration
 		VkImageMemoryBarrier prePresentBarrier;
 		prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		prePresentBarrier.pNext = nullptr;
@@ -243,17 +243,15 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 		prePresentBarrier.image = img;
 
-		VkImageMemoryBarrier *pMemoryBarrier = &prePresentBarrier;
-		vkCmdPipelineBarrier
-		(
+		VkImageMemoryBarrier* pMemoryBarrier = &prePresentBarrier;
+		vkCmdPipelineBarrier(
 			_cmdBuffer,
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 			0,
 			0, nullptr,
 			0, nullptr,
-			1, &prePresentBarrier
-		);
+			1, &prePresentBarrier);
 	}
 
 	void CommandBuffer::returnFromPresent(VkImage img)
@@ -275,16 +273,14 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		postPresentBarrier.image = img;
 
 		// Put post present barrier into command buffer
-		vkCmdPipelineBarrier
-		(
+		vkCmdPipelineBarrier(
 			_cmdBuffer,
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 			0,
 			0, nullptr,
 			0, nullptr,
-			1, &postPresentBarrier
-		);
+			1, &postPresentBarrier);
 	}
 
 	void CommandBuffer::setScissor(uint32_t first, stdext::span<VkRect2D> rects)
@@ -301,22 +297,18 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 	: _queue(context->queue(flags, family_index))
 	, _family_index(family_index)
 	{
-
 	}
 
 	CommandQueue::~CommandQueue()
 	{
-
 	}
 
-	void CommandQueue::submit
-	(
+	void CommandQueue::submit(
 		stdext::span<VkCommandBuffer> buffers,
 		VkFence fence,
 		VkPipelineStageFlags flags,
 		stdext::span<VkSemaphore> waiting,
-		stdext::span<VkSemaphore> signaling
-	)
+		stdext::span<VkSemaphore> signaling)
 	{
 		VkSubmitInfo info;
 		info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -333,14 +325,23 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 		VclCheck(res == VK_SUCCESS, "Command buffer recording began.");
 	}
 
-	void CommandQueue::submit
-	(
+	void CommandQueue::submit(
 		const CommandBuffer& buffer,
-		VkFence fence
-	)
+		VkFence fence)
 	{
 		VkCommandBuffer buf = buffer;
 		submit({ &buf, 1 }, fence);
+	}
+
+	void CommandQueue::submit(
+		const CommandBuffer& buffer,
+		VkFence fence,
+		VkPipelineStageFlags flags,
+		VkSemaphore waiting,
+		VkSemaphore signaling)
+	{
+		VkCommandBuffer buf = buffer;
+		submit({ &buf, 1 }, fence, flags, { &waiting, 1 }, { &signaling, 1 });
 	}
 
 	void CommandQueue::waitIdle()

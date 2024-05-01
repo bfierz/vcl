@@ -201,12 +201,16 @@ namespace Vcl { namespace Graphics { namespace Vulkan
 			return _family_index;
 		}
 
-	public:
-		void submit
-		(
+		void submit(
 			const CommandBuffer& buffer,
-			VkFence fence
-		);
+			VkFence fence);
+
+		void submit(
+			const CommandBuffer& buffer,
+			VkFence fence,
+			VkPipelineStageFlags flags,
+			VkSemaphore waiting,
+			VkSemaphore signaling);
 		
 		void submit
 		(

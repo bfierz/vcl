@@ -31,6 +31,37 @@
 // VCL
 #include <vcl/core/contract.h>
 
+void Application::FrameContext::alloc(Vcl::Graphics::Vulkan::Context* context)
+{
+	using namespace Vcl::Graphics::Vulkan;
+
+	FrameFence = Fence{ context, VK_FENCE_CREATE_SIGNALED_BIT };
+	RenderComplete = Semaphore{ context };
+	PresentComplete = Semaphore{ context };
+	CmdPool = CommandPool(*context, 0);
+	PrepareCmdBuffer = CommandBuffer(*context, CmdPool[CommandBufferType::Default]);
+	PresentCmdBuffer = CommandBuffer(*context, CmdPool[CommandBufferType::Default]);
+}
+
+void Application::FrameContext::free()
+{
+	FrameFence = {};
+	RenderComplete = {};
+	PresentComplete = {};
+	PrepareCmdBuffer = {};
+	PresentCmdBuffer = {};
+	CmdPool = {};
+}
+
+void Application::FrameContext::waitAndReset()
+{
+	FrameFence.wait();
+	FrameFence.reset();
+	PrepareCmdBuffer.reset();
+	PresentCmdBuffer.reset();
+	CmdPool.reset();
+}
+
 const int Application::NumberOfFrames = 3;
 
 Application::Application(const char* title)
@@ -58,21 +89,6 @@ Application::Application(const char* title)
 
 Application::~Application()
 {
-	_frames[0].frameFence = {};
-	_frames[1].frameFence = {};
-	_frames[2].frameFence = {};
-	_frames[0].renderComplete = {};
-	_frames[1].renderComplete = {};
-	_frames[2].renderComplete = {};
-	_frames[0].presentComplete = {};
-	_frames[1].presentComplete = {};
-	_frames[2].presentComplete = {};
-	_frames[0].CommandBuffer = {};
-	_frames[1].CommandBuffer = {};
-	_frames[2].CommandBuffer = {};
-	_frames[0].CommandPool = {};
-	_frames[1].CommandPool = {};
-	_frames[2].CommandPool = {};
 	_graphicsCommandQueue.reset();
 
 	_surface.reset();
@@ -96,53 +112,60 @@ int Application::run()
 		if (rebuild_swap_chain)
 		{
 			rebuild_swap_chain = false;
-		}
 
-		updateFrame();
+			for (auto& frame : _frames)
+			{
+				frame.waitAndReset();
+			}
+			invalidateDeviceObjects();
+			createDeviceObjects();
+
+			curr_buf = 0;
+		}
 
 		auto* swapChain = _surface->swapChain();
 
-		// Wait for the previous frame to finish
-		_frames[curr_buf].frameFence.wait();
-		_frames[curr_buf].frameFence.reset();
-
 		// Render the scene
-		VkSemaphore curr_present_complete = _frames[curr_buf].presentComplete;
+		auto& curr_frame = _frames[curr_buf];
+		VkSemaphore curr_present_complete = curr_frame.PresentComplete;
 		uint32_t next_image;
 		VkResult res = swapChain->acquireNextImage(curr_present_complete, VK_NULL_HANDLE, &next_image);
 		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
 		{
 			rebuild_swap_chain = true;
-			_frames[curr_buf].frameFence.reset();
 			continue;
 		}
 		VclCheck(curr_buf == next_image, "Image count is in sync");
 
-		// Prepare the frame data for a new frame
-		_frames[curr_buf].CommandBuffer.reset();
-		_frames[curr_buf].CommandPool.reset();
+		updateFrame();
 
-		_frames[curr_buf].CommandBuffer.begin();
-		_frames[curr_buf].CommandBuffer.returnFromPresent(swapChain->image(curr_buf));
+		// Wait for the previous frame to finish
+		// and prepare the frame data for a new frame
+		curr_frame.waitAndReset();
 
+		// Bring the render-target into a valid state
+		curr_frame.PrepareCmdBuffer.begin();
+		curr_frame.PrepareCmdBuffer.returnFromPresent(swapChain->image(curr_buf));
+		curr_frame.PrepareCmdBuffer.end();
+		_graphicsCommandQueue->submit(curr_frame.PrepareCmdBuffer, VK_NULL_HANDLE);
+
+		// Start the render buffer usable for the application
+		curr_frame.PresentCmdBuffer.begin();
 		renderFrame(curr_buf, _graphicsCommandQueue.get(), swapChain->view(curr_buf), _surface->backbuffer()->depthBufferView());
 
 		// Finish default command buffer
-		_frames[curr_buf].CommandBuffer.prepareForPresent(swapChain->image(curr_buf));
-		_frames[curr_buf].CommandBuffer.end();
+		curr_frame.PresentCmdBuffer.prepareForPresent(swapChain->image(curr_buf));
+		curr_frame.PresentCmdBuffer.end();
 
 		// Submit to the graphics queue
 		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		VkSemaphore s0 = _frames[curr_buf].presentComplete;
-		VkSemaphore s1 = _frames[curr_buf].renderComplete;
-		VkCommandBuffer b0 = _frames[curr_buf].CommandBuffer;
-		_graphicsCommandQueue->submit({ &b0, 1 }, _frames[curr_buf].frameFence, pipelineStages, { &s0, 1 }, { &s1, 1 });
+		_graphicsCommandQueue->submit(curr_frame.PresentCmdBuffer, curr_frame.FrameFence, pipelineStages, curr_frame.PresentComplete, curr_frame.RenderComplete);
 
 		// Present the current buffer to the swap chain
 		// We pass the signal semaphore from the submit info
 		// to ensure that the image is not rendered until
 		// all commands have been submitted
-		res = _surface->swapChain()->queuePresent(*_graphicsCommandQueue, curr_buf, _frames[curr_buf].renderComplete);
+		res = _surface->swapChain()->queuePresent(*_graphicsCommandQueue, curr_buf, curr_frame.RenderComplete);
 		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
 		{
 			rebuild_swap_chain = true;
@@ -150,13 +173,9 @@ int Application::run()
 
 		curr_buf = (curr_buf + 1) % NumberOfFrames;
 	}
-	for (int i = 0; i < NumberOfFrames; i++)
+	for (auto& frame : _frames)
 	{
-		_frames[curr_buf].frameFence.wait();
-		_frames[curr_buf].frameFence.reset();
-		_frames[curr_buf].CommandBuffer.reset();
-		_frames[curr_buf].CommandPool.reset();
-		curr_buf = (curr_buf + 1) % NumberOfFrames;
+		frame.waitAndReset();
 	}
 	invalidateDeviceObjects();
 
@@ -165,9 +184,32 @@ int Application::run()
 
 void Application::invalidateDeviceObjects()
 {
+	for (auto& frame : _frames)
+	{
+		frame.free();
+	}
+
+	_surface.reset();
 }
 void Application::createDeviceObjects()
 {
+	using namespace Vcl::Graphics::Vulkan;
+
+	// Create a WSI surface for the window
+	VkSurfaceKHR surface_ctx;
+	glfwCreateWindowSurface(*_platform, windowHandle(), nullptr, &surface_ctx);
+
+	Vcl::Graphics::Vulkan::BasicSurfaceDescription desc;
+	desc.Surface = surface_ctx;
+	desc.NumberOfImages = NumberOfFrames;
+	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
+	desc.DepthFormat = VK_FORMAT_D32_SFLOAT;
+	_surface = createBasicSurface(*_platform, *_context, *_graphicsCommandQueue, desc);
+
+	for (auto& frame : _frames)
+	{
+		frame.alloc(_context.get());
+	}
 }
 
 bool Application::initVulkan(const GlfwInstance& glfw, GLFWwindow* windowHandle)
@@ -182,35 +224,8 @@ bool Application::initVulkan(const GlfwInstance& glfw, GLFWwindow* windowHandle)
 	auto& device = _platform->device(0);
 	_context = device.createContext(stdext::make_span(context_extensions));
 
-	// Create a WSI surface for the window
-	VkSurfaceKHR surface_ctx;
-	glfwCreateWindowSurface(*_platform, windowHandle, nullptr, &surface_ctx);
-
 	// Allocate a render queue for the application
 	_graphicsCommandQueue = std::make_unique<CommandQueue>(_context.get(), VkQueueFlagBits::VK_QUEUE_GRAPHICS_BIT, 0);
-
-	Vcl::Graphics::Vulkan::BasicSurfaceDescription desc;
-	desc.Surface = surface_ctx;
-	desc.NumberOfImages = 3;
-	desc.ColourFormat = VK_FORMAT_B8G8R8A8_UNORM;
-	desc.DepthFormat = VK_FORMAT_D32_SFLOAT;
-	_surface = createBasicSurface(*_platform, *_context, *_graphicsCommandQueue, desc);
-
-	_frames[0].frameFence = Fence{ _context.get(), VK_FENCE_CREATE_SIGNALED_BIT };
-	_frames[1].frameFence = Fence{ _context.get(), VK_FENCE_CREATE_SIGNALED_BIT };
-	_frames[2].frameFence = Fence{ _context.get(), VK_FENCE_CREATE_SIGNALED_BIT };
-	_frames[0].renderComplete = Semaphore{ _context.get() };
-	_frames[1].renderComplete = Semaphore{ _context.get() };
-	_frames[2].renderComplete = Semaphore{ _context.get() };
-	_frames[0].presentComplete = Semaphore{ _context.get() };
-	_frames[1].presentComplete = Semaphore{ _context.get() };
-	_frames[2].presentComplete = Semaphore{ _context.get() };
-	_frames[0].CommandPool = CommandPool(*_context, 0);
-	_frames[1].CommandPool = CommandPool(*_context, 0);
-	_frames[2].CommandPool = CommandPool(*_context, 0);
-	_frames[0].CommandBuffer = CommandBuffer(*_context, _frames[0].CommandPool[CommandBufferType::Default]);
-	_frames[1].CommandBuffer = CommandBuffer(*_context, _frames[1].CommandPool[CommandBufferType::Default]);
-	_frames[2].CommandBuffer = CommandBuffer(*_context, _frames[2].CommandPool[CommandBufferType::Default]);
 
 	return true;
 }

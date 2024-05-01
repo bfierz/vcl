@@ -96,11 +96,16 @@ class Application
 public:
 	struct FrameContext
 	{
-		Vcl::Graphics::Vulkan::Fence frameFence;
-		Vcl::Graphics::Vulkan::Semaphore presentComplete;
-		Vcl::Graphics::Vulkan::Semaphore renderComplete;
-		Vcl::Graphics::Vulkan::CommandPool CommandPool;
-		Vcl::Graphics::Vulkan::CommandBuffer CommandBuffer;
+		void alloc(Vcl::Graphics::Vulkan::Context* context);
+		void free();
+		void waitAndReset();
+
+		Vcl::Graphics::Vulkan::Fence FrameFence;
+		Vcl::Graphics::Vulkan::Semaphore PresentComplete;
+		Vcl::Graphics::Vulkan::Semaphore RenderComplete;
+		Vcl::Graphics::Vulkan::CommandPool CmdPool;
+		Vcl::Graphics::Vulkan::CommandBuffer PrepareCmdBuffer;
+		Vcl::Graphics::Vulkan::CommandBuffer PresentCmdBuffer;
 	};
 
 	Application(const char* title);
