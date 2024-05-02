@@ -72,8 +72,15 @@ void ExecuteScanTest(unsigned int size)
 	output->unmap();
 }
 
+extern bool isLlvmPipe;
 TEST(OpenGL, ScanExclusiveSmall)
 {
+	if (isLlvmPipe)
+	{
+		std::cout << "[ SKIPPED  ] llvmpipe is crashing for this test" << std::endl;
+		return;
+	}
+
 	ExecuteScanTest(4);
 	ExecuteScanTest(12);
 	ExecuteScanTest(16);

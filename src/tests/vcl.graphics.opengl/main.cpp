@@ -93,13 +93,6 @@ int main(int argc, char** argv)
 			return 1;
 		}
 #endif
-
-		if (isD3D)
-		{
-			std::cerr << "Detected running OpenGL through Mesa " << major << "." << minor << "." << patch << ". ";
-			std::cerr << "D3D12 is currently not supporting compute shaders" << std::endl;
-			return 1;
-		}
 	}
 
 	// Run the tests

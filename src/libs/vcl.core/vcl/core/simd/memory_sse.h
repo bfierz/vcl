@@ -176,6 +176,30 @@ namespace Vcl {
 		_mm_storeu_ps(p + 8, rz2x3y3z3);
 	}
 
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const __m128& x,
+		const __m128& y,
+		const __m128& z,
+		const __m128& w) noexcept
+	{
+		const __m128 x0y0x1y1 = _mm_unpacklo_ps(x, y);
+		const __m128 x2y2x3y3 = _mm_unpackhi_ps(x, y);
+		const __m128 z0w0z1w1 = _mm_unpacklo_ps(z, w);
+		const __m128 z2w2z3w3 = _mm_unpackhi_ps(z, w);
+
+		const __m128 x0y0z0w0 = _mm_movelh_ps(x0y0x1y1, z0w0z1w1);
+		const __m128 x1y1z1w1 = _mm_movehl_ps(z0w0z1w1, x0y0x1y1);
+		const __m128 x2y2z2w2 = _mm_movelh_ps(x2y2x3y3, z2w2z3w3);
+		const __m128 x3y3z3w3 = _mm_movehl_ps(z2w2z3w3, x2y2x3y3);
+
+		float* p = base->data();
+		_mm_storeu_ps(p + 0, x0y0z0w0);
+		_mm_storeu_ps(p + 4, x1y1z1w1);
+		_mm_storeu_ps(p + 8, x2y2z2w2);
+		_mm_storeu_ps(p + 12, x3y3z3w3);
+	}
+
 	VCL_STRONG_INLINE void load(
 		Eigen::Matrix<float4, 2, 1>& loaded,
 		const Eigen::Vector2f* base)
@@ -285,6 +309,29 @@ namespace Vcl {
 			_mm_castsi128_ps(value(0).get(0)),
 			_mm_castsi128_ps(value(1).get(0)),
 			_mm_castsi128_ps(value(2).get(0)));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float4, 4, 1>& value)
+	{
+		store(
+			base,
+			value(0).get(0),
+			value(1).get(0),
+			value(2).get(0),
+			value(3).get(0));
+	}
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int4, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base),
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0)),
+			_mm_castsi128_ps(value(3).get(0)));
 	}
 
 	VCL_STRONG_INLINE std::array<float4, 2> interleave(const float4& a, const float4& b) noexcept
@@ -593,6 +640,33 @@ namespace Vcl {
 	}
 
 	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float8, 4, 1>& value)
+	{
+		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0), value(3).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1), value(2).get(1), value(3).get(1));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int8, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 0,
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0)),
+			_mm_castsi128_ps(value(3).get(0)));
+
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 4,
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)),
+			_mm_castsi128_ps(value(2).get(1)),
+			_mm_castsi128_ps(value(3).get(1)));
+	}
+
+	VCL_STRONG_INLINE void store(
 		Eigen::Vector2f* base,
 		const Eigen::Matrix<float16, 2, 1>& value)
 	{
@@ -662,6 +736,48 @@ namespace Vcl {
 			_mm_castsi128_ps(value(0).get(3)),
 			_mm_castsi128_ps(value(1).get(3)),
 			_mm_castsi128_ps(value(2).get(3)));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4f* base,
+		const Eigen::Matrix<float16, 4, 1>& value)
+	{
+		store(base + 0, value(0).get(0), value(1).get(0), value(2).get(0), value(3).get(0));
+		store(base + 4, value(0).get(1), value(1).get(1), value(2).get(1), value(3).get(1));
+		store(base + 8, value(0).get(2), value(1).get(2), value(2).get(2), value(3).get(2));
+		store(base + 12, value(0).get(3), value(1).get(3), value(2).get(3), value(3).get(3));
+	}
+
+	VCL_STRONG_INLINE void store(
+		Eigen::Vector4i* base,
+		const Eigen::Matrix<int16, 4, 1>& value)
+	{
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 0,
+			_mm_castsi128_ps(value(0).get(0)),
+			_mm_castsi128_ps(value(1).get(0)),
+			_mm_castsi128_ps(value(2).get(0)),
+			_mm_castsi128_ps(value(3).get(0)));
+
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 4,
+			_mm_castsi128_ps(value(0).get(1)),
+			_mm_castsi128_ps(value(1).get(1)),
+			_mm_castsi128_ps(value(2).get(1)),
+			_mm_castsi128_ps(value(3).get(1)));
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 8,
+			_mm_castsi128_ps(value(0).get(2)),
+			_mm_castsi128_ps(value(1).get(2)),
+			_mm_castsi128_ps(value(2).get(2)),
+			_mm_castsi128_ps(value(3).get(2)));
+
+		store(
+			reinterpret_cast<Eigen::Vector4f*>(base) + 12,
+			_mm_castsi128_ps(value(0).get(3)),
+			_mm_castsi128_ps(value(1).get(3)),
+			_mm_castsi128_ps(value(2).get(3)),
+			_mm_castsi128_ps(value(3).get(3)));
 	}
 
 	VCL_STRONG_INLINE std::array<float8, 2> interleave(const float8& a, const float8& b)
