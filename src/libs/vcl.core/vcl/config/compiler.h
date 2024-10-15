@@ -201,7 +201,7 @@
 // Add missing definition for max_align_t for compatibility with older clang version (3.4, 3.5)
 #	if defined(VCL_COMPILER_CLANG) && !defined(_MSC_VER) && !defined(__APPLE_CC__)
 #		if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) || __cplusplus >= 201103L
-#			if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T) && !defined(__DEFINED_max_align_t)
+#			if !defined(__CLANG_MAX_ALIGN_T_DEFINED) && !defined(_GCC_MAX_ALIGN_T) && !defined(__DEFINED_max_align_t) && !defined(__EMSCRIPTEN__)
 typedef struct
 {
 	long long __clang_max_align_nonce1 __attribute__((__aligned__(__alignof__(long long))));

@@ -179,6 +179,12 @@ function(vcl_configure tgt)
 			if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 				target_compile_options(${tgt} PUBLIC "-mfloat-abi=hard" "-mfpu=neon")
 			endif()
+		else()
+			set(VCL_NOT_VECTORIZING ON)
+		endif()
+
+		if(EMSCRIPTEN AND NOT VCL_NOT_VECTORIZING)
+			target_compile_options(${tgt} PUBLIC "-msimd128")
 		endif()
 	endif(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 
