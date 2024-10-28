@@ -183,8 +183,12 @@ function(vcl_configure tgt)
 			set(VCL_NOT_VECTORIZING ON)
 		endif()
 
-		if(EMSCRIPTEN AND NOT VCL_NOT_VECTORIZING)
-			target_compile_options(${tgt} PUBLIC "-msimd128")
+		if(EMSCRIPTEN)
+			target_compile_definitions(${tgt} PUBLIC EIGEN_DONT_VECTORIZE)
+
+			if(NOT VCL_NOT_VECTORIZING)
+				target_compile_options(${tgt} PUBLIC "-msimd128")
+			endif()
 		endif()
 	endif(VCL_COMPILER_GNU OR VCL_COMPILER_CLANG OR VCL_COMPILER_ICC)
 
