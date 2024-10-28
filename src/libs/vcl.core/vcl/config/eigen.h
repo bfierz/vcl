@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // Configure vectorisation
+#ifndef __EMSCRIPTEN__
 #if defined VCL_VECTORIZE_AVX
 #	define EIGEN_VECTORIZE_AVX
 #	define EIGEN_VECTORIZE_SSE4_2
@@ -50,6 +51,7 @@
 #	elif defined VCL_VECTORIZE_SSE3
 #		define EIGEN_VECTORIZE_SSE3
 #	endif
+#endif
 #endif
 
 VCL_BEGIN_EXTERNAL_HEADERS
