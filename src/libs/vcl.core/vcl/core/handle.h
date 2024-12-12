@@ -58,7 +58,7 @@ namespace Vcl {
 	public:
 		bool operator==(Handle<T> h) const
 		{
-			return _dataIdx == h._dataIdx && _tag == h.tag;
+			return _dataIdx == h._dataIdx && _tag == h._tag;
 		}
 
 		bool operator<(Handle<T> h) const
