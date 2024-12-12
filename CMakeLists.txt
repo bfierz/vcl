@@ -57,11 +57,6 @@ if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-# Global configurations for emscripten
-if (EMSCRIPTEN)
-	add_definitions(-DEIGEN_DONT_VECTORIZE)
-endif(EMSCRIPTEN)
-
 ################################################################################
 # Add the externals
 ################################################################################
