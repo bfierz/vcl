@@ -59,8 +59,6 @@ endif()
 
 # Global configurations for emscripten
 if (EMSCRIPTEN)
-	# Make sure exception can be used
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
 	add_definitions(-DEIGEN_DONT_VECTORIZE)
 endif(EMSCRIPTEN)
 
