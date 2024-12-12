@@ -57,12 +57,6 @@ if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-# Global configurations for emscripten
-if (EMSCRIPTEN)
-	# Make sure exception can be used
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
-endif(EMSCRIPTEN)
-
 ################################################################################
 # Add the externals
 ################################################################################
