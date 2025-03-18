@@ -31,7 +31,7 @@ message(STATUS "Configuring 'vcl_core_benchmarks'")
 
 CPMAddPackage(
 	GITHUB_REPOSITORY foonathan/memory
-	VERSION 0.7
+	VERSION 0.7-3
 	OPTIONS
 		"FOONATHAN_MEMORY_BUILD_EXAMPLES NO"
 		"FOONATHAN_MEMORY_BUILD_TESTS NO"

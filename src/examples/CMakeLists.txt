@@ -21,7 +21,7 @@ endif()
 
 
 if(VCL_OPENGL_SUPPORT)
-	add_subdirectory(meshviewer)
+	#add_subdirectory(meshviewer)
 	add_subdirectory(opengl)
 endif()
 
