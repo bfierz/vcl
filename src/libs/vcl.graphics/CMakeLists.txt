@@ -272,7 +272,7 @@ if(VCL_OPENGL_SUPPORT)
 			)
 			FetchContent_GetProperties(glew)
 			if(NOT glew_POPULATED)
-				FetchContent_Populate(glew)
+				FetchContent_MakeAvailable(glew)
 				message(STATUS "Downloaded GLEW to ${glew_SOURCE_DIR}")
 			endif()
 

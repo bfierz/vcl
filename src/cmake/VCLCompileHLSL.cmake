@@ -37,7 +37,7 @@ else()
 	)
 	FetchContent_GetProperties(direct_x_shader_compiler)
 	if(NOT direct_x_shader_compiler_POPULATED)
-		FetchContent_Populate(direct_x_shader_compiler)
+		FetchContent_MakeAvailable(direct_x_shader_compiler)
 	endif()
 
 	message(STATUS "Downloaded DXC to ${direct_x_shader_compiler_SOURCE_DIR}")
