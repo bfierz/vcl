@@ -222,7 +222,7 @@ TEST(OpenGL, ConstantBufferUsage)
 	};
 
 	// Base address of constants. Must be the same at the start of the next cycle
-	void* base_address{ nullptr };
+	const Runtime::Buffer* owner_zero{ nullptr };
 
 	engine.beginFrame();
 	{
@@ -230,7 +230,7 @@ TEST(OpenGL, ConstantBufferUsage)
 		{
 			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
 		}
-		base_address = memory.data();
+		owner_zero = &memory.owner();
 
 		engine.setConstantBuffer(0, std::move(memory));
 	}
@@ -265,11 +265,12 @@ TEST(OpenGL, ConstantBufferUsage)
 		{
 			auto memory2 = engine.requestPerFrameConstantBuffer<ShaderConstants>();
 		}
-		const void* new_base_address = memory.data();
+		const Runtime::Buffer* owner_four = &memory.owner();
 
 		engine.setConstantBuffer(0, std::move(memory));
 
-		EXPECT_EQ(base_address, new_base_address);
+		// Silly test as the memory buffers are remapped every frame potentially changing the pointer
+		EXPECT_EQ(owner_zero, owner_four);
 	}
 	engine.endFrame();
 	glFinish();

@@ -115,7 +115,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing { namespace OpenG
 		uniform ivec4 inputRange0;
 
 		// Kernel output
-		layout(rgba16f, binding = 1) restrict writeonly uniform image2D output0;		
+		layout(binding = 1) restrict writeonly uniform image2D output0;		
 
 		// Output ranges
 		uniform ivec4 outputRange0;
