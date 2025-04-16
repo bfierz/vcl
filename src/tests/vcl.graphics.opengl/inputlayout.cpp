@@ -36,42 +36,44 @@
 #include <gtest/gtest.h>
 
 namespace {
-	GLint vertexAttribiv(GLuint i, GLenum param)
+#if defined(VCL_GL_ARB_direct_state_access)
+	GLint vertexAttribiv(GLuint vao, GLuint i, GLenum param)
+	{
+		GLint value = 0;
+		glGetVertexArrayIndexediv(vao, i, param, &value);
+		return value;
+	}
+#else
+	GLint vertexAttribiv(GLuint vao, GLuint i, GLenum param)
 	{
 		GLint value = 0;
 		glGetVertexAttribiv(i, param, &value);
 		return value;
 	}
+#endif
 
-	GLuint vertexAttribIuiv(GLuint i, GLenum param)
-	{
-		GLuint value = 0;
-		glGetVertexAttribIuiv(i, param, &value);
-		return value;
-	}
-
-	void checkEnabled(GLuint lower, GLuint upper)
+	void checkEnabled(GLuint vao, GLint lower, GLint upper)
 	{
 		for (int i = 0; i < Vcl::Graphics::OpenGL::GL::getInteger(GL_MAX_VERTEX_ATTRIBS); i++)
 		{
-			GLuint enabled = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED);
+			GLint enabled = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_ENABLED);
 			EXPECT_EQ(i >= lower && i <= upper, enabled == 1);
 		}
 	}
 
-	void checkSettings(GLuint i, GLuint ref_size, GLuint ref_stride, GLuint ref_type, GLuint ref_norm, GLuint ref_integral, GLuint ref_div)
+	void checkSettings(GLuint vao, GLuint i, GLint ref_size, GLint ref_stride, GLint ref_type, GLint ref_norm, GLint ref_integral, GLint ref_div)
 	{
-		GLuint size = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE);
+		GLint size = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_SIZE);
 		EXPECT_EQ(size, ref_size);
-		GLuint stride = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE);
+		GLint stride = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_STRIDE);
 		EXPECT_EQ(stride, ref_stride);
-		GLuint type = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE);
+		GLint type = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_TYPE);
 		EXPECT_EQ(type, ref_type);
-		GLuint norm = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED);
+		GLint norm = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED);
 		EXPECT_EQ(norm, ref_norm);
-		GLuint integral = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_INTEGER);
+		GLint integral = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_INTEGER);
 		EXPECT_EQ(integral, ref_integral);
-		GLuint divisor = vertexAttribIuiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR);
+		GLint divisor = vertexAttribiv(vao, i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR);
 		EXPECT_EQ(divisor, ref_div);
 	}
 }
@@ -102,8 +104,8 @@ TEST(OpenGL, Float4Layout)
 
 	layout.bind();
 
-	checkEnabled(0, 0);
-	checkSettings(0, 4, 0, GL_FLOAT, GL_FALSE, GL_FALSE, 0);
+	checkEnabled(layout.id(), 0, 0);
+	checkSettings(layout.id(), 0, 4, 0, GL_FLOAT, GL_FALSE, GL_FALSE, 0);
 }
 
 TEST(OpenGL, NormalizedSignedShort2Layout)
@@ -121,8 +123,27 @@ TEST(OpenGL, NormalizedSignedShort2Layout)
 
 	layout.bind();
 
-	checkEnabled(0, 0);
-	checkSettings(0, 2, 0, GL_SHORT, GL_TRUE, GL_FALSE, 1);
+	checkEnabled(layout.id(), 0, 0);
+	checkSettings(layout.id(), 0, 2, 0, GL_SHORT, GL_TRUE, GL_FALSE, 1);
+}
+
+TEST(OpenGL, NormalizedUnsignedShort4Layout)
+{
+	InputLayoutDescription in{
+		{
+			{ 0, 4 * sizeof(unsigned short), VertexDataClassification::VertexDataPerInstance },
+		},
+		{
+			{ "Position", SurfaceFormat::R16G16B16A16_UNORM, 0, 0, 0 },
+		}
+	};
+	InputLayout layout{ in };
+	EXPECT_NE(0, layout.id());
+
+	layout.bind();
+
+	checkEnabled(layout.id(), 0, 0);
+	checkSettings(layout.id(), 0, 4, 0, GL_UNSIGNED_SHORT, GL_TRUE, GL_FALSE, 1);
 }
 
 TEST(OpenGL, SignedByte1Layout)
@@ -140,6 +161,6 @@ TEST(OpenGL, SignedByte1Layout)
 
 	layout.bind();
 
-	checkEnabled(0, 0);
-	checkSettings(0, 1, 0, GL_BYTE, GL_FALSE, GL_TRUE, 0);
+	checkEnabled(layout.id(), 0, 0);
+	checkSettings(layout.id(), 0, 1, 0, GL_BYTE, GL_FALSE, GL_TRUE, 0);
 }

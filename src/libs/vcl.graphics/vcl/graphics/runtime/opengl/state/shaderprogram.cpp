@@ -189,6 +189,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				glGetProgramResourceName(program, GL_UNIFORM_BLOCK, u, (GLsizei)name.size(), nullptr, name.data());
 
 				GLint loc = glGetProgramResourceIndex(program, GL_UNIFORM_BLOCK, name.data());
+				if (loc == GL_INVALID_INDEX)
+					continue;
+
 				GLint res_loc = -1;
 				glGetActiveUniformBlockiv(program, loc, GL_UNIFORM_BLOCK_BINDING, &res_loc);
 
@@ -698,6 +701,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		// The interface may contain more data than the shader can consume.
 		// The interface must provide at least the used by the shader.
 		ProgramAttributes attribs{ _glId };
+
+		bool relink = false;
 		for (const auto& attrib : attribs)
 		{
 			const auto& name = attrib.Name;
@@ -713,6 +718,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				int loc = layout.location(idx);
 
 				glBindAttribLocation(_glId, loc, name.c_str());
+				relink = true;
 			} else if (name.find("gl_") != 0)
 			{
 				// Append to error output
@@ -730,7 +736,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		//}
 
 		// Relink the program to enable the changed binding configuration
-		glLinkProgram(id());
+		if (relink)
+			glLinkProgram(id());
 
 		VclAssertBlock
 		{

@@ -161,7 +161,7 @@ namespace Vcl { namespace Graphics { namespace ImageProcessing {
 	void OutputSlot::setResource(const std::shared_ptr<Runtime::Texture>& res, unsigned int width, unsigned int height)
 	{
 		VclRequire(implies(res, width <= (unsigned int)res->width()), "'width' is in range.");
-		VclRequire(implies(res, height <= (unsigned int)res->height()), "'width' is in range.");
+		VclRequire(implies(res, height <= (unsigned int)res->height()), "'height' is in range.");
 
 		_resource = res;
 		_width = width;

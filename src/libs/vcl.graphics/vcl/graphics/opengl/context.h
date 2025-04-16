@@ -63,6 +63,13 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		//! Enable the OpenGL debug message extension
 		static void setupDebugMessaging();
 
+		//! Check state of glVertexArrayAttribIFormat driver bug
+		//! \returns True, if the driver is affected by the bug
+		static bool affectedByGLVertexArrayAttribIFormat()
+		{
+			return _vertex_array_attrib_iformat_bug;
+		}
+
 	public:
 		Context(const ContextDesc& desc = {});
 #if defined VCL_EGL_SUPPORT
@@ -107,5 +114,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		//! Allocated surface
 		bool _allocated_surface{ false };
+
+		//! Affected by glVertexArrayAttribIFormat bug
+		static bool _vertex_array_attrib_iformat_bug;
 	};
 }}}

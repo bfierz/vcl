@@ -26,6 +26,7 @@
 #include <vcl/graphics/runtime/opengl/state/inputlayout.h>
 
 // VCL
+#include <vcl/graphics/opengl/context.h>
 #include <vcl/graphics/opengl/gl.h>
 
 #if defined(VCL_GL_ARB_direct_state_access)
@@ -77,6 +78,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		glCreateVertexArraysVCL(1, &_vaoID);
 #if !(defined(VCL_GL_ARB_direct_state_access) || defined(VCL_GL_EXT_direct_state_access))
 		glBindVertexArray(_vaoID);
+#else
+		if (Vcl::Graphics::OpenGL::Context::affectedByGLVertexArrayAttribIFormat())
+		{
+			glBindVertexArray(_vaoID);
+		}
 #endif
 
 		int idx = 0;
@@ -123,6 +129,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		}
 #if !(defined(VCL_GL_ARB_direct_state_access) || defined(VCL_GL_EXT_direct_state_access))
 		glBindVertexArray(GL_NONE);
+#else
+		if (Vcl::Graphics::OpenGL::Context::affectedByGLVertexArrayAttribIFormat())
+		{
+			glBindVertexArray(GL_NONE);
+		}
 #endif
 	}
 }}}}

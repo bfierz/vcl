@@ -126,6 +126,9 @@ namespace {
 }
 
 namespace Vcl { namespace Graphics { namespace OpenGL {
+
+	bool Context::_vertex_array_attrib_iformat_bug = false;
+
 	const char* Context::profileType()
 	{
 		GLint profile = GL::getInteger(GL_CONTEXT_PROFILE_MASK);
@@ -397,12 +400,23 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			std::terminate();
 		}
 
+		const auto vendor = glGetString(GL_VENDOR);
 		std::cout << "Status: Using OpenGL:   " << glGetString(GL_VERSION) << std::endl;
-		std::cout << "Status:       Vendor:   " << glGetString(GL_VENDOR) << std::endl;
+		std::cout << "Status:       Vendor:   " << vendor << std::endl;
 		std::cout << "Status:       Renderer: " << glGetString(GL_RENDERER) << std::endl;
 		std::cout << "Status:       Profile:  " << profileType() << std::endl;
 		std::cout << "Status:       Shading:  " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
 		std::cout << "Status: Using GLEW:     " << glewGetString(GLEW_VERSION) << std::endl;
+
+#if defined VCL_ABI_WINAPI
+		// Helpful list of existing OpenGL driver bugs:
+		// https://doc.magnum.graphics/magnum/opengl-workarounds.html
+		if (std::string(reinterpret_cast<const char*>(vendor)).find("Intel") != std::string::npos)
+		{
+			std::cout << "Status: Intel driver detected. Workaround for Intel driver bug: glVertexArrayAttribIFormat." << std::endl;
+			_vertex_array_attrib_iformat_bug = true;
+		}
+#endif
 	}
 
 	void Context::setupDebugMessaging()
