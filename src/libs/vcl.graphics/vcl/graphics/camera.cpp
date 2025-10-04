@@ -210,7 +210,7 @@ namespace Vcl { namespace Graphics {
 
 	void Camera::encloseInFrustum(const Eigen::Vector3f& center, const Eigen::Vector3f& dir_to_camera, float radius, const Eigen::Vector3f& up)
 	{
-		assert(radius > 0.0f);
+		VclRequire(radius > 0., "Radius is greater than zero");
 
 		setPosition(center + dir_to_camera.normalized() * 2.0f * 1.05f * radius);
 		setTarget(center);
