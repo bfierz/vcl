@@ -34,7 +34,7 @@ jobs:
           configGraphicsOpenGL: 'on'
           configGraphicsEGL: 'on'
     pool:
-      vmImage: 'ubuntu-20.04'
+      vmImage: 'ubuntu-24.04'
     steps:
       - template: ci/azure-pipeline-generic.yml
   - job: Linux_ARM
@@ -57,7 +57,7 @@ jobs:
           configGraphicsOpenGL: 'off'
           configGraphicsEGL: 'off'
     pool:
-      vmImage: 'ubuntu-20.04'
+      vmImage: 'ubuntu-24.04'
     steps:
       - template: ci/azure-pipeline-generic.yml
   - job: Linux_ARM64
@@ -80,7 +80,7 @@ jobs:
           configGraphicsOpenGL: 'off'
           configGraphicsEGL: 'off'
     pool:
-      vmImage: 'ubuntu-20.04'
+      vmImage: 'ubuntu-24.04'
     steps:
       - template: ci/azure-pipeline-generic.yml
   - job: MacOS
@@ -136,6 +136,6 @@ jobs:
           configGraphicsOpenGL: 'on'
           configGraphicsEGL: 'off'
     pool:
-      vmImage: 'windows-2019'
+      vmImage: 'windows-2025'
     steps:
       - template: ci/azure-pipeline-generic.yml
