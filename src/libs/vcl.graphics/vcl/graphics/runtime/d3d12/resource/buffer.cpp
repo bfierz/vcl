@@ -102,7 +102,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			_targetStates = toD3DResourceState(usage());
 		}
 
-		_currentStates = init_data ? D3D12_RESOURCE_STATE_COPY_DEST : buffer_usage;
+		_currentStates = D3D12_RESOURCE_STATE_COMMON;
 
 		ID3D12Device* d3d12_dev = device->nativeDevice();
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
@@ -120,6 +120,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 		if (init_data)
 		{
+			CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				_resource.Get(),
+				D3D12_RESOURCE_STATE_COMMON,
+				D3D12_RESOURCE_STATE_COPY_DEST);
+			cmd_queue->ResourceBarrier(1, &barrier);
+			_currentStates = D3D12_RESOURCE_STATE_COPY_DEST;
+
 			const auto upload_heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 			const auto upload_buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes);
 			VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
@@ -136,6 +143,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			subresource_data.SlicePitch = subresource_data.RowPitch;
 
 			UpdateSubresources(cmd_queue, _resource.Get(), _uploadResource.Get(), 0, 0, 1, &subresource_data);
+		}
+
+		if (cmd_queue && _currentStates != buffer_usage)
+		{
+			CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+				_resource.Get(),
+				_currentStates,
+				buffer_usage);
+			cmd_queue->ResourceBarrier(1, &barrier);
 		}
 	}
 
