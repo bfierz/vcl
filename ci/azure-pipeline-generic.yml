@@ -38,7 +38,7 @@ steps:
           sudo make -C lcov-1.15/ install
 
           # Update link to gcov
-          sudo ln -sf /usr/bin/gcov-9 /usr/bin/gcov
+          sudo ln -sf /usr/bin/gcov-13 /usr/bin/gcov
           gcov --version
 
           # Install gcovr
