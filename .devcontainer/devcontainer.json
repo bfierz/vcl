@@ -1,0 +1,73 @@
+// For format details, see https://aka.ms/devcontainer.json
+{
+  "name": "C++ Graphics Dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "UBUNTU_VERSION": "22.04"
+    }
+  },
+
+  // Codespaces runs on remote infra - use a VNC-in-browser instead of host X11.
+  "runArgs": [
+    // allow shared memory for Chromium/WebEngine etc. to behave better
+    "--shm-size=1g"
+  ],
+
+  // Mount a persistent ccache volume to speed up rebuilds
+  "mounts": [
+    "source=ccache,target=/usr/local/.ccache,type=volume"
+  ],
+
+  "containerEnv": {
+    "CCACHE_DIR": "/usr/local/.ccache",
+    "CCACHE_MAXSIZE": "10G",
+    "CCACHE_COMPRESS": "1",
+    "CONAN_HOME": "/workspaces/.conan2",
+    "VNC_PASSWORD": "localvnc"
+  },
+
+  "features": {},
+
+  "remoteUser": "vscode",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "vadimcn.vscode-lldb",
+        "xaver.clang-format"
+      ],
+      "settings": {
+        "cmake.generator": "Ninja",
+        "cmake.useCMakePresets": "auto",
+        "cmake.configureOnOpen": true,
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "editor.formatOnSave": true,
+        "clang-format.style": "file"
+      }
+    }
+  },
+
+  "postCreateCommand": [
+    "/bin/bash", "-lc",
+    "sudo mkdir -p /workspaces/.conan2 && sudo chown -R vscode:vscode /workspaces/.conan2 && conan profile detect --force && git submodule update --init --recursive"
+  ],
+
+  // Start the lightweight desktop + VNC gateway when the container boots
+  "postStartCommand": [
+    "/bin/bash", "-lc",
+    "nohup /usr/local/bin/start-vnc.sh > /var/log/start-vnc.log 2>&1 < /dev/null &"
+  ],
+
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "noVNC",
+      "onAutoForward": "openBrowser"
+    }
+  },
+
+  "shutdownAction": "stopContainer",
+  "updateRemoteUserUID": true
+}
