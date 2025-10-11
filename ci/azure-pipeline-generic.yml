@@ -2,6 +2,7 @@
 # Required job variables:
 # - buildTargetArch: 'arm','aarch64'
 # - buildConfig: 'Debug'
+# - configCpp: '14', '17', '20'
 # - configCodeCoverage: 'off'
 # - configVectorization: 'SSE 2'
 # - configGraphicsD3D12: 'off'
@@ -78,19 +79,19 @@ steps:
   - task: CMake@1
     inputs:
       workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_EGL_SUPPORT=$(configGraphicsEGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+      cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_EGL_SUPPORT=$(configGraphicsEGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
     condition: eq(variables['buildTargetArch'], '')
 
   - task: CMake@1
     inputs:
       workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
     condition: eq(variables['buildTargetArch'], 'arm')
 
   - task: CMake@1
     inputs:
       workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/aarch64-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
+      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/aarch64-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
     condition: eq(variables['buildTargetArch'], 'aarch64')
 
   - pwsh: |

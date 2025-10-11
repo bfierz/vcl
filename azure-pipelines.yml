@@ -7,6 +7,7 @@ jobs:
       matrix:
         Debug_SSE2:
           buildConfig: 'Debug'
+          configCpp: '14'
           configVectorization: 'SSE 2'
           configCodeCoverage: 'on'
           configGraphicsD3D12: 'off'
@@ -14,6 +15,7 @@ jobs:
           configGraphicsEGL: 'on'
         Debug_AVX:
           buildConfig: 'Debug'
+          configCpp: '17'
           configVectorization: 'AVX'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -21,6 +23,7 @@ jobs:
           configGraphicsEGL: 'on'
         Release_AVX:
           buildConfig: 'Release'
+          configCpp: '14'
           configVectorization: 'AVX'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -28,6 +31,7 @@ jobs:
           configGraphicsEGL: 'on'
         Release_AVX2:
           buildConfig: 'Release'
+          configCpp: '17'
           configVectorization: 'AVX 2'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -43,6 +47,7 @@ jobs:
         Debug_NEON:
           buildTargetArch: 'arm'
           buildConfig: 'Debug'
+          configCpp: '14'
           configVectorization: 'NEON'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -51,6 +56,7 @@ jobs:
         Release_NEON:
           buildTargetArch: 'arm'
           buildConfig: 'Release'
+          configCpp: '17'
           configVectorization: 'NEON'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -66,6 +72,7 @@ jobs:
         Debug_NEON:
           buildTargetArch: 'aarch64'
           buildConfig: 'Debug'
+          configCpp: '14'
           configVectorization: 'NEON'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -74,6 +81,7 @@ jobs:
         Release_NEON:
           buildTargetArch: 'aarch64'
           buildConfig: 'Release'
+          configCpp: '17'
           configVectorization: 'NEON'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -88,6 +96,7 @@ jobs:
       matrix:
         Debug_SSE2:
           buildConfig: 'Debug'
+          configCpp: '17'
           configVectorization: 'SSE 2'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -95,6 +104,7 @@ jobs:
           configGraphicsEGL: 'off'
         Release_SSE2:
           buildConfig: 'Release'
+          configCpp: '17'
           configVectorization: 'SSE 2'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'off'
@@ -109,6 +119,7 @@ jobs:
       matrix:
         Debug_SSE2:
           buildConfig: 'Debug'
+          configCpp: '14'
           configVectorization: 'SSE 2'
           configCodeCoverage: 'on'
           configGraphicsD3D12: 'on'
@@ -116,6 +127,7 @@ jobs:
           configGraphicsEGL: 'off'
         Debug_AVX:
           buildConfig: 'Debug'
+          configCpp: '17'
           configVectorization: 'AVX'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'on'
@@ -123,6 +135,7 @@ jobs:
           configGraphicsEGL: 'off'
         Release_AVX:
           buildConfig: 'Release'
+          configCpp: '14'
           configVectorization: 'AVX'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'on'
@@ -130,6 +143,7 @@ jobs:
           configGraphicsEGL: 'off'
         Release_AVX2:
           buildConfig: 'Release'
+          configCpp: '17'
           configVectorization: 'AVX 2'
           configCodeCoverage: 'off'
           configGraphicsD3D12: 'on'
