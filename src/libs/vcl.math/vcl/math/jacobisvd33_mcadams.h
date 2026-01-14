@@ -51,16 +51,26 @@ namespace Vcl { namespace Mathematics {
 	 */
 	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V, unsigned int sweeps);
 	inline int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Matrix<float, 3, 3>& U, Eigen::Matrix<float, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
-	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V, unsigned int sweeps = 4);
+	int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V, unsigned int sweeps);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float, 3, 3>& A, Eigen::Quaternion<float>& U, Eigen::Quaternion<float>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
 #ifdef VCL_VECTORIZE_SSE
 	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V, unsigned int sweeps);
 	inline int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Matrix<float4, 3, 3>& U, Eigen::Matrix<float4, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
-	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Quaternion<float4>& U, Eigen::Quaternion<float4>& V, unsigned int sweeps = 4);
+	int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Quaternion<float4>& U, Eigen::Quaternion<float4>& V, unsigned int sweeps);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float4, 3, 3>& A, Eigen::Quaternion<float4>& U, Eigen::Quaternion<float4>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
 #endif // defined(VCL_VECTORIZE_SSE)
 
 #ifdef VCL_VECTORIZE_AVX
 	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V, unsigned int sweeps);
-	inline int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, false); }
-	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V, unsigned int sweeps = 4);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Matrix<float8, 3, 3>& U, Eigen::Matrix<float8, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
+	int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V, unsigned int sweeps);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
 #endif // defined(VCL_VECTORIZE_AVX)
+
+#ifdef VCL_VECTORIZE_AVX512
+	int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V, unsigned int sweeps);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
+	int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Quaternion<float16>& U, Eigen::Quaternion<float16>& V, unsigned int sweeps);
+	inline int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Quaternion<float16>& U, Eigen::Quaternion<float16>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
+#endif // defined(VCL_VECTORIZE_AVX512)
 }}

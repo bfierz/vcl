@@ -24,7 +24,7 @@
 #
 set(VCLCOMPILEGLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
+if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
     message(WARNING "Downloading Shaderc automatically requires CMake 3.11+")
 else()
 
@@ -34,12 +34,12 @@ else()
 	if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
 		FetchContent_Declare(
 		  glsl_shader_compiler
-		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/continuous_release_2017/354/20210106-080226/install.zip
+		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/windows/vs2022_amd64_release_continuous/29/20260112-140346/install.zip
 		)
 	elseif("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
 		FetchContent_Declare(
 		  glsl_shader_compiler
-		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/351/20210106-080034/install.tgz
+		  URL      https://storage.googleapis.com/shaderc/artifacts/prod/graphics_shader_compiler/shaderc/linux/continuous_clang_release/510/20260112-140346/install.tgz
 		)
 	endif()
 	FetchContent_GetProperties(glsl_shader_compiler)
@@ -72,7 +72,7 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 	set(tmp_file "${output_base_file}.tmp.spv")
 	set(output_cpp_file "${output_base_file}.spv.cpp")
 	set(output_h_file "${CMAKE_CURRENT_BINARY_DIR}/${output_base_file}.spv.h")
-	
+
 	# Append the name to the output
 	set(${compiled_files} ${output_cpp_file} ${output_h_file} PARENT_SCOPE)
 
@@ -90,13 +90,13 @@ function(VclCompileGLSL file_to_compile target_env symbol include_paths compiled
 
 		COMMAND
 			"${GLSLC}" --target-env=${target_env} ${include_dir_param} -o ${tmp_file} ${file_to_compile}
-			
+
 		COMMAND
 			${CMAKE_COMMAND} ARGS ${bin2c_cmdline}
-		
+
 		MAIN_DEPENDENCY
 			${file_to_compile}
-		
+
 		COMMENT
 			"Compiling ${file_to_compile} to ${output_cpp_file} and ${output_h_file}"
 	)
