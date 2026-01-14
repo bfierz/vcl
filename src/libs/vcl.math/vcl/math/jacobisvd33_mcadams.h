@@ -67,10 +67,10 @@ namespace Vcl { namespace Mathematics {
 	inline int McAdamsJacobiSVD(Eigen::Matrix<float8, 3, 3>& A, Eigen::Quaternion<float8>& U, Eigen::Quaternion<float8>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
 #endif // defined(VCL_VECTORIZE_AVX)
 
-#ifdef VCL_VECTORIZE_AVX2
+#ifdef VCL_VECTORIZE_AVX512
 	int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V, unsigned int sweeps);
 	inline int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Matrix<float16, 3, 3>& U, Eigen::Matrix<float16, 3, 3>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
 	int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Quaternion<float16>& U, Eigen::Quaternion<float16>& V, unsigned int sweeps);
 	inline int McAdamsJacobiSVD(Eigen::Matrix<float16, 3, 3>& A, Eigen::Quaternion<float16>& U, Eigen::Quaternion<float16>& V) { return McAdamsJacobiSVD(A, U, V, 4); }
-#endif // defined(VCL_VECTORIZE_AVX2)
+#endif // defined(VCL_VECTORIZE_AVX512)
 }}

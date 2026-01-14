@@ -288,7 +288,7 @@ int main(int, char**)
 	computeSolution<float8> (nr_problems, mcadams_float8,  F, resU, resV, resS); checkSolution("McAdamnsSVD - float8",  "mc_adams_svd_float8_errors.txt",  nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif
 
-#ifdef VCL_VECTORIZE_AVX2
+#ifdef VCL_VECTORIZE_AVX512
 	auto mcadams_float16 = static_cast<ComputeSvdFloat16>(McAdamsJacobiSVD);
 	computeSolution<float16>(nr_problems, mcadams_float16, F, resU, resV, resS); checkSolution("McAdamnsSVD - float16", "mc_adams_svd_float16_errors.txt", nr_problems, 1e-5f, refU, refV, refS, resU, resV, resS);
 #endif

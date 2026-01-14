@@ -64,11 +64,11 @@ set(SOURCE
 	vcl/math/jacobisvd33_mcadams_mat.cpp
 	vcl/math/jacobisvd33_mcadams_mat_sse.cpp
 	vcl/math/jacobisvd33_mcadams_mat_avx.cpp
-	vcl/math/jacobisvd33_mcadams_mat_avx2.cpp
+	vcl/math/jacobisvd33_mcadams_mat_avx512.cpp
 	vcl/math/jacobisvd33_mcadams_quat.cpp
 	vcl/math/jacobisvd33_mcadams_quat_sse.cpp
 	vcl/math/jacobisvd33_mcadams_quat_avx.cpp
-	vcl/math/jacobisvd33_mcadams_quat_avx2.cpp
+	vcl/math/jacobisvd33_mcadams_quat_avx512.cpp
 	vcl/math/jacobisvd33_qr.cpp
 	vcl/math/jacobisvd33_qr.h
 	vcl/math/jacobisvd33_qr_impl.h

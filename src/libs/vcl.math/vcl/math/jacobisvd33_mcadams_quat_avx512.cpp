@@ -24,7 +24,7 @@
  */
 #include <vcl/math/jacobisvd33_mcadams.h>
 
-#ifdef VCL_VECTORIZE_AVX2
+#ifdef VCL_VECTORIZE_AVX512
 
 // VCL
 #	include <vcl/core/contract.h>
@@ -110,4 +110,4 @@ namespace Vcl { namespace Mathematics {
 #	elif defined VCL_COMPILER_CLANG
 #		pragma clang diagnostic pop
 #	endif
-#endif // defined(VCL_VECTORIZE_AVX)
+#endif // defined(VCL_VECTORIZE_AVX512)

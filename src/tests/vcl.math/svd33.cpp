@@ -523,7 +523,7 @@ TEST(SVD33, McAdamsQuatSVDFloat8)
 }
 #endif // defined VCL_VECTORIZE_AVX
 
-#ifdef VCL_VECTORIZE_AVX2
+#ifdef VCL_VECTORIZE_AVX512
 TEST(SVD33, McAdamsSVDFloat16)
 {
 	runMcAdamsTest<Vcl::float16>(1e-5f);
@@ -532,7 +532,7 @@ TEST(SVD33, McAdamsQuatSVDFloat16)
 {
 	runMcAdamsQuatTest<Vcl::float16>(1e-5f);
 }
-#endif // defined VCL_VECTORIZE_AVX2
+#endif // defined VCL_VECTORIZE_AVX512
 
 TEST(SVD33, TwoSidedSVDFloat)
 {
