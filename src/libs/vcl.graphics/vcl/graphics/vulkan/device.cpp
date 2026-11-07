@@ -82,10 +82,12 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 			// Memory type: Download
 			classification = (!device_location && host_visible && coherent && cached) ? MemoryHeapType::Download : classification;
 
-			if (classification != MemoryHeapType::None)
-			{
-				_memoryHeaps.emplace_back(this, _vkMemory.memoryHeaps[type.heapIndex].size, type.heapIndex, type_index, classification, type.propertyFlags);
-			}
+			// Keep memory types not matching a specific classification (e.g., on unified-memory
+			// devices all types are device local and host visible) for the flag-based lookup
+			if (classification == MemoryHeapType::None && type.propertyFlags != 0)
+				classification = MemoryHeapType::Other;
+
+			_memoryHeaps.emplace_back(this, _vkMemory.memoryHeaps[type.heapIndex].size, type.heapIndex, type_index, classification, type.propertyFlags);
 			type_index++;
 		}
 	}
@@ -107,16 +109,52 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 	const MemoryHeap* Device::findMemoryHeap(const VkMemoryRequirements& requirements, MemoryHeapType heap_type) const
 	{
-		uint32_t type_bits = requirements.memoryTypeBits;
+		const uint32_t type_bits = requirements.memoryTypeBits;
+		const auto is_supported = [type_bits](const MemoryHeap& heap) {
+			return (type_bits & (1u << heap.heapTypeIndex())) != 0;
+		};
+
+		// Prefer a memory type with the exact classification
 		for (const auto& heap : _memoryHeaps)
 		{
-			if (heap.type() == heap_type &&
-				(type_bits & (1 << heap.heapTypeIndex())) != 0)
-			{
+			if (heap.type() == heap_type && is_supported(heap))
 				return &heap;
-			}
 		}
-		return nullptr;
+
+		// Fall back to any memory type providing the required properties
+		VkMemoryPropertyFlags required = 0;
+		VkMemoryPropertyFlags preferred = 0;
+		switch (heap_type)
+		{
+		case MemoryHeapType::Default:
+			preferred = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			break;
+		case MemoryHeapType::Streaming:
+			required = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+			break;
+		case MemoryHeapType::Upload:
+			required = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+			break;
+		case MemoryHeapType::Download:
+			required = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+			preferred = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+			break;
+		default:
+			return nullptr;
+		}
+
+		const MemoryHeap* fallback = nullptr;
+		for (const auto& heap : _memoryHeaps)
+		{
+			if (!is_supported(heap) || (heap.properties() & required) != required)
+				continue;
+
+			if ((heap.properties() & preferred) == preferred)
+				return &heap;
+			if (!fallback)
+				fallback = &heap;
+		}
+		return fallback;
 	}
 
 	void Device::enumerateLayersAndExtensions(
