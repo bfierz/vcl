@@ -121,8 +121,25 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		VkPhysicalDeviceVulkan13Features vk13_features = {};
 		vk13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
 		vk13_features.synchronization2 = VK_TRUE;
+		vk13_features.dynamicRendering = VK_TRUE;
+
+		// Enable the optional core features used by the pipeline states, if available
+		VkPhysicalDeviceFeatures supported_features = {};
+		vkGetPhysicalDeviceFeatures(*dev, &supported_features);
+
+		VkPhysicalDeviceFeatures2 features = {};
+		features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		features.pNext = &vk13_features;
+		features.features.geometryShader = supported_features.geometryShader;
+		features.features.tessellationShader = supported_features.tessellationShader;
+		features.features.independentBlend = supported_features.independentBlend;
+		features.features.dualSrcBlend = supported_features.dualSrcBlend;
+		features.features.logicOp = supported_features.logicOp;
+		features.features.fillModeNonSolid = supported_features.fillModeNonSolid;
+		features.features.depthBiasClamp = supported_features.depthBiasClamp;
+
 		dev_info.pEnabledFeatures = nullptr;
-		dev_info.pNext = &vk13_features;
+		dev_info.pNext = &features;
 
 		// Queue info
 		float queuePriorities[] = { 0.0f, 0.0f };

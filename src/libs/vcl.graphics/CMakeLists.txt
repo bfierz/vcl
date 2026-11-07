@@ -163,8 +163,6 @@ set(SOURCE_VULKAN
 	vcl/graphics/vulkan/device.h
 	vcl/graphics/vulkan/memory.cpp
 	vcl/graphics/vulkan/memory.h
-	vcl/graphics/vulkan/pipelinestate.cpp
-	vcl/graphics/vulkan/pipelinestate.h
 	vcl/graphics/vulkan/platform.cpp
 	vcl/graphics/vulkan/platform.h
 	vcl/graphics/vulkan/swapchain.cpp
@@ -175,8 +173,16 @@ set(SOURCE_VULKAN
 	vcl/graphics/runtime/vulkan/resource/buffer.h
 	vcl/graphics/runtime/vulkan/resource/shader.cpp
 	vcl/graphics/runtime/vulkan/resource/shader.h
+	vcl/graphics/runtime/vulkan/state/blendstate.cpp
+	vcl/graphics/runtime/vulkan/state/blendstate.h
+	vcl/graphics/runtime/vulkan/state/depthstencilstate.cpp
+	vcl/graphics/runtime/vulkan/state/depthstencilstate.h
+	vcl/graphics/runtime/vulkan/state/inputlayout.cpp
+	vcl/graphics/runtime/vulkan/state/inputlayout.h
 	vcl/graphics/runtime/vulkan/state/pipelinestate.cpp
 	vcl/graphics/runtime/vulkan/state/pipelinestate.h
+	vcl/graphics/runtime/vulkan/state/rasterizerstate.cpp
+	vcl/graphics/runtime/vulkan/state/rasterizerstate.h
 )
 
 set(SOURCE_WEBGPU

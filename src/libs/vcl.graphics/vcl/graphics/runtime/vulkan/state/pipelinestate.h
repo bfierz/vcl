@@ -73,6 +73,39 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		const DescriptorSetLayout* _descriptorSetLayout{ nullptr };
 	};
 
+	class GraphicsPipelineState : public Runtime::PipelineState
+	{
+	public:
+		GraphicsPipelineState(
+			Vcl::Graphics::Vulkan::Context* context,
+			const PipelineLayout* layout,
+			const PipelineStateDescription& desc,
+			const RenderTargetLayout& rt_layout);
+		~GraphicsPipelineState();
+
+		//! Convert to Vulkan ID
+		inline operator VkPipeline() const { return _state; }
+
+		//! Access the pipeline layout
+		const PipelineLayout& layout() const { return *_layout; }
+
+		//! Access the input layout
+		const InputLayoutDescription& inputLayout() const { return _inputLayout; }
+
+	private:
+		//! Owner
+		Vcl::Graphics::Vulkan::Context* _context;
+
+		//! Associated layout
+		const PipelineLayout* _layout;
+
+		//! Input layout
+		InputLayoutDescription _inputLayout;
+
+		//! Vulkan pipeline state
+		VkPipeline _state{ VK_NULL_HANDLE };
+	};
+
 	class ComputePipelineState : public Runtime::PipelineState
 	{
 	public:
@@ -93,6 +126,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		const PipelineLayout* _layout;
 
 		//! Vulkan pipeline state
-		VkPipeline _state;
+		VkPipeline _state{ VK_NULL_HANDLE };
 	};
 }}}}

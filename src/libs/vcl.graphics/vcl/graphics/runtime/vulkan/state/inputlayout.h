@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2026 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,72 +28,22 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <string>
+#include <vector>
 
 // Vulkan
 #include <vulkan/vulkan.h>
 
 // VCL
-#include <vcl/graphics/runtime/state/pipelinestate.h>
-#include <vcl/graphics/vulkan/context.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
+#include <vcl/graphics/runtime/state/inputlayout.h>
 
-namespace Vcl { namespace Graphics { namespace Vulkan {
-	class PipelineLayout final
-	{
-	public:
-		//! Constructor
-		PipelineLayout(Context* context, DescriptorSetLayout* descriptor_set_layout);
-
-		//! Destructor
-		~PipelineLayout();
-
-		//! Convert to Vulkan ID
-		inline operator VkPipelineLayout() const
-		{
-			return _layout;
-		}
-
-	public:
-	private:
-		//! Owner
-		Context* _context;
-
-		//! Vulkan pipeline layout
-		VkPipelineLayout _layout;
-
-		//! Associated descriptor set layout
-		DescriptorSetLayout* _descriptorSetLayout;
-	};
-
-	class PipelineState final : public Vcl::Graphics::Runtime::PipelineState
-	{
-	public:
-		//! Constructor
-		PipelineState(
-			Context* context,
-			PipelineLayout* layout,
-			VkRenderPass pass,
-			const Vcl::Graphics::Runtime::PipelineStateDescription& desc);
-
-		//! Destructor
-		~PipelineState();
-
-		//! Convert to Vulkan ID
-		inline operator VkPipeline() const
-		{
-			return _state;
-		}
-
-	public:
-	private:
-		//! Owner
-		Context* _context;
-
-		//! Associated layout
-		PipelineLayout* _layout;
-
-		//! Vulkan pipeline state
-		VkPipeline _state;
-	};
-}}}
+namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
+	//! Convert the input layout description
+	//! \param desc Input layout to convert
+	//! \param bindings Storage for the converted vertex buffer bindings
+	//! \param attributes Storage for the converted vertex attributes
+	//! \returns The vertex input state referencing \p bindings and \p attributes
+	VkPipelineVertexInputStateCreateInfo toVulkan(
+		const InputLayoutDescription& desc,
+		std::vector<VkVertexInputBindingDescription>& bindings,
+		std::vector<VkVertexInputAttributeDescription>& attributes);
+}}}}

@@ -38,6 +38,7 @@ set(VCL_TEST_SRC
 	compute.cpp
 	context.cpp
 	descriptorset.cpp
+	pipelinestate.cpp
 	shaderprogram.cpp
 )
 set(VCL_TEST_INC
@@ -45,6 +46,8 @@ set(VCL_TEST_INC
 )
 
 set(SHADERS
+	colour.vert
+	colour.frag
 	quad.vert
 	quad.frag
 	saxpy.comp
@@ -75,7 +78,21 @@ vclcompileglsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_2
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/colour.vert
+	"vulkan"
+	"ColourSpirvVS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_3
+)
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/colour.frag
+	"vulkan"
+	"ColourSpirvFS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_4
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4})
 
 target_sources(vcl.graphics.vulkan.test
 	PRIVATE

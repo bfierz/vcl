@@ -41,7 +41,6 @@
 #include <vcl/graphics/runtime/vulkan/resource/buffer.h>
 #include <vcl/graphics/runtime/vulkan/resource/shader.h>
 #include <vcl/graphics/vulkan/commands.h>
-#include <vcl/graphics/vulkan/pipelinestate.h>
 #include <vcl/graphics/vulkan/platform.h>
 #include <vcl/graphics/vulkan/swapchain.h>
 #include <vcl/graphics/vulkan/tools.h>
