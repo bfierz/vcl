@@ -11,7 +11,9 @@ RUN if ! id -u vscode >/dev/null 2>&1; then \
     fi
 
 # Add the repository for up-to-date mesa drivers
-RUN apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:kisak/kisak-mesa 
+RUN apt-get update && apt-get install -y software-properties-common \
+    && add-apt-repository -y ppa:kisak/kisak-mesa \
+    && rm -rf /var/lib/apt/lists/*
 
 # Core build deps, C++ toolchains, debuggers, and helpers
 RUN apt-get update && apt-get install -y --no-install-recommends \
