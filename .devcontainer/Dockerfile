@@ -3,7 +3,6 @@ ARG UBUNTU_VERSION=22.04
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-${UBUNTU_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG DEFAULT_COMPILER=gcc
 
 # Create a non-root user (vscode) if the base image didn't already
 # (devcontainers/base provides it, but this is safe)
@@ -39,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb x11vnc openbox supervisor \
     websockify novnc \
     # utils
-    xterm x11-apps dbus-x11 doxygen \
+    xterm dbus-x11 doxygen \
     && rm -rf /var/lib/apt/lists/*
 
 # Conan 2 (system-wide via pipx; keeps it isolated & on PATH)
@@ -50,7 +49,7 @@ RUN pipx ensurepath \
     && pipx install "conan>=2.0,<3.0" \
     && conan --version
 
-# Default compiler selection (gcc or clang)
+# ccache settings
 ENV CCACHE_DIR=/usr/local/.ccache
 ENV CCACHE_MAXSIZE=10G
 ENV CCACHE_COMPRESS=1
