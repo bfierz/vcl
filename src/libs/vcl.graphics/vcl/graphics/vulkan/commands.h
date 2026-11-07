@@ -35,6 +35,7 @@
 
 // VCL
 #include <vcl/core/span.h>
+#include <vcl/graphics/runtime/state/common.h>
 #include <vcl/graphics/vulkan/descriptorset.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
@@ -120,10 +121,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		void end();
 
 		//! Bind a pipeline
-		void bind(VkPipeline pipeline);
+		void bind(VkPipelineBindPoint bind_point, VkPipeline pipeline);
 
 		//! Bind a descriptor set
-		void bind(VkDescriptorSet descriptors, VkPipelineLayout layout);
+		void bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout);
 
 		//! Fill a buffer with a small memory pattern
 		void fillBuffer(VkBuffer dst_buffer, size_t offset, size_t size, uint32_t data);
@@ -158,6 +159,28 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! End the current render pass
 		void endRenderPass();
+
+		//! Begin rendering using dynamic rendering
+		//! Render-targets given as Vulkan textures are transitioned to the attachment layouts.
+		//! Render-targets given as 'Attachment' are image views already in the attachment layout.
+		//! \param desc Render-targets to render to
+		//! \param render_area Area to render to. Defaults to the size of the first texture.
+		void beginRendering(const Runtime::RenderPassDescription& desc, const VkRect2D* render_area = nullptr);
+
+		//! End rendering started by beginRendering
+		void endRendering();
+
+		//! Bind a vertex buffer
+		void bindVertexBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset = 0);
+
+		//! Bind an index buffer
+		void bindIndexBuffer(VkBuffer buffer, VkIndexType type, VkDeviceSize offset = 0);
+
+		//! Draw non-indexed primitives
+		void draw(uint32_t vertex_count, uint32_t instance_count = 1, uint32_t first_vertex = 0, uint32_t first_instance = 0);
+
+		//! Draw indexed primitives
+		void drawIndexed(uint32_t index_count, uint32_t instance_count = 1, uint32_t first_index = 0, int32_t vertex_offset = 0, uint32_t first_instance = 0);
 
 		//! Prepare a framebuffer for presentation
 		void prepareForPresent(VkImage img);

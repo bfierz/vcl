@@ -122,8 +122,8 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	cmd_buffer.begin();
 	VkBufferCopy cpy_rgn = { 0, 0, 1024 };
 	cmd_buffer.copy(b0.id(), b1.id(), { &cpy_rgn, 1 });
-	cmd_buffer.bind(desc_set, pps.layout());
-	cmd_buffer.bind(pps);
+	cmd_buffer.bind(VK_PIPELINE_BIND_POINT_COMPUTE, desc_set, pps.layout());
+	cmd_buffer.bind(VK_PIPELINE_BIND_POINT_COMPUTE, pps);
 	cmd_buffer.pushConstants<KernelParameters>(pps.layout(), ShaderStage::Compute, 16, 16, 1.0f);
 	cmd_buffer.dispatch(16, 16);
 	cmd_buffer.end();

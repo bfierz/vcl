@@ -25,11 +25,13 @@
 #include <vcl/graphics/vulkan/commands.h>
 
 // C++ standard library
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/runtime/vulkan/resource/texture.h>
 #include <vcl/graphics/vulkan/context.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
@@ -182,14 +184,14 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		VclEnsure(res == VK_SUCCESS, "Command buffer recording ended.");
 	}
 
-	void CommandBuffer::bind(VkPipeline pipeline)
+	void CommandBuffer::bind(VkPipelineBindPoint bind_point, VkPipeline pipeline)
 	{
-		vkCmdBindPipeline(_cmdBuffer, VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+		vkCmdBindPipeline(_cmdBuffer, bind_point, pipeline);
 	}
 
-	void CommandBuffer::bind(VkDescriptorSet descriptors, VkPipelineLayout layout)
+	void CommandBuffer::bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout)
 	{
-		vkCmdBindDescriptorSets(_cmdBuffer, VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptors, 0, nullptr);
+		vkCmdBindDescriptorSets(_cmdBuffer, bind_point, layout, 0, 1, &descriptors, 0, nullptr);
 	}
 
 	void CommandBuffer::fillBuffer(VkBuffer dst_buffer, size_t offset, size_t size, uint32_t data)
@@ -223,6 +225,138 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	void CommandBuffer::endRenderPass()
 	{
 		vkCmdEndRenderPass(_cmdBuffer);
+	}
+
+	namespace {
+		VkAttachmentLoadOp toVulkan(Runtime::AttachmentLoadOp op)
+		{
+			switch (op)
+			{
+			case Runtime::AttachmentLoadOp::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
+			case Runtime::AttachmentLoadOp::Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
+			default: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			}
+		}
+
+		VkAttachmentStoreOp toVulkan(Runtime::AttachmentStoreOp op)
+		{
+			// 'Clear' discards the content, as in the D3D12 backend
+			return op == Runtime::AttachmentStoreOp::Store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		}
+
+		VkImageView toImageView(void* attachment)
+		{
+			static_assert(sizeof(VkImageView) == sizeof(void*), "Image view handle is compatible");
+			return reinterpret_cast<VkImageView>(attachment);
+		}
+	}
+
+	void CommandBuffer::beginRendering(const Runtime::RenderPassDescription& desc, const VkRect2D* render_area)
+	{
+		using Runtime::Vulkan::Texture;
+
+		VkRect2D area = render_area ? *render_area : VkRect2D{};
+		const auto update_area = [&area, render_area](const Texture* tex) {
+			if (!render_area && area.extent.width == 0)
+				area.extent = { static_cast<uint32_t>(tex->width()), static_cast<uint32_t>(tex->height()) };
+		};
+
+		std::vector<VkRenderingAttachmentInfo> colour_attachments;
+		colour_attachments.reserve(desc.RenderTargetAttachments.size());
+		for (const auto& rt : desc.RenderTargetAttachments)
+		{
+			VkRenderingAttachmentInfo info = {};
+			info.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			if (rt.View)
+			{
+				auto tex = dynamic_cast<Texture*>(rt.View.get());
+				VclRequire(tex, "Render-target is a Vulkan texture");
+				tex->transition(_cmdBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				info.imageView = tex->view();
+				update_area(tex);
+			} else
+			{
+				info.imageView = toImageView(rt.Attachment);
+			}
+			info.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			info.loadOp = toVulkan(rt.LoadOp);
+			info.storeOp = toVulkan(rt.StoreOp);
+			std::copy(rt.ClearColor.begin(), rt.ClearColor.end(), info.clearValue.color.float32);
+			colour_attachments.push_back(info);
+		}
+
+		const auto& ds = desc.DepthStencilTargetAttachment;
+		VkRenderingAttachmentInfo depth_attachment = {};
+		VkRenderingAttachmentInfo stencil_attachment = {};
+		bool has_depth = false;
+		bool has_stencil = false;
+		if (ds.View || ds.Attachment)
+		{
+			VkImageAspectFlags aspects = VK_IMAGE_ASPECT_DEPTH_BIT;
+			depth_attachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			if (ds.View)
+			{
+				auto tex = dynamic_cast<Texture*>(ds.View.get());
+				VclRequire(tex, "Depth-stencil target is a Vulkan texture");
+				tex->transition(_cmdBuffer, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+				depth_attachment.imageView = tex->view();
+				aspects = tex->aspects();
+				update_area(tex);
+			} else
+			{
+				depth_attachment.imageView = toImageView(ds.Attachment);
+			}
+			depth_attachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			depth_attachment.loadOp = toVulkan(ds.DepthLoadOp);
+			depth_attachment.storeOp = toVulkan(ds.DepthStoreOp);
+			depth_attachment.clearValue.depthStencil = { ds.ClearDepth, ds.ClearStencil };
+			has_depth = true;
+
+			if (aspects & VK_IMAGE_ASPECT_STENCIL_BIT)
+			{
+				stencil_attachment = depth_attachment;
+				stencil_attachment.loadOp = toVulkan(ds.StencilLoadOp);
+				stencil_attachment.storeOp = toVulkan(ds.StencilStoreOp);
+				has_stencil = true;
+			}
+		}
+
+		VclCheck(area.extent.width > 0 && area.extent.height > 0, "Render area is valid.");
+
+		VkRenderingInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+		info.renderArea = area;
+		info.layerCount = 1;
+		info.colorAttachmentCount = static_cast<uint32_t>(colour_attachments.size());
+		info.pColorAttachments = colour_attachments.data();
+		info.pDepthAttachment = has_depth ? &depth_attachment : nullptr;
+		info.pStencilAttachment = has_stencil ? &stencil_attachment : nullptr;
+		vkCmdBeginRendering(_cmdBuffer, &info);
+	}
+
+	void CommandBuffer::endRendering()
+	{
+		vkCmdEndRendering(_cmdBuffer);
+	}
+
+	void CommandBuffer::bindVertexBuffer(uint32_t binding, VkBuffer buffer, VkDeviceSize offset)
+	{
+		vkCmdBindVertexBuffers(_cmdBuffer, binding, 1, &buffer, &offset);
+	}
+
+	void CommandBuffer::bindIndexBuffer(VkBuffer buffer, VkIndexType type, VkDeviceSize offset)
+	{
+		vkCmdBindIndexBuffer(_cmdBuffer, buffer, offset, type);
+	}
+
+	void CommandBuffer::draw(uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance)
+	{
+		vkCmdDraw(_cmdBuffer, vertex_count, instance_count, first_vertex, first_instance);
+	}
+
+	void CommandBuffer::drawIndexed(uint32_t index_count, uint32_t instance_count, uint32_t first_index, int32_t vertex_offset, uint32_t first_instance)
+	{
+		vkCmdDrawIndexed(_cmdBuffer, index_count, instance_count, first_index, vertex_offset, first_instance);
 	}
 
 	void CommandBuffer::prepareForPresent(VkImage img)

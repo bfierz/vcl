@@ -40,6 +40,7 @@ set(VCL_TEST_SRC
 	descriptorset.cpp
 	pipelinestate.cpp
 	shaderprogram.cpp
+	textures.cpp
 )
 set(VCL_TEST_INC
 	test.h

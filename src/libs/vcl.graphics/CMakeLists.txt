@@ -173,6 +173,8 @@ set(SOURCE_VULKAN
 	vcl/graphics/runtime/vulkan/resource/buffer.h
 	vcl/graphics/runtime/vulkan/resource/shader.cpp
 	vcl/graphics/runtime/vulkan/resource/shader.h
+	vcl/graphics/runtime/vulkan/resource/texture.cpp
+	vcl/graphics/runtime/vulkan/resource/texture.h
 	vcl/graphics/runtime/vulkan/state/blendstate.cpp
 	vcl/graphics/runtime/vulkan/state/blendstate.h
 	vcl/graphics/runtime/vulkan/state/depthstencilstate.cpp
