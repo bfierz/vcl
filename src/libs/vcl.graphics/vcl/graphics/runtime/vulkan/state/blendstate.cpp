@@ -29,94 +29,96 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<LogicOperation, VkLogicOp> LogicOpsTable[] = {
+			{ LogicOperation::Clear,        VK_LOGIC_OP_CLEAR },
+			{ LogicOperation::Set,          VK_LOGIC_OP_SET },
+			{ LogicOperation::Copy,         VK_LOGIC_OP_COPY },
+			{ LogicOperation::CopyInverted, VK_LOGIC_OP_COPY_INVERTED },
+			{ LogicOperation::NoOp,         VK_LOGIC_OP_NO_OP },
+			{ LogicOperation::Invert,       VK_LOGIC_OP_INVERT },
+			{ LogicOperation::And,          VK_LOGIC_OP_AND },
+			{ LogicOperation::Nand,         VK_LOGIC_OP_NAND },
+			{ LogicOperation::Or,           VK_LOGIC_OP_OR },
+			{ LogicOperation::Nor,          VK_LOGIC_OP_NOR },
+			{ LogicOperation::Xor,          VK_LOGIC_OP_XOR },
+			{ LogicOperation::Equiv,        VK_LOGIC_OP_EQUIVALENT },
+			{ LogicOperation::AndReverse,   VK_LOGIC_OP_AND_REVERSE },
+			{ LogicOperation::AndInverted,  VK_LOGIC_OP_AND_INVERTED },
+			{ LogicOperation::OrReverse,    VK_LOGIC_OP_OR_REVERSE },
+			{ LogicOperation::OrInverted,   VK_LOGIC_OP_OR_INVERTED },
+		};
+		// clang-format on
+		constexpr EnumMap<LogicOperation, VkLogicOp, enumMapSize(LogicOpsTable)> LogicOps{ LogicOpsTable };
+
+		// The advanced blend operations require VK_EXT_blend_operation_advanced
+		// clang-format off
+		constexpr EnumMapping<BlendOperation, VkBlendOp> BlendOpsTable[] = {
+			{ BlendOperation::Add,           VK_BLEND_OP_ADD },
+			{ BlendOperation::Subtract,      VK_BLEND_OP_SUBTRACT },
+			{ BlendOperation::RevSubtract,   VK_BLEND_OP_REVERSE_SUBTRACT },
+			{ BlendOperation::Min,           VK_BLEND_OP_MIN },
+			{ BlendOperation::Max,           VK_BLEND_OP_MAX },
+			{ BlendOperation::Multiply,      VK_BLEND_OP_MULTIPLY_EXT },
+			{ BlendOperation::Screen,        VK_BLEND_OP_SCREEN_EXT },
+			{ BlendOperation::Overlay,       VK_BLEND_OP_OVERLAY_EXT },
+			{ BlendOperation::Darken,        VK_BLEND_OP_DARKEN_EXT },
+			{ BlendOperation::Lighten,       VK_BLEND_OP_LIGHTEN_EXT },
+			{ BlendOperation::Colordodge,    VK_BLEND_OP_COLORDODGE_EXT },
+			{ BlendOperation::Colorburn,     VK_BLEND_OP_COLORBURN_EXT },
+			{ BlendOperation::Hardlight,     VK_BLEND_OP_HARDLIGHT_EXT },
+			{ BlendOperation::Softlight,     VK_BLEND_OP_SOFTLIGHT_EXT },
+			{ BlendOperation::Difference,    VK_BLEND_OP_DIFFERENCE_EXT },
+			{ BlendOperation::Exclusion,     VK_BLEND_OP_EXCLUSION_EXT },
+			{ BlendOperation::HslHue,        VK_BLEND_OP_HSL_HUE_EXT },
+			{ BlendOperation::HslSaturation, VK_BLEND_OP_HSL_SATURATION_EXT },
+			{ BlendOperation::HslColor,      VK_BLEND_OP_HSL_COLOR_EXT },
+			{ BlendOperation::HslLuminosity, VK_BLEND_OP_HSL_LUMINOSITY_EXT },
+		};
+		// clang-format on
+		constexpr EnumMap<BlendOperation, VkBlendOp, enumMapSize(BlendOpsTable)> BlendOps{ BlendOpsTable };
+
+		// clang-format off
+		constexpr EnumMapping<Blend, VkBlendFactor> BlendFactorsTable[] = {
+			{ Blend::Zero,           VK_BLEND_FACTOR_ZERO },
+			{ Blend::One,            VK_BLEND_FACTOR_ONE },
+			{ Blend::SrcColour,      VK_BLEND_FACTOR_SRC_COLOR },
+			{ Blend::InvSrcColour,   VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR },
+			{ Blend::SrcAlpha,       VK_BLEND_FACTOR_SRC_ALPHA },
+			{ Blend::InvSrcAlpha,    VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA },
+			{ Blend::DestAlpha,      VK_BLEND_FACTOR_DST_ALPHA },
+			{ Blend::InvDestAlpha,   VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA },
+			{ Blend::DestColour,     VK_BLEND_FACTOR_DST_COLOR },
+			{ Blend::InvDestColour,  VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR },
+			{ Blend::SrcAlphaSat,    VK_BLEND_FACTOR_SRC_ALPHA_SATURATE },
+			{ Blend::BlendFactor,    VK_BLEND_FACTOR_CONSTANT_COLOR },
+			{ Blend::InvBlendFactor, VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR },
+			{ Blend::Src1Colour,     VK_BLEND_FACTOR_SRC1_COLOR },
+			{ Blend::InvSrc1Colour,  VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR },
+			{ Blend::Src1Alpha,      VK_BLEND_FACTOR_SRC1_ALPHA },
+			{ Blend::InvSrc1Alpha,   VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA },
+		};
+		// clang-format on
+		constexpr EnumMap<Blend, VkBlendFactor, enumMapSize(BlendFactorsTable)> BlendFactors{ BlendFactorsTable };
+	}
 
 	VkLogicOp toVulkan(LogicOperation op)
 	{
-		// clang-format off
-		switch (op) {
-		case LogicOperation::Clear       : return VK_LOGIC_OP_CLEAR;
-		case LogicOperation::Set         : return VK_LOGIC_OP_SET;
-		case LogicOperation::Copy        : return VK_LOGIC_OP_COPY;
-		case LogicOperation::CopyInverted: return VK_LOGIC_OP_COPY_INVERTED;
-		case LogicOperation::NoOp        : return VK_LOGIC_OP_NO_OP;
-		case LogicOperation::Invert      : return VK_LOGIC_OP_INVERT;
-		case LogicOperation::And         : return VK_LOGIC_OP_AND;
-		case LogicOperation::Nand        : return VK_LOGIC_OP_NAND;
-		case LogicOperation::Or          : return VK_LOGIC_OP_OR;
-		case LogicOperation::Nor         : return VK_LOGIC_OP_NOR;
-		case LogicOperation::Xor         : return VK_LOGIC_OP_XOR;
-		case LogicOperation::Equiv       : return VK_LOGIC_OP_EQUIVALENT;
-		case LogicOperation::AndReverse  : return VK_LOGIC_OP_AND_REVERSE;
-		case LogicOperation::AndInverted : return VK_LOGIC_OP_AND_INVERTED;
-		case LogicOperation::OrReverse   : return VK_LOGIC_OP_OR_REVERSE;
-		case LogicOperation::OrInverted  : return VK_LOGIC_OP_OR_INVERTED;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return LogicOps[op];
 	}
 
 	VkBlendOp toVulkan(BlendOperation op)
 	{
-		// The advanced blend operations require VK_EXT_blend_operation_advanced
-		// clang-format off
-		switch (op) {
-		case BlendOperation::Add          : return VK_BLEND_OP_ADD;
-		case BlendOperation::Subtract     : return VK_BLEND_OP_SUBTRACT;
-		case BlendOperation::RevSubtract  : return VK_BLEND_OP_REVERSE_SUBTRACT;
-		case BlendOperation::Min          : return VK_BLEND_OP_MIN;
-		case BlendOperation::Max          : return VK_BLEND_OP_MAX;
-		case BlendOperation::Multiply     : return VK_BLEND_OP_MULTIPLY_EXT;
-		case BlendOperation::Screen       : return VK_BLEND_OP_SCREEN_EXT;
-		case BlendOperation::Overlay      : return VK_BLEND_OP_OVERLAY_EXT;
-		case BlendOperation::Darken       : return VK_BLEND_OP_DARKEN_EXT;
-		case BlendOperation::Lighten      : return VK_BLEND_OP_LIGHTEN_EXT;
-		case BlendOperation::Colordodge   : return VK_BLEND_OP_COLORDODGE_EXT;
-		case BlendOperation::Colorburn    : return VK_BLEND_OP_COLORBURN_EXT;
-		case BlendOperation::Hardlight    : return VK_BLEND_OP_HARDLIGHT_EXT;
-		case BlendOperation::Softlight    : return VK_BLEND_OP_SOFTLIGHT_EXT;
-		case BlendOperation::Difference   : return VK_BLEND_OP_DIFFERENCE_EXT;
-		case BlendOperation::Exclusion    : return VK_BLEND_OP_EXCLUSION_EXT;
-		case BlendOperation::HslHue       : return VK_BLEND_OP_HSL_HUE_EXT;
-		case BlendOperation::HslSaturation: return VK_BLEND_OP_HSL_SATURATION_EXT;
-		case BlendOperation::HslColor     : return VK_BLEND_OP_HSL_COLOR_EXT;
-		case BlendOperation::HslLuminosity: return VK_BLEND_OP_HSL_LUMINOSITY_EXT;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return BlendOps[op];
 	}
 
 	VkBlendFactor toVulkan(Blend factor)
 	{
-		// clang-format off
-		switch (factor) {
-		case Blend::Zero          : return VK_BLEND_FACTOR_ZERO;
-		case Blend::One           : return VK_BLEND_FACTOR_ONE;
-		case Blend::SrcColour     : return VK_BLEND_FACTOR_SRC_COLOR;
-		case Blend::InvSrcColour  : return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
-		case Blend::SrcAlpha      : return VK_BLEND_FACTOR_SRC_ALPHA;
-		case Blend::InvSrcAlpha   : return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-		case Blend::DestAlpha     : return VK_BLEND_FACTOR_DST_ALPHA;
-		case Blend::InvDestAlpha  : return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
-		case Blend::DestColour    : return VK_BLEND_FACTOR_DST_COLOR;
-		case Blend::InvDestColour : return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
-		case Blend::SrcAlphaSat   : return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
-		case Blend::BlendFactor   : return VK_BLEND_FACTOR_CONSTANT_COLOR;
-		case Blend::InvBlendFactor: return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
-		case Blend::Src1Colour    : return VK_BLEND_FACTOR_SRC1_COLOR;
-		case Blend::InvSrc1Colour : return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
-		case Blend::Src1Alpha     : return VK_BLEND_FACTOR_SRC1_ALPHA;
-		case Blend::InvSrc1Alpha  : return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return BlendFactors[factor];
 	}
 
 	VkColorComponentFlags toVulkan(Flags<ColourWriteEnable> mask)

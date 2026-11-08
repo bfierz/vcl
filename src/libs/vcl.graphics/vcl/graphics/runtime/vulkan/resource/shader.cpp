@@ -34,11 +34,38 @@
 
 // VCL
 #	include <vcl/core/contract.h>
+#	include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	using DescriptorSetLayoutBinding = Graphics::Vulkan::DescriptorSetLayoutBinding;
 	using DescriptorType = Graphics::Vulkan::DescriptorType;
 	using ShaderStage = Graphics::Vulkan::ShaderStage;
+
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<ShaderType, VkShaderStageFlagBits> StageBitsTable[] = {
+			{ ShaderType::VertexShader,     VK_SHADER_STAGE_VERTEX_BIT },
+			{ ShaderType::ControlShader,    VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT },
+			{ ShaderType::EvaluationShader, VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT },
+			{ ShaderType::GeometryShader,   VK_SHADER_STAGE_GEOMETRY_BIT },
+			{ ShaderType::FragmentShader,   VK_SHADER_STAGE_FRAGMENT_BIT },
+			{ ShaderType::ComputeShader,    VK_SHADER_STAGE_COMPUTE_BIT },
+		};
+		// clang-format on
+		constexpr EnumMap<ShaderType, VkShaderStageFlagBits, enumMapSize(StageBitsTable)> StageBits{ StageBitsTable };
+
+		// clang-format off
+		constexpr EnumMapping<ShaderType, ShaderStage::Enum> StagesTable[] = {
+			{ ShaderType::VertexShader,     ShaderStage::Vertex },
+			{ ShaderType::ControlShader,    ShaderStage::TessellationControl },
+			{ ShaderType::EvaluationShader, ShaderStage::TessellationEvaluation },
+			{ ShaderType::GeometryShader,   ShaderStage::Geometry },
+			{ ShaderType::FragmentShader,   ShaderStage::Fragment },
+			{ ShaderType::ComputeShader,    ShaderStage::Compute },
+		};
+		// clang-format on
+		constexpr EnumMap<ShaderType, ShaderStage::Enum, enumMapSize(StagesTable)> Stages{ StagesTable };
+	}
 
 	Shader::Shader(VkDevice device, ShaderType type, int tag, stdext::span<const uint32_t> data)
 	: Runtime::Shader(type, tag)
@@ -105,21 +132,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
 	VkShaderStageFlagBits Shader::convert(ShaderType type)
 	{
-		switch (type)
-		{
-		case ShaderType::VertexShader: return VK_SHADER_STAGE_VERTEX_BIT;
-		case ShaderType::ControlShader: return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-		case ShaderType::EvaluationShader: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-		case ShaderType::GeometryShader: return VK_SHADER_STAGE_GEOMETRY_BIT;
-		case ShaderType::FragmentShader: return VK_SHADER_STAGE_FRAGMENT_BIT;
-		case ShaderType::ComputeShader: return VK_SHADER_STAGE_COMPUTE_BIT;
-		default:
-		{
-			VclDebugError("Enumeration value is valid.");
-		}
-		}
-
-		return VK_SHADER_STAGE_ALL;
+		return StageBits[type];
 	}
 
 	void Shader::createBindingTable(stdext::span<const uint32_t> data)
@@ -128,22 +141,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		const spirv_cross::CompilerGLSL spir_mod({ data.begin(), data.end() });
 		const spirv_cross::ShaderResources resources = spir_mod.get_shader_resources();
 
-		const auto curr_shader_type = [t = type()]() {
-			switch (t)
-			{
-			case ShaderType::VertexShader: return Flags<ShaderStage>(ShaderStage::Vertex);
-			case ShaderType::ControlShader: return Flags<ShaderStage>(ShaderStage::TessellationControl);
-			case ShaderType::EvaluationShader: return Flags<ShaderStage>(ShaderStage::TessellationEvaluation);
-			case ShaderType::GeometryShader: return Flags<ShaderStage>(ShaderStage::Geometry);
-			case ShaderType::FragmentShader: return Flags<ShaderStage>(ShaderStage::Fragment);
-			case ShaderType::ComputeShader: return Flags<ShaderStage>(ShaderStage::Compute);
-			default:
-			{
-				VclDebugError("Enumeration value is valid.");
-			}
-			}
-			return Flags<ShaderStage>();
-		}();
+		const Flags<ShaderStage> curr_shader_type = Stages[type()];
 
 		// Process the push constants
 		VclCheck(resources.push_constant_buffers.size() <= 1, "Only one push-constant buffer supported per shader stage");

@@ -26,45 +26,48 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<ComparisonFunction, VkCompareOp> CompareOpsTable[] = {
+			{ ComparisonFunction::Never,        VK_COMPARE_OP_NEVER },
+			{ ComparisonFunction::Less,         VK_COMPARE_OP_LESS },
+			{ ComparisonFunction::Equal,        VK_COMPARE_OP_EQUAL },
+			{ ComparisonFunction::LessEqual,    VK_COMPARE_OP_LESS_OR_EQUAL },
+			{ ComparisonFunction::Greater,      VK_COMPARE_OP_GREATER },
+			{ ComparisonFunction::NotEqual,     VK_COMPARE_OP_NOT_EQUAL },
+			{ ComparisonFunction::GreaterEqual, VK_COMPARE_OP_GREATER_OR_EQUAL },
+			{ ComparisonFunction::Always,       VK_COMPARE_OP_ALWAYS },
+		};
+		// clang-format on
+		constexpr EnumMap<ComparisonFunction, VkCompareOp, enumMapSize(CompareOpsTable)> CompareOps{ CompareOpsTable };
+
+		// clang-format off
+		constexpr EnumMapping<StencilOperation, VkStencilOp> StencilOpsTable[] = {
+			{ StencilOperation::Keep,             VK_STENCIL_OP_KEEP },
+			{ StencilOperation::Zero,             VK_STENCIL_OP_ZERO },
+			{ StencilOperation::Replace,          VK_STENCIL_OP_REPLACE },
+			{ StencilOperation::IncreaseSaturate, VK_STENCIL_OP_INCREMENT_AND_CLAMP },
+			{ StencilOperation::DecreaseSaturate, VK_STENCIL_OP_DECREMENT_AND_CLAMP },
+			{ StencilOperation::Invert,           VK_STENCIL_OP_INVERT },
+			{ StencilOperation::IncreaseWrap,     VK_STENCIL_OP_INCREMENT_AND_WRAP },
+			{ StencilOperation::DecreaseWrap,     VK_STENCIL_OP_DECREMENT_AND_WRAP },
+		};
+		// clang-format on
+		constexpr EnumMap<StencilOperation, VkStencilOp, enumMapSize(StencilOpsTable)> StencilOps{ StencilOpsTable };
+	}
+
 	VkCompareOp toVulkan(ComparisonFunction func)
 	{
-		// clang-format off
-		switch (func) {
-		case ComparisonFunction::Never       : return VK_COMPARE_OP_NEVER;
-		case ComparisonFunction::Less        : return VK_COMPARE_OP_LESS;
-		case ComparisonFunction::Equal       : return VK_COMPARE_OP_EQUAL;
-		case ComparisonFunction::LessEqual   : return VK_COMPARE_OP_LESS_OR_EQUAL;
-		case ComparisonFunction::Greater     : return VK_COMPARE_OP_GREATER;
-		case ComparisonFunction::NotEqual    : return VK_COMPARE_OP_NOT_EQUAL;
-		case ComparisonFunction::GreaterEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;
-		case ComparisonFunction::Always      : return VK_COMPARE_OP_ALWAYS;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return CompareOps[func];
 	}
 
 	VkStencilOp toVulkan(StencilOperation op)
 	{
-		// clang-format off
-		switch (op) {
-		case StencilOperation::Keep            : return VK_STENCIL_OP_KEEP;
-		case StencilOperation::Zero            : return VK_STENCIL_OP_ZERO;
-		case StencilOperation::Replace         : return VK_STENCIL_OP_REPLACE;
-		case StencilOperation::IncreaseSaturate: return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
-		case StencilOperation::DecreaseSaturate: return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
-		case StencilOperation::Invert          : return VK_STENCIL_OP_INVERT;
-		case StencilOperation::IncreaseWrap    : return VK_STENCIL_OP_INCREMENT_AND_WRAP;
-		case StencilOperation::DecreaseWrap    : return VK_STENCIL_OP_DECREMENT_AND_WRAP;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return StencilOps[op];
 	}
 
 	VkStencilOpState toVulkan(const DepthStencilOperationDescription& desc, uint8_t read_mask, uint8_t write_mask)

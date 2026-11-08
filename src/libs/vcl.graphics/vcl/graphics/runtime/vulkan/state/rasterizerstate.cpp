@@ -26,34 +26,37 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<FillModeMethod, VkPolygonMode> PolygonModesTable[] = {
+			{ FillModeMethod::Solid,     VK_POLYGON_MODE_FILL },
+			{ FillModeMethod::Wireframe, VK_POLYGON_MODE_LINE },
+		};
+		// clang-format on
+		constexpr EnumMap<FillModeMethod, VkPolygonMode, enumMapSize(PolygonModesTable)> PolygonModes{ PolygonModesTable };
+
+		// clang-format off
+		constexpr EnumMapping<CullModeMethod, VkCullModeFlags> CullModesTable[] = {
+			{ CullModeMethod::None,  VK_CULL_MODE_NONE },
+			{ CullModeMethod::Front, VK_CULL_MODE_FRONT_BIT },
+			{ CullModeMethod::Back,  VK_CULL_MODE_BACK_BIT },
+		};
+		// clang-format on
+		constexpr EnumMap<CullModeMethod, VkCullModeFlags, enumMapSize(CullModesTable)> CullModes{ CullModesTable };
+	}
+
 	VkPolygonMode toVulkan(FillModeMethod mode)
 	{
-		// clang-format off
-		switch (mode) {
-		case FillModeMethod::Solid    : return VK_POLYGON_MODE_FILL;
-		case FillModeMethod::Wireframe: return VK_POLYGON_MODE_LINE;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return PolygonModes[mode];
 	}
 
 	VkCullModeFlags toVulkan(CullModeMethod mode)
 	{
-		// clang-format off
-		switch (mode) {
-		case CullModeMethod::None : return VK_CULL_MODE_NONE;
-		case CullModeMethod::Front: return VK_CULL_MODE_FRONT_BIT;
-		case CullModeMethod::Back : return VK_CULL_MODE_BACK_BIT;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return CullModes[mode];
 	}
 
 	VkPipelineRasterizationStateCreateInfo toVulkan(const RasterizerDescription& desc)

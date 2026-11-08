@@ -29,25 +29,31 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<DescriptorType, VkDescriptorType> DescriptorTypesTable[] = {
+			{ DescriptorType::Sampler,              VK_DESCRIPTOR_TYPE_SAMPLER },
+			{ DescriptorType::CombinedImageSampler, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER },
+			{ DescriptorType::SampledImage,         VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE },
+			{ DescriptorType::StorageImage,         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE },
+			{ DescriptorType::UniformTexelBuffer,   VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER },
+			{ DescriptorType::StorageTexelBuffer,   VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER },
+			{ DescriptorType::UniformBuffer,        VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER },
+			{ DescriptorType::StorageBuffer,        VK_DESCRIPTOR_TYPE_STORAGE_BUFFER },
+			{ DescriptorType::UniformBufferDynamic, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC },
+			{ DescriptorType::StorageBufferDynamic, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC },
+			{ DescriptorType::InputAttachment,      VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT },
+		};
+		// clang-format on
+		constexpr EnumMap<DescriptorType, VkDescriptorType, enumMapSize(DescriptorTypesTable)> DescriptorTypes{ DescriptorTypesTable };
+	}
+
 	VkDescriptorType convert(DescriptorType type)
 	{
-		switch (type)
-		{
-		case DescriptorType::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
-		case DescriptorType::CombinedImageSampler: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		case DescriptorType::SampledImage: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-		case DescriptorType::StorageImage: return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-		case DescriptorType::UniformTexelBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
-		case DescriptorType::StorageTexelBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
-		case DescriptorType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		case DescriptorType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		case DescriptorType::UniformBufferDynamic: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		case DescriptorType::StorageBufferDynamic: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
-		case DescriptorType::InputAttachment: return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		}
-		return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		return DescriptorTypes[type];
 	}
 
 	VkShaderStageFlags convert(Flags<ShaderStage> stages)

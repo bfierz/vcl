@@ -52,6 +52,7 @@ set(SOURCE
 	vcl/core/contract.h
 	vcl/core/convert.h
 	vcl/core/enum.h
+	vcl/core/enummap.h
 	vcl/core/flags.h
 	vcl/core/handle.cpp
 	vcl/core/handle.h

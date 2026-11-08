@@ -26,21 +26,24 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 #include <vcl/graphics/vulkan/tools.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
+	namespace {
+		// clang-format off
+		constexpr EnumMapping<VertexDataClassification, VkVertexInputRate> InputRatesTable[] = {
+			{ VertexDataClassification::VertexDataPerObject,   VK_VERTEX_INPUT_RATE_VERTEX },
+			{ VertexDataClassification::VertexDataPerInstance, VK_VERTEX_INPUT_RATE_INSTANCE },
+		};
+		// clang-format on
+		constexpr EnumMap<VertexDataClassification, VkVertexInputRate, enumMapSize(InputRatesTable)> InputRates{ InputRatesTable };
+	}
+
 	VkVertexInputRate toVulkan(VertexDataClassification classification)
 	{
-		// clang-format off
-		switch (classification) {
-		case VertexDataClassification::VertexDataPerObject  : return VK_VERTEX_INPUT_RATE_VERTEX;
-		case VertexDataClassification::VertexDataPerInstance: return VK_VERTEX_INPUT_RATE_INSTANCE;
-		default: { VclDebugError("Enumeration value is valid."); }
-		}
-		// clang-format on
-
-		return {};
+		return InputRates[classification];
 	}
 
 	VkPipelineVertexInputStateCreateInfo toVulkan(

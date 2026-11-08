@@ -29,6 +29,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 #include <vcl/graphics/vulkan/device.h>
 #include <vcl/graphics/vulkan/tools.h>
 
@@ -82,6 +83,36 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	}
 
 	namespace {
+		// Every texture type is listed, all types not 1D or 3D are 2D images
+		// clang-format off
+		constexpr EnumMapping<TextureType, VkImageType> ImageTypesTable[] = {
+			{ TextureType::Unknown,          VK_IMAGE_TYPE_2D },
+			{ TextureType::Texture1D,        VK_IMAGE_TYPE_1D },
+			{ TextureType::Texture1DArray,   VK_IMAGE_TYPE_1D },
+			{ TextureType::Texture2D,        VK_IMAGE_TYPE_2D },
+			{ TextureType::Texture2DArray,   VK_IMAGE_TYPE_2D },
+			{ TextureType::Texture2DMS,      VK_IMAGE_TYPE_2D },
+			{ TextureType::Texture2DMSArray, VK_IMAGE_TYPE_2D },
+			{ TextureType::Texture3D,        VK_IMAGE_TYPE_3D },
+			{ TextureType::TextureCube,      VK_IMAGE_TYPE_2D },
+			{ TextureType::TextureCubeArray, VK_IMAGE_TYPE_2D },
+		};
+		// clang-format on
+		constexpr EnumMap<TextureType, VkImageType, enumMapSize(ImageTypesTable)> ImageTypes{ ImageTypesTable };
+
+		// clang-format off
+		constexpr EnumMapping<TextureType, VkImageViewType> ViewTypesTable[] = {
+			{ TextureType::Texture1D,        VK_IMAGE_VIEW_TYPE_1D },
+			{ TextureType::Texture1DArray,   VK_IMAGE_VIEW_TYPE_1D_ARRAY },
+			{ TextureType::Texture2D,        VK_IMAGE_VIEW_TYPE_2D },
+			{ TextureType::Texture2DArray,   VK_IMAGE_VIEW_TYPE_2D_ARRAY },
+			{ TextureType::Texture3D,        VK_IMAGE_VIEW_TYPE_3D },
+			{ TextureType::TextureCube,      VK_IMAGE_VIEW_TYPE_CUBE },
+			{ TextureType::TextureCubeArray, VK_IMAGE_VIEW_TYPE_CUBE_ARRAY },
+		};
+		// clang-format on
+		constexpr EnumMap<TextureType, VkImageViewType, enumMapSize(ViewTypesTable)> ViewTypes{ ViewTypesTable };
+
 		bool isCube(TextureType type)
 		{
 			return type == TextureType::TextureCube || type == TextureType::TextureCubeArray;
@@ -89,34 +120,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
 		VkImageType toVulkanImageType(TextureType type)
 		{
-			switch (type)
-			{
-			case TextureType::Texture1D:
-			case TextureType::Texture1DArray:
-				return VK_IMAGE_TYPE_1D;
-			case TextureType::Texture3D:
-				return VK_IMAGE_TYPE_3D;
-			default:
-				return VK_IMAGE_TYPE_2D;
-			}
+			return ImageTypes[type];
 		}
 
 		VkImageViewType toVulkanViewType(TextureType type)
 		{
-			// clang-format off
-			switch (type) {
-			case TextureType::Texture1D       : return VK_IMAGE_VIEW_TYPE_1D;
-			case TextureType::Texture1DArray  : return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-			case TextureType::Texture2D       : return VK_IMAGE_VIEW_TYPE_2D;
-			case TextureType::Texture2DArray  : return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-			case TextureType::Texture3D       : return VK_IMAGE_VIEW_TYPE_3D;
-			case TextureType::TextureCube     : return VK_IMAGE_VIEW_TYPE_CUBE;
-			case TextureType::TextureCubeArray: return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-			default: { VclDebugError("Texture type is supported."); }
-			}
-			// clang-format on
-
-			return {};
+			return ViewTypes[type];
 		}
 
 		VkImageAspectFlags toVulkanAspects(SurfaceFormat format)

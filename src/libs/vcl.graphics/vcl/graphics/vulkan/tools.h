@@ -34,6 +34,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/surfaceformat.h>
@@ -220,13 +221,16 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	};
 	inline VkAttachmentLoadOp convert(AttachmentLoadOperation op)
 	{
-		switch (op)
-		{
-		case AttachmentLoadOperation::Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
-		case AttachmentLoadOperation::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
-		case AttachmentLoadOperation::DontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		}
-		return VK_ATTACHMENT_LOAD_OP_LOAD;
+		// clang-format off
+		static constexpr EnumMapping<AttachmentLoadOperation, VkAttachmentLoadOp> table[] = {
+			{ AttachmentLoadOperation::Load,     VK_ATTACHMENT_LOAD_OP_LOAD },
+			{ AttachmentLoadOperation::Clear,    VK_ATTACHMENT_LOAD_OP_CLEAR },
+			{ AttachmentLoadOperation::DontCare, VK_ATTACHMENT_LOAD_OP_DONT_CARE },
+		};
+		// clang-format on
+		static constexpr EnumMap<AttachmentLoadOperation, VkAttachmentLoadOp, enumMapSize(table)> ops{ table };
+
+		return ops[op];
 	}
 
 	enum class AttachmentStoreOperation
@@ -236,12 +240,15 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	};
 	inline VkAttachmentStoreOp convert(AttachmentStoreOperation op)
 	{
-		switch (op)
-		{
-		case AttachmentStoreOperation::Store: return VK_ATTACHMENT_STORE_OP_STORE;
-		case AttachmentStoreOperation::DontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		}
-		return VK_ATTACHMENT_STORE_OP_STORE;
+		// clang-format off
+		static constexpr EnumMapping<AttachmentStoreOperation, VkAttachmentStoreOp> table[] = {
+			{ AttachmentStoreOperation::Store,    VK_ATTACHMENT_STORE_OP_STORE },
+			{ AttachmentStoreOperation::DontCare, VK_ATTACHMENT_STORE_OP_DONT_CARE },
+		};
+		// clang-format on
+		static constexpr EnumMap<AttachmentStoreOperation, VkAttachmentStoreOp, enumMapSize(table)> ops{ table };
+
+		return ops[op];
 	}
 
 	struct AttachmentDescription
@@ -272,90 +279,83 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 	inline VkFormat convert(Vcl::Graphics::SurfaceFormat fmt)
 	{
-		switch (fmt)
-		{
-		case SurfaceFormat::R32G32B32A32_FLOAT: return VK_FORMAT_R32G32B32A32_SFLOAT;
-		case SurfaceFormat::R32G32B32A32_UINT: return VK_FORMAT_R32G32B32A32_UINT;
-		case SurfaceFormat::R32G32B32A32_SINT: return VK_FORMAT_R32G32B32A32_SINT;
-		case SurfaceFormat::R16G16B16A16_FLOAT: return VK_FORMAT_R16G16B16A16_SFLOAT;
-		case SurfaceFormat::R16G16B16A16_UNORM: return VK_FORMAT_R16G16B16A16_UNORM;
-		case SurfaceFormat::R16G16B16A16_UINT: return VK_FORMAT_R16G16B16A16_UINT;
-		case SurfaceFormat::R16G16B16A16_SNORM: return VK_FORMAT_R16G16B16A16_SNORM;
-		case SurfaceFormat::R16G16B16A16_SINT: return VK_FORMAT_R16G16B16A16_SINT;
-		case SurfaceFormat::R32G32B32_FLOAT: return VK_FORMAT_R32G32B32_SFLOAT;
-		case SurfaceFormat::R32G32B32_UINT: return VK_FORMAT_R32G32B32_UINT;
-		case SurfaceFormat::R32G32B32_SINT: return VK_FORMAT_R32G32B32_SINT;
-		case SurfaceFormat::R32G32_FLOAT: return VK_FORMAT_R32G32_SFLOAT;
-		case SurfaceFormat::R32G32_UINT: return VK_FORMAT_R32G32_UINT;
-		case SurfaceFormat::R32G32_SINT: return VK_FORMAT_R32G32_SINT;
-		case SurfaceFormat::D32_FLOAT_S8X24_UINT: return VK_FORMAT_D32_SFLOAT_S8_UINT;
-		case SurfaceFormat::R10G10B10A2_UNORM: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
-		case SurfaceFormat::R10G10B10A2_UINT: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
-		case SurfaceFormat::R11G11B10_FLOAT: return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
-		case SurfaceFormat::R8G8B8A8_UNORM: return VK_FORMAT_R8G8B8A8_UNORM;
-		case SurfaceFormat::R8G8B8A8_UNORM_SRGB: return VK_FORMAT_R8G8B8A8_SRGB;
-		case SurfaceFormat::R8G8B8A8_UINT: return VK_FORMAT_R8G8B8A8_UINT;
-		case SurfaceFormat::R8G8B8A8_SNORM: return VK_FORMAT_R8G8B8A8_SNORM;
-		case SurfaceFormat::R8G8B8A8_SINT: return VK_FORMAT_R8G8B8A8_SINT;
-		case SurfaceFormat::R16G16_FLOAT: return VK_FORMAT_R16G16_SFLOAT;
-		case SurfaceFormat::R16G16_UNORM: return VK_FORMAT_R16G16_UNORM;
-		case SurfaceFormat::R16G16_UINT: return VK_FORMAT_R16G16_UINT;
-		case SurfaceFormat::R16G16_SNORM: return VK_FORMAT_R16G16_SNORM;
-		case SurfaceFormat::R16G16_SINT: return VK_FORMAT_R16G16_SINT;
-		case SurfaceFormat::D32_FLOAT: return VK_FORMAT_D32_SFLOAT;
-		case SurfaceFormat::R32_FLOAT: return VK_FORMAT_R32_SFLOAT;
-		case SurfaceFormat::R32_UINT: return VK_FORMAT_R32_UINT;
-		case SurfaceFormat::R32_SINT: return VK_FORMAT_R32_SINT;
-		case SurfaceFormat::D24_UNORM_S8_UINT: return VK_FORMAT_D24_UNORM_S8_UINT;
-		case SurfaceFormat::R8G8_UNORM: return VK_FORMAT_R8G8_UNORM;
-		case SurfaceFormat::R8G8_UINT: return VK_FORMAT_R8G8_UINT;
-		case SurfaceFormat::R8G8_SNORM: return VK_FORMAT_R8G8_SNORM;
-		case SurfaceFormat::R8G8_SINT: return VK_FORMAT_R8G8_SINT;
-		case SurfaceFormat::R16_FLOAT: return VK_FORMAT_R16_SFLOAT;
-		case SurfaceFormat::D16_UNORM: return VK_FORMAT_D16_UNORM;
-		case SurfaceFormat::R16_UNORM: return VK_FORMAT_R16_UNORM;
-		case SurfaceFormat::R16_UINT: return VK_FORMAT_R16_UINT;
-		case SurfaceFormat::R16_SNORM: return VK_FORMAT_R16_SNORM;
-		case SurfaceFormat::R16_SINT: return VK_FORMAT_R16_SINT;
-		case SurfaceFormat::R8_UNORM: return VK_FORMAT_R8_UNORM;
-		case SurfaceFormat::R8_UINT: return VK_FORMAT_R8_UINT;
-		case SurfaceFormat::R8_SNORM: return VK_FORMAT_R8_SNORM;
-		case SurfaceFormat::R8_SINT: return VK_FORMAT_R8_SINT;
-		default: VclDebugError("Unsupported colour format.");
+		// Formats without an entry map to VK_FORMAT_UNDEFINED
+		// clang-format off
+		static constexpr EnumMapping<SurfaceFormat, VkFormat> table[] = {
+			{ SurfaceFormat::R32G32B32A32_FLOAT,   VK_FORMAT_R32G32B32A32_SFLOAT },
+			{ SurfaceFormat::R32G32B32A32_UINT,    VK_FORMAT_R32G32B32A32_UINT },
+			{ SurfaceFormat::R32G32B32A32_SINT,    VK_FORMAT_R32G32B32A32_SINT },
+			{ SurfaceFormat::R16G16B16A16_FLOAT,   VK_FORMAT_R16G16B16A16_SFLOAT },
+			{ SurfaceFormat::R16G16B16A16_UNORM,   VK_FORMAT_R16G16B16A16_UNORM },
+			{ SurfaceFormat::R16G16B16A16_UINT,    VK_FORMAT_R16G16B16A16_UINT },
+			{ SurfaceFormat::R16G16B16A16_SNORM,   VK_FORMAT_R16G16B16A16_SNORM },
+			{ SurfaceFormat::R16G16B16A16_SINT,    VK_FORMAT_R16G16B16A16_SINT },
+			{ SurfaceFormat::R32G32B32_FLOAT,      VK_FORMAT_R32G32B32_SFLOAT },
+			{ SurfaceFormat::R32G32B32_UINT,       VK_FORMAT_R32G32B32_UINT },
+			{ SurfaceFormat::R32G32B32_SINT,       VK_FORMAT_R32G32B32_SINT },
+			{ SurfaceFormat::R32G32_FLOAT,         VK_FORMAT_R32G32_SFLOAT },
+			{ SurfaceFormat::R32G32_UINT,          VK_FORMAT_R32G32_UINT },
+			{ SurfaceFormat::R32G32_SINT,          VK_FORMAT_R32G32_SINT },
+			{ SurfaceFormat::D32_FLOAT_S8X24_UINT, VK_FORMAT_D32_SFLOAT_S8_UINT },
+			{ SurfaceFormat::R10G10B10A2_UNORM,    VK_FORMAT_A2B10G10R10_UNORM_PACK32 },
+			{ SurfaceFormat::R10G10B10A2_UINT,     VK_FORMAT_A2B10G10R10_UINT_PACK32 },
+			{ SurfaceFormat::R11G11B10_FLOAT,      VK_FORMAT_B10G11R11_UFLOAT_PACK32 },
+			{ SurfaceFormat::R8G8B8A8_UNORM,       VK_FORMAT_R8G8B8A8_UNORM },
+			{ SurfaceFormat::R8G8B8A8_UNORM_SRGB,  VK_FORMAT_R8G8B8A8_SRGB },
+			{ SurfaceFormat::R8G8B8A8_UINT,        VK_FORMAT_R8G8B8A8_UINT },
+			{ SurfaceFormat::R8G8B8A8_SNORM,       VK_FORMAT_R8G8B8A8_SNORM },
+			{ SurfaceFormat::R8G8B8A8_SINT,        VK_FORMAT_R8G8B8A8_SINT },
+			{ SurfaceFormat::R16G16_FLOAT,         VK_FORMAT_R16G16_SFLOAT },
+			{ SurfaceFormat::R16G16_UNORM,         VK_FORMAT_R16G16_UNORM },
+			{ SurfaceFormat::R16G16_UINT,          VK_FORMAT_R16G16_UINT },
+			{ SurfaceFormat::R16G16_SNORM,         VK_FORMAT_R16G16_SNORM },
+			{ SurfaceFormat::R16G16_SINT,          VK_FORMAT_R16G16_SINT },
+			{ SurfaceFormat::D32_FLOAT,            VK_FORMAT_D32_SFLOAT },
+			{ SurfaceFormat::R32_FLOAT,            VK_FORMAT_R32_SFLOAT },
+			{ SurfaceFormat::R32_UINT,             VK_FORMAT_R32_UINT },
+			{ SurfaceFormat::R32_SINT,             VK_FORMAT_R32_SINT },
+			{ SurfaceFormat::D24_UNORM_S8_UINT,    VK_FORMAT_D24_UNORM_S8_UINT },
+			{ SurfaceFormat::R8G8_UNORM,           VK_FORMAT_R8G8_UNORM },
+			{ SurfaceFormat::R8G8_UINT,            VK_FORMAT_R8G8_UINT },
+			{ SurfaceFormat::R8G8_SNORM,           VK_FORMAT_R8G8_SNORM },
+			{ SurfaceFormat::R8G8_SINT,            VK_FORMAT_R8G8_SINT },
+			{ SurfaceFormat::R16_FLOAT,            VK_FORMAT_R16_SFLOAT },
+			{ SurfaceFormat::D16_UNORM,            VK_FORMAT_D16_UNORM },
+			{ SurfaceFormat::R16_UNORM,            VK_FORMAT_R16_UNORM },
+			{ SurfaceFormat::R16_UINT,             VK_FORMAT_R16_UINT },
+			{ SurfaceFormat::R16_SNORM,            VK_FORMAT_R16_SNORM },
+			{ SurfaceFormat::R16_SINT,             VK_FORMAT_R16_SINT },
+			{ SurfaceFormat::R8_UNORM,             VK_FORMAT_R8_UNORM },
+			{ SurfaceFormat::R8_UINT,              VK_FORMAT_R8_UINT },
+			{ SurfaceFormat::R8_SNORM,             VK_FORMAT_R8_SNORM },
+			{ SurfaceFormat::R8_SINT,              VK_FORMAT_R8_SINT },
 		};
+		// clang-format on
+		static constexpr EnumMap<SurfaceFormat, VkFormat, enumMapSize(table)> formats{ table };
 
-		return VK_FORMAT_UNDEFINED;
+		return formats[fmt];
 	}
 
 	inline VkPrimitiveTopology convert(Vcl::Graphics::Runtime::PrimitiveType type)
 	{
 		using Vcl::Graphics::Runtime::PrimitiveType;
 
-		switch (type)
-		{
-		case PrimitiveType::Pointlist:
-			return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-		case PrimitiveType::Linelist:
-			return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-		case PrimitiveType::Linestrip:
-			return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
-		case PrimitiveType::Trianglelist:
-			return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		case PrimitiveType::Trianglestrip:
-			return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-		case PrimitiveType::LinelistAdj:
-			return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
-		case PrimitiveType::LinestripAdj:
-			return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
-		case PrimitiveType::TrianglelistAdj:
-			return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
-		case PrimitiveType::TrianglestripAdj:
-			return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
-		case PrimitiveType::Patch:
-			return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
-		default: VclDebugError("Unsupported primitive type.");
-		}
+		// clang-format off
+		static constexpr EnumMapping<PrimitiveType, VkPrimitiveTopology> table[] = {
+			{ PrimitiveType::Pointlist,        VK_PRIMITIVE_TOPOLOGY_POINT_LIST },
+			{ PrimitiveType::Linelist,         VK_PRIMITIVE_TOPOLOGY_LINE_LIST },
+			{ PrimitiveType::Linestrip,        VK_PRIMITIVE_TOPOLOGY_LINE_STRIP },
+			{ PrimitiveType::Trianglelist,     VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST },
+			{ PrimitiveType::Trianglestrip,    VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP },
+			{ PrimitiveType::LinelistAdj,      VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY },
+			{ PrimitiveType::LinestripAdj,     VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY },
+			{ PrimitiveType::TrianglelistAdj,  VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY },
+			{ PrimitiveType::TrianglestripAdj, VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY },
+			{ PrimitiveType::Patch,            VK_PRIMITIVE_TOPOLOGY_PATCH_LIST },
+		};
+		// clang-format on
+		static constexpr EnumMap<PrimitiveType, VkPrimitiveTopology, enumMapSize(table)> topologies{ table };
 
-		return VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+		return topologies[type];
 	}
 }}}

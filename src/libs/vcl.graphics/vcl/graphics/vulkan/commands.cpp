@@ -31,6 +31,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/core/enummap.h>
 #include <vcl/graphics/runtime/vulkan/resource/texture.h>
 #include <vcl/graphics/vulkan/context.h>
 
@@ -228,14 +229,18 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	}
 
 	namespace {
+		// clang-format off
+		constexpr EnumMapping<Runtime::AttachmentLoadOp, VkAttachmentLoadOp> LoadOpsTable[] = {
+			{ Runtime::AttachmentLoadOp::DontCare, VK_ATTACHMENT_LOAD_OP_DONT_CARE },
+			{ Runtime::AttachmentLoadOp::Clear,    VK_ATTACHMENT_LOAD_OP_CLEAR },
+			{ Runtime::AttachmentLoadOp::Load,     VK_ATTACHMENT_LOAD_OP_LOAD },
+		};
+		// clang-format on
+		constexpr EnumMap<Runtime::AttachmentLoadOp, VkAttachmentLoadOp, enumMapSize(LoadOpsTable)> LoadOps{ LoadOpsTable };
+
 		VkAttachmentLoadOp toVulkan(Runtime::AttachmentLoadOp op)
 		{
-			switch (op)
-			{
-			case Runtime::AttachmentLoadOp::Clear: return VK_ATTACHMENT_LOAD_OP_CLEAR;
-			case Runtime::AttachmentLoadOp::Load: return VK_ATTACHMENT_LOAD_OP_LOAD;
-			default: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			}
+			return LoadOps[op];
 		}
 
 		VkAttachmentStoreOp toVulkan(Runtime::AttachmentStoreOp op)
