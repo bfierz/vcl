@@ -25,9 +25,7 @@
 #include <vcl/core/cuda/common.inc>
 #include <vcl/core/cuda/math.inc>
 
-extern "C"
-__global__ void ComputeInitialResidual
-(
+extern "C" __global__ void ComputeInitialResidual(
 	const unsigned int X,
 	const unsigned int Y,
 	const unsigned int Z,
@@ -43,12 +41,11 @@ __global__ void ComputeInitialResidual
 	const float* __restrict__ unknowns,
 
 	float* __restrict__ residual,
-	float* __restrict__ direction
-)
+	float* __restrict__ direction)
 {
-	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
-	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int z = blockIdx.z * blockDim.z + threadIdx.z;
 	const unsigned int index = X * Y * z + X * y + x;
 
 	if (x < X &&
@@ -57,7 +54,7 @@ __global__ void ComputeInitialResidual
 	{
 		const float c = Ac[index];
 		float Ax = 0.0f;
-			Ax += unknowns[index] * c;
+		Ax += unknowns[index] * c;
 		if (x > 0)
 			Ax += unknowns[index - 1] * Ax_l[index];
 		if (x < X - 1)
@@ -72,14 +69,12 @@ __global__ void ComputeInitialResidual
 			Ax += unknowns[index + X * Y] * Az_r[index];
 
 		const float r = (c != 0.0f) ? rhs[index] - Ax : 0.0f;
-		residual[index]  = r;
+		residual[index] = r;
 		direction[index] = r;
 	}
 }
 
-extern "C"
-__global__ void ComputeQ
-(
+extern "C" __global__ void ComputeQ(
 	const unsigned int X,
 	const unsigned int Y,
 	const unsigned int Z,
@@ -93,12 +88,11 @@ __global__ void ComputeQ
 	const float* __restrict__ Az_r,
 	const float* __restrict__ direction,
 
-	float* __restrict__ q
-)
+	float* __restrict__ q)
 {
-	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
-	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int z = blockIdx.z * blockDim.z + threadIdx.z;
 	const unsigned int index = X * Y * z + X * y + x;
 
 	if (x < X &&
@@ -107,7 +101,7 @@ __global__ void ComputeQ
 	{
 		const float c = Ac[index];
 		float Aq = 0.0f;
-			Aq += direction[index] * c;
+		Aq += direction[index] * c;
 		if (x > 0)
 			Aq += direction[index - 1] * Ax_l[index];
 		if (x < X - 1)

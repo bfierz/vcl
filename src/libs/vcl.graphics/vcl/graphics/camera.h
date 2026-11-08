@@ -46,7 +46,7 @@ namespace Vcl { namespace Graphics {
 	class Camera
 	{
 	public:
-		/*!	
+		/*!
 		 *	\brief Default constructor.
 		 *
 		 *	\param[in] factory Factory creating transformation matrices.
@@ -55,7 +55,7 @@ namespace Vcl { namespace Graphics {
 		 */
 		Camera(std::shared_ptr<MatrixFactory> factory);
 
-		/*!	
+		/*!
 		 *	\brief Construct a camera at a position looking a target point.
 		 *
 		 *	\param[in] position Position of the camera.

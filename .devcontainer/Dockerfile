@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_VERSION=24.04
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-${UBUNTU_VERSION}
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl ca-certificates pkg-config \
     cmake ninja-build \
     gdb lldb \
+    # clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
     clang clang-tidy clang-format lld \
     ccache \
     python3 python3-pip python3-venv pipx \
@@ -36,6 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-declarative-dev \
     # OpenGL development
     libglew-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    # Vulkan development (loader, headers, lavapipe software driver)
+    libvulkan-dev vulkan-tools mesa-vulkan-drivers vulkan-validationlayers glslc \
     # noVNC stack
     xvfb x11vnc openbox supervisor \
     websockify novnc \

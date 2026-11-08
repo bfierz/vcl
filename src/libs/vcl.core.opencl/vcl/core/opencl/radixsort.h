@@ -48,9 +48,9 @@ namespace Vcl { namespace Core { namespace OpenCL {
 	public:
 		/*!
 		 * Sorts input arrays of unsigned integer keys and (optional) values
-		 * 
+		 *
 		 * \param keys        Array of keys for data to be sorted
-		 * \param numElements Number of elements to be sorted.  Must be <= 
+		 * \param numElements Number of elements to be sorted.  Must be <=
 		 *                    maxElements passed to the constructor
 		 * \param keyBits     The number of bits in each key to use for ordering
 		 */
@@ -61,15 +61,15 @@ namespace Vcl { namespace Core { namespace OpenCL {
 
 	private:
 		/*!
-		 * Main key-only radix sort function.  Sorts in place in the keys and values 
-		 * arrays, but uses the other device arrays as temporary storage.  All pointer 
+		 * Main key-only radix sort function.  Sorts in place in the keys and values
+		 * arrays, but uses the other device arrays as temporary storage.  All pointer
 		 * parameters are device pointers.  Uses cudppScan() for the prefix sum of
 		 * radix counters.
 		 */
 		void radixSortKeysOnly(ref_ptr<Compute::Buffer> keys, unsigned int numElements, unsigned int keyBits);
 
 		/*!
-		 * Perform one step of the radix sort. Sorts by nbits key bits per step, 
+		 * Perform one step of the radix sort. Sorts by nbits key bits per step,
 		 * starting at startbit.
 		 */
 		void radixSortStepKeysOnly(ref_ptr<Compute::Buffer> keys, unsigned int nbits, unsigned int startbit, unsigned int numElements);

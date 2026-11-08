@@ -64,7 +64,7 @@ TEST(WebGPUBuffer, Create)
 		ResourceUsage::Staging,
 		{}
 	};
-	
+
 	std::vector<int> read_back(1024 / sizeof(int), 0xDEADC0DE);
 	BufferInitData data =
 	{
@@ -76,7 +76,7 @@ TEST(WebGPUBuffer, Create)
 	buf.clear();
 
 	buf.copyTo(read_back.data(), 0, 0, 1024);
-	
+
 	// Verify the result
 	bool equal = true;
 	int fault = 0;

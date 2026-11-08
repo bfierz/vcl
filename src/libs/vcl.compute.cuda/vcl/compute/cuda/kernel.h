@@ -40,7 +40,7 @@
 #include <vcl/compute/cuda/commandqueue.h>
 #include <vcl/compute/kernel.h>
 
-#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment)-1) & ~((alignment)-1)
+#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
 
 namespace Vcl { namespace Compute { namespace Cuda {
 	template<typename T>

@@ -37,16 +37,14 @@ public:
 	}
 
 public:
-	__device__
-	T& operator() (int i)
+	__device__ T& operator()(int i)
 	{
-		return _data[_n*i + _idx];
+		return _data[_n * i + _idx];
 	}
 
-	__device__
-	T& operator() (int i, int j)
+	__device__ T& operator()(int i, int j)
 	{
-		return _data[_n*(j*I + i) + _idx];
+		return _data[_n * (j * I + i) + _idx];
 	}
 
 private:
@@ -64,20 +62,17 @@ private:
 
 #include <vcl/math/mcadams/Singular_Value_Decomposition_Preamble.hpp>
 
-extern "C"
-__global__ void JacobiSVD33McAdams
-(
+extern "C" __global__ void JacobiSVD33McAdams(
 	int size,
 	int capacity,
 	const float* __restrict__ memA,
 	float* __restrict__ memU,
 	float* __restrict__ memV,
-	float* __restrict__ memS
-)
+	float* __restrict__ memS)
 {
-#define JACOBI_CONJUGATION_SWEEPS (int) 4
+#define JACOBI_CONJUGATION_SWEEPS (int)4
 
-	int globalIdx = threadIdx.x + blockDim.x*blockIdx.x;
+	int globalIdx = threadIdx.x + blockDim.x * blockIdx.x;
 	if (globalIdx >= size)
 		return;
 

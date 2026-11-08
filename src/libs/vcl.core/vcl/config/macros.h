@@ -58,7 +58,7 @@
 #define VCL_SAFE_DELETE_ARRAY(ptr) \
 	if (ptr != nullptr)            \
 	{                              \
-		delete[](ptr);             \
+		delete[] (ptr);            \
 		ptr = nullptr;             \
 	}
 
@@ -99,15 +99,15 @@
  *	Compiler specific macros
  */
 #ifdef VCL_PREPROCESSOR_MICROSOFT
-#	define __VCL_CONFIG_MACROS_STR2__(x) #    x
+#	define __VCL_CONFIG_MACROS_STR2__(x) #x
 #	define __VCL_CONFIG_MACROS_STR1__(x) __VCL_CONFIG_MACROS_STR2__(x)
 #	define __VCL_CONFIG_MACROS_LOC_WARNING__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : warning Vcl: "
 #	define __VCL_CONFIG_MACROS_LOC_ERROR__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : error Vcl: "
 #	define __VCL_CONFIG_MACROS_LOC_MESSAGE__ __FILE__ "("__VCL_CONFIG_MACROS_STR1__(__LINE__) ") : log Vcl: "
 
-#	define VCL_WARNING(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_WARNING__ #    msg))
-#	define VCL_ERROR(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_ERROR__ #    msg))
-#	define VCL_MESSAGE(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_MESSAGE__ #    msg))
+#	define VCL_WARNING(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_WARNING__ #msg))
+#	define VCL_ERROR(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_ERROR__ #msg))
+#	define VCL_MESSAGE(msg) __pragma(message(__VCL_CONFIG_MACROS_LOC_MESSAGE__ #msg))
 
 // Used in switch-statements whose default-case can never be reached, resulting in more optimal code
 #	define VCL_NO_SWITCH_DEFAULT __assume(0)

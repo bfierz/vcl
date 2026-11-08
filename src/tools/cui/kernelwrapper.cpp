@@ -380,7 +380,7 @@ void createWrappers(std::ofstream& ofs, const std::vector<Kernel>& kernels, cons
 		}
 		func_data.set("func_params", func_params);
 
-#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment)-1) & ~((alignment)-1)
+#define ALIGN_UP(offset, alignment) (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
 
 		// Compute the size of the kernel parameter buffer
 		long long param_set_size = 0;

@@ -65,5 +65,9 @@ SpaceBeforeCpp11BracedList: 'false'
 SpaceInEmptyBlock: 'false'
 SpacesBeforeTrailingComments: 1
 SpacesInContainerLiterals: 'true'
+# Keep line comments as written ('//comment' and '//  comment' are both fine)
+SpacesInLineCommentPrefix:
+  Minimum: 0
+  Maximum: -1
 
 ...

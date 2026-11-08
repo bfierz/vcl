@@ -231,7 +231,7 @@ namespace Vcl { namespace Mathematics {
 
 		/*const int BND = 0;
 		index = 0;
-		for (int z = 0; z < zRes; z++) 
+		for (int z = 0; z < zRes; z++)
 		{
 			for (int y = 0; y < yRes; y++)
 			{
@@ -240,7 +240,7 @@ namespace Vcl { namespace Mathematics {
 					// brute force reset of boundaries
 					if(z>=zRes-1-BND || x>=xRes-1-BND || y>=yRes-1-BND || z <= BND || y <= BND || x <= BND)
 					{
-						highFreq[index] = 0.; 
+						highFreq[index] = 0.;
 					} else {
 						highFreq[index] = input[index] - lowFreq[index];
 					}

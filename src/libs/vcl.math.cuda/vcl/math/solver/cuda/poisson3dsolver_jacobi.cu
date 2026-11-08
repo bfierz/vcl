@@ -25,9 +25,7 @@
 #include <vcl/core/cuda/common.inc>
 #include <vcl/core/cuda/math.inc>
 
-extern "C"
-__global__ void PoissonUpdateSolution
-(
+extern "C" __global__ void PoissonUpdateSolution(
 	const unsigned int X,
 	const unsigned int Y,
 	const unsigned int Z,
@@ -43,21 +41,20 @@ __global__ void PoissonUpdateSolution
 
 	float* __restrict__ unknowns,
 	float* __restrict__ next,
-	float* __restrict__ error
-)
+	float* __restrict__ error)
 {
 	// x^{n+1} = D^-1 (b - R x^{n})
 	//                -------------
 	//                      q
 
-	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
-	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
-	const unsigned int index = X*Y * z + X * y + x;
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int z = blockIdx.z * blockDim.z + threadIdx.z;
+	const unsigned int index = X * Y * z + X * y + x;
 
-	if (0 < x && x < X-1 &&
-		0 < y && y < Y-1 &&
-		0 < z && z < Z-1   )
+	if (0 < x && x < X - 1 &&
+		0 < y && y < Y - 1 &&
+		0 < z && z < Z - 1)
 	{
 		float q =
 			unknowns[index - 1] * Ax_l[index] +
