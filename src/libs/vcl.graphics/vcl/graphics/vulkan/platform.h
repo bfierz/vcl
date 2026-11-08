@@ -80,13 +80,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! List of available vulkan devices
 		std::vector<Device> _devices;
 
-		//! Debug callback of this platform instance
-		VkDebugReportCallbackEXT _debugCallback{ VK_NULL_HANDLE };
+		//! Receives the messages of the validation layers (VK_EXT_debug_utils)
+		VkDebugUtilsMessengerEXT _debugMessenger{ VK_NULL_HANDLE };
 
-	private: // Debug extension callbacks
-		PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT{ nullptr };
-		PFN_vkDebugReportMessageEXT vkDebugReportMessageEXT{ nullptr };
-		PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT{ nullptr };
+	private: // Debug extension entry points
+		PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT{ nullptr };
 
 	private:
 		//! Available extensions

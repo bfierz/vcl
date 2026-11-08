@@ -25,6 +25,7 @@
 #include <vcl/graphics/vulkan/platform.h>
 
 // C++ standard library
+#include <algorithm>
 #include <array>
 #include <cstring>
 #include <iostream>
@@ -84,18 +85,54 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		}
 	}
 
-	VKAPI_ATTR VkBool32 VKAPI_CALL VclVulkanDebugReport(
-		VkDebugReportFlagsEXT flags,
-		VkDebugReportObjectTypeEXT objectType,
-		uint64_t object,
-		size_t location,
-		int32_t messageCode,
-		const char* pLayerPrefix,
-		const char* pMessage,
-		void* pUserData)
+	VKAPI_ATTR VkBool32 VKAPI_CALL VclVulkanDebugMessage(
+		VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+		VkDebugUtilsMessageTypeFlagsEXT type,
+		const VkDebugUtilsMessengerCallbackDataEXT* data,
+		void* user_data)
 	{
-		std::cerr << pMessage << std::endl;
+		(void)user_data;
+
+		// General messages are mostly loader notes (e.g. drivers it skips), keep only errors
+		const bool general_only = (type & ~VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) == 0;
+		if (general_only && severity < VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+			return VK_FALSE;
+
+		const char* severity_name = "Info";
+		if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+			severity_name = "Error";
+		else if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+			severity_name = "Warning";
+
+		const char* type_name = "general";
+		if (type & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
+			type_name = "validation";
+		else if (type & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+			type_name = "performance";
+
+		// The message usually starts with the ID name already, e.g. "Validation Error: [ VUID-... ]"
+		std::cerr << "[Vulkan] " << severity_name << " (" << type_name << ")";
+		if (data->pMessageIdName && !std::strstr(data->pMessage, data->pMessageIdName))
+			std::cerr << " " << data->pMessageIdName;
+		std::cerr << ": " << data->pMessage << std::endl;
+
+		// Don't abort the call that triggered the message
 		return VK_FALSE;
+	}
+
+	VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo()
+	{
+		VkDebugUtilsMessengerCreateInfoEXT info = {};
+		info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+		info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+		info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+		info.pfnUserCallback = &VclVulkanDebugMessage;
+		return info;
+	}
+
+	bool contains(const std::vector<const char*>& names, const char* name)
+	{
+		return std::any_of(std::begin(names), std::end(names), [name](const char* n) { return std::strcmp(n, name) == 0; });
 	}
 
 	template<typename Func>
@@ -140,23 +177,25 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		// Enable additional extensions
 		std::vector<const char*> exts(std::begin(requested_extensions), std::end(requested_extensions));
 
-#ifdef VCL_DEBUG
-		// Enable the debug layer by default, if it is available
-		if (std::find_if(std::begin(exts), std::end(exts), [](const char* ext) {
-				return strcmp(ext, "VK_EXT_debug_report") == 0;
-			}) == std::end(exts))
+		// Route the messages of the validation layers through our callback whenever
+		// the extension is available. Without layers, it costs nothing; with layers
+		// enabled from the outside (VK_INSTANCE_LAYERS), messages are still reported.
+		const bool debug_utils_available = std::any_of(std::begin(_availableExtensions), std::end(_availableExtensions), [](const VkExtensionProperties& e) {
+			return std::strcmp(e.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0;
+		});
+		if (debug_utils_available && !contains(exts, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
 		{
-			if (std::find_if(std::begin(_availableExtensions), std::end(_availableExtensions), [](const VkExtensionProperties& e) {
-					return strcmp(e.extensionName, "VK_EXT_debug_report") == 0;
-				}) != std::end(_availableExtensions))
-			{
-				exts.push_back("VK_EXT_debug_report");
-			}
+			exts.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
-#endif // VCL_DEBUG
+		const bool use_debug_utils = contains(exts, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
 		create_info.enabledExtensionCount = static_cast<uint32_t>(exts.size());
 		create_info.ppEnabledExtensionNames = exts.data();
+
+		// Also report messages from vkCreateInstance and vkDestroyInstance
+		const VkDebugUtilsMessengerCreateInfoEXT messenger_info = debugMessengerCreateInfo();
+		if (use_debug_utils)
+			create_info.pNext = &messenger_info;
 
 		// Create the instance
 		res = vkCreateInstance(&create_info, nullptr, &_instance);
@@ -180,27 +219,16 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 			_devices.emplace_back(dev);
 		}
 
-		// Setup the debug callbacks when the reporting extension was requested
-		if (std::find_if(std::begin(exts), std::end(exts), [](const char* e) {
-				return strcmp(e, "VK_EXT_debug_report") == 0;
-			}) != std::end(exts))
+		// Register the messenger for the lifetime of the instance
+		if (use_debug_utils)
 		{
-			// Load VK_EXT_debug_report entry points in debug builds
-			vkCreateDebugReportCallbackEXT = getInstanceProc<PFN_vkCreateDebugReportCallbackEXT>(_instance, "vkCreateDebugReportCallbackEXT");
-			vkDebugReportMessageEXT = getInstanceProc<PFN_vkDebugReportMessageEXT>(_instance, "vkDebugReportMessageEXT");
-			vkDestroyDebugReportCallbackEXT = getInstanceProc<PFN_vkDestroyDebugReportCallbackEXT>(_instance, "vkDestroyDebugReportCallbackEXT");
-
-			// Setup callback creation information
-			VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
-			callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-			callbackCreateInfo.pNext = nullptr;
-			callbackCreateInfo.flags =
-				VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-			callbackCreateInfo.pfnCallback = &VclVulkanDebugReport;
-			callbackCreateInfo.pUserData = nullptr;
-
-			// Register the callback
-			VkResult result = vkCreateDebugReportCallbackEXT(_instance, &callbackCreateInfo, nullptr, &_debugCallback);
+			const auto vkCreateDebugUtilsMessengerEXT = getInstanceProc<PFN_vkCreateDebugUtilsMessengerEXT>(_instance, "vkCreateDebugUtilsMessengerEXT");
+			vkDestroyDebugUtilsMessengerEXT = getInstanceProc<PFN_vkDestroyDebugUtilsMessengerEXT>(_instance, "vkDestroyDebugUtilsMessengerEXT");
+			if (vkCreateDebugUtilsMessengerEXT && vkDestroyDebugUtilsMessengerEXT)
+			{
+				res = vkCreateDebugUtilsMessengerEXT(_instance, &messenger_info, nullptr, &_debugMessenger);
+				VclCheck(res == VK_SUCCESS, "Debug messenger is created.");
+			}
 		}
 	}
 
@@ -209,8 +237,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		_devices.clear();
 
 		// Cleanup the debugging interface
-		if (_debugCallback && vkDestroyDebugReportCallbackEXT)
-			vkDestroyDebugReportCallbackEXT(_instance, _debugCallback, nullptr);
+		if (_debugMessenger)
+			vkDestroyDebugUtilsMessengerEXT(_instance, _debugMessenger, nullptr);
 
 		// Cleanup the platform
 		vkDestroyInstance(_instance, nullptr);
