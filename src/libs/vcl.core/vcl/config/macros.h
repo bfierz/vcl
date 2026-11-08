@@ -29,14 +29,10 @@
 // Note: Some of the macros in this file are based on the description in
 // http://molecularmusings.wordpress.com/2011/07/12/a-plethora-of-macros/
 
-#ifdef _DEBUG
+// Debug builds are the ones without NDEBUG, as for 'assert'. Checking _DEBUG
+// alone missed GCC and Clang, where only MSVC defines it for debug builds.
+#if !defined(NDEBUG) && !defined(VCL_DEBUG)
 #	define VCL_DEBUG
-#endif
-
-#ifdef NDEBUG
-#	ifdef VCL_DEBUG
-#		undef VCL_DEBUG
-#	endif
 #endif
 
 #ifndef NOMINMAX
