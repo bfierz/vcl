@@ -39,7 +39,7 @@ protected:
 	void invalidateDeviceObjects() override;
 	void createDeviceObjects() override;
 	void updateFrame() override;
-	void renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) override;
+	void renderFrame(uint32_t frame, uint32_t image, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) override;
 
 private:
 	void createStaticVulkanObjects();
@@ -51,5 +51,5 @@ private:
 	VkRenderPass _renderPass;
 
 	//! Framebuffers
-	std::array<VkFramebuffer, 3> _frameBuffer;
+	std::vector<VkFramebuffer> _frameBuffer;
 };

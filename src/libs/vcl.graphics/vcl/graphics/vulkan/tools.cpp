@@ -38,7 +38,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		for (const auto& attachment : attachments)
 		{
-			VclCheck(!isStencilFormat(convert(attachment.Format)), "Stencil formats not supported");
+			VclCheck(!isStencilFormat(attachment.Format), "Stencil formats not supported");
 
 			const auto num_samples = [](int samples) {
 				switch (samples)
@@ -69,7 +69,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 			VkAttachmentDescription vk_attachment;
 			vk_attachment.flags = 0;
-			vk_attachment.format = convert(attachment.Format);
+			vk_attachment.format = attachment.Format;
 			vk_attachment.samples = num_samples(attachment.NrSamples);
 			vk_attachment.loadOp = convert(attachment.LoadOp);
 			vk_attachment.storeOp = convert(attachment.StoreOp);

@@ -253,7 +253,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 	struct AttachmentDescription
 	{
-		Vcl::Graphics::SurfaceFormat Format;
+		VkFormat Format;
 		int NrSamples;
 		AttachmentLoadOperation LoadOp;
 		AttachmentStoreOperation StoreOp;
@@ -262,6 +262,22 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	RenderPass createBasicRenderPass(
 		VkDevice device,
 		stdext::span<const AttachmentDescription> attachments);
+
+	inline bool isDepthFormat(VkFormat fmt)
+	{
+		switch (fmt)
+		{
+		case VK_FORMAT_D16_UNORM:
+		case VK_FORMAT_X8_D24_UNORM_PACK32:
+		case VK_FORMAT_D32_SFLOAT:
+		case VK_FORMAT_D16_UNORM_S8_UINT:
+		case VK_FORMAT_D24_UNORM_S8_UINT:
+		case VK_FORMAT_D32_SFLOAT_S8_UINT:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	inline bool isStencilFormat(VkFormat fmt)
 	{
@@ -272,9 +288,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		case VK_FORMAT_D24_UNORM_S8_UINT:
 		case VK_FORMAT_D32_SFLOAT_S8_UINT:
 			return true;
+		default:
+			return false;
 		}
-
-		return false;
 	}
 
 	inline VkFormat convert(Vcl::Graphics::SurfaceFormat fmt)

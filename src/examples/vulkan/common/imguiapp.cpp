@@ -118,10 +118,11 @@ ImGuiApplication::~ImGuiApplication()
 
 void ImGuiApplication::invalidateDeviceObjects()
 {
-	for (int i = 0; i < NumberOfFrames; i++)
+	for (auto fb : _frameBuffer)
 	{
-		vkDestroyFramebuffer(*context(), _frameBuffer[i], nullptr);
+		vkDestroyFramebuffer(*context(), fb, nullptr);
 	}
+	_frameBuffer.clear();
 	Application::invalidateDeviceObjects();
 }
 
@@ -129,9 +130,11 @@ void ImGuiApplication::createDeviceObjects()
 {
 	Application::createDeviceObjects();
 
-	for (int i = 0; i < NumberOfFrames; i++)
+	// One framebuffer per swap-chain image
+	const uint32_t nr_images = surface()->swapChain()->nrImages();
+	for (uint32_t i = 0; i < nr_images; i++)
 	{
-		_frameBuffer[i] = surface()->backbuffer()->createFramebuffer(i, _renderPass);
+		_frameBuffer.push_back(surface()->backbuffer()->createFramebuffer(i, _renderPass));
 	}
 }
 void ImGuiApplication::createStaticVulkanObjects()
@@ -224,7 +227,7 @@ void ImGuiApplication::updateFrame()
 	ImGui::NewFrame();
 }
 
-void ImGuiApplication::renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::CommandQueue* cmd_queue, VkImageView renderbuffer, VkImageView depthbuffer)
+void ImGuiApplication::renderFrame(uint32_t frame, uint32_t image, Vcl::Graphics::Vulkan::CommandQueue* cmd_queue, VkImageView renderbuffer, VkImageView depthbuffer)
 {
 	ImGui::Render();
 
@@ -237,7 +240,7 @@ void ImGuiApplication::renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::Comman
 		VkRenderPassBeginInfo info = {};
 		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		info.renderPass = _renderPass;
-		info.framebuffer = _frameBuffer[frame];
+		info.framebuffer = _frameBuffer[image];
 		info.renderArea.extent.width = surface()->surfaceExtent().width;
 		info.renderArea.extent.height = surface()->surfaceExtent().height;
 		info.clearValueCount = clear_values.size();

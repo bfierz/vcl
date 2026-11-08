@@ -28,6 +28,7 @@
 #include <vcl/config/eigen.h>
 
 // C++ standard library
+#include <array>
 #include <iostream>
 #include <vector>
 
@@ -203,14 +204,15 @@ int main(int argc, char* argv[])
 	auto surface = createBasicSurface(*platform, *context, queue, desc);
 
 	const std::array<AttachmentDescription, 2> attachments = {
-		AttachmentDescription{ Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM, 1, AttachmentLoadOperation::Clear, AttachmentStoreOperation::Store },
-		AttachmentDescription{ Vcl::Graphics::SurfaceFormat::D32_FLOAT, 1, AttachmentLoadOperation::Clear, AttachmentStoreOperation::Store },
+		AttachmentDescription{ desc.ColourFormat, 1, AttachmentLoadOperation::Clear, AttachmentStoreOperation::Store },
+		AttachmentDescription{ desc.DepthFormat, 1, AttachmentLoadOperation::Clear, AttachmentStoreOperation::Store },
 	};
 	auto render_pass = createBasicRenderPass(*context, attachments);
 
 	// Allocate a framebuffer for each swap-chain image
-	std::vector<VkFramebuffer> framebuffers(desc.NumberOfImages);
-	for (uint32_t i = 0; i < desc.NumberOfImages; i++)
+	const uint32_t nr_images = surface->swapChain()->nrImages();
+	std::vector<VkFramebuffer> framebuffers(nr_images);
+	for (uint32_t i = 0; i < nr_images; i++)
 	{
 		framebuffers[i] = surface->backbuffer()->createFramebuffer(i, render_pass);
 	}
@@ -219,44 +221,52 @@ int main(int argc, char* argv[])
 	std::vector<Vcl::Graphics::Vulkan::CommandBuffer> cmds;
 	buildCommandBuffers(surface->backbuffer(), context->commandPool(0, CommandBufferType::Default), render_pass, framebuffers, 1280, 720, cmds);
 
-	// Enter the event-loop
+	// Enter the event-loop. A single frame is in flight: the fence guards the
+	// acquire semaphore and the post-present command buffer for reuse.
 	CommandBuffer post_present{ *context, context->commandPool(0, CommandBufferType::Default) };
-	Semaphore presentComplete{ context.get() };
-	Semaphore renderComplete{ context.get() };
+	Fence frame_complete{ context.get(), VK_FENCE_CREATE_SIGNALED_BIT };
+	Semaphore present_complete{ context.get() };
+
+	// The fence doesn't tell when the presentation engine has consumed the semaphore
+	// a present waits on, so use one per swap-chain image. An image is only acquired
+	// again once its previous present has finished with the semaphore.
+	std::vector<Semaphore> render_complete;
+	render_complete.reserve(nr_images);
+	for (uint32_t i = 0; i < nr_images; i++)
+		render_complete.emplace_back(context.get());
+
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
 
-		VkResult err;
+		// Wait until the previous frame no longer uses the acquire semaphore
+		frame_complete.wait();
 
-		// Render the scene
+		// A suboptimal swap-chain still delivers an image and signals the semaphore
 		uint32_t curr_buf;
-		err = surface->swapChain()->acquireNextImage(presentComplete, VK_NULL_HANDLE, &curr_buf);
-		if (err != VK_SUCCESS)
+		const VkResult err = surface->swapChain()->acquireNextImage(present_complete, VK_NULL_HANDLE, &curr_buf);
+		if (err != VK_SUCCESS && err != VK_SUBOPTIMAL_KHR)
 			continue;
 
-		// Put post present barrier into command buffer
+		frame_complete.reset();
+
+		// Bring the image back from presentation
 		post_present.begin();
 		post_present.returnFromPresent(surface->swapChain()->image(curr_buf));
 		post_present.end();
 
-		// Submit to the queue
-		queue.submit(post_present, VK_NULL_HANDLE);
-		queue.waitIdle();
+		// Wait for the acquired image before writing to it, and signal the
+		// semaphore of this image once rendering is done
+		const VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		std::array<VkCommandBuffer, 2> buffers = { post_present, cmds[curr_buf] };
+		VkSemaphore wait = present_complete;
+		VkSemaphore signal = render_complete[curr_buf];
+		queue.submit({ buffers.data(), buffers.size() }, frame_complete, wait_stage, { &wait, 1 }, { &signal, 1 });
 
-		// Submit to the graphics queue
-		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		VkSemaphore s0 = presentComplete;
-		VkSemaphore s1 = renderComplete;
-		VkCommandBuffer b0 = cmds[curr_buf];
-		queue.submit({ &b0, 1 }, VK_NULL_HANDLE, pipelineStages, { &s0, 1 }, { &s1, 1 });
-
-		// Present the current buffer to the swap chain
-		// We pass the signal semaphore from the submit info
-		// to ensure that the image is not rendered until
-		// all commands have been submitted
-		surface->swapChain()->queuePresent(queue, curr_buf, renderComplete);
+		// Present once rendering is done
+		surface->swapChain()->queuePresent(queue, curr_buf, render_complete[curr_buf]);
 	}
+	queue.waitIdle();
 
 	for (auto& fb : framebuffers)
 	{

@@ -26,6 +26,7 @@
 
 // C++ Standard Library
 #include <array>
+#include <vector>
 
 // VCL
 #include <vcl/graphics/vulkan/commands.h>
@@ -96,11 +97,12 @@ public:
 	{
 		void alloc(Vcl::Graphics::Vulkan::Context* context);
 		void free();
-		void waitAndReset();
+		void reset();
 
+		//! Signalled once the GPU finished the frame's commands
 		Vcl::Graphics::Vulkan::Fence FrameFence;
+		//! Signalled once the acquired swap-chain image can be written
 		Vcl::Graphics::Vulkan::Semaphore PresentComplete;
-		Vcl::Graphics::Vulkan::Semaphore RenderComplete;
 		Vcl::Graphics::Vulkan::CommandPool CmdPool;
 		Vcl::Graphics::Vulkan::CommandBuffer PrepareCmdBuffer;
 		Vcl::Graphics::Vulkan::CommandBuffer PresentCmdBuffer;
@@ -117,7 +119,9 @@ protected:
 	virtual void invalidateDeviceObjects();
 	virtual void createDeviceObjects();
 	virtual void updateFrame() {}
-	virtual void renderFrame(uint32_t frame, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) {}
+	//! \param frame Index of the frame in flight, selects the frame context
+	//! \param image Index of the acquired swap-chain image
+	virtual void renderFrame(uint32_t frame, uint32_t image, Vcl::Graphics::Vulkan::CommandQueue* cmd_buffer, VkImageView renderbuffer, VkImageView depthbuffer) {}
 
 	Vcl::Graphics::Vulkan::Platform* platform() const { return _platform.get(); }
 	Vcl::Graphics::Vulkan::Context* context() const { return _context.get(); }
@@ -150,4 +154,9 @@ private:
 	std::unique_ptr<Vcl::Graphics::Vulkan::CommandQueue> _graphicsCommandQueue;
 
 	std::array<FrameContext, 3> _frames;
+
+	//! Signalled once rendering to a swap-chain image is done, one per image.
+	//! A fence doesn't tell when a present has consumed its semaphore, but the
+	//! image is only acquired again once its previous present has finished.
+	std::vector<Vcl::Graphics::Vulkan::Semaphore> _renderComplete;
 };

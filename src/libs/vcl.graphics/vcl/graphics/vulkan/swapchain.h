@@ -91,7 +91,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		const SwapChainDescription& desc() const { return _desc; }
 
 		//! Number of images in the swap-chain
-		uint32_t nrImages() const { return _desc.NumberOfImages; }
+		uint32_t nrImages() const { return static_cast<uint32_t>(_images.size()); }
 
 		VkImage image(uint32_t idx) const { return _images[idx]; }
 		VkImageView view(uint32_t idx) const { return _views[idx]; }

@@ -36,7 +36,6 @@ void Application::FrameContext::alloc(Vcl::Graphics::Vulkan::Context* context)
 	using namespace Vcl::Graphics::Vulkan;
 
 	FrameFence = Fence{ context, VK_FENCE_CREATE_SIGNALED_BIT };
-	RenderComplete = Semaphore{ context };
 	PresentComplete = Semaphore{ context };
 	CmdPool = CommandPool(*context, 0);
 	PrepareCmdBuffer = CommandBuffer(*context, CmdPool[CommandBufferType::Default]);
@@ -46,16 +45,14 @@ void Application::FrameContext::alloc(Vcl::Graphics::Vulkan::Context* context)
 void Application::FrameContext::free()
 {
 	FrameFence = {};
-	RenderComplete = {};
 	PresentComplete = {};
 	PrepareCmdBuffer = {};
 	PresentCmdBuffer = {};
 	CmdPool = {};
 }
 
-void Application::FrameContext::waitAndReset()
+void Application::FrameContext::reset()
 {
-	FrameFence.wait();
 	FrameFence.reset();
 	PrepareCmdBuffer.reset();
 	PresentCmdBuffer.reset();
@@ -105,7 +102,7 @@ int Application::run()
 	createDeviceObjects();
 
 	bool rebuild_swap_chain = false;
-	uint32_t curr_buf = 0;
+	uint32_t curr_frame = 0;
 	while (!glfwWindowShouldClose(windowHandle()))
 	{
 		glfwPollEvents();
@@ -113,70 +110,70 @@ int Application::run()
 		{
 			rebuild_swap_chain = false;
 
-			for (auto& frame : _frames)
-			{
-				frame.waitAndReset();
-			}
+			// Also waits for the presents, which no fence covers
+			_graphicsCommandQueue->waitIdle();
 			invalidateDeviceObjects();
 			createDeviceObjects();
 
-			curr_buf = 0;
+			curr_frame = 0;
 		}
 
 		auto* swapChain = _surface->swapChain();
 
-		// Render the scene
-		auto& curr_frame = _frames[curr_buf];
-		VkSemaphore curr_present_complete = curr_frame.PresentComplete;
-		uint32_t next_image;
-		VkResult res = swapChain->acquireNextImage(curr_present_complete, VK_NULL_HANDLE, &next_image);
-		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+		// Wait for the frame to finish, so its acquire semaphore and
+		// command buffers can be reused
+		auto& frame = _frames[curr_frame];
+		frame.FrameFence.wait();
+
+		// The presentation engine may return the images in any order.
+		// A suboptimal swap-chain still delivers an image and signals the semaphore.
+		uint32_t image;
+		VkResult res = swapChain->acquireNextImage(frame.PresentComplete, VK_NULL_HANDLE, &image);
+		if (res == VK_ERROR_OUT_OF_DATE_KHR)
 		{
 			rebuild_swap_chain = true;
 			continue;
 		}
-		VclCheck(curr_buf == next_image, "Image count is in sync");
+		if (res == VK_SUBOPTIMAL_KHR)
+			rebuild_swap_chain = true;
+		else
+			VclCheck(res == VK_SUCCESS, "Swap-chain image is acquired.");
+
+		// Only reset the fence once work is submitted that signals it again
+		frame.reset();
 
 		updateFrame();
 
-		// Wait for the previous frame to finish
-		// and prepare the frame data for a new frame
-		curr_frame.waitAndReset();
-
 		// Bring the render-target into a valid state
-		curr_frame.PrepareCmdBuffer.begin();
-		curr_frame.PrepareCmdBuffer.returnFromPresent(swapChain->image(curr_buf));
-		curr_frame.PrepareCmdBuffer.end();
-		_graphicsCommandQueue->submit(curr_frame.PrepareCmdBuffer, VK_NULL_HANDLE);
+		frame.PrepareCmdBuffer.begin();
+		frame.PrepareCmdBuffer.returnFromPresent(swapChain->image(image));
+		frame.PrepareCmdBuffer.end();
 
 		// Start the render buffer usable for the application
-		curr_frame.PresentCmdBuffer.begin();
-		renderFrame(curr_buf, _graphicsCommandQueue.get(), swapChain->view(curr_buf), _surface->backbuffer()->depthBufferView());
+		frame.PresentCmdBuffer.begin();
+		renderFrame(curr_frame, image, _graphicsCommandQueue.get(), swapChain->view(image), _surface->backbuffer()->depthBufferView());
 
 		// Finish default command buffer
-		curr_frame.PresentCmdBuffer.prepareForPresent(swapChain->image(curr_buf));
-		curr_frame.PresentCmdBuffer.end();
+		frame.PresentCmdBuffer.prepareForPresent(swapChain->image(image));
+		frame.PresentCmdBuffer.end();
 
-		// Submit to the graphics queue
-		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		_graphicsCommandQueue->submit(curr_frame.PresentCmdBuffer, curr_frame.FrameFence, pipelineStages, curr_frame.PresentComplete, curr_frame.RenderComplete);
+		// Wait for the acquired image before writing to it
+		const VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		std::array<VkCommandBuffer, 2> buffers = { frame.PrepareCmdBuffer, frame.PresentCmdBuffer };
+		VkSemaphore wait = frame.PresentComplete;
+		VkSemaphore signal = _renderComplete[image];
+		_graphicsCommandQueue->submit({ buffers.data(), buffers.size() }, frame.FrameFence, wait_stage, { &wait, 1 }, { &signal, 1 });
 
-		// Present the current buffer to the swap chain
-		// We pass the signal semaphore from the submit info
-		// to ensure that the image is not rendered until
-		// all commands have been submitted
-		res = _surface->swapChain()->queuePresent(*_graphicsCommandQueue, curr_buf, curr_frame.RenderComplete);
+		// Present once rendering is done
+		res = swapChain->queuePresent(*_graphicsCommandQueue, image, _renderComplete[image]);
 		if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
 		{
 			rebuild_swap_chain = true;
 		}
 
-		curr_buf = (curr_buf + 1) % NumberOfFrames;
+		curr_frame = (curr_frame + 1) % NumberOfFrames;
 	}
-	for (auto& frame : _frames)
-	{
-		frame.waitAndReset();
-	}
+	_graphicsCommandQueue->waitIdle();
 	invalidateDeviceObjects();
 
 	return EXIT_SUCCESS;
@@ -188,6 +185,7 @@ void Application::invalidateDeviceObjects()
 	{
 		frame.free();
 	}
+	_renderComplete.clear();
 
 	_surface.reset();
 }
@@ -209,6 +207,13 @@ void Application::createDeviceObjects()
 	for (auto& frame : _frames)
 	{
 		frame.alloc(_context.get());
+	}
+
+	const uint32_t nr_images = _surface->swapChain()->nrImages();
+	_renderComplete.reserve(nr_images);
+	for (uint32_t i = 0; i < nr_images; i++)
+	{
+		_renderComplete.emplace_back(_context.get());
 	}
 }
 
