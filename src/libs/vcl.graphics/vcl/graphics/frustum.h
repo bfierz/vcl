@@ -195,10 +195,10 @@ namespace Vcl { namespace Graphics {
 
 // Extern template specialization
 #ifndef VCL_GRAPHICS_FRUSTUM_INST
-		extern template class PerspectiveViewFrustum<float>;
-		extern template class PerspectiveViewFrustum<double>;
+	extern template class PerspectiveViewFrustum<float>;
+	extern template class PerspectiveViewFrustum<double>;
 
-		extern template class OrthographicViewFrustum<float>;
-		extern template class OrthographicViewFrustum<double>;
+	extern template class OrthographicViewFrustum<float>;
+	extern template class OrthographicViewFrustum<double>;
 #endif
 }}

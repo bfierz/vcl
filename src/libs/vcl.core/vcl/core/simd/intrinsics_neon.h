@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -180,7 +180,7 @@ namespace Vcl {
 		return _mm_mullo_epi32(a, b);
 #else
 		__m128i tmp1 = _mm_mul_epu32(a, b); // mul 2,0
-		__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); // mul 3,1 
+		__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); // mul 3,1
 		return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE(0, 0, 2, 0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE(0, 0, 2, 0))); // shuffle results to [63..0] and pack
 #endif
 	}
@@ -199,7 +199,7 @@ namespace Vcl {
 	{
 		__m128 data = v;             // [0, 1, 2, 3]
 		__m128 high = _mm_movehl_ps(data, data); // [2, 3, 2, 3]
-		__m128 high_accum = _mm_max_ps(high, data); // [0|2, 1|3, 2|2, 3|3] 
+		__m128 high_accum = _mm_max_ps(high, data); // [0|2, 1|3, 2|2, 3|3]
 		__m128 elem1 = _mm_shuffle_ps(high_accum, high_accum, _MM_SHUFFLE(1, 1, 1, 1)); // [1|3, 1|3, 1|3, 1|3]
 		__m128 accum = _mm_max_ss(high_accum, elem1);
 		return _mm_cvtss_f32(accum);

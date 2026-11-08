@@ -130,7 +130,7 @@ TEST_F(D3D12GraphicsEngineTest, EngineFrameCounter)
 	auto rt_0 = engine.createResource(rt_desc);
 	auto rt_1 = engine.createResource(rt_desc);
 	auto rt_2 = engine.createResource(rt_desc);
-	
+
 	Texture2DDescription depth_rt_desc;
 	depth_rt_desc.Format = SurfaceFormat::D32_FLOAT;
 	depth_rt_desc.ArraySize = 1;
@@ -149,19 +149,19 @@ TEST_F(D3D12GraphicsEngineTest, EngineFrameCounter)
 	engine.clear(0, Eigen::Vector4f::Constant(0.25f).eval());
 	engine.enqueueReadback(*rt_0, [&b_rt_0](stdext::span<uint8_t> view) { memcpy(b_rt_0.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_1 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(0.5f).eval());
 	engine.enqueueReadback(*rt_1, [&b_rt_1](stdext::span<uint8_t> view) { memcpy(b_rt_1.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_2 }, depth_rt);
 	engine.clear(0, Eigen::Vector4f::Constant(1.0f).eval());
 	engine.enqueueReadback(*rt_2, [&b_rt_2](stdext::span<uint8_t> view) { memcpy(b_rt_2.data(), view.data(), view.size()); });
 	engine.endFrame();
-	
+
 	// Run three more frames in order to execute the read-back requests
 	engine.beginFrame();
 	engine.setRenderTargets({ rt_0 }, depth_rt);

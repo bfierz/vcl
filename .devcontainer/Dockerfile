@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl ca-certificates pkg-config \
     cmake ninja-build \
     gdb lldb \
+    # clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
     clang clang-tidy clang-format lld \
     ccache \
     python3 python3-pip python3-venv pipx \

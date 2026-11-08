@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
@@ -47,10 +47,10 @@ namespace Vcl { namespace Assert {
 	bool handleAssert(const char* type, const char* file, size_t line, const char* expr, const char* description, const std::string& note, bool& ignore);
 }}
 /*!
-	 *	\brief Defintion of a assert
-	 *
-	 *	This macro defines when the assert handler called and if the debugger should be invoked
-	 */
+ *	\brief Defintion of a assert
+ *
+ *	This macro defines when the assert handler called and if the debugger should be invoked
+ */
 #	define vcl_assert(type, expr, description)                                                                                                   \
 		if (!(expr))                                                                                                                              \
 		{                                                                                                                                         \

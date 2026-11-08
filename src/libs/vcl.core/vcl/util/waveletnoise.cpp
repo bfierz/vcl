@@ -300,7 +300,9 @@ namespace Vcl { namespace Util {
 						t1 = t - 1.0f;
 						t2 = 2.0f - t;
 						t3 = 3.0f - t;
-						weight *= (t <= 0 || t >= 3) ? 0 : (t < 1.0f) ? t * t / 2.0f : (t < 2.0f) ? 1.0f - (t1 * t1 + t2 * t2) / 2.0f : t3 * t3 / 2.0f;
+						weight *= (t <= 0 || t >= 3) ? 0 : (t < 1.0f) ? t * t / 2.0f
+													   : (t < 2.0f)   ? 1.0f - (t1 * t1 + t2 * t2) / 2.0f
+																	  : t3 * t3 / 2.0f;
 					}
 
 					// Evaluate noise by weighting noise coefficients by basis function values

@@ -32,20 +32,18 @@ public:
 	__device__
 	DynamicStridedCache(int offset, int bank_idx, int sm_row)
 	{
-		mData = SharedMemory<T>() + offset + sm_row*I*NRBANKS + bank_idx;
+		mData = SharedMemory<T>() + offset + sm_row * I * NRBANKS + bank_idx;
 	}
 
 public:
-	__device__
-	T& operator() (int i)
+	__device__ T& operator()(int i)
 	{
-		return mData[NRBANKS*i];
+		return mData[NRBANKS * i];
 	}
 
-	__device__
-	T& operator() (int i, int j)
+	__device__ T& operator()(int i, int j)
 	{
-		return (mData + i)[NRBANKS*j];
+		return (mData + i)[NRBANKS * j];
 	}
 
 private:
@@ -54,71 +52,67 @@ private:
 
 //#define UNROLL_LAST_32
 
-__device__ inline float4 initialReduction
-(
+__device__ inline float4 initialReduction(
 	unsigned int n,
 	const float* __restrict__ g_r,
 	const float* __restrict__ g_d,
-	const float* __restrict__ g_q
-)
+	const float* __restrict__ g_q)
 {
 	// Collect up to 4 elements and perform partial dot-products
-    const unsigned int i0 = 4*blockIdx.x*blockDim.x + threadIdx.x;
-    const float r0 = (i0 < n) ? g_r[i0] : 0;
-    const float d0 = (i0 < n) ? g_d[i0] : 0;
-    const float q0 = (i0 < n) ? g_q[i0] : 0;
+	const unsigned int i0 = 4 * blockIdx.x * blockDim.x + threadIdx.x;
+	const float r0 = (i0 < n) ? g_r[i0] : 0;
+	const float d0 = (i0 < n) ? g_d[i0] : 0;
+	const float q0 = (i0 < n) ? g_q[i0] : 0;
 
 	const unsigned int i1 = i0 + blockDim.x;
 	const float r1 = (i1 < n) ? g_r[i1] : 0;
 	const float d1 = (i1 < n) ? g_d[i1] : 0;
 	const float q1 = (i1 < n) ? g_q[i1] : 0;
-	
+
 	const unsigned int i2 = i1 + blockDim.x;
 	const float r2 = (i2 < n) ? g_r[i2] : 0;
 	const float d2 = (i2 < n) ? g_d[i2] : 0;
 	const float q2 = (i2 < n) ? g_q[i2] : 0;
-	
+
 	const unsigned int i3 = i2 + blockDim.x;
 	const float r3 = (i3 < n) ? g_r[i3] : 0;
 	const float d3 = (i3 < n) ? g_d[i3] : 0;
 	const float q3 = (i3 < n) ? g_q[i3] : 0;
-    
-	const float rr = r0*r0 + r1*r1 + r2*r2 + r3*r3;
-	const float dq = d0*q0 + d1*q1 + d2*q2 + d3*q3;
-	const float rq = r0*q0 + r1*q1 + r2*q2 + r3*q3;
-	const float qq = q0*q0 + q1*q1 + q2*q2 + q3*q3;
- 
+
+	const float rr = r0 * r0 + r1 * r1 + r2 * r2 + r3 * r3;
+	const float dq = d0 * q0 + d1 * q1 + d2 * q2 + d3 * q3;
+	const float rq = r0 * q0 + r1 * q1 + r2 * q2 + r3 * q3;
+	const float qq = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
+
 	return make_float4(rr, dq, rq, qq);
 }
 
-__device__ inline float4 reduction
-(	
+__device__ inline float4 reduction(
 	unsigned int n,
 	const float* __restrict__ d_r,
 	const float* __restrict__ d_g,
 	const float* __restrict__ d_b,
-	const float* __restrict__ d_a
-)
+	const float* __restrict__ d_a)
 {
 	// Collect up to 4 elements
-    const unsigned int i0 = 4*blockIdx.x*blockDim.x + threadIdx.x;
-    const float r0 = (i0 < n) ? d_r[i0] : 0;
-    const float g0 = (i0 < n) ? d_g[i0] : 0;
-    const float b0 = (i0 < n) ? d_b[i0] : 0;
-    const float a0 = (i0 < n) ? d_a[i0] : 0;
-	
+	const unsigned int i0 = 4 * blockIdx.x * blockDim.x + threadIdx.x;
+	const float r0 = (i0 < n) ? d_r[i0] : 0;
+	const float g0 = (i0 < n) ? d_g[i0] : 0;
+	const float b0 = (i0 < n) ? d_b[i0] : 0;
+	const float a0 = (i0 < n) ? d_a[i0] : 0;
+
 	const unsigned int i1 = i0 + blockDim.x;
 	const float r1 = (i1 < n) ? d_r[i1] : 0;
 	const float g1 = (i1 < n) ? d_g[i1] : 0;
 	const float b1 = (i1 < n) ? d_b[i1] : 0;
 	const float a1 = (i1 < n) ? d_a[i1] : 0;
-	
+
 	const unsigned int i2 = i1 + blockDim.x;
 	const float r2 = (i2 < n) ? d_r[i2] : 0;
 	const float g2 = (i2 < n) ? d_g[i2] : 0;
 	const float b2 = (i2 < n) ? d_b[i2] : 0;
 	const float a2 = (i2 < n) ? d_a[i2] : 0;
-	
+
 	const unsigned int i3 = i2 + blockDim.x;
 	const float r3 = (i3 < n) ? d_r[i3] : 0;
 	const float g3 = (i3 < n) ? d_g[i3] : 0;
@@ -129,13 +123,11 @@ __device__ inline float4 reduction
 	const float dq = g0 + g1 + g2 + g3;
 	const float rq = b0 + b1 + b2 + b3;
 	const float qq = a0 + a1 + a2 + a3;
-    
+
 	return make_float4(rr, dq, rq, qq);
 }
 
-extern "C"
-__global__ void CGComputeReductionBegin
-(
+extern "C" __global__ void CGComputeReductionBegin(
 	unsigned int n,
 	const float* __restrict__ g_r,
 	const float* __restrict__ g_d,
@@ -143,29 +135,28 @@ __global__ void CGComputeReductionBegin
 	float* __restrict__ d_r,
 	float* __restrict__ d_g,
 	float* __restrict__ d_b,
-	float* __restrict__ d_a
-)
+	float* __restrict__ d_a)
 {
-    // Load partial results to shared memory
-    unsigned int tid = threadIdx.x;
-	float* sd_r = SharedMemory<float>() + 0*blockDim.x;
-	float* sd_g = SharedMemory<float>() + 1*blockDim.x;
-	float* sd_b = SharedMemory<float>() + 2*blockDim.x;
-	float* sd_a = SharedMemory<float>() + 3*blockDim.x;
+	// Load partial results to shared memory
+	unsigned int tid = threadIdx.x;
+	float* sd_r = SharedMemory<float>() + 0 * blockDim.x;
+	float* sd_g = SharedMemory<float>() + 1 * blockDim.x;
+	float* sd_b = SharedMemory<float>() + 2 * blockDim.x;
+	float* sd_a = SharedMemory<float>() + 3 * blockDim.x;
 
 	const float4 sums = initialReduction(n, g_r, g_d, g_q);
 	sd_r[tid] = sums.x;
 	sd_g[tid] = sums.y;
 	sd_b[tid] = sums.z;
 	sd_a[tid] = sums.w;
-    
-    __syncthreads();
-    
+
+	__syncthreads();
+
 	// Do the reductions in shared memory
 #ifdef UNROLL_LAST_32
-	for (unsigned int s = blockDim.x / 2; s > 32; s >>= 1) 
+	for (unsigned int s = blockDim.x / 2; s > 32; s >>= 1)
 	{
-		if (tid < s) 
+		if (tid < s)
 		{
 			sd_r[tid] += sd_r[tid + s];
 			sd_g[tid] += sd_g[tid + s];
@@ -187,44 +178,44 @@ __global__ void CGComputeReductionBegin
 		sd_b[tid] += sd_b[tid + 16];
 		sd_a[tid] += sd_a[tid + 16];
 
-		sd_r[tid] += sd_r[tid +  8];
-		sd_g[tid] += sd_g[tid +  8];
-		sd_b[tid] += sd_b[tid +  8];
-		sd_a[tid] += sd_a[tid +  8];
+		sd_r[tid] += sd_r[tid + 8];
+		sd_g[tid] += sd_g[tid + 8];
+		sd_b[tid] += sd_b[tid + 8];
+		sd_a[tid] += sd_a[tid + 8];
 
-		sd_r[tid] += sd_r[tid +  4];
-		sd_g[tid] += sd_g[tid +  4];
-		sd_b[tid] += sd_b[tid +  4];
-		sd_a[tid] += sd_a[tid +  4];
+		sd_r[tid] += sd_r[tid + 4];
+		sd_g[tid] += sd_g[tid + 4];
+		sd_b[tid] += sd_b[tid + 4];
+		sd_a[tid] += sd_a[tid + 4];
 
-		sd_r[tid] += sd_r[tid +  2];
-		sd_g[tid] += sd_g[tid +  2];
-		sd_b[tid] += sd_b[tid +  2];
-		sd_a[tid] += sd_a[tid +  2];
+		sd_r[tid] += sd_r[tid + 2];
+		sd_g[tid] += sd_g[tid + 2];
+		sd_b[tid] += sd_b[tid + 2];
+		sd_a[tid] += sd_a[tid + 2];
 
-		sd_r[tid] += sd_r[tid +  1];
-		sd_g[tid] += sd_g[tid +  1];
-		sd_b[tid] += sd_b[tid +  1];
+		sd_r[tid] += sd_r[tid + 1];
+		sd_g[tid] += sd_g[tid + 1];
+		sd_b[tid] += sd_b[tid + 1];
 		sd_a[tid] += sd_a[tid + 1];
 	}
 
 #else
-    for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) 
-    {
-        if (tid < s) 
-        {
-            sd_r[tid] += sd_r[tid + s];
-            sd_g[tid] += sd_g[tid + s];
-            sd_b[tid] += sd_b[tid + s];
-            sd_a[tid] += sd_a[tid + s];
-        }
-        __syncthreads();
-    }
+	for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1)
+	{
+		if (tid < s)
+		{
+			sd_r[tid] += sd_r[tid + s];
+			sd_g[tid] += sd_g[tid + s];
+			sd_b[tid] += sd_b[tid + s];
+			sd_a[tid] += sd_a[tid + s];
+		}
+		__syncthreads();
+	}
 #endif // UNROLL_LAST_32
 
-    // Write result for this block to global memory
-    if (tid == 0)
-    {
+	// Write result for this block to global memory
+	if (tid == 0)
+	{
 		d_r[blockIdx.x] = sd_r[0];
 		d_g[blockIdx.x] = sd_g[0];
 		d_b[blockIdx.x] = sd_b[0];
@@ -232,10 +223,7 @@ __global__ void CGComputeReductionBegin
 	}
 }
 
-
-extern "C"
-__global__ void CGComputeReductionContinue
-(	
+extern "C" __global__ void CGComputeReductionContinue(
 	unsigned int n,
 	const float* __restrict__ in_d_r,
 	const float* __restrict__ in_d_g,
@@ -244,40 +232,39 @@ __global__ void CGComputeReductionContinue
 	float* __restrict__ out_d_r,
 	float* __restrict__ out_d_g,
 	float* __restrict__ out_d_b,
-	float* __restrict__ out_d_a
-)
+	float* __restrict__ out_d_a)
 {
-    // Load partial results to shared memory
-    unsigned int tid = threadIdx.x;
-	float* sd_r = SharedMemory<float>() + 0*blockDim.x;
-	float* sd_g = SharedMemory<float>() + 1*blockDim.x;
-	float* sd_b = SharedMemory<float>() + 2*blockDim.x;
-	float* sd_a = SharedMemory<float>() + 3*blockDim.x;
-	
+	// Load partial results to shared memory
+	unsigned int tid = threadIdx.x;
+	float* sd_r = SharedMemory<float>() + 0 * blockDim.x;
+	float* sd_g = SharedMemory<float>() + 1 * blockDim.x;
+	float* sd_b = SharedMemory<float>() + 2 * blockDim.x;
+	float* sd_a = SharedMemory<float>() + 3 * blockDim.x;
+
 	const float4 sums = reduction(n, in_d_r, in_d_g, in_d_b, in_d_a);
 	sd_r[tid] = sums.x;
 	sd_g[tid] = sums.y;
 	sd_b[tid] = sums.z;
 	sd_a[tid] = sums.w;
-    
-    __syncthreads();
-    
-	// Do the reductions in shared memory
-    for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) 
-    {
-        if (tid < s) 
-        {
-            sd_r[tid] += sd_r[tid + s];
-            sd_g[tid] += sd_g[tid + s];
-            sd_b[tid] += sd_b[tid + s];
-            sd_a[tid] += sd_a[tid + s];
-        }
-        __syncthreads();
-    }
 
-    // write result for this block to global memory
-    if (tid == 0)
-    {
+	__syncthreads();
+
+	// Do the reductions in shared memory
+	for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1)
+	{
+		if (tid < s)
+		{
+			sd_r[tid] += sd_r[tid + s];
+			sd_g[tid] += sd_g[tid + s];
+			sd_b[tid] += sd_b[tid + s];
+			sd_a[tid] += sd_a[tid + s];
+		}
+		__syncthreads();
+	}
+
+	// write result for this block to global memory
+	if (tid == 0)
+	{
 		out_d_r[blockIdx.x] = sd_r[0];
 		out_d_g[blockIdx.x] = sd_g[0];
 		out_d_b[blockIdx.x] = sd_b[0];
@@ -285,10 +272,7 @@ __global__ void CGComputeReductionContinue
 	}
 }
 
-
-extern "C"
-__global__ void CGComputeReductionShuffleBegin
-(
+extern "C" __global__ void CGComputeReductionShuffleBegin(
 	unsigned int n,
 	const float* __restrict__ g_r,
 	const float* __restrict__ g_d,
@@ -296,18 +280,17 @@ __global__ void CGComputeReductionShuffleBegin
 	float* __restrict__ d_r,
 	float* __restrict__ d_g,
 	float* __restrict__ d_b,
-	float* __restrict__ d_a
-)
+	float* __restrict__ d_a)
 {
 	// Collect up to 4 elements and perform partial dot-products
 	float4 sums = initialReduction(n, g_r, g_d, g_q);
-    
+
 	// Reduce the partial results in this block
 	sums = blockReduceSum(sums);
 
-    // Write result for this block to global memory
-    if (threadIdx.x == 0)
-    {
+	// Write result for this block to global memory
+	if (threadIdx.x == 0)
+	{
 		d_r[blockIdx.x] = sums.x;
 		d_g[blockIdx.x] = sums.y;
 		d_b[blockIdx.x] = sums.z;
@@ -315,9 +298,7 @@ __global__ void CGComputeReductionShuffleBegin
 	}
 }
 
-extern "C"
-__global__ void CGComputeReductionShuffleContinue
-(	
+extern "C" __global__ void CGComputeReductionShuffleContinue(
 	unsigned int n,
 	const float* __restrict__ in_d_r,
 	const float* __restrict__ in_d_g,
@@ -326,18 +307,17 @@ __global__ void CGComputeReductionShuffleContinue
 	float* __restrict__ out_d_r,
 	float* __restrict__ out_d_g,
 	float* __restrict__ out_d_b,
-	float* __restrict__ out_d_a
-)
+	float* __restrict__ out_d_a)
 {
 	// Collect up to 4 elements
 	float4 sums = reduction(n, in_d_r, in_d_g, in_d_b, in_d_a);
-    
+
 	// Reduce the partial results in this block
 	sums = blockReduceSum(sums);
-	
-    // Write result for this block to global memory
-    if (threadIdx.x == 0)
-    {
+
+	// Write result for this block to global memory
+	if (threadIdx.x == 0)
+	{
 		out_d_r[blockIdx.x] = sums.x;
 		out_d_g[blockIdx.x] = sums.y;
 		out_d_b[blockIdx.x] = sums.z;
@@ -345,9 +325,7 @@ __global__ void CGComputeReductionShuffleContinue
 	}
 }
 
-extern "C"
-__global__ void CGComputeReductionShuffleAtomics
-(
+extern "C" __global__ void CGComputeReductionShuffleAtomics(
 	unsigned int n,
 	const float* __restrict__ g_r,
 	const float* __restrict__ g_d,
@@ -355,18 +333,17 @@ __global__ void CGComputeReductionShuffleAtomics
 	float* __restrict__ d_r,
 	float* __restrict__ d_g,
 	float* __restrict__ d_b,
-	float* __restrict__ d_a
-)
+	float* __restrict__ d_a)
 {
 	// Collect up to 4 elements and perform partial dot-products
 	float4 sums = initialReduction(n, g_r, g_d, g_q);
-    
+
 	// Reduce the partial results in this block
 	sums = blockReduceSum(sums);
 
-    // Write result for this block to global memory
-    if (threadIdx.x == 0)
-    {
+	// Write result for this block to global memory
+	if (threadIdx.x == 0)
+	{
 		atomicAdd(d_r, sums.x);
 		atomicAdd(d_g, sums.y);
 		atomicAdd(d_b, sums.z);
@@ -374,9 +351,7 @@ __global__ void CGComputeReductionShuffleAtomics
 	}
 }
 
-extern "C"
-__global__ void CGUpdateVectorsEx
-(
+extern "C" __global__ void CGUpdateVectorsEx(
 	const unsigned int n,
 	const float* __restrict__ d_r_ptr,
 	const float* __restrict__ d_g_ptr,
@@ -385,8 +360,7 @@ __global__ void CGUpdateVectorsEx
 	float* __restrict__ vX,
 	float* __restrict__ vD,
 	float* __restrict__ vQ,
-	float* __restrict__ vR
-)
+	float* __restrict__ vR)
 {
 	// Declare the necessary variables
 	float x0, x1, x2, x3;
@@ -397,7 +371,7 @@ __global__ void CGUpdateVectorsEx
 	unsigned int i0, i1, i2, i3;
 
 	// Compute the index for the first element to fetch
-	i0 = 4*blockIdx.x*blockDim.x + threadIdx.x;
+	i0 = 4 * blockIdx.x * blockDim.x + threadIdx.x;
 
 	// Fetch the computed dot products
 	float d_r = *d_r_ptr;
@@ -473,7 +447,7 @@ __global__ void CGUpdateVectorsEx
 		r1 -= alpha * q1;
 		d1 = r1 + beta * d1;
 	}
-	
+
 	// Fetch the fourth elements
 	if (i3 < n)
 	{

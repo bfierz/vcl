@@ -50,7 +50,7 @@ public:
 			desc.Height = h;
 			desc.MipLevels = 1;
 			desc.ArraySize = 1;
-			
+
 			Texture2D tex{desc};
 			GLuint tex_id = tex.id();
 			fi_img_cache.emplace(tex_id, std::move(tex));

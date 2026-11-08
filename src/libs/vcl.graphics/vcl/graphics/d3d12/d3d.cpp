@@ -163,7 +163,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_RTV_DIMENSION_UNKNOWN;
 	}
@@ -182,7 +182,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_DSV_DIMENSION_UNKNOWN;
 	}
@@ -206,7 +206,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_SRV_DIMENSION_UNKNOWN;
 	}
@@ -216,25 +216,25 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		switch (query)
 		{
 		case QueryType::Event                            : return D3D11_QUERY_EVENT;
-        case QueryType::Occlusion                        : return D3D11_QUERY_OCCLUSION;
-        case QueryType::Timestamp                        : return D3D11_QUERY_TIMESTAMP;
-        case QueryType::TimestampDisjoint                : return D3D11_QUERY_TIMESTAMP_DISJOINT;
-        case QueryType::PipelineStatistics               : return D3D11_QUERY_PIPELINE_STATISTICS;
-        case QueryType::OcclusionPredicate               : return D3D11_QUERY_OCCLUSION_PREDICATE;
-        case QueryType::StreamOutStatistics              : return D3D11_QUERY_SO_STATISTICS;
-        case QueryType::StreamOutOverflowPredicate       : return D3D11_QUERY_SO_OVERFLOW_PREDICATE;
-        case QueryType::StreamOutStatisticsStream0       : return D3D11_QUERY_SO_STATISTICS_STREAM0;
-        case QueryType::StreamOutOverflowPredicateStream0: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM0;
-        case QueryType::StreamOutStatistics_stream1      : return D3D11_QUERY_SO_STATISTICS_STREAM1;
-        case QueryType::StreamOutOverflowPredicateStream1: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM1;
-        case QueryType::StreamOutStatistics_stream2      : return D3D11_QUERY_SO_STATISTICS_STREAM2;
-        case QueryType::StreamOutOverflowPredicateStream2: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM2;
-        case QueryType::StreamOutStatistics_stream3      : return D3D11_QUERY_SO_STATISTICS_STREAM3;
+		case QueryType::Occlusion                        : return D3D11_QUERY_OCCLUSION;
+		case QueryType::Timestamp                        : return D3D11_QUERY_TIMESTAMP;
+		case QueryType::TimestampDisjoint                : return D3D11_QUERY_TIMESTAMP_DISJOINT;
+		case QueryType::PipelineStatistics               : return D3D11_QUERY_PIPELINE_STATISTICS;
+		case QueryType::OcclusionPredicate               : return D3D11_QUERY_OCCLUSION_PREDICATE;
+		case QueryType::StreamOutStatistics              : return D3D11_QUERY_SO_STATISTICS;
+		case QueryType::StreamOutOverflowPredicate       : return D3D11_QUERY_SO_OVERFLOW_PREDICATE;
+		case QueryType::StreamOutStatisticsStream0       : return D3D11_QUERY_SO_STATISTICS_STREAM0;
+		case QueryType::StreamOutOverflowPredicateStream0: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM0;
+		case QueryType::StreamOutStatistics_stream1      : return D3D11_QUERY_SO_STATISTICS_STREAM1;
+		case QueryType::StreamOutOverflowPredicateStream1: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM1;
+		case QueryType::StreamOutStatistics_stream2      : return D3D11_QUERY_SO_STATISTICS_STREAM2;
+		case QueryType::StreamOutOverflowPredicateStream2: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM2;
+		case QueryType::StreamOutStatistics_stream3      : return D3D11_QUERY_SO_STATISTICS_STREAM3;
 		case QueryType::StreamOutOverflowPredicateStream3: return D3D11_QUERY_SO_OVERFLOW_PREDICATE_STREAM3;
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_QUERY_EVENT;
 	}
@@ -263,7 +263,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			default:
 				VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_BLEND_ONE;
 	}
@@ -280,7 +280,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_BLEND_OP_ADD;
 	}
@@ -295,7 +295,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 		return d3d_mask;
 	}
-	
+
 	D3D11_FILL_MODE D3D::toD3Denum(FillMode::FillMode mode)
 	{
 		switch (mode)
@@ -305,7 +305,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		default:
 			VCL_NO_SWITCH_DEFAULT;
 		}
-		
+
 		DebugError("Invalid enum");
 		return D3D11_FILL_SOLID;
 	}
@@ -324,7 +324,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		DebugError("Invalid enum");
 		return D3D11_CULL_NONE;
 	}
-	
+
 	D3D11_DEPTH_WRITE_MASK D3D::toD3Denum(DepthWriteMask::DepthWriteMask mask)
 	{
 		switch (mask)
@@ -358,7 +358,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		DebugError("Invalid enum");
 		return D3D11_COMPARISON_LESS;
 	}
-	
+
 	D3D11_STENCIL_OP D3D::toD3Denum(StencilOperation::StencilOperation func)
 	{
 		switch (func)

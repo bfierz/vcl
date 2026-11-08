@@ -25,10 +25,13 @@
 #include <vcl/core/cuda/common.inc>
 #include <vcl/core/cuda/math.inc>
 
-__device__ void updateStencil
-(
-	unsigned int i, unsigned int dim, float s, float& c, float& r, float& l
-)
+__device__ void updateStencil(
+	unsigned int i,
+	unsigned int dim,
+	float s,
+	float& c,
+	float& r,
+	float& l)
 {
 	if (i < (dim - 1))
 	{
@@ -42,9 +45,7 @@ __device__ void updateStencil
 	}
 }
 
-extern "C"
-__global__ void MakePoissonStencil
-(
+extern "C" __global__ void MakePoissonStencil(
 	dim3 dim,
 	float h,
 	float a,
@@ -56,24 +57,23 @@ __global__ void MakePoissonStencil
 	float* __restrict__ Ay_r,
 	float* __restrict__ Az_l,
 	float* __restrict__ Az_r,
-	const unsigned char* __restrict__ skip
-)
+	const unsigned char* __restrict__ skip)
 {
 	const unsigned int X = dim.x;
 	const unsigned int Y = dim.y;
 	const unsigned int Z = dim.z;
-	const unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
-	const unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
-	const unsigned int z = blockIdx.z*blockDim.z + threadIdx.z;
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
+	const unsigned int z = blockIdx.z * blockDim.z + threadIdx.z;
 	const unsigned int index = X * Y * z + X * y + x;
 
 	if (x < X && y < Y && z < Z)
 	{
 		// Scaling of the stencil
-		const float s = a / (h*h);
+		const float s = a / (h * h);
 
 		// Initialize write-back data
-		float a_c   = 0;
+		float a_c = 0;
 		float a_x_l = 0;
 		float a_x_r = 0;
 		float a_y_l = 0;
@@ -88,7 +88,7 @@ __global__ void MakePoissonStencil
 			updateStencil(z, Z, s, a_c, a_z_r, a_z_l);
 		}
 
-		Ac  [index] = offset + a_c;
+		Ac[index] = offset + a_c;
 		Ax_l[index] = a_x_l;
 		Ax_r[index] = a_x_r;
 		Ay_l[index] = a_y_l;

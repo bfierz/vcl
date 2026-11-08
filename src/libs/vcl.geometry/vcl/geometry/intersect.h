@@ -177,11 +177,11 @@ namespace Vcl { namespace Geometry {
 	}
 
 	/*!
-	*	\brief Ray-AABB intersection
-	*
-	*	Method from Pharr, Humphrey:
-	*	https://pbr-book.org/3ed-2018/Shapes/Basic_Shape_Interface#RayndashBoundsIntersections
-	*/
+	 *	\brief Ray-AABB intersection
+	 *
+	 *	Method from Pharr, Humphrey:
+	 *	https://pbr-book.org/3ed-2018/Shapes/Basic_Shape_Interface#RayndashBoundsIntersections
+	 */
 	inline bool intersects(
 		const Eigen::AlignedBox<float, 3>& box,
 		const Ray<float, 3>& ray,
