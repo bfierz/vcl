@@ -49,7 +49,7 @@ VCL_END_EXTERNAL_HEADERS
 				if (error0507 != CL_SUCCESS)                                                                           \
 				{                                                                                                      \
 					std::cout << "CL Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << error0507 << std::endl; \
-					__debugbreak();                                                                                    \
+					VCL_DEBUG_BREAK;                                                                                   \
 				}                                                                                                      \
 			} while (VCL_EVAL_FALSE)
 #	else

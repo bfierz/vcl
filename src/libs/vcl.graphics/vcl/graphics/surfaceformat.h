@@ -85,6 +85,7 @@ namespace Vcl { namespace Graphics {
 	};
 
 	int sizeInBytes(SurfaceFormat fmt);
+	bool isDepthFormat(SurfaceFormat fmt);
 }}
 
 namespace std {

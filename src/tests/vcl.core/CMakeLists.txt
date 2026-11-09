@@ -33,6 +33,7 @@ set(SOURCE_FILES
 	allocator.cpp
 	bitvector.cpp
 	convert.cpp
+	enummap.cpp
 	eigen_simd.cpp
 	flags.cpp
 	fnv1a.cpp
