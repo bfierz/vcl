@@ -37,7 +37,7 @@ set(VCL_TEST_SRC
 	buffers.cpp
 	compute.cpp
 	context.cpp
-	descriptorset.cpp
+	descriptorheap.cpp
 	pipelinestate.cpp
 	shaderprogram.cpp
 	textures.cpp
@@ -47,8 +47,10 @@ set(VCL_TEST_INC
 )
 
 set(SHADERS
+	bindless.frag
 	colour.vert
 	colour.frag
+	fullscreen.vert
 	quad.vert
 	quad.frag
 	saxpy.comp
@@ -93,7 +95,21 @@ vclcompileglsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_4
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4})
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/fullscreen.vert
+	"vulkan"
+	"FullscreenSpirvVS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_5
+)
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/bindless.frag
+	"vulkan"
+	"BindlessSpirvFS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_6
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4} ${COMPILEDSHADERS_5} ${COMPILEDSHADERS_6})
 
 target_sources(vcl.graphics.vulkan.test
 	PRIVATE

@@ -34,7 +34,7 @@
 #include <vcl/graphics/runtime/vulkan/state/pipelinestate.h>
 #include <vcl/graphics/vulkan/commands.h>
 #include <vcl/graphics/vulkan/context.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
+#include <vcl/graphics/vulkan/descriptorheap.h>
 #include <vcl/graphics/vulkan/device.h>
 #include <vcl/graphics/vulkan/platform.h>
 
@@ -49,11 +49,6 @@ class VulkanComputeTest : public VulkanTest
 {
 };
 
-static Vcl::Graphics::Vulkan::DescriptorSet::BufferView makeView(const Vcl::Graphics::Runtime::Vulkan::Buffer& buffer)
-{
-	return { buffer.id(), 0, static_cast<uint32_t>(buffer.sizeInBytes()) };
-}
-
 struct KernelParameters
 {
 	// Total width
@@ -64,6 +59,12 @@ struct KernelParameters
 
 	// Saxpy scale 'a'
 	float a;
+
+	// Index of the array 'x' in the resource heap
+	uint32_t X;
+
+	// Index of the array 'y' in the resource heap
+	uint32_t Y;
 };
 
 TEST_F(VulkanComputeTest, ComputeShader)
@@ -75,23 +76,15 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	// Compile the shader stages
 	Runtime::Vulkan::Shader cs(*_context.get(), ShaderType::ComputeShader, 0, SaxpySpirvCS32);
 	EXPECT_TRUE(cs.getCreateInfo().module != 0);
-	EXPECT_EQ(cs.sets().size(), 1);
+	EXPECT_EQ(cs.pushConstantSize(), sizeof(KernelParameters));
 
-	// Layout
-	const auto& bindings = cs.bindings(0);
-	const PushConstantDescriptor push_constant_descs[] = {
-		cs.pushConstants()
-	};
-	DescriptorSetLayout descriptor_set_layout{ _context.get(), bindings };
-	Runtime::Vulkan::PipelineLayout layout{ _context.get(), &descriptor_set_layout, push_constant_descs };
+	// Bindless heap, which defines the layout of all pipelines
+	DescriptorHeap heap{ _context.get(), {} };
 
 	// Configure the pipeline
 	ComputePipelineStateDescription pps_desc;
 	pps_desc.ComputeShader = &cs;
-	Runtime::Vulkan::ComputePipelineState pps{ _context.get(), &layout, pps_desc };
-
-	// Descriptor sets
-	DescriptorSet desc_set(&descriptor_set_layout);
+	Runtime::Vulkan::ComputePipelineState pps{ _context.get(), &heap, pps_desc };
 
 	// Buffer for the test
 	BufferDescription b0_desc = {
@@ -110,11 +103,11 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	Runtime::Vulkan::Buffer b0(_context.get(), b0_desc, &buffer_init_dat);
 	Runtime::Vulkan::Buffer b1(_context.get(), b1_desc);
 
-	std::vector<DescriptorSet::UpdateDescriptor> descriptors = {
-		{ DescriptorType::StorageBuffer, 0, 0, makeView(b0) },
-		{ DescriptorType::StorageBuffer, 1, 0, makeView(b1) }
-	};
-	desc_set.update(descriptors);
+	// Occupy the first slot, such that the shader has to use the indices
+	const ResourceView unused = heap.createView(b0, ResourceViewType::Buffer, 0, 16);
+	const ResourceView x = heap.createView(b0, ResourceViewType::Buffer, 0, b0.sizeInBytes());
+	const ResourceView y = heap.createView(b1, ResourceViewType::RWBuffer, 0, b1.sizeInBytes());
+	EXPECT_NE(x.index().Value, y.index().Value);
 
 	// Actual execution
 	CommandQueue queue(_context.get(), VkQueueFlagBits::VK_QUEUE_COMPUTE_BIT, 0);
@@ -122,9 +115,9 @@ TEST_F(VulkanComputeTest, ComputeShader)
 	cmd_buffer.begin();
 	VkBufferCopy cpy_rgn = { 0, 0, 1024 };
 	cmd_buffer.copy(b0.id(), b1.id(), { &cpy_rgn, 1 });
-	cmd_buffer.bind(VK_PIPELINE_BIND_POINT_COMPUTE, desc_set, pps.layout());
+	heap.bind(cmd_buffer);
 	cmd_buffer.bind(VK_PIPELINE_BIND_POINT_COMPUTE, pps);
-	cmd_buffer.pushConstants<KernelParameters>(pps.layout(), ShaderStage::Compute, 16, 16, 1.0f);
+	cmd_buffer.pushConstants<KernelParameters>(pps.layout(), 16u, 16u, 1.0f, x.index().Value, y.index().Value);
 	cmd_buffer.dispatch(16, 16);
 	cmd_buffer.end();
 	queue.submit(cmd_buffer, VK_NULL_HANDLE);

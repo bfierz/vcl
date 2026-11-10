@@ -175,6 +175,36 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		TextureCubeArray
 	};
 
+	//! Description of a view on a part of a texture.
+	//! The default describes the entire texture.
+	struct TextureViewDescription
+	{
+		//! Value selecting all mip-map levels or layers starting at the first one
+		enum : uint32_t
+		{
+			Remaining = 0xffffffffu
+		};
+
+		//! Type the texture is viewed as. 'Unknown' selects the type of the texture.
+		TextureType Type{ TextureType::Unknown };
+
+		//! Format the texture is viewed as. 'Unknown' selects the format of the texture.
+		SurfaceFormat Format{ SurfaceFormat::Unknown };
+
+		//! First mip-map level, relative to the texture
+		uint32_t FirstMipLevel{ 0 };
+
+		//! Number of mip-map levels.
+		//! Read-write (storage) views cover exactly one level.
+		uint32_t MipLevels{ Remaining };
+
+		//! First array layer, relative to the texture
+		uint32_t FirstLayer{ 0 };
+
+		//! Number of array layers
+		uint32_t Layers{ Remaining };
+	};
+
 	class TextureView
 	{
 	protected:

@@ -35,50 +35,15 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 #include <vcl/graphics/vulkan/context.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
+#include <vcl/graphics/vulkan/descriptorheap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
-	class PipelineLayout
-	{
-		using DescriptorSetLayout = Graphics::Vulkan::DescriptorSetLayout;
-		using PushConstantDescriptor = Graphics::Vulkan::PushConstantDescriptor;
-
-	public:
-		//! Constructor
-		PipelineLayout() = default;
-
-		//! Constructor
-		PipelineLayout(Vcl::Graphics::Vulkan::Context* context, const DescriptorSetLayout* descriptor_set_layout, stdext::span<const PushConstantDescriptor> push_constants);
-
-		//! Copy Constructor
-		PipelineLayout(const PipelineLayout&) = delete;
-
-		//! Move Constructor
-		PipelineLayout(PipelineLayout&&);
-
-		//! Destructor
-		~PipelineLayout();
-
-		//! Convert to Vulkan ID
-		inline operator VkPipelineLayout() const { return _layout; }
-
-	private:
-		//! Link to the context owning the layout
-		Vcl::Graphics::Vulkan::Context* _context{ nullptr };
-
-		//! Vulkan pipeline layout
-		VkPipelineLayout _layout{ nullptr };
-
-		//! Associated descriptor set layout
-		const DescriptorSetLayout* _descriptorSetLayout{ nullptr };
-	};
-
 	class GraphicsPipelineState : public Runtime::PipelineState
 	{
 	public:
 		GraphicsPipelineState(
 			Vcl::Graphics::Vulkan::Context* context,
-			const PipelineLayout* layout,
+			const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
 			const PipelineStateDescription& desc,
 			const RenderTargetLayout& rt_layout);
 		~GraphicsPipelineState();
@@ -86,8 +51,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		//! Convert to Vulkan ID
 		inline operator VkPipeline() const { return _state; }
 
-		//! Access the pipeline layout
-		const PipelineLayout& layout() const { return *_layout; }
+		//! Access the bindless pipeline layout shared by all pipelines
+		VkPipelineLayout layout() const { return _layout; }
 
 		//! Access the input layout
 		const InputLayoutDescription& inputLayout() const { return _inputLayout; }
@@ -96,8 +61,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		//! Owner
 		Vcl::Graphics::Vulkan::Context* _context;
 
-		//! Associated layout
-		const PipelineLayout* _layout;
+		//! Layout of the descriptor heap the pipeline was created for
+		VkPipelineLayout _layout;
 
 		//! Input layout
 		InputLayoutDescription _inputLayout;
@@ -109,21 +74,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	class ComputePipelineState : public Runtime::PipelineState
 	{
 	public:
-		ComputePipelineState(Vcl::Graphics::Vulkan::Context* context, const PipelineLayout* layout, const ComputePipelineStateDescription& desc);
+		ComputePipelineState(Vcl::Graphics::Vulkan::Context* context, const Vcl::Graphics::Vulkan::DescriptorHeap* heap, const ComputePipelineStateDescription& desc);
 		~ComputePipelineState();
 
 		//! Convert to Vulkan ID
 		inline operator VkPipeline() const { return _state; }
 
-		//! Access the pipeline layout
-		const PipelineLayout& layout() const { return *_layout; }
+		//! Access the bindless pipeline layout shared by all pipelines
+		VkPipelineLayout layout() const { return _layout; }
 
 	private:
 		//! Owner
 		Vcl::Graphics::Vulkan::Context* _context;
 
-		//! Associated layout
-		const PipelineLayout* _layout;
+		//! Layout of the descriptor heap the pipeline was created for
+		VkPipelineLayout _layout;
 
 		//! Vulkan pipeline state
 		VkPipeline _state{ VK_NULL_HANDLE };

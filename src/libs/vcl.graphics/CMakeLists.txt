@@ -166,8 +166,8 @@ set(SOURCE_VULKAN
 	vcl/graphics/vulkan/commands.h
 	vcl/graphics/vulkan/context.cpp
 	vcl/graphics/vulkan/context.h
-	vcl/graphics/vulkan/descriptorset.cpp
-	vcl/graphics/vulkan/descriptorset.h
+	vcl/graphics/vulkan/descriptorheap.cpp
+	vcl/graphics/vulkan/descriptorheap.h
 	vcl/graphics/vulkan/device.cpp
 	vcl/graphics/vulkan/device.h
 	vcl/graphics/vulkan/memory.cpp
@@ -194,6 +194,8 @@ set(SOURCE_VULKAN
 	vcl/graphics/runtime/vulkan/state/pipelinestate.h
 	vcl/graphics/runtime/vulkan/state/rasterizerstate.cpp
 	vcl/graphics/runtime/vulkan/state/rasterizerstate.h
+	vcl/graphics/runtime/vulkan/state/sampler.cpp
+	vcl/graphics/runtime/vulkan/state/sampler.h
 )
 
 set(SOURCE_WEBGPU
@@ -251,6 +253,7 @@ set(SOURCE
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h
 	vcl/graphics/runtime/state/rasterizerstate.h
+	vcl/graphics/runtime/state/resourcetable.h
 	vcl/graphics/runtime/state/sampler.cpp
 	vcl/graphics/runtime/state/sampler.h
 

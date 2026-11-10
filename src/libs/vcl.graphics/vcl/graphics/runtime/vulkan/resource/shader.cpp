@@ -37,10 +37,6 @@
 #	include <vcl/core/enummap.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
-	using DescriptorSetLayoutBinding = Graphics::Vulkan::DescriptorSetLayoutBinding;
-	using DescriptorType = Graphics::Vulkan::DescriptorType;
-	using ShaderStage = Graphics::Vulkan::ShaderStage;
-
 	namespace {
 		// clang-format off
 		constexpr EnumMapping<ShaderType, VkShaderStageFlagBits> StageBitsTable[] = {
@@ -53,25 +49,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		};
 		// clang-format on
 		constexpr EnumMap<ShaderType, VkShaderStageFlagBits, enumMapSize(StageBitsTable)> StageBits{ StageBitsTable };
-
-		// clang-format off
-		constexpr EnumMapping<ShaderType, ShaderStage::Enum> StagesTable[] = {
-			{ ShaderType::VertexShader,     ShaderStage::Vertex },
-			{ ShaderType::ControlShader,    ShaderStage::TessellationControl },
-			{ ShaderType::EvaluationShader, ShaderStage::TessellationEvaluation },
-			{ ShaderType::GeometryShader,   ShaderStage::Geometry },
-			{ ShaderType::FragmentShader,   ShaderStage::Fragment },
-			{ ShaderType::ComputeShader,    ShaderStage::Compute },
-		};
-		// clang-format on
-		constexpr EnumMap<ShaderType, ShaderStage::Enum, enumMapSize(StagesTable)> Stages{ StagesTable };
 	}
 
 	Shader::Shader(VkDevice device, ShaderType type, int tag, stdext::span<const uint32_t> data)
 	: Runtime::Shader(type, tag)
 	, _device(device)
 	{
-		createBindingTable(data);
+		reflect(data);
 
 		// Create the actual shader module
 		VkShaderModuleCreateInfo info;
@@ -91,6 +75,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	{
 		std::swap(_device, rhs._device);
 		std::swap(_shaderModule, rhs._shaderModule);
+		std::swap(_pushConstantSize, rhs._pushConstantSize);
 	}
 
 	Shader::~Shader()
@@ -109,86 +94,23 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		return stage;
 	}
 
-	std::vector<uint32_t> Shader::sets() const
-	{
-		std::vector<uint32_t> keys;
-		keys.reserve(_bindings.size());
-		std::transform(std::begin(_bindings), std::end(_bindings), std::back_inserter(keys), [](const auto& key_bindings) {
-			return key_bindings.first;
-		});
-		return keys;
-	}
-
-	stdext::span<const DescriptorSetLayoutBinding> Shader::bindings(uint32_t set) const
-	{
-		const auto bindings_of_set = _bindings.find(set);
-		if (bindings_of_set != _bindings.end())
-		{
-			return bindings_of_set->second;
-		}
-
-		return {};
-	}
-
 	VkShaderStageFlagBits Shader::convert(ShaderType type)
 	{
 		return StageBits[type];
 	}
 
-	void Shader::createBindingTable(stdext::span<const uint32_t> data)
+	void Shader::reflect(stdext::span<const uint32_t> data)
 	{
-		// Create the reflection data
+		// Resources are accessed through the bindless descriptor heap, which has
+		// a fixed layout. Only the push constants depend on the shader.
 		const spirv_cross::CompilerGLSL spir_mod({ data.begin(), data.end() });
 		const spirv_cross::ShaderResources resources = spir_mod.get_shader_resources();
 
-		const Flags<ShaderStage> curr_shader_type = Stages[type()];
-
-		// Process the push constants
 		VclCheck(resources.push_constant_buffers.size() <= 1, "Only one push-constant buffer supported per shader stage");
 		for (const auto& resource : resources.push_constant_buffers)
 		{
-			using Graphics::Vulkan::convert;
-
-			const auto offset = spir_mod.get_decoration(resource.id, spv::DecorationOffset);
-			const auto& type = spir_mod.get_type(resource.type_id);
-			const auto size = spir_mod.get_declared_struct_size(type);
-			_pushConstantRange.StageFlags = curr_shader_type;
-			_pushConstantRange.Offset = 0;
-			_pushConstantRange.Size = size;
-		}
-
-		// Process the shader resource bindings
-		_bindings.clear();
-		for (const auto& resource : resources.uniform_buffers)
-		{
-			const auto set = spir_mod.get_decoration(resource.id, spv::DecorationDescriptorSet);
-			const auto binding = spir_mod.get_decoration(resource.id, spv::DecorationBinding);
-			const auto& type = spir_mod.get_type(resource.type_id);
-			uint32_t array_size = 1;
-			if (type.array.size() > 0)
-			{
-				array_size = type.array[0];
-			}
-			_bindings[set].emplace_back(DescriptorSetLayoutBinding{ DescriptorType::UniformBuffer, array_size, curr_shader_type, binding });
-		}
-		for (const auto& resource : resources.storage_buffers)
-		{
-			const auto set = spir_mod.get_decoration(resource.id, spv::DecorationDescriptorSet);
-			const auto binding = spir_mod.get_decoration(resource.id, spv::DecorationBinding);
-			const auto& type = spir_mod.get_type(resource.type_id);
-			uint32_t array_size = 1;
-			if (type.array.size() > 0)
-			{
-				array_size = type.array[0];
-			}
-			_bindings[set].emplace_back(DescriptorSetLayoutBinding{ DescriptorType::StorageBuffer, array_size, curr_shader_type, binding });
-		}
-
-		for (auto& set : _bindings)
-		{
-			std::sort(std::begin(set.second), std::end(set.second), [](const auto& a, const auto& b) {
-				return a.Binding < b.Binding;
-			});
+			const auto& type = spir_mod.get_type(resource.base_type_id);
+			_pushConstantSize = static_cast<uint32_t>(spir_mod.get_declared_struct_size(type));
 		}
 	}
 }}}}

@@ -55,6 +55,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		uint32_t ArraySize;
 	};
 
+	//! Convert the texture type to the type of a view on the entire texture
+	VkImageViewType toVulkanImageViewType(TextureType type);
+
 	class Texture : public Runtime::Texture
 	{
 	public:

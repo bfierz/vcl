@@ -190,9 +190,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		vkCmdBindPipeline(_cmdBuffer, bind_point, pipeline);
 	}
 
-	void CommandBuffer::bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout)
+	void CommandBuffer::bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout, uint32_t set)
 	{
-		vkCmdBindDescriptorSets(_cmdBuffer, bind_point, layout, 0, 1, &descriptors, 0, nullptr);
+		vkCmdBindDescriptorSets(_cmdBuffer, bind_point, layout, set, 1, &descriptors, 0, nullptr);
 	}
 
 	void CommandBuffer::fillBuffer(VkBuffer dst_buffer, size_t offset, size_t size, uint32_t data)
@@ -200,12 +200,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		vkCmdFillBuffer(_cmdBuffer, dst_buffer, offset, size, data);
 	}
 
-	void CommandBuffer::pushConstants(
-		VkPipelineLayout layout,
-		const PushConstantDescriptor& desc,
-		void* data)
+	void CommandBuffer::pushConstants(VkPipelineLayout layout, uint32_t offset, uint32_t size, const void* data)
 	{
-		vkCmdPushConstants(_cmdBuffer, layout, convert(desc.StageFlags), desc.Offset, desc.Size, data);
+		vkCmdPushConstants(_cmdBuffer, layout, VK_SHADER_STAGE_ALL, offset, size, data);
 	}
 
 	void CommandBuffer::copy(VkBuffer src, VkBuffer dst, stdext::span<const VkBufferCopy> regions)

@@ -37,65 +37,19 @@
 #include <vcl/graphics/vulkan/tools.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
-	PipelineLayout::PipelineLayout(
-		Vcl::Graphics::Vulkan::Context* context,
-		const DescriptorSetLayout* descriptor_set_layout,
-		stdext::span<const PushConstantDescriptor> push_constants)
-	: _context(context)
-	, _descriptorSetLayout(descriptor_set_layout)
-	{
-		VkDescriptorSetLayout layouts[] = {
-			*_descriptorSetLayout
-		};
-
-		std::vector<VkPushConstantRange> vk_push_constants;
-		vk_push_constants.reserve(push_constants.size());
-		std::transform(std::begin(push_constants), std::end(push_constants), std::back_inserter(vk_push_constants), [](const auto& c) {
-			return VkPushConstantRange{ convert(c.StageFlags), c.Offset, c.Size };
-		});
-
-		VkPipelineLayoutCreateInfo info;
-		info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		info.pNext = nullptr;
-		info.flags = 0;
-		info.setLayoutCount = 1;
-		info.pSetLayouts = layouts;
-		info.pushConstantRangeCount =
-			static_cast<uint32_t>(vk_push_constants.size());
-		info.pPushConstantRanges = vk_push_constants.data();
-
-		VkResult res = vkCreatePipelineLayout(*_context, &info, nullptr, &_layout);
-		VclCheck(res == VK_SUCCESS, "Pipeline layout was created.");
-	}
-
-	PipelineLayout::PipelineLayout(PipelineLayout&& rhs)
-	{
-		std::swap(_context, rhs._context);
-		std::swap(_descriptorSetLayout, rhs._descriptorSetLayout);
-		std::swap(_layout, rhs._layout);
-	}
-
-	PipelineLayout::~PipelineLayout()
-	{
-		if (_layout)
-		{
-			vkDestroyPipelineLayout(*_context, _layout, nullptr);
-		}
-	}
-
 	GraphicsPipelineState::GraphicsPipelineState(
 		Vcl::Graphics::Vulkan::Context* context,
-		const PipelineLayout* layout,
+		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
 		const PipelineStateDescription& desc,
 		const RenderTargetLayout& rt_layout)
 	: _context(context)
-	, _layout(layout)
+	, _layout(heap ? heap->layout() : VK_NULL_HANDLE)
 	, _inputLayout(desc.InputLayout)
 	{
 		using Vcl::Graphics::Vulkan::convert;
 		using Vcl::Graphics::Vulkan::isStencilFormat;
 
-		VclRequire(layout, "Layout is set");
+		VclRequire(heap, "Descriptor heap is set");
 		VclRequire(desc.VertexShader, "Vertex shader is set");
 		VclRequire(!desc.TessControlShader && !desc.TessEvalShader, "Tessellation requires the patch size, which is not part of the pipeline description.");
 		VclRequire(rt_layout.ColourFormats.size() <= desc.Blend.RenderTarget.size(), "Number of render-targets is supported.");
@@ -108,6 +62,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 				continue;
 
 			VclRequire(dynamic_cast<const Runtime::Vulkan::Shader*>(shader), "Shader is Vulkan shader");
+			VclRequire(static_cast<const Runtime::Vulkan::Shader*>(shader)->pushConstantSize() <= heap->desc().PushConstantSize, "Push constants of the shader fit the layout.");
 			stages.push_back(static_cast<const Runtime::Vulkan::Shader*>(shader)->getCreateInfo());
 		}
 
@@ -177,7 +132,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		vk_desc.pDepthStencilState = &depth_stencil;
 		vk_desc.pColorBlendState = &blend;
 		vk_desc.pDynamicState = &dynamic_state;
-		vk_desc.layout = *_layout;
+		vk_desc.layout = _layout;
 		vk_desc.renderPass = VK_NULL_HANDLE;
 		vk_desc.basePipelineHandle = VK_NULL_HANDLE;
 		vk_desc.basePipelineIndex = -1;
@@ -194,14 +149,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 
 	ComputePipelineState::ComputePipelineState(
 		Vcl::Graphics::Vulkan::Context* context,
-		const PipelineLayout* layout,
+		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
 		const ComputePipelineStateDescription& desc)
 	: _context(context)
-	, _layout(layout)
+	, _layout(heap ? heap->layout() : VK_NULL_HANDLE)
 	{
-		VclRequire(layout, "Layout is set");
+		VclRequire(heap, "Descriptor heap is set");
 		VclRequire(dynamic_cast<Runtime::Vulkan::Shader*>(desc.ComputeShader), "Shader is Vulkan shader");
 		VclRequire(desc.ComputeShader->type() == ShaderType::ComputeShader, "Shader is compute shader");
+		VclRequire(static_cast<Runtime::Vulkan::Shader*>(desc.ComputeShader)->pushConstantSize() <= heap->desc().PushConstantSize, "Push constants of the shader fit the layout.");
 
 		// Create the corresponding Vulkan object
 		VkComputePipelineCreateInfo vk_desc;
@@ -209,7 +165,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		vk_desc.pNext = nullptr;
 		vk_desc.flags = 0;
 		vk_desc.stage = static_cast<Runtime::Vulkan::Shader*>(desc.ComputeShader)->getCreateInfo();
-		vk_desc.layout = *_layout;
+		vk_desc.layout = _layout;
 		vk_desc.basePipelineHandle = VK_NULL_HANDLE;
 		vk_desc.basePipelineIndex = -1;
 

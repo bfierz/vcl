@@ -77,6 +77,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	{
 	public:
 		//! Constructor
+		//! Enables the features of the bindless resource model: descriptor
+		//! indexing (Vulkan 1.2) and VK_EXT_mutable_descriptor_type.
+		//! \param extensions Additional device extensions to enable
+		//! \throws std::runtime_error if the device lacks a required feature
 		Context(Device* dev, stdext::span<const char*> extensions);
 
 		//! Destructor
@@ -90,6 +94,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		Device* device() const { return _physicalDevice; }
 		VkPipelineCache cache() const { return _pipelineCache; }
+
+		//! \returns the enabled core (Vulkan 1.0) features
+		const VkPhysicalDeviceFeatures& enabledFeatures() const { return _enabledFeatures; }
 
 		VkCommandPool commandPool(uint32_t queueIdx, CommandBufferType type);
 
@@ -105,6 +112,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Queue families
 		std::vector<VkQueueFamilyProperties> _queueFamilies;
+
+		//! Enabled core features
+		VkPhysicalDeviceFeatures _enabledFeatures{};
 
 		//! Associated pipeline cache
 		VkPipelineCache _pipelineCache;

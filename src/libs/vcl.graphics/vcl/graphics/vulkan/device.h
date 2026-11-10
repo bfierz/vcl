@@ -65,6 +65,12 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! \returns the name of this device
 		const std::string& name() const { return _name; }
 
+		//! \returns the limits of this device
+		const VkPhysicalDeviceLimits& limits() const { return _limits; }
+
+		//! \returns whether the device provides the extension \p name
+		bool supportsExtension(const char* name) const;
+
 		//! \returns a new context object
 		std::unique_ptr<Context> createContext(stdext::span<const char*> extensions = stdext::span<const char*>{});
 
@@ -123,6 +129,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Device features
 		VkPhysicalDeviceFeatures _features;
+
+		//! Device limits
+		VkPhysicalDeviceLimits _limits;
 
 		//! Native device memory configuration
 		VkPhysicalDeviceMemoryProperties _vkMemory;

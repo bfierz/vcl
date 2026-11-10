@@ -189,6 +189,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		}
 	}
 
+	VkImageViewType toVulkanImageViewType(TextureType type)
+	{
+		return toVulkanViewType(type);
+	}
+
 	Texture::Texture(
 		Vcl::Graphics::Vulkan::Context* context,
 		const GenericTextureDescription& desc,

@@ -38,7 +38,7 @@
 #include <vcl/graphics/runtime/vulkan/resource/texture.h>
 #include <vcl/graphics/runtime/vulkan/state/pipelinestate.h>
 #include <vcl/graphics/vulkan/commands.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
+#include <vcl/graphics/vulkan/descriptorheap.h>
 
 // Test
 #include "test.h"
@@ -46,10 +46,23 @@
 // Additional shaders
 #include "colour.vert.spv.h"
 #include "colour.frag.spv.h"
+#include "fullscreen.vert.spv.h"
+#include "bindless.frag.spv.h"
 
 namespace {
 	const stdext::span<const uint32_t> VertexShader32{ reinterpret_cast<uint32_t*>(ColourSpirvVSData), ColourSpirvVSSize / 4 };
 	const stdext::span<const uint32_t> FragmentShader32{ reinterpret_cast<uint32_t*>(ColourSpirvFSData), ColourSpirvFSSize / 4 };
+	const stdext::span<const uint32_t> FullscreenVertexShader32{ reinterpret_cast<uint32_t*>(FullscreenSpirvVSData), FullscreenSpirvVSSize / 4 };
+	const stdext::span<const uint32_t> BindlessFragmentShader32{ reinterpret_cast<uint32_t*>(BindlessSpirvFSData), BindlessSpirvFSSize / 4 };
+
+	//! Push constants of 'bindless.frag'
+	struct BindlessParameters
+	{
+		uint32_t Constants;
+		uint32_t Texture;
+		uint32_t Sampler;
+		uint32_t UseStaticSampler;
+	};
 
 	Vcl::Graphics::Runtime::Texture2DDescription makeTexture2DDescription(Vcl::Graphics::SurfaceFormat format, Vcl::Flags<Vcl::Graphics::Runtime::TextureUsage> usage, uint32_t width, uint32_t height)
 	{
@@ -170,8 +183,7 @@ TEST_F(VulkanTextureTest, RenderTriangle)
 	// Pipeline drawing coloured, transformed triangles
 	Runtime::Vulkan::Shader vs(*_context, ShaderType::VertexShader, 0, VertexShader32);
 	Runtime::Vulkan::Shader fs(*_context, ShaderType::FragmentShader, 0, FragmentShader32);
-	DescriptorSetLayout descriptor_set_layout{ _context.get(), {} };
-	Runtime::Vulkan::PipelineLayout layout{ _context.get(), &descriptor_set_layout, {} };
+	DescriptorHeap heap{ _context.get(), {} };
 
 	PipelineStateDescription desc;
 	desc.VertexShader = &vs;
@@ -194,7 +206,7 @@ TEST_F(VulkanTextureTest, RenderTriangle)
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 	rt_layout.DepthStencilFormat = SurfaceFormat::Unknown;
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &layout, desc, rt_layout };
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
 
 	// Red triangle covering the upper-left half of the render-target
 	const std::array<float, 15> vertices = {
@@ -258,4 +270,118 @@ TEST_F(VulkanTextureTest, RenderTriangle)
 	const auto pixels = readBack(read_buffer);
 	EXPECT_EQ(pixels[2 * width + 2], red) << "Pixel inside the triangle";
 	EXPECT_EQ(pixels[(height - 3) * width + (width - 3)], blue) << "Pixel outside the triangle";
+}
+
+// Sample a texture through the bindless heap: constant buffer and texture from
+// the resource heap, the sampler either from the sampler heap or a static sampler
+TEST_F(VulkanTextureTest, RenderBindlessTexture)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics::Vulkan;
+	using namespace Vcl::Graphics;
+
+	constexpr uint32_t width = 32;
+	constexpr uint32_t height = 32;
+
+	// R8G8B8A8_UNORM as little-endian 32-bit values
+	constexpr uint32_t black = 0xff000000;
+	constexpr uint32_t red = 0xff0000ff;
+	constexpr uint32_t green = 0xff00ff00;
+	constexpr uint32_t blue = 0xffff0000;
+	constexpr uint32_t yellow = 0xff00ffff;
+	constexpr uint32_t white = 0xffffffff;
+
+	CommandQueue queue{ _context.get(), VK_QUEUE_GRAPHICS_BIT, 0 };
+	CommandBuffer cmd_buffer{ *_context, _context->commandPool(0, CommandBufferType::Transient) };
+
+	// Layout with a static point sampler in register 0
+	SamplerDescription point_sampler;
+	point_sampler.Filter = FilterType::MinMagMipPoint;
+	BindlessLayoutDescription heap_desc;
+	heap_desc.StaticSamplers = { { 0, point_sampler } };
+	DescriptorHeap heap{ _context.get(), heap_desc };
+
+	Runtime::Vulkan::Shader vs(*_context, ShaderType::VertexShader, 0, FullscreenVertexShader32);
+	Runtime::Vulkan::Shader fs(*_context, ShaderType::FragmentShader, 0, BindlessFragmentShader32);
+	EXPECT_EQ(fs.pushConstantSize(), sizeof(BindlessParameters));
+
+	PipelineStateDescription desc;
+	desc.VertexShader = &vs;
+	desc.FragmentShader = &fs;
+	desc.InputAssembly.Topology = PrimitiveType::Trianglelist;
+	desc.Rasterizer.CullMode = CullModeMethod::None;
+	desc.DepthStencil.DepthEnable = false;
+
+	RenderTargetLayout rt_layout;
+	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
+	rt_layout.DepthStencilFormat = SurfaceFormat::Unknown;
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+
+	// Constant buffer removing the blue channel
+	const std::array<float, 4> tint = { 1, 1, 0, 1 };
+	const BufferInitData tint_data = { tint.data(), sizeof(tint) };
+	Runtime::Vulkan::Buffer constants{ _context.get(), { sizeof(tint), BufferUsage::Uniform | BufferUsage::MapWrite }, &tint_data };
+
+	BufferDescription read_desc = { width * height * 4, BufferUsage::MapRead | BufferUsage::CopyDst };
+	Runtime::Vulkan::Buffer read_buffer_heap{ _context.get(), read_desc };
+	Runtime::Vulkan::Buffer read_buffer_static{ _context.get(), read_desc };
+
+	// 2x2 texture with a different colour in each quadrant
+	const std::array<uint32_t, 4> texels = { red, green, blue, white };
+	TextureResource init_data;
+	init_data.Data = { reinterpret_cast<const unsigned char*>(texels.data()), sizeof(texels) };
+	init_data.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	init_data.Width = 2;
+	init_data.Height = 2;
+
+	auto rt = std::make_unique<Runtime::Vulkan::Texture2D>(_context.get(), makeTexture2DDescription(SurfaceFormat::R8G8B8A8_UNORM, TextureUsage::OutputAttachment | TextureUsage::CopySrc, width, height));
+
+	RenderPassDescription pass;
+	RenderTargetAttachmentDescription rt_attachment;
+	rt_attachment.View = rt;
+	rt_attachment.LoadOp = AttachmentLoadOp::Clear;
+	rt_attachment.StoreOp = AttachmentStoreOp::Store;
+	rt_attachment.ClearColor = { 1, 0, 1, 1 };
+	pass.RenderTargetAttachments.push_back(rt_attachment);
+
+	cmd_buffer.begin();
+	Runtime::Vulkan::Texture2D tex{ _context.get(), makeTexture2DDescription(SurfaceFormat::R8G8B8A8_UNORM, TextureUsage::Sampled, 2, 2), &init_data, cmd_buffer };
+	tex.transition(cmd_buffer, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	// Occupy the first slots, such that the shader has to use the indices
+	const ResourceView unused_view = heap.createView(constants, ResourceViewType::ConstantBuffer, 0, sizeof(tint));
+	const SamplerView unused_sampler = heap.createSampler({});
+
+	const ResourceView constants_view = heap.createView(constants, ResourceViewType::ConstantBuffer, 0, sizeof(tint));
+	const ResourceView tex_view = heap.createView(tex, ResourceViewType::Texture);
+	const SamplerView sampler = heap.createSampler(point_sampler);
+
+	VkViewport viewport = { 0, 0, width, height, 0, 1 };
+	VkRect2D scissor = { { 0, 0 }, { width, height } };
+	heap.bind(cmd_buffer);
+	for (const uint32_t use_static_sampler : { 0u, 1u })
+	{
+		cmd_buffer.beginRendering(pass);
+		cmd_buffer.setViewport(0, { &viewport, 1 });
+		cmd_buffer.setScissor(0, { &scissor, 1 });
+		cmd_buffer.bind(VK_PIPELINE_BIND_POINT_GRAPHICS, pps);
+		cmd_buffer.pushConstants<BindlessParameters>(pps.layout(), constants_view.index().Value, tex_view.index().Value, sampler.index().Value, use_static_sampler);
+		cmd_buffer.draw(3);
+		cmd_buffer.endRendering();
+		rt->copyTo(cmd_buffer, use_static_sampler ? read_buffer_static : read_buffer_heap);
+	}
+	cmd_buffer.end();
+
+	std::array<VkCommandBuffer, 1> cmd_buffers = { cmd_buffer };
+	queue.submit(stdext::make_span(cmd_buffers), VK_NULL_HANDLE);
+	queue.waitIdle();
+
+	for (auto* read_buffer : { &read_buffer_heap, &read_buffer_static })
+	{
+		const auto pixels = readBack(*read_buffer);
+		EXPECT_EQ(pixels[8 * width + 8], red) << "Upper-left quadrant";
+		EXPECT_EQ(pixels[8 * width + 24], green) << "Upper-right quadrant";
+		EXPECT_EQ(pixels[24 * width + 8], black) << "Lower-left quadrant: blue without the blue channel";
+		EXPECT_EQ(pixels[24 * width + 24], yellow) << "Lower-right quadrant: white without the blue channel";
+	}
 }
