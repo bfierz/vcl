@@ -54,6 +54,7 @@ set(SHADERS
 	quad.vert
 	quad.frag
 	saxpy.comp
+	triangle.mesh
 )
 
 # Access the include directories in order to compile the GLSL shaders
@@ -109,7 +110,15 @@ vclcompileglsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_6
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4} ${COMPILEDSHADERS_5} ${COMPILEDSHADERS_6})
+# Mesh shaders require SPIR-V 1.4
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/triangle.mesh
+	"vulkan1.3"
+	"TriangleSpirvMS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_7
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4} ${COMPILEDSHADERS_5} ${COMPILEDSHADERS_6} ${COMPILEDSHADERS_7})
 
 target_sources(vcl.graphics.vulkan.test
 	PRIVATE

@@ -37,6 +37,108 @@
 #include <vcl/graphics/vulkan/tools.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
+	namespace {
+		//! Create a pipeline rasterizing primitives, which are generated either
+		//! from vertex input or by a mesh shader (without vertex input state)
+		VkPipeline createRasterPipeline(
+			Vcl::Graphics::Vulkan::Context* context,
+			VkPipelineLayout layout,
+			const std::vector<VkPipelineShaderStageCreateInfo>& stages,
+			const VkPipelineVertexInputStateCreateInfo* vertex_input,
+			const VkPipelineInputAssemblyStateCreateInfo* input_assembly,
+			const BlendDescription& blend_desc,
+			const RasterizerDescription& rasterizer_desc,
+			const DepthStencilDescription& depth_stencil_desc,
+			const RenderTargetLayout& rt_layout)
+		{
+			using Vcl::Graphics::Vulkan::convert;
+			using Vcl::Graphics::Vulkan::isStencilFormat;
+
+			VclRequire(rt_layout.ColourFormats.size() <= blend_desc.RenderTarget.size(), "Number of render-targets is supported.");
+
+			// Viewports and scissor rectangles are set dynamically
+			VkPipelineViewportStateCreateInfo viewport = {};
+			viewport.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+			viewport.viewportCount = 1;
+			viewport.scissorCount = 1;
+
+			const VkPipelineRasterizationStateCreateInfo rasterizer = toVulkan(rasterizer_desc);
+
+			VkPipelineMultisampleStateCreateInfo multisample = {};
+			multisample.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+			multisample.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+			multisample.alphaToCoverageEnable = blend_desc.AlphaToCoverageEnable ? VK_TRUE : VK_FALSE;
+
+			const VkPipelineDepthStencilStateCreateInfo depth_stencil = toVulkan(depth_stencil_desc);
+
+			std::vector<VkPipelineColorBlendAttachmentState> blend_attachments(rt_layout.ColourFormats.size());
+			const VkPipelineColorBlendStateCreateInfo blend = toVulkan(blend_desc, stdext::make_span(blend_attachments));
+
+			const VkDynamicState dynamic_states[] = {
+				VK_DYNAMIC_STATE_VIEWPORT,
+				VK_DYNAMIC_STATE_SCISSOR,
+				VK_DYNAMIC_STATE_STENCIL_REFERENCE,
+			};
+			VkPipelineDynamicStateCreateInfo dynamic_state = {};
+			dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+			dynamic_state.dynamicStateCount = static_cast<uint32_t>(sizeof(dynamic_states) / sizeof(VkDynamicState));
+			dynamic_state.pDynamicStates = dynamic_states;
+
+			// Render-target formats used with dynamic rendering
+			std::vector<VkFormat> colour_formats;
+			colour_formats.reserve(rt_layout.ColourFormats.size());
+			for (const auto fmt : rt_layout.ColourFormats)
+				colour_formats.push_back(convert(fmt));
+
+			const VkFormat depth_format = rt_layout.DepthStencilFormat != SurfaceFormat::Unknown ? convert(rt_layout.DepthStencilFormat) : VK_FORMAT_UNDEFINED;
+
+			VkPipelineRenderingCreateInfo rendering = {};
+			rendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+			rendering.colorAttachmentCount = static_cast<uint32_t>(colour_formats.size());
+			rendering.pColorAttachmentFormats = colour_formats.data();
+			rendering.depthAttachmentFormat = depth_format;
+			rendering.stencilAttachmentFormat = isStencilFormat(depth_format) ? depth_format : VK_FORMAT_UNDEFINED;
+
+			VkGraphicsPipelineCreateInfo vk_desc = {};
+			vk_desc.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+			vk_desc.pNext = &rendering;
+			vk_desc.stageCount = static_cast<uint32_t>(stages.size());
+			vk_desc.pStages = stages.data();
+			vk_desc.pVertexInputState = vertex_input;
+			vk_desc.pInputAssemblyState = input_assembly;
+			vk_desc.pViewportState = &viewport;
+			vk_desc.pRasterizationState = &rasterizer;
+			vk_desc.pMultisampleState = &multisample;
+			vk_desc.pDepthStencilState = &depth_stencil;
+			vk_desc.pColorBlendState = &blend;
+			vk_desc.pDynamicState = &dynamic_state;
+			vk_desc.layout = layout;
+			vk_desc.renderPass = VK_NULL_HANDLE;
+			vk_desc.basePipelineHandle = VK_NULL_HANDLE;
+			vk_desc.basePipelineIndex = -1;
+
+			VkPipeline state = VK_NULL_HANDLE;
+			const auto res = vkCreateGraphicsPipelines(*context, context->cache(), 1, &vk_desc, nullptr, &state);
+			VclEnsure(res == VK_SUCCESS, "Pipeline state created");
+			return state;
+		}
+
+		//! Collect the stage of a shader, if it is set
+		void addStage(std::vector<VkPipelineShaderStageCreateInfo>& stages, const Runtime::Shader* shader, ShaderType type, const Vcl::Graphics::Vulkan::DescriptorHeap* heap)
+		{
+			if (!shader)
+				return;
+
+			VclRequire(dynamic_cast<const Runtime::Vulkan::Shader*>(shader), "Shader is Vulkan shader");
+			VclRequire(shader->type() == type, "Shader has the type of its stage.");
+			VclRequire(static_cast<const Runtime::Vulkan::Shader*>(shader)->pushConstantSize() <= heap->desc().PushConstantSize, "Push constants of the shader fit the layout.");
+			VCL_UNREFERENCED_PARAMETER(type);
+			VCL_UNREFERENCED_PARAMETER(heap);
+
+			stages.push_back(static_cast<const Runtime::Vulkan::Shader*>(shader)->getCreateInfo());
+		}
+	}
+
 	GraphicsPipelineState::GraphicsPipelineState(
 		Vcl::Graphics::Vulkan::Context* context,
 		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
@@ -47,26 +149,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	, _inputLayout(desc.InputLayout)
 	{
 		using Vcl::Graphics::Vulkan::convert;
-		using Vcl::Graphics::Vulkan::isStencilFormat;
 
 		VclRequire(heap, "Descriptor heap is set");
 		VclRequire(desc.VertexShader, "Vertex shader is set");
 		VclRequire(!desc.TessControlShader && !desc.TessEvalShader, "Tessellation requires the patch size, which is not part of the pipeline description.");
-		VclRequire(rt_layout.ColourFormats.size() <= desc.Blend.RenderTarget.size(), "Number of render-targets is supported.");
 
 		// Shader stages
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
-		for (const auto* shader : { desc.VertexShader, desc.GeometryShader, desc.FragmentShader })
-		{
-			if (!shader)
-				continue;
+		addStage(stages, desc.VertexShader, ShaderType::VertexShader, heap);
+		addStage(stages, desc.GeometryShader, ShaderType::GeometryShader, heap);
+		addStage(stages, desc.FragmentShader, ShaderType::FragmentShader, heap);
 
-			VclRequire(dynamic_cast<const Runtime::Vulkan::Shader*>(shader), "Shader is Vulkan shader");
-			VclRequire(static_cast<const Runtime::Vulkan::Shader*>(shader)->pushConstantSize() <= heap->desc().PushConstantSize, "Push constants of the shader fit the layout.");
-			stages.push_back(static_cast<const Runtime::Vulkan::Shader*>(shader)->getCreateInfo());
-		}
-
-		// Fixed function state
+		// Vertex input
 		std::vector<VkVertexInputBindingDescription> bindings;
 		std::vector<VkVertexInputAttributeDescription> attributes;
 		const VkPipelineVertexInputStateCreateInfo vertex_input = toVulkan(desc.InputLayout, bindings, attributes);
@@ -76,72 +170,37 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		input_assembly.topology = convert(desc.InputAssembly.Topology);
 		input_assembly.primitiveRestartEnable = desc.InputAssembly.PrimitiveRestartEnable ? VK_TRUE : VK_FALSE;
 
-		// Viewports and scissor rectangles are set dynamically
-		VkPipelineViewportStateCreateInfo viewport = {};
-		viewport.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-		viewport.viewportCount = 1;
-		viewport.scissorCount = 1;
-
-		const VkPipelineRasterizationStateCreateInfo rasterizer = toVulkan(desc.Rasterizer);
-
-		VkPipelineMultisampleStateCreateInfo multisample = {};
-		multisample.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		multisample.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		multisample.alphaToCoverageEnable = desc.Blend.AlphaToCoverageEnable ? VK_TRUE : VK_FALSE;
-
-		const VkPipelineDepthStencilStateCreateInfo depth_stencil = toVulkan(desc.DepthStencil);
-
-		std::vector<VkPipelineColorBlendAttachmentState> blend_attachments(rt_layout.ColourFormats.size());
-		const VkPipelineColorBlendStateCreateInfo blend = toVulkan(desc.Blend, stdext::make_span(blend_attachments));
-
-		const VkDynamicState dynamic_states[] = {
-			VK_DYNAMIC_STATE_VIEWPORT,
-			VK_DYNAMIC_STATE_SCISSOR,
-			VK_DYNAMIC_STATE_STENCIL_REFERENCE,
-		};
-		VkPipelineDynamicStateCreateInfo dynamic_state = {};
-		dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-		dynamic_state.dynamicStateCount = static_cast<uint32_t>(sizeof(dynamic_states) / sizeof(VkDynamicState));
-		dynamic_state.pDynamicStates = dynamic_states;
-
-		// Render-target formats used with dynamic rendering
-		std::vector<VkFormat> colour_formats;
-		colour_formats.reserve(rt_layout.ColourFormats.size());
-		for (const auto fmt : rt_layout.ColourFormats)
-			colour_formats.push_back(convert(fmt));
-
-		const VkFormat depth_format = rt_layout.DepthStencilFormat != SurfaceFormat::Unknown ? convert(rt_layout.DepthStencilFormat) : VK_FORMAT_UNDEFINED;
-
-		VkPipelineRenderingCreateInfo rendering = {};
-		rendering.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-		rendering.colorAttachmentCount = static_cast<uint32_t>(colour_formats.size());
-		rendering.pColorAttachmentFormats = colour_formats.data();
-		rendering.depthAttachmentFormat = depth_format;
-		rendering.stencilAttachmentFormat = isStencilFormat(depth_format) ? depth_format : VK_FORMAT_UNDEFINED;
-
-		VkGraphicsPipelineCreateInfo vk_desc = {};
-		vk_desc.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		vk_desc.pNext = &rendering;
-		vk_desc.stageCount = static_cast<uint32_t>(stages.size());
-		vk_desc.pStages = stages.data();
-		vk_desc.pVertexInputState = &vertex_input;
-		vk_desc.pInputAssemblyState = &input_assembly;
-		vk_desc.pViewportState = &viewport;
-		vk_desc.pRasterizationState = &rasterizer;
-		vk_desc.pMultisampleState = &multisample;
-		vk_desc.pDepthStencilState = &depth_stencil;
-		vk_desc.pColorBlendState = &blend;
-		vk_desc.pDynamicState = &dynamic_state;
-		vk_desc.layout = _layout;
-		vk_desc.renderPass = VK_NULL_HANDLE;
-		vk_desc.basePipelineHandle = VK_NULL_HANDLE;
-		vk_desc.basePipelineIndex = -1;
-
-		const auto res = vkCreateGraphicsPipelines(*context, context->cache(), 1, &vk_desc, nullptr, &_state);
-		VclEnsure(res == VK_SUCCESS, "Pipeline state created");
+		_state = createRasterPipeline(context, _layout, stages, &vertex_input, &input_assembly, desc.Blend, desc.Rasterizer, desc.DepthStencil, rt_layout);
 	}
 
 	GraphicsPipelineState::~GraphicsPipelineState()
+	{
+		if (_state)
+			vkDestroyPipeline(*_context, _state, nullptr);
+	}
+
+	MeshPipelineState::MeshPipelineState(
+		Vcl::Graphics::Vulkan::Context* context,
+		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
+		const MeshPipelineStateDescription& desc,
+		const RenderTargetLayout& rt_layout)
+	: _context(context)
+	, _layout(heap ? heap->layout() : VK_NULL_HANDLE)
+	{
+		VclRequire(heap, "Descriptor heap is set");
+		VclRequire(context->supportsMeshShaders(), "Mesh shaders are supported.");
+		VclRequire(implies(desc.TaskShader, context->supportsTaskShaders()), "Task shaders are supported.");
+		VclRequire(desc.MeshShader, "Mesh shader is set");
+
+		std::vector<VkPipelineShaderStageCreateInfo> stages;
+		addStage(stages, desc.TaskShader, ShaderType::TaskShader, heap);
+		addStage(stages, desc.MeshShader, ShaderType::MeshShader, heap);
+		addStage(stages, desc.FragmentShader, ShaderType::FragmentShader, heap);
+
+		_state = createRasterPipeline(context, _layout, stages, nullptr, nullptr, desc.Blend, desc.Rasterizer, desc.DepthStencil, rt_layout);
+	}
+
+	MeshPipelineState::~MeshPipelineState()
 	{
 		if (_state)
 			vkDestroyPipeline(*_context, _state, nullptr);

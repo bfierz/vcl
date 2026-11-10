@@ -46,6 +46,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 			{ ShaderType::GeometryShader,   VK_SHADER_STAGE_GEOMETRY_BIT },
 			{ ShaderType::FragmentShader,   VK_SHADER_STAGE_FRAGMENT_BIT },
 			{ ShaderType::ComputeShader,    VK_SHADER_STAGE_COMPUTE_BIT },
+			{ ShaderType::TaskShader,       VK_SHADER_STAGE_TASK_BIT_EXT },
+			{ ShaderType::MeshShader,       VK_SHADER_STAGE_MESH_BIT_EXT },
 		};
 		// clang-format on
 		constexpr EnumMap<ShaderType, VkShaderStageFlagBits, enumMapSize(StageBitsTable)> StageBits{ StageBitsTable };

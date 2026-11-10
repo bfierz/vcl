@@ -140,6 +140,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		const RequiredFeature<VkPhysicalDeviceVulkan13Features> RequiredVulkan13Features[] = {
 			VCL_VK_FEATURE(VkPhysicalDeviceVulkan13Features, synchronization2),
 			VCL_VK_FEATURE(VkPhysicalDeviceVulkan13Features, dynamicRendering),
+			VCL_VK_FEATURE(VkPhysicalDeviceVulkan13Features, maintenance4),
 		};
 
 #undef VCL_VK_FEATURE
@@ -178,9 +179,15 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		supported.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
 		supported.pNext = &supported_vk12;
 
+		VkPhysicalDeviceMeshShaderFeaturesEXT supported_mesh = {};
+		supported_mesh.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
+		const bool has_mesh_shader_ext = dev->supportsExtension(VK_EXT_MESH_SHADER_EXTENSION_NAME);
+		if (has_mesh_shader_ext)
+			supported_mutable.pNext = &supported_mesh;
+
 		const bool has_mutable_descriptors = dev->supportsExtension(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
 		if (!has_mutable_descriptors)
-			supported_vk13.pNext = nullptr;
+			supported_vk13.pNext = has_mesh_shader_ext ? &supported_mesh : nullptr;
 		vkGetPhysicalDeviceFeatures2(*dev, &supported);
 
 		VkPhysicalDeviceFeatures2 features = {};
@@ -220,11 +227,26 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		features.features.samplerAnisotropy = supported_features.samplerAnisotropy;
 		_enabledFeatures = features.features;
 
+		// Mesh shaders are optional. Task shaders are enabled together with them, if available.
+		VkPhysicalDeviceMeshShaderFeaturesEXT mesh_features = {};
+		mesh_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_EXT;
+		if (has_mesh_shader_ext && supported_mesh.meshShader)
+		{
+			mesh_features.meshShader = VK_TRUE;
+			mesh_features.taskShader = supported_mesh.taskShader;
+			mutable_features.pNext = &mesh_features;
+			_meshShadersEnabled = true;
+			_taskShadersEnabled = supported_mesh.taskShader == VK_TRUE;
+		}
+
 		// Enable additional extensions
 		std::vector<const char*> enabled_extensions(extensions.begin(), extensions.end());
 		const auto is_mutable_ext = [](const char* name) { return std::strcmp(name, VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) == 0; };
 		if (std::none_of(enabled_extensions.begin(), enabled_extensions.end(), is_mutable_ext))
 			enabled_extensions.push_back(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
+		const auto is_mesh_ext = [](const char* name) { return std::strcmp(name, VK_EXT_MESH_SHADER_EXTENSION_NAME) == 0; };
+		if (_meshShadersEnabled && std::none_of(enabled_extensions.begin(), enabled_extensions.end(), is_mesh_ext))
+			enabled_extensions.push_back(VK_EXT_MESH_SHADER_EXTENSION_NAME);
 
 		// Properties of the device
 		VkDeviceCreateInfo dev_info;
@@ -269,6 +291,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		res = vkCreatePipelineCache(_device, &cache_info, nullptr, &_pipelineCache);
 		if (res != VkResult::VK_SUCCESS)
 			throw "";
+
+		if (_meshShadersEnabled)
+			_drawMeshTasks = reinterpret_cast<PFN_vkCmdDrawMeshTasksEXT>(vkGetDeviceProcAddr(_device, "vkCmdDrawMeshTasksEXT"));
 
 		_cmdPools.emplace_back(_device, 0);
 	}

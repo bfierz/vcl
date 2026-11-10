@@ -35,7 +35,9 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		EvaluationShader, //!< Shader executing programs on each vertex generated from tessellation
 		GeometryShader,   //!< Shader executing programs on entire primitives (lines, triangles)
 		FragmentShader,   //!< Shader executing programs on single fragments
-		ComputeShader     //!< Shader executing generic programs
+		ComputeShader,    //!< Shader executing generic programs
+		TaskShader,       //!< Shader selecting and amplifying the work of mesh shaders
+		MeshShader        //!< Shader generating primitives without vertex input
 	};
 
 	class Shader

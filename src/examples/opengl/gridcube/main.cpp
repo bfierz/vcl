@@ -157,7 +157,7 @@ public:
 
 private:
 	void renderBoundingBox(
-		Vcl::Graphics::Runtime::GraphicsEngine* cmd_queue,
+		Vcl::Graphics::Runtime::OpenGL::GraphicsEngine* cmd_queue,
 		const Eigen::AlignedBox3f& bb,
 		unsigned int resolution,
 		Vcl::ref_ptr<Vcl::Graphics::Runtime::PipelineState> ps,
@@ -198,7 +198,7 @@ private:
 	}
 
 private:
-	std::unique_ptr<Vcl::Graphics::Runtime::GraphicsEngine> _engine;
+	std::unique_ptr<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine> _engine;
 
 private:
 	std::unique_ptr<Vcl::Graphics::TrackballCameraController> _cameraController;

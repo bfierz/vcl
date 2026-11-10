@@ -182,6 +182,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! Draw indexed primitives
 		void drawIndexed(uint32_t index_count, uint32_t instance_count = 1, uint32_t first_index = 0, int32_t vertex_offset = 0, uint32_t first_instance = 0);
 
+		//! Draw with a mesh pipeline
+		//! \param draw_mesh_tasks Entry point provided by Context::drawMeshTasksProc()
+		void drawMeshTasks(PFN_vkCmdDrawMeshTasksEXT draw_mesh_tasks, uint32_t group_count_x, uint32_t group_count_y = 1, uint32_t group_count_z = 1);
+
 		//! Prepare a framebuffer for presentation
 		void prepareForPresent(VkImage img);
 

@@ -101,6 +101,29 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		Runtime::DepthStencilDescription DepthStencil;
 	};
 
+	//! Pipeline generating its primitives in a mesh shader.
+	//! There is no vertex input; the mesh shader defines the topology.
+	struct MeshPipelineStateDescription
+	{
+		// Task shader (optional)
+		Runtime::Shader* TaskShader{ nullptr };
+
+		// Mesh shader
+		Runtime::Shader* MeshShader{ nullptr };
+
+		// Fragment shader
+		Runtime::Shader* FragmentShader{ nullptr };
+
+		// Blend state
+		Runtime::BlendDescription Blend;
+
+		// Rasterizer state
+		Runtime::RasterizerDescription Rasterizer;
+
+		// Depth stencil state
+		Runtime::DepthStencilDescription DepthStencil;
+	};
+
 	struct ComputePipelineStateDescription
 	{
 		// Compute shader

@@ -379,7 +379,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		glFlush();
 
 		// Increment the frame counter to indicate the start of the next frame
-		incrFrameCounter();
+		_frameCounter++;
 	}
 
 	BufferView GraphicsEngine::requestPerFrameConstantBuffer(size_t size)

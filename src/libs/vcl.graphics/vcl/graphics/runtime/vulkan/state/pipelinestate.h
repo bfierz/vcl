@@ -71,6 +71,35 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		VkPipeline _state{ VK_NULL_HANDLE };
 	};
 
+	//! Pipeline generating its primitives in a mesh shader (VK_EXT_mesh_shader).
+	//! Requires Context::supportsMeshShaders().
+	class MeshPipelineState : public Runtime::PipelineState
+	{
+	public:
+		MeshPipelineState(
+			Vcl::Graphics::Vulkan::Context* context,
+			const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
+			const MeshPipelineStateDescription& desc,
+			const RenderTargetLayout& rt_layout);
+		~MeshPipelineState();
+
+		//! Convert to Vulkan ID
+		inline operator VkPipeline() const { return _state; }
+
+		//! Access the bindless pipeline layout shared by all pipelines
+		VkPipelineLayout layout() const { return _layout; }
+
+	private:
+		//! Owner
+		Vcl::Graphics::Vulkan::Context* _context;
+
+		//! Layout of the descriptor heap the pipeline was created for
+		VkPipelineLayout _layout;
+
+		//! Vulkan pipeline state
+		VkPipeline _state{ VK_NULL_HANDLE };
+	};
+
 	class ComputePipelineState : public Runtime::PipelineState
 	{
 	public:

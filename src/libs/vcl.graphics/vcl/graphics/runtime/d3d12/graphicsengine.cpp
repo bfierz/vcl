@@ -105,11 +105,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	{
 		switch (op)
 		{
-		case AttachmentStoreOp::Clear:
+		case AttachmentStoreOp::DontCare:
 			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
 		case AttachmentStoreOp::Store:
 			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		case AttachmentStoreOp::Resolve:
+			// Resolving requires the resolve parameters, which are not filled yet
+			VclDebugError("Resolve is not implemented.");
+			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 		}
+
+		return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 	}
 
 	D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert(AttachmentLoadOp op)
@@ -293,7 +299,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	void GraphicsEngine::beginFrame()
 	{
 		// Increment the frame counter to indicate the start of the next frame
-		incrFrameCounter();
+		_frameCounter++;
 
 		// Wait until the requested frame is done with processing
 		const auto frame_idx = _swapChain->waitForNextFrame();

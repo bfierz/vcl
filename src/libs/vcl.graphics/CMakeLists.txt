@@ -238,11 +238,9 @@ set(SOURCE
 	vcl/graphics/imageprocessing/tonemap.cpp
 	vcl/graphics/imageprocessing/tonemap.h
 
-	vcl/graphics/runtime/framebuffer.cpp
-	vcl/graphics/runtime/framebuffer.h
-	vcl/graphics/runtime/graphicsengine.h
 	vcl/graphics/runtime/resource/buffer.cpp
 	vcl/graphics/runtime/resource/buffer.h
+	vcl/graphics/runtime/resource/bufferview.h
 	vcl/graphics/runtime/resource/shader.cpp
 	vcl/graphics/runtime/resource/shader.h
 	vcl/graphics/runtime/resource/texture.cpp

@@ -59,14 +59,24 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 	enum class AttachmentStoreOp
 	{
+		//! Keep the content of the attachment
 		Store,
-		Clear
+
+		//! The content of the attachment is not needed after the pass
+		DontCare,
+
+		//! Resolve the multisampled attachment into 'ResolveView'.
+		//! The multisampled content is not needed after the pass.
+		Resolve
 	};
 
 	struct RenderTargetAttachmentDescription
 	{
 		void* Attachment = nullptr;
 		Core::ref_ptr<Texture> View;
+
+		//! Target of the 'Resolve' store operation
+		Core::ref_ptr<Texture> ResolveView;
 		AttachmentLoadOp LoadOp = AttachmentLoadOp::DontCare;
 		AttachmentStoreOp StoreOp = AttachmentStoreOp::Store;
 		std::array<float, 4> ClearColor = { 0, 0, 0, 0 };

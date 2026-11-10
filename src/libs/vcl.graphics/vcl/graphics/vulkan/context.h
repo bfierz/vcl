@@ -79,6 +79,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! Constructor
 		//! Enables the features of the bindless resource model: descriptor
 		//! indexing (Vulkan 1.2) and VK_EXT_mutable_descriptor_type.
+		//! Mesh shaders (VK_EXT_mesh_shader) are enabled when available.
 		//! \param extensions Additional device extensions to enable
 		//! \throws std::runtime_error if the device lacks a required feature
 		Context(Device* dev, stdext::span<const char*> extensions);
@@ -98,6 +99,15 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! \returns the enabled core (Vulkan 1.0) features
 		const VkPhysicalDeviceFeatures& enabledFeatures() const { return _enabledFeatures; }
 
+		//! \returns whether mesh shaders (VK_EXT_mesh_shader) are available
+		bool supportsMeshShaders() const { return _meshShadersEnabled; }
+
+		//! \returns whether task shaders (VK_EXT_mesh_shader) are available
+		bool supportsTaskShaders() const { return _taskShadersEnabled; }
+
+		//! \returns the entry point of 'vkCmdDrawMeshTasksEXT'; null without mesh shaders
+		PFN_vkCmdDrawMeshTasksEXT drawMeshTasksProc() const { return _drawMeshTasks; }
+
 		VkCommandPool commandPool(uint32_t queueIdx, CommandBufferType type);
 
 	public:
@@ -115,6 +125,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Enabled core features
 		VkPhysicalDeviceFeatures _enabledFeatures{};
+
+		//! Mesh shader support
+		bool _meshShadersEnabled{ false };
+		bool _taskShadersEnabled{ false };
+		PFN_vkCmdDrawMeshTasksEXT _drawMeshTasks{ nullptr };
 
 		//! Associated pipeline cache
 		VkPipelineCache _pipelineCache;

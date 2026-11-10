@@ -28,6 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -39,122 +40,9 @@
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
+#include <vcl/graphics/runtime/resource/bufferview.h>
 #include <vcl/graphics/runtime/resource/texture.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
-
-namespace Vcl { namespace Graphics { namespace Runtime {
-	class BufferRange
-	{
-	public:
-		BufferRange(ref_ptr<Buffer> buf, size_t offset, size_t size)
-		: _owner(buf), _offsetInBytes(offset), _sizeInBytes(size)
-		{
-		}
-
-		const Buffer& owner() const { return *_owner; }
-
-		size_t offset() const { return _offsetInBytes; }
-		size_t size() const { return _sizeInBytes; }
-
-	protected:
-		//! Buffer to which the view belongs
-		ref_ptr<Buffer> _owner;
-
-		//! Offset in bytes
-		size_t _offsetInBytes{ 0 };
-
-		//! Size in bytes
-		size_t _sizeInBytes{ 0 };
-	};
-
-	class BufferView : public BufferRange
-	{
-	public:
-		BufferView(ref_ptr<Buffer> buf, size_t offset, size_t size, void* base_data_ptr = nullptr, std::function<void(Buffer&, size_t, size_t)> release = nullptr)
-		: BufferRange(buf, offset, size), _release(std::move(release))
-		{
-			if (base_data_ptr)
-			{
-				char* ptr = reinterpret_cast<char*>(base_data_ptr);
-				ptr += offset;
-				_data = ptr;
-			}
-		}
-		~BufferView()
-		{
-			if (_release)
-				_release(*_owner, _offsetInBytes, _sizeInBytes);
-		}
-
-		BufferView(const BufferView&) = delete;
-		BufferView(BufferView&&) = default;
-		BufferView& operator=(const BufferView&) = delete;
-		BufferView& operator=(BufferView&&) = default;
-
-		void* data() const { return _data; }
-
-	protected:
-		//! Pointer to mapped data
-		void* _data{ nullptr };
-
-		//! Release the buffer view
-		std::function<void(Buffer&, size_t, size_t)> _release;
-	};
-
-	template<typename T>
-	class ConstantBufferView : public BufferView
-	{
-	public:
-		ConstantBufferView(BufferView&& view)
-		: BufferView(std::move(view)) {}
-		T* operator->() { return reinterpret_cast<T*>(data()); }
-	};
-
-	class GraphicsEngine
-	{
-	public:
-		GraphicsEngine() = default;
-		GraphicsEngine(const GraphicsEngine&) = delete;
-		GraphicsEngine(GraphicsEngine&&) = delete;
-		virtual ~GraphicsEngine() = default;
-
-	public:
-		//! \name ResourceAllocation Resource allocation
-		//! \{
-		//virtual owner_ptr<Texture> createResource(const Texture2DDescription& desc);
-		//virtual owner_ptr<Buffer> createResource(const BufferDescription& desc);
-		//! \}
-
-	public:
-		//! Begin a new frame
-		virtual void beginFrame() = 0;
-
-		//! End the current frame
-		virtual void endFrame() = 0;
-
-		//! Query the current frame index
-		//! \returns The index of the current frame
-		uint64_t currentFrame() const { return _currentFrame; }
-
-		//! Request a new constant buffer for per frame data
-		virtual BufferView requestPerFrameConstantBuffer(size_t size) = 0;
-
-		//! Request linear device memory for per frame data
-		virtual BufferView requestPerFrameLinearMemory(size_t size) = 0;
-
-		//! Enque a read-back command which will be executed at beginning of the frame where the data is ready
-		virtual void enqueueReadback(const Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) = 0;
-
-		//! Enque a generic command which will be executed next frame
-		virtual void enqueueCommand(std::function<void(void)>) = 0;
-
-	protected:
-		void incrFrameCounter() { _currentFrame++; }
-
-	private:
-		int64_t _currentFrame{ -1 };
-	};
-}}}
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	struct Frame
@@ -249,7 +137,13 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		PipelineState* _currentGraphicsPipeline{ nullptr };
 	};
 
-	class GraphicsEngine final : public Runtime::GraphicsEngine
+	/*!
+	 * \brief Rendering interface of the D3D12 backend
+	 *
+	 * Rendering code is written per backend; there is no engine interface
+	 * shared between the backends.
+	 */
+	class GraphicsEngine final
 	{
 	public:
 		using Device = Graphics::D3D12::Device;
@@ -257,15 +151,35 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		using SwapChain = Graphics::D3D12::SwapChain;
 
 		GraphicsEngine(ref_ptr<Device> device, const SwapChainDescription& swap_chain_desc);
-		virtual ~GraphicsEngine();
+		GraphicsEngine(const GraphicsEngine&) = delete;
+		GraphicsEngine(GraphicsEngine&&) = delete;
+		~GraphicsEngine();
 
-		void beginFrame() override;
-		void endFrame() override;
+		//! Begin a new frame
+		void beginFrame();
 
-		BufferView requestPerFrameConstantBuffer(size_t size) override;
-		BufferView requestPerFrameLinearMemory(size_t size) override;
-		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) override;
-		void enqueueCommand(std::function<void(void)>) override;
+		//! End the current frame
+		void endFrame();
+
+		//! Query the current frame index
+		//! \returns The index of the current frame
+		uint64_t currentFrame() const { return _frameCounter; }
+
+		//! Request a new constant buffer for per frame data
+		BufferView requestPerFrameConstantBuffer(size_t size);
+
+		//! Request linear device memory for per frame data
+		BufferView requestPerFrameLinearMemory(size_t size);
+
+		//! Enque a read-back command which will be executed at beginning of the frame where the data is ready
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback);
+
+		//! Enque a generic command which will be executed next frame
+		void enqueueCommand(std::function<void(void)>);
+
+	private:
+		//! Index of the current frame; incremented when a frame begins
+		int64_t _frameCounter{ -1 };
 
 	private:
 		//! Associated D3D12 device

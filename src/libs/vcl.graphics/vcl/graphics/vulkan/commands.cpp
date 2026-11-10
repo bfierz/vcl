@@ -205,6 +205,12 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		vkCmdPushConstants(_cmdBuffer, layout, VK_SHADER_STAGE_ALL, offset, size, data);
 	}
 
+	void CommandBuffer::drawMeshTasks(PFN_vkCmdDrawMeshTasksEXT draw_mesh_tasks, uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z)
+	{
+		VclRequire(draw_mesh_tasks, "Mesh shaders are supported.");
+		draw_mesh_tasks(_cmdBuffer, group_count_x, group_count_y, group_count_z);
+	}
+
 	void CommandBuffer::copy(VkBuffer src, VkBuffer dst, stdext::span<const VkBufferCopy> regions)
 	{
 		vkCmdCopyBuffer(_cmdBuffer, src, dst, regions.size(), regions.data());
@@ -242,7 +248,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		VkAttachmentStoreOp toVulkan(Runtime::AttachmentStoreOp op)
 		{
-			// 'Clear' discards the content, as in the D3D12 backend
+			// A resolved attachment doesn't keep its multisampled content
 			return op == Runtime::AttachmentStoreOp::Store ? VK_ATTACHMENT_STORE_OP_STORE : VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		}
 
@@ -283,6 +289,15 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 			info.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			info.loadOp = toVulkan(rt.LoadOp);
 			info.storeOp = toVulkan(rt.StoreOp);
+			if (rt.StoreOp == Runtime::AttachmentStoreOp::Resolve)
+			{
+				auto resolve_tex = dynamic_cast<Texture*>(rt.ResolveView.get());
+				VclRequire(resolve_tex, "Resolve target is a Vulkan texture");
+				resolve_tex->transition(_cmdBuffer, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				info.resolveMode = VK_RESOLVE_MODE_AVERAGE_BIT;
+				info.resolveImageView = resolve_tex->view();
+				info.resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			}
 			std::copy(rt.ClearColor.begin(), rt.ClearColor.end(), info.clearValue.color.float32);
 			colour_attachments.push_back(info);
 		}
@@ -309,6 +324,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 				depth_attachment.imageView = toImageView(ds.Attachment);
 			}
 			depth_attachment.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			VclRequire(ds.DepthStoreOp != Runtime::AttachmentStoreOp::Resolve && ds.StencilStoreOp != Runtime::AttachmentStoreOp::Resolve, "Depth-stencil targets are not resolved.");
 			depth_attachment.loadOp = toVulkan(ds.DepthLoadOp);
 			depth_attachment.storeOp = toVulkan(ds.DepthStoreOp);
 			depth_attachment.clearValue.depthStencil = { ds.ClearDepth, ds.ClearStencil };
