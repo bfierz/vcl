@@ -38,8 +38,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	public:
 		GraphicsPipelineState(
 			WGPUDevice device,
-			const PipelineStateDescription& desc,
-			const RenderTargetLayout& rt_formats);
+			const PipelineStateDescription& desc);
 
 		//! WebGPU handle
 		WGPURenderPipeline handle() const { return _pipeline; }

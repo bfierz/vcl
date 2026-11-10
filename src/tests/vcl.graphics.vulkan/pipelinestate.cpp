@@ -84,7 +84,8 @@ TEST_F(VulkanPipelineStateTest, CreateGraphicsPipeline)
 	rt_layout.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 
 	auto desc = createDescription(&vs, &fs);
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 	EXPECT_NE(static_cast<VkPipeline>(pps), VkPipeline{ VK_NULL_HANDLE });
 }
 
@@ -116,6 +117,8 @@ TEST_F(VulkanPipelineStateTest, CreateGraphicsPipelineWithFixedFunctionState)
 	desc.DepthStencil.StencilEnable = true;
 	desc.DepthStencil.FrontFace.StencilPassOp = StencilOperation::Replace;
 
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 	EXPECT_NE(static_cast<VkPipeline>(pps), VkPipeline{ VK_NULL_HANDLE });
 }

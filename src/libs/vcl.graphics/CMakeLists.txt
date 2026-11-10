@@ -248,6 +248,8 @@ set(SOURCE
 	vcl/graphics/runtime/state/blendstate.h
 	vcl/graphics/runtime/state/common.h
 	vcl/graphics/runtime/state/depthstencilstate.h
+	vcl/graphics/runtime/state/devicefeatures.cpp
+	vcl/graphics/runtime/state/devicefeatures.h
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h
 	vcl/graphics/runtime/state/rasterizerstate.h

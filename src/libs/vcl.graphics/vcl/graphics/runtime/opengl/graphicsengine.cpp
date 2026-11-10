@@ -151,7 +151,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		return stdext::span<uint8_t>(reinterpret_cast<uint8_t*>(_hostBuffer.get()) + _stagingBufferOffset, view.size());
 	}
 
-	stdext::span<uint8_t> StagingArea::copyFrom(const TextureView& view)
+	stdext::span<uint8_t> StagingArea::copyFrom(const Runtime::Texture& view)
 	{
 		using Vcl::Mathematics::ceil;
 

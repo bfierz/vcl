@@ -37,6 +37,7 @@
 
 // VCL
 #include <vcl/core/span.h>
+#include <vcl/graphics/runtime/state/devicefeatures.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
 	class Device;
@@ -99,6 +100,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! \returns the enabled core (Vulkan 1.0) features
 		const VkPhysicalDeviceFeatures& enabledFeatures() const { return _enabledFeatures; }
 
+		//! \returns the features the shared descriptions may use on this device
+		const Runtime::DeviceFeatures& features() const { return _features; }
+
 		//! \returns whether mesh shaders (VK_EXT_mesh_shader) are available
 		bool supportsMeshShaders() const { return _meshShadersEnabled; }
 
@@ -125,6 +129,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Enabled core features
 		VkPhysicalDeviceFeatures _enabledFeatures{};
+
+		//! Features in the shared vocabulary
+		Runtime::DeviceFeatures _features;
 
 		//! Mesh shader support
 		bool _meshShadersEnabled{ false };

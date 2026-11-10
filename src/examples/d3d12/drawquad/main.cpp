@@ -65,7 +65,8 @@ public:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tableLayout.get());
+		psd.RenderTargets = rtd;
+		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, _tableLayout.get());
 	}
 
 private:

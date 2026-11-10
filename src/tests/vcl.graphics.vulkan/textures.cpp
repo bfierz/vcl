@@ -208,7 +208,8 @@ TEST_F(VulkanTextureTest, RenderTriangle)
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 	rt_layout.DepthStencilFormat = SurfaceFormat::Unknown;
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 
 	// Red triangle covering the upper-left half of the render-target
 	const std::array<float, 15> vertices = {
@@ -317,7 +318,8 @@ TEST_F(VulkanTextureTest, RenderBindlessTexture)
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 	rt_layout.DepthStencilFormat = SurfaceFormat::Unknown;
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 
 	// Constant buffer removing the blue channel
 	const std::array<float, 4> tint = { 1, 1, 0, 1 };
@@ -417,7 +419,8 @@ TEST_F(VulkanTextureTest, RenderMeshShaderTriangle)
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 	rt_layout.DepthStencilFormat = SurfaceFormat::Unknown;
-	Runtime::Vulkan::MeshPipelineState pps{ _context.get(), &heap, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+	Runtime::Vulkan::MeshPipelineState pps{ _context.get(), &heap, desc };
 	EXPECT_NE(static_cast<VkPipeline>(pps), VkPipeline{ VK_NULL_HANDLE });
 
 	BufferDescription read_desc = { width * height * 4, BufferUsage::MapRead | BufferUsage::CopyDst };

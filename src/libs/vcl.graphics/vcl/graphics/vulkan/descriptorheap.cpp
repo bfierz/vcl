@@ -95,9 +95,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	, _samplerObjects(desc.SamplerCapacity, VK_NULL_HANDLE)
 	{
 		VclRequire(context, "Context is set.");
-		VclRequire(desc.ResourceCapacity > 0 && desc.SamplerCapacity > 0, "Heaps are not empty.");
-		VclRequire(desc.PushConstantSize % 4 == 0, "Push-constant size is a multiple of 4.");
-		VclRequire(desc.PushConstantSize <= context->device()->limits().maxPushConstantsSize, "Push-constant size is supported.");
+		VclRequire(Runtime::validate(desc, context->features()).empty(), "Layout is supported by the device.");
 
 		const bool anisotropy = context->enabledFeatures().samplerAnisotropy == VK_TRUE;
 		VkResult res = VK_SUCCESS;
@@ -309,7 +307,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		VclRequire(nr_mips > 0 && view.FirstMipLevel + nr_mips <= static_cast<uint32_t>(texture.mipMapLevels()), "Mip-map levels are inside the texture.");
 		VclRequire(nr_layers > 0 && view.FirstLayer + nr_layers <= static_cast<uint32_t>(texture.layers()), "Layers are inside the texture.");
 		VclRequire(implies(read_write, nr_mips == 1), "Read-write views cover one mip-map level.");
-		VclRequire(view.Format == SurfaceFormat::Unknown || view.Format == texture.format(), "Views can't reinterpret the format.");
+		VclRequire(texture.supportsViewFormat(view.Format), "View format is the format of the texture or one of its view formats.");
 
 		const ResourceIndex index = allocateResource(type);
 		if (!index.isValid())
@@ -322,7 +320,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		view_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		view_info.image = texture.id();
 		view_info.viewType = Runtime::Vulkan::toVulkanImageViewType(view_type);
-		view_info.format = convert(texture.format());
+		view_info.format = convert(view.Format != SurfaceFormat::Unknown ? view.Format : texture.format());
 		view_info.components = { VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY };
 		view_info.subresourceRange = { aspects, view.FirstMipLevel, nr_mips, view.FirstLayer, nr_layers };
 

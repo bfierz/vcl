@@ -239,6 +239,37 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 			_taskShadersEnabled = supported_mesh.taskShader == VK_TRUE;
 		}
 
+		// Limits of descriptor sets, which are updated while in use
+		VkPhysicalDeviceVulkan12Properties vk12_props = {};
+		vk12_props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
+		VkPhysicalDeviceProperties2 props = {};
+		props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+		props.pNext = &vk12_props;
+		vkGetPhysicalDeviceProperties2(*dev, &props);
+
+		_features.BindlessResources = true;
+		_features.GeometryShaders = features.features.geometryShader == VK_TRUE;
+		// Tessellation needs the patch size, which the pipeline description doesn't provide
+		_features.TessellationShaders = false;
+		_features.MeshShaders = _meshShadersEnabled;
+		_features.TaskShaders = _taskShadersEnabled;
+		_features.IndependentBlend = features.features.independentBlend == VK_TRUE;
+		_features.DualSourceBlend = features.features.dualSrcBlend == VK_TRUE;
+		_features.LogicOp = features.features.logicOp == VK_TRUE;
+		_features.WireframeFill = features.features.fillModeNonSolid == VK_TRUE;
+		_features.DepthBiasClamp = features.features.depthBiasClamp == VK_TRUE;
+		// Requires the 'depthClamp' feature, which is not enabled
+		_features.DepthClipControl = false;
+		_features.SamplerAnisotropy = features.features.samplerAnisotropy == VK_TRUE;
+		_features.MaxRenderTargets = props.properties.limits.maxColorAttachments;
+		_features.MaxPushConstantSize = props.properties.limits.maxPushConstantsSize;
+		_features.MaxResourceHeapCapacity = std::min({ vk12_props.maxDescriptorSetUpdateAfterBindUniformBuffers,
+													   vk12_props.maxDescriptorSetUpdateAfterBindStorageBuffers,
+													   vk12_props.maxDescriptorSetUpdateAfterBindSampledImages,
+													   vk12_props.maxDescriptorSetUpdateAfterBindStorageImages,
+													   vk12_props.maxUpdateAfterBindDescriptorsInAllPools });
+		_features.MaxSamplerHeapCapacity = std::min(vk12_props.maxDescriptorSetUpdateAfterBindSamplers, vk12_props.maxUpdateAfterBindDescriptorsInAllPools);
+
 		// Enable additional extensions
 		std::vector<const char*> enabled_extensions(extensions.begin(), extensions.end());
 		const auto is_mutable_ext = [](const char* name) { return std::strcmp(name, VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME) == 0; };

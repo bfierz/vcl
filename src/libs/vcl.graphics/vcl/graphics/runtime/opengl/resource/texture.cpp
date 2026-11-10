@@ -221,23 +221,23 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		allocImpl(colour_fmt);
 
 		// Configure texture
-		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+		glTextureParameteri(_glId, GL_TEXTURE_BASE_LEVEL, 0);
+		glTextureParameteri(_glId, GL_TEXTURE_MAX_LEVEL, mipMapLevels() - 1);
 #elif defined(VCL_GL_EXT_direct_state_access)
 		glGenTextures(1, &_glId);
 		allocImpl(colour_fmt);
 
 		// Configure texture
-		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_BASE_LEVEL, 0);
+		glTextureParameteriEXT(_glId, tex_type, GL_TEXTURE_MAX_LEVEL, mipMapLevels() - 1);
 #else
 		glCreateTextures(tex_type, 1, &_glId);
 		TextureBindPoint bp(tex_type, _glId);
 		allocImpl(colour_fmt);
 
 		// Configure texture
-		glTexParameteri(tex_type, GL_TEXTURE_BASE_LEVEL, firstMipMapLevel());
-		glTexParameteri(tex_type, GL_TEXTURE_MAX_LEVEL, firstMipMapLevel() + mipMapLevels() - 1);
+		glTexParameteri(tex_type, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(tex_type, GL_TEXTURE_MAX_LEVEL, mipMapLevels() - 1);
 #endif
 
 		if (init_data)

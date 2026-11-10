@@ -109,15 +109,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 				GLenum depth_attachment_type = toDepthStencilAttachment(depth_fmt);
 
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2DArray&>(*depthTarget);
-				if (tex.firstLayer() == 0 && tex.layers() > 1)
+				if (tex.layers() > 1)
 				{
-					glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel());
-				} else if (tex.firstLayer() == 0 && tex.layers() == 1)
-				{
-					glNamedFramebufferTextureLayerVCL(_glId, depth_attachment_type, tex.id(), tex.firstMipMapLevel(), tex.firstLayer());
+					glNamedFramebufferTextureVCL(_glId, depth_attachment_type, tex.id(), 0);
 				} else
 				{
-					VclDebugError("Combination supported.");
+					glNamedFramebufferTextureLayerVCL(_glId, depth_attachment_type, tex.id(), 0, 0);
 				}
 
 				break;
@@ -140,21 +137,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 			case TextureType::Texture2D:
 			{
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2D&>(*view);
-				glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), view->firstMipMapLevel());
+				glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), 0);
 				break;
 			}
 			case TextureType::Texture2DArray:
 			{
 				auto& tex = static_cast<const Runtime::OpenGL::Texture2DArray&>(*view);
-				int first = (int)tex.firstLayer();
+				int first = 0;
 				int size = (int)tex.layers();
 
 				if (first == 0 && size == tex.layers())
 				{
-					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
+					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), 0);
 				} else if (size == 1)
 				{
-					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
+					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), 0, first);
 				} else
 				{
 					VclDebugError("Not available in OpenGL");
@@ -172,10 +169,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 				if (first == 0 && size >= tex.depth())
 				{
-					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel());
+					glNamedFramebufferTextureVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), 0);
 				} else if (size == 1)
 				{
-					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), tex.firstMipMapLevel(), first);
+					glNamedFramebufferTextureLayerVCL(_glId, GL_COLOR_ATTACHMENT0 + v, tex.id(), 0, first);
 				} else
 				{
 					VclDebugError("Not available in OpenGL");

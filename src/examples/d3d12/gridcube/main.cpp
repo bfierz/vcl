@@ -118,7 +118,8 @@ public:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, rtd, _tableLayout.get());
+		boxPSDesc.RenderTargets = rtd;
+		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, _tableLayout.get());
 
 		// Allocate a junk of 512 KB for constant buffers per frame
 		BufferDescription cbuffer_desc;

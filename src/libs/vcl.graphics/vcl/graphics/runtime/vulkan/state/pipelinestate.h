@@ -44,8 +44,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		GraphicsPipelineState(
 			Vcl::Graphics::Vulkan::Context* context,
 			const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
-			const PipelineStateDescription& desc,
-			const RenderTargetLayout& rt_layout);
+			const PipelineStateDescription& desc);
 		~GraphicsPipelineState();
 
 		//! Convert to Vulkan ID
@@ -79,8 +78,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		MeshPipelineState(
 			Vcl::Graphics::Vulkan::Context* context,
 			const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
-			const MeshPipelineStateDescription& desc,
-			const RenderTargetLayout& rt_layout);
+			const MeshPipelineStateDescription& desc);
 		~MeshPipelineState();
 
 		//! Convert to Vulkan ID

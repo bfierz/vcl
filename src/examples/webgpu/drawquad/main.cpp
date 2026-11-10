@@ -59,7 +59,8 @@ public:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::Unknown;
-		_gps = std::make_unique<GraphicsPipelineState>(_wgpuDevice, psd, rtd);
+		psd.RenderTargets = rtd;
+		_gps = std::make_unique<GraphicsPipelineState>(_wgpuDevice, psd);
 	}
 
 private:

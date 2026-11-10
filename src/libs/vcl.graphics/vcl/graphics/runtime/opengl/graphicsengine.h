@@ -78,7 +78,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	public:
 		stdext::span<uint8_t> copyFrom(BufferRange view);
-		stdext::span<uint8_t> copyFrom(const TextureView& view);
+		stdext::span<uint8_t> copyFrom(const Runtime::Texture& view);
 
 	private:
 		void updateIfNeeded(size_t size);

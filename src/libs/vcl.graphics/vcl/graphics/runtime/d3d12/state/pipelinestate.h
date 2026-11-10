@@ -45,7 +45,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		GraphicsPipelineState(
 			Graphics::D3D12::Device* device,
 			const PipelineStateDescription& desc,
-			const RenderTargetLayout& rt_layout,
 			const Graphics::D3D12::DescriptorTableLayout* layout);
 
 		//! D3D12 handle

@@ -159,7 +159,8 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	RenderTargetLayout rtd = {};
 	rtd.ColourFormats = { Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM };
 	rtd.DepthStencilFormat = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
-	D3D12::GraphicsPipelineState gps{ device.get(), psd, rtd, &table_layout };
+	psd.RenderTargets = rtd;
+	D3D12::GraphicsPipelineState gps{ device.get(), psd, &table_layout };
 
 	// Prepare a blank screen
 	swap_chain.waitForNextFrame();

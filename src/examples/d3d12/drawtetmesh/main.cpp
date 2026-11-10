@@ -200,7 +200,8 @@ private:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _tetToTriMeshCtx.TableLayoutGraphics.get());
+		psd.RenderTargets = rtd;
+		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _tetToTriMeshCtx.TableLayoutGraphics.get());
 	}
 
 	void createDirectTetMeshPipeline()
@@ -253,7 +254,8 @@ private:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, rtd, _directTetMeshCtx.TableLayoutGraphics.get());
+		psd.RenderTargets = rtd;
+		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _directTetMeshCtx.TableLayoutGraphics.get());
 	}
 
 	void prepareFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)

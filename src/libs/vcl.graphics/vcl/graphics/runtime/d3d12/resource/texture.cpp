@@ -36,6 +36,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Type = TextureType::Texture1D;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = 1;
 		Depth = 1;
@@ -47,6 +48,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Type = TextureType::Texture2D;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -58,6 +60,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Type = TextureType::Texture3D;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = desc.Depth;
@@ -69,6 +72,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Type = TextureType::TextureCube;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -115,10 +119,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue)
 	{
-		initializeView(
-			desc.Type, desc.Format, desc.Usage,
-			0, desc.MipLevels,
-			0, desc.ArraySize,
+		initializeTexture(
+			desc.Type, desc,
+			desc.MipLevels, desc.ArraySize,
 			desc.Width, desc.Height, desc.Depth);
 
 		D3D12_RESOURCE_STATES texture_usage;

@@ -142,8 +142,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	GraphicsPipelineState::GraphicsPipelineState(
 		Vcl::Graphics::Vulkan::Context* context,
 		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
-		const PipelineStateDescription& desc,
-		const RenderTargetLayout& rt_layout)
+		const PipelineStateDescription& desc)
 	: _context(context)
 	, _layout(heap ? heap->layout() : VK_NULL_HANDLE)
 	, _inputLayout(desc.InputLayout)
@@ -151,8 +150,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		using Vcl::Graphics::Vulkan::convert;
 
 		VclRequire(heap, "Descriptor heap is set");
-		VclRequire(desc.VertexShader, "Vertex shader is set");
-		VclRequire(!desc.TessControlShader && !desc.TessEvalShader, "Tessellation requires the patch size, which is not part of the pipeline description.");
+		VclRequire(validate(desc, context->features()).empty(), "Pipeline is supported by the device.");
 
 		// Shader stages
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
@@ -170,7 +168,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		input_assembly.topology = convert(desc.InputAssembly.Topology);
 		input_assembly.primitiveRestartEnable = desc.InputAssembly.PrimitiveRestartEnable ? VK_TRUE : VK_FALSE;
 
-		_state = createRasterPipeline(context, _layout, stages, &vertex_input, &input_assembly, desc.Blend, desc.Rasterizer, desc.DepthStencil, rt_layout);
+		_state = createRasterPipeline(context, _layout, stages, &vertex_input, &input_assembly, desc.Blend, desc.Rasterizer, desc.DepthStencil, desc.RenderTargets);
 	}
 
 	GraphicsPipelineState::~GraphicsPipelineState()
@@ -182,22 +180,19 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	MeshPipelineState::MeshPipelineState(
 		Vcl::Graphics::Vulkan::Context* context,
 		const Vcl::Graphics::Vulkan::DescriptorHeap* heap,
-		const MeshPipelineStateDescription& desc,
-		const RenderTargetLayout& rt_layout)
+		const MeshPipelineStateDescription& desc)
 	: _context(context)
 	, _layout(heap ? heap->layout() : VK_NULL_HANDLE)
 	{
 		VclRequire(heap, "Descriptor heap is set");
-		VclRequire(context->supportsMeshShaders(), "Mesh shaders are supported.");
-		VclRequire(implies(desc.TaskShader, context->supportsTaskShaders()), "Task shaders are supported.");
-		VclRequire(desc.MeshShader, "Mesh shader is set");
+		VclRequire(validate(desc, context->features()).empty(), "Pipeline is supported by the device.");
 
 		std::vector<VkPipelineShaderStageCreateInfo> stages;
 		addStage(stages, desc.TaskShader, ShaderType::TaskShader, heap);
 		addStage(stages, desc.MeshShader, ShaderType::MeshShader, heap);
 		addStage(stages, desc.FragmentShader, ShaderType::FragmentShader, heap);
 
-		_state = createRasterPipeline(context, _layout, stages, nullptr, nullptr, desc.Blend, desc.Rasterizer, desc.DepthStencil, rt_layout);
+		_state = createRasterPipeline(context, _layout, stages, nullptr, nullptr, desc.Blend, desc.Rasterizer, desc.DepthStencil, desc.RenderTargets);
 	}
 
 	MeshPipelineState::~MeshPipelineState()

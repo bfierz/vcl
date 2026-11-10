@@ -38,6 +38,7 @@ set(VCL_TEST_SRC
 	compute.cpp
 	context.cpp
 	descriptorheap.cpp
+	devicefeatures.cpp
 	pipelinestate.cpp
 	shaderprogram.cpp
 	textures.cpp

@@ -303,3 +303,35 @@ TEST_F(VulkanDescriptorHeapTest, TextureViews)
 
 	EXPECT_EQ(heap.nrResourceViews(), 4);
 }
+
+TEST_F(VulkanDescriptorHeapTest, TextureViewReinterpretingTheFormat)
+{
+	using namespace Vcl::Graphics::Runtime;
+	using namespace Vcl::Graphics::Vulkan;
+	using namespace Vcl::Graphics;
+
+	// Reinterpreting the format is declared when the texture is created
+	Texture2DDescription tex_desc;
+	tex_desc.Format = SurfaceFormat::R8G8B8A8_UNORM;
+	tex_desc.ViewFormats = { SurfaceFormat::R8G8B8A8_UNORM_SRGB };
+	tex_desc.Usage = TextureUsage::Sampled;
+	tex_desc.Width = 16;
+	tex_desc.Height = 16;
+	tex_desc.MipLevels = 1;
+	tex_desc.ArraySize = 1;
+	Runtime::Vulkan::Texture2D tex{ _context.get(), tex_desc };
+
+	EXPECT_TRUE(tex.supportsViewFormat(SurfaceFormat::Unknown));
+	EXPECT_TRUE(tex.supportsViewFormat(SurfaceFormat::R8G8B8A8_UNORM));
+	EXPECT_TRUE(tex.supportsViewFormat(SurfaceFormat::R8G8B8A8_UNORM_SRGB));
+	EXPECT_FALSE(tex.supportsViewFormat(SurfaceFormat::R32_FLOAT));
+
+	DescriptorHeap heap{ _context.get(), {} };
+
+	TextureViewDescription srgb;
+	srgb.Format = SurfaceFormat::R8G8B8A8_UNORM_SRGB;
+	const ResourceView linear_view = heap.createView(tex, ResourceViewType::Texture);
+	const ResourceView srgb_view = heap.createView(tex, ResourceViewType::Texture, srgb);
+	EXPECT_TRUE(linear_view);
+	EXPECT_TRUE(srgb_view);
+}
