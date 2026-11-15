@@ -24,18 +24,40 @@
  */
 #include <gtest/gtest.h>
 
+// C++ standard library
+#include <cstdlib>
+#include <cstring>
+
 // VCL
 #include <vcl/graphics/d3d12/device.h>
 
 std::unique_ptr<Vcl::Graphics::D3D12::Device> device;
 
+//! Creates the device only when tests run, so that listing them needs no GPU
+class DeviceEnvironment : public ::testing::Environment
+{
+public:
+	void SetUp() override
+	{
+		using namespace Vcl::Graphics::D3D12;
+
+		// WARP by default; 'VCL_D3D12_DEVICE=hardware' selects a hardware adapter
+		// (needed under Wine/vkd3d-proton, which provides no WARP adapter)
+		const char* device_type = std::getenv("VCL_D3D12_DEVICE");
+		const bool use_hardware = device_type && std::strcmp(device_type, "hardware") == 0;
+		device = std::make_unique<Device>(use_hardware ? DeviceType::Hardware : DeviceType::Warp);
+		std::wcout << L"Running tests on graphics adapter: " << device->adapterName() << std::endl;
+	}
+
+	void TearDown() override
+	{
+		device.reset();
+	}
+};
+
 int main(int argc, char** argv)
 {
-	using namespace Vcl::Graphics::D3D12;
-
-	device = std::make_unique<Device>(DeviceType::Warp);
-	std::wcout << L"Running tests on graphics adapter: " << device->adapterName() << std::endl;
-
 	::testing::InitGoogleTest(&argc, argv);
+	::testing::AddGlobalTestEnvironment(new DeviceEnvironment);
 	return RUN_ALL_TESTS();
 }

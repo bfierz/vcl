@@ -24,8 +24,11 @@
 #
 set(VCLCOMPILEHLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
-    message(WARNING "Downloading DXC automatically requires CMake 3.11+")
+if(NOT CMAKE_HOST_WIN32)
+	# The downloaded package only contains Windows binaries. Elsewhere, use a
+	# native DXC from VCL_DXC_ROOT or the PATH.
+elseif(${CMAKE_VERSION} VERSION_LESS "3.11.0")
+	message(WARNING "Downloading DXC automatically requires CMake 3.11+")
 else()
 
 	include(FetchContent)
@@ -51,9 +54,11 @@ set(VCL_DXC_ROOT CACHE PATH "Path to the root directory of the 'Microsoft Direct
 find_program(DXC dxc
 	HINTS
 		${VCL_DXC_ROOT}
+		$ENV{VCL_DXC_ROOT}
 		${direct_x_shader_compiler_SOURCE_DIR}
 	PATH_SUFFIXES
 		"bin/x64"
+		"bin"
 	REQUIRED
 )
 

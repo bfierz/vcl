@@ -32,7 +32,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12 {
@@ -170,9 +170,13 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 	void Device::enableDebugLayer()
 	{
 #ifdef VCL_DEBUG
+		// The debug layer is optional (Windows "Graphics Tools" feature; not
+		// provided by vkd3d-proton)
 		ComPtr<ID3D12Debug> debug_interface;
-		VCL_DIRECT3D_SAFE_CALL(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_interface)));
-		debug_interface->EnableDebugLayer();
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_interface))))
+			debug_interface->EnableDebugLayer();
+		else
+			std::cout << "D3D12 debug layer is not available" << std::endl;
 #endif
 	}
 

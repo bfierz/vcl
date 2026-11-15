@@ -33,7 +33,7 @@
 #include <windows.h>
 
 // Include the relevant parts from the library
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
 #include <vcl/graphics/d3d12/descriptortable.h>
@@ -91,10 +91,12 @@ protected:
 		optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
 		optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
+		const CD3DX12_HEAP_PROPERTIES heap_props(D3D12_HEAP_TYPE_DEFAULT);
+		const auto depth_desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 		VCL_DIRECT3D_SAFE_CALL(dev->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			&heap_props,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			&depth_desc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&optimizedClearValue,
 			IID_PPV_ARGS(&_depthBuffer)));
@@ -105,7 +107,7 @@ protected:
 		dsv.Texture2D.MipSlice = 0;
 		dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-		dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, _dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get()));
 	}
 
 	//! Native window handle of the test window
@@ -162,7 +164,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	// Prepare a blank screen
 	swap_chain.waitForNextFrame();
 	const auto rtv = swap_chain.prepareFrame(cmd_list.Get());
-	auto dsv = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	auto dsv = Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get());
 	float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	cmd_list->ClearRenderTargetView(rtv, clearColor, 0, nullptr);
 	cmd_list->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);

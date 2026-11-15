@@ -29,6 +29,7 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_D3D12_SUPPORT
-#	include <d3d12.h>
+#	include <directx/d3d12.h>
+#	include <dxguids/dxguids.h>
 #endif
 VCL_END_EXTERNAL_HEADERS

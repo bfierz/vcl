@@ -63,7 +63,7 @@ void verifySize(const Vcl::Graphics::Runtime::D3D12::Texture& tex, int exp_w, in
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics;
 
-	const auto desc = tex.handle()->GetDesc();
+	const auto desc = Vcl::Graphics::D3D12::resourceDesc(tex.handle());
 
 	size_t w = desc.Width;
 	size_t h = desc.Height;

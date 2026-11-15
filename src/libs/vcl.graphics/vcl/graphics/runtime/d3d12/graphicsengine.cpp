@@ -29,7 +29,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/runtime/d3d12/state/pipelinestate.h>
 
@@ -93,7 +93,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		dsv.Texture2D.MipSlice = 0;
 		dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-		dev->CreateDepthStencilView(DepthBuffer.Get(), &dsv, DsvHeap->GetCPUDescriptorHandleForHeapStart());
+		dev->CreateDepthStencilView(DepthBuffer.Get(), &dsv, Graphics::D3D12::cpuHeapStart(DsvHeap.Get()));
 	}
 	void DepthSurface::invalidate()
 	{
@@ -301,7 +301,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		_currentFrame->GraphicsCommandAllocator->Reset();
 		_graphicsCommandList->Reset(_frames[frame_idx].GraphicsCommandAllocator.Get(), nullptr);
 		auto rtv = _swapChain->prepareFrame(_graphicsCommandList.Get());
-		auto dsv = _depthSurface.DsvHeap->GetCPUDescriptorHandleForHeapStart();
+		auto dsv = Graphics::D3D12::cpuHeapStart(_depthSurface.DsvHeap.Get());
 
 		// Reset the staging area to use it again for the new frame
 		//_currentFrame->executeReadbackRequests();

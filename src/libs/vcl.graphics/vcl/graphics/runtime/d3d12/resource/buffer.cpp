@@ -29,7 +29,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {

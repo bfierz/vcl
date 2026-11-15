@@ -351,10 +351,17 @@ if(VCL_D3D12_SUPPORT)
 	endif()
 
 	target_compile_definitions(vcl_graphics PUBLIC VCL_D3D12_SUPPORT)
+	if(MINGW)
+		# MinGW's RPC headers declare an older version than the D3D12 headers require
+		target_compile_definitions(vcl_graphics PUBLIC "__REQUIRED_RPCNDR_H_VERSION__=475")
+	endif()
+	# Resolve plain <d3d12.h> (e.g. in third-party code) to the same headers
+	target_include_directories(vcl_graphics SYSTEM PUBLIC "${DirectX-Headers_SOURCE_DIR}/include/directx")
 	target_link_libraries(vcl_graphics
 		PUBLIC
 			absl_variant
-			d3d12.lib dxgi.lib d3dcompiler.lib dxguid.lib
+			Microsoft::DirectX-Headers
+			d3d12 dxgi d3dcompiler dxguid
 	)
 endif()
 

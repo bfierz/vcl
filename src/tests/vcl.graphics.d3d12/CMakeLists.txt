@@ -74,9 +74,22 @@ vclcompilehlsl(
 )
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
 
+# Run the Windows binaries on Linux through Wine (see run-wine.sh)
+if(MINGW AND CMAKE_CROSSCOMPILING)
+	set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CURRENT_SOURCE_DIR}/run-wine.sh")
+	set(VCL_D3D12_WINE_DLLS "$ENV{VCL_D3D12_WINE_DLLS}" CACHE STRING
+		"DLLs copied next to the tests (vkd3d-proton d3d12.dll and d3d12core.dll, DXVK dxgi.dll)")
+endif()
+
 vcl_add_test(vcl.graphics.d3d12.test)
 vcl_target_sources(vcl.graphics.d3d12.test "" ${SOURCE_FILES})
 target_sources(vcl.graphics.d3d12.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.d3d12.test
 	vcl_graphics
 )
+
+if(MINGW AND CMAKE_CROSSCOMPILING AND VCL_D3D12_WINE_DLLS)
+	add_custom_command(TARGET vcl.graphics.d3d12.test POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VCL_D3D12_WINE_DLLS} $<TARGET_FILE_DIR:vcl.graphics.d3d12.test>
+	)
+endif()

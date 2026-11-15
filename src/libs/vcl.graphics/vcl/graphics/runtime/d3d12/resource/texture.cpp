@@ -26,7 +26,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/math/ceil.h>
 
@@ -219,7 +219,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		auto row_sizes = stdext::make_span(reinterpret_cast<UINT64*>(layouts.data() + num_subresources), num_subresources);
 		auto num_rows = stdext::make_span(reinterpret_cast<UINT*>(row_sizes.data() + num_subresources), num_subresources);
 
-		const auto desc = handle()->GetDesc();
+		const auto desc = Graphics::D3D12::resourceDesc(handle());
 		ID3D12Device* d3d12_dev;
 		handle()->GetDevice(__uuidof(*d3d12_dev), reinterpret_cast<void**>(&d3d12_dev));
 		d3d12_dev->GetCopyableFootprints(&desc, 0, num_subresources, 0, layouts.data(), num_rows.data(), row_sizes.data(), &total_size);
