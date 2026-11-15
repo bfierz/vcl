@@ -11,7 +11,8 @@ if((VCL_OPENGL_SUPPORT OR VCL_VULKAN_SUPPORT OR VCL_WEBGPU_SUPPORT) AND NOT EMSC
 	set_property(TARGET glfw PROPERTY FOLDER 3rd-party)
 endif()
 
-if(VCL_D3D12_SUPPORT)
+# The D3D12 examples are written against Win32 and DXGI
+if(VCL_D3D12_SUPPORT AND WIN32)
 	add_subdirectory(d3d12)
 endif()
 

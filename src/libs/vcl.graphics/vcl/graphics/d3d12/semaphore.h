@@ -32,9 +32,10 @@
 #include <chrono>
 
 // Windows Runtime Library
-#include <wrl.h>
+#include <wrl/client.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12 {
+	//! Fence with a host event to wait for it
 	class Semaphore
 	{
 	public:
@@ -42,14 +43,40 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 		Semaphore(ID3D12Device* device);
+		Semaphore(const Semaphore&) = delete;
+		Semaphore& operator=(const Semaphore&) = delete;
+		~Semaphore();
+
+		ID3D12Fence* nativeFence() const { return _d3d12Fence.Get(); }
+
+		//! Signals the next value from 'queue'
+		//! \returns the signaled value
 		uint64_t signal(ID3D12CommandQueue* queue);
-		void wait(uint64_t value, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+
+		//! Waits until the fence reaches 'value'
+		//! \returns false if 'duration' passed before the fence reached 'value'
+		bool wait(uint64_t value, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+#ifdef _WIN32
+		//! Waits until the fence reaches 'value' and 'additional_event' is signaled
 		void wait(uint64_t value, HANDLE additional_event, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
-		void sync(ID3D12CommandQueue* queue, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+#endif
+
+		//! Signals the next value from 'queue' and waits for it
+		//! \returns false if 'duration' passed before the queue reached the signal
+		bool sync(ID3D12CommandQueue* queue, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 
 	private:
+		//! Waits until '_event' is signaled
+		//! \returns false if 'duration' passed first
+		bool waitForEvent(std::chrono::milliseconds duration);
+
 		ComPtr<ID3D12Fence> _d3d12Fence;
-		HANDLE _event;
+
+		//! Host event signaled by the fence. An eventfd on Linux, as WSL's D3D12 expects.
+		HANDLE _event{ nullptr };
+#ifndef _WIN32
+		int _eventFd{ -1 };
+#endif
 		uint64_t _value{ 0 };
 	};
 }}}

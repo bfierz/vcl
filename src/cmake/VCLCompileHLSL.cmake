@@ -35,8 +35,9 @@ else()
 
 	FetchContent_Declare(
 	  direct_x_shader_compiler
-	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.5.2010/dxc_2020_10-22.zip
-	  URL_HASH SHA256=b691f63778f470ebeb94874426779b2f60685fc8711adf1b1f9f01535d9b67f8
+	  # Same release as the native DXC in the devcontainer; shader model 6.6 needs DXC 1.6+
+	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2609/dxc_2026_09_29.zip
+	  URL_HASH SHA256=ad31b1fc8443175d204f77a611fdb3ef2ec42759bdc2f1167368de24a4a7e7f1
 	)
 	FetchContent_GetProperties(direct_x_shader_compiler)
 	if(NOT direct_x_shader_compiler_POPULATED)

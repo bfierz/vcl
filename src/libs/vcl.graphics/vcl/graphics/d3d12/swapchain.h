@@ -33,7 +33,7 @@
 #include <vector>
 
 // Windows Runtime Library
-#include <wrl.h>
+#include <wrl/client.h>
 
 // Windows Graphics
 #include <dxgi1_6.h>

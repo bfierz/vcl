@@ -24,10 +24,16 @@
  */
 #include <vcl/graphics/d3d12/device.h>
 
+// C++ standard library
+#include <cstring>
+#include <stdexcept>
+
 // Windows Graphics
-#include <dxgi1_6.h>
-#ifdef VCL_DEBUG
-#	include <dxgidebug.h>
+#ifdef _WIN32
+#	include <dxgi1_6.h>
+#	ifdef VCL_DEBUG
+#		include <dxgidebug.h>
+#	endif
 #endif
 
 // VCL
@@ -39,55 +45,161 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 	using namespace Microsoft::WRL;
 
 	namespace {
-		ComPtr<IDXGIFactory4> queryDXGIFactory()
+		constexpr D3D_FEATURE_LEVEL MinimumFeatureLevel = D3D_FEATURE_LEVEL_12_0;
+
+		struct Adapter
+		{
+			ComPtr<IUnknown> handle;
+			AdapterInfo info;
+		};
+
+		std::vector<AdapterInfo> infosOf(const std::vector<Adapter>& adapters)
+		{
+			std::vector<AdapterInfo> infos;
+			infos.reserve(adapters.size());
+			for (const auto& adapter : adapters)
+				infos.push_back(adapter.info);
+
+			return infos;
+		}
+
+		bool supportsMinimumFeatureLevel(IUnknown* adapter)
+		{
+			return SUCCEEDED(D3D12CreateDevice(adapter, MinimumFeatureLevel, __uuidof(ID3D12Device), nullptr));
+		}
+
+#ifdef _WIN32
+		std::string toUtf8(const wchar_t* str)
+		{
+			const int size = WideCharToMultiByte(CP_UTF8, 0, str, -1, nullptr, 0, nullptr, nullptr);
+			if (size <= 1)
+				return {};
+
+			std::string result(size, '\0');
+			WideCharToMultiByte(CP_UTF8, 0, str, -1, &result[0], size, nullptr, nullptr);
+			result.resize(size - 1);
+			return result;
+		}
+
+		void addAdapter(IDXGIAdapter1* adapter, bool is_hardware, std::vector<Adapter>& adapters)
+		{
+			if (!supportsMinimumFeatureLevel(adapter))
+				return;
+
+			DXGI_ADAPTER_DESC1 desc;
+			if (FAILED(adapter->GetDesc1(&desc)))
+				return;
+
+			adapters.push_back({ adapter, { toUtf8(desc.Description), is_hardware, desc.DedicatedVideoMemory } });
+		}
+
+		std::vector<Adapter> queryAdapters()
 		{
 			ComPtr<IDXGIFactory4> factory;
-			UINT flags = 0;
-#ifdef VCL_DEBUG
-			flags = DXGI_CREATE_FACTORY_DEBUG;
-#endif
-			VCL_DIRECT3D_SAFE_CALL(CreateDXGIFactory2(flags, IID_PPV_ARGS(&factory)));
-			return factory;
-		}
+#	ifdef VCL_DEBUG
+			// The DXGI debug layer is optional (Windows "Graphics Tools" feature)
+			if (FAILED(CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(&factory))))
+#	endif
+				if (FAILED(CreateDXGIFactory2(0, IID_PPV_ARGS(&factory))))
+					return {};
 
-		ComPtr<IDXGIAdapter4> selectAdapter(bool force_warp_device, D3D_FEATURE_LEVEL min_feature_level)
-		{
-			auto factory = queryDXGIFactory();
-
-			ComPtr<IDXGIAdapter1> dxgi_adapter1;
-			ComPtr<IDXGIAdapter4> dxgi_adapter4;
-
-			if (force_warp_device)
+			std::vector<Adapter> adapters;
+			ComPtr<IDXGIAdapter1> adapter;
+			for (UINT i = 0; factory->EnumAdapters1(i, &adapter) != DXGI_ERROR_NOT_FOUND; ++i)
 			{
-				VCL_DIRECT3D_SAFE_CALL(factory->EnumWarpAdapter(IID_PPV_ARGS(&dxgi_adapter1)));
-				VCL_DIRECT3D_SAFE_CALL(dxgi_adapter1.As(&dxgi_adapter4));
-			} else
-			{
-				SIZE_T video_memory = 0;
-				for (UINT i = 0; factory->EnumAdapters1(i, &dxgi_adapter1) != DXGI_ERROR_NOT_FOUND; ++i)
-				{
-					DXGI_ADAPTER_DESC1 adapter_desc;
-					dxgi_adapter1->GetDesc1(&adapter_desc);
-
-					// Ignore software devices
-					if (adapter_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-						continue;
-
-					// Ignore any devie that cannot create a specific D3D feature level
-					if (FAILED(D3D12CreateDevice(dxgi_adapter1.Get(), min_feature_level, __uuidof(ID3D12Device), nullptr)))
-						continue;
-
-					// Use the video memory as selection criterion
-					if (adapter_desc.DedicatedVideoMemory > video_memory)
-					{
-						video_memory = adapter_desc.DedicatedVideoMemory;
-						VCL_DIRECT3D_SAFE_CALL(dxgi_adapter1.As(&dxgi_adapter4));
-					}
-				}
+				// Software adapters are covered by the WARP adapter below
+				DXGI_ADAPTER_DESC1 desc;
+				if (SUCCEEDED(adapter->GetDesc1(&desc)) && (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0)
+					addAdapter(adapter.Get(), true, adapters);
 			}
 
-			return dxgi_adapter4;
+			if (SUCCEEDED(factory->EnumWarpAdapter(IID_PPV_ARGS(&adapter))))
+				addAdapter(adapter.Get(), false, adapters);
+
+			return adapters;
 		}
+#else
+		template<typename T>
+		bool queryProperty(IDXCoreAdapter* adapter, DXCoreAdapterProperty property, T* value)
+		{
+			return adapter->IsPropertySupported(property) &&
+				   SUCCEEDED(adapter->GetProperty(property, sizeof(T), value));
+		}
+
+		std::string queryName(IDXCoreAdapter* adapter)
+		{
+			const auto property = DXCoreAdapterProperty::DriverDescription;
+			size_t size = 0;
+			if (!adapter->IsPropertySupported(property) || FAILED(adapter->GetPropertySize(property, &size)) || size == 0)
+				return {};
+
+			std::string name(size, '\0');
+			if (FAILED(adapter->GetProperty(property, size, &name[0])))
+				return {};
+
+			name.resize(std::strlen(name.c_str()));
+			return name;
+		}
+
+		std::vector<Adapter> queryAdapters()
+		{
+			ComPtr<IDXCoreAdapterFactory> factory;
+			if (FAILED(DXCoreCreateAdapterFactory(IID_PPV_ARGS(&factory))))
+				return {};
+
+			const GUID attributes[] = { DXCORE_ADAPTER_ATTRIBUTE_D3D12_GRAPHICS };
+			ComPtr<IDXCoreAdapterList> list;
+			if (FAILED(factory->CreateAdapterList(1, attributes, IID_PPV_ARGS(&list))))
+				return {};
+
+			std::vector<Adapter> adapters;
+			for (uint32_t i = 0; i < list->GetAdapterCount(); ++i)
+			{
+				ComPtr<IDXCoreAdapter> adapter;
+				if (FAILED(list->GetAdapter(i, IID_PPV_ARGS(&adapter))) || !supportsMinimumFeatureLevel(adapter.Get()))
+					continue;
+
+				AdapterInfo info;
+				info.name = queryName(adapter.Get());
+				queryProperty(adapter.Get(), DXCoreAdapterProperty::IsHardware, &info.isHardware);
+				queryProperty(adapter.Get(), DXCoreAdapterProperty::DedicatedAdapterMemory, &info.dedicatedVideoMemory);
+				adapters.push_back({ adapter, std::move(info) });
+			}
+
+			return adapters;
+		}
+#endif
+	}
+
+#ifdef _WIN32
+	bool isRuntimeAvailable()
+	{
+		return true;
+	}
+#endif
+
+	std::vector<AdapterInfo> enumerateAdapters()
+	{
+		return infosOf(queryAdapters());
+	}
+
+	int selectAdapter(const std::vector<AdapterInfo>& adapters, DeviceType type)
+	{
+		int selected = -1;
+		for (int i = 0; i < static_cast<int>(adapters.size()); ++i)
+		{
+			const auto& adapter = adapters[i];
+			if (type == DeviceType::Warp)
+			{
+				if (!adapter.isHardware)
+					return i;
+			} else if (adapter.isHardware && (selected < 0 || adapter.dedicatedVideoMemory > adapters[selected].dedicatedVideoMemory))
+			{
+				selected = i;
+			}
+		}
+
+		return selected;
 	}
 
 	Device::Device(DeviceType type)
@@ -96,14 +208,18 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 		enableDebugLayer();
 
-		auto adapter = selectAdapter(type == DeviceType::Warp, D3D_FEATURE_LEVEL_12_0);
-		HRESULT hr = D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_d3dDevice));
-		VclEnsure(SUCCEEDED(hr) && _d3dDevice, "Native device is allocated.");
+		const auto adapters = queryAdapters();
+		const int selected = selectAdapter(infosOf(adapters), type);
+		if (selected < 0)
+			throw std::runtime_error(type == DeviceType::Warp ? "No WARP adapter found" : "No D3D12 hardware adapter found");
 
-		// Query raytracing capabilities
+		_adapter = adapters[selected].info;
+		if (FAILED(D3D12CreateDevice(adapters[selected].handle.Get(), MinimumFeatureLevel, IID_PPV_ARGS(&_d3dDevice))) || !_d3dDevice)
+			throw std::runtime_error("Failed to create the D3D12 device on " + _adapter.name);
+
+		// Query raytracing capabilities (ID3D12Device5 is optional)
 		ComPtr<ID3D12Device5> device5;
-		VCL_DIRECT3D_SAFE_CALL(_d3dDevice.As(&device5));
-		if (device5)
+		if (SUCCEEDED(_d3dDevice.As(&device5)))
 		{
 			D3D12_FEATURE_DATA_D3D12_OPTIONS5 caps = {};
 			if (SUCCEEDED(device5->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &caps, sizeof(caps))))
@@ -111,11 +227,6 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 				_raytracingTier = caps.RaytracingTier;
 			}
 		}
-
-		// Store adapter information
-		DXGI_ADAPTER_DESC3 adapter_desc;
-		adapter->GetDesc3(&adapter_desc);
-		_adapterName.assign(adapter_desc.Description);
 
 		// Enable debug messages in debug mode
 #ifdef VCL_DEBUG
@@ -158,7 +269,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 	Device::~Device()
 	{
-#ifdef VCL_DEBUG
+#if defined(_WIN32) && defined(VCL_DEBUG)
 		ComPtr<IDXGIDebug1> debug_interface;
 		if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug_interface))))
 		{

@@ -32,7 +32,7 @@
 #include <chrono>
 
 // Windows Runtime Library
-#include <wrl.h>
+#include <wrl/client.h>
 
 // VCL
 #include <vcl/graphics/d3d12/semaphore.h>
@@ -53,7 +53,8 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 		//! Wait until the queue has been fully processed
 		//! \param duration Time to wait in milliseconds
-		void sync(std::chrono::milliseconds duration = std::chrono::milliseconds::max());
+		//! \returns false if 'duration' passed before the queue was processed
+		bool sync(std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 
 	private:
 		//! Associated device

@@ -45,14 +45,17 @@
 // Support macros
 #ifndef VCL_DIRECT3D_SAFE_CALL
 #	ifdef VCL_DEBUG
-#		define VCL_DIRECT3D_SAFE_CALL(call)                                                                                 \
-			do                                                                                                               \
-			{                                                                                                                \
-				if (FAILED(call))                                                                                            \
-				{                                                                                                            \
-					std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << GetLastError() << std::endl; \
-					__debugbreak();                                                                                          \
-				}                                                                                                            \
+#		define VCL_DIRECT3D_SAFE_CALL(call)                                                     \
+			do                                                                                   \
+			{                                                                                    \
+				const HRESULT vcl_d3d_hr = (call);                                               \
+				if (FAILED(vcl_d3d_hr))                                                          \
+				{                                                                                \
+					std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__             \
+							  << ": HRESULT 0x" << std::hex << static_cast<uint32_t>(vcl_d3d_hr) \
+							  << std::dec << std::endl;                                          \
+					VCL_DEBUG_BREAK;                                                             \
+				}                                                                                \
 			} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_DIRECT3D_SAFE_CALL(call) call

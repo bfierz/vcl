@@ -30,10 +30,12 @@
 #include <vcl/config/direct3d12.h>
 
 // C++ Standard library
+#include <cstdint>
 #include <string>
+#include <vector>
 
 // Windows Runtime Library
-#include <wrl.h>
+#include <wrl/client.h>
 
 // VCL
 #include <vcl/graphics/d3d12/commandqueue.h>
@@ -45,16 +47,45 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		Warp
 	};
 
+	//! Description of a graphics adapter
+	struct AdapterInfo
+	{
+		//! Name reported by the driver (UTF-8)
+		std::string name;
+
+		//! False for software adapters such as WARP
+		bool isHardware{ false };
+
+		//! Memory dedicated to the adapter in bytes
+		uint64_t dedicatedVideoMemory{ 0 };
+	};
+
+	//! \returns true if the D3D12 runtime can be loaded. It is always available on
+	//!          Windows. On Linux, WSL provides it (libd3d12.so and libdxcore.so).
+	bool isRuntimeAvailable();
+
+	//! Lists the adapters on which a device with feature level 12_0 can be created.
+	//! Uses DXGI on Windows and DXCore on Linux.
+	std::vector<AdapterInfo> enumerateAdapters();
+
+	//! Chooses the adapter for a device of the given type: the hardware adapter with
+	//! the most dedicated memory, or the first software adapter for WARP.
+	//! \returns the index into 'adapters', or -1 if none fits
+	int selectAdapter(const std::vector<AdapterInfo>& adapters, DeviceType type);
+
 	class Device final
 	{
 	public:
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+		//! Creates a device on the adapter chosen by 'selectAdapter'
+		//! \throws std::runtime_error if no adapter fits or the device cannot be created
 		Device(DeviceType type);
 		~Device();
 
-		std::wstring adapterName() const { return _adapterName; }
+		const AdapterInfo& adapter() const { return _adapter; }
+		const std::string& adapterName() const { return _adapter.name; }
 
 		ID3D12Device* nativeDevice() const { return _d3dDevice.Get(); }
 
@@ -91,7 +122,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 		ComPtr<ID3D12Device> _d3dDevice;
 
-		std::wstring _adapterName;
+		AdapterInfo _adapter;
 
 		std::unique_ptr<CommandQueue> _defaultQueue;
 

@@ -31,18 +31,28 @@ include(../../cmake/VCLTest.cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SOURCE_FILES
+	adapters.cpp
 	buffers.cpp
 	compute.cpp
-	engine.cpp
 	main.cpp
-	rendering.cpp
-	swapchain.cpp
+	semaphore.cpp
+	smoke.cpp
 	textures.cpp
 
+	bindless.cs.hlsl
 	quad.vs.hlsl
 	quad.ps.hlsl
 	saxpy.cs.hlsl
 )
+
+# Tests that create windows and swap chains (Win32 and DXGI)
+if(WIN32)
+	list(APPEND SOURCE_FILES
+		engine.cpp
+		rendering.cpp
+		swapchain.cpp
+	)
+endif()
 
 # Access the include directories in order to compile the HLSL shaders
 get_property(CURR_INC_DIRS_0 TARGET vcl_graphics PROPERTY INCLUDE_DIRECTORIES)
@@ -72,7 +82,15 @@ vclcompilehlsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_2
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
+vclcompilehlsl(
+	${PROJECT_SOURCE_DIR}/bindless.cs.hlsl
+	"cs_6_6"
+	"main"
+	"BindlessCsoCS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_3
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3})
 
 # Run the Windows binaries on Linux through Wine (see run-wine.sh)
 if(MINGW AND CMAKE_CROSSCOMPILING)

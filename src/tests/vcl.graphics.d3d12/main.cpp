@@ -27,6 +27,8 @@
 // C++ standard library
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <stdexcept>
 
 // VCL
 #include <vcl/graphics/d3d12/device.h>
@@ -41,12 +43,33 @@ public:
 	{
 		using namespace Vcl::Graphics::D3D12;
 
-		// WARP by default; 'VCL_D3D12_DEVICE=hardware' selects a hardware adapter
-		// (needed under Wine/vkd3d-proton, which provides no WARP adapter)
-		const char* device_type = std::getenv("VCL_D3D12_DEVICE");
-		const bool use_hardware = device_type && std::strcmp(device_type, "hardware") == 0;
-		device = std::make_unique<Device>(use_hardware ? DeviceType::Hardware : DeviceType::Warp);
-		std::wcout << L"Running tests on graphics adapter: " << device->adapterName() << std::endl;
+		if (!isRuntimeAvailable())
+			GTEST_SKIP() << "No D3D12 runtime (on Linux, WSL provides libd3d12.so and libdxcore.so)";
+
+			// WARP by default on Windows. Wine (vkd3d-proton) and WSL provide no WARP
+			// adapter, so other platforms default to a hardware adapter.
+			// 'VCL_D3D12_DEVICE=hardware' or 'VCL_D3D12_DEVICE=warp' overrides the default.
+#ifdef _WIN32
+		DeviceType type = DeviceType::Warp;
+#else
+		DeviceType type = DeviceType::Hardware;
+#endif
+		if (const char* device_type = std::getenv("VCL_D3D12_DEVICE"))
+		{
+			if (std::strcmp(device_type, "hardware") == 0)
+				type = DeviceType::Hardware;
+			else if (std::strcmp(device_type, "warp") == 0)
+				type = DeviceType::Warp;
+		}
+
+		try
+		{
+			device = std::make_unique<Device>(type);
+		} catch (const std::exception& e)
+		{
+			FAIL() << e.what();
+		}
+		std::cout << "Running tests on graphics adapter: " << device->adapterName() << std::endl;
 	}
 
 	void TearDown() override
