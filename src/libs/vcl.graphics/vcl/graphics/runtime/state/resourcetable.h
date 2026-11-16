@@ -30,6 +30,7 @@
 // C++ standard library
 #include <cstdint>
 #include <deque>
+#include <utility>
 #include <vector>
 
 // VCL
@@ -98,6 +99,61 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		uint32_t Value{ Invalid };
 
 		bool isValid() const { return Value != Invalid; }
+	};
+
+	//! Move-only handle of one slot of a bindless heap (Vulkan / D3D12).
+	//! Destruction hands the slot to the retire queue of the heap. It is reused
+	//! only after the GPU finished the work submitted up to then.
+	//! \tparam Heap Backend heap; provides 'retire(Index)' and creates the views
+	//! \tparam Index ResourceIndex or SamplerIndex
+	template<typename Heap, typename Index>
+	class BindlessView
+	{
+	public:
+		BindlessView() = default;
+		BindlessView(const BindlessView&) = delete;
+		BindlessView(BindlessView&& rhs) noexcept
+		: _heap(std::exchange(rhs._heap, nullptr))
+		, _index(std::exchange(rhs._index, Index{}))
+		{
+		}
+		~BindlessView() { reset(); }
+
+		BindlessView& operator=(const BindlessView&) = delete;
+		BindlessView& operator=(BindlessView&& rhs) noexcept
+		{
+			if (this != &rhs)
+			{
+				reset();
+				_heap = std::exchange(rhs._heap, nullptr);
+				_index = std::exchange(rhs._index, Index{});
+			}
+			return *this;
+		}
+
+		//! \returns the index to pass to the shader
+		Index index() const { return _index; }
+
+		explicit operator bool() const { return _index.isValid(); }
+
+		//! Release the slot
+		void reset()
+		{
+			if (_heap && _index.isValid())
+				_heap->retire(_index);
+
+			_heap = nullptr;
+			_index = {};
+		}
+
+	private:
+		friend Heap;
+
+		BindlessView(Heap* heap, Index index)
+		: _heap(heap), _index(index) {}
+
+		Heap* _heap{ nullptr };
+		Index _index;
 	};
 
 	//! Allocator for the slots of a bindless heap.

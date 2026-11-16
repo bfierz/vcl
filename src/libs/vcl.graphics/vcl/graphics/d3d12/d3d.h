@@ -97,6 +97,18 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		//static D3D11_STENCIL_OP toD3Denum(StencilOperation::StencilOperation func);
 	};
 
+	//! \returns whether \p format is a depth(-stencil) format
+	bool isDepthFormat(DXGI_FORMAT format);
+
+	//! \returns the typeless format of the family of \p format, or \p format
+	//!          if the family has no typeless format.
+	//!          Resources created typeless can be viewed in every format of the family.
+	DXGI_FORMAT toTypeless(DXGI_FORMAT format);
+
+	//! \returns the format through which shaders read a resource of \p format:
+	//!          the depth part of depth(-stencil) formats, \p format otherwise
+	DXGI_FORMAT toShaderResourceFormat(DXGI_FORMAT format);
+
 	// Methods returning structures by value have a different signature in the
 	// D3D12 headers for MinGW (the result is passed as an out-parameter).
 	inline D3D12_CPU_DESCRIPTOR_HANDLE cpuHeapStart(ID3D12DescriptorHeap* heap)
@@ -116,6 +128,16 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 #else
 		D3D12_GPU_DESCRIPTOR_HANDLE handle;
 		return *heap->GetGPUDescriptorHandleForHeapStart(&handle);
+#endif
+	}
+
+	inline D3D12_DESCRIPTOR_HEAP_DESC heapDesc(ID3D12DescriptorHeap* heap)
+	{
+#if defined(_MSC_VER) || !defined(_WIN32)
+		return heap->GetDesc();
+#else
+		D3D12_DESCRIPTOR_HEAP_DESC desc;
+		return *heap->GetDesc(&desc);
 #endif
 	}
 

@@ -36,7 +36,7 @@
 // VCL
 #include <vcl/core/memory/smart_ptr.h>
 #include <vcl/core/span.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
@@ -106,8 +106,20 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		void endRenderPass();
 
 		void bindPipeline(PipelineState* pipeline);
-		void bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table);
-		void bindDescriptorTables(PipelineBindPoint bp, uint32_t root_index, stdext::span<Graphics::D3D12::DescriptorTable*> tables);
+
+		//! Set the bindless heaps and the root signature shared by all pipelines.
+		//! Required once per command buffer, before root constants are set.
+		void bindDescriptorHeap(const Graphics::D3D12::DescriptorHeap& heap);
+
+		//! Fill a range of the root constants, which are shared by all shader stages
+		void pushConstants(PipelineBindPoint bp, uint32_t offset, uint32_t size, const void* data);
+
+		//! Fill the root constants with a structure
+		template<typename T>
+		void pushConstants(PipelineBindPoint bp, const T& constants)
+		{
+			pushConstants(bp, 0, sizeof(T), &constants);
+		}
 
 		void bindIndexBuffer(Buffer* buffer);
 		void bindVertexBuffer(Buffer* buffer);

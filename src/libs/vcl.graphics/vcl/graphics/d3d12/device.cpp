@@ -228,6 +228,8 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			}
 		}
 
+		queryFeatures();
+
 		// Enable debug messages in debug mode
 #ifdef VCL_DEBUG
 		ComPtr<ID3D12InfoQueue> info_queue;
@@ -327,6 +329,50 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		VCL_DIRECT3D_SAFE_CALL(_d3dDevice->CreateCommandList(0, type, cmd_allocator, nullptr, IID_PPV_ARGS(&cmd_list)));
 
 		return cmd_list;
+	}
+
+	void Device::queryFeatures()
+	{
+		// The runtime rejects shader models it doesn't know, so query from the newest down
+		const D3D_SHADER_MODEL models[] = {
+			D3D_SHADER_MODEL_6_9, D3D_SHADER_MODEL_6_8, D3D_SHADER_MODEL_6_7, D3D_SHADER_MODEL_6_6,
+			D3D_SHADER_MODEL_6_5, D3D_SHADER_MODEL_6_4, D3D_SHADER_MODEL_6_3, D3D_SHADER_MODEL_6_2,
+			D3D_SHADER_MODEL_6_1, D3D_SHADER_MODEL_6_0
+		};
+		for (auto model : models)
+		{
+			D3D12_FEATURE_DATA_SHADER_MODEL data = { model };
+			if (SUCCEEDED(_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &data, sizeof(data))))
+			{
+				_shaderModel = data.HighestShaderModel;
+				break;
+			}
+		}
+
+		D3D12_FEATURE_DATA_D3D12_OPTIONS options = {};
+		if (SUCCEEDED(_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options))))
+			_resourceBindingTier = options.ResourceBindingTier;
+
+		// Heap indexing (ResourceDescriptorHeap, SamplerDescriptorHeap) needs
+		// shader model 6.6 and resource binding tier 3
+		_features.BindlessResources = _shaderModel >= D3D_SHADER_MODEL_6_6 && _resourceBindingTier >= D3D12_RESOURCE_BINDING_TIER_3;
+		_features.GeometryShaders = true;
+		_features.TessellationShaders = true;
+		// The backend has no mesh pipeline
+		_features.MeshShaders = false;
+		_features.TaskShaders = false;
+		_features.IndependentBlend = true;
+		_features.DualSourceBlend = true;
+		_features.LogicOp = options.OutputMergerLogicOp == TRUE;
+		_features.WireframeFill = true;
+		_features.DepthBiasClamp = true;
+		_features.DepthClipControl = true;
+		_features.SamplerAnisotropy = true;
+		_features.MaxRenderTargets = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT;
+		// Root signatures hold 64 DWORDs; the bindless layout only uses root constants
+		_features.MaxPushConstantSize = 64 * sizeof(uint32_t);
+		_features.MaxResourceHeapCapacity = D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2;
+		_features.MaxSamplerHeapCapacity = D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE;
 	}
 
 	ComPtr<ID3D12RootSignature> Device::createRootSignature(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC& desc)

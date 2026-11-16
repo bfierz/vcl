@@ -29,7 +29,6 @@
 
 // C++ standard library
 #include <array>
-#include <utility>
 #include <vector>
 
 // Vulkan
@@ -46,53 +45,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	class CommandBuffer;
 	class DescriptorHeap;
 
-	//! Move-only handle of one slot of a descriptor heap.
-	//! Destruction hands the slot to the retire queue of the heap. It is reused
-	//! only after the GPU finished the work submitted up to then.
-	template<typename Index>
-	class View
-	{
-	public:
-		View() = default;
-		View(const View&) = delete;
-		View(View&& rhs) noexcept
-		: _heap(std::exchange(rhs._heap, nullptr))
-		, _index(std::exchange(rhs._index, Index{}))
-		{
-		}
-		~View() { reset(); }
-
-		View& operator=(const View&) = delete;
-		View& operator=(View&& rhs) noexcept
-		{
-			if (this != &rhs)
-			{
-				reset();
-				_heap = std::exchange(rhs._heap, nullptr);
-				_index = std::exchange(rhs._index, Index{});
-			}
-			return *this;
-		}
-
-		//! \returns the index to pass to the shader
-		Index index() const { return _index; }
-
-		explicit operator bool() const { return _index.isValid(); }
-
-		//! Release the slot
-		void reset();
-
-	private:
-		friend class DescriptorHeap;
-
-		View(DescriptorHeap* heap, Index index)
-		: _heap(heap), _index(index) {}
-
-		DescriptorHeap* _heap{ nullptr };
-		Index _index;
-	};
-	using ResourceView = View<Runtime::ResourceIndex>;
-	using SamplerView = View<Runtime::SamplerIndex>;
+	using ResourceView = Runtime::BindlessView<DescriptorHeap, Runtime::ResourceIndex>;
+	using SamplerView = Runtime::BindlessView<DescriptorHeap, Runtime::SamplerIndex>;
 
 	/*!
 	 * \brief Bindless descriptor heap and the device-wide pipeline layout
@@ -179,8 +133,8 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		void bind(CommandBuffer& cmd_buffer) const;
 
 	private:
-		template<typename>
-		friend class View;
+		template<typename, typename>
+		friend class Runtime::BindlessView;
 
 		void retire(Runtime::ResourceIndex index);
 		void retire(Runtime::SamplerIndex index);
@@ -227,14 +181,4 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		//! Sampler owned by each sampler slot
 		std::vector<VkSampler> _samplerObjects;
 	};
-
-	template<typename Index>
-	void View<Index>::reset()
-	{
-		if (_heap && _index.isValid())
-			_heap->retire(_index);
-
-		_heap = nullptr;
-		_index = {};
-	}
 }}}

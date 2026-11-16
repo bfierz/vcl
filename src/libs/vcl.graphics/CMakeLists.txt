@@ -124,8 +124,8 @@ set(SOURCE_D3D12
 	vcl/graphics/d3d12/commandqueue.h
 	vcl/graphics/d3d12/d3d.cpp
 	vcl/graphics/d3d12/d3d.h
-	vcl/graphics/d3d12/descriptortable.cpp
-	vcl/graphics/d3d12/descriptortable.h
+	vcl/graphics/d3d12/descriptorheap.cpp
+	vcl/graphics/d3d12/descriptorheap.h
 	vcl/graphics/d3d12/device.cpp
 	vcl/graphics/d3d12/device.h
 	vcl/graphics/d3d12/semaphore.cpp
@@ -146,6 +146,8 @@ set(SOURCE_D3D12
 	vcl/graphics/runtime/d3d12/state/pipelinestate.h
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.cpp
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.h
+	vcl/graphics/runtime/d3d12/state/sampler.cpp
+	vcl/graphics/runtime/d3d12/state/sampler.h
 )
 
 # Presentation through DXGI, which exists only on Windows

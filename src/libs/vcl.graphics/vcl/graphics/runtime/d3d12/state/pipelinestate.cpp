@@ -28,6 +28,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
+#include <vcl/graphics/runtime/state/devicefeatures.h>
 #include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
@@ -69,20 +70,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 	GraphicsPipelineState::GraphicsPipelineState(
 		Graphics::D3D12::Device* device,
-		const PipelineStateDescription& desc,
-		const Graphics::D3D12::DescriptorTableLayout* layout)
+		const Graphics::D3D12::DescriptorHeap* heap,
+		const PipelineStateDescription& desc)
 	: _inputLayout{ desc.InputLayout }
 	{
+		VclRequire(device, "Device is set.");
+		VclRequire(heap, "Heap is set.");
+		VclRequire(validate(desc, device->features()).empty(), "Pipeline is supported by the device.");
 		VclRequire(desc.InputAssembly.PrimitiveRestartEnable == false, "Primitive restart is not supported.");
 
+		_rootSignature = heap->rootSignature();
+
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC graphics_pipeline_desc = {};
-		if (layout)
-			graphics_pipeline_desc.pRootSignature = layout->rootSignature();
+		graphics_pipeline_desc.pRootSignature = _rootSignature;
 
 		graphics_pipeline_desc.VS = getShaderCode(desc.VertexShader);
 		graphics_pipeline_desc.PS = getShaderCode(desc.FragmentShader);
-		graphics_pipeline_desc.DS = getShaderCode(desc.TessControlShader);
-		graphics_pipeline_desc.HS = getShaderCode(desc.TessEvalShader);
+		graphics_pipeline_desc.HS = getShaderCode(desc.TessControlShader);
+		graphics_pipeline_desc.DS = getShaderCode(desc.TessEvalShader);
 		graphics_pipeline_desc.GS = getShaderCode(desc.GeometryShader);
 		//D3D12_STREAM_OUTPUT_DESC StreamOutput;
 
@@ -113,14 +118,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 	ComputePipelineState::ComputePipelineState(
 		Graphics::D3D12::Device* device,
-		const ComputePipelineStateDescription& desc,
-		const Graphics::D3D12::DescriptorTableLayout* layout)
+		const Graphics::D3D12::DescriptorHeap* heap,
+		const ComputePipelineStateDescription& desc)
 	{
+		VclRequire(device, "Device is set.");
+		VclRequire(heap, "Heap is set.");
 		VclRequire(desc.ComputeShader, "Shader is set.");
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");
 
 		D3D12_COMPUTE_PIPELINE_STATE_DESC compute_pipeline_desc = {};
-		compute_pipeline_desc.pRootSignature = layout ? layout->rootSignature() : nullptr;
+		_rootSignature = heap->rootSignature();
+		compute_pipeline_desc.pRootSignature = _rootSignature;
 		compute_pipeline_desc.CS = getShaderCode(desc.ComputeShader);
 
 		_pipeline = device->createComputePipelineState(compute_pipeline_desc);
