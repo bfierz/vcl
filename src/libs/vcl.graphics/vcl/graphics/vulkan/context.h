@@ -118,6 +118,9 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		VkQueue queue(VkQueueFlags flags, uint32_t idx);
 
 	private:
+		//! Create the logical device and the pipeline cache
+		void createDevice(const std::vector<const char*>& extensions, const VkPhysicalDeviceFeatures2* features);
+
 		//! Vulkan physical device
 		Device* _physicalDevice{ nullptr };
 

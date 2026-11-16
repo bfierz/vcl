@@ -215,7 +215,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 			for (const auto& ext : extensions)
 			{
-				extensionsPerLayer.emplace(std::make_pair<std::string, std::string>(layers[l].layerName, ext.extensionName));
+				extensionsPerLayer.emplace(layers[l].layerName, ext.extensionName);
 			}
 		}
 	}
