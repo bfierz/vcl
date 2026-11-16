@@ -24,16 +24,20 @@
 #
 set(VCLCOMPILEHLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-if(${CMAKE_VERSION} VERSION_LESS "3.11.0") 
-    message(WARNING "Downloading DXC automatically requires CMake 3.11+")
+if(NOT CMAKE_HOST_WIN32)
+	# The downloaded package only contains Windows binaries. Elsewhere, use a
+	# native DXC from VCL_DXC_ROOT or the PATH.
+elseif(${CMAKE_VERSION} VERSION_LESS "3.11.0")
+	message(WARNING "Downloading DXC automatically requires CMake 3.11+")
 else()
 
 	include(FetchContent)
 
 	FetchContent_Declare(
 	  direct_x_shader_compiler
-	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.5.2010/dxc_2020_10-22.zip
-	  URL_HASH SHA256=b691f63778f470ebeb94874426779b2f60685fc8711adf1b1f9f01535d9b67f8
+	  # Same release as the native DXC in the devcontainer; shader model 6.6 needs DXC 1.6+
+	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2609/dxc_2026_09_29.zip
+	  URL_HASH SHA256=ad31b1fc8443175d204f77a611fdb3ef2ec42759bdc2f1167368de24a4a7e7f1
 	)
 	FetchContent_GetProperties(direct_x_shader_compiler)
 	if(NOT direct_x_shader_compiler_POPULATED)
@@ -51,9 +55,11 @@ set(VCL_DXC_ROOT CACHE PATH "Path to the root directory of the 'Microsoft Direct
 find_program(DXC dxc
 	HINTS
 		${VCL_DXC_ROOT}
+		$ENV{VCL_DXC_ROOT}
 		${direct_x_shader_compiler_SOURCE_DIR}
 	PATH_SUFFIXES
 		"bin/x64"
+		"bin"
 	REQUIRED
 )
 

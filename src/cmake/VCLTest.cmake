@@ -60,9 +60,14 @@ function(vcl_add_test tgt)
 	endif()
 	
 	# Register for test auto-discovery
-	if(NOT EMSCRIPTEN)
+	if(CMAKE_CROSSCOMPILING AND NOT EMSCRIPTEN AND NOT CMAKE_VERSION VERSION_LESS "3.18")
+		# Listing the tests runs the executable through the emulator, which
+		# may need a runtime environment only present when running the tests.
+		# Emulators can be slow to start (e.g. Wine creating its prefix).
+		gtest_discover_tests(${tgt} DISCOVERY_MODE PRE_TEST DISCOVERY_TIMEOUT 120)
+	elseif(NOT EMSCRIPTEN)
 		gtest_discover_tests(${tgt})
-	endif(NOT EMSCRIPTEN)
+	endif()
 
 	# For emscripten test targets, generate a basic html page executing the tests
 	if(EMSCRIPTEN)

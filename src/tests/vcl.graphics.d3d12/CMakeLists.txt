@@ -31,18 +31,28 @@ include(../../cmake/VCLTest.cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SOURCE_FILES
+	adapters.cpp
 	buffers.cpp
 	compute.cpp
-	engine.cpp
 	main.cpp
-	rendering.cpp
-	swapchain.cpp
+	semaphore.cpp
+	smoke.cpp
 	textures.cpp
 
+	bindless.cs.hlsl
 	quad.vs.hlsl
 	quad.ps.hlsl
 	saxpy.cs.hlsl
 )
+
+# Tests that create windows and swap chains (Win32 and DXGI)
+if(WIN32)
+	list(APPEND SOURCE_FILES
+		engine.cpp
+		rendering.cpp
+		swapchain.cpp
+	)
+endif()
 
 # Access the include directories in order to compile the HLSL shaders
 get_property(CURR_INC_DIRS_0 TARGET vcl_graphics PROPERTY INCLUDE_DIRECTORIES)
@@ -72,7 +82,22 @@ vclcompilehlsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_2
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
+vclcompilehlsl(
+	${PROJECT_SOURCE_DIR}/bindless.cs.hlsl
+	"cs_6_6"
+	"main"
+	"BindlessCsoCS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_3
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3})
+
+# Run the Windows binaries on Linux through Wine (see run-wine.sh)
+if(MINGW AND CMAKE_CROSSCOMPILING)
+	set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CURRENT_SOURCE_DIR}/run-wine.sh")
+	set(VCL_D3D12_WINE_DLLS "$ENV{VCL_D3D12_WINE_DLLS}" CACHE STRING
+		"DLLs copied next to the tests (vkd3d-proton d3d12.dll and d3d12core.dll, DXVK dxgi.dll)")
+endif()
 
 vcl_add_test(vcl.graphics.d3d12.test)
 vcl_target_sources(vcl.graphics.d3d12.test "" ${SOURCE_FILES})
@@ -80,3 +105,9 @@ target_sources(vcl.graphics.d3d12.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.d3d12.test
 	vcl_graphics
 )
+
+if(MINGW AND CMAKE_CROSSCOMPILING AND VCL_D3D12_WINE_DLLS)
+	add_custom_command(TARGET vcl.graphics.d3d12.test POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different ${VCL_D3D12_WINE_DLLS} $<TARGET_FILE_DIR:vcl.graphics.d3d12.test>
+	)
+endif()

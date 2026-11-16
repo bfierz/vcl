@@ -26,7 +26,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/device.h>
 
@@ -137,7 +137,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 		// Create a handle to the current frame's render-target
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(
-			_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _currentBackBuffer, _descriptorIncrement);
+			cpuHeapStart(_d3d12DescriptorHeap.Get()), _currentBackBuffer, _descriptorIncrement);
 
 		return rtv;
 	}
@@ -211,7 +211,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		_descriptorIncrement = d3d12_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 		_d3d12DescriptorHeap = _device->createDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, desc.BufferCount, false);
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_handle(_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv_handle(cpuHeapStart(_d3d12DescriptorHeap.Get()));
 
 		_backBuffers.reserve(desc.BufferCount);
 		for (int i = 0; i < desc.BufferCount; ++i)

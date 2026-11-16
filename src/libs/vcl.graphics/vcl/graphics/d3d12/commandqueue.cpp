@@ -36,8 +36,8 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		_d3d12Queue = device->createCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	}
 
-	void CommandQueue::sync(std::chrono::milliseconds duration)
+	bool CommandQueue::sync(std::chrono::milliseconds duration)
 	{
-		_semaphore.sync(_d3d12Queue.Get());
+		return _semaphore.sync(_d3d12Queue.Get(), duration);
 	}
 }}}

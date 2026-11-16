@@ -30,7 +30,7 @@
 // Windows Runtime Library
 #define NOMINMAX
 #include <tchar.h>
-#include <wrl.h>
+#include <wrl/client.h>
 
 // VCL
 #include <vcl/graphics/d3d12/device.h>

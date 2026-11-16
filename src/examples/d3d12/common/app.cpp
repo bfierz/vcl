@@ -30,7 +30,7 @@
 
 // VCL
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 
 const int Application::NumberOfFrames = 3;
 
@@ -89,7 +89,7 @@ int Application::run()
 		_frames[frame_idx].GraphicsCommandAllocator->Reset();
 		_graphicsCommandBuffer->reset(_frames[frame_idx].GraphicsCommandAllocator.Get());
 		auto rtv = _swapChain->prepareFrame(_graphicsCommandBuffer->handle());
-		auto dsv = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+		auto dsv = Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get());
 
 		renderFrame(_graphicsCommandBuffer.get(), rtv, dsv);
 		_swapChain->present(_device->defaultQueue(), _graphicsCommandBuffer->handle(), false);
@@ -120,10 +120,12 @@ void Application::createDeviceObjects()
 	optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
 	const auto size = _swapChain->bufferSize();
+	const CD3DX12_HEAP_PROPERTIES heap_props(D3D12_HEAP_TYPE_DEFAULT);
+	const auto depth_desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, size.first, size.second, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 	VCL_DIRECT3D_SAFE_CALL(dev->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		&heap_props,
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, size.first, size.second, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		&depth_desc,
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		&optimizedClearValue,
 		IID_PPV_ARGS(&_depthBuffer)));
@@ -134,7 +136,7 @@ void Application::createDeviceObjects()
 	dsv.Texture2D.MipSlice = 0;
 	dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-	dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, _dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get()));
 }
 
 bool Application::initD3d12(HWND hWnd)

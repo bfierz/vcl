@@ -45,14 +45,17 @@
 // Support macros
 #ifndef VCL_DIRECT3D_SAFE_CALL
 #	ifdef VCL_DEBUG
-#		define VCL_DIRECT3D_SAFE_CALL(call)                                                                                 \
-			do                                                                                                               \
-			{                                                                                                                \
-				if (FAILED(call))                                                                                            \
-				{                                                                                                            \
-					std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__ << ": " << GetLastError() << std::endl; \
-					__debugbreak();                                                                                          \
-				}                                                                                                            \
+#		define VCL_DIRECT3D_SAFE_CALL(call)                                                     \
+			do                                                                                   \
+			{                                                                                    \
+				const HRESULT vcl_d3d_hr = (call);                                               \
+				if (FAILED(vcl_d3d_hr))                                                          \
+				{                                                                                \
+					std::cout << "D3D Error\tFile: " << __FILE__ << ", " << __LINE__             \
+							  << ": HRESULT 0x" << std::hex << static_cast<uint32_t>(vcl_d3d_hr) \
+							  << std::dec << std::endl;                                          \
+					VCL_DEBUG_BREAK;                                                             \
+				}                                                                                \
 			} while (VCL_EVAL_FALSE)
 #	else
 #		define VCL_DIRECT3D_SAFE_CALL(call) call
@@ -93,4 +96,36 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		//static D3D11_COMPARISON_FUNC toD3Denum(ComparisonFunction::ComparisonFunction func);
 		//static D3D11_STENCIL_OP toD3Denum(StencilOperation::StencilOperation func);
 	};
+
+	// Methods returning structures by value have a different signature in the
+	// D3D12 headers for MinGW (the result is passed as an out-parameter).
+	inline D3D12_CPU_DESCRIPTOR_HANDLE cpuHeapStart(ID3D12DescriptorHeap* heap)
+	{
+#if defined(_MSC_VER) || !defined(_WIN32)
+		return heap->GetCPUDescriptorHandleForHeapStart();
+#else
+		D3D12_CPU_DESCRIPTOR_HANDLE handle;
+		return *heap->GetCPUDescriptorHandleForHeapStart(&handle);
+#endif
+	}
+
+	inline D3D12_GPU_DESCRIPTOR_HANDLE gpuHeapStart(ID3D12DescriptorHeap* heap)
+	{
+#if defined(_MSC_VER) || !defined(_WIN32)
+		return heap->GetGPUDescriptorHandleForHeapStart();
+#else
+		D3D12_GPU_DESCRIPTOR_HANDLE handle;
+		return *heap->GetGPUDescriptorHandleForHeapStart(&handle);
+#endif
+	}
+
+	inline D3D12_RESOURCE_DESC resourceDesc(ID3D12Resource* resource)
+	{
+#if defined(_MSC_VER) || !defined(_WIN32)
+		return resource->GetDesc();
+#else
+		D3D12_RESOURCE_DESC desc;
+		return *resource->GetDesc(&desc);
+#endif
+	}
 }}}

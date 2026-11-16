@@ -30,7 +30,7 @@
 
 // VCL
 #include <vcl/core/contract.h>
-#include <vcl/graphics/d3d12/3rdparty/d3dx12.h>
+#include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/device.h>
 
@@ -150,7 +150,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		cmd_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 		const auto increment = _heapIncrements[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(_d3d12DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), _offset, increment);
+		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(gpuHeapStart(_d3d12DescriptorHeap.Get()), _offset, increment);
 		cmd_list->SetComputeRootDescriptorTable(root_index, handle);
 	}
 
@@ -190,7 +190,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		cmd_list->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 		const auto increment = _heapIncrements[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV];
-		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(_d3d12DescriptorHeap->GetGPUDescriptorHandleForHeapStart(), _offset, increment);
+		CD3DX12_GPU_DESCRIPTOR_HANDLE handle(gpuHeapStart(_d3d12DescriptorHeap.Get()), _offset, increment);
 		cmd_list->SetGraphicsRootDescriptorTable(root_index, handle);
 	}
 
@@ -208,7 +208,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			desc.BufferLocation = buffer->handle()->GetGPUVirtualAddress() + first * stride;
 			desc.SizeInBytes = count * stride;
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
-				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+				cpuHeapStart(_d3d12DescriptorHeap.Get()), _offset + descriptor_index, increment);
 			d3d12_device->CreateConstantBufferView(&desc, handle);
 		} else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_SRV)
 		{
@@ -221,7 +221,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			desc.Buffer.StructureByteStride = stride;
 			desc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
-				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+				cpuHeapStart(_d3d12DescriptorHeap.Get()), _offset + descriptor_index, increment);
 			d3d12_device->CreateShaderResourceView(buffer->handle(), &desc, handle);
 		} else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_UAV)
 		{
@@ -234,7 +234,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			desc.Buffer.CounterOffsetInBytes = 0;
 			desc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_NONE;
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
-				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+				cpuHeapStart(_d3d12DescriptorHeap.Get()), _offset + descriptor_index, increment);
 			d3d12_device->CreateUnorderedAccessView(buffer->handle(), nullptr, &desc, handle);
 		}
 	}
@@ -253,13 +253,13 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		{
 			const auto desc = texture->srv();
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
-				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+				cpuHeapStart(_d3d12DescriptorHeap.Get()), _offset + descriptor_index, increment);
 			d3d12_device->CreateShaderResourceView(texture->handle(), &desc, handle);
 		} else if (type == D3D12_DESCRIPTOR_RANGE_TYPE_UAV)
 		{
 			const auto desc = texture->uav();
 			CD3DX12_CPU_DESCRIPTOR_HANDLE handle(
-				_d3d12DescriptorHeap->GetCPUDescriptorHandleForHeapStart(), _offset + descriptor_index, increment);
+				cpuHeapStart(_d3d12DescriptorHeap.Get()), _offset + descriptor_index, increment);
 			d3d12_device->CreateUnorderedAccessView(texture->handle(), nullptr, &desc, handle);
 		}
 	}

@@ -36,7 +36,7 @@
 #include <absl/types/variant.h>
 
 // Windows Runtime Library
-#include <wrl.h>
+#include <wrl/client.h>
 
 // VCL
 #include <vcl/core/flags.h>

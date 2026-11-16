@@ -25,6 +25,9 @@
 
 #include "imguiapp.h"
 
+// VCL
+#include <vcl/graphics/d3d12/d3d.h>
+
 // IMGUI
 #define NOMINMAX
 #include "imgui_impl_win32.h"
@@ -52,7 +55,7 @@ ImGuiApplication::ImGuiApplication(LPCSTR title)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(windowHandle());
-	ImGui_ImplDX12_Init(device()->nativeDevice(), NumberOfFrames, DXGI_FORMAT_R8G8B8A8_UNORM, _imguiDescrHeap.Get(), _imguiDescrHeap->GetCPUDescriptorHandleForHeapStart(), _imguiDescrHeap->GetGPUDescriptorHandleForHeapStart());
+	ImGui_ImplDX12_Init(device()->nativeDevice(), NumberOfFrames, DXGI_FORMAT_R8G8B8A8_UNORM, _imguiDescrHeap.Get(), Vcl::Graphics::D3D12::cpuHeapStart(_imguiDescrHeap.Get()), Vcl::Graphics::D3D12::gpuHeapStart(_imguiDescrHeap.Get()));
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

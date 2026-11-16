@@ -29,6 +29,15 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_D3D12_SUPPORT
-#	include <d3d12.h>
+#	ifndef _WIN32
+// COM and Win32 type definitions for the D3D12 headers on Linux (WSL)
+#		include <wsl/winadapter.h>
+#	endif
+#	include <directx/d3d12.h>
+#	ifndef _WIN32
+// Adapter enumeration; precedes dxguids.h, which then declares its interface IDs
+#		include <directx/dxcore.h>
+#	endif
+#	include <dxguids/dxguids.h>
 #endif
 VCL_END_EXTERNAL_HEADERS

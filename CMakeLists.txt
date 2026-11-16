@@ -123,6 +123,13 @@ if(VCL_VULKAN_SUPPORT)
 	set_property(TARGET spirv-cross-glsl PROPERTY FOLDER 3rd-party)
 endif()
 
+if(VCL_D3D12_SUPPORT)
+	option(DXHEADERS_BUILD_TEST "" OFF)
+	option(DXHEADERS_BUILD_GOOGLE_TEST "" OFF)
+	option(DXHEADERS_INSTALL "" OFF)
+	add_subdirectory(src/externals/DirectX-Headers EXCLUDE_FROM_ALL)
+endif()
+
 ################################################################################
 # The libraries
 ################################################################################

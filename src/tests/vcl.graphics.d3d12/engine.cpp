@@ -32,7 +32,7 @@
 // Windows Runtime Library
 #define NOMINMAX
 #include <tchar.h>
-#include <wrl.h>
+#include <wrl/client.h>
 
 // Include the relevant parts from the library
 #include <vcl/graphics/runtime/d3d12/graphicsengine.h>

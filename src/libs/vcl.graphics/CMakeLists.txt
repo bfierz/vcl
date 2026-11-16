@@ -130,10 +130,6 @@ set(SOURCE_D3D12
 	vcl/graphics/d3d12/device.h
 	vcl/graphics/d3d12/semaphore.cpp
 	vcl/graphics/d3d12/semaphore.h
-	vcl/graphics/d3d12/swapchain.cpp
-	vcl/graphics/d3d12/swapchain.h
-	vcl/graphics/runtime/d3d12/graphicsengine.cpp
-	vcl/graphics/runtime/d3d12/graphicsengine.h
 	vcl/graphics/runtime/d3d12/resource/buffer.cpp
 	vcl/graphics/runtime/d3d12/resource/buffer.h
 	vcl/graphics/runtime/d3d12/resource/shader.cpp
@@ -150,6 +146,19 @@ set(SOURCE_D3D12
 	vcl/graphics/runtime/d3d12/state/pipelinestate.h
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.cpp
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.h
+)
+
+# Presentation through DXGI, which exists only on Windows
+set(SOURCE_D3D12_WINDOWS
+	vcl/graphics/d3d12/swapchain.cpp
+	vcl/graphics/d3d12/swapchain.h
+	vcl/graphics/runtime/d3d12/graphicsengine.cpp
+	vcl/graphics/runtime/d3d12/graphicsengine.h
+)
+
+# Loads the D3D12 runtime that WSL provides
+set(SOURCE_D3D12_LINUX
+	vcl/graphics/d3d12/loader.cpp
 )
 
 set(SOURCE_VULKAN
@@ -351,11 +360,31 @@ if(VCL_D3D12_SUPPORT)
 	endif()
 
 	target_compile_definitions(vcl_graphics PUBLIC VCL_D3D12_SUPPORT)
+	if(MINGW)
+		# MinGW's RPC headers declare an older version than the D3D12 headers require
+		target_compile_definitions(vcl_graphics PUBLIC "__REQUIRED_RPCNDR_H_VERSION__=475")
+	endif()
+	# Resolve plain <d3d12.h> (e.g. in third-party code) to the same headers
+	target_include_directories(vcl_graphics SYSTEM PUBLIC "${DirectX-Headers_SOURCE_DIR}/include/directx")
 	target_link_libraries(vcl_graphics
 		PUBLIC
 			absl_variant
-			d3d12.lib dxgi.lib d3dcompiler.lib dxguid.lib
+			Microsoft::DirectX-Headers
 	)
+	if(WIN32)
+		vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_D3D12_WINDOWS})
+		target_link_libraries(vcl_graphics PUBLIC d3d12 dxgi dxguid)
+	else()
+		# libd3d12.so and libdxcore.so are loaded when first used, so that the
+		# library also builds and loads where WSL's D3D12 runtime isn't installed
+		vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_D3D12_LINUX})
+		target_link_libraries(vcl_graphics
+			PUBLIC
+				Microsoft::DirectX-Guids
+			PRIVATE
+				${CMAKE_DL_LIBS}
+		)
+	endif()
 endif()
 
 if(VCL_VULKAN_SUPPORT)
