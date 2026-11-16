@@ -34,12 +34,16 @@ set(SOURCE_FILES
 	adapters.cpp
 	buffers.cpp
 	compute.cpp
+	descriptorheap.cpp
 	main.cpp
 	semaphore.cpp
 	smoke.cpp
 	textures.cpp
 
 	bindless.cs.hlsl
+	bindless.ps.hlsl
+	fullscreen.vs.hlsl
+	gradient.cs.hlsl
 	quad.vs.hlsl
 	quad.ps.hlsl
 	saxpy.cs.hlsl
@@ -76,7 +80,7 @@ vclcompilehlsl(
 )
 vclcompilehlsl(
 	${PROJECT_SOURCE_DIR}/saxpy.cs.hlsl
-	"cs_6_0"
+	"cs_6_6"
 	"main"
 	"SaxpyCsoCS"
 	"${CURR_INC_DIRS}"
@@ -90,7 +94,34 @@ vclcompilehlsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_3
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3})
+vclcompilehlsl(
+	${PROJECT_SOURCE_DIR}/fullscreen.vs.hlsl
+	"vs_6_6"
+	"main"
+	"FullscreenCsoVS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_4
+)
+vclcompilehlsl(
+	${PROJECT_SOURCE_DIR}/bindless.ps.hlsl
+	"ps_6_6"
+	"main"
+	"BindlessCsoPS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_5
+)
+vclcompilehlsl(
+	${PROJECT_SOURCE_DIR}/gradient.cs.hlsl
+	"cs_6_6"
+	"main"
+	"GradientCsoCS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_6
+)
+set(COMPILEDSHADERS
+	${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3}
+	${COMPILEDSHADERS_4} ${COMPILEDSHADERS_5} ${COMPILEDSHADERS_6}
+)
 
 # Run the Windows binaries on Linux through Wine (see run-wine.sh)
 if(MINGW AND CMAKE_CROSSCOMPILING)

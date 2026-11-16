@@ -36,7 +36,7 @@
 #include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
@@ -148,8 +148,10 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	D3D12::Shader vs(ShaderType::VertexShader, 0, QuadCsoVS);
 	D3D12::Shader ps(ShaderType::FragmentShader, 0, QuadCsoPS);
 
-	DescriptorTableLayout table_layout{ device.get(), {}, {} };
-	auto signature = table_layout.rootSignature();
+	if (!device->features().BindlessResources)
+		GTEST_SKIP() << "Bindless resources need shader model 6.6 and resource binding tier 3.";
+
+	DescriptorHeap heap{ device.get(), {} };
 
 	PipelineStateDescription psd;
 	psd.VertexShader = &vs;
@@ -160,7 +162,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	rtd.ColourFormats = { Vcl::Graphics::SurfaceFormat::R8G8B8A8_UNORM };
 	rtd.DepthStencilFormat = Vcl::Graphics::SurfaceFormat::D32_FLOAT;
 	psd.RenderTargets = rtd;
-	D3D12::GraphicsPipelineState gps{ device.get(), psd, &table_layout };
+	D3D12::GraphicsPipelineState gps{ device.get(), &heap, psd };
 
 	// Prepare a blank screen
 	swap_chain.waitForNextFrame();
@@ -171,7 +173,7 @@ TEST_F(D3D12RenderingTest, RenderQuadWithoutData)
 	cmd_list->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 	cmd_list->OMSetRenderTargets(1, &rtv, TRUE, &dsv);
 
-	cmd_list->SetGraphicsRootSignature(signature);
+	heap.bind(cmd_list.Get());
 	D3D12_VIEWPORT viewport{ 0, 0, 512, 512, 0, 1 };
 	cmd_list->RSSetViewports(1, &viewport);
 	D3D12_RECT sr{ 0, 0, 512, 512 };
