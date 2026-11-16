@@ -33,6 +33,7 @@
 #include <wrl/client.h>
 
 // VCL
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/d3d12/device.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/graphicsengine.h>
@@ -48,11 +49,16 @@ public:
 		ComPtr<ID3D12CommandAllocator> GraphicsCommandAllocator;
 	};
 
-	Application(LPCSTR title);
+	//! \param title Title of the window
+	//! \param layout Layout of the bindless heap shared by all pipelines
+	Application(LPCSTR title, const Vcl::Graphics::Runtime::BindlessLayoutDescription& layout = {});
 	virtual ~Application();
 
 	HWND windowHandle() const { return _windowHandle; }
 	Vcl::Graphics::D3D12::Device* device() const { return _device.get(); }
+
+	//! Bindless heap, bound to the command buffer before 'renderFrame'
+	Vcl::Graphics::D3D12::DescriptorHeap* heap() const { return _heap.get(); }
 	Vcl::Graphics::D3D12::SwapChain* swapChain() const { return _swapChain.get(); }
 
 	int run();
@@ -71,7 +77,7 @@ protected:
 	static const int NumberOfFrames;
 
 private:
-	bool initD3d12(HWND hWnd);
+	bool initD3d12(HWND hWnd, const Vcl::Graphics::Runtime::BindlessLayoutDescription& layout);
 	static LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	//! Handle to the Win32 window
@@ -79,6 +85,9 @@ private:
 
 	//! Abstraction of the render device
 	std::unique_ptr<Vcl::Graphics::D3D12::Device> _device;
+
+	//! Bindless heap and root signature of all pipelines
+	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorHeap> _heap;
 
 	//! Swap-chain used to display rendered images
 	std::unique_ptr<Vcl::Graphics::D3D12::SwapChain> _swapChain;

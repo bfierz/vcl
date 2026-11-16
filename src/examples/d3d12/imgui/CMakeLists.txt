@@ -71,7 +71,7 @@ target_link_libraries(d3d12_imgui
 if(MINGW)
 	# MinGW ignores the '#pragma comment(lib)' of the ImGui backends, and the
 	# DX12 backend needs the interface IDs declared for __uuidof
-	target_link_libraries(d3d12_imgui dwmapi)
+	target_link_libraries(d3d12_imgui dwmapi d3dcompiler)
 	set_source_files_properties(../../3rdparty/imgui/backends/imgui_impl_dx12.cpp
 		PROPERTIES COMPILE_OPTIONS "-include;vcl/config/direct3d12.h"
 	)

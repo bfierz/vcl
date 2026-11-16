@@ -29,7 +29,6 @@
 #include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
@@ -45,7 +44,6 @@ public:
 	: Application("DrawQuads")
 	{
 		using Vcl::Graphics::SurfaceFormat;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
 		using Vcl::Graphics::Runtime::PrimitiveType;
 		using Vcl::Graphics::Runtime::RenderTargetLayout;
@@ -56,8 +54,6 @@ public:
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, QuadCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, QuadCsoPS);
 
-		_tableLayout = std::make_unique<DescriptorTableLayout>(device());
-
 		PipelineStateDescription psd;
 		psd.VertexShader = _vs.get();
 		psd.FragmentShader = _ps.get();
@@ -66,7 +62,7 @@ public:
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 		psd.RenderTargets = rtd;
-		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, _tableLayout.get());
+		_gps = std::make_unique<GraphicsPipelineState>(device(), heap(), psd);
 	}
 
 private:
@@ -96,7 +92,6 @@ private:
 		cmd_buffer->handle()->RSSetScissorRects(1, &sr);
 
 		cmd_buffer->bindPipeline(_gps.get());
-		cmd_buffer->handle()->SetGraphicsRootSignature(_tableLayout->rootSignature());
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmd_buffer->draw(6, 1, 0, 0);
 
@@ -106,7 +101,6 @@ private:
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _vs;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _ps;
 
-	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> _tableLayout;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState> _gps;
 };
 

@@ -29,12 +29,13 @@ cbuffer TetToTriMeshConversionParameters : register(b0)
 
 	// Scaling of the generated tets
 	float Scale;
-};
 
-StructuredBuffer<int>      tetTndices   : register(t0);
-StructuredBuffer<float3>   tetPositions : register(t1);
-RWStructuredBuffer<int>    triIndices   : register(u0);
-RWStructuredBuffer<float3> triPositions : register(u1);
+	// Indices of the buffers in the resource heap
+	uint TetIndicesView;
+	uint TetPositionsView;
+	uint TriIndicesView;
+	uint TriPositionsView;
+};
 
 groupshared float3 sharedPositions[128 * 1 * 1];
 
@@ -43,6 +44,11 @@ void main(uint3 thread_id : SV_DispatchThreadID, uint wave_id : SV_GroupIndex)
 {
 	if (NrIndices <= thread_id.x)
 		return;
+
+	StructuredBuffer<int>      tetTndices   = ResourceDescriptorHeap[TetIndicesView];
+	StructuredBuffer<float3>   tetPositions = ResourceDescriptorHeap[TetPositionsView];
+	RWStructuredBuffer<int>    triIndices   = ResourceDescriptorHeap[TriIndicesView];
+	RWStructuredBuffer<float3> triPositions = ResourceDescriptorHeap[TriPositionsView];
 
 	const int tri_indices[] =
 	{

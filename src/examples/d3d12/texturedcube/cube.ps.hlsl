@@ -28,11 +28,23 @@ struct PixelShaderInput
 	float2 TexCoord : TEXCOORD0;
 };
 
-Texture2D<float4> Albedo : register(t0);
-SamplerState LinearClampSampler : register(s0);
+// Root constants: after the transformation of the vertex shader
+struct Parameters
+{
+	#pragma pack_matrix(column_major)
+	float4x4 MVP;
+
+	// Index of the albedo texture in the resource heap
+	uint AlbedoView;
+};
+ConstantBuffer<Parameters> PerObjectData : register(b0);
+
+// Static sampler of the bindless layout
+SamplerState LinearClampSampler : register(s0, space1);
 
 float4 main(PixelShaderInput IN) : SV_Target
 {
+	Texture2D<float4> Albedo = ResourceDescriptorHeap[PerObjectData.AlbedoView];
 	float4 albedo = Albedo.Sample(LinearClampSampler, IN.TexCoord);
 	return IN.Color * albedo;
 }

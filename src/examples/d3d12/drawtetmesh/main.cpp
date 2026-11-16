@@ -33,7 +33,7 @@
 #include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
@@ -51,18 +51,18 @@ class DrawTetMeshApplication final : public Application
 {
 	struct TetToTriMeshContext
 	{
-		std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> TableLayoutCompute;
-		std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTable> TableCompute;
+		Vcl::Graphics::D3D12::ResourceView TetIndicesView;
+		Vcl::Graphics::D3D12::ResourceView TetPositionsView;
+		Vcl::Graphics::D3D12::ResourceView TriIndicesView;
+		Vcl::Graphics::D3D12::ResourceView TriPositionsView;
 		std::unique_ptr<Vcl::Graphics::Runtime::D3D12::ComputePipelineState> TetToTriMeshPS;
 
-		std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> TableLayoutGraphics;
 		std::unique_ptr<Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState> RenderTriMeshPS;
 	};
 
 	struct DirectTetMeshContext
 	{
-		std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> TableLayoutGraphics;
-		std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTable> TableGraphics;
+		Vcl::Graphics::D3D12::ResourceView TetPositionsView;
 		std::unique_ptr<Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState> RenderTetMeshPS;
 	};
 
@@ -152,34 +152,17 @@ private:
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		// clang-format off
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 2}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND},
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			} }, D3D12_SHADER_VISIBILITY_ALL }
-		};
-		// clang-format on
-
-		_tetToTriMeshCtx.TableLayoutCompute = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
-		_tetToTriMeshCtx.TableCompute = std::make_unique<DescriptorTable>(device(), _tetToTriMeshCtx.TableLayoutCompute.get());
-		_tetToTriMeshCtx.TableCompute->addResource(0, _tetMeshIndices.get(), 0, 4 * _mesh->nrVolumes(), sizeof(int));
-		_tetToTriMeshCtx.TableCompute->addResource(1, _tetMeshVertices.get(), 0, _mesh->nrVertices(), sizeof(TetraMesh::Vertex));
-		_tetToTriMeshCtx.TableCompute->addResource(2, _triMeshIndices.get(), 0, 3 * 4 * _mesh->nrVolumes(), sizeof(int));
-		_tetToTriMeshCtx.TableCompute->addResource(3, _triMeshVertices.get(), 0, 4 * _mesh->nrVolumes(), sizeof(TetraMesh::Vertex));
+		using Vcl::Graphics::Runtime::ResourceViewType;
+		auto& ctx = _tetToTriMeshCtx;
+		ctx.TetIndicesView = heap()->createView(*_tetMeshIndices, ResourceViewType::Buffer, 0, 4 * _mesh->nrVolumes() * sizeof(int), sizeof(int));
+		ctx.TetPositionsView = heap()->createView(*_tetMeshVertices, ResourceViewType::Buffer, 0, _mesh->nrVertices() * sizeof(TetraMesh::Vertex), sizeof(TetraMesh::Vertex));
+		ctx.TriIndicesView = heap()->createView(*_triMeshIndices, ResourceViewType::RWBuffer, 0, 3 * 4 * _mesh->nrVolumes() * sizeof(int), sizeof(int));
+		ctx.TriPositionsView = heap()->createView(*_triMeshVertices, ResourceViewType::RWBuffer, 0, 4 * _mesh->nrVolumes() * sizeof(TetraMesh::Vertex), sizeof(TetraMesh::Vertex));
 
 		Shader tet_to_tri_mesh_cs(ShaderType::ComputeShader, 0, TetToTriMeshCsoCS);
 		ComputePipelineStateDescription cpsd;
 		cpsd.ComputeShader = &tet_to_tri_mesh_cs;
-		_tetToTriMeshCtx.TetToTriMeshPS = std::make_unique<ComputePipelineState>(device(), cpsd, _tetToTriMeshCtx.TableLayoutCompute.get());
-
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX }
-		};
-		_tetToTriMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
+		_tetToTriMeshCtx.TetToTriMeshPS = std::make_unique<ComputePipelineState>(device(), heap(), cpsd);
 
 		Shader tri_mesh_vs(ShaderType::VertexShader, 0, TriMeshCsoVS);
 		Shader simple_ps(ShaderType::FragmentShader, 0, SimpleCsoPS);
@@ -201,7 +184,7 @@ private:
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 		psd.RenderTargets = rtd;
-		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _tetToTriMeshCtx.TableLayoutGraphics.get());
+		_tetToTriMeshCtx.RenderTriMeshPS = std::make_unique<GraphicsPipelineState>(device(), heap(), psd);
 	}
 
 	void createDirectTetMeshPipeline()
@@ -220,18 +203,7 @@ private:
 		using Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState;
 		using Vcl::Graphics::Runtime::D3D12::Shader;
 
-		// clang-format off
-		std::vector<DescriptorTableLayoutEntry> comp_dynamic_resources = {
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 16}, D3D12_SHADER_VISIBILITY_ALL },
-			{ DescriptorTableLayoutEntryType::Table, TableDescriptor{ {
-				{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND}
-			} }, D3D12_SHADER_VISIBILITY_ALL }
-		};
-		// clang-format on
-
-		_directTetMeshCtx.TableLayoutGraphics = std::make_unique<DescriptorTableLayout>(device(), std::move(comp_dynamic_resources));
-		_directTetMeshCtx.TableGraphics = std::make_unique<DescriptorTable>(device(), _directTetMeshCtx.TableLayoutGraphics.get());
-		_directTetMeshCtx.TableGraphics->addResource(0, _tetMeshVertices.get(), 0, _mesh->nrVertices(), sizeof(TetraMesh::Vertex));
+		_directTetMeshCtx.TetPositionsView = heap()->createView(*_tetMeshVertices, Vcl::Graphics::Runtime::ResourceViewType::Buffer, 0, _mesh->nrVertices() * sizeof(TetraMesh::Vertex), sizeof(TetraMesh::Vertex));
 
 		Shader tet_mesh_vs(ShaderType::VertexShader, 0, TetMeshCsoVS);
 		Shader tet_mesh_gs(ShaderType::GeometryShader, 0, TetMeshCsoGS);
@@ -255,15 +227,21 @@ private:
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 		psd.RenderTargets = rtd;
-		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), psd, _directTetMeshCtx.TableLayoutGraphics.get());
+		_directTetMeshCtx.RenderTetMeshPS = std::make_unique<GraphicsPipelineState>(device(), heap(), psd);
 	}
 
 	void prepareFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)
 	{
 		using Vcl::Graphics::Runtime::D3D12::PipelineBindPoint;
 
-		cmd_buffer->bindPipeline(_tetToTriMeshCtx.TetToTriMeshPS.get());
-		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Compute, 1, _tetToTriMeshCtx.TableCompute.get());
+		const auto& ctx = _tetToTriMeshCtx;
+		auto cmd_list = cmd_buffer->handle();
+		_tetMeshIndices->transition(cmd_list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		_tetMeshVertices->transition(cmd_list, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		_triMeshIndices->transition(cmd_list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		_triMeshVertices->transition(cmd_list, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+		cmd_buffer->bindPipeline(ctx.TetToTriMeshPS.get());
 
 		struct TetToTriMeshConversionParameters
 		{
@@ -272,15 +250,24 @@ private:
 
 			// Scaling of the generated tets
 			float Scale;
-		} tet_to_tri_params = { 4 * _mesh->nrVolumes(), 0.9f };
-		cmd_buffer->handle()->SetComputeRoot32BitConstants(0, 2, &tet_to_tri_params, 0);
+
+			// Indices of the buffers in the resource heap
+			uint32_t TetIndicesView;
+			uint32_t TetPositionsView;
+			uint32_t TriIndicesView;
+			uint32_t TriPositionsView;
+		} tet_to_tri_params = {
+			4 * _mesh->nrVolumes(), 0.9f,
+			ctx.TetIndicesView.index().Value, ctx.TetPositionsView.index().Value,
+			ctx.TriIndicesView.index().Value, ctx.TriPositionsView.index().Value
+		};
+		cmd_buffer->pushConstants(PipelineBindPoint::Compute, tet_to_tri_params);
 		cmd_buffer->dispatch(4 * _mesh->nrVolumes(), 1, 1);
 	}
 
 	void renderFrameTetToTriMesh(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer)
 	{
 		cmd_buffer->bindPipeline(_tetToTriMeshCtx.RenderTriMeshPS.get());
-		cmd_buffer->handle()->SetGraphicsRootSignature(_tetToTriMeshCtx.TableLayoutGraphics->rootSignature());
 
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmd_buffer->bindIndexBuffer(_triMeshIndices.get());
@@ -289,7 +276,7 @@ private:
 		Eigen::Affine3f rot{ Eigen::AngleAxisf{ _tetMeshRotation, Eigen::Vector3f::UnitY() } };
 		Eigen::Affine3f trans{ Eigen::Translation3f{ -0.5f, -0.5f, -0.5f } };
 		Eigen::Matrix4f mvp = _camera.projection() * _camera.view() * rot.matrix() * trans.matrix();
-		cmd_buffer->handle()->SetGraphicsRoot32BitConstants(0, 16, mvp.data(), 0);
+		cmd_buffer->pushConstants(Vcl::Graphics::Runtime::D3D12::PipelineBindPoint::Graphics, 0, sizeof(mvp), mvp.data());
 
 		cmd_buffer->drawIndexed(3 * 4 * _mesh->nrVolumes(), 1, 0, 0, 0);
 	}
@@ -298,8 +285,8 @@ private:
 	{
 		using Vcl::Graphics::Runtime::D3D12::PipelineBindPoint;
 
+		_tetMeshVertices->transition(cmd_buffer->handle(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		cmd_buffer->bindPipeline(_directTetMeshCtx.RenderTetMeshPS.get());
-		cmd_buffer->bindDescriptorTable(PipelineBindPoint::Graphics, 1, _directTetMeshCtx.TableGraphics.get());
 
 		cmd_buffer->handle()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		cmd_buffer->bindVertexBuffer(_tetMeshIndices.get());
@@ -307,7 +294,9 @@ private:
 		Eigen::Affine3f rot{ Eigen::AngleAxisf{ _tetMeshRotation, Eigen::Vector3f::UnitY() } };
 		Eigen::Affine3f trans{ Eigen::Translation3f{ -0.5f, -0.5f, -0.5f } };
 		Eigen::Matrix4f mvp = _camera.projection() * _camera.view() * rot.matrix() * trans.matrix();
-		cmd_buffer->handle()->SetGraphicsRoot32BitConstants(0, 16, mvp.data(), 0);
+		cmd_buffer->pushConstants(PipelineBindPoint::Graphics, 0, sizeof(mvp), mvp.data());
+		const uint32_t positions_view = _directTetMeshCtx.TetPositionsView.index().Value;
+		cmd_buffer->pushConstants(PipelineBindPoint::Graphics, sizeof(mvp), sizeof(positions_view), &positions_view);
 
 		cmd_buffer->draw(_mesh->nrVolumes(), 1, 0, 0);
 	}

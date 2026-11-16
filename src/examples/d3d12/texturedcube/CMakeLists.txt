@@ -59,7 +59,7 @@ vclcompilehlsl(
 )
 vclcompilehlsl(
 	${PROJECT_SOURCE_DIR}/cube.ps.hlsl
-	"ps_6_0"
+	"ps_6_6"
 	"main"
 	"CubeCsoPS"
 	"${CURR_INC_DIRS}"

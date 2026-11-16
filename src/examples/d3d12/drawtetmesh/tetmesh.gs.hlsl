@@ -37,12 +37,13 @@ struct ModelViewProjection
 {
 	#pragma pack_matrix(column_major)
 	float4x4 MVP;
+
+	// Index of the tet positions in the resource heap
+	uint TetPositionsView;
 };
 ConstantBuffer<ModelViewProjection> PerObjectData : register(b0);
 
-StructuredBuffer<float3> tetPositions : register(t0);
-
-void emitPoint(int i, int4 indices, float3 c, inout TriangleStream<GeometryShaderOutput> OutputStream)
+void emitPoint(StructuredBuffer<float3> tetPositions, int i, int4 indices, float3 c, inout TriangleStream<GeometryShaderOutput> OutputStream)
 {
 	GeometryShaderOutput Out = (GeometryShaderOutput)0;
 
@@ -63,13 +64,15 @@ void main(uint InstanceID : SV_GSInstanceID, point GeometryShaderInput In[1], in
 		2, 0, 3
 	};
 
+	StructuredBuffer<float3> tetPositions = ResourceDescriptorHeap[PerObjectData.TetPositionsView];
+
 	float3 c = float3(0, 0, 0);
 	for (int i = 0; i < 4; i++)
 		c += tetPositions[In[0].Indices[i]];
 	c /= 4;
 
-	emitPoint(tri_indices[3*InstanceID + 0], In[0].Indices, c, OutputStream);
-	emitPoint(tri_indices[3*InstanceID + 1], In[0].Indices, c, OutputStream);
-	emitPoint(tri_indices[3*InstanceID + 2], In[0].Indices, c, OutputStream);
+	emitPoint(tetPositions, tri_indices[3*InstanceID + 0], In[0].Indices, c, OutputStream);
+	emitPoint(tetPositions, tri_indices[3*InstanceID + 1], In[0].Indices, c, OutputStream);
+	emitPoint(tetPositions, tri_indices[3*InstanceID + 2], In[0].Indices, c, OutputStream);
 	OutputStream.RestartStrip();
 }

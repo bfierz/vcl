@@ -49,8 +49,11 @@ VertexShaderOutput main(VertexShaderInput In)
 {
 	VertexShaderOutput Out;
 
+	ConstantBuffer<TransformData> Transform = ResourceDescriptorHeap[Indices.Transform];
+	ConstantBuffer<BoundingGridConfig> Config = ResourceDescriptorHeap[Indices.Config];
+
 	// Size of the entire bounding grid
-	float size = Resolution * StepSize;
+	float size = Config.Resolution * Config.StepSize;
 
 	// 4 points make a line-loop
 	// Primitive 0: Along x-direction
@@ -68,33 +71,33 @@ VertexShaderOutput main(VertexShaderInput In)
 	int axisTre = (primitiveID + 2) % 3;
 
 	// Accumulate the position of the node
-	float3 pos = Origin;
+	float3 pos = Config.Origin;
 	switch (nodeID)
 	{
 	case 0:
-		Out.Colour = Colours[axisTre];
+		Out.Colour = Config.Colours[axisTre];
 		break;
 	case 1:
-		pos += size * Axis[axisTwo];
-		Out.Colour = Colours[axisTwo];
+		pos += size * Config.Axis[axisTwo];
+		Out.Colour = Config.Colours[axisTwo];
 		break;
 	case 2:
-		pos += size * Axis[axisTwo];
-		pos += size * Axis[axisTre];
-		Out.Colour = Colours[axisTre];
+		pos += size * Config.Axis[axisTwo];
+		pos += size * Config.Axis[axisTre];
+		Out.Colour = Config.Colours[axisTre];
 		break;
 	case 3:
-		pos += size * Axis[axisTre];
-		Out.Colour = Colours[axisTwo];
+		pos += size * Config.Axis[axisTre];
+		Out.Colour = Config.Colours[axisTwo];
 		break;
 	}
 
 	// Displace the grid according to the 'depth' counted through the primitive IDs
-	pos += float(In.InstanceID) * StepSize * Axis[axisOne];
+	pos += float(In.InstanceID) * Config.StepSize * Config.Axis[axisOne];
 
 	// Transform the point to view space
-	float4 worldPos = mul(ModelMatrix, float4(pos, 1));
-	Out.Position = mul(ViewProjectionMatrix, worldPos);
+	float4 worldPos = mul(Transform.ModelMatrix, float4(pos, 1));
+	Out.Position = mul(Transform.ViewProjectionMatrix, worldPos);
 
 	return Out;
 }

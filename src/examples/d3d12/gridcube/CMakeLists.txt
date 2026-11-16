@@ -68,7 +68,7 @@ list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 vclcompilehlsl(
 	${PROJECT_SOURCE_DIR}/shaders/boundinggrid.vs.hlsl
-	"vs_6_0"
+	"vs_6_6"
 	"main"
 	"GridCsoVS"
 	"${CURR_INC_DIRS}"
@@ -111,7 +111,7 @@ target_link_libraries(d3d12_gridcube
 if(MINGW)
 	# MinGW ignores the '#pragma comment(lib)' of the ImGui backends, and the
 	# DX12 backend needs the interface IDs declared for __uuidof
-	target_link_libraries(d3d12_gridcube dwmapi)
+	target_link_libraries(d3d12_gridcube dwmapi d3dcompiler)
 	set_source_files_properties(../../3rdparty/imgui/backends/imgui_impl_dx12.cpp
 		PROPERTIES COMPILE_OPTIONS "-include;vcl/config/direct3d12.h"
 	)

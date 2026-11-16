@@ -32,7 +32,6 @@
 #include <directx/d3dx12.h>
 #include <vcl/graphics/d3d12/d3d.h>
 #include <vcl/graphics/d3d12/commandqueue.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
 #include <vcl/graphics/d3d12/swapchain.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
@@ -50,12 +49,6 @@ public:
 	: Application("SpinningCubes")
 	{
 		using Vcl::Graphics::SurfaceFormat;
-		using Vcl::Graphics::D3D12::ContantDescriptor;
-		using Vcl::Graphics::D3D12::DescriptorTable;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
-		using Vcl::Graphics::D3D12::TableDescriptor;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferInitData;
 		using Vcl::Graphics::Runtime::BufferUsage;
@@ -73,12 +66,6 @@ public:
 
 		_vs = std::make_unique<Shader>(ShaderType::VertexShader, 0, CubeCsoVS);
 		_ps = std::make_unique<Shader>(ShaderType::FragmentShader, 0, CubeCsoPS);
-
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
-			{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{ 0, 0, 16 }, D3D12_SHADER_VISIBILITY_VERTEX }
-		};
-		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
-		//_table = std::make_unique<DescriptorTable>(device(), _tableLayout.get());
 
 		InputLayoutDescription input_layout{
 			{
@@ -98,7 +85,7 @@ public:
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 		psd.RenderTargets = rtd;
-		_gps = std::make_unique<GraphicsPipelineState>(device(), psd, _tableLayout.get());
+		_gps = std::make_unique<GraphicsPipelineState>(device(), heap(), psd);
 
 		_camera.setNearPlane(0.01f);
 		_camera.setFarPlane(10.0f);
@@ -200,7 +187,6 @@ private:
 		cmd_list->RSSetScissorRects(1, &sr);
 
 		cmd_list->SetPipelineState(_gps->handle());
-		cmd_list->SetGraphicsRootSignature(_tableLayout->rootSignature());
 		cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		D3D12_INDEX_BUFFER_VIEW ibv = {};
 		ibv.BufferLocation = _ibo->handle()->GetGPUVirtualAddress();
@@ -214,7 +200,7 @@ private:
 
 		Eigen::Affine3f rot{ Eigen::AngleAxisf{ _cubeRotation, Eigen::Vector3f::UnitY() } };
 		Eigen::Matrix4f mvp = _camera.projection() * _camera.view() * rot.matrix();
-		cmd_list->SetGraphicsRoot32BitConstants(0, 16, mvp.data(), 0);
+		cmd_buffer->pushConstants(Vcl::Graphics::Runtime::D3D12::PipelineBindPoint::Graphics, 0, sizeof(mvp), mvp.data());
 
 		cmd_list->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
@@ -224,8 +210,6 @@ private:
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _vs;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _ps;
 
-	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> _tableLayout;
-	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTable> _table;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState> _gps;
 
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Buffer> _ibo;
