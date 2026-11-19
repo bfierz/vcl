@@ -47,6 +47,44 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 	namespace {
 		constexpr D3D_FEATURE_LEVEL MinimumFeatureLevel = D3D_FEATURE_LEVEL_12_0;
 
+#ifdef VCL_DEBUG
+		bool isDebuggerAttached()
+		{
+#	ifdef _WIN32
+			return IsDebuggerPresent() != FALSE;
+#	else
+			return false;
+#	endif
+		}
+
+		const char* severityName(D3D12_MESSAGE_SEVERITY severity)
+		{
+			switch (severity)
+			{
+			case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+				return "corruption";
+			case D3D12_MESSAGE_SEVERITY_ERROR:
+				return "error";
+			case D3D12_MESSAGE_SEVERITY_WARNING:
+				return "warning";
+			case D3D12_MESSAGE_SEVERITY_INFO:
+				return "info";
+			case D3D12_MESSAGE_SEVERITY_MESSAGE:
+				return "message";
+			}
+			return "unknown";
+		}
+
+		//! Print debug-layer messages when no debugger can break on them
+		void __stdcall printDebugMessage(D3D12_MESSAGE_CATEGORY, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, LPCSTR description, void*)
+		{
+			if (severity == D3D12_MESSAGE_SEVERITY_INFO || severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
+				return;
+
+			std::cerr << "D3D12 " << severityName(severity) << " #" << static_cast<int>(id) << ": " << description << std::endl;
+		}
+#endif
+
 		struct Adapter
 		{
 			ComPtr<IUnknown> handle;
@@ -235,9 +273,21 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		ComPtr<ID3D12InfoQueue> info_queue;
 		if (SUCCEEDED(_d3dDevice.As(&info_queue)))
 		{
-			info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-			info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-			info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+			// Breaking without a debugger raises an unhandled exception, which
+			// blocks non-interactive runs (e.g. CI) on a crash dialog
+			if (isDebuggerAttached())
+			{
+				info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+				info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+				info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
+			} else
+			{
+				// Message callbacks need Windows 11 or the Agility SDK
+				ComPtr<ID3D12InfoQueue1> info_queue1;
+				DWORD cookie = 0;
+				if (FAILED(info_queue.As(&info_queue1)) || FAILED(info_queue1->RegisterMessageCallback(&printDebugMessage, D3D12_MESSAGE_CALLBACK_FLAG_NONE, nullptr, &cookie)))
+					std::cerr << "D3D12 debug messages are not printed: the debug layer does not support message callbacks" << std::endl;
+			}
 
 			// Suppress whole categories of messages
 			//D3D12_MESSAGE_CATEGORY Categories[] = {};
