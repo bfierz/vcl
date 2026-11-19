@@ -34,6 +34,7 @@
 
 // VCL
 #include <vcl/core/flags.h>
+#include <vcl/core/optional.h>
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
@@ -65,6 +66,15 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		NegativeZ = 5
 	};
 
+	//! Clear value of a texture. Colour textures use 'Colour', depth-stencil
+	//! textures 'Depth' and 'Stencil'.
+	struct TextureClearValue
+	{
+		std::array<float, 4> Colour{ 0, 0, 0, 0 };
+		float Depth{ 1 };
+		uint8_t Stencil{ 0 };
+	};
+
 	struct TextureBaseDescription
 	{
 		SurfaceFormat Format;
@@ -75,6 +85,11 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		//! created (Vulkan: mutable format; D3D12: castable formats;
 		//! WebGPU: view formats; OpenGL: same format compatibility class).
 		std::vector<SurfaceFormat> ViewFormats;
+
+		//! Value the texture is usually cleared to. Clearing a render-target or
+		//! depth-stencil texture to this value is fast on D3D12 (optimised clear
+		//! value); the other backends ignore it.
+		stdext::optional<TextureClearValue> ClearValue;
 	};
 
 	struct Texture1DDescription : public TextureBaseDescription

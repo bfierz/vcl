@@ -57,6 +57,7 @@ set(SOURCE
 	vcl/core/handle.cpp
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
+	vcl/core/optional.h
 	vcl/core/preprocessor.h
 	vcl/core/span.h
 	vcl/core/string_view.h

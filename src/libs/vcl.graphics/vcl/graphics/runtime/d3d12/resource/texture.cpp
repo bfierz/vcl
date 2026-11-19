@@ -37,11 +37,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Type = type;
 	}
 	GenericTextureDescription::GenericTextureDescription(const Texture1DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture1D;
-		Format = desc.Format;
-		Usage = desc.Usage;
-		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = 1;
 		Depth = 1;
@@ -49,11 +47,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const Texture2DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture2D;
-		Format = desc.Format;
-		Usage = desc.Usage;
-		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -61,11 +57,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const Texture3DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture3D;
-		Format = desc.Format;
-		Usage = desc.Usage;
-		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = desc.Depth;
@@ -73,11 +67,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const TextureCubeDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::TextureCube;
-		Format = desc.Format;
-		Usage = desc.Usage;
-		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -164,6 +156,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			flags
 		};
 
+		// Only render-targets and depth-stencil textures have a clear value. It
+		// uses the typed format, also for typeless resources.
+		stdext::optional<D3D12_CLEAR_VALUE> clear_value;
+		if (desc.ClearValue && usage().isSet(TextureUsage::OutputAttachment))
+		{
+			if (is_depth)
+				clear_value = CD3DX12_CLEAR_VALUE(d3d12_format, desc.ClearValue->Depth, desc.ClearValue->Stencil);
+			else
+				clear_value = CD3DX12_CLEAR_VALUE(d3d12_format, desc.ClearValue->Colour.data());
+		}
+
 		ID3D12Device* d3d12_dev = device->nativeDevice();
 		const auto heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
@@ -171,7 +174,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			D3D12_HEAP_FLAG_NONE,
 			&d3d12_desc,
 			_currentStates,
-			nullptr,
+			clear_value ? &*clear_value : nullptr,
 			IID_PPV_ARGS(&_resource)));
 
 		uint64_t textureMemorySize = 0;

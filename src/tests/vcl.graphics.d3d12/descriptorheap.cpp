@@ -475,7 +475,11 @@ TEST_F(D3D12DescriptorHeapTest, RenderBindlessTexture)
 	Runtime::D3D12::Texture2D tex{ device.get(), makeTexture2DDescription(SurfaceFormat::R8G8B8A8_UNORM, TextureUsage::Sampled, 2, 2), &init_data, cmd_list.Get() };
 	tex.transition(cmd_list.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-	Runtime::D3D12::Texture2D rt{ device.get(), makeTexture2DDescription(SurfaceFormat::R8G8B8A8_UNORM, TextureUsage::OutputAttachment | TextureUsage::CopySrc, width, height) };
+	// Clearing to a different value than declared triggers a debug-layer warning
+	const TextureClearValue clear_value = { { 1, 0, 1, 1 } };
+	auto rt_desc = makeTexture2DDescription(SurfaceFormat::R8G8B8A8_UNORM, TextureUsage::OutputAttachment | TextureUsage::CopySrc, width, height);
+	rt_desc.ClearValue = clear_value;
+	Runtime::D3D12::Texture2D rt{ device.get(), rt_desc };
 	auto rtv_heap = device->createDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1, false);
 	const auto rtv = cpuHeapStart(rtv_heap.Get());
 	device->nativeDevice()->CreateRenderTargetView(rt.handle(), nullptr, rtv);
@@ -490,12 +494,11 @@ TEST_F(D3D12DescriptorHeapTest, RenderBindlessTexture)
 
 	const D3D12_VIEWPORT viewport = { 0, 0, width, height, 0, 1 };
 	const D3D12_RECT scissor = { 0, 0, width, height };
-	const float clear_colour[] = { 1, 0, 1, 1 };
 	heap.bind(cmd_list.Get());
 	for (const uint32_t use_static_sampler : { 0u, 1u })
 	{
 		rt.transition(cmd_list.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-		cmd_list->ClearRenderTargetView(rtv, clear_colour, 0, nullptr);
+		cmd_list->ClearRenderTargetView(rtv, clear_value.Colour.data(), 0, nullptr);
 		cmd_list->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
 		cmd_list->RSSetViewports(1, &viewport);
 		cmd_list->RSSetScissorRects(1, &scissor);
