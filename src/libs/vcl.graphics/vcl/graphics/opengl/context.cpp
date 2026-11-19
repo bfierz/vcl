@@ -311,6 +311,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
 
 		// Explicitly initialize a versioned OpenGL context
+		// The window is never presented, so its default framebuffer is not multisampled.
+		// Mesa's zink on the NVIDIA Vulkan driver hangs in wglDeleteContext for
+		// multisampled pixel formats (seen with Mesa 26.3.0).
 		const int attribs[] = {
 			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
@@ -321,8 +324,6 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			WGL_ALPHA_BITS_ARB, 8,
 			WGL_DEPTH_BITS_ARB, 24,
 			WGL_STENCIL_BITS_ARB, 8,
-			WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-			WGL_SAMPLES_ARB, 4,
 			0
 		};
 		HDC actual_hdc = GetDC((HWND)_window_handle);
