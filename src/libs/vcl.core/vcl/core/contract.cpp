@@ -69,12 +69,10 @@ namespace Vcl { namespace Assert {
 			}
 			if (GetDlgItem(hChildWnd, IDRETRY) != NULL)
 			{
-
 				result = SetDlgItemTextA(hChildWnd, IDRETRY, "Ignore once");
 			}
 			if (GetDlgItem(hChildWnd, IDABORT) != NULL)
 			{
-
 				result = SetDlgItemTextA(hChildWnd, IDABORT, "Debug");
 			}
 
