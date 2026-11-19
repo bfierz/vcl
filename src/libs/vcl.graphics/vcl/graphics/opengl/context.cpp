@@ -222,17 +222,25 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			EGL_NONE
 		};
 		_context = eglCreateContext(_display, egl_config, EGL_NO_CONTEXT, context_attribute);
-		makeCurrent();
+		if (_context == EGL_NO_CONTEXT || !makeCurrent())
+		{
+			std::cout << "Error: Failed to create an OpenGL " << desc.MajorVersion << "." << desc.MinorVersion << " context (EGL error: 0x" << std::hex << eglGetError() << std::dec << ")" << std::endl;
+			return;
+		}
 
-		initExtensions();
+		if (!initExtensions())
+			return;
 
 		if (desc.Debug)
 			setupDebugMessaging();
+
+		_valid = true;
 	}
 
 	Context::~Context()
 	{
-		eglDestroyContext(_display, _context);
+		if (_context != EGL_NO_CONTEXT)
+			eglDestroyContext(_display, _context);
 		if (_allocated_surface)
 		{
 			eglDestroySurface(_display, _surface);
@@ -319,13 +327,18 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		};
 		HDC actual_hdc = GetDC((HWND)_window_handle);
 
-		int pixel_format_id;
-		UINT num_formats;
-		wglChoosePixelFormatARB(actual_hdc, attribs, nullptr, 1, &pixel_format_id, &num_formats);
+		// The WGL extensions are only available if the temporary context could be created
+		int pixel_format_id = 0;
+		UINT num_formats = 0;
+		if (wglChoosePixelFormatARB && wglCreateContextAttribsARB)
+			wglChoosePixelFormatARB(actual_hdc, attribs, nullptr, 1, &pixel_format_id, &num_formats);
 
-		PIXELFORMATDESCRIPTOR PFD;
-		DescribePixelFormat(actual_hdc, pixel_format_id, sizeof(PFD), &PFD);
-		SetPixelFormat(actual_hdc, pixel_format_id, &PFD);
+		if (num_formats > 0)
+		{
+			PIXELFORMATDESCRIPTOR PFD;
+			DescribePixelFormat(actual_hdc, pixel_format_id, sizeof(PFD), &PFD);
+			SetPixelFormat(actual_hdc, pixel_format_id, &PFD);
+		}
 
 		int major_min = desc.MajorVersion;
 		int minor_min = desc.MinorVersion;
@@ -355,7 +368,10 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			WGL_CONTEXT_FLAGS_ARB, flags,
 			0
 		};
-		HGLRC actual_rc = wglCreateContextAttribsARB(actual_hdc, 0, contextAttribs);
+		HGLRC actual_rc = nullptr;
+		if (num_formats > 0)
+			actual_rc = wglCreateContextAttribsARB(actual_hdc, 0, contextAttribs);
+		const DWORD create_error = actual_rc ? 0 : GetLastError();
 
 		// Store the created context
 		_display_ctx = actual_hdc;
@@ -368,18 +384,33 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		DestroyWindow(tmp_hwnd);
 
 		// Make the new context current
-		makeCurrent();
+		if (!actual_rc || !makeCurrent())
+		{
+			const DWORD error = actual_rc ? GetLastError() : create_error;
+			std::cout << "Error: Failed to create an OpenGL " << desc.MajorVersion << "." << desc.MinorVersion << " context";
+			if (error != 0)
+				std::cout << " (Windows error: 0x" << std::hex << error << std::dec << ")";
+			std::cout << std::endl;
+			return;
+		}
 
-		initExtensions();
+		if (!initExtensions())
+			return;
 
 		if (desc.Debug)
 			setupDebugMessaging();
+
+		_valid = true;
 	}
 
 	Context::~Context()
 	{
 		// Tear town the context and window
-		wglDeleteContext((HGLRC)_render_ctx);
+		if (_render_ctx)
+		{
+			wglMakeCurrent(nullptr, nullptr);
+			wglDeleteContext((HGLRC)_render_ctx);
+		}
 		CloseWindow((HWND)_window_handle);
 	}
 
@@ -389,7 +420,7 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 	}
 #endif
 
-	void Context::initExtensions()
+	bool Context::initExtensions()
 	{
 		// Initialize glew
 		glewExperimental = GL_TRUE;
@@ -397,10 +428,16 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		if (GLEW_OK != err && err != GLEW_ERROR_NO_GLX_DISPLAY)
 		{
 			std::cout << "Error initializing GLEW: " << glewGetErrorString(err) << std::endl;
-			std::terminate();
+			return false;
 		}
 
 		const auto vendor = glGetString(GL_VENDOR);
+		if (!vendor)
+		{
+			std::cout << "Error initializing GLEW: No current OpenGL context" << std::endl;
+			return false;
+		}
+
 		std::cout << "Status: Using OpenGL:   " << glGetString(GL_VERSION) << std::endl;
 		std::cout << "Status:       Vendor:   " << vendor << std::endl;
 		std::cout << "Status:       Renderer: " << glGetString(GL_RENDERER) << std::endl;
@@ -417,6 +454,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 			_vertex_array_attrib_iformat_bug = true;
 		}
 #endif
+
+		return true;
 	}
 
 	void Context::setupDebugMessaging()

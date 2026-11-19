@@ -58,7 +58,8 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		static const char* profileType();
 
 		//! Initialize the OpenGL extension function pointers
-		static void initExtensions();
+		//! \returns True, if an OpenGL context is current and GLEW was initialized
+		static bool initExtensions();
 
 		//! Enable the OpenGL debug message extension
 		static void setupDebugMessaging();
@@ -85,16 +86,20 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 		//! \returns True, if the operation was successful
 		bool makeCurrent();
 
+		//! Check whether the context was created successfully
+		//! \returns True, if the context could be made current and the extensions were initialized
+		bool isValid() const { return _valid; }
+
 	private:
 #if defined VCL_EGL_SUPPORT
 		//! Associated EGL display
-		EGLDisplay _display;
+		EGLDisplay _display{};
 
 		//! EGL surface
-		EGLSurface _surface;
+		EGLSurface _surface{};
 
 		//! EGL context
-		EGLContext _context;
+		EGLContext _context{};
 #elif defined VCL_ABI_WINAPI
 		//! Windows window handle
 		void* _window_handle{ nullptr };
@@ -114,6 +119,9 @@ namespace Vcl { namespace Graphics { namespace OpenGL {
 
 		//! Allocated surface
 		bool _allocated_surface{ false };
+
+		//! Context creation succeeded
+		bool _valid{ false };
 
 		//! Affected by glVertexArrayAttribIFormat bug
 		static bool _vertex_array_attrib_iformat_bug;

@@ -24,6 +24,9 @@
  */
 #include "meshview.h"
 
+// C++ standard library
+#include <stdexcept>
+
 // Qt
 #include <QtCore/QRegularExpression>
 #include <QtQuick/QQuickWindow>
@@ -117,7 +120,8 @@ FboRenderer::FboRenderer()
 
 	using Vcl::Editor::Util::createShader;
 
-	Vcl::Graphics::OpenGL::Context::initExtensions();
+	if (!Vcl::Graphics::OpenGL::Context::initExtensions())
+		throw std::runtime_error("Failed to initialize the OpenGL extensions.");
 #ifdef VCL_DEBUG
 	Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
 #endif
