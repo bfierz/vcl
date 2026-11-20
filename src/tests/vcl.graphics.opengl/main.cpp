@@ -40,8 +40,20 @@ extern "C"
 #endif
 
 bool isLlvmPipe = false; // true, if environment variable GALLIUM_DRIVER=llvmpipe is set
-bool isZink = false;     // true, if environment variable GALLIUM_DRIVER=zink is set (use software vulkan: ZINK_USE_LAVAPIPE=true)
+bool isZink = false;     // true, if environment variable GALLIUM_DRIVER=zink is set (use software vulkan: LIBGL_ALWAYS_SOFTWARE=1)
 bool isD3D = false;      // true, if environment variable GALLIUM_DRIVER=d3d12 is set (use D3D12 WARP: LIBGL_ALWAYS_SOFTWARE=1)
+
+namespace {
+	//! Reported in place of the actual tests if no OpenGL context could be created
+	class ContextCreationFailed : public ::testing::Test
+	{
+	public:
+		void TestBody() override
+		{
+			FAIL() << "Failed to create an OpenGL 4.3 core context. No OpenGL tests were run.";
+		}
+	};
+}
 
 int main(int argc, char** argv)
 {
@@ -58,6 +70,17 @@ int main(int argc, char** argv)
 	ctx_desc.Type = Vcl::Graphics::OpenGL::ContextType::Core;
 	ctx_desc.Debug = true;
 	Vcl::Graphics::OpenGL::Context ctx(ctx_desc);
+	if (!ctx.isValid())
+	{
+		// None of the tests can run without a context. Report a single failing test
+		// instead, regardless of the selected test filter.
+		::testing::InitGoogleTest(&argc, argv);
+		::testing::RegisterTest(
+			"OpenGL", "ContextCreation", nullptr, nullptr, __FILE__, __LINE__,
+			[]() -> ::testing::Test* { return new ContextCreationFailed; });
+		GTEST_FLAG_SET(filter, "OpenGL.ContextCreation");
+		return RUN_ALL_TESTS();
+	}
 
 	// Check if we're running on Mesa
 	std::regex word_regex(R"(Mesa (\d+)\.(\d+)\.(\d+))");

@@ -79,7 +79,8 @@ public:
 		using Vcl::Graphics::Runtime::OpenGL::ShaderProgramDescription;
 
 		// Initialize the graphics engine
-		Vcl::Graphics::OpenGL::Context::initExtensions();
+		if (!Vcl::Graphics::OpenGL::Context::initExtensions())
+			throw std::runtime_error("Failed to initialize the OpenGL extensions.");
 		Vcl::Graphics::OpenGL::Context::setupDebugMessaging();
 		_engine = std::make_unique<Vcl::Graphics::Runtime::OpenGL::GraphicsEngine>();
 

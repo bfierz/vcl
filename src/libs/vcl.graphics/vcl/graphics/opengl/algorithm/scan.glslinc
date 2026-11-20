@@ -33,6 +33,12 @@ shared uint l_data[SCAN_SHARED_MEM_SIZE];
 // Allocate 2 * 'size' local memory, initialize the first half
 // with 'size' zeros avoiding if(pos >= offset) condition evaluation
 // and saving instructions
+//
+// Each segment of 'size' invocations uses 2 * 'size' entries of l_data.
+// If 'size' does not divide the work-group size, the last, partial segment
+// still reaches up to index 2 * (WORKGROUP_SIZE - 1) + size. Thus,
+// SCAN_SHARED_MEM_SIZE must be at least 3 * WORKGROUP_SIZE when 'size' can be
+// any value up to WORKGROUP_SIZE.
 uint scan1Inclusive(uint idata, uint size)
 {
     //uint pos = 2 * gl_LocalInvocationID.x - (gl_LocalInvocationID.x & (size - 1));

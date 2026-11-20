@@ -62,9 +62,9 @@ namespace Vcl { namespace Graphics {
 		_workSpace = make_owner<Runtime::OpenGL::Buffer>(desc);
 
 		// Load the sorting kernels
-		_scanExclusiveLocal1Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal1\n", module_scan });
-		_scanExclusiveLocal2Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define scanExclusiveLocal2\n", module_scan });
-		_uniformUpdateKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 2*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
+		_scanExclusiveLocal1Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 3*WORKGROUP_SIZE\n#define scanExclusiveLocal1\n", module_scan });
+		_scanExclusiveLocal2Kernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 3*WORKGROUP_SIZE\n#define scanExclusiveLocal2\n", module_scan });
+		_uniformUpdateKernel = Runtime::OpenGL::createComputeKernel(module, { "#define WORKGROUP_SIZE 256\n#define SCAN_SHARED_MEM_SIZE 3*WORKGROUP_SIZE\n#define uniformUpdate\n", module_scan });
 	}
 
 	void ScanExclusive::operator()(
