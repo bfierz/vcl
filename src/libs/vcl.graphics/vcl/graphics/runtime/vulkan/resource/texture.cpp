@@ -25,6 +25,9 @@
 #include <vcl/graphics/runtime/vulkan/resource/texture.h>
 
 // C++ standard library
+#include <vector>
+
+// C++ standard library
 #include <algorithm>
 
 // VCL
@@ -39,6 +42,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		Type = type;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = 1;
 		Depth = 1;
@@ -51,6 +55,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		Type = type;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -63,6 +68,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		Type = type;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = desc.Depth;
@@ -75,6 +81,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		Type = type;
 		Format = desc.Format;
 		Usage = desc.Usage;
+		ViewFormats = desc.ViewFormats;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -189,6 +196,11 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		}
 	}
 
+	VkImageViewType toVulkanImageViewType(TextureType type)
+	{
+		return toVulkanViewType(type);
+	}
+
 	Texture::Texture(
 		Vcl::Graphics::Vulkan::Context* context,
 		const GenericTextureDescription& desc,
@@ -203,10 +215,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		VclRequire(implies(init_data, cmd_buffer != VK_NULL_HANDLE), "Uploading initial data requires a command buffer.");
 		VclRequire(implies(init_data, init_data && init_data->verify()), "Initial data is consistent.");
 
-		initializeView(
-			desc.Type, desc.Format, desc.Usage,
-			0, desc.MipLevels,
-			0, desc.ArraySize,
+		initializeTexture(
+			desc.Type, desc,
+			desc.MipLevels, desc.ArraySize,
 			desc.Width, desc.Height, desc.Depth);
 
 		_aspects = toVulkanAspects(desc.Format);
@@ -224,6 +235,25 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		image_info.usage = toVulkanUsage(usage(), _aspects) | (init_data ? VK_IMAGE_USAGE_TRANSFER_DST_BIT : 0);
 		image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+		// Views reinterpreting the format are restricted to the declared formats
+		std::vector<VkFormat> view_formats;
+		VkImageFormatListCreateInfo format_list = {};
+		format_list.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO;
+		if (!desc.ViewFormats.empty())
+		{
+			view_formats.push_back(image_info.format);
+			for (const auto fmt : desc.ViewFormats)
+			{
+				if (fmt != desc.Format)
+					view_formats.push_back(convert(fmt));
+			}
+			format_list.viewFormatCount = static_cast<uint32_t>(view_formats.size());
+			format_list.pViewFormats = view_formats.data();
+
+			image_info.flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+			image_info.pNext = &format_list;
+		}
 
 		VkResult res = vkCreateImage(*context, &image_info, nullptr, &_image);
 		VclCheck(res == VK_SUCCESS, "Image was created.");

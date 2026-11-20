@@ -30,11 +30,10 @@
 
 // Include the relevant parts from the library
 #include <vcl/graphics/d3d12/d3d.h>
-#include <directx/d3dx12.h>
-#include <vcl/graphics/d3d12/semaphore.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 #include <vcl/graphics/runtime/d3d12/resource/shader.h>
+#include <vcl/graphics/runtime/d3d12/state/pipelinestate.h>
 
 // Google test
 #include <gtest/gtest.h>
@@ -53,6 +52,12 @@ struct SaxpyKernelParameters
 
 	// Saxpy scale 'a'
 	float a;
+
+	// Heap index of 'x'
+	uint32_t X;
+
+	// Heap index of 'y'
+	uint32_t Y;
 };
 
 TEST(D3D12Compute, Saxpy)
@@ -60,26 +65,15 @@ TEST(D3D12Compute, Saxpy)
 	using namespace Vcl::Graphics::Runtime;
 	using namespace Vcl::Graphics::D3D12;
 
+	if (!device->features().BindlessResources)
+		GTEST_SKIP() << "Bindless resources need shader model 6.6 and resource binding tier 3.";
+
+	DescriptorHeap heap{ device.get(), {} };
+
 	D3D12::Shader cs(ShaderType::ComputeShader, 0, SaxpyCsoCS);
-
-	// clang-format off
-	std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
-		{ DescriptorTableLayoutEntryType::Constant, ContantDescriptor{0, 0, 3}, D3D12_SHADER_VISIBILITY_ALL },
-		{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND },
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND }
-			} }, D3D12_SHADER_VISIBILITY_ALL }
-	};
-	// clang-format on
-
-	DescriptorTableLayout table_layout{ device.get(), std::move(dynamic_resources), {} };
-	auto signature = table_layout.rootSignature();
-
-	D3D12_COMPUTE_PIPELINE_STATE_DESC ps_desc = {};
-	ps_desc.pRootSignature = signature;
-	ps_desc.CS.BytecodeLength = cs.data().size();
-	ps_desc.CS.pShaderBytecode = cs.data().data();
-	auto pso = device->createComputePipelineState(ps_desc);
+	ComputePipelineStateDescription cpd;
+	cpd.ComputeShader = &cs;
+	D3D12::ComputePipelineState cps{ device.get(), &heap, cpd };
 
 	auto cmd_allocator = device->createCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	auto cmd_list = device->createCommandList(cmd_allocator.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -108,18 +102,20 @@ TEST(D3D12Compute, Saxpy)
 	D3D12::Buffer read_back(device.get(), read_back_desc);
 	EXPECT_TRUE(read_back.handle());
 
-	// Descriptor
-	Vcl::Graphics::D3D12::DescriptorTable table{ device.get(), &table_layout };
-	table.addResource(0, &x, 0, 256, 4);
-	table.addResource(1, &y, 0, 256, 4);
+	// 'x' is a structured buffer, 'y' a raw buffer
+	const ResourceView x_view = heap.createView(x, ResourceViewType::Buffer, 0, 1024, sizeof(float));
+	const ResourceView y_view = heap.createView(y, ResourceViewType::RWBuffer, 0, 1024);
+
+	x.transition(cmd_list_ptr, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	y.transition(cmd_list_ptr, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// Dispatch computation
-	cmd_list->SetPipelineState(pso.Get());
-	table.setToCompute(cmd_list_ptr, 1);
+	heap.bind(cmd_list_ptr);
+	cmd_list->SetPipelineState(cps.handle());
 
-	SaxpyKernelParameters kernel_params = { 16, 16, 2.0f };
-	cmd_list->SetComputeRoot32BitConstants(0, 3, &kernel_params, 0);
-	cmd_list->Dispatch(16, 16, 1);
+	const SaxpyKernelParameters kernel_params = { 16, 16, 2.0f, x_view.index().Value, y_view.index().Value };
+	cmd_list->SetComputeRoot32BitConstants(DescriptorHeap::RootConstantsParameter, sizeof(kernel_params) / 4, &kernel_params, 0);
+	cmd_list->Dispatch(1, 1, 1);
 
 	y.transition(cmd_list_ptr, D3D12_RESOURCE_STATE_COPY_SOURCE);
 

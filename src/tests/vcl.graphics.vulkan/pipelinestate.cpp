@@ -29,7 +29,7 @@
 // Include the relevant parts from the library
 #include <vcl/graphics/runtime/vulkan/resource/shader.h>
 #include <vcl/graphics/runtime/vulkan/state/pipelinestate.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
+#include <vcl/graphics/vulkan/descriptorheap.h>
 
 // Test
 #include "test.h"
@@ -77,15 +77,15 @@ TEST_F(VulkanPipelineStateTest, CreateGraphicsPipeline)
 	Runtime::Vulkan::Shader vs(*_context, ShaderType::VertexShader, 0, ColourSpirvVS32);
 	Runtime::Vulkan::Shader fs(*_context, ShaderType::FragmentShader, 0, ColourSpirvFS32);
 
-	DescriptorSetLayout descriptor_set_layout{ _context.get(), {} };
-	Runtime::Vulkan::PipelineLayout layout{ _context.get(), &descriptor_set_layout, {} };
+	DescriptorHeap heap{ _context.get(), {} };
 
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 	rt_layout.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
 
 	auto desc = createDescription(&vs, &fs);
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &layout, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 	EXPECT_NE(static_cast<VkPipeline>(pps), VkPipeline{ VK_NULL_HANDLE });
 }
 
@@ -98,8 +98,7 @@ TEST_F(VulkanPipelineStateTest, CreateGraphicsPipelineWithFixedFunctionState)
 	Runtime::Vulkan::Shader vs(*_context, ShaderType::VertexShader, 0, ColourSpirvVS32);
 	Runtime::Vulkan::Shader fs(*_context, ShaderType::FragmentShader, 0, ColourSpirvFS32);
 
-	DescriptorSetLayout descriptor_set_layout{ _context.get(), {} };
-	Runtime::Vulkan::PipelineLayout layout{ _context.get(), &descriptor_set_layout, {} };
+	DescriptorHeap heap{ _context.get(), {} };
 
 	RenderTargetLayout rt_layout;
 	rt_layout.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM, SurfaceFormat::R16G16B16A16_FLOAT };
@@ -118,6 +117,8 @@ TEST_F(VulkanPipelineStateTest, CreateGraphicsPipelineWithFixedFunctionState)
 	desc.DepthStencil.StencilEnable = true;
 	desc.DepthStencil.FrontFace.StencilPassOp = StencilOperation::Replace;
 
-	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &layout, desc, rt_layout };
+	desc.RenderTargets = rt_layout;
+
+	Runtime::Vulkan::GraphicsPipelineState pps{ _context.get(), &heap, desc };
 	EXPECT_NE(static_cast<VkPipeline>(pps), VkPipeline{ VK_NULL_HANDLE });
 }

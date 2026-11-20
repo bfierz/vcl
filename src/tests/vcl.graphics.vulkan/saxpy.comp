@@ -22,7 +22,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#version 440
+#version 450
+#extension GL_EXT_nonuniform_qualifier : require
 
 // Defines the size of the work-group (specialization constants)
 layout(local_size_x_id = 0, local_size_y_id = 1) in;
@@ -37,10 +38,16 @@ layout(push_constant) uniform Parameters
 
 	// Saxpy scale 'a'
 	float a;
+
+	// Index of the array 'x' in the resource heap
+	uint X;
+
+	// Index of the array 'y' in the resource heap
+	uint Y;
 } params;
 
-layout(std430, set = 0, binding = 0) buffer ArrayX { float x[]; };
-layout(std430, set = 0, binding = 1) buffer ArrayY { float y[]; };
+// Bindless resource heap
+layout(std430, set = 0, binding = 0) buffer FloatArray { float data[]; } Buffers[];
 
 void main()
 {
@@ -50,5 +57,5 @@ void main()
    }
 
    const uint idx = params.Width*gl_GlobalInvocationID.y + gl_GlobalInvocationID.x;
-   y[idx] += params.a * x[idx];
+   Buffers[params.Y].data[idx] += params.a * Buffers[params.X].data[idx];
 }

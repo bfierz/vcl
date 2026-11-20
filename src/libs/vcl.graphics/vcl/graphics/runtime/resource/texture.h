@@ -30,9 +30,11 @@
 // C++ standard library
 #include <array>
 #include <memory>
+#include <vector>
 
 // VCL
 #include <vcl/core/flags.h>
+#include <vcl/core/optional.h>
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
@@ -64,10 +66,30 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		NegativeZ = 5
 	};
 
+	//! Clear value of a texture. Colour textures use 'Colour', depth-stencil
+	//! textures 'Depth' and 'Stencil'.
+	struct TextureClearValue
+	{
+		std::array<float, 4> Colour{ 0, 0, 0, 0 };
+		float Depth{ 1 };
+		uint8_t Stencil{ 0 };
+	};
+
 	struct TextureBaseDescription
 	{
 		SurfaceFormat Format;
 		Flags<TextureUsage> Usage;
+
+		//! Formats, other than 'Format', views on the texture may use.
+		//! Reinterpreting the format has to be declared when the texture is
+		//! created (Vulkan: mutable format; D3D12: castable formats;
+		//! WebGPU: view formats; OpenGL: same format compatibility class).
+		std::vector<SurfaceFormat> ViewFormats;
+
+		//! Value the texture is usually cleared to. Clearing a render-target or
+		//! depth-stencil texture to this value is fast on D3D12 (optimised clear
+		//! value); the other backends ignore it.
+		stdext::optional<TextureClearValue> ClearValue;
 	};
 
 	struct Texture1DDescription : public TextureBaseDescription
@@ -175,16 +197,55 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		TextureCubeArray
 	};
 
-	class TextureView
+	//! Description of a view on a part of a texture.
+	//! The default describes the entire texture.
+	struct TextureViewDescription
+	{
+		//! Value selecting all mip-map levels or layers starting at the first one
+		enum : uint32_t
+		{
+			Remaining = 0xffffffffu
+		};
+
+		//! Type the texture is viewed as. 'Unknown' selects the type of the texture.
+		TextureType Type{ TextureType::Unknown };
+
+		//! Format the texture is viewed as. 'Unknown' selects the format of the texture.
+		SurfaceFormat Format{ SurfaceFormat::Unknown };
+
+		//! First mip-map level, relative to the texture
+		uint32_t FirstMipLevel{ 0 };
+
+		//! Number of mip-map levels.
+		//! Read-write (storage) views cover exactly one level.
+		uint32_t MipLevels{ Remaining };
+
+		//! First array layer, relative to the texture
+		uint32_t FirstLayer{ 0 };
+
+		//! Number of array layers
+		uint32_t Layers{ Remaining };
+	};
+
+	/*!
+	 * \brief Texture resource
+	 *
+	 * Describes the entire resource. Parts of a texture are addressed with a
+	 * TextureViewDescription, which each backend turns into its own view object.
+	 */
+	class Texture
 	{
 	protected:
-		TextureView() = default;
-		TextureView(const TextureView&) = default;
+		Texture() = default;
+		Texture(const Texture&) = default;
 
-		TextureView& operator=(const TextureView&) = delete;
+		Texture& operator=(const Texture&) = delete;
 
 	public:
-		virtual ~TextureView() = default;
+		virtual ~Texture() = default;
+
+	public:
+		virtual std::unique_ptr<Texture> clone() const = 0;
 
 	public:
 		TextureType type() const { return _type; }
@@ -193,26 +254,29 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 		Flags<TextureUsage> usage() const { return _usage; }
 
+		//! \returns the formats, other than format(), views may use
+		stdext::span<const SurfaceFormat> viewFormats() const { return _viewFormats; }
+
+		//! \returns whether a view on the texture may use \p format.
+		//!          'Unknown' selects the format of the texture.
+		bool supportsViewFormat(SurfaceFormat format) const;
+
 		int width() const { return _width; }
 		int height() const { return _height; }
 		int depth() const { return _depth; }
 
-		int firstLayer() const { return _layer; }
 		int layers() const { return _nrLayers; }
 
-		int firstMipMapLevel() const { return _level; }
 		int mipMapLevels() const { return _nrLevels; }
 
+		//! \returns the size of a single sub resource of the largest mip-map level
 		size_t sizeInBytes() const { return _sizeInBytes; }
 
 	protected:
-		void initializeView(
+		void initializeTexture(
 			TextureType t,
-			SurfaceFormat f,
-			Flags<TextureUsage> usage,
-			int firstLvl,
+			const TextureBaseDescription& desc,
 			int nrLvls,
-			int firstLayer,
 			int nrLayers,
 			int width,
 			int height = 1,
@@ -228,30 +292,18 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		//! Configured texture usages
 		Flags<TextureUsage> _usage;
 
-		int _level;
+		//! Formats views may use in addition to the surface format
+		std::vector<SurfaceFormat> _viewFormats;
+
 		int _nrLevels;
-		int _layer;
 		int _nrLayers;
 
-	private: // Size of a single sub resource of the lowest mip-map level
+	private: // Size of a single sub resource of the largest mip-map level
 		int _width;
 		int _height;
 		int _depth;
 
 	private:
 		size_t _sizeInBytes;
-	};
-
-	class Texture : public TextureView
-	{
-	protected:
-		Texture() = default;
-		Texture(const Texture&) = default;
-
-	public:
-		virtual ~Texture() = default;
-
-	public:
-		virtual std::unique_ptr<Texture> clone() const = 0;
 	};
 }}}

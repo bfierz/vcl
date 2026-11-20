@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Shader constants
 ////////////////////////////////////////////////////////////////////////////////
-cbuffer TransformData : register(b0)
+struct TransformData
 {
 	// Transform to world space
 #pragma pack_matrix(column_major)
@@ -39,7 +39,7 @@ cbuffer TransformData : register(b0)
 	float4x4 ViewProjectionMatrix;
 };
 
-cbuffer BoundingGridConfig : register(b1)
+struct BoundingGridConfig
 {
 	// Axis' in model space
 	float3 Axis[3];
@@ -56,5 +56,13 @@ cbuffer BoundingGridConfig : register(b1)
 	// Number of cells per size
 	float Resolution;
 };
+
+// Root constants: indices of the constant buffers in the resource heap
+struct HeapIndices
+{
+	uint Transform;
+	uint Config;
+};
+ConstantBuffer<HeapIndices> Indices : register(b0);
 
 #endif // GLSL_BOUNDINGGRID_H

@@ -22,7 +22,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-cbuffer Parameters : register(b0)
+
+// Bindless saxpy (shader model 6.6): the root constants hold the heap indices
+struct Parameters
 {
 	// Total width
 	uint Width;
@@ -32,19 +34,28 @@ cbuffer Parameters : register(b0)
 
 	// Saxpy scale 'a'
 	float a;
+
+	// Resource heap: input 'x' (structured buffer)
+	uint X;
+
+	// Resource heap: input and output 'y' (raw buffer)
+	uint Y;
 };
 
-StructuredBuffer<float> x : register(t0);
-RWStructuredBuffer<float> y : register(u0);
+ConstantBuffer<Parameters> params : register(b0);
 
 [numthreads(32, 32, 1)]
 void main(uint3 thread_id : SV_DispatchThreadID)
 {
-   if (Width <= thread_id.x || Height <= thread_id.y)
-   {
-      return;
-   }
+	if (params.Width <= thread_id.x || params.Height <= thread_id.y)
+	{
+		return;
+	}
 
-   const uint idx = Width* thread_id.y + thread_id.x;
-   y[idx] += a * x[idx];
+	StructuredBuffer<float> x = ResourceDescriptorHeap[params.X];
+	RWByteAddressBuffer y = ResourceDescriptorHeap[params.Y];
+
+	const uint idx = params.Width * thread_id.y + thread_id.x;
+	const uint address = 4 * idx;
+	y.Store(address, asuint(asfloat(y.Load(address)) + params.a * x[idx]));
 }

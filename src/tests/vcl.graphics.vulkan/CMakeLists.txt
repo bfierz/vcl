@@ -37,7 +37,8 @@ set(VCL_TEST_SRC
 	buffers.cpp
 	compute.cpp
 	context.cpp
-	descriptorset.cpp
+	descriptorheap.cpp
+	devicefeatures.cpp
 	pipelinestate.cpp
 	shaderprogram.cpp
 	textures.cpp
@@ -47,11 +48,14 @@ set(VCL_TEST_INC
 )
 
 set(SHADERS
+	bindless.frag
 	colour.vert
 	colour.frag
+	fullscreen.vert
 	quad.vert
 	quad.frag
 	saxpy.comp
+	triangle.mesh
 )
 
 # Access the include directories in order to compile the GLSL shaders
@@ -93,7 +97,29 @@ vclcompileglsl(
 	"${CURR_INC_DIRS}"
 	COMPILEDSHADERS_4
 )
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4})
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/fullscreen.vert
+	"vulkan"
+	"FullscreenSpirvVS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_5
+)
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/bindless.frag
+	"vulkan"
+	"BindlessSpirvFS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_6
+)
+# Mesh shaders require SPIR-V 1.4
+vclcompileglsl(
+	${PROJECT_SOURCE_DIR}/triangle.mesh
+	"vulkan1.3"
+	"TriangleSpirvMS"
+	"${CURR_INC_DIRS}"
+	COMPILEDSHADERS_7
+)
+set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2} ${COMPILEDSHADERS_3} ${COMPILEDSHADERS_4} ${COMPILEDSHADERS_5} ${COMPILEDSHADERS_6} ${COMPILEDSHADERS_7})
 
 target_sources(vcl.graphics.vulkan.test
 	PRIVATE

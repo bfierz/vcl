@@ -54,7 +54,7 @@ list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
 
 vclcompilehlsl(
 	${PROJECT_SOURCE_DIR}/tettotrimesh.cs.hlsl
-	"cs_6_0"
+	"cs_6_6"
 	"main"
 	"TetToTriMeshCsoCS"
 	"${CURR_INC_DIRS}"
@@ -78,7 +78,7 @@ vclcompilehlsl(
 )
 vclcompilehlsl(
 	${PROJECT_SOURCE_DIR}/tetmesh.gs.hlsl
-	"gs_6_0"
+	"gs_6_6"
 	"main"
 	"TetMeshCsoGS"
 	"${CURR_INC_DIRS}"

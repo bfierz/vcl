@@ -102,14 +102,18 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			_targetStates = toD3DResourceState(usage());
 		}
 
-		_currentStates = D3D12_RESOURCE_STATE_COMMON;
+		// Upload and read-back heaps require their state from creation on
+		_currentStates = buffer_usage;
 
 		ID3D12Device* d3d12_dev = device->nativeDevice();
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 		if (usage().isSet(BufferUsage::Storage))
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		const auto heap_props = CD3DX12_HEAP_PROPERTIES(_heapType);
-		const auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(desc.SizeInBytes, flags);
+		// Constant buffer views cover multiples of 256 bytes
+		const uint64_t cbv_alignment = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+		const uint64_t resource_size = usage().isSet(BufferUsage::Uniform) ? (desc.SizeInBytes + cbv_alignment - 1) / cbv_alignment * cbv_alignment : desc.SizeInBytes;
+		const auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(resource_size, flags);
 		VCL_DIRECT3D_SAFE_CALL(d3d12_dev->CreateCommittedResource(
 			&heap_props,
 			D3D12_HEAP_FLAG_NONE,

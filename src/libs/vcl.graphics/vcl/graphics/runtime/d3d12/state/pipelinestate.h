@@ -32,7 +32,7 @@
 // VCL
 #include <vcl/core/span.h>
 #include <vcl/graphics/d3d12/device.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/runtime/state/pipelinestate.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
@@ -42,19 +42,24 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+		//! Create a pipeline using the root signature of the bindless heap
 		GraphicsPipelineState(
 			Graphics::D3D12::Device* device,
-			const PipelineStateDescription& desc,
-			const RenderTargetLayout& rt_layout,
-			const Graphics::D3D12::DescriptorTableLayout* layout);
+			const Graphics::D3D12::DescriptorHeap* heap,
+			const PipelineStateDescription& desc);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }
+
+		//! Root signature of the pipeline (the one of the bindless heap)
+		ID3D12RootSignature* rootSignature() const { return _rootSignature; }
 
 		const InputLayoutDescription& inputLayout() const { return _inputLayout; }
 
 	private:
 		ComPtr<ID3D12PipelineState> _pipeline;
+
+		ID3D12RootSignature* _rootSignature{ nullptr };
 
 		InputLayoutDescription _inputLayout;
 	};
@@ -65,15 +70,21 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		template<typename T>
 		using ComPtr = Microsoft::WRL::ComPtr<T>;
 
+		//! Create a pipeline using the root signature of the bindless heap
 		ComputePipelineState(
 			Graphics::D3D12::Device* device,
-			const ComputePipelineStateDescription& desc,
-			const Graphics::D3D12::DescriptorTableLayout* layout);
+			const Graphics::D3D12::DescriptorHeap* heap,
+			const ComputePipelineStateDescription& desc);
 
 		//! D3D12 handle
 		ID3D12PipelineState* handle() const { return _pipeline.Get(); }
 
+		//! Root signature of the pipeline (the one of the bindless heap)
+		ID3D12RootSignature* rootSignature() const { return _rootSignature; }
+
 	private:
 		ComPtr<ID3D12PipelineState> _pipeline;
+
+		ID3D12RootSignature* _rootSignature{ nullptr };
 	};
 }}}}

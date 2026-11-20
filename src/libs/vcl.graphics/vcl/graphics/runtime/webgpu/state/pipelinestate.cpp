@@ -85,8 +85,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 	GraphicsPipelineState::GraphicsPipelineState(
 		WGPUDevice device,
-		const PipelineStateDescription& desc,
-		const RenderTargetLayout& rt_formats)
+		const PipelineStateDescription& desc)
 	: _inputLayout{ desc.InputLayout }
 	{
 		using Vcl::Graphics::WebGPU::toWebGPUEnum;
@@ -127,8 +126,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		graphics_pipeline_desc.multisample.alphaToCoverageEnabled = desc.Blend.AlphaToCoverageEnable;
 		auto depth_stencil_state = toWebGPU(desc.DepthStencil);
 		toWebGPU(desc.Rasterizer, &depth_stencil_state);
-		depth_stencil_state.format = toWebGPUEnum(rt_formats.DepthStencilFormat);
-		if (rt_formats.DepthStencilFormat == SurfaceFormat::Unknown)
+		depth_stencil_state.format = toWebGPUEnum(desc.RenderTargets.DepthStencilFormat);
+		if (desc.RenderTargets.DepthStencilFormat == SurfaceFormat::Unknown)
 			graphics_pipeline_desc.depthStencil = nullptr;
 		else
 			graphics_pipeline_desc.depthStencil = &depth_stencil_state;
@@ -136,9 +135,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		const auto frag_shader_stage = getProgammableStageDesc(desc.FragmentShader);
 		std::array<WGPUColorTargetState, 8> colour_states = {};
 		const auto blend_states = toWebGPU(desc.Blend);
-		for (size_t i = 0; i < rt_formats.ColourFormats.size(); i++)
+		for (size_t i = 0; i < desc.RenderTargets.ColourFormats.size(); i++)
 		{
-			colour_states[i].format = toWebGPUEnum(rt_formats.ColourFormats[i]);
+			colour_states[i].format = toWebGPUEnum(desc.RenderTargets.ColourFormats[i]);
 			colour_states[i].blend = &blend_states[i];
 			colour_states[i].writeMask = desc.Blend.RenderTarget[i].RenderTargetWriteMask.bits();
 		}
@@ -146,7 +145,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		WGPUFragmentState fragment_state = {};
 		fragment_state.module = frag_shader_stage.module;
 		fragment_state.entryPoint = frag_shader_stage.entryPoint;
-		fragment_state.targetCount = rt_formats.ColourFormats.size();
+		fragment_state.targetCount = desc.RenderTargets.ColourFormats.size();
 		fragment_state.targets = colour_states.data();
 		graphics_pipeline_desc.fragment = &fragment_state;
 

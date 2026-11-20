@@ -41,6 +41,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		GenericTextureDescription(const Texture3DDescription& desc);
 		GenericTextureDescription(const TextureCubeDescription& desc);
 
+		//! Override the texture type, e.g. for array textures
+		GenericTextureDescription(const GenericTextureDescription& desc, TextureType type);
+
 		TextureType Type;
 		uint32_t Width;
 		uint32_t Height;
@@ -54,9 +57,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	public:
 		Texture(Graphics::D3D12::Device* device, const GenericTextureDescription& desc, const TextureResource* init_data = nullptr, ID3D12GraphicsCommandList* cmd_queue = nullptr);
 		Texture(const Texture&);
-
-		virtual D3D12_SHADER_RESOURCE_VIEW_DESC srv() const;
-		virtual D3D12_UNORDERED_ACCESS_VIEW_DESC uav() const;
 
 		void copyTo(ID3D12GraphicsCommandList* cmd_queue, Buffer& target);
 		void copyTo(ID3D12GraphicsCommandList* cmd_queue, Texture& target);
@@ -91,9 +91,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		Texture2D(const Texture2D&);
 
 		std::unique_ptr<Runtime::Texture> clone() const override;
-
-		D3D12_SHADER_RESOURCE_VIEW_DESC srv() const override;
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uav() const override;
 	};
 
 	class Texture2DArray final : public Texture

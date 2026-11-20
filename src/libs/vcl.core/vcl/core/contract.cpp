@@ -69,12 +69,10 @@ namespace Vcl { namespace Assert {
 			}
 			if (GetDlgItem(hChildWnd, IDRETRY) != NULL)
 			{
-
 				result = SetDlgItemTextA(hChildWnd, IDRETRY, "Ignore once");
 			}
 			if (GetDlgItem(hChildWnd, IDABORT) != NULL)
 			{
-
 				result = SetDlgItemTextA(hChildWnd, IDABORT, "Debug");
 			}
 
@@ -97,6 +95,14 @@ namespace Vcl { namespace Assert {
 
 	QueryAnswer queryUser(const char* title, const char* message)
 	{
+		// Without a debugger, the dialog blocks non-interactive runs (e.g. CI)
+		// and breaking would raise an unhandled exception
+		if (!IsDebuggerPresent())
+		{
+			std::cerr << title << ": " << message << std::endl;
+			return QueryAnswer::IgnoreOnce;
+		}
+
 		int result = CBTMessageBox(nullptr, message, title, MB_ABORTRETRYIGNORE);
 
 		if (result == IDIGNORE)

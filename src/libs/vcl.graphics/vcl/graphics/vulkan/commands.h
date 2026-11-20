@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <string>
+#include <utility>
 
 // Vulkan
 #include <vulkan/vulkan.h>
@@ -36,7 +37,6 @@
 // VCL
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/state/common.h>
-#include <vcl/graphics/vulkan/descriptorset.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
 	class Context;
@@ -124,21 +124,21 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		void bind(VkPipelineBindPoint bind_point, VkPipeline pipeline);
 
 		//! Bind a descriptor set
-		void bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout);
+		void bind(VkPipelineBindPoint bind_point, VkDescriptorSet descriptors, VkPipelineLayout layout, uint32_t set = 0);
 
 		//! Fill a buffer with a small memory pattern
 		void fillBuffer(VkBuffer dst_buffer, size_t offset, size_t size, uint32_t data);
 
-		//! Fill the push constant buffer
+		//! Fill the push constants, which are shared by all shader stages
 		template<typename T, typename... Args>
-		void pushConstants(VkPipelineLayout layout, Flags<Graphics::Vulkan::ShaderStage> stages, Args&&... args)
+		void pushConstants(VkPipelineLayout layout, Args&&... args)
 		{
-			T params = { std::forward<Args>(args)... };
-			pushConstants(layout, { stages, 0, sizeof(T) }, &params);
+			const T params = { std::forward<Args>(args)... };
+			pushConstants(layout, 0, sizeof(T), &params);
 		}
 
-		//! Fill the push constant buffer
-		void pushConstants(VkPipelineLayout layout, const PushConstantDescriptor& desc, void* data);
+		//! Fill a range of the push constants, which are shared by all shader stages
+		void pushConstants(VkPipelineLayout layout, uint32_t offset, uint32_t size, const void* data);
 
 		//! Copy data between buffer objects
 		void copy(VkBuffer src, VkBuffer dst, stdext::span<const VkBufferCopy> regions);
@@ -181,6 +181,10 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Draw indexed primitives
 		void drawIndexed(uint32_t index_count, uint32_t instance_count = 1, uint32_t first_index = 0, int32_t vertex_offset = 0, uint32_t first_instance = 0);
+
+		//! Draw with a mesh pipeline
+		//! \param draw_mesh_tasks Entry point provided by Context::drawMeshTasksProc()
+		void drawMeshTasks(PFN_vkCmdDrawMeshTasksEXT draw_mesh_tasks, uint32_t group_count_x, uint32_t group_count_y = 1, uint32_t group_count_z = 1);
 
 		//! Prepare a framebuffer for presentation
 		void prepareForPresent(VkImage img);

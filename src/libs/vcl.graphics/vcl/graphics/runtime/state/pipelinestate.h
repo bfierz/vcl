@@ -65,7 +65,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 	struct RenderTargetLayout
 	{
 		absl::InlinedVector<SurfaceFormat, 8> ColourFormats;
-		SurfaceFormat DepthStencilFormat;
+		SurfaceFormat DepthStencilFormat{ SurfaceFormat::Unknown };
 	};
 
 	struct PipelineStateDescription
@@ -99,6 +99,36 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 
 		// Depth stencil state
 		Runtime::DepthStencilDescription DepthStencil;
+
+		// Formats of the render-targets the pipeline renders to.
+		// Ignored by OpenGL, where pipelines don't depend on the render-targets.
+		Runtime::RenderTargetLayout RenderTargets;
+	};
+
+	//! Pipeline generating its primitives in a mesh shader.
+	//! There is no vertex input; the mesh shader defines the topology.
+	struct MeshPipelineStateDescription
+	{
+		// Task shader (optional)
+		Runtime::Shader* TaskShader{ nullptr };
+
+		// Mesh shader
+		Runtime::Shader* MeshShader{ nullptr };
+
+		// Fragment shader
+		Runtime::Shader* FragmentShader{ nullptr };
+
+		// Blend state
+		Runtime::BlendDescription Blend;
+
+		// Rasterizer state
+		Runtime::RasterizerDescription Rasterizer;
+
+		// Depth stencil state
+		Runtime::DepthStencilDescription DepthStencil;
+
+		// Formats of the render-targets the pipeline renders to
+		Runtime::RenderTargetLayout RenderTargets;
 	};
 
 	struct ComputePipelineStateDescription

@@ -28,7 +28,7 @@
 #include <vcl/config/global.h>
 
 // C++ standard library
-#include <map>
+#include <cstdint>
 
 #ifdef VCL_VULKAN_SUPPORT
 
@@ -38,14 +38,10 @@
 // VCL
 #	include <vcl/core/span.h>
 #	include <vcl/graphics/runtime/resource/shader.h>
-#	include <vcl/graphics/vulkan/descriptorset.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 	class Shader : public Runtime::Shader
 	{
-		using DescriptorSetLayoutBinding = Graphics::Vulkan::DescriptorSetLayoutBinding;
-		using PushConstantDescriptor = Graphics::Vulkan::PushConstantDescriptor;
-
 	public:
 		Shader(VkDevice device, ShaderType type, int tag, stdext::span<const uint32_t> data);
 		Shader(Shader&& rhs);
@@ -54,35 +50,23 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace Vulkan {
 		//! Convert the shader type to the Vulkan stage flag
 		static VkShaderStageFlagBits convert(ShaderType type);
 
-		//! Access sets of the shader
-		std::vector<uint32_t> sets() const;
-
-		//! Access the bindings of a given set
-		stdext::span<const DescriptorSetLayoutBinding> bindings(uint32_t set) const;
-
-		//! Access the push-constants of the shader
-		PushConstantDescriptor pushConstants() const
-		{
-			return _pushConstantRange;
-		}
+		//! \returns the size in bytes of the push constants the shader declares
+		uint32_t pushConstantSize() const { return _pushConstantSize; }
 
 		VkPipelineShaderStageCreateInfo getCreateInfo() const;
 
 	private:
-		//! Parse the SPIR-V data and create the data binding table
-		void createBindingTable(stdext::span<const uint32_t> data);
+		//! Parse the SPIR-V data and collect the interface of the shader
+		void reflect(stdext::span<const uint32_t> data);
 
 		//! Device for which the shader was created
-		VkDevice _device;
+		VkDevice _device{ VK_NULL_HANDLE };
 
 		//! Vulkan shader module
-		VkShaderModule _shaderModule;
+		VkShaderModule _shaderModule{ VK_NULL_HANDLE };
 
 		//! Size of the push-constants
-		PushConstantDescriptor _pushConstantRange;
-
-		//! Resources exposed in the shader
-		std::map<uint32_t, std::vector<DescriptorSetLayoutBinding>> _bindings;
+		uint32_t _pushConstantSize{ 0 };
 	};
 }}}}
 #endif // VCL_VULKAN_SUPPORT

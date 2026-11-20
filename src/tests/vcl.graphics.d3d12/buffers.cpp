@@ -30,7 +30,7 @@
 
 // Include the relevant parts from the library
 #include <vcl/graphics/d3d12/d3d.h>
-#include <vcl/graphics/d3d12/descriptortable.h>
+#include <vcl/graphics/d3d12/descriptorheap.h>
 #include <vcl/graphics/d3d12/semaphore.h>
 #include <vcl/graphics/runtime/d3d12/resource/buffer.h>
 
@@ -273,16 +273,10 @@ TEST(D3D12Buffer, DynamicUpdate)
 	for (int i = 0; i < 256; i++)
 		zeros[i] = 0;
 
-	// clang-format off
-	std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
-		{ DescriptorTableLayoutEntryType::Table, TableDescriptor{{
-			{ D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND },
-			} }, D3D12_SHADER_VISIBILITY_ALL }
-	};
-	// clang-format on
+	if (!device->features().BindlessResources)
+		GTEST_SKIP() << "Bindless resources need shader model 6.6 and resource binding tier 3.";
 
-	DescriptorTableLayout table_layout{ device.get(), std::move(dynamic_resources), {} };
-	auto signature = table_layout.rootSignature();
+	DescriptorHeap heap{ device.get(), {} };
 
 	BufferDescription desc = {
 		1024,
@@ -292,8 +286,8 @@ TEST(D3D12Buffer, DynamicUpdate)
 	D3D12::Buffer buf0(device.get(), desc);
 	EXPECT_TRUE(buf0.handle() != 0) << "Buffer not created.";
 
-	DescriptorTable table{ device.get(), &table_layout };
-	table.addResource(0, &buf0, 0, 256, 4);
+	const ResourceView view = heap.createView(buf0, ResourceViewType::ConstantBuffer, 0, 1024);
+	EXPECT_TRUE(view);
 
 	auto writePtr = (float*)buf0.map();
 	for (int i = 0; i < 95; i++)
@@ -305,8 +299,7 @@ TEST(D3D12Buffer, DynamicUpdate)
 	auto cmd_list = device->createCommandList(cmd_allocator.Get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
 	auto cmd_queue = device->createCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-	cmd_list->SetGraphicsRootSignature(signature);
-	table.setToGraphics(cmd_list.Get(), 0);
+	heap.bind(cmd_list.Get());
 
 	cmd_list->Close();
 	ID3D12CommandList* const generic_list = cmd_list.Get();

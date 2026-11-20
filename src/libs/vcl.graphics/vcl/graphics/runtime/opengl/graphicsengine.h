@@ -29,6 +29,8 @@
 #include <vcl/config/opengl.h>
 
 // C++ standard library
+#include <functional>
+#include <initializer_list>
 #include <mutex>
 #include <vector>
 #include <unordered_map>
@@ -37,7 +39,11 @@
 #include <vcl/core/span.h>
 #include <vcl/graphics/runtime/opengl/resource/buffer.h>
 #include <vcl/graphics/runtime/opengl/state/framebuffer.h>
-#include <vcl/graphics/runtime/graphicsengine.h>
+#include <vcl/graphics/runtime/resource/bufferview.h>
+#include <vcl/graphics/runtime/resource/texture.h>
+#include <vcl/graphics/runtime/state/common.h>
+#include <vcl/graphics/runtime/state/pipelinestate.h>
+#include <vcl/graphics/runtime/state/sampler.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 	class Frame;
@@ -72,7 +78,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 
 	public:
 		stdext::span<uint8_t> copyFrom(BufferRange view);
-		stdext::span<uint8_t> copyFrom(const TextureView& view);
+		stdext::span<uint8_t> copyFrom(const Runtime::Texture& view);
 
 	private:
 		void updateIfNeeded(size_t size);
@@ -178,56 +184,86 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		std::vector<owner_ptr<Buffer>> _bufferRecycleQueue;
 	};
 
-	class GraphicsEngine final : public Runtime::GraphicsEngine
+	/*!
+	 * \brief Rendering interface of the OpenGL backend
+	 *
+	 * Rendering code is written per backend; there is no engine interface
+	 * shared between the backends.
+	 */
+	class GraphicsEngine final
 	{
 	public:
 		GraphicsEngine();
+		GraphicsEngine(const GraphicsEngine&) = delete;
+		GraphicsEngine(GraphicsEngine&&) = delete;
 
 	public:
-		owner_ptr<Runtime::Texture> createResource(const Texture2DDescription& desc) override;
-		owner_ptr<Runtime::Buffer> createResource(const BufferDescription& desc) override;
+		owner_ptr<Runtime::Texture> createResource(const Texture2DDescription& desc);
+		owner_ptr<Runtime::Buffer> createResource(const BufferDescription& desc);
 
-		void beginFrame() override;
-		void endFrame() override;
+		//! Begin a new frame
+		void beginFrame();
 
-		using Runtime::GraphicsEngine::requestPerFrameConstantBuffer;
-		BufferView requestPerFrameConstantBuffer(size_t size) override;
-		BufferView requestPerFrameLinearMemory(size_t size) override;
+		//! End the current frame
+		void endFrame();
 
-		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback) override;
+		//! Query the current frame index
+		//! \returns The index of the current frame
+		uint64_t currentFrame() const { return _frameCounter; }
 
-		void enqueueCommand(std::function<void(void)>) override;
+		//! Request a new constant buffer for per frame data
+		template<typename T>
+		ConstantBufferView<T> requestPerFrameConstantBuffer()
+		{
+			return ConstantBufferView<T>(requestPerFrameConstantBuffer(sizeof(T)));
+		}
 
-		// Expose method from parent class
-		using Runtime::GraphicsEngine::setRenderTargets;
+		//! Request a new constant buffer for per frame data
+		BufferView requestPerFrameConstantBuffer(size_t size);
 
-		[[deprecated]] void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target) override;
+		//! Request linear device memory for per frame data
+		BufferView requestPerFrameLinearMemory(size_t size);
 
-		void setConstantBuffer(int idx, BufferView buffer) override;
-		void setIndexBuffer(const Runtime::Buffer& buffer) override;
-		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride) override;
-		void setSampler(int idx, const Runtime::Sampler& sampler) override;
-		void setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers) override;
-		void setTexture(int idx, const Runtime::Texture& texture) override;
-		void setTextures(int idx, stdext::span<const ref_ptr<Runtime::Texture>> textures) override;
+		void enqueueReadback(const Runtime::Texture& tex, std::function<void(stdext::span<uint8_t>)> callback);
 
-		void setPipelineState(ref_ptr<Runtime::PipelineState> state) override;
+		void enqueueCommand(std::function<void(void)>);
+
+		[[deprecated]] void setRenderTargets(std::initializer_list<ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target)
+		{
+			setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>>(colour_targets.begin(), colour_targets.size()), depth_target);
+		}
+
+		[[deprecated]] void setRenderTargets(stdext::span<const ref_ptr<Runtime::Texture>> colour_targets, ref_ptr<Runtime::Texture> depth_target);
+
+		void setConstantBuffer(int idx, BufferView buffer);
+		void setIndexBuffer(const Runtime::Buffer& buffer);
+		void setVertexBuffer(int idx, const Runtime::Buffer& buffer, int offset, int stride);
+		void setSampler(int idx, const Runtime::Sampler& sampler);
+		void setSamplers(int idx, stdext::span<const ref_ptr<Runtime::Sampler>> samplers);
+		void setTexture(int idx, const Runtime::Texture& texture);
+		void setTextures(int idx, stdext::span<const ref_ptr<Runtime::Texture>> textures);
+
+		void setPipelineState(ref_ptr<Runtime::PipelineState> state);
 
 		//! Set per draw-call shader parameters
-		[[deprecated]] void pushConstants(void* data, size_t size) override;
+		[[deprecated]] void pushConstants(void* data, size_t size);
 
-		void beginRenderPass(const RenderPassDescription& pass_desc) override;
-		void endRenderPass() override;
-		[[deprecated]] void clear(int idx, const Eigen::Vector4f& colour) override;
-		[[deprecated]] void clear(int idx, const Eigen::Vector4i& colour) override;
-		[[deprecated]] void clear(int idx, const Eigen::Vector4ui& colour) override;
-		[[deprecated]] void clear(float depth, int stencil) override;
-		[[deprecated]] void clear(float depth) override;
-		[[deprecated]] void clear(int stencil) override;
+		void beginRenderPass(const RenderPassDescription& pass_desc);
+		void endRenderPass();
+		[[deprecated]] void clear(int idx, const Eigen::Vector4f& colour);
+		[[deprecated]] void clear(int idx, const Eigen::Vector4i& colour);
+		[[deprecated]] void clear(int idx, const Eigen::Vector4ui& colour);
+		[[deprecated]] void clear(float depth, int stencil);
+		[[deprecated]] void clear(float depth);
+		[[deprecated]] void clear(int stencil);
 
-		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1) override;
-		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0) override;
-		void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0) override;
+		void setPrimitiveType(PrimitiveType type, int nr_vertices = -1);
+		void draw(int count, int first = 0, int instance_count = 1, int base_instance = 0);
+		void drawIndexed(int count, int first_index = 0, int instance_count = 1, int base_vertex = 0, int base_instance = 0);
+
+	private:
+		//! Index of the current frame
+		uint64_t _frameCounter{ 0 };
 
 	private:
 		//! Number of parallel frames

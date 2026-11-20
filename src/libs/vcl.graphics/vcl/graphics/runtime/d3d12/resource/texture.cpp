@@ -31,11 +31,15 @@
 #include <vcl/math/ceil.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
+	GenericTextureDescription::GenericTextureDescription(const GenericTextureDescription& desc, TextureType type)
+	: GenericTextureDescription(desc)
+	{
+		Type = type;
+	}
 	GenericTextureDescription::GenericTextureDescription(const Texture1DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture1D;
-		Format = desc.Format;
-		Usage = desc.Usage;
 		Width = desc.Width;
 		Height = 1;
 		Depth = 1;
@@ -43,10 +47,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const Texture2DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture2D;
-		Format = desc.Format;
-		Usage = desc.Usage;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -54,10 +57,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const Texture3DDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::Texture3D;
-		Format = desc.Format;
-		Usage = desc.Usage;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = desc.Depth;
@@ -65,10 +67,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		MipLevels = desc.MipLevels;
 	}
 	GenericTextureDescription::GenericTextureDescription(const TextureCubeDescription& desc)
+	: TextureBaseDescription(desc)
 	{
 		Type = TextureType::TextureCube;
-		Format = desc.Format;
-		Usage = desc.Usage;
 		Width = desc.Width;
 		Height = desc.Height;
 		Depth = 1;
@@ -115,10 +116,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue)
 	{
-		initializeView(
-			desc.Type, desc.Format, desc.Usage,
-			0, desc.MipLevels,
-			0, desc.ArraySize,
+		initializeTexture(
+			desc.Type, desc,
+			desc.MipLevels, desc.ArraySize,
 			desc.Width, desc.Height, desc.Depth);
 
 		D3D12_RESOURCE_STATES texture_usage;
@@ -126,9 +126,22 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		_targetStates = toD3DResourceState(usage());
 		_currentStates = init_data ? D3D12_RESOURCE_STATE_COPY_DEST : texture_usage;
 
+		using Graphics::D3D12::isDepthFormat;
+		using Graphics::D3D12::toTypeless;
+
+		const DXGI_FORMAT d3d12_format = Graphics::D3D12::D3D::toD3Denum(desc.Format);
+		const bool is_depth = isDepthFormat(d3d12_format);
+
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 		if (usage().isSet(TextureUsage::Storage))
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		if (usage().isSet(TextureUsage::OutputAttachment))
+			flags |= is_depth ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+		// Views in other formats of the family need a typeless resource. So do shader
+		// views of depth formats, which read the depth part as colour format.
+		const bool typeless = !desc.ViewFormats.empty() || (is_depth && usage().isSet(TextureUsage::Sampled));
+		VclRequire(implies(!desc.ViewFormats.empty(), toTypeless(d3d12_format) != d3d12_format), "Format has a typeless family.");
 
 		const D3D12_RESOURCE_DESC d3d12_desc = {
 			toD3DResourceDimension(type()),
@@ -137,11 +150,22 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			height(),
 			std::max(depth(), layers()),
 			mipMapLevels(),
-			Graphics::D3D12::D3D::toD3Denum(desc.Format),
+			typeless ? toTypeless(d3d12_format) : d3d12_format,
 			{ 1, 0 },
 			D3D12_TEXTURE_LAYOUT_UNKNOWN,
 			flags
 		};
+
+		// Only render-targets and depth-stencil textures have a clear value. It
+		// uses the typed format, also for typeless resources.
+		stdext::optional<D3D12_CLEAR_VALUE> clear_value;
+		if (desc.ClearValue && usage().isSet(TextureUsage::OutputAttachment))
+		{
+			if (is_depth)
+				clear_value = CD3DX12_CLEAR_VALUE(d3d12_format, desc.ClearValue->Depth, desc.ClearValue->Stencil);
+			else
+				clear_value = CD3DX12_CLEAR_VALUE(d3d12_format, desc.ClearValue->Colour.data());
+		}
 
 		ID3D12Device* d3d12_dev = device->nativeDevice();
 		const auto heap_props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -150,7 +174,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 			D3D12_HEAP_FLAG_NONE,
 			&d3d12_desc,
 			_currentStates,
-			nullptr,
+			clear_value ? &*clear_value : nullptr,
 			IID_PPV_ARGS(&_resource)));
 
 		uint64_t textureMemorySize = 0;
@@ -189,15 +213,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	Texture::Texture(const Texture& rhs)
 	: Runtime::Texture(rhs)
 	{
-	}
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC Texture::srv() const
-	{
-		return {};
-	}
-	D3D12_UNORDERED_ACCESS_VIEW_DESC Texture::uav() const
-	{
-		return {};
 	}
 
 	void Texture::copyTo(ID3D12GraphicsCommandList* cmd_queue, Buffer& target)
@@ -292,7 +307,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		const Texture1DDescription& desc,
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue)
-	: Texture(device, desc, init_data, cmd_queue)
+	: Texture(device, GenericTextureDescription{ desc, TextureType::Texture1DArray }, init_data, cmd_queue)
 	{
 	}
 
@@ -325,34 +340,12 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		return std::make_unique<Texture2D>(*this);
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC Texture2D::srv() const
-	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC desc = {};
-		desc.Format = Graphics::D3D12::D3D::toD3Denum(format());
-		desc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		desc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MostDetailedMip = 0;
-		desc.Texture2D.MipLevels = mipMapLevels();
-		desc.Texture2D.PlaneSlice = 0;
-		desc.Texture2D.ResourceMinLODClamp = 0;
-		return desc;
-	}
-	D3D12_UNORDERED_ACCESS_VIEW_DESC Texture2D::uav() const
-	{
-		D3D12_UNORDERED_ACCESS_VIEW_DESC desc = {};
-		desc.Format = Graphics::D3D12::D3D::toD3Denum(format());
-		desc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
-		desc.Texture2D.MipSlice = 0;
-		desc.Texture2D.PlaneSlice = 0;
-		return desc;
-	}
-
 	Texture2DArray::Texture2DArray(
 		Graphics::D3D12::Device* device,
 		const Texture2DDescription& desc,
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue)
-	: Texture(device, desc, init_data, cmd_queue)
+	: Texture(device, GenericTextureDescription{ desc, TextureType::Texture2DArray }, init_data, cmd_queue)
 	{
 	}
 
@@ -409,7 +402,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		const TextureCubeDescription& desc,
 		const TextureResource* init_data,
 		ID3D12GraphicsCommandList* cmd_queue)
-	: Texture(device, desc, init_data, cmd_queue)
+	: Texture(device, GenericTextureDescription{ desc, TextureType::TextureCubeArray }, init_data, cmd_queue)
 	{
 	}
 

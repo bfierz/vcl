@@ -24,34 +24,43 @@
  */
 #include <vcl/graphics/runtime/resource/texture.h>
 
+// C++ standard library
+#include <algorithm>
+
 // VCL library
 #include <vcl/core/contract.h>
 #include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime {
-	void TextureView::initializeView(
+	void Texture::initializeTexture(
 		TextureType t,
-		SurfaceFormat f,
-		Flags<TextureUsage> usage,
-		int firstLvl,
+		const TextureBaseDescription& desc,
 		int nrLvls,
-		int firstLayer,
 		int nrLayers,
 		int width,
 		int height,
 		int depth)
 	{
+		VclRequire(std::find(desc.ViewFormats.begin(), desc.ViewFormats.end(), SurfaceFormat::Unknown) == desc.ViewFormats.end(), "View formats are valid.");
+
 		_type = t;
-		_format = f;
-		_usage = usage;
-		_level = firstLvl;
+		_format = desc.Format;
+		_usage = desc.Usage;
+		_viewFormats = desc.ViewFormats;
 		_nrLevels = nrLvls;
-		_layer = firstLayer;
 		_nrLayers = nrLayers;
 		_width = width;
 		_height = height;
 		_depth = depth;
 
-		_sizeInBytes = width * height * depth * Vcl::Graphics::sizeInBytes(f);
+		_sizeInBytes = width * height * depth * Vcl::Graphics::sizeInBytes(desc.Format);
+	}
+
+	bool Texture::supportsViewFormat(SurfaceFormat format) const
+	{
+		if (format == SurfaceFormat::Unknown || format == _format)
+			return true;
+
+		return std::find(_viewFormats.begin(), _viewFormats.end(), format) != _viewFormats.end();
 	}
 }}}

@@ -39,6 +39,7 @@
 
 // VCL
 #include <vcl/graphics/d3d12/commandqueue.h>
+#include <vcl/graphics/runtime/state/devicefeatures.h>
 
 namespace Vcl { namespace Graphics { namespace D3D12 {
 	enum class DeviceType
@@ -95,6 +96,16 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		//! \{
 		//! \returns the D3D12 raytracing support level
 		D3D12_RAYTRACING_TIER raytracingSupport() const { return _raytracingTier; }
+
+		//! \returns the highest supported shader model
+		D3D_SHADER_MODEL shaderModel() const { return _shaderModel; }
+
+		//! \returns the resource binding tier
+		D3D12_RESOURCE_BINDING_TIER resourceBindingTier() const { return _resourceBindingTier; }
+
+		//! \returns the features the shared descriptions may use.
+		//!          Bindless resources need shader model 6.6 and resource binding tier 3.
+		const Runtime::DeviceFeatures& features() const { return _features; }
 		//! \}
 
 		//! \name D3D12 Helpers
@@ -119,6 +130,7 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 
 	private:
 		void enableDebugLayer();
+		void queryFeatures();
 
 		ComPtr<ID3D12Device> _d3dDevice;
 
@@ -129,6 +141,9 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		//! \name Feature Support
 		//! \{
 		D3D12_RAYTRACING_TIER _raytracingTier{ D3D12_RAYTRACING_TIER_NOT_SUPPORTED };
+		D3D_SHADER_MODEL _shaderModel{ D3D_SHADER_MODEL_5_1 };
+		D3D12_RESOURCE_BINDING_TIER _resourceBindingTier{ D3D12_RESOURCE_BINDING_TIER_1 };
+		Runtime::DeviceFeatures _features;
 		//! \}
 	};
 }}}

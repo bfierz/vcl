@@ -105,11 +105,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	{
 		switch (op)
 		{
-		case AttachmentStoreOp::Clear:
+		case AttachmentStoreOp::DontCare:
 			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
 		case AttachmentStoreOp::Store:
 			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		case AttachmentStoreOp::Resolve:
+			// Resolving requires the resolve parameters, which are not filled yet
+			VclDebugError("Resolve is not implemented.");
+			return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 		}
+
+		return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 	}
 
 	D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert(AttachmentLoadOp op)
@@ -180,27 +186,22 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 		} else if (dynamic_cast<ComputePipelineState*>(pipeline))
 			_cmdList->SetPipelineState(static_cast<ComputePipelineState*>(pipeline)->handle());
 	}
-	void CommandBuffer::bindDescriptorTable(PipelineBindPoint bp, uint32_t root_index, Graphics::D3D12::DescriptorTable* table)
+	void CommandBuffer::bindDescriptorHeap(const Graphics::D3D12::DescriptorHeap& heap)
 	{
-		std::array<Graphics::D3D12::DescriptorTable*, 1> tables = { table };
-		bindDescriptorTables(bp, root_index, stdext::make_span(tables));
+		heap.bind(_cmdList.Get());
 	}
-	void CommandBuffer::bindDescriptorTables(PipelineBindPoint bp, uint32_t root_index, stdext::span<Graphics::D3D12::DescriptorTable*> tables)
+	void CommandBuffer::pushConstants(PipelineBindPoint bp, uint32_t offset, uint32_t size, const void* data)
 	{
-		VclRequire(std::all_of(tables.begin(), tables.end(), [](auto* table) { return table->layout(); }), "All tables bind to the same layout.");
-		if (tables.empty())
-			return;
+		using Graphics::D3D12::DescriptorHeap;
+
+		VclRequire(offset % 4 == 0 && size % 4 == 0, "Root constants are 32-bit values.");
 
 		if (bp == PipelineBindPoint::Graphics)
-		{
-			tables[0]->setToGraphics(_cmdList.Get(), root_index);
-		} else if (bp == PipelineBindPoint::Compute)
-		{
-			tables[0]->setToCompute(_cmdList.Get(), root_index);
-		} else
-		{
+			_cmdList->SetGraphicsRoot32BitConstants(DescriptorHeap::RootConstantsParameter, size / 4, data, offset / 4);
+		else if (bp == PipelineBindPoint::Compute)
+			_cmdList->SetComputeRoot32BitConstants(DescriptorHeap::RootConstantsParameter, size / 4, data, offset / 4);
+		else
 			VclDebugError("Pipeline bind point not implemented");
-		}
 	}
 	void CommandBuffer::bindIndexBuffer(Buffer* buffer)
 	{
@@ -293,7 +294,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 	void GraphicsEngine::beginFrame()
 	{
 		// Increment the frame counter to indicate the start of the next frame
-		incrFrameCounter();
+		_frameCounter++;
 
 		// Wait until the requested frame is done with processing
 		const auto frame_idx = _swapChain->waitForNextFrame();

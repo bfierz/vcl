@@ -124,8 +124,8 @@ set(SOURCE_D3D12
 	vcl/graphics/d3d12/commandqueue.h
 	vcl/graphics/d3d12/d3d.cpp
 	vcl/graphics/d3d12/d3d.h
-	vcl/graphics/d3d12/descriptortable.cpp
-	vcl/graphics/d3d12/descriptortable.h
+	vcl/graphics/d3d12/descriptorheap.cpp
+	vcl/graphics/d3d12/descriptorheap.h
 	vcl/graphics/d3d12/device.cpp
 	vcl/graphics/d3d12/device.h
 	vcl/graphics/d3d12/semaphore.cpp
@@ -146,6 +146,8 @@ set(SOURCE_D3D12
 	vcl/graphics/runtime/d3d12/state/pipelinestate.h
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.cpp
 	vcl/graphics/runtime/d3d12/state/rasterizerstate.h
+	vcl/graphics/runtime/d3d12/state/sampler.cpp
+	vcl/graphics/runtime/d3d12/state/sampler.h
 )
 
 # Presentation through DXGI, which exists only on Windows
@@ -166,8 +168,8 @@ set(SOURCE_VULKAN
 	vcl/graphics/vulkan/commands.h
 	vcl/graphics/vulkan/context.cpp
 	vcl/graphics/vulkan/context.h
-	vcl/graphics/vulkan/descriptorset.cpp
-	vcl/graphics/vulkan/descriptorset.h
+	vcl/graphics/vulkan/descriptorheap.cpp
+	vcl/graphics/vulkan/descriptorheap.h
 	vcl/graphics/vulkan/device.cpp
 	vcl/graphics/vulkan/device.h
 	vcl/graphics/vulkan/memory.cpp
@@ -194,6 +196,8 @@ set(SOURCE_VULKAN
 	vcl/graphics/runtime/vulkan/state/pipelinestate.h
 	vcl/graphics/runtime/vulkan/state/rasterizerstate.cpp
 	vcl/graphics/runtime/vulkan/state/rasterizerstate.h
+	vcl/graphics/runtime/vulkan/state/sampler.cpp
+	vcl/graphics/runtime/vulkan/state/sampler.h
 )
 
 set(SOURCE_WEBGPU
@@ -236,11 +240,9 @@ set(SOURCE
 	vcl/graphics/imageprocessing/tonemap.cpp
 	vcl/graphics/imageprocessing/tonemap.h
 
-	vcl/graphics/runtime/framebuffer.cpp
-	vcl/graphics/runtime/framebuffer.h
-	vcl/graphics/runtime/graphicsengine.h
 	vcl/graphics/runtime/resource/buffer.cpp
 	vcl/graphics/runtime/resource/buffer.h
+	vcl/graphics/runtime/resource/bufferview.h
 	vcl/graphics/runtime/resource/shader.cpp
 	vcl/graphics/runtime/resource/shader.h
 	vcl/graphics/runtime/resource/texture.cpp
@@ -248,9 +250,12 @@ set(SOURCE
 	vcl/graphics/runtime/state/blendstate.h
 	vcl/graphics/runtime/state/common.h
 	vcl/graphics/runtime/state/depthstencilstate.h
+	vcl/graphics/runtime/state/devicefeatures.cpp
+	vcl/graphics/runtime/state/devicefeatures.h
 	vcl/graphics/runtime/state/inputlayout.h
 	vcl/graphics/runtime/state/pipelinestate.h
 	vcl/graphics/runtime/state/rasterizerstate.h
+	vcl/graphics/runtime/state/resourcetable.h
 	vcl/graphics/runtime/state/sampler.cpp
 	vcl/graphics/runtime/state/sampler.h
 

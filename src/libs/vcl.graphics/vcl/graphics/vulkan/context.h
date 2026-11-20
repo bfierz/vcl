@@ -37,6 +37,7 @@
 
 // VCL
 #include <vcl/core/span.h>
+#include <vcl/graphics/runtime/state/devicefeatures.h>
 
 namespace Vcl { namespace Graphics { namespace Vulkan {
 	class Device;
@@ -77,6 +78,11 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	{
 	public:
 		//! Constructor
+		//! Enables the features of the bindless resource model: descriptor
+		//! indexing (Vulkan 1.2) and VK_EXT_mutable_descriptor_type.
+		//! Mesh shaders (VK_EXT_mesh_shader) are enabled when available.
+		//! \param extensions Additional device extensions to enable
+		//! \throws std::runtime_error if the device lacks a required feature
 		Context(Device* dev, stdext::span<const char*> extensions);
 
 		//! Destructor
@@ -91,12 +97,30 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 		Device* device() const { return _physicalDevice; }
 		VkPipelineCache cache() const { return _pipelineCache; }
 
+		//! \returns the enabled core (Vulkan 1.0) features
+		const VkPhysicalDeviceFeatures& enabledFeatures() const { return _enabledFeatures; }
+
+		//! \returns the features the shared descriptions may use on this device
+		const Runtime::DeviceFeatures& features() const { return _features; }
+
+		//! \returns whether mesh shaders (VK_EXT_mesh_shader) are available
+		bool supportsMeshShaders() const { return _meshShadersEnabled; }
+
+		//! \returns whether task shaders (VK_EXT_mesh_shader) are available
+		bool supportsTaskShaders() const { return _taskShadersEnabled; }
+
+		//! \returns the entry point of 'vkCmdDrawMeshTasksEXT'; null without mesh shaders
+		PFN_vkCmdDrawMeshTasksEXT drawMeshTasksProc() const { return _drawMeshTasks; }
+
 		VkCommandPool commandPool(uint32_t queueIdx, CommandBufferType type);
 
 	public:
 		VkQueue queue(VkQueueFlags flags, uint32_t idx);
 
 	private:
+		//! Create the logical device and the pipeline cache
+		void createDevice(const std::vector<const char*>& extensions, const VkPhysicalDeviceFeatures2* features);
+
 		//! Vulkan physical device
 		Device* _physicalDevice{ nullptr };
 
@@ -105,6 +129,17 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		//! Queue families
 		std::vector<VkQueueFamilyProperties> _queueFamilies;
+
+		//! Enabled core features
+		VkPhysicalDeviceFeatures _enabledFeatures{};
+
+		//! Features in the shared vocabulary
+		Runtime::DeviceFeatures _features;
+
+		//! Mesh shader support
+		bool _meshShadersEnabled{ false };
+		bool _taskShadersEnabled{ false };
+		PFN_vkCmdDrawMeshTasksEXT _drawMeshTasks{ nullptr };
 
 		//! Associated pipeline cache
 		VkPipelineCache _pipelineCache;

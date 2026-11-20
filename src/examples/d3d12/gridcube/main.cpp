@@ -79,12 +79,6 @@ public:
 	{
 		using Vcl::Graphics::Camera;
 		using Vcl::Graphics::SurfaceFormat;
-		using Vcl::Graphics::D3D12::ContantDescriptor;
-		using Vcl::Graphics::D3D12::DescriptorTable;
-		using Vcl::Graphics::D3D12::DescriptorTableLayout;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntry;
-		using Vcl::Graphics::D3D12::DescriptorTableLayoutEntryType;
-		using Vcl::Graphics::D3D12::InlineDescriptor;
 		using Vcl::Graphics::Runtime::BufferDescription;
 		using Vcl::Graphics::Runtime::BufferUsage;
 		using Vcl::Graphics::Runtime::PipelineStateDescription;
@@ -100,13 +94,6 @@ public:
 		_cameraController = std::make_unique<Vcl::Graphics::TrackballCameraController>();
 		_cameraController->setCamera(_camera.get());
 
-		std::vector<DescriptorTableLayoutEntry> dynamic_resources = {
-			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{ 0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE }, D3D12_SHADER_VISIBILITY_VERTEX },
-			{ DescriptorTableLayoutEntryType::InlineConstantBufferView, InlineDescriptor{ 1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE }, D3D12_SHADER_VISIBILITY_VERTEX }
-		};
-		_tableLayout = std::make_unique<DescriptorTableLayout>(device(), std::move(dynamic_resources));
-		//_table = std::make_unique<DescriptorTable>(device(), _tableLayout.get());
-
 		Shader boxVert{ ShaderType::VertexShader, 0, GridCsoVS };
 		Shader boxGeom{ ShaderType::GeometryShader, 0, GridCsoGS };
 		Shader boxFrag{ ShaderType::FragmentShader, 0, GridCsoPS };
@@ -118,7 +105,8 @@ public:
 		RenderTargetLayout rtd = {};
 		rtd.ColourFormats = { SurfaceFormat::R8G8B8A8_UNORM };
 		rtd.DepthStencilFormat = SurfaceFormat::D32_FLOAT;
-		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), boxPSDesc, rtd, _tableLayout.get());
+		boxPSDesc.RenderTargets = rtd;
+		_boxPipelineState = std::make_unique<GraphicsPipelineState>(device(), heap(), boxPSDesc);
 
 		// Allocate a junk of 512 KB for constant buffers per frame
 		BufferDescription cbuffer_desc;
@@ -131,6 +119,14 @@ public:
 		_mappedConstantBuffer[0] = (uint8_t*)_constantBuffer[0]->map();
 		_mappedConstantBuffer[1] = (uint8_t*)_constantBuffer[1]->map();
 		_mappedConstantBuffer[2] = (uint8_t*)_constantBuffer[2]->map();
+
+		// Views on the transformation and the grid configuration of each frame
+		for (size_t i = 0; i < _constantBuffer.size(); i++)
+		{
+			using Vcl::Graphics::Runtime::ResourceViewType;
+			_transformViews[i] = heap()->createView(*_constantBuffer[i], ResourceViewType::ConstantBuffer, 0, sizeof(TransformData));
+			_configViews[i] = heap()->createView(*_constantBuffer[i], ResourceViewType::ConstantBuffer, 1024, sizeof(BoundingGridConfig));
+		}
 	}
 
 private:
@@ -215,14 +211,12 @@ private:
 	{
 		// Configure the layout
 		cmd_list->SetPipelineState(_boxPipelineState->handle());
-		cmd_list->SetGraphicsRootSignature(_tableLayout->rootSignature());
 
 		// View on the scene
 		const auto curr = swapChain()->currentBufferIndex();
 		auto cbuf_transform = reinterpret_cast<TransformData*>(_mappedConstantBuffer[curr]);
 		cbuf_transform->ModelMatrix = M;
 		cbuf_transform->ViewProjectionMatrix = VP;
-		cmd_list->SetGraphicsRootConstantBufferView(0, _constantBuffer[curr]->handle()->GetGPUVirtualAddress());
 
 		// Compute the grid paramters
 		float maxSize = bb.diagonal().maxCoeff();
@@ -239,7 +233,9 @@ private:
 		cbuf_config->StepSize = maxSize / (float)resolution;
 		cbuf_config->Resolution = (float)resolution;
 
-		cmd_list->SetGraphicsRootConstantBufferView(1, _constantBuffer[curr]->handle()->GetGPUVirtualAddress() + 1024);
+		// Indices of the constant buffers in the heap
+		const uint32_t views[] = { _transformViews[curr].index().Value, _configViews[curr].index().Value };
+		cmd_list->SetGraphicsRoot32BitConstants(Vcl::Graphics::D3D12::DescriptorHeap::RootConstantsParameter, 2, views, 0);
 
 		// Render the grid
 		// 3 Line-loops with 4 points, N+1 replications of the loops (N tiles)
@@ -254,12 +250,12 @@ private:
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _gs;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::Shader> _ps;
 
-	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTableLayout> _tableLayout;
-	std::unique_ptr<Vcl::Graphics::D3D12::DescriptorTable> _table;
 	std::unique_ptr<Vcl::Graphics::Runtime::D3D12::GraphicsPipelineState> _boxPipelineState;
 
 	std::array<Vcl::owner_ptr<Vcl::Graphics::Runtime::D3D12::Buffer>, 3> _constantBuffer;
 	std::array<uint8_t*, 3> _mappedConstantBuffer;
+	std::array<Vcl::Graphics::D3D12::ResourceView, 3> _transformViews;
+	std::array<Vcl::Graphics::D3D12::ResourceView, 3> _configViews;
 
 	unsigned int _gridResolution{ 10 };
 };

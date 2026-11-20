@@ -34,13 +34,13 @@
 
 const int Application::NumberOfFrames = 3;
 
-Application::Application(LPCSTR title)
+Application::Application(LPCSTR title, const Vcl::Graphics::Runtime::BindlessLayoutDescription& layout)
 {
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, _T("VCL D3D12 Example"), nullptr };
 	::RegisterClassEx(&wc);
 	_windowHandle = ::CreateWindow(wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, this);
 
-	if (!initD3d12(_windowHandle))
+	if (!initD3d12(_windowHandle, layout))
 	{
 		::DestroyWindow(_windowHandle);
 		::UnregisterClass(wc.lpszClassName, wc.hInstance);
@@ -57,6 +57,7 @@ Application::~Application()
 	_frames[2].GraphicsCommandAllocator.Reset();
 
 	_swapChain.reset();
+	_heap.reset();
 	_device.reset();
 
 	::DestroyWindow(_windowHandle);
@@ -91,6 +92,7 @@ int Application::run()
 		auto rtv = _swapChain->prepareFrame(_graphicsCommandBuffer->handle());
 		auto dsv = Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get());
 
+		_graphicsCommandBuffer->bindDescriptorHeap(*_heap);
 		renderFrame(_graphicsCommandBuffer.get(), rtv, dsv);
 		_swapChain->present(_device->defaultQueue(), _graphicsCommandBuffer->handle(), false);
 	}
@@ -139,7 +141,7 @@ void Application::createDeviceObjects()
 	dev->CreateDepthStencilView(_depthBuffer.Get(), &dsv, Vcl::Graphics::D3D12::cpuHeapStart(_dsvHeap.Get()));
 }
 
-bool Application::initD3d12(HWND hWnd)
+bool Application::initD3d12(HWND hWnd, const Vcl::Graphics::Runtime::BindlessLayoutDescription& layout)
 {
 	using namespace Vcl::Graphics::D3D12;
 
@@ -153,6 +155,10 @@ bool Application::initD3d12(HWND hWnd)
 	sc_desc.VSync = true;
 
 	_device = std::make_unique<Device>(DeviceType::Hardware);
+	if (!_device->features().BindlessResources)
+		throw std::runtime_error("The examples need shader model 6.6 and resource binding tier 3");
+	_heap = std::make_unique<DescriptorHeap>(_device.get(), layout);
+
 	_swapChain = std::make_unique<SwapChain>(_device.get(), _device->defaultQueue(), sc_desc);
 
 	_frames[0].GraphicsCommandAllocator = _device->createCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);

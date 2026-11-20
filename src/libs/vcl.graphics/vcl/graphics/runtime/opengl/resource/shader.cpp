@@ -166,6 +166,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		case ShaderType::GeometryShader: return GL_GEOMETRY_SHADER;
 		case ShaderType::FragmentShader: return GL_FRAGMENT_SHADER;
 		case ShaderType::ComputeShader: return GL_COMPUTE_SHADER;
+#ifdef GL_NV_mesh_shader
+		case ShaderType::TaskShader: return GL_TASK_SHADER_NV;
+		case ShaderType::MeshShader: return GL_MESH_SHADER_NV;
+#endif
 		default:
 		{
 			VclDebugError("Enumeration value is valid.");

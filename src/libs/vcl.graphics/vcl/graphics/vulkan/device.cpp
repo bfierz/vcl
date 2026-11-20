@@ -25,6 +25,8 @@
 #include <vcl/graphics/vulkan/device.h>
 
 // C++ standard library
+#include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <vector>
 
@@ -41,6 +43,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 		// Store the relevant data
 		_name = dev_props.deviceName;
+		_limits = dev_props.limits;
 
 		// Enumerate layers and extensions
 		enumerateLayersAndExtensions(_device, _availableLayers, _availableExtensions, _extensionsPerLayer);
@@ -95,6 +98,13 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 	std::unique_ptr<Context> Device::createContext(stdext::span<const char*> extensions)
 	{
 		return std::make_unique<Context>(this, extensions);
+	}
+
+	bool Device::supportsExtension(const char* name) const
+	{
+		return std::any_of(_availableExtensions.begin(), _availableExtensions.end(), [name](const VkExtensionProperties& ext) {
+			return std::strcmp(ext.extensionName, name) == 0;
+		});
 	}
 
 	stdext::span<const VkMemoryType> Device::nativeMemoryTypes() const
@@ -205,7 +215,7 @@ namespace Vcl { namespace Graphics { namespace Vulkan {
 
 			for (const auto& ext : extensions)
 			{
-				extensionsPerLayer.emplace(std::make_pair<std::string, std::string>(layers[l].layerName, ext.extensionName));
+				extensionsPerLayer.emplace(layers[l].layerName, ext.extensionName);
 			}
 		}
 	}

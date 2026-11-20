@@ -32,10 +32,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace OpenGL {
 		const Texture2DDescription& desc,
 		const TextureResource* init_data)
 	{
-		initializeView(
-			TextureType::Texture2DArray, desc.Format, desc.Usage,
-			0, desc.MipLevels,
-			0, desc.ArraySize,
+		initializeTexture(
+			TextureType::Texture2DArray, desc,
+			desc.MipLevels, desc.ArraySize,
 			desc.Width, desc.Height, 1);
 		initialise(init_data);
 	}
