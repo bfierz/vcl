@@ -60,6 +60,11 @@ class VclConan(ConanFile):
                 self.requires("vulkan-validationlayers/1.4.350.0")
         if self.options.with_d3d12:
             self.requires("directx-headers/1.614.0")
+        if self.options.with_webgpu and self.settings.os != "Emscripten":
+            # Resolved only: the WebGPU backend targets the 2022 Dawn API and is not built until it
+            # is ported. Emscripten ships its own WebGPU bindings. Dawn 159 needs C++20, so with_webgpu
+            # requires a profile with compiler.cppstd=20 (the C++17 profiles report the package invalid).
+            self.requires("dawn/159.0.8154")
 
         if self.options.build_examples:
             # The examples share one imgui; the pin overrides the versions that implot (1.92.9b),
@@ -67,12 +72,12 @@ class VclConan(ConanFile):
             # renderer backends as sources, which src/examples/imgui compiles once.
             self.requires("imgui/1.92.9b", override=True)
             if self.settings.os != "Emscripten" and any(
-                self.options.get_safe(o) for o in ("with_opengl", "with_vulkan", "with_webgpu")
+                self.options.get_safe(o) for o in ("with_opengl", "with_vulkan")
             ):
                 self.requires("glfw/3.4")
             if self.options.with_opengl:
                 self.requires("implot/1.1")
-            if self.options.with_opengl or self.options.with_webgpu:
+            if self.options.with_opengl:
                 # Brings stb with it
                 self.requires("imfiledialog/cci.20240916")
             if self.options.with_d3d12 and self.settings.os == "Windows":
@@ -86,7 +91,7 @@ class VclConan(ConanFile):
     # ConanCenter ships shaderc binaries only for a few compilers (msvc 194, gcc 13, apple-clang 17);
     # other build profiles build shaderc from source. dxc comes from bfierz/conan-index.
     def build_requirements(self):
-        if any(self.options.get_safe(o) for o in ("with_opengl", "with_vulkan", "with_webgpu")):
+        if any(self.options.get_safe(o) for o in ("with_opengl", "with_vulkan")):
             self.tool_requires("shaderc/2026.4")
         if self.options.get_safe("with_d3d12"):
             self.tool_requires("dxc/1.9.2609")

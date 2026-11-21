@@ -48,11 +48,7 @@ if(VCL_OPENGL_SUPPORT)
 	list(APPEND test_project vcl.graphics.opengl)
 endif()
 
-# WebGPU related tests
-if(VCL_WEBGPU_SUPPORT)
-	add_subdirectory(vcl.graphics.webgpu)
-	list(APPEND test_project vcl.graphics.webgpu)
-endif()
+# The WebGPU tests (vcl.graphics.webgpu) are excluded until the backend is ported to the current Dawn API
 
 # CUDA related tests
 if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
