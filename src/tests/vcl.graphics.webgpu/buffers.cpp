@@ -172,9 +172,9 @@ struct Fence
 	int requestedValue;
 	int completedValue;
 };
-void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc)
+void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2)
 {
-	auto fence = reinterpret_cast<Fence*>(sc);
+	auto fence = reinterpret_cast<Fence*>(userdata1);
 	fence->completedValue = fence->requestedValue;
 }
 
@@ -213,18 +213,22 @@ TEST(WebGPUBuffer, ReadWrite)
 	buf0.unmap();
 
 	WGPUCommandEncoderDescriptor enc_desc = {};
-	enc_desc.label = "Default command encoder";
+	enc_desc.label = { "Default command encoder", WGPU_STRLEN };
 	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device, &enc_desc);
 	buf0.copyTo(encoder, buf1);
 	WGPUCommandBufferDescriptor buf_desc = {};
-	buf_desc.label = "Default command buffer";
+	buf_desc.label = { "Default command buffer", WGPU_STRLEN };
 	WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &buf_desc);
 
 	auto queue = wgpuDeviceGetQueue(device);
 	wgpuQueueSubmit(queue, 1, &cmd_buffer);
 
 	Fence fence = { 1, 0 };
-	wgpuQueueOnSubmittedWorkDone(queue, 0, swapChainWorkSubmittedCallback, &fence);
+	WGPUQueueWorkDoneCallbackInfo done_callback = {};
+	done_callback.mode = WGPUCallbackMode_AllowSpontaneous;
+	done_callback.callback = swapChainWorkSubmittedCallback;
+	done_callback.userdata1 = &fence;
+	wgpuQueueOnSubmittedWorkDone(queue, done_callback);
 
 #ifndef VCL_ARCH_WEBASM
 	while (fence.completedValue < fence.requestedValue)
