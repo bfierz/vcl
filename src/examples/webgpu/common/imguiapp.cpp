@@ -46,7 +46,7 @@ ImGuiApplication::ImGuiApplication(const char* title)
 	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer bindings
-	ImGui_ImplGlfw_InitForVulkan(windowHandle(), true);
+	ImGui_ImplGlfw_InitForOther(windowHandle(), true);
 	ImGui_ImplWGPU_InitInfo init_info;
 	init_info.Device = _wgpuDevice;
 	init_info.NumFramesInFlight = NumberOfFrames;
@@ -98,28 +98,30 @@ void ImGuiApplication::createDeviceObjects()
 
 void ImGuiApplication::renderFrame(WGPUTextureView back_buffer)
 {
-	wgpu::Device device{ _wgpuDevice };
+	WGPURenderPassColorAttachment color_attachment = {};
+	color_attachment.loadOp = WGPULoadOp_Load;
+	color_attachment.storeOp = WGPUStoreOp_Store;
+	color_attachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+	color_attachment.view = back_buffer;
 
-	auto color_attachments = wgpu::RenderPassColorAttachment{};
-	color_attachments.loadOp = wgpu::LoadOp::Load;
-	color_attachments.storeOp = wgpu::StoreOp::Store;
-	color_attachments.clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
-	color_attachments.view = wgpu::TextureView{ back_buffer };
-	auto render_pass_desc = wgpu::RenderPassDescriptor{};
+	WGPURenderPassDescriptor render_pass_desc = {};
 	render_pass_desc.colorAttachmentCount = 1;
-	render_pass_desc.colorAttachments = &color_attachments;
+	render_pass_desc.colorAttachments = &color_attachment;
 	render_pass_desc.depthStencilAttachment = nullptr;
 
-	auto enc_desc = wgpu::CommandEncoderDescriptor{};
-	auto encoder = device.CreateCommandEncoder(&enc_desc);
-	auto pass = encoder.BeginRenderPass(&render_pass_desc);
+	WGPUCommandEncoderDescriptor enc_desc = {};
+	WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(_wgpuDevice, &enc_desc);
+	WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
 
 	ImGui::Render();
-	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass);
 
-	pass.End();
+	wgpuRenderPassEncoderEnd(pass);
+	wgpuRenderPassEncoderRelease(pass);
 
-	auto cmd_buffer_desc = wgpu::CommandBufferDescriptor{};
-	auto cmd_buffer = encoder.Finish(&cmd_buffer_desc);
-	device.GetQueue().Submit(1, &cmd_buffer);
+	WGPUCommandBufferDescriptor cmd_buffer_desc = {};
+	WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
+	wgpuCommandEncoderRelease(encoder);
+	wgpuQueueSubmit(wgpuDeviceGetQueue(_wgpuDevice), 1, &cmd_buffer);
+	wgpuCommandBufferRelease(cmd_buffer);
 }

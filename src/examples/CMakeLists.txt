@@ -6,13 +6,13 @@ include(../cmake/VCLOpenCLSupport.cmake)
 add_subdirectory(rtti)
 add_subdirectory(simd)
 
-# GLFW is the window system of the OpenGL and Vulkan examples
-if((VCL_OPENGL_SUPPORT OR VCL_VULKAN_SUPPORT) AND NOT EMSCRIPTEN)
+# GLFW is the window system of the OpenGL, Vulkan and WebGPU examples
+if((VCL_OPENGL_SUPPORT OR VCL_VULKAN_SUPPORT OR VCL_WEBGPU_SUPPORT) AND NOT EMSCRIPTEN)
 	find_package(glfw3 CONFIG REQUIRED)
 endif()
 
 # The Dear ImGui backends and extensions, compiled once for the examples using them
-if(VCL_OPENGL_SUPPORT OR VCL_VULKAN_SUPPORT OR (VCL_D3D12_SUPPORT AND WIN32))
+if(VCL_OPENGL_SUPPORT OR VCL_VULKAN_SUPPORT OR VCL_WEBGPU_SUPPORT OR (VCL_D3D12_SUPPORT AND WIN32))
 	add_subdirectory(imgui)
 endif()
 
@@ -26,7 +26,9 @@ if(VCL_VULKAN_SUPPORT)
 	add_subdirectory(vulkan)
 endif()
 
-# The WebGPU examples (webgpu/) are excluded until the backend is ported to the current Dawn API
+if(VCL_WEBGPU_SUPPORT)
+	add_subdirectory(webgpu)
+endif()
 
 
 if(VCL_OPENGL_SUPPORT)

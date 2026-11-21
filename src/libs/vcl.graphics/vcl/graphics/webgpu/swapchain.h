@@ -54,7 +54,8 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		//! Number of images
 		uint32_t NumberOfImages;
 
-		//! Select colour format
+		//! Select colour format. When the surface does not support it, or when it is 'Unknown',
+		//! the first format the surface supports is used
 		SurfaceFormat ColourFormat;
 
 		//! Requested width
@@ -76,6 +77,9 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		SwapChain(WGPUDevice device, const SwapChainDescription& desc);
 		~SwapChain();
 
+		//! Colour format of the images, valid after construction
+		WGPUTextureFormat colourFormat() const { return _format; }
+
 		std::pair<uint32_t, uint32_t> bufferSize() const { return std::make_pair(_desc.Width, _desc.Height); }
 		//! Acquire the view of the image to render into. Valid until the next present().
 		WGPUTextureView currentBackBuffer();
@@ -87,6 +91,9 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 	private:
 		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2);
 
+		//! Select the format to configure the surface with
+		WGPUTextureFormat selectFormat() const;
+
 		//! Release the image acquired for the current frame
 		void releaseBackBuffer();
 
@@ -95,6 +102,9 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 
 		//! Description
 		SwapChainDescription _desc;
+
+		//! Format the surface is configured with
+		WGPUTextureFormat _format{ WGPUTextureFormat_Undefined };
 
 		//! Count frame completion requests
 		uint64_t _requestedFrame{ 0 };

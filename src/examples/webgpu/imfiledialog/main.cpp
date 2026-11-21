@@ -113,8 +113,9 @@ private:
 		std::array<WGPURenderPassColorAttachment, 1> color_attachments = {};
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
-		color_attachments[0].clearColor = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
+		color_attachments[0].clearValue = { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
 		color_attachments[0].view = back_buffer;
+		color_attachments[0].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
 		WGPURenderPassDescriptor render_pass_desc = {};
 		render_pass_desc.colorAttachmentCount = static_cast<uint32_t>(color_attachments.size());
 		render_pass_desc.colorAttachments = color_attachments.data();
@@ -124,11 +125,14 @@ private:
 		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(_wgpuDevice, &enc_desc);
 		WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
 		wgpuRenderPassEncoderEnd(pass);
+		wgpuRenderPassEncoderRelease(pass);
 
 		WGPUCommandBufferDescriptor cmd_buffer_desc = {};
 		WGPUCommandBuffer cmd_buffer = wgpuCommandEncoderFinish(encoder, &cmd_buffer_desc);
+		wgpuCommandEncoderRelease(encoder);
 		WGPUQueue queue = wgpuDeviceGetQueue(_wgpuDevice);
 		wgpuQueueSubmit(queue, 1, &cmd_buffer);
+		wgpuCommandBufferRelease(cmd_buffer);
 
 		ImGuiApplication::renderFrame(back_buffer);
 	}

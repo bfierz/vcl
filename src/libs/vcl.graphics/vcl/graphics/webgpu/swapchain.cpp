@@ -50,7 +50,30 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 	{
 		VclRequire(desc.Surface, "Surface is provided");
 
+		_format = selectFormat();
 		resize(desc.Width, desc.Height);
+	}
+
+	WGPUTextureFormat SwapChain::selectFormat() const
+	{
+		const auto requested = _desc.ColourFormat != SurfaceFormat::Unknown ? toWebGPUEnum(_desc.ColourFormat) : WGPUTextureFormat_Undefined;
+		// The surface is queried on the adapter of the device it is used with
+		WGPUAdapter adapter = wgpuDeviceGetAdapter(_device);
+		WGPUSurfaceCapabilities caps = {};
+		const auto status = wgpuSurfaceGetCapabilities(_desc.Surface, adapter, &caps);
+		wgpuAdapterRelease(adapter);
+		VclCheck(status == WGPUStatus_Success && caps.formatCount > 0, "Surface reports supported formats");
+		if (status != WGPUStatus_Success || caps.formatCount == 0)
+			return requested;
+
+		WGPUTextureFormat format = caps.formats[0];
+		for (size_t i = 0; i < caps.formatCount; i++)
+		{
+			if (caps.formats[i] == requested)
+				format = requested;
+		}
+		wgpuSurfaceCapabilitiesFreeMembers(caps);
+		return format;
 	}
 
 	SwapChain::~SwapChain()
@@ -105,7 +128,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 
 		WGPUSurfaceConfiguration config = {};
 		config.device = _device;
-		config.format = toWebGPUEnum(_desc.ColourFormat);
+		config.format = _format;
 		config.usage = WGPUTextureUsage_RenderAttachment;
 		config.width = width;
 		config.height = height;
