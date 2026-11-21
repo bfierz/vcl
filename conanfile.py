@@ -32,6 +32,13 @@ class VclConan(ConanFile):
     options = {name: [True, False] for name in VCL_OPTIONS}
     default_options = {name: default for name, (default, _) in VCL_OPTIONS.items()}
 
+    # Resolved from ConanCenter; all three are usable with C++17. Versions are tracked here and
+    # in conan.lock.
+    def requirements(self):
+        self.requires("eigen/3.4.1")
+        self.requires("abseil/20250814.2")
+        self.requires("fmt/11.2.0")
+
     def layout(self):
         cmake_layout(self)
 

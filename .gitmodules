@@ -1,12 +1,3 @@
-[submodule "src/externals/eigen"]
-	path = src/externals/eigen
-	url = https://gitlab.com/libeigen/eigen.git
-[submodule "src/externals/abseil"]
-	path = src/externals/abseil
-	url = https://github.com/abseil/abseil-cpp.git
-[submodule "src/externals/fmtlib"]
-	path = src/externals/fmtlib
-	url = https://github.com/fmtlib/fmt/
 [submodule "src/externals/spdlog"]
 	path = src/externals/spdlog
 	url = https://github.com/gabime/spdlog

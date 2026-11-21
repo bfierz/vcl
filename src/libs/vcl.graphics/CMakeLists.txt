@@ -373,7 +373,7 @@ if(VCL_D3D12_SUPPORT)
 	target_include_directories(vcl_graphics SYSTEM PUBLIC "${DirectX-Headers_SOURCE_DIR}/include/directx")
 	target_link_libraries(vcl_graphics
 		PUBLIC
-			absl_variant
+			abseil::abseil
 			Microsoft::DirectX-Headers
 	)
 	if(WIN32)
@@ -400,7 +400,7 @@ if(VCL_VULKAN_SUPPORT)
 	target_compile_definitions(vcl_graphics PUBLIC VCL_VULKAN_SUPPORT)
 	target_link_libraries(vcl_graphics
 		PUBLIC
-			absl_variant
+			abseil::abseil
 			Vulkan::Vulkan
 		PRIVATE
 			spirv-cross-core

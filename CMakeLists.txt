@@ -26,27 +26,19 @@ cmake_minimum_required(VERSION 3.23)
 
 project(VisualComputingLibrary)
 
-# Determine whether this is a standalone project or included by other projects
-set(VCL_STANDALONE_PROJECT OFF)
+# Configure all projects
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(VCL_STANDALONE_PROJECT ON)
-
-	# Configure all projects
 	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 endif ()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
-# Conan setup
+# Helper functions
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
 
-# Minimum requirement is C++17. The Conan profile's compiler.cppstd (emitted as
-# CMAKE_CXX_STANDARD by the toolchain) is the source of truth; 17 is only the
-# fallback for configures that bypass Conan.
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-	set(CMAKE_CXX_STANDARD 17)
-endif()
+# The C++ standard (17 or newer) comes from the Conan profile's compiler.cppstd, which
+# CMakeToolchain emits as CMAKE_CXX_STANDARD. It is deliberately not set here.
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -59,35 +51,10 @@ endif()
 ################################################################################
 # Add the externals
 ################################################################################
-if (NOT vcl_ext_eigen)
-	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/eigen")
-	find_package(Eigen3 3.3 QUIET)
-	vcl_copy_target(vcl_ext_eigen_tgt Eigen3)
-	set(vcl_ext_eigen "vcl_ext_eigen_tgt")
-endif()
-
-if (NOT vcl_ext_absl)
-	option(ABSL_BUILD_TESTING "" OFF)
-	option(ABSL_PROPAGATE_CXX_STD "" ON)
-	add_subdirectory(src/externals/abseil EXCLUDE_FROM_ALL)
-	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast absl::optional absl::variant)
-	set(vcl_ext_absl "vcl_ext_absl_tgt")
-	
-	set_property(TARGET absl_bad_any_cast_impl PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_bad_optional_access PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_bad_variant_access PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_log_severity PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_raw_logging_internal PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
-endif()
-
-if (NOT vcl_ext_fmt)
-	option(FMT_TEST "" OFF)
-	option(FMT_USE_CPP11 "" ON)
-	add_subdirectory(src/externals/fmtlib EXCLUDE_FROM_ALL)
-	vcl_copy_target(vcl_ext_fmt_tgt fmt::fmt-header-only)
-	set(vcl_ext_fmt "vcl_ext_fmt_tgt")
-endif()
+# Core dependencies come from Conan (docs/adr/0001-conan-with-find-package-seam.md)
+find_package(Eigen3 CONFIG REQUIRED)
+find_package(absl CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json/CMakeLists.txt")
 	option(JSON_BuildTests "" OFF)

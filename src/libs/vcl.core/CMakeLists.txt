@@ -28,9 +28,9 @@ project(vcl_core)
 include(../../cmake/VCLLibrary.cmake)
 
 # Check dependency requirements
-vcl_check_target(${vcl_ext_absl})
-vcl_check_target(${vcl_ext_eigen})
-vcl_check_target(${vcl_ext_fmt})
+vcl_check_target(abseil::abseil)
+vcl_check_target(Eigen3::Eigen)
+vcl_check_target(fmt::fmt)
 
 # Generate library
 vcl_add_library(vcl_core)
@@ -184,9 +184,9 @@ target_include_directories(vcl_core PUBLIC
 )
 
 target_link_libraries(vcl_core
-	${vcl_ext_absl}
-	${vcl_ext_eigen}
-	${vcl_ext_fmt}
+	abseil::abseil
+	Eigen3::Eigen
+	fmt::fmt
 )
 
 # Setup installation
