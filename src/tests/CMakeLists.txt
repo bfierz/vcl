@@ -28,7 +28,9 @@ include(../cmake/VCLCudaSupport.cmake)
 include(../cmake/VCLOpenCLSupport.cmake)
 
 # Enable CMake test support
-enable_testing()
+# Writes DartConfiguration.tcl, which `ctest -T Test` (JUnit conversion, OpenCppCoverage) needs;
+# it used to come from the googletest submodule
+include(CTest)
 
 add_subdirectory(vcl.core)
 add_subdirectory(vcl.geometry)
