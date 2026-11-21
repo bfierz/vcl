@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
     clang clang-tidy clang-format lld \
     ccache \
-    python3 python3-pip python3-venv pipx \
+    python3 python3-pip python3-venv \
     # OpenGL & X11 runtime bits for Qt GUI
     libgl1-mesa-dri libgl1-mesa-dev libglu1-mesa-dev \
     libxkbcommon-x11-0 libx11-xcb1 libxcb1 libxcb-icccm4 libxcb-image0 \
@@ -35,10 +35,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev qt6-base-dev-tools \
     qt6-tools-dev qt6-tools-dev-tools \
     qt6-declarative-dev \
-    # OpenGL development
-    libglew-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-    # Vulkan development (loader, headers, lavapipe software driver)
-    libvulkan-dev vulkan-tools mesa-vulkan-drivers vulkan-validationlayers glslc \
+    # OpenGL and EGL development (GLEW comes from Conan; egl/system checks for libegl-dev)
+    libegl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    # Conan's vulkan-loader builds its X11/XCB window-system support from these
+    libx11-xcb-dev libxcb-dri3-dev libxcb-present-dev libxcb-randr0-dev libxkbcommon-dev libwayland-dev \
+    # Vulkan runtime (lavapipe software driver); headers, loader and glslc come from Conan
+    vulkan-tools mesa-vulkan-drivers vulkan-validationlayers \
     # noVNC stack
     xvfb x11vnc openbox supervisor \
     websockify novnc \
@@ -46,21 +48,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xterm dbus-x11 doxygen \
     && rm -rf /var/lib/apt/lists/*
 
-# Conan 2 (system-wide via pipx; keeps it isolated & on PATH)
-ENV PIPX_HOME=/opt/pipx
-ENV PIPX_BIN_DIR=/usr/local/bin
-ENV PIPX_MAN_DIR=/usr/local/share/man
-RUN pipx ensurepath \
-    && pipx install "conan>=2.0,<3.0" \
-    && conan --version
+# Conan is installed per workspace in a venv at the version pinned in ci/requirements-conan.txt
+# (see postCreateCommand in devcontainer.json).
 
 # Direct3D 12 on Linux: cross-compile with MinGW-w64 (ci/mingw-w64-toolchain.cmake)
 # and run the tests under Wine. vkd3d-proton implements D3D12 on Vulkan, DXVK
 # provides its DXGI. Wine comes from WineHQ: Ubuntu's Wine 9.0 doesn't expose
 # the Vulkan extensions DXVK 3 requires.
-ARG DXC_VERSION=v1.9.2609
-ARG DXC_ARCHIVE=linux_dxc_2026_09_28.x86_x64.tar.gz
-ARG DXC_SHA256=96faadc7f5c282d2ffda49804beb4c3ee38127bc252b723234e3c5cdf7aa39a1
 ARG VKD3D_PROTON_VERSION=3.1
 ARG VKD3D_PROTON_SHA256=b85ea8219b71093a3924913dd7aae6172333dc0c069983ed510816d67f02120b
 ARG DXVK_VERSION=3.1.1
@@ -75,17 +69,13 @@ RUN dpkg --add-architecture i386 \
     && apt-get install -y --install-recommends winehq-stable \
     && rm -rf /var/lib/apt/lists/*
 RUN cd /tmp \
-    && curl -fsSL -o dxc.tar.gz https://github.com/microsoft/DirectXShaderCompiler/releases/download/${DXC_VERSION}/${DXC_ARCHIVE} \
-    && echo "${DXC_SHA256}  dxc.tar.gz" | sha256sum -c - \
-    && mkdir -p /opt/dxc && tar xzf dxc.tar.gz -C /opt/dxc \
     && curl -fsSL -o vkd3d-proton.tar.zst https://github.com/HansKristian-Work/vkd3d-proton/releases/download/v${VKD3D_PROTON_VERSION}/vkd3d-proton-${VKD3D_PROTON_VERSION}.tar.zst \
     && echo "${VKD3D_PROTON_SHA256}  vkd3d-proton.tar.zst" | sha256sum -c - \
     && tar --zstd -xf vkd3d-proton.tar.zst -C /opt && mv /opt/vkd3d-proton-${VKD3D_PROTON_VERSION} /opt/vkd3d-proton \
     && curl -fsSL -o dxvk.tar.gz https://github.com/doitsujin/dxvk/releases/download/v${DXVK_VERSION}/dxvk-${DXVK_VERSION}.tar.gz \
     && echo "${DXVK_SHA256}  dxvk.tar.gz" | sha256sum -c - \
     && tar xzf dxvk.tar.gz -C /opt && mv /opt/dxvk-${DXVK_VERSION} /opt/dxvk \
-    && rm -f /tmp/dxc.tar.gz /tmp/vkd3d-proton.tar.zst /tmp/dxvk.tar.gz
-ENV VCL_DXC_ROOT=/opt/dxc
+    && rm -f /tmp/vkd3d-proton.tar.zst /tmp/dxvk.tar.gz
 ENV VCL_D3D12_WINE_DLLS="/opt/vkd3d-proton/x64/d3d12.dll;/opt/vkd3d-proton/x64/d3d12core.dll;/opt/dxvk/x64/dxgi.dll"
 
 # ccache settings

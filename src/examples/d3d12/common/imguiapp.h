@@ -26,6 +26,9 @@
 
 #include "app.h"
 
+// C++ standard library
+#include <vector>
+
 // IMGUI
 #include "imgui.h"
 
@@ -41,9 +44,18 @@ protected:
 	void renderFrame(Vcl::Graphics::Runtime::D3D12::CommandBuffer* cmd_buffer, D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv) override;
 
 private:
+	//! Number of SRV descriptors reserved for the ImGui textures
+	static constexpr UINT NumberOfImGuiDescriptors = 64;
+
+	//! Hand out and take back descriptors of the ImGui heap for the backend
+	void allocateDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE& cpu, D3D12_GPU_DESCRIPTOR_HANDLE& gpu);
+	void freeDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu);
+
 	LRESULT msgHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
 	void invalidateDeviceObjects() override;
 	void createDeviceObjects() override;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> _imguiDescrHeap;
+	UINT _imguiDescrSize{ 0 };
+	std::vector<UINT> _imguiFreeDescrs;
 };

@@ -1,0 +1,20 @@
+# Linux ARM (32-bit, hard float) cross build on an x86_64 host with g++-arm-linux-gnueabihf.
+# Use with a native build profile: -pr:h=conan/profiles/linux-arm-gcc -pr:b=default
+# Pass the build type on the command line: -s build_type=Release
+[settings]
+os=Linux
+arch=armv7hf
+compiler=gcc
+compiler.version=13
+compiler.libcxx=libstdc++11
+compiler.cppstd=17
+
+[buildenv]
+# Old spirv-cross recipe (Vulkan): CMake 4 rejects its CMake < 3.5
+CMAKE_POLICY_VERSION_MINIMUM=3.5
+CC=arm-linux-gnueabihf-gcc
+CXX=arm-linux-gnueabihf-g++
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.cmake.cmaketoolchain:user_toolchain=["{{ profile_dir }}/../../ci/arm-gcc-toolchain.cmake"]

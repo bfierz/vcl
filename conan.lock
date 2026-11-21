@@ -1,0 +1,78 @@
+{
+    "version": "0.5",
+    "requires": [
+        "zlib/1.4#f51abf05ab684e2283b6d4c1243b624f%1793979742.583",
+        "xorg-proto/2022.2#0088fff0ee788a2fa8f22a9704ea941a%1721048570.217",
+        "xorg-macros/1.19.3#c3465b331ce1d044ee771dc5e4529b79%1676900904.25",
+        "xorg/system#87ea3cbfa907ff490f4ece2f5fa3dbb9%1781197504.821",
+        "wayland/1.22.0#57296ecf74bb3b37e5320c8da64a5700%1779188039.615",
+        "vulkan-validationlayers/1.4.350.0#9fecde1e4da889bf2cc7491d8eb57087%1779205237.787",
+        "vulkan-utility-libraries/1.4.350.0#8fb7ebf7df29878fe763bcebc9c9c3d5%1779124620.468",
+        "vulkan-loader/1.4.350.0#be3184dc9ac25f998ca070825b1726ec%1778774688.521",
+        "vulkan-headers/1.4.350.0#40281e91ad8723fb102e36396da35409%1778774701.016",
+        "stb/cci.20240531#ede183dce303916dab0c1b835df3926a%1720366012.336",
+        "spirv-tools/1.4.350.0#384f5bf27956589df6aa9ed3dd0f82c4%1789397837.057",
+        "spirv-headers/1.4.350.0#e00d02f9314156c0d0afa8cecc7e43c7%1778774681.399",
+        "spirv-cross/cci.20211113#cc8a1175bb0d6bfe3587cf8cb7465c70%1678235914.642",
+        "robin-hood-hashing/3.11.5#4e5dae5321e7ad26a181dd91bfe386cb%1749477876.929",
+        "opengl/system#cfcf523b9d2bad75cbf377f56562634c%1762526044.744",
+        "nlohmann_json/3.12.0#2d634ab0ec8d9f56353e5ccef6d6612c%1744735883.94",
+        "mesa-glu/9.0.3#94609f918d5ca4e5fea0f7a985b29f68%1700054308.695",
+        "mcnopper-egl/1.0.19#c329a1c15b4a5e83dfa127e36ef56af9%1795258966.9410691",
+        "libxml2/2.15.4#9a0c674e87edc8d5bca8ccdb6761e4f8%1792501927.602",
+        "libiconv/1.17#9923bc6dc6f106646d6967e0039a5ada%1774021608.288",
+        "libglvnd/1.7.0#77606e639d5aadd616c3a0e96a81045f%1773297501.98",
+        "libffi/3.4.8#a045c00fb26779635e3bed40e80c5254%1753360042.396",
+        "implot/1.1#a0806d5bb58de3ffacd947f9b5247c07%1793964408.695",
+        "imguizmo/cci.20261010#d423cda18f50284a288763984d71977d%1795258969.8208976",
+        "imgui/1.92.9b#b0eee8a52c7f9d1cae639b440b4bb234%1785711534.216",
+        "imfiledialog/cci.20240916#f7eb8d3f954523837f78ce836c5312bd%1795258959.5449355",
+        "gtest/1.17.0#43201cc96e5d35332662ce8890cceb27%1786446850.202",
+        "glu/system#5f205c4daa8fe4f820869771146885de%1781079534.704",
+        "glfw/3.4#41cc24c744dc4c80571f5dd10dcd9cda%1732635892.515",
+        "glew/2.2.0#f95d83ad421bb2a8e7e486c841f7a2d1%1785405378.317",
+        "geometrictoolsengine/8.0#44f561b4b0cf5375f4af9c9c7364323a%1749630861.111",
+        "foonathan-memory/0.7.3#5d07f0ba3c16570dc783d7f53fdb06bd%1792575217.006",
+        "fmt/11.2.0#15c2efeeecd75ba2fb9dafbec8dfa4cc%1785754557.243",
+        "expat/2.10.0#93425119c70db4e470b3d7d9b5daf3e6%1793616949.505",
+        "eigen/3.4.1#3c917c53a3a43fe6ecaa5a985f5900c8%1782832370.398",
+        "egl/system#9d33d024a47d4b3fec1d0fcc7cb2717f%1781079532.965",
+        "directx-headers/1.614.0#28f3e3dbde330983294c35138fee2266%1724238330.247",
+        "dawn/159.0.8154#83c537906c715d59fa38ea15d68854da%1795258962.7720013",
+        "benchmark/1.9.5#b885dc73ad67b40a55d45684d1c88ad1%1774363287.434",
+        "abseil/20250814.2#10d8fe8d3fe5ef417d119e4becd655ec%1773137900.305"
+    ],
+    "build_requires": [
+        "xorg-macros/1.19.3#c3465b331ce1d044ee771dc5e4529b79%1676900904.25",
+        "spirv-tools/1.4.357.0#b6f5de6ef73ab1887deb9da902f8a719%1790162155.207",
+        "spirv-headers/1.4.357.0#9a9853ce0dd278c90c13c95ac1d02993%1789470990.613",
+        "shaderc/2026.4#4d6971c339f7243cede18f028877dc2d%1790177772.909",
+        "pkgconf/2.5.1#93c2051284cba1279494a43a4fcfeae2%1757684701.089",
+        "pkgconf/2.1.0#21f96520faf7660b99f872e956d2ac13%1755505630.82",
+        "pkgconf/2.0.3#c7ba7fd1d7d22534ee070ae60ed79604%1755505633.107",
+        "ninja/1.13.2#c8c5dc2a52ed6e4e42a66d75b4717ceb%1764096931.974",
+        "meson/1.10.2#9d2d10681fe7fe61c788c58626c89b25%1775558003.754",
+        "meson/1.2.3#1d15f8d0bb576a64de8f927dbabec9dd%1726730118.463",
+        "meson/1.2.2#21b73818ba96d9eea465b310b5bbc993%1726730120.212",
+        "m4/1.4.19#1727f439cf74e83826ec96d0b4904eee%1784541921.659",
+        "glslang/1.4.357.0#01ff8058b143fa0b76cbcc98d1ae4d15%1789470986.25",
+        "dxc/1.9.2609#ee79114b5e03521a5028c6ae0cee97bc%1795258969.8510623",
+        "cmake/4.5.0#24bd34291eb0f81c64854389dd6a216f%1794652026.685",
+        "cmake/3.31.12#71c3a0c80cc89cde62956db9e69550e0%1793881533.662",
+        "automake/1.16.5#b91b7c384c3deaa9d535be02da14d04f%1755524470.56",
+        "autoconf/2.71#51077f068e61700d65bb05541ea1e4b0%1731054366.86"
+    ],
+    "python_requires": [],
+    "overrides": {
+        "imgui/1.92.9b": [
+            "imgui/1.92.9b"
+        ],
+        "imgui/[>=1.90 <2]": [
+            "imgui/1.92.9b"
+        ],
+        "imgui/[>=1.92 <2]": [
+            "imgui/1.92.9b#b0eee8a52c7f9d1cae639b440b4bb234"
+        ]
+    },
+    "config_requires": []
+}

@@ -39,7 +39,7 @@ SET_TARGET_PROPERTIES(vcl_compute_opencl PROPERTIES FOLDER libs)
 if(WIN32)
 	SET_TARGET_PROPERTIES(vcl_compute_opencl PROPERTIES DEBUG_POSTFIX _d)
 endif()
-TARGET_INCLUDE_DIRECTORIES(vcl_compute_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${OPENCL_INCLUDE_DIRS})
+TARGET_INCLUDE_DIRECTORIES(vcl_compute_opencl PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<BUILD_INTERFACE:${OPENCL_INCLUDE_DIRS}>)
 
 TARGET_LINK_LIBRARIES(vcl_compute_opencl
 	vcl_core
@@ -48,7 +48,3 @@ TARGET_LINK_LIBRARIES(vcl_compute_opencl
 )
 add_dependencies(vcl_compute_opencl clc)
 
-# Setup installation
-INSTALL(FILES ${VCL_CONFIG_INC} DESTINATION include/vcl/config)
-INSTALL(FILES ${VCL_COMPUTE_OPENCL_INC} DESTINATION include/vcl/compute/opencl)
-INSTALL(TARGETS vcl_compute_opencl ARCHIVE DESTINATION lib)

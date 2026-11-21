@@ -1,0 +1,27 @@
+# Windows x64 cross build on Linux with MinGW-w64 (g++-mingw-w64-x86-64-posix), as set up in
+# .devcontainer/Dockerfile. No CI job runs it. Tests run under Wine.
+# Use with a native build profile: -pr:h=conan/profiles/mingw-w64 -pr:b=default
+# Pass the build type on the command line: -s build_type=Release
+[settings]
+os=Windows
+arch=x86_64
+compiler=gcc
+compiler.version=13
+compiler.libcxx=libstdc++11
+compiler.threads=posix
+compiler.exception=seh
+compiler.cppstd=17
+
+[options]
+&:with_opengl=False
+&:with_d3d12=True
+
+[buildenv]
+CC=x86_64-w64-mingw32-gcc-posix
+CXX=x86_64-w64-mingw32-g++-posix
+RC=x86_64-w64-mingw32-windres
+CMAKE_POLICY_VERSION_MINIMUM=3.5
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.cmake.cmaketoolchain:user_toolchain=["{{ profile_dir }}/../../ci/mingw-w64-toolchain.cmake"]

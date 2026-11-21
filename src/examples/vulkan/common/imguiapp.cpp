@@ -68,11 +68,12 @@ ImGuiApplication::ImGuiApplication(const char* title)
 	init_info.Queue = *queue();
 	init_info.PipelineCache = context()->cache();
 	init_info.DescriptorPool = _descriptorPool;
+	init_info.PipelineInfoMain.RenderPass = _renderPass;
 	init_info.Allocator = nullptr;
 	init_info.MinImageCount = NumberOfFrames;
 	init_info.ImageCount = NumberOfFrames;
 	init_info.CheckVkResultFn = check_vk_result;
-	ImGui_ImplVulkan_Init(&init_info, _renderPass);
+	ImGui_ImplVulkan_Init(&init_info);
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -88,22 +89,6 @@ ImGuiApplication::ImGuiApplication(const char* title)
 	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
 	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 	//IM_ASSERT(font != NULL);
-
-	// Upload Fonts
-	{
-		// Use any command queue
-		CommandBuffer command_buffer{ *context(), context()->commandPool(0, CommandBufferType::Default) };
-		command_buffer.begin();
-
-		ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
-
-		command_buffer.end();
-		queue()->submit(command_buffer, VK_NULL_HANDLE);
-
-		VkResult err = vkDeviceWaitIdle(*context());
-		check_vk_result(err);
-		ImGui_ImplVulkan_DestroyFontUploadObjects();
-	}
 }
 
 ImGuiApplication::~ImGuiApplication()
