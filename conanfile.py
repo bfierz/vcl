@@ -39,6 +39,7 @@ class VclConan(ConanFile):
     # Resolved from ConanCenter; all three are usable with C++17. Versions are tracked here and
     # in conan.lock.
     def requirements(self):
+        uses_opengl_or_vulkan = bool(self.options.with_opengl or self.options.with_vulkan)
         self.requires("eigen/3.4.1")
         self.requires("abseil/20250814.2")
         self.requires("fmt/11.2.0")
@@ -55,8 +56,8 @@ class VclConan(ConanFile):
                     self.requires("egl/system")
         if self.options.with_vulkan:
             # Only the vendor-neutral headers and the loader: no Vulkan SDK is needed
-            self.requires("vulkan-headers/1.4.313.0")
-            self.requires("vulkan-loader/1.4.313.0")
+            self.requires("vulkan-headers/1.4.350.0")
+            self.requires("vulkan-loader/1.4.350.0")
             self.requires("spirv-cross/cci.20211113")
             if self.options.with_vulkan_validation:
                 self.requires("vulkan-validationlayers/1.4.350.0")
@@ -74,13 +75,10 @@ class VclConan(ConanFile):
             # (1.92.9b), imguizmo (1.90.5) and imfiledialog (>=1.90) ask for. The package ships the
             # platform and renderer backends as sources, which src/examples/imgui compiles once.
             self.requires("imgui/1.92.9b", force=True)
-            if self.settings.os != "Emscripten" and any(
-                self.options.get_safe(o) for o in ("with_opengl", "with_vulkan")
-            ):
+            if self.settings.os != "Emscripten" and uses_opengl_or_vulkan:
                 self.requires("glfw/3.4")
             if self.options.with_opengl:
                 self.requires("implot/1.1")
-            if self.options.with_opengl:
                 # Brings stb with it
                 self.requires("imfiledialog/cci.20240916")
             if self.options.with_d3d12 and self.settings.os == "Windows":
@@ -94,7 +92,7 @@ class VclConan(ConanFile):
     # ConanCenter ships shaderc binaries only for a few compilers (msvc 194, gcc 13, apple-clang 17);
     # other build profiles build shaderc from source. dxc comes from bfierz/conan-index.
     def build_requirements(self):
-        if any(self.options.get_safe(o) for o in ("with_opengl", "with_vulkan")):
+        if self.options.with_opengl or self.options.with_vulkan:
             self.tool_requires("shaderc/2026.4")
         if self.options.get_safe("with_d3d12"):
             self.tool_requires("dxc/1.9.2609")
