@@ -39,7 +39,16 @@ class VclConan(ConanFile):
         self.requires("abseil/20250814.2")
         self.requires("fmt/11.2.0")
 
+    # Shader compilers run on the build machine, so they come from the build context: glslc from
+    # shaderc compiles GLSL to SPIR-V, dxc compiles HLSL. Their bin dirs are put on the PATH of
+    # the generated CMake presets, where the shader CMake modules find them with find_program.
+    # ConanCenter ships shaderc binaries only for a few compilers (msvc 194, gcc 13, apple-clang 17);
+    # other build profiles build shaderc from source. dxc comes from bfierz/conan-index.
     def build_requirements(self):
+        if any(self.options.get_safe(o) for o in ("with_opengl", "with_vulkan", "with_webgpu")):
+            self.tool_requires("shaderc/2026.4")
+        if self.options.get_safe("with_d3d12"):
+            self.tool_requires("dxc/1.9.2609")
         if self.options.build_tests:
             self.test_requires("gtest/1.17.0")
             self.test_requires("nlohmann_json/3.12.0")
