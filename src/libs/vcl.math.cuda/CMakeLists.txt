@@ -100,6 +100,3 @@ target_link_libraries(vcl_math_cuda
 	vcl_compute_cuda
 )
 
-# Setup installation
-install(FILES ${VCL_MATH_CUDA_INC} DESTINATION include/vcl/math/cuda)
-install(TARGETS vcl_math_cuda ARCHIVE DESTINATION lib)
