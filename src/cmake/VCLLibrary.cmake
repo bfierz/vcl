@@ -35,7 +35,7 @@ function(vcl_add_library tgt)
 	set_target_properties(${tgt} PROPERTIES FOLDER libs)
 
 	# The project folder is the root include folder
-	target_include_directories(${tgt} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+	target_include_directories(${tgt} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 	# Enable static code analysis
 	if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)

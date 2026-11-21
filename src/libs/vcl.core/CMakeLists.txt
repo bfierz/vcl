@@ -177,11 +177,7 @@ target_sources(vcl_core PRIVATE ${PROJECT_BINARY_DIR}/vcl/config/config.h)
 source_group(config FILES ${PROJECT_BINARY_DIR}/vcl/config/config.h)
 
 # Now make sure that the config.h file is found during development
-target_include_directories(vcl_core PUBLIC
-	$<BUILD_INTERFACE:
-		${PROJECT_BINARY_DIR}
-	>
-)
+target_include_directories(vcl_core PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>)
 
 target_link_libraries(vcl_core
 	abseil::abseil
@@ -189,9 +185,3 @@ target_link_libraries(vcl_core
 	fmt::fmt
 )
 
-# Setup installation
-set(INCLUDE_DIR_PREFIX "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
-set(LIBRARY_DIR_PREFIX "${CMAKE_INSTALL_LIBDIR}")
-install(DIRECTORY vcl DESTINATION ${INCLUDE_DIR_PREFIX})
-install(FILES ${PROJECT_BINARY_DIR}/vcl/config/config.h DESTINATION ${INCLUDE_DIR_PREFIX}/vcl/config)
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${LIBRARY_DIR_PREFIX})

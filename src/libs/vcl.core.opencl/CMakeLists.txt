@@ -45,7 +45,7 @@ SET(SOURCE
 # Generate library
 ADD_LIBRARY(vcl_core_opencl STATIC ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_core_opencl PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_core_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(vcl_core_opencl PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Add dependencies
 TARGET_LINK_LIBRARIES(vcl_core_opencl vcl_core vcl_compute_opencl)

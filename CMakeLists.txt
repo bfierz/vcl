@@ -104,6 +104,11 @@ endif()
 
 add_subdirectory(src/libs)
 
+# Install rules and the exported vclConfig.cmake
+if(PROJECT_IS_TOP_LEVEL)
+	include(VCLInstall)
+endif()
+
 # Build options
 if("^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
 	option(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
