@@ -40,7 +40,7 @@ cmake --build --preset conan-release   # Windows: add --config Release
 | `with_vulkan`            | False   | `VCL_VULKAN_SUPPORT`     |                                                             |
 | `with_vulkan_validation` | False   |                          | Packages the validation layers, used at runtime only        |
 | `with_d3d12`             | False   | `VCL_D3D12_SUPPORT`      | Windows                                                     |
-| `with_webgpu`            | False   | `VCL_WEBGPU_SUPPORT`     | Resolves Dawn; the backend is not built until the API port |
+| `with_webgpu`            | False   | `VCL_WEBGPU_SUPPORT`     | Dawn; not on Emscripten                                     |
 | `build_tests`            | True    | `VCL_BUILD_TESTS`        |                                                             |
 | `build_benchmarks`       | True    | `VCL_BUILD_BENCHMARKS`   |                                                             |
 | `build_examples`         | False   | `VCL_BUILD_EXAMPLES`     |                                                             |
@@ -87,7 +87,7 @@ VCL depends on a number of external libraries. Most are resolved by Conan throug
 | Vulkan Validation Layers      | Apache-2.0 | 1.4.350.0      | https://github.com/KhronosGroup/Vulkan-ValidationLayers | `with_vulkan_validation`    |
 | SPIRV-Cross                   | Apache-2.0 | cci.20211113   | https://github.com/KhronosGroup/SPIRV-Cross  | `with_vulkan`                            |
 | DirectX-Headers               | MIT        | 1.614.0        | https://github.com/microsoft/DirectX-Headers | `with_d3d12`                             |
-| Dawn                          | Apache-2.0 | 159.0.8154     | https://dawn.googlesource.com/dawn           | `with_webgpu`, resolved only             |
+| Dawn                          | Apache-2.0 | 159.0.8154     | https://dawn.googlesource.com/dawn           | `with_webgpu`, not on Emscripten         |
 | shaderc (glslc)               | Apache-2.0 | 2026.4         | https://github.com/google/shaderc            | Build tool, OpenGL and Vulkan shaders    |
 | DirectX Shader Compiler (dxc) | NCSA       | 1.9.2609       | https://github.com/microsoft/DirectXShaderCompiler | Build tool, `with_d3d12` (conan-index) |
 | Google Test                   | BSD-3      | 1.17.0         | https://github.com/google/googletest         | `build_tests`                            |

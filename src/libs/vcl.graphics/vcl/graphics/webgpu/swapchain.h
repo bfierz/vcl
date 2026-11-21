@@ -35,12 +35,6 @@
 // Abseil
 #include <absl/container/inlined_vector.h>
 
-#ifndef VCL_ARCH_WEBASM
-// Dawn
-#	include <dawn/native/D3D12Backend.h>
-#	include <dawn/native/DawnNative.h>
-#endif
-
 // VCL
 #include <vcl/graphics/surfaceformat.h>
 
@@ -57,9 +51,6 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		//! Handle to the surface used
 		WGPUSurface Surface;
 
-		//! Native window handle
-		uint64_t NativeSurfaceHandle;
-
 		//! Number of images
 		uint32_t NumberOfImages;
 
@@ -73,7 +64,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		uint32_t Height;
 
 		//! Mode to present image
-		PresentMode PresentMode;
+		WebGPU::PresentMode PresentMode;
 
 		//! Enable V-Sync
 		bool VSync;
@@ -86,14 +77,18 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		~SwapChain();
 
 		std::pair<uint32_t, uint32_t> bufferSize() const { return std::make_pair(_desc.Width, _desc.Height); }
-		WGPUTextureView currentBackBuffer() { return wgpuSwapChainGetCurrentTextureView(_swapChain); }
+		//! Acquire the view of the image to render into. Valid until the next present().
+		WGPUTextureView currentBackBuffer();
 
 		void present(WGPUQueue queue, bool blocking);
 		void resize(uint32_t width, uint32_t height);
 		void wait();
 
 	private:
-		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc);
+		static void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2);
+
+		//! Release the image acquired for the current frame
+		void releaseBackBuffer();
 
 		//! Associated device
 		WGPUDevice _device;
@@ -107,12 +102,10 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		//! Completed frames
 		uint64_t _completedFrames{ 0 };
 
-		//! Native swap-chain object
-		WGPUSwapChain _swapChain{};
+		//! Image acquired for the current frame
+		WGPUTexture _backBuffer{};
 
-#ifndef VCL_ARCH_WEBASM
-		//! Dawn swap-chain
-		DawnSwapChainImplementation _swapChainImpl{};
-#endif
+		//! View of the image acquired for the current frame
+		WGPUTextureView _backBufferView{};
 	};
 }}}

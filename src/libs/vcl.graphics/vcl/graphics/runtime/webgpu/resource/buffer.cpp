@@ -31,9 +31,9 @@
 #include <vcl/core/contract.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
-	WGPUBufferUsageFlags toWGPU(Flags<BufferUsage> flags)
+	WGPUBufferUsage toWGPU(Flags<BufferUsage> flags)
 	{
-		WGPUBufferUsageFlags wgpu_flags = 0;
+		WGPUBufferUsage wgpu_flags = 0;
 		wgpu_flags |= (flags.isSet(BufferUsage::MapRead)) ? WGPUBufferUsage_MapRead : 0;
 		wgpu_flags |= (flags.isSet(BufferUsage::MapWrite)) ? WGPUBufferUsage_MapWrite : 0;
 		wgpu_flags |= (flags.isSet(BufferUsage::CopySrc)) ? WGPUBufferUsage_CopySrc : 0;
@@ -51,18 +51,17 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 	Buffer::Buffer(WGPUDevice device, const BufferDescription& desc, const BufferInitData* init_data, WGPUQueue queue_id)
 	: Runtime::Buffer(desc.SizeInBytes, desc.Usage)
+	, _device{ device }
 	{
 		VclRequire(implies(usage().isSet(BufferUsage::MapRead), !usage().isSet(BufferUsage::MapWrite)), "Buffer mappable for reading is not mappable for writing");
 		VclRequire(implies(usage().isSet(BufferUsage::MapWrite), !usage().isSet(BufferUsage::MapRead)), "Buffer mappable for writing is not mappable for reading");
 		VclRequire(implies(usage().isSet(BufferUsage::MapRead) || usage().isSet(BufferUsage::MapWrite), init_data == nullptr), "Mappable buffer does not have initial data");
 
-		WGPUBufferDescriptor wgpu_desc = {
-			nullptr,
-			"Generic buffer",
-			toWGPU(desc.Usage),
-			desc.SizeInBytes,
-			init_data != nullptr
-		};
+		WGPUBufferDescriptor wgpu_desc = {};
+		wgpu_desc.label = { "Generic buffer", WGPU_STRLEN };
+		wgpu_desc.usage = toWGPU(desc.Usage);
+		wgpu_desc.size = desc.SizeInBytes;
+		wgpu_desc.mappedAtCreation = init_data != nullptr;
 
 		_resource = wgpuDeviceCreateBuffer(device, &wgpu_desc);
 
@@ -85,7 +84,28 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 	{
 		VclRequire(usage().isSet(BufferUsage::MapRead) | usage().isSet(BufferUsage::MapWrite), "Buffer is mappable.");
 		WGPUMapMode mode = usage().isSet(BufferUsage::MapRead) ? WGPUMapMode_Read : WGPUMapMode_Write;
-		wgpuBufferMapAsync(_resource, mode, 0, sizeInBytes(), nullptr, nullptr);
+
+		// Dawn completes the request while the device is ticked
+		struct MapState
+		{
+			bool Done{ false };
+			WGPUMapAsyncStatus Status{ WGPUMapAsyncStatus_Error };
+		} state;
+
+		WGPUBufferMapCallbackInfo callback = {};
+		callback.mode = WGPUCallbackMode_AllowSpontaneous;
+		callback.callback = [](WGPUMapAsyncStatus status, WGPUStringView, void* userdata1, void*) {
+			auto* state = static_cast<MapState*>(userdata1);
+			state->Status = status;
+			state->Done = true;
+		};
+		callback.userdata1 = &state;
+
+		wgpuBufferMapAsync(_resource, mode, 0, sizeInBytes(), callback);
+		while (!state.Done)
+			wgpuDeviceTick(_device);
+		VclCheck(state.Status == WGPUMapAsyncStatus_Success, "Buffer is mapped");
+
 		if (mode == WGPUMapMode_Read)
 			return const_cast<void*>(wgpuBufferGetConstMappedRange(_resource, 0, sizeInBytes()));
 		else
