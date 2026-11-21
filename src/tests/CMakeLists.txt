@@ -74,7 +74,7 @@ endif()
 if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
 	setup_target_for_coverage_gcovr_xml(
 		NAME vcl.test
-		EXECUTABLE ctest --no-compress-output -T Test
+		EXECUTABLE ctest -C $<CONFIG> --no-compress-output -T Test
 		DEPENDENCIES
 			vcl.core.test
 			vcl.geometry.test
@@ -96,7 +96,7 @@ elseif(VCL_CODE_COVERAGE AND MSVC)
 	set(OPENCPPCOVERAGE_SOURCES "${CMAKE_SOURCE_DIR}")
 	string(REGEX REPLACE "/" "\\\\" OPENCPPCOVERAGE_SOURCES ${OPENCPPCOVERAGE_SOURCES})
 	add_custom_target(vcl.test
-		COMMAND ${OPENCPPCOVERAGE_PATH} --sources "${OPENCPPCOVERAGE_SOURCES}" --modules vcl* --export_type=cobertura:vcl.test.xml --cover_children -- ctest --no-compress-output -T Test
+		COMMAND ${OPENCPPCOVERAGE_PATH} --sources "${OPENCPPCOVERAGE_SOURCES}" --modules vcl* --export_type=cobertura:vcl.test.xml --cover_children -- ctest -C $<CONFIG> --no-compress-output -T Test
 
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 		DEPENDS
@@ -108,7 +108,7 @@ elseif(VCL_CODE_COVERAGE AND MSVC)
 	)
 else()
 	add_custom_target(vcl.test
-				COMMAND ctest --no-compress-output -T Test
+				COMMAND ctest -C $<CONFIG> --no-compress-output -T Test
 
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
 		DEPENDS
