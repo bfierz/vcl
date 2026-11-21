@@ -372,10 +372,14 @@ if(VCL_VULKAN_SUPPORT)
 endif()
 
 if(VCL_WEBGPU_SUPPORT)
-	# The backend in SOURCE_WEBGPU is written against the 2022 Dawn API and does not compile against
-	# the Dawn package (dawn/159.0.8154), so it is not added to the library until it is ported.
-	# The package is still resolved, which keeps the dependency verified in the meantime.
-	if(NOT EMSCRIPTEN)
+	if(EMSCRIPTEN)
+		# Emscripten ships its own WebGPU bindings
+		vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
+		target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
+	else()
+		# The backend in SOURCE_WEBGPU is written against the 2022 Dawn API and does not compile against
+		# the Dawn package (dawn/159.0.8154), so it is not added to the library until it is ported.
+		# The package is still resolved, which keeps the dependency verified in the meantime.
 		find_package(dawn CONFIG REQUIRED)
 	endif()
 endif()
