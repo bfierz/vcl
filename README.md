@@ -9,7 +9,26 @@ The Visual Computing Library (VCL) started as a repository for algorithms and da
 Requirements
 ------------
 
-Assumes C++14 capable compiler with some compatibility for older MSVC versions.
+Requires a C++17 capable compiler and CMake 3.23 or newer.
+
+Building
+--------
+
+The build uses a pinned Conan 2 client (`ci/requirements-conan.txt`) and CMake presets:
+
+```sh
+python3 -m venv .venv-conan && .venv-conan/bin/pip install -r ci/requirements-conan.txt
+source .venv-conan/bin/activate        # Windows: .venv-conan\Scripts\activate
+conan profile detect --force
+ci/conan-setup-remotes.sh              # Windows: ci/conan-setup-remotes.ps1
+git submodule update --init --recursive
+conan install . -pr:h=conan/profiles/linux-gcc -pr:b=default -s build_type=Release --build=missing
+cmake --preset conan-release           # Windows (Visual Studio): cmake --preset conan-default
+cmake --build --preset conan-release   # Windows: add --config Release
+```
+
+Conan options (`-o "&:with_opengl=True"`, `build_tests`, ...) select the `VCL_*` CMake options.
+Use `conan/profiles/windows-msvc` on Windows; `compiler.cppstd` in the profile selects the C++ standard.
 
 C++ feature matrices:
 A good overview on the feature support for different compiler versions can be found here: https://en.cppreference.com/w/cpp/compiler_support

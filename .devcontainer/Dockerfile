@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
     clang clang-tidy clang-format lld \
     ccache \
-    python3 python3-pip python3-venv pipx \
+    python3 python3-pip python3-venv \
     # OpenGL & X11 runtime bits for Qt GUI
     libgl1-mesa-dri libgl1-mesa-dev libglu1-mesa-dev \
     libxkbcommon-x11-0 libx11-xcb1 libxcb1 libxcb-icccm4 libxcb-image0 \
@@ -46,13 +46,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xterm dbus-x11 doxygen \
     && rm -rf /var/lib/apt/lists/*
 
-# Conan 2 (system-wide via pipx; keeps it isolated & on PATH)
-ENV PIPX_HOME=/opt/pipx
-ENV PIPX_BIN_DIR=/usr/local/bin
-ENV PIPX_MAN_DIR=/usr/local/share/man
-RUN pipx ensurepath \
-    && pipx install "conan>=2.0,<3.0" \
-    && conan --version
+# Conan is installed per workspace in a venv at the version pinned in ci/requirements-conan.txt
+# (see postCreateCommand in devcontainer.json).
 
 # Direct3D 12 on Linux: cross-compile with MinGW-w64 (ci/mingw-w64-toolchain.cmake)
 # and run the tests under Wine. vkd3d-proton implements D3D12 on Vulkan, DXVK
