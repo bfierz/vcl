@@ -83,7 +83,7 @@ VCL depends on a number of external libraries. Most are resolved by Conan throug
 | {fmt}                         | MIT        | 11.2.0         | https://github.com/fmtlib/fmt                |                                          |
 | GLEW                          | BSD/MIT    | 2.2.0          | https://github.com/nigels-com/glew           | `with_opengl`                            |
 | EGL                           |            | system / mcnopper-egl | | `with_egl`: `egl/system` on Linux, `mcnopper-egl` (conan-index) on Windows |
-| Vulkan Headers and Loader     | Apache-2.0 | 1.4.313.0      | https://github.com/KhronosGroup/Vulkan-Headers | `with_vulkan`                          |
+| Vulkan Headers and Loader     | Apache-2.0 | 1.4.350.0      | https://github.com/KhronosGroup/Vulkan-Headers | `with_vulkan`                          |
 | Vulkan Validation Layers      | Apache-2.0 | 1.4.350.0      | https://github.com/KhronosGroup/Vulkan-ValidationLayers | `with_vulkan_validation`    |
 | SPIRV-Cross                   | Apache-2.0 | cci.20211113   | https://github.com/KhronosGroup/SPIRV-Cross  | `with_vulkan`                            |
 | DirectX-Headers               | MIT        | 1.614.0        | https://github.com/microsoft/DirectX-Headers | `with_d3d12`                             |
