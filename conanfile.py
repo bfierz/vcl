@@ -61,6 +61,11 @@ class VclConan(ConanFile):
         if self.options.with_d3d12:
             self.requires("directx-headers/1.614.0")
 
+        if self.options.build_examples:
+            # The examples share one imgui >= 1.92. The pin overrides whatever version the other
+            # examples packages ask for.
+            self.requires("imgui/1.92.9b", override=True)
+
     # Shader compilers run on the build machine, so they come from the build context: glslc from
     # shaderc compiles GLSL to SPIR-V, dxc compiles HLSL. Their bin dirs are put on the PATH of
     # the generated CMake presets, where the shader CMake modules find them with find_program.

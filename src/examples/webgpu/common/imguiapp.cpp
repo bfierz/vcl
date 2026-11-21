@@ -47,7 +47,11 @@ ImGuiApplication::ImGuiApplication(const char* title)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForVulkan(windowHandle(), true);
-	ImGui_ImplWGPU_Init(_wgpuDevice, NumberOfFrames, WGPUTextureFormat_RGBA8Unorm);
+	ImGui_ImplWGPU_InitInfo init_info;
+	init_info.Device = _wgpuDevice;
+	init_info.NumFramesInFlight = NumberOfFrames;
+	init_info.RenderTargetFormat = WGPUTextureFormat_RGBA8Unorm;
+	ImGui_ImplWGPU_Init(&init_info);
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.

@@ -57,11 +57,11 @@ private:
 	{
 		if (editTransformDecomposition)
 		{
-			if (ImGui::IsKeyPressed(90))
+			if (ImGui::IsKeyPressed(ImGuiKey_Z))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			if (ImGui::IsKeyPressed(69))
+			if (ImGui::IsKeyPressed(ImGuiKey_E))
 				_currentGizmoOperation = ImGuizmo::ROTATE;
-			if (ImGui::IsKeyPressed(82)) // r Key
+			if (ImGui::IsKeyPressed(ImGuiKey_R))
 				_currentGizmoOperation = ImGuizmo::SCALE;
 			if (ImGui::RadioButton("Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
 				_currentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -86,7 +86,7 @@ private:
 				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
 					_currentGizmoMode = ImGuizmo::WORLD;
 			}
-			if (ImGui::IsKeyPressed(83))
+			if (ImGui::IsKeyPressed(ImGuiKey_S))
 				_useSnap = !_useSnap;
 			ImGui::Checkbox("", &_useSnap);
 			ImGui::SameLine();
