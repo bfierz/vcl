@@ -39,6 +39,15 @@ class VclConan(ConanFile):
         self.requires("abseil/20250814.2")
         self.requires("fmt/11.2.0")
 
+    def build_requirements(self):
+        if self.options.build_tests:
+            self.test_requires("gtest/1.17.0")
+            self.test_requires("nlohmann_json/3.12.0")
+        if self.options.build_benchmarks:
+            self.test_requires("benchmark/1.9.5")
+            self.test_requires("foonathan-memory/0.7.3")
+            self.test_requires("geometrictoolsengine/8.0")
+
     def layout(self):
         cmake_layout(self)
 
