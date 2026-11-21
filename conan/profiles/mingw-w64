@@ -11,6 +11,8 @@ compiler.libcxx=libstdc++11
 compiler.threads=posix
 compiler.exception=seh
 compiler.cppstd=17
+# Dawn needs C++20 to build; VCL only uses its C API (webgpu.h)
+dawn/*:compiler.cppstd=20
 
 [options]
 &:with_opengl=False

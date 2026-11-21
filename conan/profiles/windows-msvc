@@ -7,6 +7,8 @@ compiler=msvc
 compiler.version=194
 compiler.runtime=dynamic
 compiler.cppstd=17
+# Dawn needs C++20 to build; VCL only uses its C API (webgpu.h)
+dawn/*:compiler.cppstd=20
 
 [options]
 &:with_opengl=True

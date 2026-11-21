@@ -17,6 +17,6 @@ rm -f conan.lock
 # Revisions do not depend on the compiler, but the build profile has to be able to resolve it
 common=(-pr:b=default -s build_type=Release -o '&:with_opengl=True' -o '&:with_vulkan=True' -o '&:build_benchmarks=True')
 
-conan lock create . -pr:h=conan/profiles/linux-gcc "${common[@]}" -o '&:with_egl=True' --lockfile-out=conan.lock
+conan lock create . -pr:h=conan/profiles/linux-gcc "${common[@]}" -o '&:with_egl=True' -o '&:with_webgpu=True' --lockfile-out=conan.lock
 conan lock create . -pr:h=conan/profiles/windows-msvc "${common[@]}" -o '&:with_d3d12=True' \
   --lockfile=conan.lock --lockfile-out=conan.lock

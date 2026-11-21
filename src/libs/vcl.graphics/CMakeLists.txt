@@ -32,7 +32,6 @@ set(VCL_OPENGL_SUPPORT CACHE BOOL "Enable OpenGL support")
 set(VCL_EGL_SUPPORT CACHE BOOL "Enable EGL support")
 set(VCL_D3D12_SUPPORT CACHE BOOL "Enable Direct3D 12 support")
 set(VCL_VULKAN_SUPPORT CACHE BOOL "Enable Vulkan support")
-set(VCL_DAWN_WEBGPU_SUPPORT CACHE BOOL "Enable Google Dawn WebGPU support")
 set(VCL_WEBGPU_SUPPORT CACHE BOOL "Enable WebGPU support")
 
 # Generate library
@@ -372,47 +371,12 @@ if(VCL_VULKAN_SUPPORT)
 	)
 endif()
 
-if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
-	if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
-		message(WARNING "Downloading Google Dawn automatically requires CMake 3.11+")
-
-		set(DAWN_INCLUDE_DIR CACHE PATH "Dawn WebGPU include path")
-		set(DAWN_NATIVE_LIBRARY CACHE FILEPATH "Dawn WebGPU library")
-		set(DAWN_PROC_LIBRARY CACHE FILEPATH "Dawn WebGPU procedure hooks library")
-
-		set(WEBGPU_INCLUDE_DIR CACHE PATH "WebGPU include path")
-		set(WEBGPU_CPP_LIBRARY CACHE FILEPATH "WebGPU C++ library")
-	else()
-		include(${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/FetchDawn.cmake)
+if(VCL_WEBGPU_SUPPORT)
+	# The backend in SOURCE_WEBGPU is written against the 2022 Dawn API and does not compile against
+	# the Dawn package (dawn/159.0.8154), so it is not added to the library until it is ported.
+	# The package is still resolved, which keeps the dependency verified in the meantime.
+	if(NOT EMSCRIPTEN)
+		find_package(dawn CONFIG REQUIRED)
 	endif()
-	
-	add_custom_command(
-		TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${DAWN_SORCE_DIRECTORY}/bin/dawn_native.dll
-			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
-	add_custom_command(
-		TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${DAWN_SORCE_DIRECTORY}/bin/dawn_platform.dll
-			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
-	add_custom_command(
-		TARGET ${PROJECT_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${DAWN_SORCE_DIRECTORY}/bin/dawn_proc.dll
-			$<TARGET_FILE_DIR:${PROJECT_NAME}>)
-
-	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
-	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
-	target_include_directories(vcl_graphics PUBLIC ${WEBGPU_INCLUDE_DIR} ${DAWN_INCLUDE_DIR})
-	target_link_libraries(vcl_graphics
-		PUBLIC
-			${DAWN_NATIVE_LIBRARY}
-			${DAWN_PROC_LIBRARY}
-			${WEBGPU_CPP_LIBRARY}
-	)
-elseif(VCL_WEBGPU_SUPPORT)
-	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_WEBGPU})
-	target_compile_definitions(vcl_graphics PUBLIC VCL_WEBGPU_SUPPORT)
 endif()
 
