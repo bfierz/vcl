@@ -7,12 +7,8 @@
 # Graphs:
 #  - Linux, C++17: OpenGL, EGL, Vulkan with validation layers, benchmarks, examples
 #  - Linux, C++20: adds with_webgpu; Dawn needs C++20, the C++17 profiles report it invalid
-#  - Windows: OpenGL/Vulkan with the examples, and Direct3D 12 (brings the dxc tool_requires)
-#
-# Not locked (unresolvable at the time of writing):
-#  - mcnopper-egl (Windows EGL): not in conan-index yet
-#  - imguizmo/cci.20261010 (Direct3D 12 examples on Windows): not in the pinned conan-index yet,
-#    so the Direct3D 12 graph is locked without the examples
+#  - Windows: OpenGL/Vulkan with the examples, OpenGL with EGL (brings mcnopper-egl), and
+#    Direct3D 12 with the examples (brings imguizmo and the dxc tool_requires)
 #
 # Usage: ci/update-conan-lock.sh   (conan on PATH, remotes configured with ci/conan-setup-remotes.sh)
 set -euo pipefail
@@ -29,5 +25,5 @@ lock() { conan lock create . "$@" --lockfile-out=conan.lock; }
 lock -pr:h=conan/profiles/linux-gcc "${common[@]}" -o '&:with_egl=True' -o '&:with_vulkan_validation=True'
 lock -pr:h=conan/profiles/linux-gcc "${common[@]}" -o '&:with_webgpu=True' -s compiler.cppstd=20 --lockfile=conan.lock
 lock -pr:h=conan/profiles/windows-msvc "${common[@]}" -o '&:with_d3d12=False' --lockfile=conan.lock
-# Direct3D 12 without the examples: its only example dependency (imguizmo) is not resolvable yet
-lock -pr:h=conan/profiles/windows-msvc "${common[@]}" -o '&:with_d3d12=True' -o '&:build_examples=False' --lockfile=conan.lock
+lock -pr:h=conan/profiles/windows-msvc "${common[@]}" -o '&:with_d3d12=False' -o '&:with_egl=True' --lockfile=conan.lock
+lock -pr:h=conan/profiles/windows-msvc "${common[@]}" -o '&:with_d3d12=True' --lockfile=conan.lock
