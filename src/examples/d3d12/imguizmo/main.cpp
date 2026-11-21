@@ -25,7 +25,7 @@
 
 #include "../common/imguiapp.h"
 
-#include "../../3rdparty/imguizmo/ImGuizmo.h"
+#include <ImGuizmo.h>
 
 // C++ standard library
 #include <utility>

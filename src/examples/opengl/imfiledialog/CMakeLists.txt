@@ -29,24 +29,6 @@ message(STATUS "Configuring 'OpenGL ImFileDialog'")
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(IMGUI
-	../../3rdparty/imgui/backends/imgui_impl_opengl3.cpp
-	../../3rdparty/imgui/backends/imgui_impl_opengl3.h
-	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
-	../../3rdparty/imgui/backends/imgui_impl_glfw.h
-	../../3rdparty/imgui/imconfig.h
-	../../3rdparty/imgui/imgui.cpp
-	../../3rdparty/imgui/imgui.h
-	../../3rdparty/imgui/imgui_demo.cpp
-	../../3rdparty/imgui/imgui_draw.cpp
-	../../3rdparty/imgui/imgui_internal.h
-	../../3rdparty/imgui/imgui_tables.cpp
-	../../3rdparty/imgui/imgui_widgets.cpp
-
-	../../3rdparty/imfiledialog/ImFileDialog.cpp
-	../../3rdparty/imfiledialog/ImFileDialog.h
-)
-
 set(COMMON
 	../common/app.cpp
 	../common/app.h
@@ -60,18 +42,9 @@ set(SOURCE_FILES
 
 add_executable(opengl_imfiledialog "")
 set_target_properties(opengl_imfiledialog PROPERTIES FOLDER examples/opengl)
-vcl_target_sources(opengl_imfiledialog "../../3rdparty" ${IMGUI})
 vcl_target_sources(opengl_imfiledialog ".." ${COMMON})
 vcl_target_sources(opengl_imfiledialog "" ${SOURCE_FILES})
-target_include_directories(opengl_imfiledialog
-	PRIVATE
-		../../3rdparty/
-		../../3rdparty/imgui
-		../../3rdparty/imgui/backends
-		../../3rdparty/imfiledialog
-		../../3rdparty/stb
-)
 target_link_libraries(opengl_imfiledialog
 	vcl_graphics
-	glfw
+	vcl_examples_imgui
 )

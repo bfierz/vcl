@@ -29,21 +29,6 @@ message(STATUS "Configuring 'WebGPU ImGui'")
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(IMGUI
-	../../3rdparty/imgui/backends/imgui_impl_wgpu.cpp
-	../../3rdparty/imgui/backends/imgui_impl_wgpu.h
-	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
-	../../3rdparty/imgui/backends/imgui_impl_glfw.h
-	../../3rdparty/imgui/imconfig.h
-	../../3rdparty/imgui/imgui.cpp
-	../../3rdparty/imgui/imgui.h
-	../../3rdparty/imgui/imgui_demo.cpp
-	../../3rdparty/imgui/imgui_draw.cpp
-	../../3rdparty/imgui/imgui_internal.h
-	../../3rdparty/imgui/imgui_tables.cpp
-	../../3rdparty/imgui/imgui_widgets.cpp
-)
-
 set(COMMON
 	../common/app.cpp
 	../common/app.h
@@ -57,16 +42,11 @@ set(SOURCE_FILES
 
 add_executable(webgpu_imgui "")
 set_target_properties(webgpu_imgui PROPERTIES FOLDER examples/webgpu)
-vcl_target_sources(webgpu_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(webgpu_imgui ".." ${COMMON})
 vcl_target_sources(webgpu_imgui "" ${SOURCE_FILES})
-target_include_directories(webgpu_imgui
-	PRIVATE
-		../../3rdparty/imgui
-		../../3rdparty/imgui/backends
-)
 target_link_libraries(webgpu_imgui
 	vcl_graphics
+	vcl_examples_imgui
 )
 if (EMSCRIPTEN)
 	set_target_properties(webgpu_imgui PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_WEBGPU=1")
@@ -74,8 +54,5 @@ if (EMSCRIPTEN)
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_imgui.html @ONLY)
 else()
 	vcl_target_sources(webgpu_imgui "${DAWN_INCLUDE_DIR}/..")
-	target_link_libraries(webgpu_imgui
-		glfw
-	)
 endif()
 
