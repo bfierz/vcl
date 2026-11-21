@@ -1,6 +1,6 @@
 # Job template for the Linux, macOS and Windows builds.
-# Native builds run `conan install` and a Conan-generated CMake preset (C++17 comes from the
-# profile's compiler.cppstd); the ARM cross builds still configure CMake directly.
+# All builds run `conan install` and a Conan-generated CMake preset (C++17 comes from the
+# profile's compiler.cppstd). The ARM cross builds use the conan/profiles/linux-*arm*-gcc host profiles.
 # Required job variables:
 # - buildTargetArch: 'arm','aarch64'
 # - buildConfig: 'Debug'
@@ -76,7 +76,7 @@ steps:
 
     displayName: 'Prepare Environment'
 
-  # Native builds: pinned Conan in a venv, remotes, conan install, preset configure.
+  # Pinned Conan in a venv, remotes, conan install, preset configure.
   - pwsh: |
       $py = if ($IsWindows) { 'python' } else { 'python3' }
       & $py -m venv .venv-conan
@@ -93,6 +93,8 @@ steps:
       $profile = 'default'
       if ($IsLinux) { $profile = 'conan/profiles/linux-gcc' }
       if ($IsWindows) { $profile = 'conan/profiles/windows-msvc' }
+      if ('$(buildTargetArch)' -eq 'arm') { $profile = 'conan/profiles/linux-arm-gcc' }
+      if ('$(buildTargetArch)' -eq 'aarch64') { $profile = 'conan/profiles/linux-aarch64-gcc' }
       # Graphics options come from the matrix and override the profiles' defaults
       $opts = @(
         '-o', "&:with_opengl=$('$(configGraphicsOpenGL)' -eq 'on')",
@@ -122,25 +124,6 @@ steps:
       VCL_CONAN_B4Z_URL: $(VCL_CONAN_B4Z_URL)
       CONAN_LOGIN_USERNAME_B4Z: $(CONAN_LOGIN_USERNAME_B4Z)
       CONAN_PASSWORD_B4Z: $(CONAN_PASSWORD_B4Z)
-    condition: eq(variables['buildTargetArch'], '')
-
-  # Cross builds configure CMake directly into `build`
-  - pwsh: echo "##vso[task.setvariable variable=buildDir]build"
-    displayName: 'Select build directory'
-    condition: ne(variables['buildTargetArch'], '')
-
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DCMAKE_CXX_STANDARD:STRING=17 -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-    condition: eq(variables['buildTargetArch'], 'arm')
-
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/aarch64-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DCMAKE_CXX_STANDARD:STRING=17 -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-    condition: eq(variables['buildTargetArch'], 'aarch64')
-
   - pwsh: |
       # MacOS requires a specific SDK root for C++
       if ($IsMacOS) {
