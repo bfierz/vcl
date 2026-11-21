@@ -49,7 +49,7 @@ if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 endif()
 
 ################################################################################
-# Add the externals
+# Find the dependencies
 ################################################################################
 # Core dependencies come from Conan (docs/adr/0001-conan-with-find-package-seam.md)
 find_package(Eigen3 CONFIG REQUIRED)
