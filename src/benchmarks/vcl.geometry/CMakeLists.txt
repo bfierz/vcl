@@ -24,22 +24,8 @@
 #
 project(vcl_geometry_benchmarks)
 
-include(../../cmake/CPM.cmake)
-
 # Status message
 message(STATUS "Configuring 'vcl_geometry_benchmarks'")
-
-CPMAddPackage("gh:davideberly/GeometricTools#GTE-version-5.9")
-if(GeometricTools_ADDED)
-	add_library(gte INTERFACE)
-	target_sources(gte
-		INTERFACE
-			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/DistPointTriangle.h
-			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/DistTriangle3Triangle3.h
-			${GeometricTools_SOURCE_DIR}/GTE/Mathematics/IntrRay3AlignedBox3.h
-	)
-	target_include_directories(gte INTERFACE "${GeometricTools_SOURCE_DIR}/GTE")
-endif()
 
 set(SRC
 	main.cpp
@@ -52,6 +38,6 @@ set_target_properties(vcl_geometry_benchmarks PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl_geometry_benchmarks
 	vcl_core
 	vcl.geometry
-	benchmark
-	gte
+	benchmark::benchmark
+	GeometricToolsEngine::Mathematics
 )

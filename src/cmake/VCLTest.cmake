@@ -29,9 +29,6 @@ include(VCLConfig)
 # Create a test executable using Google Test
 function(vcl_add_test tgt)
 
-	vcl_check_target(gtest)
-	vcl_check_target(gtest_main)
-	
 	add_executable(${tgt} "")
 
 	# Place into VS solution folder 'tests'
@@ -39,8 +36,8 @@ function(vcl_add_test tgt)
 
 	# Link against gtest
 	target_link_libraries(${tgt}
-		gtest
-		gtest_main
+		GTest::gtest
+		GTest::gtest_main
 		# ARM cross compilation support
 		$<$<PLATFORM_ID:Linux>:pthread>
 	)

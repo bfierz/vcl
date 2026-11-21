@@ -27,7 +27,6 @@ project(vcl.core.test)
 include(../../cmake/VCLTest.cmake)
 
 # Check dependency requirements
-vcl_check_target(nlohmann_json)
 
 set(SOURCE_FILES
 	allocator.cpp
@@ -61,5 +60,5 @@ else()
 endif()
 target_link_libraries(vcl.core.test
 	vcl_core
-	nlohmann_json
+	nlohmann_json::nlohmann_json
 )

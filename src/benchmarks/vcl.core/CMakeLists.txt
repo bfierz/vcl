@@ -24,21 +24,8 @@
 #
 project(vcl_core_benchmarks)
 
-include(../../cmake/CPM.cmake)
-
 # Status message
 message(STATUS "Configuring 'vcl_core_benchmarks'")
-
-CPMAddPackage(
-	GITHUB_REPOSITORY foonathan/memory
-	VERSION 0.7-4
-	OPTIONS
-		"FOONATHAN_MEMORY_BUILD_EXAMPLES NO"
-		"FOONATHAN_MEMORY_BUILD_TESTS NO"
-	EXCLUDE_FROM_ALL
-)
-set_property(TARGET foonathan_memory PROPERTY FOLDER 3rd-party)
-set_property(TARGET foonathan_memory_node_size_debugger PROPERTY FOLDER 3rd-party)
 
 set(SRC
 	main.cpp
@@ -50,7 +37,7 @@ set_target_properties(vcl_core_benchmarks PROPERTIES FOLDER benchmarks)
 
 target_link_libraries(vcl_core_benchmarks
 	vcl_core
-	benchmark
+	benchmark::benchmark
 	foonathan_memory
 )
 

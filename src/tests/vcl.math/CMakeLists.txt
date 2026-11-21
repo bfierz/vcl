@@ -50,5 +50,5 @@ else()
 endif()
 target_link_libraries(vcl.math.test
 	vcl.math
-	nlohmann_json
+	nlohmann_json::nlohmann_json
 )

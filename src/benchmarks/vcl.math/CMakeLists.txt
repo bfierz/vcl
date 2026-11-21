@@ -33,8 +33,6 @@ include(VCLCudaSupport)
 include(VCLOpenCLSupport)
 
 # Requirements
-vcl_check_target(benchmark)
-
 set(COMMON_FILES
 	problems.cpp
 	problems.h
@@ -60,7 +58,7 @@ vcl_target_sources(vcl.math.eigen33.performance "" ${COMMON_FILES} ${EIGEN33_PER
 set_target_properties(vcl.math.eigen33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.eigen33.performance
 	vcl.math
-	benchmark
+	benchmark::benchmark
 )
 
 # Correctness benchmarks for 3x3 rotation computation
@@ -83,7 +81,7 @@ vcl_target_sources(vcl.math.rotation33.performance "" ${COMMON_FILES} ${ROTATION
 set_target_properties(vcl.math.rotation33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.rotation33.performance
 	vcl.math
-	benchmark
+	benchmark::benchmark
 )
 
 # Correctness benchmarks for 3x3 SVDs
@@ -116,7 +114,7 @@ vcl_target_sources(vcl.math.svd33.performance "" ${COMMON_FILES} ${SVD33_PERF_SO
 set_target_properties(vcl.math.svd33.performance PROPERTIES FOLDER benchmarks)
 target_link_libraries(vcl.math.svd33.performance
 	vcl.math
-	benchmark
+	benchmark::benchmark
 )
 if(CUDA_FOUND AND VCL_CUDA_SUPPORT)
 	target_link_libraries(vcl.math.svd33.performance

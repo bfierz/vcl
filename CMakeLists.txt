@@ -56,12 +56,6 @@ find_package(Eigen3 CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json/CMakeLists.txt")
-	option(JSON_BuildTests "" OFF)
-	option(JSON_Install "" OFF)
-	add_subdirectory(src/externals/json)
-endif()
-
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
 	cmake_policy(SET CMP0072 NEW)
 endif()
@@ -79,6 +73,11 @@ endif()
 
 add_subdirectory(src/libs)
 
+# Install rules and the exported vclConfig.cmake
+if(PROJECT_IS_TOP_LEVEL)
+	include(VCLInstall)
+endif()
+
 # Build options
 if("^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
 	option(VCL_BUILD_BENCHMARKS "Build the benchmarks" ON)
@@ -94,14 +93,9 @@ endif()
 
 # Benchmarks
 if(VCL_BUILD_BENCHMARKS)
-	option(BENCHMARK_ENABLE_TESTING "" OFF)
-	option(BENCHMARK_ENABLE_GTEST_TESTS "" OFF)
-	add_subdirectory(src/externals/gbenchmark)
-	set_property(TARGET benchmark PROPERTY FOLDER 3rd-party)
-	set_property(TARGET benchmark_main PROPERTY FOLDER 3rd-party)
-	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-		set_property(TARGET benchmark PROPERTY COMPILE_OPTIONS "/W4")
-	endif()
+	find_package(benchmark CONFIG REQUIRED)
+	find_package(foonathan_memory CONFIG REQUIRED)
+	find_package(GeometricToolsEngine CONFIG REQUIRED)
 	add_subdirectory(src/benchmarks)
 endif()
 
@@ -117,21 +111,8 @@ endif()
 
 # Unit tests
 if(VCL_BUILD_TESTS)
-	option(gtest_build_samples "" OFF)
-	option(gtest_build_tests "" OFF)
-	option(gtest_force_shared_crt "" ON)
-	add_subdirectory(src/externals/googletest EXCLUDE_FROM_ALL)
-	set_property(TARGET gtest PROPERTY FOLDER 3rd-party)
-	set_property(TARGET gtest_main PROPERTY FOLDER 3rd-party)
+	find_package(GTest CONFIG REQUIRED)
+	find_package(nlohmann_json CONFIG REQUIRED)
 
-	# Remove non-supported options
-	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-		vcl_replace_compile_flag(gtest "[-/]W." "/W0")
-		vcl_replace_compile_flag(gtest_main "[-/]W." "/W0")
-		vcl_remove_compile_flag(gtest "/Gm-")
-		vcl_remove_compile_flag(gtest_main "/Gm-")
-	endif()
-	
-	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
 	add_subdirectory(src/tests)
 endif()

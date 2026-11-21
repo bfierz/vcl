@@ -133,6 +133,6 @@ set_target_properties(vcl.graphics.vulkan.test PROPERTIES FOLDER tests)
 
 target_link_libraries(vcl.graphics.vulkan.test
 	vcl_graphics
-	gtest
-	gtest_main
+	GTest::gtest
+	GTest::gtest_main
 )

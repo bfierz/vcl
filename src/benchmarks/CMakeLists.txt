@@ -24,8 +24,6 @@
 #
 
 # Performance benchmarks for mutexes
-add_subdirectory(mutex)
-
 # Benchmark collection for Vcl Core
 add_subdirectory(vcl.core)
 

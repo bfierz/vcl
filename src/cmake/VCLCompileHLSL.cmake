@@ -24,39 +24,14 @@
 #
 set(VCLCOMPILEHLSL_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-if(NOT CMAKE_HOST_WIN32)
-	# The downloaded package only contains Windows binaries. Elsewhere, use a
-	# native DXC from VCL_DXC_ROOT or the PATH.
-elseif(${CMAKE_VERSION} VERSION_LESS "3.11.0")
-	message(WARNING "Downloading DXC automatically requires CMake 3.11+")
-else()
-
-	include(FetchContent)
-
-	FetchContent_Declare(
-	  direct_x_shader_compiler
-	  # Same release as the native DXC in the devcontainer; shader model 6.6 needs DXC 1.6+
-	  URL      https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2609/dxc_2026_09_29.zip
-	  URL_HASH SHA256=ad31b1fc8443175d204f77a611fdb3ef2ec42759bdc2f1167368de24a4a7e7f1
-	)
-	FetchContent_GetProperties(direct_x_shader_compiler)
-	if(NOT direct_x_shader_compiler_POPULATED)
-		FetchContent_MakeAvailable(direct_x_shader_compiler)
-	endif()
-
-	message(STATUS "Downloaded DXC to ${direct_x_shader_compiler_SOURCE_DIR}")
-
-endif()
-
-
-# Path to the dxc compiler
+# dxc comes from the conan-index recipe, a tool_requires of conanfile.py: Conan puts its bin dir on
+# the PATH of the generated presets. VCL_DXC_ROOT can point to another installation.
 set(VCL_DXC_ROOT CACHE PATH "Path to the root directory of the 'Microsoft DirectX Shader Compiler'")
 
 find_program(DXC dxc
 	HINTS
 		${VCL_DXC_ROOT}
 		$ENV{VCL_DXC_ROOT}
-		${direct_x_shader_compiler_SOURCE_DIR}
 	PATH_SUFFIXES
 		"bin/x64"
 		"bin"

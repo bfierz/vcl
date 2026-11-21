@@ -35,7 +35,7 @@ SET(SOURCE
 
 ADD_LIBRARY(vcl_math_opencl STATIC ${SOURCE})
 SET_TARGET_PROPERTIES(vcl_math_opencl PROPERTIES FOLDER libs)
-TARGET_INCLUDE_DIRECTORIES(vcl_math_opencl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(vcl_math_opencl PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Add dependencies
 TARGET_LINK_LIBRARIES(vcl_math_opencl vcl_core vcl.math vcl_compute_opencl)
