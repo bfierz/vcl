@@ -62,9 +62,23 @@ class VclConan(ConanFile):
             self.requires("directx-headers/1.614.0")
 
         if self.options.build_examples:
-            # The examples share one imgui >= 1.92. The pin overrides whatever version the other
-            # examples packages ask for.
+            # The examples share one imgui; the pin overrides the versions that implot (1.92.9b),
+            # imguizmo (1.90.5) and imfiledialog (>=1.90) ask for. The package ships the platform and
+            # renderer backends as sources, which src/examples/imgui compiles once.
             self.requires("imgui/1.92.9b", override=True)
+            if self.settings.os != "Emscripten" and any(
+                self.options.get_safe(o) for o in ("with_opengl", "with_vulkan", "with_webgpu")
+            ):
+                self.requires("glfw/3.4")
+            if self.options.with_opengl:
+                self.requires("implot/1.1")
+            if self.options.with_opengl or self.options.with_webgpu:
+                # Brings stb with it
+                self.requires("imfiledialog/cci.20240916")
+            if self.options.with_d3d12 and self.settings.os == "Windows":
+                # ConanCenter's imguizmo/cci.20231114 uses ImGui::BeginChildFrame, which imgui 1.92
+                # removed. This snapshot of upstream master comes from bfierz/conan-index.
+                self.requires("imguizmo/cci.20261010")
 
     # Shader compilers run on the build machine, so they come from the build context: glslc from
     # shaderc compiles GLSL to SPIR-V, dxc compiles HLSL. Their bin dirs are put on the PATH of

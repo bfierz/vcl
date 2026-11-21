@@ -32,20 +32,6 @@ message(STATUS "Configuring 'OpenGL GridCube'")
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(IMGUI
-	../../3rdparty/imgui/backends/imgui_impl_opengl3.cpp
-	../../3rdparty/imgui/backends/imgui_impl_opengl3.h
-	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
-	../../3rdparty/imgui/backends/imgui_impl_glfw.h
-	../../3rdparty/imgui/imconfig.h
-	../../3rdparty/imgui/imgui.cpp
-	../../3rdparty/imgui/imgui.h
-	../../3rdparty/imgui/imgui_draw.cpp
-	../../3rdparty/imgui/imgui_internal.h
-	../../3rdparty/imgui/imgui_tables.cpp
-	../../3rdparty/imgui/imgui_widgets.cpp
-)
-
 set(COMMON
 	../common/app.cpp
 	../common/app.h
@@ -90,19 +76,12 @@ vclcompileglsl(
 set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1} ${COMPILEDSHADERS_2})
 
 add_executable(opengl_gridcube "")
-target_compile_definitions(opengl_gridcube PRIVATE IMGUI_DISABLE_DEMO_WINDOWS)
 set_target_properties(opengl_gridcube PROPERTIES FOLDER examples/opengl)
-vcl_target_sources(opengl_gridcube "../../3rdparty" ${IMGUI})
 vcl_target_sources(opengl_gridcube ".." ${COMMON})
 vcl_target_sources(opengl_gridcube "" ${SOURCE_FILES})
 target_sources(opengl_gridcube PRIVATE ${COMPILEDSHADERS})
 source_group("generated" FILES ${COMPILEDSHADERS})
-target_include_directories(opengl_gridcube
-	PRIVATE
-		../../3rdparty/imgui
-		../../3rdparty/imgui/backends
-)
 target_link_libraries(opengl_gridcube
 	vcl_graphics
-	glfw
+	vcl_examples_imgui
 )

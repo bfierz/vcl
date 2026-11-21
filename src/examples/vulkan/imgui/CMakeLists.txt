@@ -29,21 +29,6 @@ message(STATUS "Configuring 'Vulkan ImGui'")
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(IMGUI
-	../../3rdparty/imgui/backends/imgui_impl_vulkan.cpp
-	../../3rdparty/imgui/backends/imgui_impl_vulkan.h
-	../../3rdparty/imgui/backends/imgui_impl_glfw.cpp
-	../../3rdparty/imgui/backends/imgui_impl_glfw.h
-	../../3rdparty/imgui/imconfig.h
-	../../3rdparty/imgui/imgui.cpp
-	../../3rdparty/imgui/imgui.h
-	../../3rdparty/imgui/imgui_demo.cpp
-	../../3rdparty/imgui/imgui_draw.cpp
-	../../3rdparty/imgui/imgui_internal.h
-	../../3rdparty/imgui/imgui_tables.cpp
-	../../3rdparty/imgui/imgui_widgets.cpp
-)
-
 set(COMMON
 	../common/app.cpp
 	../common/app.h
@@ -57,15 +42,9 @@ set(SOURCE_FILES
 
 add_executable(vulkan_imgui "")
 set_target_properties(vulkan_imgui PROPERTIES FOLDER examples/vulkan)
-vcl_target_sources(vulkan_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(vulkan_imgui ".." ${COMMON})
 vcl_target_sources(vulkan_imgui "" ${SOURCE_FILES})
-target_include_directories(vulkan_imgui
-	PRIVATE
-		../../3rdparty/imgui
-		../../3rdparty/imgui/backends
-)
 target_link_libraries(vulkan_imgui
 	vcl_graphics
-	glfw
+	vcl_examples_imgui
 )
