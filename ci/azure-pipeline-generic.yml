@@ -90,6 +90,9 @@ steps:
       $bin = if ($IsWindows) { Join-Path $PWD '.venv-conan/Scripts' } else { Join-Path $PWD '.venv-conan/bin' }
       & (Join-Path $bin 'pip') install -r ci/requirements-conan.txt
       if ($LastExitCode -ne 0) { exit $LastExitCode }
+      # The venv's python comes first on the PATH, so the test report conversion needs lxml in it
+      & (Join-Path $bin 'pip') install lxml
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
       echo "##vso[task.prependpath]$bin"
 
       $profile = 'linux-gcc'
@@ -125,6 +128,10 @@ steps:
         '-o', "&:with_d3d12=$('$(configGraphicsD3D12)' -eq 'on')",
         '-o', '&:build_tests=True', '-o', '&:build_benchmarks=False',
         '-o', '&:build_tools=False', '-o', '&:build_examples=False')
+      # Packages such as xorg/system and egl/system install their system libraries through apt
+      if ($IsLinux) {
+        $opts += @('-c', 'tools.system.package_manager:mode=install', '-c', 'tools.system.package_manager:sudo=True')
+      }
       # The lockfile pins every recipe revision; a resolution that leaves it fails the install
       conan install . -pr:h=$profile -pr:b=default -s build_type=$(buildConfig) @opts --lockfile=conan.lock --build=missing
       if ($LastExitCode -ne 0) { exit $LastExitCode }
