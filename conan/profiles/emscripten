@@ -1,0 +1,29 @@
+# WebAssembly through Emscripten. No CI job runs it. Needs emsdk activated (EMSDK set, emcc on the PATH).
+# Use with a native build profile: -pr:h=conan/profiles/emscripten -pr:b=default
+# Pass the build type on the command line: -s build_type=Release
+[settings]
+os=Emscripten
+arch=wasm
+compiler=clang
+compiler.version=18
+compiler.libcxx=libc++
+compiler.cppstd=17
+
+[options]
+&:with_opengl=False
+&:with_egl=False
+&:with_vulkan=False
+&:with_d3d12=False
+&:build_benchmarks=False
+&:build_tools=False
+
+[buildenv]
+CC=emcc
+CXX=em++
+AR=emar
+RANLIB=emranlib
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+# Emscripten's CMake toolchain file; emsdk's location comes from the EMSDK variable
+tools.cmake.cmaketoolchain:user_toolchain=["{{ os.getenv('EMSDK') }}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"]

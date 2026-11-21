@@ -35,8 +35,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     qt6-base-dev qt6-base-dev-tools \
     qt6-tools-dev qt6-tools-dev-tools \
     qt6-declarative-dev \
-    # OpenGL development
-    libglew-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    # OpenGL and EGL development (GLEW comes from Conan; egl/system checks for libegl-dev)
+    libegl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    # Conan's vulkan-loader builds its X11/XCB window-system support from these
+    libx11-xcb-dev libxcb-dri3-dev libxcb-present-dev libxcb-randr0-dev libxkbcommon-dev libwayland-dev \
     # Vulkan runtime (lavapipe software driver); headers, loader and glslc come from Conan
     vulkan-tools mesa-vulkan-drivers vulkan-validationlayers \
     # noVNC stack
