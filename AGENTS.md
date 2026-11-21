@@ -27,3 +27,17 @@ ci/conan-setup-remotes.sh
 conan install . -pr:h=conan/profiles/linux-gcc -pr:b=default -s build_type=Release --build=missing
 cmake --preset conan-release && cmake --build --preset conan-release
 ```
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live in GitHub Issues for `bfierz/vcl`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default roles, except `ready-unattended` / `ready-supervised` replace the `ready-for-*` pair, plus `platform:*` and `backend:*` area labels. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
