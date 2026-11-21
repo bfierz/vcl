@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-cmake_minimum_required(VERSION 3.11.0)
+cmake_minimum_required(VERSION 3.23)
 
 project(VisualComputingLibrary)
 
@@ -41,13 +41,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 # Conan setup
 include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
 
-# Define C++ standard, minimum requirement is C++14
-# As MSVC is not able to define the minimum level, software needs
-# to implement per feature detection
-set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
-
-set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
+# Minimum requirement is C++17. The Conan profile's compiler.cppstd (emitted as
+# CMAKE_CXX_STANDARD by the toolchain) is the source of truth; 17 is only the
+# fallback for configures that bypass Conan.
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+	set(CMAKE_CXX_STANDARD 17)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

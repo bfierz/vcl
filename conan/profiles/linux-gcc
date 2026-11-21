@@ -1,0 +1,13 @@
+# Linux, native gcc. Pass the build type on the command line: -s build_type=Release
+include(default)
+
+[settings]
+compiler.cppstd=17
+compiler.libcxx=libstdc++11
+
+[options]
+&:with_opengl=True
+&:with_egl=True
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja

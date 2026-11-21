@@ -1,0 +1,16 @@
+# Windows, MSVC (Visual Studio 2022). Pass the build type on the command line:
+#   -s build_type=Release
+[settings]
+os=Windows
+arch=x86_64
+compiler=msvc
+compiler.version=194
+compiler.runtime=dynamic
+compiler.cppstd=17
+
+[options]
+&:with_opengl=True
+&:with_d3d12=True
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Visual Studio 17 2022

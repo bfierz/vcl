@@ -38,12 +38,12 @@ else()
 	set(VCL_COMPILER_UNKNOWN ON)
 endif()
 
-# Define C++ standard, minimum requirement is C++14
-# As MSVC is not able to define the minimum level, software needs
-# to implement per feature detection
-set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
-message(STATUS "Using C++${VCL_CXX_STANDARD}")
+# The minimum requirement is C++17. The Conan profile's compiler.cppstd
+# (emitted as CMAKE_CXX_STANDARD by the toolchain) selects the standard.
+if(NOT DEFINED CMAKE_CXX_STANDARD)
+	set(CMAKE_CXX_STANDARD 17)
+endif()
+message(STATUS "Using C++${CMAKE_CXX_STANDARD}")
 
 # Determine platform architecture
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -99,7 +99,7 @@ function(vcl_configure tgt)
 	message(STATUS "Configure target: ${tgt}")
 
 	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD ${VCL_CXX_STANDARD}
+		CXX_STANDARD ${CMAKE_CXX_STANDARD}
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO
 	)
