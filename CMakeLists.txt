@@ -34,9 +34,6 @@ endif ()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
-# Helper functions
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
-
 # The C++ standard (17 or newer) comes from the Conan profile's compiler.cppstd, which
 # CMakeToolchain emits as CMAKE_CXX_STANDARD. It is deliberately not set here.
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

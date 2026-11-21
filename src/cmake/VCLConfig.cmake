@@ -98,12 +98,6 @@ function(vcl_configure tgt)
 
 	message(STATUS "Configure target: ${tgt}")
 
-	set_target_properties(${tgt} PROPERTIES
-		CXX_STANDARD ${CMAKE_CXX_STANDARD}
-		CXX_STANDARD_REQUIRED YES
-		CXX_EXTENSIONS NO
-	)
-
 	# Control OpenMP support
 	option(VCL_OPENMP_SUPPORT "Enable OpenMP support")
 	if(VCL_OPENMP_SUPPORT)

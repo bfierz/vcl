@@ -52,7 +52,5 @@ if (EMSCRIPTEN)
 	set_target_properties(webgpu_imgui PROPERTIES LINK_FLAGS "-s USE_GLFW=3 -s USE_WEBGPU=1")
 	set(EXECUTABLE "webgpu_imgui.js")
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_imgui.html @ONLY)
-else()
-	vcl_target_sources(webgpu_imgui "${DAWN_INCLUDE_DIR}/..")
 endif()
 
