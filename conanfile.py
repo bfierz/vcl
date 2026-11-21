@@ -39,21 +39,20 @@ class VclConan(ConanFile):
     # Resolved from ConanCenter; all three are usable with C++17. Versions are tracked here and
     # in conan.lock.
     def requirements(self):
-        uses_opengl_or_vulkan = bool(self.options.with_opengl or self.options.with_vulkan)
         self.requires("eigen/3.4.1")
         self.requires("abseil/20250814.2")
         self.requires("fmt/11.2.0")
+        self._require_graphics()
+        if self.options.build_examples:
+            self._require_examples()
 
-        # Graphics backends. Driver-bound libraries (OpenGL, and EGL on Linux through
-        # egl/system) stay on the system; see docs/adr/0001-conan-with-find-package-seam.md.
+    # Graphics backends. Driver-bound libraries (OpenGL, and EGL on Linux through
+    # egl/system) stay on the system; see docs/adr/0001-conan-with-find-package-seam.md.
+    def _require_graphics(self):
         if self.options.with_opengl:
             self.requires("glew/2.2.0")
             if self.options.with_egl:
-                if self.settings.os == "Windows":
-                    # Recipe lives in bfierz/conan-index; it exports egl::egl like egl/system
-                    self.requires("mcnopper-egl/[*]")
-                elif self.settings.os != "Emscripten":
-                    self.requires("egl/system")
+                self._require_egl()
         if self.options.with_vulkan:
             # Only the vendor-neutral headers and the loader: no Vulkan SDK is needed
             self.requires("vulkan-headers/1.4.350.0")
@@ -69,22 +68,29 @@ class VclConan(ConanFile):
             # profiles set for Dawn alone (dawn/*:compiler.cppstd=20); VCL only uses its C API.
             self.requires("dawn/159.0.8154")
 
-        if self.options.build_examples:
-            # The examples share one imgui. It is a direct requirement, because every example links it,
-            # even when no extension below brings it in. force=True overrides the versions that implot
-            # (1.92.9b), imguizmo (1.90.5) and imfiledialog (>=1.90) ask for. The package ships the
-            # platform and renderer backends as sources, which src/examples/imgui compiles once.
-            self.requires("imgui/1.92.9b", force=True)
-            if self.settings.os != "Emscripten" and uses_opengl_or_vulkan:
-                self.requires("glfw/3.4")
-            if self.options.with_opengl:
-                self.requires("implot/1.1")
-                # Brings stb with it
-                self.requires("imfiledialog/cci.20240916")
-            if self.options.with_d3d12 and self.settings.os == "Windows":
-                # ConanCenter's imguizmo/cci.20231114 uses ImGui::BeginChildFrame, which imgui 1.92
-                # removed. This snapshot of upstream master comes from bfierz/conan-index.
-                self.requires("imguizmo/cci.20261010")
+    def _require_egl(self):
+        if self.settings.os == "Windows":
+            # Recipe lives in bfierz/conan-index; it exports egl::egl like egl/system
+            self.requires("mcnopper-egl/[*]")
+        elif self.settings.os != "Emscripten":
+            self.requires("egl/system")
+
+    # The examples share one imgui. It is a direct requirement, because every example links it,
+    # even when no extension below brings it in. force=True overrides the versions that implot
+    # (1.92.9b), imguizmo (1.90.5) and imfiledialog (>=1.90) ask for. The package ships the
+    # platform and renderer backends as sources, which src/examples/imgui compiles once.
+    def _require_examples(self):
+        self.requires("imgui/1.92.9b", force=True)
+        if self.settings.os != "Emscripten" and (self.options.with_opengl or self.options.with_vulkan):
+            self.requires("glfw/3.4")
+        if self.options.with_opengl:
+            self.requires("implot/1.1")
+            # Brings stb with it
+            self.requires("imfiledialog/cci.20240916")
+        if self.options.with_d3d12 and self.settings.os == "Windows":
+            # ConanCenter's imguizmo/cci.20231114 uses ImGui::BeginChildFrame, which imgui 1.92
+            # removed. This snapshot of upstream master comes from bfierz/conan-index.
+            self.requires("imguizmo/cci.20261010")
 
     # Shader compilers run on the build machine, so they come from the build context: glslc from
     # shaderc compiles GLSL to SPIR-V, dxc compiles HLSL. Their bin dirs are put on the PATH of

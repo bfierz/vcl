@@ -15,37 +15,75 @@ RUN apt-get update && apt-get install -y software-properties-common \
     && add-apt-repository -y ppa:kisak/kisak-mesa \
     && rm -rf /var/lib/apt/lists/*
 
-# Core build deps, C++ toolchains, debuggers, and helpers
+# Core build deps, C++ toolchains, debuggers, helpers and the runtime and development bits for
+# the GUI, OpenGL, Vulkan (lavapipe) and the noVNC stack. The list is sorted alphabetically.
+# - clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
+# - GLEW, the Vulkan headers/loader and glslc come from Conan; egl/system checks for libegl-dev
+# - Conan's vulkan-loader builds its X11/XCB/Wayland window-system support from the lib*-dev packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    git curl ca-certificates pkg-config \
-    cmake ninja-build \
-    gdb lldb \
-    # clang-format is 18 on Ubuntu 24.04; .github/workflows/clang-format-check.yml must use the same major version
-    clang clang-tidy clang-format lld \
+    ca-certificates \
     ccache \
-    python3 python3-pip python3-venv \
-    # OpenGL & X11 runtime bits for Qt GUI
-    libgl1-mesa-dri libgl1-mesa-dev libglu1-mesa-dev \
-    libxkbcommon-x11-0 libx11-xcb1 libxcb1 libxcb-icccm4 libxcb-image0 \
-    libxcb-keysyms1 libxcb-randr0 libxcb-render0 libxcb-render-util0 \
-    libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 \
-    x11-apps \
-    # Qt 6 development (widgets, tools, qml)
-    qt6-base-dev qt6-base-dev-tools \
-    qt6-tools-dev qt6-tools-dev-tools \
+    clang \
+    clang-format \
+    clang-tidy \
+    cmake \
+    curl \
+    dbus-x11 \
+    doxygen \
+    gdb \
+    git \
+    libegl-dev \
+    libgl1-mesa-dev \
+    libgl1-mesa-dri \
+    libglu1-mesa-dev \
+    libwayland-dev \
+    libx11-xcb-dev \
+    libx11-xcb1 \
+    libxcb-dri3-dev \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-present-dev \
+    libxcb-randr0 \
+    libxcb-randr0-dev \
+    libxcb-render-util0 \
+    libxcb-render0 \
+    libxcb-shape0 \
+    libxcb-shm0 \
+    libxcb-sync1 \
+    libxcb-xfixes0 \
+    libxcb-xkb1 \
+    libxcb1 \
+    libxcursor-dev \
+    libxi-dev \
+    libxinerama-dev \
+    libxkbcommon-dev \
+    libxkbcommon-x11-0 \
+    libxrandr-dev \
+    lld \
+    lldb \
+    mesa-vulkan-drivers \
+    ninja-build \
+    novnc \
+    openbox \
+    pkg-config \
+    python3 \
+    python3-pip \
+    python3-venv \
+    qt6-base-dev \
+    qt6-base-dev-tools \
     qt6-declarative-dev \
-    # OpenGL and EGL development (GLEW comes from Conan; egl/system checks for libegl-dev)
-    libegl-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-    # Conan's vulkan-loader builds its X11/XCB window-system support from these
-    libx11-xcb-dev libxcb-dri3-dev libxcb-present-dev libxcb-randr0-dev libxkbcommon-dev libwayland-dev \
-    # Vulkan runtime (lavapipe software driver); headers, loader and glslc come from Conan
-    vulkan-tools mesa-vulkan-drivers vulkan-validationlayers \
-    # noVNC stack
-    xvfb x11vnc openbox supervisor \
-    websockify novnc \
-    # utils
-    xterm dbus-x11 doxygen \
+    qt6-tools-dev \
+    qt6-tools-dev-tools \
+    supervisor \
+    vulkan-tools \
+    vulkan-validationlayers \
+    websockify \
+    x11-apps \
+    x11vnc \
+    xterm \
+    xvfb \
     && rm -rf /var/lib/apt/lists/*
 
 # Conan is installed per workspace in a venv at the version pinned in ci/requirements-conan.txt

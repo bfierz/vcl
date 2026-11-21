@@ -13,7 +13,9 @@ int main()
 	auto entity = entities.create();
 	entities.destroy(entity);
 
-	const Eigen::Vector3f a{ 0, 0, 0 }, b{ 1, 0, 0 }, c{ 0, 1, 0 };
+	const Eigen::Vector3f a{ 0, 0, 0 };
+	const Eigen::Vector3f b{ 1, 0, 0 };
+	const Eigen::Vector3f c{ 0, 1, 0 };
 	const Vcl::Geometry::Triangle<float, 3> triangle{ a, b, c };
 	const float d = Vcl::Geometry::distance(triangle, Eigen::Vector3f{ 0.25f, 0.25f, 1 });
 
