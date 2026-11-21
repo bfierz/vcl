@@ -16,9 +16,6 @@
 [submodule "src/examples/3rdparty/glfw"]
 	path = src/examples/3rdparty/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "src/externals/SPIRV-Cross"]
-	path = src/externals/SPIRV-Cross
-	url = https://github.com/KhronosGroup/SPIRV-Cross
 [submodule "src/examples/3rdparty/implot"]
 	path = src/examples/3rdparty/implot
 	url = https://github.com/epezent/implot.git
@@ -31,6 +28,3 @@
 [submodule "src/examples/3rdparty/stb"]
 	path = src/examples/3rdparty/stb
 	url = https://github.com/nothings/stb.git
-[submodule "src/externals/DirectX-Headers"]
-	path = src/externals/DirectX-Headers
-	url = https://github.com/microsoft/DirectX-Headers.git

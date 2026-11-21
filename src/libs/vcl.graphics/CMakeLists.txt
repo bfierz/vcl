@@ -300,54 +300,19 @@ if(VCL_OPENGL_SUPPORT)
 				OpenGL::GL
 		)
 
-		if (NOT vcl_ext_glew)
-			find_package(GLEW QUIET)
-			if(GLEW_FOUND)
-				set(vcl_ext_glew GLEW::glew)
-			else()
-				set(vcl_ext_glew)
-			endif()
-		endif()
+		find_package(GLEW CONFIG REQUIRED)
+		target_link_libraries(vcl_graphics
+			PUBLIC
+				GLEW::GLEW
+		)
 
-		if(TARGET ${vcl_ext_glew})
-			target_link_libraries(vcl_graphics
-				PUBLIC
-					${vcl_ext_glew}
-			)
-		elseif(WIN32)
-			include(FetchContent)
-			FetchContent_Declare(
-				glew
-				URL https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0-win32.zip
-			)
-			FetchContent_GetProperties(glew)
-			if(NOT glew_POPULATED)
-				FetchContent_MakeAvailable(glew)
-				message(STATUS "Downloaded GLEW to ${glew_SOURCE_DIR}")
-			endif()
-
-			set(GLEW_DIR "${glew_SOURCE_DIR}")
-			set(GLEW_INCLUDE_DIR "${glew_SOURCE_DIR}/include")
-			set(GLEW_SHARED_LIBRARY_DEBUG "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
-			set(GLEW_SHARED_LIBRARY_RELEASE "${glew_SOURCE_DIR}/lib/Release/x64/glew32.lib")
-			add_custom_command(
-				TARGET ${PROJECT_NAME} POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${glew_SOURCE_DIR}/bin/Release/x64/glew32.dll
-					$<TARGET_FILE_DIR:${PROJECT_NAME}>)
-
-			find_package(GLEW QUIET)
-			target_link_libraries(vcl_graphics
-				PUBLIC
-					GLEW::glew
-			)
-		endif()
-	
-		if(VCL_EGL_SUPPORT AND TARGET ${vcl_ext_egl})
+		if(VCL_EGL_SUPPORT)
+			# egl/system on Linux, mcnopper-egl on Windows; both export egl::egl
+			find_package(egl CONFIG REQUIRED)
 			target_compile_definitions(vcl_graphics PUBLIC VCL_EGL_SUPPORT)
 			target_link_libraries(vcl_graphics
 				PUBLIC
-					${vcl_ext_egl}
+					egl::egl
 			)
 		endif()
 	endif()
@@ -369,8 +334,9 @@ if(VCL_D3D12_SUPPORT)
 		# MinGW's RPC headers declare an older version than the D3D12 headers require
 		target_compile_definitions(vcl_graphics PUBLIC "__REQUIRED_RPCNDR_H_VERSION__=475")
 	endif()
-	# Resolve plain <d3d12.h> (e.g. in third-party code) to the same headers
-	target_include_directories(vcl_graphics SYSTEM PUBLIC "${DirectX-Headers_SOURCE_DIR}/include/directx")
+	# Includes use <directx/d3dx12.h>, which resolves against the package's include root.
+	# The package also carries the DirectX-Guids library, so no separate guids target is needed.
+	find_package(DirectX-Headers CONFIG REQUIRED)
 	target_link_libraries(vcl_graphics
 		PUBLIC
 			abseil::abseil
@@ -383,17 +349,15 @@ if(VCL_D3D12_SUPPORT)
 		# libd3d12.so and libdxcore.so are loaded when first used, so that the
 		# library also builds and loads where WSL's D3D12 runtime isn't installed
 		vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_D3D12_LINUX})
-		target_link_libraries(vcl_graphics
-			PUBLIC
-				Microsoft::DirectX-Guids
-			PRIVATE
-				${CMAKE_DL_LIBS}
-		)
+		target_link_libraries(vcl_graphics PRIVATE ${CMAKE_DL_LIBS})
 	endif()
 endif()
 
 if(VCL_VULKAN_SUPPORT)
-	find_package(Vulkan REQUIRED)
+	# Vendor-neutral headers and loader from Conan; the loader finds the driver at runtime
+	find_package(VulkanHeaders CONFIG REQUIRED)
+	find_package(VulkanLoader CONFIG REQUIRED)
+	find_package(spirv-cross CONFIG REQUIRED)
 
 	vcl_target_sources(vcl_graphics "vcl/graphics" ${SOURCE_VULKAN})
 
@@ -401,10 +365,10 @@ if(VCL_VULKAN_SUPPORT)
 	target_link_libraries(vcl_graphics
 		PUBLIC
 			abseil::abseil
-			Vulkan::Vulkan
+			vulkan-headers::vulkan-headers
+			Vulkan::Loader
 		PRIVATE
-			spirv-cross-core
-			spirv-cross-glsl
+			spirv-cross::spirv-cross
 	)
 endif()
 

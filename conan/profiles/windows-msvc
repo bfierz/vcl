@@ -12,5 +12,9 @@ compiler.cppstd=17
 &:with_opengl=True
 &:with_d3d12=True
 
+[buildenv]
+# spirv-cross/cci.20211113 (newest on ConanCenter) declares CMake < 3.5, which CMake 4 rejects
+CMAKE_POLICY_VERSION_MINIMUM=3.5
+
 [conf]
 tools.cmake.cmaketoolchain:generator=Visual Studio 17 2022

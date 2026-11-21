@@ -18,6 +18,8 @@ VCL_OPTIONS = {
     "with_opengl": (False, "VCL_OPENGL_SUPPORT"),
     "with_egl": (False, "VCL_EGL_SUPPORT"),
     "with_vulkan": (False, "VCL_VULKAN_SUPPORT"),
+    # Packages the Vulkan validation layers; consumed at runtime only, so no CMake variable
+    "with_vulkan_validation": (False, None),
     "with_d3d12": (False, "VCL_D3D12_SUPPORT"),
     "with_webgpu": (False, "VCL_WEBGPU_SUPPORT"),
     "build_tests": (True, "VCL_BUILD_TESTS"),
@@ -39,6 +41,26 @@ class VclConan(ConanFile):
         self.requires("abseil/20250814.2")
         self.requires("fmt/11.2.0")
 
+        # Graphics backends. Driver-bound libraries (OpenGL, and EGL on Linux through
+        # egl/system) stay on the system; see docs/adr/0001-conan-with-find-package-seam.md.
+        if self.options.with_opengl:
+            self.requires("glew/2.2.0")
+            if self.options.with_egl:
+                if self.settings.os == "Windows":
+                    # Recipe lives in bfierz/conan-index; it exports egl::egl like egl/system
+                    self.requires("mcnopper-egl/[*]")
+                elif self.settings.os != "Emscripten":
+                    self.requires("egl/system")
+        if self.options.with_vulkan:
+            # Only the vendor-neutral headers and the loader: no Vulkan SDK is needed
+            self.requires("vulkan-headers/1.4.313.0")
+            self.requires("vulkan-loader/1.4.313.0")
+            self.requires("spirv-cross/cci.20211113")
+            if self.options.with_vulkan_validation:
+                self.requires("vulkan-validationlayers/1.4.350.0")
+        if self.options.with_d3d12:
+            self.requires("directx-headers/1.614.0")
+
     def layout(self):
         cmake_layout(self)
 
@@ -49,5 +71,7 @@ class VclConan(ConanFile):
         # CMakeToolchain emits CMAKE_CXX_STANDARD from it.
         tc = CMakeToolchain(self)
         for name, (_, variable) in VCL_OPTIONS.items():
+            if variable is None:
+                continue
             tc.cache_variables[variable] = bool(self.options.get_safe(name))
         tc.generate()
