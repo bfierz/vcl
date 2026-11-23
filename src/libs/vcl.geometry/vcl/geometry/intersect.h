@@ -247,6 +247,9 @@ namespace Vcl { namespace Geometry {
 	 *	  vertices count.
 	 *	- t_entry is the ray parameter at which the ray enters the tetrahedron, 0 if the origin is
 	 *	  inside. t_exit is the parameter at which it leaves. Both are only meaningful for rays that hit.
+	 *	- entry_face and exit_face are the faces through which the ray enters and leaves, given as the
+	 *	  index of the opposite vertex. entry_face is -1 if the origin is inside; both are -1 for rays
+	 *	  that miss. A ray through an edge or a vertex returns any of the faces it touches.
 	 *	- The ray direction does not need to be normalized.
 	 *	- The vertex order, and thus the orientation, of the tetrahedron does not matter.
 	 *	- Degenerate (flat) tetrahedra are never hit.
@@ -262,11 +265,14 @@ namespace Vcl { namespace Geometry {
 		const Ray<Scalar, 3>& ray,
 		Scalar& t_entry,
 		Scalar& t_exit,
+		typename VectorTypes<Scalar>::int_t& entry_face,
+		typename VectorTypes<Scalar>::int_t& exit_face,
 		RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Haines>)
 	{
 		using namespace Vcl::Mathematics;
 
 		using real_t = Scalar;
+		using int_t = typename VectorTypes<Scalar>::int_t;
 
 		// Vertices spanning the face opposite to vertex i
 		const int faces[4][3] = { { 1, 2, 3 }, { 0, 2, 3 }, { 0, 1, 3 }, { 0, 1, 2 } };
@@ -277,6 +283,8 @@ namespace Vcl { namespace Geometry {
 		// Disallow any intersection that lies behind the start point of the ray
 		real_t t_min = 0;
 		real_t t_max = inf;
+		int_t entry = -1;
+		int_t exit = -1;
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -298,18 +306,26 @@ namespace Vcl { namespace Geometry {
 			// Ray parameter of the plane hit; not used for rays parallel to the plane
 			const real_t t = dist / denom;
 
-			t_min = select(denom < real_t(0), max(t_min, t), t_min);
-			t_max = select(denom > real_t(0), min(t_max, t), t_max);
+			const auto enters = denom < real_t(0) && t >= t_min;
+			const auto leaves = denom > real_t(0) && t <= t_max;
+			t_min = select(enters, t, t_min);
+			t_max = select(leaves, t, t_max);
+			entry = select(enters, int_t(i), entry);
+			exit = select(leaves, int_t(i), exit);
 
 			// A ray parallel to the plane on its outer side, or a flat tetrahedron, misses
 			t_max = select(denom == real_t(0) && dist < real_t(0), neg_inf, t_max);
 			t_max = select(opposite == real_t(0), neg_inf, t_max);
 		}
 
+		const auto hit = t_min <= t_max;
+
 		t_entry = t_min;
 		t_exit = t_max;
+		entry_face = select(hit, entry, int_t(-1));
+		exit_face = select(hit, exit, int_t(-1));
 
-		return t_min <= t_max;
+		return hit;
 	}
 
 	namespace Detail {
@@ -360,8 +376,10 @@ namespace Vcl { namespace Geometry {
 	 *	computes the ray parameters from the barycentric coordinates of the crossing points, as
 	 *	described in N. Platis, T. Theoharis, "Fast Ray-Tetrahedron Intersection Using Plücker
 	 *	Coordinates", Journal of Graphics Tools 8(4), 2003.
-	 *	The product of an edge is bitwise the same in every tetrahedron sharing it, so tetrahedra
-	 *	sharing a face always agree on whether the ray crosses that face.
+	 *	The product of an edge is bitwise the same in every tetrahedron sharing it, even when the
+	 *	compiler contracts the products into fused multiply-adds. Tetrahedra sharing a face thus
+	 *	always agree on whether the ray crosses it, and the exit face of one tetrahedron is the
+	 *	entry face of its neighbour. Use it to walk rays through tetrahedral meshes.
 	 *
 	 *	\see RayTetIntersectionAlgorithm for the semantics shared by all algorithms
 	 */
@@ -371,11 +389,14 @@ namespace Vcl { namespace Geometry {
 		const Ray<Scalar, 3>& ray,
 		Scalar& t_entry,
 		Scalar& t_exit,
+		typename VectorTypes<Scalar>::int_t& entry_face,
+		typename VectorTypes<Scalar>::int_t& exit_face,
 		RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Plucker>)
 	{
 		using namespace Vcl::Mathematics;
 
 		using real_t = Scalar;
+		using int_t = typename VectorTypes<Scalar>::int_t;
 		using vector_t = Eigen::Matrix<real_t, 3, 1>;
 
 		const real_t zero = 0;
@@ -415,6 +436,8 @@ namespace Vcl { namespace Geometry {
 		real_t t_min = neg_inf;
 		real_t t_max = inf;
 		real_t crossed = zero;
+		int_t entry = -1;
+		int_t exit = -1;
 		for (int f = 0; f < 4; f++)
 		{
 			const real_t& jk = edges[f][0];
@@ -434,23 +457,67 @@ namespace Vcl { namespace Geometry {
 
 			// The sum is the ray direction projected on the face normal; negative if the ray enters
 			const real_t facing = orientation * sum;
-			t_min = select(crosses && facing < zero, max(t_min, t), t_min);
-			t_max = select(crosses && facing > zero, min(t_max, t), t_max);
+			const auto enters = crosses && facing < zero && t >= t_min;
+			const auto leaves = crosses && facing > zero && t <= t_max;
+			t_min = select(enters, t, t_min);
+			t_max = select(leaves, t, t_max);
+			entry = select(enters, int_t(f), entry);
+			exit = select(leaves, int_t(f), exit);
 			crossed = crossed + select(crosses, real_t(1), zero);
 		}
 
 		// A flat tetrahedron misses
 		t_max = select(volume == zero, neg_inf, t_max);
 
+		// The face classification alone decides whether the line hits; the ray parameters are
+		// rounded and only decide whether the hit lies in front of the origin. This keeps
+		// neighbouring tetrahedra consistent for rays through their shared edges.
+		const auto hit = crossed > zero && t_max >= zero;
+
 		// Disallow any intersection that lies behind the start point of the ray
-		t_entry = max(t_min, zero);
+		t_entry = min(max(t_min, zero), t_max);
 		t_exit = t_max;
 
-		return crossed > zero && t_entry <= t_exit;
+		entry_face = select(hit && t_min >= zero, entry, int_t(-1));
+		exit_face = select(hit, exit, int_t(-1));
+
+		return hit;
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection without the faces
+	 *	\see RayTetIntersectionAlgorithm
+	 */
+	template<typename Scalar, RayTetIntersectionAlgorithm Algorithm>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		Scalar& t_entry,
+		Scalar& t_exit,
+		RayTetIntersectionAlgorithmSelector<Algorithm> algorithm)
+	{
+		typename VectorTypes<Scalar>::int_t entry_face, exit_face;
+		return intersects(tet, ray, t_entry, t_exit, entry_face, exit_face, algorithm);
 	}
 
 	/*!
 	 *	\brief Ray-tetrahedron intersection with the default algorithm
+	 *	\see RayTetIntersectionAlgorithm
+	 */
+	template<typename Scalar>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		Scalar& t_entry,
+		Scalar& t_exit,
+		typename VectorTypes<Scalar>::int_t& entry_face,
+		typename VectorTypes<Scalar>::int_t& exit_face)
+	{
+		return intersects(tet, ray, t_entry, t_exit, entry_face, exit_face, RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Default>{});
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection with the default algorithm, without the faces
 	 *	\see RayTetIntersectionAlgorithm
 	 */
 	template<typename Scalar>

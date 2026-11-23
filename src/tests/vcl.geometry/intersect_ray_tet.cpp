@@ -70,6 +70,16 @@ namespace {
 		Eigen::Vector3f(0, 0, 1),
 	};
 
+	//! Sets of faces, by the index of the opposite vertex; None stands for -1
+	enum Faces
+	{
+		F0 = 1 << 0,
+		F1 = 1 << 1,
+		F2 = 1 << 2,
+		F3 = 1 << 3,
+		None = 1 << 4,
+	};
+
 	struct RayCase
 	{
 		const char* name;
@@ -78,35 +88,49 @@ namespace {
 		bool hit;
 		float t_entry;
 		float t_exit;
+		int entry_faces; //!< Faces the ray may enter through
+		int exit_faces;  //!< Faces the ray may leave through
 	};
 
 	// clang-format off
 	const std::array<RayCase, 12> corner_cases = {{
-		{ "through two faces",       { 0.25f, 0.25f, -1 },     { 0, 0, 1 },  true,  1.0f,  1.5f   },
-		{ "unnormalized direction",  { 0.25f, 0.25f, -1 },     { 0, 0, 2 },  true,  0.5f,  0.75f  },
-		{ "pointing away",           { 0.25f, 0.25f, -1 },     { 0, 0, -1 }, false, 0,     0      },
-		{ "origin past the exit",    { 0.25f, 0.25f, 1 },      { 0, 0, 1 },  false, 0,     0      },
-		{ "origin inside",           { 0.125f, 0.125f, 0.125f }, { 0, 0, 1 }, true, 0.0f,  0.625f },
-		{ "origin on a face",        { 0.25f, 0.25f, 0 },      { 0, 0, 1 },  true,  0.0f,  0.5f   },
-		{ "parallel to a face",      { 0.25f, 0.25f, -1 },     { 1, 0, 0 },  false, 0,     0      },
-		{ "inside a face plane",     { 0.25f, -1, 0 },         { 0, 1, 0 },  true,  1.0f,  1.75f  },
-		{ "touching an edge",        { 0.5f, -1, 1 },          { 0, 1, -1 }, true,  1.0f,  1.0f   },
-		{ "passing an edge",         { 0.5f, -1, 0.75f },      { 0, 1, -1 }, false, 0,     0      },
-		{ "touching a vertex",       { -1, -1, 1 },            { 1, 1, 0 },  true,  1.0f,  1.0f   },
-		{ "missing the line",        { 2, 2, 2 },              { 1, 0, 0 },  false, 0,     0      },
+		{ "through two faces",       { 0.25f, 0.25f, -1 },     { 0, 0, 1 },  true,  1.0f,  1.5f, F3, F0 },
+		{ "unnormalized direction",  { 0.25f, 0.25f, -1 },     { 0, 0, 2 },  true,  0.5f,  0.75f, F3, F0 },
+		{ "pointing away",           { 0.25f, 0.25f, -1 },     { 0, 0, -1 }, false, 0,     0, None, None },
+		{ "origin past the exit",    { 0.25f, 0.25f, 1 },      { 0, 0, 1 },  false, 0,     0, None, None },
+		{ "origin inside",           { 0.125f, 0.125f, 0.125f }, { 0, 0, 1 }, true, 0.0f,  0.625f, None, F0 },
+		{ "origin on a face",        { 0.25f, 0.25f, 0 },      { 0, 0, 1 },  true,  0.0f,  0.5f, F3, F0 },
+		{ "parallel to a face",      { 0.25f, 0.25f, -1 },     { 1, 0, 0 },  false, 0,     0, None, None },
+		{ "inside a face plane",     { 0.25f, -1, 0 },         { 0, 1, 0 },  true,  1.0f,  1.75f, F2, F0 },
+		{ "touching an edge",        { 0.5f, -1, 1 },          { 0, 1, -1 }, true,  1.0f,  1.0f, F2 | F3, F2 | F3 },
+		{ "passing an edge",         { 0.5f, -1, 0.75f },      { 0, 1, -1 }, false, 0,     0, None, None },
+		{ "touching a vertex",       { -1, -1, 1 },            { 1, 1, 0 },  true,  1.0f,  1.0f, F0 | F1 | F2, F0 | F1 | F2 },
+		{ "missing the line",        { 2, 2, 2 },              { 1, 0, 0 },  false, 0,     0, None, None },
 	}};
 	// clang-format on
 
+	//! Whether a returned face, after mapping its index through the vertex order, is in a set of faces
+	bool isOneOf(int face, int faces, const std::array<int, 4>& order = { 0, 1, 2, 3 })
+	{
+		return (faces & (face < 0 ? None : 1 << order[face])) != 0;
+	}
+
+	//! Checks a corner case against the corner tetrahedron with its vertices in the given order
 	template<typename Algorithm>
-	void checkCase(const Vcl::Geometry::Tetrahedron<float, 3>& tet, const RayCase& c)
+	void checkCase(const std::array<int, 4>& order, const RayCase& c)
 	{
 		using namespace Vcl::Geometry;
 
+		const Tetrahedron<float, 3> tet{ corner[order[0]], corner[order[1]], corner[order[2]], corner[order[3]] };
 		const Ray<float, 3> ray{ c.origin, c.direction };
 
 		float t_entry = -1, t_exit = -1;
+		int entry_face = -2, exit_face = -2;
+		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit, entry_face, exit_face, Algorithm{})) << c.name;
 		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit, Algorithm{})) << c.name;
 		EXPECT_EQ(c.hit, intersects(tet, ray, Algorithm{})) << c.name;
+		EXPECT_TRUE(isOneOf(entry_face, c.entry_faces, order)) << c.name << ", entry face " << entry_face;
+		EXPECT_TRUE(isOneOf(exit_face, c.exit_faces, order)) << c.name << ", exit face " << exit_face;
 		if (c.hit)
 		{
 			EXPECT_FLOAT_EQ(c.t_entry, t_entry) << c.name;
@@ -151,11 +175,14 @@ namespace {
 		const Ray<real_t, 3> ray{ origin, direction };
 
 		real_t t_entry, t_exit;
-		const real_t hit = select(intersects(tet, ray, t_entry, t_exit, Algorithm{}), real_t(1), real_t(0));
+		Vcl::VectorScalar<int, Width> entry_face, exit_face;
+		const real_t hit = select(intersects(tet, ray, t_entry, t_exit, entry_face, exit_face, Algorithm{}), real_t(1), real_t(0));
 		for (int lane = 0; lane < Width; lane++)
 		{
 			const RayCase& c = lane_case(lane);
 			EXPECT_EQ(c.hit ? 1.0f : 0.0f, hit[lane]) << c.name << ", lane " << lane;
+			EXPECT_TRUE(isOneOf(entry_face[lane], c.entry_faces)) << c.name << ", lane " << lane << ", entry face " << entry_face[lane];
+			EXPECT_TRUE(isOneOf(exit_face[lane], c.exit_faces)) << c.name << ", lane " << lane << ", exit face " << exit_face[lane];
 			if (c.hit)
 			{
 				EXPECT_FLOAT_EQ(c.t_entry, t_entry[lane]) << c.name << ", lane " << lane;
@@ -164,15 +191,86 @@ namespace {
 		}
 	}
 
-	//! Cube split into six tetrahedra around the diagonal 0-7, which is an edge of all of them
-	const std::array<std::array<int, 4>, 6> diagonal_tetrahedra = {
-		std::make_array(0, 1, 3, 7),
-		std::make_array(0, 3, 2, 7),
-		std::make_array(0, 2, 6, 7),
-		std::make_array(0, 6, 4, 7),
-		std::make_array(0, 4, 5, 7),
-		std::make_array(0, 5, 1, 7),
+	//! Ring of tetrahedra around the edge between vertices 0 and 1, each with its own vertex order
+	struct EdgeRing
+	{
+		static constexpr int Size = 6;
+
+		std::array<Eigen::Vector3f, Size + 2> vertices;
+
+		//! Vertex ids of each tetrahedron
+		std::array<std::array<int, 4>, Size> tetrahedra;
+
+		Vcl::Geometry::Tetrahedron<float, 3> tetrahedron(int i) const
+		{
+			const auto& t = tetrahedra[i];
+			return { vertices[t[0]], vertices[t[1]], vertices[t[2]], vertices[t[3]] };
+		}
+
+		//! Sorted vertex ids of the face of tetrahedron i opposite to its vertex f
+		std::array<int, 3> face(int i, int f) const
+		{
+			std::array<int, 3> ids;
+			for (int k = 0, n = 0; k < 4; k++)
+				if (k != f)
+					ids[n++] = tetrahedra[i][k];
+			std::sort(ids.begin(), ids.end());
+			return ids;
+		}
+
+		//! Tetrahedron sharing the face of tetrahedron i opposite to its vertex f; -1 on the outside
+		int neighbour(int i, int f) const
+		{
+			const auto shared = face(i, f);
+			for (int j = 0; j < Size; j++)
+				for (int g = 0; j != i && g < 4; g++)
+					if (face(j, g) == shared)
+						return j;
+			return -1;
+		}
 	};
+
+	EdgeRing makeEdgeRing(std::mt19937& rng)
+	{
+		std::uniform_real_distribution<float> uniform{ 0.0f, 1.0f };
+		std::normal_distribution<float> gauss;
+		const auto random_direction = [&]() { return Eigen::Vector3f{ gauss(rng), gauss(rng), gauss(rng) }.normalized().eval(); };
+
+		EdgeRing ring;
+		const Eigen::Vector3f a = random_direction() * 0.1f;
+		const Eigen::Vector3f b = (a + random_direction()).eval();
+		const Eigen::Vector3f axis = (b - a).normalized();
+		const Eigen::Vector3f side0 = axis.unitOrthogonal();
+		const Eigen::Vector3f side1 = axis.cross(side0);
+
+		ring.vertices[0] = a;
+		ring.vertices[1] = b;
+		for (int i = 0; i < EdgeRing::Size; i++)
+		{
+			const float angle = (i + 0.8f * uniform(rng) - 0.4f) * 2 * 3.14159265f / EdgeRing::Size;
+			const float radius = 0.5f + uniform(rng);
+			ring.vertices[2 + i] = a + uniform(rng) * (b - a) + radius * (std::cos(angle) * side0 + std::sin(angle) * side1);
+		}
+		for (int i = 0; i < EdgeRing::Size; i++)
+		{
+			ring.tetrahedra[i] = { 0, 1, 2 + i, 2 + (i + 1) % EdgeRing::Size };
+			std::shuffle(ring.tetrahedra[i].begin(), ring.tetrahedra[i].end(), rng);
+		}
+		return ring;
+	}
+
+	//! Ray from outside through a random point on the shared edge of a ring
+	Vcl::Geometry::Ray<float, 3> rayThroughEdge(const EdgeRing& ring, std::mt19937& rng)
+	{
+		std::uniform_real_distribution<float> uniform{ 0.0f, 1.0f };
+		std::normal_distribution<float> gauss;
+
+		const Eigen::Vector3f& a = ring.vertices[0];
+		const Eigen::Vector3f& b = ring.vertices[1];
+		const Eigen::Vector3f target = a + (0.05f + 0.9f * uniform(rng)) * (b - a);
+		const Eigen::Vector3f direction = Eigen::Vector3f{ gauss(rng), gauss(rng), gauss(rng) }.normalized();
+		return { (target - 3 * direction).eval(), direction };
+	}
 
 	template<typename Algorithm>
 	class RayTetIntersectionAlgorithms : public testing::Test
@@ -308,6 +406,8 @@ TEST(RayTetIntersection, DefaultAlgorithm)
 		const Ray<float, 3> ray{ c.origin, c.direction };
 
 		float t_entry = -1, t_exit = -1;
+		int entry_face = -2, exit_face = -2;
+		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit, entry_face, exit_face)) << c.name;
 		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit)) << c.name;
 		EXPECT_EQ(c.hit, intersects(tet, ray)) << c.name;
 	}
@@ -317,9 +417,8 @@ TYPED_TEST(RayTetIntersectionAlgorithms, Corner)
 {
 	using namespace Vcl::Geometry;
 
-	const Tetrahedron<float, 3> tet{ corner[0], corner[1], corner[2], corner[3] };
 	for (const auto& c : corner_cases)
-		checkCase<TypeParam>(tet, c);
+		checkCase<TypeParam>({ 0, 1, 2, 3 }, c);
 }
 
 TYPED_TEST(RayTetIntersectionAlgorithms, VertexOrderDoesNotMatter)
@@ -329,9 +428,8 @@ TYPED_TEST(RayTetIntersectionAlgorithms, VertexOrderDoesNotMatter)
 	std::array<int, 4> order = { 0, 1, 2, 3 };
 	do
 	{
-		const Tetrahedron<float, 3> tet{ corner[order[0]], corner[order[1]], corner[order[2]], corner[order[3]] };
 		for (const auto& c : corner_cases)
-			checkCase<TypeParam>(tet, c);
+			checkCase<TypeParam>(order, c);
 	} while (std::next_permutation(order.begin(), order.end()));
 }
 
@@ -368,54 +466,85 @@ TYPED_TEST(RayTetIntersectionAlgorithms, NoCrackAroundSharedEdge)
 	using namespace Vcl::Geometry;
 
 	std::mt19937 rng{ 5489 };
-	std::uniform_real_distribution<float> uniform{ 0.0f, 1.0f };
-	std::normal_distribution<float> gauss;
-	const auto random_direction = [&]() { return Eigen::Vector3f{ gauss(rng), gauss(rng), gauss(rng) }.normalized().eval(); };
-
 	const int rings = 200;
 	const int rays_per_ring = 1000;
-	const int ring_size = 6;
 
 	int misses = 0;
 	for (int r = 0; r < rings; r++)
 	{
-		// Random edge a-b, surrounded by a ring of vertices around it
-		const Eigen::Vector3f a = random_direction() * 0.1f;
-		const Eigen::Vector3f b = (a + random_direction()).eval();
-		const Eigen::Vector3f axis = (b - a).normalized();
-		const Eigen::Vector3f side0 = axis.unitOrthogonal();
-		const Eigen::Vector3f side1 = axis.cross(side0);
-
-		std::array<Eigen::Vector3f, ring_size> ring;
-		for (int i = 0; i < ring_size; i++)
-		{
-			const float angle = (i + 0.8f * uniform(rng) - 0.4f) * 2 * 3.14159265f / ring_size;
-			const float radius = 0.5f + uniform(rng);
-			ring[i] = a + uniform(rng) * (b - a) + radius * (std::cos(angle) * side0 + std::sin(angle) * side1);
-		}
-
-		// Give every tetrahedron its own vertex order, as in an arbitrary mesh
-		std::array<std::array<Eigen::Vector3f, 4>, ring_size> tets;
-		for (int i = 0; i < ring_size; i++)
-		{
-			tets[i] = { a, b, ring[i], ring[(i + 1) % ring_size] };
-			std::shuffle(tets[i].begin(), tets[i].end(), rng);
-		}
-
+		const EdgeRing ring = makeEdgeRing(rng);
 		for (int k = 0; k < rays_per_ring; k++)
 		{
-			const Eigen::Vector3f target = a + (0.05f + 0.9f * uniform(rng)) * (b - a);
-			const Eigen::Vector3f direction = random_direction();
-			const Ray<float, 3> ray{ (target - 3 * direction).eval(), direction };
+			const auto ray = rayThroughEdge(ring, rng);
 
 			bool hit = false;
-			for (int i = 0; i < ring_size; i++)
-			{
-				const Tetrahedron<float, 3> tet{ tets[i][0], tets[i][1], tets[i][2], tets[i][3] };
-				hit = hit || intersects(tet, ray, TypeParam{});
-			}
+			for (int i = 0; i < EdgeRing::Size; i++)
+				hit = hit || intersects(ring.tetrahedron(i), ray, TypeParam{});
 			misses += hit ? 0 : 1;
 		}
 	}
 	EXPECT_EQ(0, misses) << "of " << rings * rays_per_ring << " rays slipped between the tetrahedra";
+}
+
+/*!
+ *	Walks rays through a ring of tetrahedra the way a mesh traversal does: from the tetrahedron
+ *	the ray enters from the outside, always on to the neighbour behind the exit face. Counts the
+ *	rays for which the walk reaches a neighbour that is not hit, has no exit face or loops.
+ */
+template<typename Algorithm>
+int countFailedWalks(int rings, int rays_per_ring)
+{
+	using namespace Vcl::Geometry;
+
+	std::mt19937 rng{ 5489 };
+
+	int failed = 0;
+	for (int r = 0; r < rings; r++)
+	{
+		const EdgeRing ring = makeEdgeRing(rng);
+		for (int k = 0; k < rays_per_ring; k++)
+		{
+			const auto ray = rayThroughEdge(ring, rng);
+
+			std::array<bool, EdgeRing::Size> hit;
+			std::array<float, EdgeRing::Size> t_entry, t_exit;
+			std::array<int, EdgeRing::Size> entry, exit;
+			for (int i = 0; i < EdgeRing::Size; i++)
+				hit[i] = intersects(ring.tetrahedron(i), ray, t_entry[i], t_exit[i], entry[i], exit[i], Algorithm{});
+
+			// Start where the ray enters the ring from the outside
+			int current = -1;
+			for (int i = 0; i < EdgeRing::Size; i++)
+				if (hit[i] && entry[i] >= 0 && ring.neighbour(i, entry[i]) < 0 && (current < 0 || t_entry[i] < t_entry[current]))
+					current = i;
+
+			bool ok = current >= 0;
+			std::array<bool, EdgeRing::Size> visited = {};
+			while (ok)
+			{
+				visited[current] = true;
+				if (exit[current] < 0)
+				{
+					ok = false;
+					break;
+				}
+
+				const int next = ring.neighbour(current, exit[current]);
+				if (next < 0)
+					break; // Left the ring
+
+				ok = hit[next] && !visited[next];
+				current = next;
+			}
+			failed += ok ? 0 : 1;
+		}
+	}
+	return failed;
+}
+
+TEST(RayTetIntersection, PluckerWalksAroundSharedEdge)
+{
+	using Algorithm = Vcl::Geometry::RayTetIntersectionAlgorithmSelector<Vcl::Geometry::RayTetIntersectionAlgorithm::Plucker>;
+
+	EXPECT_EQ(0, countFailedWalks<Algorithm>(200, 1000)) << "of " << 200 * 1000 << " rays";
 }
