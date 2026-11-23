@@ -162,15 +162,19 @@ void perfOpenCLMcAdamsSVD(
 	perfJacobiSVDQR<Vcl::float16>(nr_problems, F, resU, resV, resS);
 
 	// Test Performance: McAdams SVD solver
+#ifdef VCL_VECTORIZE_SSE
 	perfMcAdamsSVD<float>(nr_problems, 4, F, resU, resV, resS);
 	perfMcAdamsSVD<Vcl::float4>(nr_problems, 4, F, resU, resV, resS);
+#endif // defined VCL_VECTORIZE_SSE
 
 #ifdef VCL_VECTORIZE_AVX
 	perfMcAdamsSVD<Vcl::float8>(nr_problems, 4, F, resU, resV, resS);
 #endif // defined VCL_VECTORIZE_AVX
 
+#ifdef VCL_VECTORIZE_SSE
 	perfMcAdamsSVD<float>(nr_problems, 5, F, resU, resV, resS);
 	perfMcAdamsSVD<Vcl::float4>(nr_problems, 5, F, resU, resV, resS);
+#endif // defined VCL_VECTORIZE_SSE
 
 #ifdef VCL_VECTORIZE_AVX
 	perfMcAdamsSVD<Vcl::float8>(nr_problems, 5, F, resU, resV, resS);
@@ -371,14 +375,18 @@ BENCHMARK_TEMPLATE(perfJacobiSVDQR, float8)->Arg(128)->Arg(512)->Arg(8192)->Thre
 BENCHMARK_TEMPLATE(perfJacobiSVDQR, float16)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 
 // Test Performance: McAdams SVD solver
+#ifdef VCL_VECTORIZE_SSE
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#endif // defined VCL_VECTORIZE_SSE
 #ifdef VCL_VECTORIZE_AVX
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 4)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 #endif // defined VCL_VECTORIZE_AVX
 
+#ifdef VCL_VECTORIZE_SSE
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float4, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
+#endif // defined VCL_VECTORIZE_SSE
 #ifdef VCL_VECTORIZE_AVX
 BENCHMARK_TEMPLATE2(perfMcAdamsSVD, float8, 5)->Arg(128)->Arg(512)->Arg(8192)->ThreadRange(1, 16);
 #endif // defined VCL_VECTORIZE_AVX
