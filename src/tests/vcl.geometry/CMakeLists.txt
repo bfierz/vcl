@@ -32,6 +32,7 @@ set(SOURCE_FILES
 	intersect.cpp
 	intersect_tet.cpp
 	meshfactory.cpp
+	meshlets.cpp
 	obb.cpp
 	tetramesh.cpp
 	

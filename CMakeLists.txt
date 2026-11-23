@@ -52,6 +52,7 @@ endif()
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
+find_package(meshoptimizer CONFIG REQUIRED)
 
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
 	cmake_policy(SET CMP0072 NEW)

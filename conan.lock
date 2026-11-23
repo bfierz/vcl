@@ -17,6 +17,7 @@
         "robin-hood-hashing/3.11.5#4e5dae5321e7ad26a181dd91bfe386cb%1749477876.929",
         "opengl/system#cfcf523b9d2bad75cbf377f56562634c%1762526044.744",
         "nlohmann_json/3.12.0#2d634ab0ec8d9f56353e5ccef6d6612c%1744735883.94",
+        "meshoptimizer/1.0#7f529e7abd38fe6534c9ad45ce661d18%1767371646.698",
         "mesa-glu/9.0.3#94609f918d5ca4e5fea0f7a985b29f68%1700054308.695",
         "mcnopper-egl/1.0.19",
         "libxml2/2.15.4#9a0c674e87edc8d5bca8ccdb6761e4f8%1792501927.602",
