@@ -606,32 +606,21 @@ namespace Vcl { namespace Geometry {
 			}
 		}
 
-		// Define triangles
-		size_t nr_faces = vertices.size();
-		size_t nr_triangles = nr_faces * 2;
-
+		// Define triangles: two per quad of the (nr_radial_segments x nr_sides) grid.
+		// The last row and column of vertices duplicate the first ones to close the seam.
 		using face_t = std::array<unsigned int, 3>;
-		std::vector<face_t> triangles(nr_triangles);
+		std::vector<face_t> triangles;
+		triangles.reserve(2 * nr_radial_segments * nr_sides);
 
-		for (uint32_t i = 0, seg = 0; seg <= nr_radial_segments; seg++)
+		for (uint32_t seg = 0; seg < nr_radial_segments; seg++)
 		{
-			for (uint32_t side = 0; side <= nr_sides - 1; side++)
+			for (uint32_t side = 0; side < nr_sides; side++)
 			{
-				uint32_t current = side + seg * (nr_sides + 1);
-				uint32_t next = side + (seg < (nr_radial_segments) ? (seg + 1) * (nr_sides + 1) : 0);
+				const uint32_t current = side + seg * (nr_sides + 1);
+				const uint32_t next = side + (seg + 1) * (nr_sides + 1);
 
-				if (i < triangles.size() - 6)
-				{
-					triangles[i][0] = current;
-					triangles[i][1] = next + 1;
-					triangles[i][2] = next;
-					i++;
-
-					triangles[i][0] = current;
-					triangles[i][1] = current + 1;
-					triangles[i][2] = next + 1;
-					i++;
-				}
+				triangles.push_back({ current, next + 1, next });
+				triangles.push_back({ current, current + 1, next + 1 });
 			}
 		}
 

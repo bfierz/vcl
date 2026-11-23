@@ -31,6 +31,7 @@ set(SOURCE_FILES
 	distance_ref.h
 	intersect.cpp
 	intersect_tet.cpp
+	meshfactory.cpp
 	obb.cpp
 	tetramesh.cpp
 	
