@@ -29,9 +29,6 @@
 
 VCL_BEGIN_EXTERNAL_HEADERS
 #ifdef VCL_WEBGPU_SUPPORT
-extern "C"
-{
 #	include <webgpu/webgpu.h>
-}
 #endif
 VCL_END_EXTERNAL_HEADERS

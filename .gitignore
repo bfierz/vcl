@@ -6,3 +6,9 @@
 .vs
 CMakeLists.txt.user
 test_package/build
+
+# Conan
+CMakeUserPresets.json
+CMakePresets.json
+/.venv-conan
+/.conan-index

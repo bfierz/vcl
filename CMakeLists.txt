@@ -22,32 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-cmake_minimum_required(VERSION 3.11.0)
+cmake_minimum_required(VERSION 3.23)
 
 project(VisualComputingLibrary)
 
-# Determine whether this is a standalone project or included by other projects
-set(VCL_STANDALONE_PROJECT OFF)
+# Configure all projects
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(VCL_STANDALONE_PROJECT ON)
-
-	# Configure all projects
 	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 	SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 endif ()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 
-# Conan setup
-include(${CMAKE_CURRENT_SOURCE_DIR}/src/cmake/VCLTargets.cmake)
-
-# Define C++ standard, minimum requirement is C++14
-# As MSVC is not able to define the minimum level, software needs
-# to implement per feature detection
-set(VCL_CXX_STANDARD "14" CACHE STRING "C++ standard")
-set_property(CACHE VCL_CXX_STANDARD PROPERTY STRINGS "14" "17" "20")
-
-set(CMAKE_CXX_STANDARD ${VCL_CXX_STANDARD})
+# The C++ standard (17 or newer) comes from the Conan profile's compiler.cppstd, which
+# CMakeToolchain emits as CMAKE_CXX_STANDARD. It is deliberately not set here.
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -58,77 +46,15 @@ if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 endif()
 
 ################################################################################
-# Add the externals
+# Find the dependencies
 ################################################################################
-if (NOT vcl_ext_eigen)
-	set(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/eigen")
-	find_package(Eigen3 3.3 QUIET)
-	vcl_copy_target(vcl_ext_eigen_tgt Eigen3)
-	set(vcl_ext_eigen "vcl_ext_eigen_tgt")
-endif()
-
-if (NOT vcl_ext_absl)
-	option(ABSL_BUILD_TESTING "" OFF)
-	option(ABSL_PROPAGATE_CXX_STD "" ON)
-	add_subdirectory(src/externals/abseil EXCLUDE_FROM_ALL)
-	vcl_combine_targets(vcl_ext_absl_tgt absl::any absl::bad_any_cast absl::optional absl::variant)
-	set(vcl_ext_absl "vcl_ext_absl_tgt")
-	
-	set_property(TARGET absl_bad_any_cast_impl PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_bad_optional_access PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_bad_variant_access PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_log_severity PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_raw_logging_internal PROPERTY FOLDER 3rd-party/absl)
-	set_property(TARGET absl_variant PROPERTY FOLDER 3rd-party/absl)
-endif()
-
-if (NOT vcl_ext_fmt)
-	option(FMT_TEST "" OFF)
-	option(FMT_USE_CPP11 "" ON)
-	add_subdirectory(src/externals/fmtlib EXCLUDE_FROM_ALL)
-	vcl_copy_target(vcl_ext_fmt_tgt fmt::fmt-header-only)
-	set(vcl_ext_fmt "vcl_ext_fmt_tgt")
-endif()
-
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/externals/json/CMakeLists.txt")
-	option(JSON_BuildTests "" OFF)
-	option(JSON_Install "" OFF)
-	add_subdirectory(src/externals/json)
-endif()
+# Core dependencies come from Conan (docs/adr/0001-conan-with-find-package-seam.md)
+find_package(Eigen3 CONFIG REQUIRED)
+find_package(absl CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
 	cmake_policy(SET CMP0072 NEW)
-endif()
-find_package(OpenGL QUIET)
-if(OpenGL_FOUND AND NOT EMSCRIPTEN)
-	find_package(EGL QUIET)
-	if(EGL_FOUND)
-		add_library(vcl_ext_egl_tgt UNKNOWN IMPORTED)
-		set_property(TARGET vcl_ext_egl_tgt PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}")
-		set_property(TARGET vcl_ext_egl_tgt PROPERTY IMPORTED_LOCATION "${EGL_LIBRARY}")
-		set(vcl_ext_egl "vcl_ext_egl_tgt")
-	endif()
-endif()
-
-if(VCL_VULKAN_SUPPORT)
-	option(SPIRV_CROSS_CLI "" OFF)
-	option(SPIRV_CROSS_ENABLE_TESTS "" OFF)
-	option(SPIRV_CROSS_ENABLE_HLSL "" OFF)
-	option(SPIRV_CROSS_ENABLE_MSL "" OFF)
-	option(SPIRV_CROSS_ENABLE_CPP "" OFF)
-	option(SPIRV_CROSS_ENABLE_REFLECT "" OFF)
-	option(SPIRV_CROSS_ENABLE_UTIL "" OFF)
-	option(SPIRV_CROSS_ENABLE_C_API "" OFF)
-	add_subdirectory(src/externals/SPIRV-Cross EXCLUDE_FROM_ALL)
-	set_property(TARGET spirv-cross-core PROPERTY FOLDER 3rd-party)
-	set_property(TARGET spirv-cross-glsl PROPERTY FOLDER 3rd-party)
-endif()
-
-if(VCL_D3D12_SUPPORT)
-	option(DXHEADERS_BUILD_TEST "" OFF)
-	option(DXHEADERS_BUILD_GOOGLE_TEST "" OFF)
-	option(DXHEADERS_INSTALL "" OFF)
-	add_subdirectory(src/externals/DirectX-Headers EXCLUDE_FROM_ALL)
 endif()
 
 ################################################################################
@@ -143,6 +69,11 @@ if(VCL_CODE_COVERAGE AND CMAKE_COMPILER_IS_GNUCXX)
 endif()
 
 add_subdirectory(src/libs)
+
+# Install rules and the exported vclConfig.cmake
+if(PROJECT_IS_TOP_LEVEL)
+	include(VCLInstall)
+endif()
 
 # Build options
 if("^${CMAKE_SOURCE_DIR}$" STREQUAL "^${PROJECT_SOURCE_DIR}$")
@@ -159,14 +90,9 @@ endif()
 
 # Benchmarks
 if(VCL_BUILD_BENCHMARKS)
-	option(BENCHMARK_ENABLE_TESTING "" OFF)
-	option(BENCHMARK_ENABLE_GTEST_TESTS "" OFF)
-	add_subdirectory(src/externals/gbenchmark)
-	set_property(TARGET benchmark PROPERTY FOLDER 3rd-party)
-	set_property(TARGET benchmark_main PROPERTY FOLDER 3rd-party)
-	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-		set_property(TARGET benchmark PROPERTY COMPILE_OPTIONS "/W4")
-	endif()
+	find_package(benchmark CONFIG REQUIRED)
+	find_package(foonathan_memory CONFIG REQUIRED)
+	find_package(GeometricToolsEngine CONFIG REQUIRED)
 	add_subdirectory(src/benchmarks)
 endif()
 
@@ -182,21 +108,8 @@ endif()
 
 # Unit tests
 if(VCL_BUILD_TESTS)
-	option(gtest_build_samples "" OFF)
-	option(gtest_build_tests "" OFF)
-	option(gtest_force_shared_crt "" ON)
-	add_subdirectory(src/externals/googletest EXCLUDE_FROM_ALL)
-	set_property(TARGET gtest PROPERTY FOLDER 3rd-party)
-	set_property(TARGET gtest_main PROPERTY FOLDER 3rd-party)
+	find_package(GTest CONFIG REQUIRED)
+	find_package(nlohmann_json CONFIG REQUIRED)
 
-	# Remove non-supported options
-	if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-		vcl_replace_compile_flag(gtest "[-/]W." "/W0")
-		vcl_replace_compile_flag(gtest_main "[-/]W." "/W0")
-		vcl_remove_compile_flag(gtest "/Gm-")
-		vcl_remove_compile_flag(gtest_main "/Gm-")
-	endif()
-	
-	set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS GTEST_LANG_CXX11=1)
 	add_subdirectory(src/tests)
 endif()

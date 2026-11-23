@@ -24,7 +24,6 @@
 #
 project(vcl.graphics.webgpu.test)
 
-include(../../cmake/VCLCompileGLSL.cmake)
 include(../../cmake/VCLTest.cmake)
 
 # Find includes in corresponding build directories
@@ -33,34 +32,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(SOURCE_FILES
 	buffers.cpp
 	main.cpp
-	
-	quad.vert
-	quad.frag
 )
-
-# Access the include directories in order to compile the GLSL shaders
-get_property(CURR_INC_DIRS_0 TARGET vcl_graphics PROPERTY INCLUDE_DIRECTORIES)
-list(APPEND CURR_INC_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${CURR_INC_DIRS_0})
-
-vclcompileglsl(
-	${PROJECT_SOURCE_DIR}/quad.vert
-	"vulkan"
-	"QuadSpirvVS"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_0
-)
-vclcompileglsl(
-	${PROJECT_SOURCE_DIR}/quad.frag
-	"vulkan"
-	"QuadSpirvFS"
-	"${CURR_INC_DIRS}"
-	COMPILEDSHADERS_1
-)
-set(COMPILEDSHADERS ${COMPILEDSHADERS_0} ${COMPILEDSHADERS_1})
 
 vcl_add_test(vcl.graphics.webgpu.test)
 vcl_target_sources(vcl.graphics.webgpu.test "" ${SOURCE_FILES})
-target_sources(vcl.graphics.webgpu.test PRIVATE ${COMPILEDSHADERS})
 target_link_libraries(vcl.graphics.webgpu.test
 	vcl_graphics
 )

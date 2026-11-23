@@ -33,15 +33,6 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
-#ifndef VCL_ARCH_WEBASM
-// Dawn
-#	include <dawn/native/D3D12Backend.h>
-#	include <dawn/native/DawnNative.h>
-#endif
-
-// WebGPU
-#include <webgpu/webgpu_cpp.h>
-
 // VCL
 #include <vcl/config/webgpu.h>
 #include <vcl/graphics/webgpu/swapchain.h>
@@ -68,9 +59,6 @@ protected:
 	static const int NumberOfFrames;
 
 private:
-	//! Select a GPU adapter for the this application
-	static void requestAdapterCallback(WGPURequestAdapterStatus status, WGPUAdapter adapter, char const* message, void* userdata);
-
 	//! Resize the swapchain
 	void resizeSwapChain(GLFWwindow* window, unsigned int width, unsigned int height);
 
@@ -89,6 +77,9 @@ private:
 protected:
 	//! WebGPU device
 	WGPUDevice _wgpuDevice{ nullptr };
+
+	//! Colour format of the swap-chain images
+	WGPUTextureFormat _swapChainFormat{ WGPUTextureFormat_Undefined };
 
 	//! SwapChain size
 	std::pair<uint32_t, uint32_t> _swapChainSize;

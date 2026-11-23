@@ -123,11 +123,10 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			}
 
 			VCL_DIRECT3D_SAFE_CALL(_d3d12Fence->SetEventOnCompletion(value, _event));
-			if (!waitForEvent(remaining) && (infinite || clock::now() < deadline))
-			{
-				// Waiting failed (not a timeout); don't retry in a busy loop
+			// A timeout loops back to the deadline check: Windows may end the wait up
+			// to a timer tick early. A failed wait returns, so it doesn't busy-loop.
+			if (waitForEvent(remaining) == WaitResult::Failed)
 				return false;
-			}
 		}
 
 		return true;
@@ -156,10 +155,15 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		return wait(signal(queue), duration);
 	}
 
-	bool Semaphore::waitForEvent(std::chrono::milliseconds duration)
+	Semaphore::WaitResult Semaphore::waitForEvent(std::chrono::milliseconds duration)
 	{
 #ifdef _WIN32
-		return ::WaitForSingleObject(_event, toTimeout(duration)) == WAIT_OBJECT_0;
+		switch (::WaitForSingleObject(_event, toTimeout(duration)))
+		{
+		case WAIT_OBJECT_0: return WaitResult::Signaled;
+		case WAIT_TIMEOUT: return WaitResult::TimedOut;
+		default: return WaitResult::Failed;
+		}
 #else
 		const int timeout = duration == Infinite ? -1 : static_cast<int>(std::min<long long>(duration.count(), INT_MAX));
 
@@ -170,12 +174,14 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 			result = ::poll(&fd, 1, timeout);
 		} while (result < 0 && errno == EINTR);
 
-		if (result <= 0 || (fd.revents & (POLLERR | POLLNVAL)) != 0)
-			return false;
+		if (result == 0)
+			return WaitResult::TimedOut;
+		if (result < 0 || (fd.revents & (POLLERR | POLLNVAL)) != 0)
+			return WaitResult::Failed;
 
 		// Reset the event
 		eventfd_t count;
-		return eventfd_read(_eventFd, &count) == 0;
+		return eventfd_read(_eventFd, &count) == 0 ? WaitResult::Signaled : WaitResult::Failed;
 #endif
 	}
 }}}

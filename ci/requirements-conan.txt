@@ -1,0 +1,5 @@
+# Pinned Conan client. CI and the devcontainer install it into a venv:
+#   python3 -m venv .venv-conan && .venv-conan/bin/pip install -r ci/requirements-conan.txt
+conan==2.34.0
+cmake>=3.23
+ninja

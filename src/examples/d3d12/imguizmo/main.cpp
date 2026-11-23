@@ -25,7 +25,7 @@
 
 #include "../common/imguiapp.h"
 
-#include "../../3rdparty/imguizmo/ImGuizmo.h"
+#include <ImGuizmo.h>
 
 // C++ standard library
 #include <utility>
@@ -53,66 +53,68 @@ private:
 		Eigen::Matrix4f view = _matrixFactory.createLookAt(eye, -eye.normalized(), up);
 		std::copy(view.data(), view.data() + 16, _view.data());
 	}
+	void EditTransformControls(float* matrix)
+	{
+		if (ImGui::IsKeyPressed(ImGuiKey_Z))
+			_currentGizmoOperation = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(ImGuiKey_E))
+			_currentGizmoOperation = ImGuizmo::ROTATE;
+		if (ImGui::IsKeyPressed(ImGuiKey_R))
+			_currentGizmoOperation = ImGuizmo::SCALE;
+		if (ImGui::RadioButton("Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
+			_currentGizmoOperation = ImGuizmo::TRANSLATE;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
+			_currentGizmoOperation = ImGuizmo::ROTATE;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Scale", _currentGizmoOperation == ImGuizmo::SCALE))
+			_currentGizmoOperation = ImGuizmo::SCALE;
+		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+		ImGui::InputFloat3("Tr", matrixTranslation);
+		ImGui::InputFloat3("Rt", matrixRotation);
+		ImGui::InputFloat3("Sc", matrixScale);
+		ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix);
+
+		if (_currentGizmoOperation != ImGuizmo::SCALE)
+		{
+			if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
+				_currentGizmoMode = ImGuizmo::LOCAL;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
+				_currentGizmoMode = ImGuizmo::WORLD;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_S))
+			_useSnap = !_useSnap;
+		ImGui::Checkbox("", &_useSnap);
+		ImGui::SameLine();
+
+		switch (_currentGizmoOperation)
+		{
+		case ImGuizmo::TRANSLATE:
+			ImGui::InputFloat3("Snap", &_snap[0]);
+			break;
+		case ImGuizmo::ROTATE:
+			ImGui::InputFloat("Angle Snap", &_snap[0]);
+			break;
+		case ImGuizmo::SCALE:
+			ImGui::InputFloat("Scale Snap", &_snap[0]);
+			break;
+		}
+		ImGui::Checkbox("Bound Sizing", &_boundSizing);
+		if (_boundSizing)
+		{
+			ImGui::PushID(3);
+			ImGui::Checkbox("", &_boundSizingSnap);
+			ImGui::SameLine();
+			ImGui::InputFloat3("Snap", _boundsSnap.data());
+			ImGui::PopID();
+		}
+	}
 	void EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition)
 	{
 		if (editTransformDecomposition)
-		{
-			if (ImGui::IsKeyPressed(90))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			if (ImGui::IsKeyPressed(69))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			if (ImGui::IsKeyPressed(82)) // r Key
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			if (ImGui::RadioButton("Translate", _currentGizmoOperation == ImGuizmo::TRANSLATE))
-				_currentGizmoOperation = ImGuizmo::TRANSLATE;
-			ImGui::SameLine();
-			if (ImGui::RadioButton("Rotate", _currentGizmoOperation == ImGuizmo::ROTATE))
-				_currentGizmoOperation = ImGuizmo::ROTATE;
-			ImGui::SameLine();
-			if (ImGui::RadioButton("Scale", _currentGizmoOperation == ImGuizmo::SCALE))
-				_currentGizmoOperation = ImGuizmo::SCALE;
-			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
-			ImGui::InputFloat3("Tr", matrixTranslation);
-			ImGui::InputFloat3("Rt", matrixRotation);
-			ImGui::InputFloat3("Sc", matrixScale);
-			ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix);
-
-			if (_currentGizmoOperation != ImGuizmo::SCALE)
-			{
-				if (ImGui::RadioButton("Local", _currentGizmoMode == ImGuizmo::LOCAL))
-					_currentGizmoMode = ImGuizmo::LOCAL;
-				ImGui::SameLine();
-				if (ImGui::RadioButton("World", _currentGizmoMode == ImGuizmo::WORLD))
-					_currentGizmoMode = ImGuizmo::WORLD;
-			}
-			if (ImGui::IsKeyPressed(83))
-				_useSnap = !_useSnap;
-			ImGui::Checkbox("", &_useSnap);
-			ImGui::SameLine();
-
-			switch (_currentGizmoOperation)
-			{
-			case ImGuizmo::TRANSLATE:
-				ImGui::InputFloat3("Snap", &_snap[0]);
-				break;
-			case ImGuizmo::ROTATE:
-				ImGui::InputFloat("Angle Snap", &_snap[0]);
-				break;
-			case ImGuizmo::SCALE:
-				ImGui::InputFloat("Scale Snap", &_snap[0]);
-				break;
-			}
-			ImGui::Checkbox("Bound Sizing", &_boundSizing);
-			if (_boundSizing)
-			{
-				ImGui::PushID(3);
-				ImGui::Checkbox("", &_boundSizingSnap);
-				ImGui::SameLine();
-				ImGui::InputFloat3("Snap", _boundsSnap.data());
-				ImGui::PopID();
-			}
-		}
+			EditTransformControls(matrix);
 
 		ImGuiIO& io = ImGui::GetIO();
 		float viewManipulateRight = io.DisplaySize.x;

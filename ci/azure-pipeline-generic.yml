@@ -1,8 +1,11 @@
-# Job template for Windows builds
+# Job template for the Linux, macOS and Windows builds.
+# All builds run `conan install` and a Conan-generated CMake preset (C++17 comes from the
+# profile's compiler.cppstd). Every job installs from a conan/profiles host profile and the committed
+# conan.lock; the ARM cross builds use the linux-*arm*-gcc profiles. The Conan package cache is
+# keyed on the lockfile and the profile.
 # Required job variables:
 # - buildTargetArch: 'arm','aarch64'
 # - buildConfig: 'Debug'
-# - configCpp: '14', '17', '20'
 # - configCodeCoverage: 'off'
 # - configVectorization: 'SSE 2'
 # - configGraphicsD3D12: 'off'
@@ -59,9 +62,8 @@ steps:
           sudo add-apt-repository ppa:kisak/turtle
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dri
-          # OpenGL development
+          # OpenGL development (GLEW comes from Conan)
           sudo apt-get install -y libgl1-mesa-dev
-          sudo apt-get install -y libglew-dev
           # X11 development
           sudo apt-get install -y libxrandr-dev
           sudo apt-get install -y libxinerama-dev
@@ -70,51 +72,109 @@ steps:
         }
       }
 
+      if ('$(configGraphicsEGL)' -eq 'on' -and $IsLinux) {
+        # Conan's egl/system checks for the EGL development package
+        sudo apt-get update
+        sudo apt-get install -y libegl-dev
+      }
+
       # Install retuired python packages
       pip install --user lxml
 
     displayName: 'Prepare Environment'
 
-  # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/cmake
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_EGL_SUPPORT=$(configGraphicsEGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-    condition: eq(variables['buildTargetArch'], '')
+  # Pinned Conan in a venv; pick the host profile and the Conan home (package cache location)
+  - pwsh: |
+      $py = if ($IsWindows) { 'python' } else { 'python3' }
+      & $py -m venv .venv-conan
+      $bin = if ($IsWindows) { Join-Path $PWD '.venv-conan/Scripts' } else { Join-Path $PWD '.venv-conan/bin' }
+      & (Join-Path $bin 'pip') install -r ci/requirements-conan.txt
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
+      # The venv's python comes first on the PATH, so the test report conversion needs lxml in it
+      & (Join-Path $bin 'pip') install lxml
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
+      echo "##vso[task.prependpath]$bin"
 
-  - task: CMake@1
-    inputs:
-      workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/arm-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-    condition: eq(variables['buildTargetArch'], 'arm')
+      $profile = 'linux-gcc'
+      if ($IsWindows) { $profile = 'windows-msvc' }
+      if ($IsMacOS) { $profile = 'macos-apple-clang' }
+      if ('$(buildTargetArch)' -eq 'arm') { $profile = 'linux-arm-gcc' }
+      if ('$(buildTargetArch)' -eq 'aarch64') { $profile = 'linux-aarch64-gcc' }
+      echo "##vso[task.setvariable variable=conanProfile]$profile"
+      echo "##vso[task.setvariable variable=CONAN_HOME]$(Pipeline.Workspace)/.conan2"
+    displayName: 'Install Conan'
 
-  - task: CMake@1
+  # Conan package cache (binaries built from source or downloaded). The key covers the lockfile, the
+  # host profile and what changes the dependency set of a job (build type, graphics options). A
+  # change to conan.lock or to the profile starts a fresh cache.
+  - task: Cache@2
     inputs:
-      workingDirectory: 'build'
-      cmakeArgs: -DCMAKE_TOOLCHAIN_FILE=../ci/aarch64-gcc-toolchain.cmake -DCMAKE_BUILD_TYPE=$(buildConfig) -DVCL_CXX_STANDARD:STRING=$(configCpp) -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_D3D12_SUPPORT=$(configGraphicsD3D12) -DVCL_OPENGL_SUPPORT=$(configGraphicsOpenGL) -DVCL_BUILD_BENCHMARKS:BOOL=off -DVCL_BUILD_TESTS:BOOL=on -DVCL_BUILD_TOOLS:BOOL=off -DVCL_BUILD_EXAMPLES:BOOL=off -DVCL_VECTORIZE:STRING="$(configVectorization)" ..
-    condition: eq(variables['buildTargetArch'], 'aarch64')
+      key: 'conan | "$(Agent.OS)" | "$(conanProfile)" | "$(buildConfig)" | "$(configGraphicsOpenGL)$(configGraphicsEGL)$(configGraphicsD3D12)" | conan.lock | conan/profiles/$(conanProfile)'
+      path: '$(CONAN_HOME)/p'
+      cacheHitVar: CONAN_CACHE_HIT
+    displayName: 'Restore Conan package cache'
 
+  # Remotes, conan install against the lockfile, preset configure.
+  - pwsh: |
+      conan profile detect --force
+      bash ci/conan-setup-remotes.sh
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
+
+      $profile = 'conan/profiles/$(conanProfile)'
+      # Graphics options come from the matrix and override the profiles' defaults
+      $opts = @(
+        '-o', "&:with_opengl=$('$(configGraphicsOpenGL)' -eq 'on')",
+        '-o', "&:with_egl=$('$(configGraphicsEGL)' -eq 'on')",
+        '-o', "&:with_d3d12=$('$(configGraphicsD3D12)' -eq 'on')",
+        '-o', '&:build_tests=True', '-o', '&:build_benchmarks=False',
+        '-o', '&:build_tools=False', '-o', '&:build_examples=False')
+      # Packages such as xorg/system and egl/system install their system libraries through apt
+      if ($IsLinux) {
+        $opts += @('-c', 'tools.system.package_manager:mode=install', '-c', 'tools.system.package_manager:sudo=True')
+      }
+      # The lockfile pins every recipe revision; a resolution that leaves it fails the install
+      conan install . -pr:h=$profile -pr:b=default -s build_type=$(buildConfig) @opts --lockfile=conan.lock --build=missing
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
+
+      # Multi-config generators (Visual Studio) use one preset and `build`; single-config ones
+      # use a preset per build type and `build/<BuildType>`
+      if ($IsWindows) {
+        $preset = 'conan-default'; $buildDir = 'build'
+      } else {
+        $preset = 'conan-' + '$(buildConfig)'.ToLower(); $buildDir = 'build/$(buildConfig)'
+      }
+      echo "##vso[task.setvariable variable=buildDir]$buildDir"
+
+      cmake --preset $preset -DVCL_CODE_COVERAGE:BOOL=$(configCodeCoverage) -DVCL_VECTORIZE:STRING="$(configVectorization)"
+      if ($LastExitCode -ne 0) { exit $LastExitCode }
+    displayName: 'Configure (Conan)'
+    # Optional pipeline variables (secret): without them (fork PRs get no secrets) the pinned
+    # conan-index clone is used
+    env:
+      VCL_CONAN_B4Z_URL: $(VCL_CONAN_B4Z_URL)
+      CONAN_LOGIN_USERNAME_B4Z: $(CONAN_LOGIN_USERNAME_B4Z)
+      CONAN_PASSWORD_B4Z: $(CONAN_PASSWORD_B4Z)
   - pwsh: |
       # MacOS requires a specific SDK root for C++
       if ($IsMacOS) {
         $env:SDKROOT = xcrun --sdk macosx --show-sdk-path
       }
 
-      cmake --build build --config $(buildConfig) --target vcl.core.test
+      cmake --build $(buildDir) --config $(buildConfig) --target vcl.core.test
       if ($LastExitCode -ne "0") { exit $LastExitCode }
-      cmake --build build --config $(buildConfig) --target vcl.components.test
+      cmake --build $(buildDir) --config $(buildConfig) --target vcl.components.test
       if ($LastExitCode -ne "0") { exit $LastExitCode }
-      cmake --build build --config $(buildConfig) --target vcl.geometry.test
+      cmake --build $(buildDir) --config $(buildConfig) --target vcl.geometry.test
       if ($LastExitCode -ne "0") { exit $LastExitCode }
-      cmake --build build --config $(buildConfig) --target vcl.math.test
+      cmake --build $(buildDir) --config $(buildConfig) --target vcl.math.test
       if ($LastExitCode -ne "0") { exit $LastExitCode }
 
       if ('$(configGraphicsD3D12)' -eq 'on') {
-        cmake --build build --config $(buildConfig) --target vcl.graphics.d3d12.test
+        cmake --build $(buildDir) --config $(buildConfig) --target vcl.graphics.d3d12.test
         if ($LastExitCode -ne "0") { exit $LastExitCode }
       }
       if ('$(configGraphicsOpenGL)' -eq 'on') {
-        cmake --build build --config $(buildConfig) --target vcl.graphics.opengl.test
+        cmake --build $(buildDir) --config $(buildConfig) --target vcl.graphics.opengl.test
         if ($LastExitCode -ne "0") { exit $LastExitCode }
       }
     displayName: 'Build'
@@ -124,15 +184,22 @@ steps:
       # Execute unit-tests and report success/failure of tests using task commands
       # https://github.com/Microsoft/azure-pipelines-tasks/blob/master/docs/authoring/commands.md
 
+      # Windows: dependency DLLs are found through the Conan run environment (conanrun), not
+      # through copies next to the binaries
+      if ($IsWindows) {
+        $runenv = Get-ChildItem -Path build -Recurse -Filter conanrun.ps1 | Select-Object -First 1
+        . $runenv.FullName
+      }
+
       $env:CTEST_OUTPUT_ON_FAILURE = "1"
       $env:GALLIUM_DRIVER = "llvmpipe"
-      cmake --build build --config $(buildConfig) --target vcl.test
+      cmake --build $(buildDir) --config $(buildConfig) --target vcl.test
       $runTestSuccess=$?
       # Convert ctest output to junit-format
       # http://alexott.blogspot.com/2012/03/jenkins-cmakectest.html
-      pushd build/src/tests
+      pushd $(buildDir)/src/tests
       if (Test-Path "Testing/TAG") {
-        python ../../../ci/ctest2junit.py . ../../../ci/ctest2junit.xsl > JUnitResults.xml
+        python $env:BUILD_SOURCESDIRECTORY/ci/ctest2junit.py . $env:BUILD_SOURCESDIRECTORY/ci/ctest2junit.xsl > JUnitResults.xml
         if (!(Test-Path "JUnitResults.xml")) {
           echo '##vso[task.complete result=Failed;]FAILED'
           exit 1
@@ -146,12 +213,17 @@ steps:
       }
     displayName: 'Run Unit Tests'
 
+  # Install the Release build and build the minimal consumer against the installed package
+  - bash: ci/test-install-consumer.sh $(buildDir) $(buildConfig)
+    displayName: 'Test installed package'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'), eq(variables['buildConfig'], 'Release'), eq(variables['configVectorization'], 'AVX'), eq(variables['buildTargetArch'], ''))
+
   # Publish unit test results
   # https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/test/publish-test-results
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'JUnit' # Options: JUnit, NUnit, VSTest, xUnit
-      testResultsFiles: 'build/src/tests/**/JUnitResults.xml'
+      testResultsFiles: 'build/**/src/tests/**/JUnitResults.xml'
       #searchFolder: '$(System.DefaultWorkingDirectory)' # Optional
       mergeTestResults: true # Optional
       #testRunTitle: # Optional

@@ -79,7 +79,6 @@ if (EMSCRIPTEN)
 	set(EXECUTABLE "webgpu_drawquad.js")
 	configure_file(../example.html.in ${EXECUTABLE_OUTPUT_PATH}/webgpu_drawquad.html @ONLY)
 else()
-	vcl_target_sources(webgpu_drawquad "${DAWN_INCLUDE_DIR}/..")
 	target_link_libraries(webgpu_drawquad
 		glfw
 	)

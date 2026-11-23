@@ -70,17 +70,15 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		}
 	}
 
-	WGPUProgrammableStageDescriptor getProgammableStageDesc(const Runtime::Shader* shader)
+	//! Set the shader module and entry point of a vertex, fragment or compute stage
+	template<typename Stage>
+	void setShaderStage(Stage& stage, const Runtime::Shader* shader)
 	{
 		VclRequire(dynamic_cast<const Shader*>(shader), "Shader is WebGPU shader");
 
-		WGPUProgrammableStageDescriptor desc = {};
-
 		const auto* wgpu_shader = static_cast<const Shader*>(shader);
-		desc.module = wgpu_shader->handle();
-		desc.entryPoint = "main";
-
-		return desc;
+		stage.module = wgpu_shader->handle();
+		stage.entryPoint = { "main", WGPU_STRLEN };
 	}
 
 	GraphicsPipelineState::GraphicsPipelineState(
@@ -94,10 +92,10 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(desc.TessControlShader == nullptr, "Tessellation Control Shader not supported");
 		VclRequire(desc.TessEvalShader == nullptr, "Tessellation Evaluation Shader not supported");
 		VclRequire(desc.GeometryShader == nullptr, "Geometry Shader not supported");
-		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending")
-			VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported")
+		VclRequire(desc.Blend.IndependentBlendEnable, "WebGPU requires independent blending");
+		VclRequire(desc.Rasterizer.MultisampleEnable == false, "Setting not supported");
 
-				WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
+		WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
 
 		WGPUPipelineLayoutDescriptor layout_desc = {};
 		graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
@@ -112,9 +110,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		}
 		vertex_state_desc.bufferCount = vertex_buffer_desc.first.size();
 		vertex_state_desc.buffers = vertex_buffer_desc.first.data();
-		const auto vertex_shader_desc = getProgammableStageDesc(desc.VertexShader);
-		graphics_pipeline_desc.vertex.module = vertex_shader_desc.module;
-		graphics_pipeline_desc.vertex.entryPoint = vertex_shader_desc.entryPoint;
+		setShaderStage(graphics_pipeline_desc.vertex, desc.VertexShader);
+		graphics_pipeline_desc.vertex.bufferCount = vertex_state_desc.bufferCount;
+		graphics_pipeline_desc.vertex.buffers = vertex_state_desc.buffers;
 
 		graphics_pipeline_desc.primitive.topology = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.primitive.stripIndexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
@@ -132,7 +130,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		else
 			graphics_pipeline_desc.depthStencil = &depth_stencil_state;
 
-		const auto frag_shader_stage = getProgammableStageDesc(desc.FragmentShader);
 		std::array<WGPUColorTargetState, 8> colour_states = {};
 		const auto blend_states = toWebGPU(desc.Blend);
 		for (size_t i = 0; i < desc.RenderTargets.ColourFormats.size(); i++)
@@ -143,8 +140,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		}
 
 		WGPUFragmentState fragment_state = {};
-		fragment_state.module = frag_shader_stage.module;
-		fragment_state.entryPoint = frag_shader_stage.entryPoint;
+		setShaderStage(fragment_state, desc.FragmentShader);
 		fragment_state.targetCount = desc.RenderTargets.ColourFormats.size();
 		fragment_state.targets = colour_states.data();
 		graphics_pipeline_desc.fragment = &fragment_state;
@@ -160,7 +156,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		VclRequire(implies(desc.ComputeShader, desc.ComputeShader->type() == ShaderType::ComputeShader), "Shader is compute shader");
 
 		WGPUComputePipelineDescriptor compute_pipeline_desc = {};
-		compute_pipeline_desc.compute = getProgammableStageDesc(desc.ComputeShader);
+		setShaderStage(compute_pipeline_desc.compute, desc.ComputeShader);
 
 		_pipeline = wgpuDeviceCreateComputePipeline(device, &compute_pipeline_desc);
 	}

@@ -39,7 +39,12 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 ImGuiApplication::ImGuiApplication(LPCSTR title)
 : Application(title)
 {
-	_imguiDescrHeap = device()->createDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1, true);
+	_imguiDescrHeap = device()->createDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, NumberOfImGuiDescriptors, true);
+	_imguiDescrSize = device()->nativeDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	for (UINT i = NumberOfImGuiDescriptors; i > 0; i--)
+	{
+		_imguiFreeDescrs.push_back(i - 1);
+	}
 
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
@@ -55,7 +60,22 @@ ImGuiApplication::ImGuiApplication(LPCSTR title)
 
 	// Setup Platform/Renderer bindings
 	ImGui_ImplWin32_Init(windowHandle());
-	ImGui_ImplDX12_Init(device()->nativeDevice(), NumberOfFrames, DXGI_FORMAT_R8G8B8A8_UNORM, _imguiDescrHeap.Get(), Vcl::Graphics::D3D12::cpuHeapStart(_imguiDescrHeap.Get()), Vcl::Graphics::D3D12::gpuHeapStart(_imguiDescrHeap.Get()));
+
+	// The font atlas and every texture the application registers occupy one SRV descriptor each
+	ImGui_ImplDX12_InitInfo init_info;
+	init_info.Device = device()->nativeDevice();
+	init_info.CommandQueue = device()->defaultQueue()->nativeQueue();
+	init_info.NumFramesInFlight = NumberOfFrames;
+	init_info.RTVFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	init_info.UserData = this;
+	init_info.SrvDescriptorHeap = _imguiDescrHeap.Get();
+	init_info.SrvDescriptorAllocFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE* out_cpu, D3D12_GPU_DESCRIPTOR_HANDLE* out_gpu) {
+		static_cast<ImGuiApplication*>(info->UserData)->allocateDescriptor(*out_cpu, *out_gpu);
+	};
+	init_info.SrvDescriptorFreeFn = [](ImGui_ImplDX12_InitInfo* info, D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE gpu) {
+		static_cast<ImGuiApplication*>(info->UserData)->freeDescriptor(cpu, gpu);
+	};
+	ImGui_ImplDX12_Init(&init_info);
 
 	// Load Fonts
 	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -78,6 +98,24 @@ ImGuiApplication::~ImGuiApplication()
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void ImGuiApplication::allocateDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE& cpu, D3D12_GPU_DESCRIPTOR_HANDLE& gpu)
+{
+	IM_ASSERT(!_imguiFreeDescrs.empty());
+	const UINT index = _imguiFreeDescrs.back();
+	_imguiFreeDescrs.pop_back();
+
+	cpu = Vcl::Graphics::D3D12::cpuHeapStart(_imguiDescrHeap.Get());
+	cpu.ptr += static_cast<SIZE_T>(index) * _imguiDescrSize;
+	gpu = Vcl::Graphics::D3D12::gpuHeapStart(_imguiDescrHeap.Get());
+	gpu.ptr += static_cast<UINT64>(index) * _imguiDescrSize;
+}
+
+void ImGuiApplication::freeDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE cpu, D3D12_GPU_DESCRIPTOR_HANDLE)
+{
+	const D3D12_CPU_DESCRIPTOR_HANDLE start = Vcl::Graphics::D3D12::cpuHeapStart(_imguiDescrHeap.Get());
+	_imguiFreeDescrs.push_back(static_cast<UINT>((cpu.ptr - start.ptr) / _imguiDescrSize));
 }
 
 void ImGuiApplication::updateFrame()

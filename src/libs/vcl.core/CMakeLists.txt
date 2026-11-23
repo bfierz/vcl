@@ -28,9 +28,9 @@ project(vcl_core)
 include(../../cmake/VCLLibrary.cmake)
 
 # Check dependency requirements
-vcl_check_target(${vcl_ext_absl})
-vcl_check_target(${vcl_ext_eigen})
-vcl_check_target(${vcl_ext_fmt})
+vcl_check_target(abseil::abseil)
+vcl_check_target(Eigen3::Eigen)
+vcl_check_target(fmt::fmt)
 
 # Generate library
 vcl_add_library(vcl_core)
@@ -177,21 +177,11 @@ target_sources(vcl_core PRIVATE ${PROJECT_BINARY_DIR}/vcl/config/config.h)
 source_group(config FILES ${PROJECT_BINARY_DIR}/vcl/config/config.h)
 
 # Now make sure that the config.h file is found during development
-target_include_directories(vcl_core PUBLIC
-	$<BUILD_INTERFACE:
-		${PROJECT_BINARY_DIR}
-	>
-)
+target_include_directories(vcl_core PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>)
 
 target_link_libraries(vcl_core
-	${vcl_ext_absl}
-	${vcl_ext_eigen}
-	${vcl_ext_fmt}
+	abseil::abseil
+	Eigen3::Eigen
+	fmt::fmt
 )
 
-# Setup installation
-set(INCLUDE_DIR_PREFIX "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
-set(LIBRARY_DIR_PREFIX "${CMAKE_INSTALL_LIBDIR}")
-install(DIRECTORY vcl DESTINATION ${INCLUDE_DIR_PREFIX})
-install(FILES ${PROJECT_BINARY_DIR}/vcl/config/config.h DESTINATION ${INCLUDE_DIR_PREFIX}/vcl/config)
-install(TARGETS ${PROJECT_NAME} ARCHIVE DESTINATION ${LIBRARY_DIR_PREFIX})

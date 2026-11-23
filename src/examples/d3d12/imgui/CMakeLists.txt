@@ -29,21 +29,6 @@ message(STATUS "Configuring 'D3D12 ImGui'")
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(IMGUI
-	../../3rdparty/imgui/backends/imgui_impl_dx12.cpp
-	../../3rdparty/imgui/backends/imgui_impl_dx12.h
-	../../3rdparty/imgui/backends/imgui_impl_win32.cpp
-	../../3rdparty/imgui/backends/imgui_impl_win32.h
-	../../3rdparty/imgui/imconfig.h
-	../../3rdparty/imgui/imgui.cpp
-	../../3rdparty/imgui/imgui.h
-	../../3rdparty/imgui/imgui_demo.cpp
-	../../3rdparty/imgui/imgui_draw.cpp
-	../../3rdparty/imgui/imgui_internal.h
-	../../3rdparty/imgui/imgui_tables.cpp
-	../../3rdparty/imgui/imgui_widgets.cpp
-)
-
 set(COMMON
 	../common/app.cpp
 	../common/app.h
@@ -57,22 +42,9 @@ set(SOURCE_FILES
 
 add_executable(d3d12_imgui "")
 set_target_properties(d3d12_imgui PROPERTIES FOLDER examples/d3d12)
-vcl_target_sources(d3d12_imgui "../../3rdparty" ${IMGUI})
 vcl_target_sources(d3d12_imgui ".." ${COMMON})
 vcl_target_sources(d3d12_imgui "" ${SOURCE_FILES})
-target_include_directories(d3d12_imgui
-	PRIVATE
-		../../3rdparty/imgui
-		../../3rdparty/imgui/backends
-)
 target_link_libraries(d3d12_imgui
 	vcl_graphics
+	vcl_examples_imgui
 )
-if(MINGW)
-	# MinGW ignores the '#pragma comment(lib)' of the ImGui backends, and the
-	# DX12 backend needs the interface IDs declared for __uuidof
-	target_link_libraries(d3d12_imgui dwmapi d3dcompiler)
-	set_source_files_properties(../../3rdparty/imgui/backends/imgui_impl_dx12.cpp
-		PROPERTIES COMPILE_OPTIONS "-include;vcl/config/direct3d12.h"
-	)
-endif()

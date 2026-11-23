@@ -27,6 +27,10 @@
     "VNC_PASSWORD": "localvnc"
   },
 
+  "remoteEnv": {
+    "PATH": "${containerWorkspaceFolder}/.venv-conan/bin:${containerEnv:PATH}"
+  },
+
   "features": {},
 
   "remoteUser": "vscode",
@@ -51,7 +55,7 @@
 
   "postCreateCommand": [
     "/bin/bash", "-lc",
-    "sudo mkdir -p /workspaces/.conan2 && sudo chown -R vscode:vscode /workspaces/.conan2 && conan profile detect --force && git submodule update --init --recursive"
+    "sudo mkdir -p /workspaces/.conan2 && sudo chown -R vscode:vscode /workspaces/.conan2 && python3 -m venv .venv-conan && .venv-conan/bin/pip install -r ci/requirements-conan.txt && .venv-conan/bin/conan profile detect --force && ci/conan-setup-remotes.sh"
   ],
 
   // Start the lightweight desktop + VNC gateway when the container boots

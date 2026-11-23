@@ -29,53 +29,112 @@
 #include <vcl/graphics/webgpu/webgpu.h>
 
 namespace Vcl { namespace Graphics { namespace WebGPU {
+	namespace {
+		WGPUPresentMode toWebGPU(PresentMode mode)
+		{
+			switch (mode)
+			{
+			case PresentMode::Immediate:
+				return WGPUPresentMode_Immediate;
+			case PresentMode::Mailbox:
+				return WGPUPresentMode_Mailbox;
+			default:
+				return WGPUPresentMode_Fifo;
+			}
+		}
+	}
+
 	SwapChain::SwapChain(WGPUDevice device, const SwapChainDescription& desc)
 	: _device{ device }
 	, _desc{ desc }
 	{
+		VclRequire(desc.Surface, "Surface is provided");
+
+		_format = selectFormat();
 		resize(desc.Width, desc.Height);
+	}
+
+	WGPUTextureFormat SwapChain::selectFormat() const
+	{
+		const auto requested = _desc.ColourFormat != SurfaceFormat::Unknown ? toWebGPUEnum(_desc.ColourFormat) : WGPUTextureFormat_Undefined;
+		// The surface is queried on the adapter of the device it is used with
+		WGPUAdapter adapter = wgpuDeviceGetAdapter(_device);
+		WGPUSurfaceCapabilities caps = {};
+		const auto status = wgpuSurfaceGetCapabilities(_desc.Surface, adapter, &caps);
+		wgpuAdapterRelease(adapter);
+		VclCheck(status == WGPUStatus_Success && caps.formatCount > 0, "Surface reports supported formats");
+		if (status != WGPUStatus_Success || caps.formatCount == 0)
+			return requested;
+
+		WGPUTextureFormat format = caps.formats[0];
+		for (size_t i = 0; i < caps.formatCount; i++)
+		{
+			if (caps.formats[i] == requested)
+				format = requested;
+		}
+		wgpuSurfaceCapabilitiesFreeMembers(caps);
+		return format;
 	}
 
 	SwapChain::~SwapChain()
 	{
-		wgpuSwapChainRelease(_swapChain);
+		releaseBackBuffer();
+		wgpuSurfaceUnconfigure(_desc.Surface);
+	}
+
+	WGPUTextureView SwapChain::currentBackBuffer()
+	{
+		if (!_backBufferView)
+		{
+			WGPUSurfaceTexture surface_texture = {};
+			wgpuSurfaceGetCurrentTexture(_desc.Surface, &surface_texture);
+			if (surface_texture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal &&
+				surface_texture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal)
+			{
+				return nullptr;
+			}
+
+			_backBuffer = surface_texture.texture;
+			_backBufferView = wgpuTextureCreateView(_backBuffer, nullptr);
+		}
+		return _backBufferView;
 	}
 
 	void SwapChain::present(WGPUQueue queue, bool blocking)
 	{
 #ifndef VCL_ARCH_WEBASM
-		wgpuSwapChainPresent(_swapChain);
+		wgpuSurfacePresent(_desc.Surface);
 #endif
+		releaseBackBuffer();
+
 		++_requestedFrame;
-		wgpuQueueOnSubmittedWorkDone(queue, 0, swapChainWorkSubmittedCallback, this);
+
+		WGPUQueueWorkDoneCallbackInfo callback = {};
+		callback.mode = WGPUCallbackMode_AllowSpontaneous;
+		callback.callback = swapChainWorkSubmittedCallback;
+		callback.userdata1 = this;
+		wgpuQueueOnSubmittedWorkDone(queue, callback);
+
+		if (blocking)
+			wait();
 	}
 
 	void SwapChain::resize(uint32_t width, uint32_t height)
 	{
-		if (_swapChain)
-			wgpuSwapChainRelease(_swapChain);
+		releaseBackBuffer();
 
-#ifdef VCL_ARCH_WEBASM
-		WGPUSwapChainDescriptor wgpu_desc = {};
-		wgpu_desc.usage = WGPUTextureUsage_RenderAttachment;
-		wgpu_desc.format = WGPUTextureFormat_RGBA8Unorm;
-		wgpu_desc.width = width;
-		wgpu_desc.height = height;
-		wgpu_desc.presentMode = (WGPUPresentMode)_desc.PresentMode;
+		_desc.Width = width;
+		_desc.Height = height;
 
-		_swapChain = wgpuDeviceCreateSwapChain(_device, _desc.Surface, &wgpu_desc);
-#else
-		_swapChainImpl = dawn::native::d3d12::CreateNativeSwapChainImpl(_device, reinterpret_cast<HWND>(_desc.NativeSurfaceHandle));
-		WGPUSwapChainDescriptor wgpu_desc = {};
-		wgpu_desc.implementation = reinterpret_cast<uint64_t>(&_swapChainImpl);
-		_swapChain = wgpuDeviceCreateSwapChain(_device, nullptr, &wgpu_desc);
-
-		wgpuSwapChainConfigure(
-			_swapChain,
-			dawn_native::d3d12::GetNativeSwapChainPreferredFormat(&_swapChainImpl),
-			WGPUTextureUsage_RenderAttachment,
-			width, height);
-#endif
+		WGPUSurfaceConfiguration config = {};
+		config.device = _device;
+		config.format = _format;
+		config.usage = WGPUTextureUsage_RenderAttachment;
+		config.width = width;
+		config.height = height;
+		config.alphaMode = WGPUCompositeAlphaMode_Auto;
+		config.presentMode = _desc.VSync ? WGPUPresentMode_Fifo : toWebGPU(_desc.PresentMode);
+		wgpuSurfaceConfigure(_desc.Surface, &config);
 	}
 
 	void SwapChain::wait()
@@ -87,9 +146,19 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 #endif
 	}
 
-	void SwapChain::swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, void* sc)
+	void SwapChain::releaseBackBuffer()
 	{
-		auto swap_chain = reinterpret_cast<SwapChain*>(sc);
+		if (_backBufferView)
+			wgpuTextureViewRelease(_backBufferView);
+		if (_backBuffer)
+			wgpuTextureRelease(_backBuffer);
+		_backBufferView = nullptr;
+		_backBuffer = nullptr;
+	}
+
+	void SwapChain::swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus, WGPUStringView, void* userdata1, void*)
+	{
+		auto swap_chain = reinterpret_cast<SwapChain*>(userdata1);
 		swap_chain->_completedFrames = swap_chain->_requestedFrame;
 	}
 }}}

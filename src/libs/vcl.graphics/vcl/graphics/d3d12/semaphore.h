@@ -66,9 +66,16 @@ namespace Vcl { namespace Graphics { namespace D3D12 {
 		bool sync(ID3D12CommandQueue* queue, std::chrono::milliseconds duration = std::chrono::milliseconds::max());
 
 	private:
+		enum class WaitResult
+		{
+			Signaled,
+			TimedOut,
+			Failed
+		};
+
 		//! Waits until '_event' is signaled
-		//! \returns false if 'duration' passed first
-		bool waitForEvent(std::chrono::milliseconds duration);
+		//! \note The OS may end the wait slightly before 'duration' passed
+		WaitResult waitForEvent(std::chrono::milliseconds duration);
 
 		ComPtr<ID3D12Fence> _d3d12Fence;
 

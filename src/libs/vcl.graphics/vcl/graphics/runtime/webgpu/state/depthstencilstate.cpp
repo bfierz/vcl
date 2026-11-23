@@ -86,7 +86,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 		WGPUDepthStencilState webgpu_desc = {};
 
-		webgpu_desc.depthWriteEnabled = desc.DepthWriteMask == DepthWriteMethod::All ? true : false;
+		webgpu_desc.depthWriteEnabled = desc.DepthWriteMask == DepthWriteMethod::All ? WGPUOptionalBool_True : WGPUOptionalBool_False;
 		webgpu_desc.depthCompare = toWebGPU(desc.DepthFunc);
 		webgpu_desc.stencilReadMask = desc.StencilReadMask;
 		webgpu_desc.stencilWriteMask = desc.StencilWriteMask;

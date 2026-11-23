@@ -61,6 +61,9 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		//! \}
 
 	private:
+		//! Device the buffer belongs to, used to wait for asynchronous mapping
+		WGPUDevice _device;
+
 		//!
 		WGPUBuffer _resource;
 	};

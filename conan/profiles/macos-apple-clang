@@ -1,0 +1,17 @@
+# macOS, native Apple Clang. Core libraries and tests only (no graphics backend on macOS yet).
+# Pass the build type on the command line: -s build_type=Release
+include(default)
+
+[settings]
+compiler.cppstd=17
+# Dawn needs C++20 to build; VCL only uses its C API (webgpu.h)
+dawn/*:compiler.cppstd=20
+compiler.libcxx=libc++
+
+[options]
+&:with_opengl=False
+&:with_egl=False
+&:with_vulkan=False
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja

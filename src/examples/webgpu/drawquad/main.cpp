@@ -75,15 +75,9 @@ private:
 		std::array<WGPURenderPassColorAttachment, 1> color_attachments = {};
 		color_attachments[0].loadOp = WGPULoadOp_Clear;
 		color_attachments[0].storeOp = WGPUStoreOp_Store;
-		color_attachments[0].clearColor = { 1.0f, 0.0f, 1.0f, 0.0f };
+		color_attachments[0].clearValue = { 1.0f, 0.0f, 1.0f, 0.0f };
 		color_attachments[0].view = back_buffer;
-		WGPURenderPassDepthStencilAttachment depth_attachment = {};
-		depth_attachment.clearDepth = 1.0f;
-		depth_attachment.clearStencil = 0;
-		depth_attachment.depthLoadOp = WGPULoadOp_Clear;
-		depth_attachment.depthStoreOp = WGPUStoreOp_Store;
-		depth_attachment.stencilLoadOp = WGPULoadOp_Clear;
-		depth_attachment.stencilStoreOp = WGPUStoreOp_Store;
+		color_attachments[0].depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
 		WGPURenderPassDescriptor render_pass_desc = {};
 		render_pass_desc.colorAttachmentCount = static_cast<uint32_t>(color_attachments.size());
 		render_pass_desc.colorAttachments = color_attachments.data();

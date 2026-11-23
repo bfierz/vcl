@@ -1,0 +1,22 @@
+# Linux ARM (64-bit) cross build on an x86_64 host with g++-aarch64-linux-gnu.
+# Use with a native build profile: -pr:h=conan/profiles/linux-aarch64-gcc -pr:b=default
+# Pass the build type on the command line: -s build_type=Release
+[settings]
+os=Linux
+arch=armv8
+compiler=gcc
+compiler.version=13
+compiler.libcxx=libstdc++11
+compiler.cppstd=17
+# Dawn needs C++20 to build; VCL only uses its C API (webgpu.h)
+dawn/*:compiler.cppstd=20
+
+[buildenv]
+# Old spirv-cross recipe (Vulkan): CMake 4 rejects its CMake < 3.5
+CMAKE_POLICY_VERSION_MINIMUM=3.5
+CC=aarch64-linux-gnu-gcc
+CXX=aarch64-linux-gnu-g++
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.cmake.cmaketoolchain:user_toolchain=["{{ profile_dir }}/../../ci/aarch64-gcc-toolchain.cmake"]

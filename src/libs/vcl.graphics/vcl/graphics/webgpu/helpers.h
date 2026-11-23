@@ -38,7 +38,7 @@
 #include <vcl/graphics/surfaceformat.h>
 
 namespace Vcl { namespace Graphics { namespace WebGPU {
-	auto createTextureFromData(WGPUDevice device, SurfaceFormat type, uint32_t width, uint32_t height, stdext::span<const uint8_t> data)
+	inline auto createTextureFromData(WGPUDevice device, SurfaceFormat type, uint32_t width, uint32_t height, stdext::span<const uint8_t> data)
 		-> std::tuple<WGPUTexture, WGPUTextureView>
 	{
 		std::tuple<WGPUTexture, WGPUTextureView> texture_data;
@@ -68,12 +68,12 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 		{
 			uint32_t pp_size = sizeInBytes(type);
 
-			WGPUImageCopyTexture dst_view = {};
+			WGPUTexelCopyTextureInfo dst_view = {};
 			dst_view.texture = std::get<0>(texture_data);
 			dst_view.mipLevel = 0;
 			dst_view.origin = { 0, 0, 0 };
 			dst_view.aspect = WGPUTextureAspect_All;
-			WGPUTextureDataLayout layout = {};
+			WGPUTexelCopyBufferLayout layout = {};
 			layout.offset = 0;
 			layout.bytesPerRow = width * pp_size;
 			layout.rowsPerImage = height;
