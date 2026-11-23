@@ -30,10 +30,12 @@
 
 // C++ Standard Library
 #include <array>
+#include <optional>
 
 // VCL
 #include <vcl/graphics/runtime/state/blendstate.h>
 
 namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
-	std::array<WGPUBlendState, 8> toWebGPU(const BlendDescription& desc);
+	//! Convert the blend description; render targets without blending have no blend state
+	std::array<std::optional<WGPUBlendState>, 8> toWebGPU(const BlendDescription& desc);
 }}}}
