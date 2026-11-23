@@ -174,7 +174,7 @@ struct Fence
 };
 void swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2)
 {
-	auto fence = reinterpret_cast<Fence*>(userdata1);
+	auto fence = static_cast<Fence*>(userdata1);
 	fence->completedValue = fence->requestedValue;
 }
 
