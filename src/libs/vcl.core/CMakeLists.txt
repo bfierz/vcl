@@ -65,6 +65,7 @@ set(SOURCE
 	vcl/core/container/array.h
 	vcl/core/container/bitvector.h
 	vcl/core/container/bucketadapter.h
+	vcl/core/container/enumerate.h
 
 	vcl/core/memory/allocator.h
 	vcl/core/memory/smart_ptr.h
