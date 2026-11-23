@@ -158,7 +158,7 @@ namespace Vcl { namespace Graphics { namespace WebGPU {
 
 	void SwapChain::swapChainWorkSubmittedCallback(WGPUQueueWorkDoneStatus, WGPUStringView, void* userdata1, void*)
 	{
-		auto swap_chain = reinterpret_cast<SwapChain*>(userdata1);
+		auto swap_chain = static_cast<SwapChain*>(userdata1);
 		swap_chain->_completedFrames = swap_chain->_requestedFrame;
 	}
 }}}

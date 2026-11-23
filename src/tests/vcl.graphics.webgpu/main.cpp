@@ -31,6 +31,7 @@
 #include <cstring>
 
 // C++ standard library
+#include <array>
 #include <string>
 
 #ifdef VCL_ARCH_WEBASM
@@ -105,10 +106,10 @@ int main(int argc, char** argv)
 {
 #ifndef VCL_ARCH_WEBASM
 	// Waiting on futures requires the timed wait feature
-	const WGPUInstanceFeatureName features[] = { WGPUInstanceFeatureName_TimedWaitAny };
+	const std::array<WGPUInstanceFeatureName, 1> features = { WGPUInstanceFeatureName_TimedWaitAny };
 	WGPUInstanceDescriptor instance_desc = {};
-	instance_desc.requiredFeatureCount = 1;
-	instance_desc.requiredFeatures = features;
+	instance_desc.requiredFeatureCount = features.size();
+	instance_desc.requiredFeatures = features.data();
 	instance = wgpuCreateInstance(&instance_desc);
 	if (!instance)
 		return 1;
