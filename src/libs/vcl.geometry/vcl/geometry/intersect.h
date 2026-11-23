@@ -30,6 +30,7 @@
 
 // C++ standard library
 #include <array>
+#include <limits>
 
 // VCL
 #include <vcl/core/simd/vectorscalar.h>
@@ -219,52 +220,90 @@ namespace Vcl { namespace Geometry {
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1);
 
 	/*!
-	* \brief Ray-Tetrahedron intersection
-	*
-	* Based on scalar triple products from http://realtimecollisiondetection.net/blog/?p=13
-	* as implemented in https://stackoverflow.com/a/35419670
-	*/
-	inline bool intersects
-	(
-		const Tetrahedron<float, 3>& tet,
-		const Ray<float, 3>& ray
-	)
+	 *	\brief Ray-tetrahedron intersection
+	 *
+	 *	Clips the ray against the half-spaces bounded by the four face planes, as described in
+	 *	E. Haines, "Fast Ray-Convex Polyhedron Intersection", Graphics Gems II, 1991.
+	 *	The vertex order, and thus the orientation, of the tetrahedron does not matter.
+	 *
+	 *	\param tet     Tetrahedron to test
+	 *	\param ray     Ray to test. The direction does not need to be normalized.
+	 *	\param t_entry Ray parameter at which the ray enters the tetrahedron; 0 if the origin is inside
+	 *	\param t_exit  Ray parameter at which the ray leaves the tetrahedron
+	 *
+	 *	\returns True if the ray hits the tetrahedron at a parameter t >= 0. Hits on faces, edges and
+	 *	         vertices count. t_entry and t_exit are only meaningful for rays that hit.
+	 *
+	 *	\note Degenerate (flat) tetrahedra are never hit. Rays that only touch an edge or a vertex
+	 *	      are subject to rounding.
+	 */
+	template<typename Scalar>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		Scalar& t_entry,
+		Scalar& t_exit)
 	{
 		using namespace Vcl::Mathematics;
 
-		// translate Ray to origin and vertices same as ray
-		const auto& q = ray.direction();
+		using real_t = Scalar;
 
-		const auto& v0 = tet[0]; // A
-		const auto& v1 = tet[1]; // B
-		const auto& v2 = tet[2]; // C
-		const auto& v3 = tet[3]; // D
+		// Vertices spanning the face opposite to vertex i
+		const int faces[4][3] = { { 1, 2, 3 }, { 0, 2, 3 }, { 0, 1, 3 }, { 0, 1, 2 } };
 
-		auto p0 = (v0 - ray.origin()).eval();
-		auto p1 = (v1 - ray.origin()).eval();
-		auto p2 = (v2 - ray.origin()).eval();
-		auto p3 = (v3 - ray.origin()).eval();
+		const real_t inf = std::numeric_limits<float>::infinity();
+		const real_t neg_inf = -std::numeric_limits<float>::infinity();
 
-		// Scalar triple products
-		const float QAB = q.dot(p0.cross(p1)); // A B
-		const float QBC = q.dot(p1.cross(p2)); // B C
-		const float QAC = q.dot(p0.cross(p2)); // A C
-		const float QAD = q.dot(p0.cross(p3)); // A D
-		const float QBD = q.dot(p1.cross(p3)); // B D
-		const float QCD = q.dot(p2.cross(p3)); // C D
+		// Disallow any intersection that lies behind the start point of the ray
+		real_t t_min = 0;
+		real_t t_max = inf;
 
-		const float sQAB = sgn(QAB); // A B
-		const float sQBC = sgn(QBC); // B C
-		const float sQAC = sgn(QAC); // A C
-		const float sQAD = sgn(QAD); // A D
-		const float sQBD = sgn(QBD); // B D
-		const float sQCD = sgn(QCD); // C D
+		for (int i = 0; i < 4; i++)
+		{
+			const auto& a = tet[faces[i][0]];
+			const auto& b = tet[faces[i][1]];
+			const auto& c = tet[faces[i][2]];
 
-		if (sQAB > 0 && sQAC < 0 && sQBC > 0) { return true; } // ABC
-		if (sQAB < 0 && sQAD > 0 && sQBD < 0) { return true; } // ABD
-		if (sQAD < 0 && sQAC > 0 && sQCD > 0) { return true; } // ACD
-		if (sQBC < 0 && sQBD > 0 && sQCD < 0) { return true; } // BCD
+			// Orient the face normal away from the opposite vertex
+			const auto n = (b - a).cross(c - a).eval();
+			const real_t opposite = n.dot(tet[i] - a);
+			const real_t s = select(opposite > real_t(0), real_t(-1), real_t(1));
 
-		return false;
+			// Positive if the origin lies on the inner side of the face plane
+			const real_t dist = s * n.dot(a - ray.origin());
+
+			// Negative if the ray enters the inner side through this face
+			const real_t denom = s * n.dot(ray.direction());
+
+			// Ray parameter of the plane hit; not used for rays parallel to the plane
+			const real_t t = dist / denom;
+
+			t_min = select(denom < real_t(0), max(t_min, t), t_min);
+			t_max = select(denom > real_t(0), min(t_max, t), t_max);
+
+			// A ray parallel to the plane on its outer side, or a flat tetrahedron, misses
+			t_max = select(denom == real_t(0) && dist < real_t(0), neg_inf, t_max);
+			t_max = select(opposite == real_t(0), neg_inf, t_max);
+		}
+
+		t_entry = t_min;
+		t_exit = t_max;
+
+		return t_min <= t_max;
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection
+	 *
+	 *	\returns True if the ray hits the tetrahedron at a parameter t >= 0.
+	 *	\see intersects(const Tetrahedron<Scalar, 3>&, const Ray<Scalar, 3>&, Scalar&, Scalar&)
+	 */
+	template<typename Scalar>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray)
+	{
+		Scalar t_entry, t_exit;
+		return intersects(tet, ray, t_entry, t_exit);
 	}
 }}
