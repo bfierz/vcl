@@ -2,7 +2,7 @@
  * This file is part of the Visual Computing Library (VCL) release under the
  * MIT license.
  *
- * Copyright (c) 2016 Basil Fierz
+ * Copyright (c) 2018 Basil Fierz
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@
 
 // C++ Standard Library
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Include the relevant parts from the library
@@ -42,28 +43,54 @@ TEST(EnumerateTest, EnumerateItems)
 {
 	using namespace Vcl::Core;
 
-	std::vector<std::string> vec = {"First", "Second"};
+	std::vector<std::string> vec = { "First", "Second" };
+	size_t count = 0;
 	for (const auto& e : enumerate(vec))
 	{
-		if (e.first == 0)
-			EXPECT_TRUE(e.second == "First");
-		
-		if (e.first == 1)
-			EXPECT_TRUE(e.second == "Second");
+		EXPECT_EQ(count, e.first);
+		EXPECT_EQ(vec[count], e.second);
+		count++;
 	}
+	EXPECT_EQ(vec.size(), count);
+}
+
+TEST(EnumerateTest, EnumerateModifiesItems)
+{
+	using namespace Vcl::Core;
+
+	std::vector<int> vec = { 1, 2, 3 };
+	for (auto e : enumerate(vec))
+		e.second += static_cast<int>(e.first);
+
+	EXPECT_EQ((std::vector<int>{ 1, 3, 5 }), vec);
 }
 
 TEST(EnumerateTest, ConstEnumerateItems)
 {
 	using namespace Vcl::Core;
 
-	std::vector<std::string> vec = {"First", "Second"};
+	const std::vector<std::string> vec = { "First", "Second" };
+	size_t count = 0;
 	for (const auto& e : const_enumerate(vec))
 	{
-		if (e.first == 0)
-			EXPECT_TRUE(e.second == "First");
-		
-		if (e.first == 1)
-			EXPECT_TRUE(e.second == "Second");
+		static_assert(std::is_same<decltype(e.second), const std::string&>::value, "Items must be const");
+		EXPECT_EQ(count, e.first);
+		EXPECT_EQ(vec[count], e.second);
+		count++;
 	}
+	EXPECT_EQ(vec.size(), count);
+}
+
+TEST(EnumerateTest, EnumerateEmptyContainer)
+{
+	using namespace Vcl::Core;
+
+	std::vector<int> vec;
+	size_t count = 0;
+	for (const auto& e : enumerate(vec))
+	{
+		(void)e;
+		count++;
+	}
+	EXPECT_EQ(0u, count);
 }

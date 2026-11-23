@@ -30,22 +30,21 @@
 
 // C++ Standard Library
 #include <cstddef>
+#include <iterator>
 #include <limits>
 #include <type_traits>
 #include <utility>
 
-namespace Vcl { namespace Core
-{
+namespace Vcl { namespace Core {
 	//! Implements a container enumerator yielding item and index
 	//! The original idea can be found here: https://blog.therocode.net/2018/10/for-each-with-index
-	template <typename container_type>
+	template<typename container_type>
 	struct enumerate_wrapper
 	{
-		using iterator_type  = typename std::conditional<std::is_const<container_type>::value, typename container_type::const_iterator, typename container_type::iterator>::type;
-		using pointer_type   = typename std::conditional<std::is_const<container_type>::value, typename container_type::const_pointer, typename container_type::pointer>::type;
+		using iterator_type = typename std::conditional<std::is_const<container_type>::value, typename container_type::const_iterator, typename container_type::iterator>::type;
 		using reference_type = typename std::conditional<std::is_const<container_type>::value, typename container_type::const_reference, typename container_type::reference>::type;
 
-		VCL_CPP_CONSTEXPR_14 enumerate_wrapper(container_type& c)
+		constexpr enumerate_wrapper(container_type& c)
 		: container(c)
 		{
 		}
@@ -55,43 +54,48 @@ namespace Vcl { namespace Core
 			size_t index;
 			iterator_type value;
 
-			VCL_CPP_CONSTEXPR_14 bool operator!=(const enumerate_wrapper_iter& other) const
+			constexpr bool operator!=(const enumerate_wrapper_iter& other) const
 			{
 				return value != other.value;
 			}
-			VCL_CPP_CONSTEXPR_14 enumerate_wrapper_iter& operator++()
+			constexpr enumerate_wrapper_iter& operator++()
 			{
 				++index;
 				++value;
 				return *this;
 			}
 
-			VCL_CPP_CONSTEXPR_14 std::pair<size_t, reference_type> operator*() {
-				return std::pair<size_t, reference_type>{index, *value};
+			constexpr std::pair<size_t, reference_type> operator*() const
+			{
+				return std::pair<size_t, reference_type>{ index, *value };
 			}
 		};
 
-		VCL_CPP_CONSTEXPR_14 enumerate_wrapper_iter begin()
+		constexpr enumerate_wrapper_iter begin()
 		{
-			return {0, std::begin(container)};
+			return { 0, std::begin(container) };
 		}
 
-		VCL_CPP_CONSTEXPR_14 enumerate_wrapper_iter end()
+		constexpr enumerate_wrapper_iter end()
 		{
-			return {std::numeric_limits<size_t>::max(), std::end(container)};
+			return { std::numeric_limits<size_t>::max(), std::end(container) };
 		}
 		container_type& container;
 	};
 
-	template <typename container_type>
-	VCL_CPP_CONSTEXPR_14 auto enumerate(container_type& c)
+	template<typename container_type>
+	constexpr auto enumerate(container_type& c)
 	{
 		return enumerate_wrapper<container_type>(c);
 	}
 
-	template <typename container_type>
-	VCL_CPP_CONSTEXPR_14 auto const_enumerate(const container_type& c)
+	template<typename container_type>
+	constexpr auto const_enumerate(const container_type& c)
 	{
 		return enumerate_wrapper<const container_type>(c);
 	}
+
+	//! Enumerating a temporary would leave the wrapper with a dangling reference
+	template<typename container_type>
+	void const_enumerate(const container_type&& c) = delete;
 }}
