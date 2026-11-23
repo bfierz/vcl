@@ -219,30 +219,50 @@ namespace Vcl { namespace Geometry {
 	 */
 	bool intersects(const Tetrahedron<float, 3>& t0, const Tetrahedron<float, 3>& t1);
 
+	enum class RayTetIntersectionAlgorithm
+	{
+		Default, ///< Selects one of the defined implementations
+		Haines,  ///< Clipping against the face planes, by Eric Haines
+		Plucker  ///< Signs of Plücker products, by Platis and Theoharis
+	};
+
+	template<RayTetIntersectionAlgorithm Algorithm>
+	class RayTetIntersectionAlgorithmSelector
+	{};
+	template<>
+	class RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Haines>
+	{};
+	template<>
+	class RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Plucker>
+	{};
+	template<>
+	class RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Default> : public RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Haines>
+	{};
+
 	/*!
 	 *	\brief Ray-tetrahedron intersection
 	 *
-	 *	Clips the ray against the half-spaces bounded by the four face planes, as described in
-	 *	E. Haines, "Fast Ray-Convex Polyhedron Intersection", Graphics Gems II, 1991.
-	 *	The vertex order, and thus the orientation, of the tetrahedron does not matter.
+	 *	All algorithms share these semantics:
+	 *	- A ray hits if it meets the tetrahedron at a parameter t >= 0. Hits on faces, edges and
+	 *	  vertices count.
+	 *	- t_entry is the ray parameter at which the ray enters the tetrahedron, 0 if the origin is
+	 *	  inside. t_exit is the parameter at which it leaves. Both are only meaningful for rays that hit.
+	 *	- The ray direction does not need to be normalized.
+	 *	- The vertex order, and thus the orientation, of the tetrahedron does not matter.
+	 *	- Degenerate (flat) tetrahedra are never hit.
 	 *
-	 *	\param tet     Tetrahedron to test
-	 *	\param ray     Ray to test. The direction does not need to be normalized.
-	 *	\param t_entry Ray parameter at which the ray enters the tetrahedron; 0 if the origin is inside
-	 *	\param t_exit  Ray parameter at which the ray leaves the tetrahedron
-	 *
-	 *	\returns True if the ray hits the tetrahedron at a parameter t >= 0. Hits on faces, edges and
-	 *	         vertices count. t_entry and t_exit are only meaningful for rays that hit.
-	 *
-	 *	\note Degenerate (flat) tetrahedra are never hit. Rays that only touch an edge or a vertex
-	 *	      are subject to rounding.
+	 *	The Haines algorithm clips the ray against the half-spaces bounded by the four face planes, as
+	 *	described in E. Haines, "Fast Ray-Convex Polyhedron Intersection", Graphics Gems II, 1991.
+	 *	Each tetrahedron computes its own face planes, so two tetrahedra sharing a face can round
+	 *	differently and disagree on whether a ray grazing the face crosses it.
 	 */
 	template<typename Scalar>
 	typename VectorTypes<Scalar>::bool_t intersects(
 		const Tetrahedron<Scalar, 3>& tet,
 		const Ray<Scalar, 3>& ray,
 		Scalar& t_entry,
-		Scalar& t_exit)
+		Scalar& t_exit,
+		RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Haines>)
 	{
 		using namespace Vcl::Mathematics;
 
@@ -292,18 +312,180 @@ namespace Vcl { namespace Geometry {
 		return t_min <= t_max;
 	}
 
+	namespace Detail {
+		//! Lexicographic order of two points, used to give every edge a fixed direction
+		template<typename Scalar>
+		typename VectorTypes<Scalar>::bool_t lexicographicLess(
+			const Eigen::Matrix<Scalar, 3, 1>& a,
+			const Eigen::Matrix<Scalar, 3, 1>& b)
+		{
+			return a.x() < b.x() || (a.x() == b.x() && (a.y() < b.y() || (a.y() == b.y() && a.z() < b.z())));
+		}
+
+		/*!
+		 *	\brief Plücker product of the ray with the directed edge v0 -> v1
+		 *
+		 *	The product is computed for the lexicographically ordered edge and negated if needed.
+		 *	This makes it bitwise the same, up to its sign, in every tetrahedron sharing the edge.
+		 *
+		 *	\param q  Ray direction
+		 *	\param v0 Start point of the edge
+		 *	\param v1 End point of the edge
+		 *	\param p0 v0 relative to the ray origin
+		 *	\param p1 v1 relative to the ray origin
+		 */
+		template<typename Scalar>
+		Scalar pluckerProduct(
+			const Eigen::Matrix<Scalar, 3, 1>& q,
+			const Eigen::Matrix<Scalar, 3, 1>& v0,
+			const Eigen::Matrix<Scalar, 3, 1>& v1,
+			const Eigen::Matrix<Scalar, 3, 1>& p0,
+			const Eigen::Matrix<Scalar, 3, 1>& p1)
+		{
+			using vector_t = Eigen::Matrix<Scalar, 3, 1>;
+
+			const auto ordered = lexicographicLess(v0, v1);
+			const vector_t first = select(ordered, p0, p1);
+			const vector_t second = select(ordered, p1, p0);
+			const Scalar product = q.dot(first.cross(second));
+
+			return select(ordered, product, Scalar(0) - product);
+		}
+	}
+
 	/*!
 	 *	\brief Ray-tetrahedron intersection
 	 *
-	 *	\returns True if the ray hits the tetrahedron at a parameter t >= 0.
-	 *	\see intersects(const Tetrahedron<Scalar, 3>&, const Ray<Scalar, 3>&, Scalar&, Scalar&)
+	 *	Classifies the faces by the signs of the Plücker products of the ray with the six edges and
+	 *	computes the ray parameters from the barycentric coordinates of the crossing points, as
+	 *	described in N. Platis, T. Theoharis, "Fast Ray-Tetrahedron Intersection Using Plücker
+	 *	Coordinates", Journal of Graphics Tools 8(4), 2003.
+	 *	The product of an edge is bitwise the same in every tetrahedron sharing it, so tetrahedra
+	 *	sharing a face always agree on whether the ray crosses that face.
+	 *
+	 *	\see RayTetIntersectionAlgorithm for the semantics shared by all algorithms
+	 */
+	template<typename Scalar>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		Scalar& t_entry,
+		Scalar& t_exit,
+		RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Plucker>)
+	{
+		using namespace Vcl::Mathematics;
+
+		using real_t = Scalar;
+		using vector_t = Eigen::Matrix<real_t, 3, 1>;
+
+		const real_t zero = 0;
+		const real_t inf = std::numeric_limits<float>::infinity();
+		const real_t neg_inf = -std::numeric_limits<float>::infinity();
+
+		const vector_t& q = ray.direction();
+		const vector_t p[4] = {
+			tet[0] - ray.origin(),
+			tet[1] - ray.origin(),
+			tet[2] - ray.origin(),
+			tet[3] - ray.origin(),
+		};
+
+		// Products of the ray with the edges i -> j
+		const real_t e01 = Detail::pluckerProduct(q, tet[0], tet[1], p[0], p[1]);
+		const real_t e02 = Detail::pluckerProduct(q, tet[0], tet[2], p[0], p[2]);
+		const real_t e03 = Detail::pluckerProduct(q, tet[0], tet[3], p[0], p[3]);
+		const real_t e12 = Detail::pluckerProduct(q, tet[1], tet[2], p[1], p[2]);
+		const real_t e13 = Detail::pluckerProduct(q, tet[1], tet[3], p[1], p[3]);
+		const real_t e23 = Detail::pluckerProduct(q, tet[2], tet[3], p[2], p[3]);
+
+		// Faces opposite to each vertex as (j, k, l), wound outwards for a positive volume, and the
+		// products of their edges j -> k, k -> l, l -> j
+		const int faces[4][3] = { { 1, 2, 3 }, { 0, 3, 2 }, { 0, 1, 3 }, { 0, 2, 1 } };
+		const real_t edges[4][3] = {
+			{ e12, e23, zero - e13 },
+			{ e03, zero - e23, zero - e02 },
+			{ e01, e13, zero - e03 },
+			{ e02, zero - e12, zero - e01 },
+		};
+
+		const real_t volume = (tet[1] - tet[0]).cross(tet[2] - tet[0]).dot(tet[3] - tet[0]);
+		const real_t orientation = select(volume < zero, real_t(-1), real_t(1));
+		const real_t qq = q.dot(q);
+
+		real_t t_min = neg_inf;
+		real_t t_max = inf;
+		real_t crossed = zero;
+		for (int f = 0; f < 4; f++)
+		{
+			const real_t& jk = edges[f][0];
+			const real_t& kl = edges[f][1];
+			const real_t& lj = edges[f][2];
+
+			// The line crosses the face if the products agree in sign. If all are zero, the line lies
+			// in the plane of the face and crosses it through the neighbouring faces.
+			const real_t sum = jk + kl + lj;
+			const auto crosses =
+				((jk >= zero && kl >= zero && lj >= zero) || (jk <= zero && kl <= zero && lj <= zero)) && sum != zero;
+
+			// Barycentric coordinates of the crossing point: each vertex is weighted by the product
+			// of the opposite edge
+			const vector_t x = (kl * p[faces[f][0]] + lj * p[faces[f][1]] + jk * p[faces[f][2]]) / sum;
+			const real_t t = q.dot(x) / qq;
+
+			// The sum is the ray direction projected on the face normal; negative if the ray enters
+			const real_t facing = orientation * sum;
+			t_min = select(crosses && facing < zero, max(t_min, t), t_min);
+			t_max = select(crosses && facing > zero, min(t_max, t), t_max);
+			crossed = crossed + select(crosses, real_t(1), zero);
+		}
+
+		// A flat tetrahedron misses
+		t_max = select(volume == zero, neg_inf, t_max);
+
+		// Disallow any intersection that lies behind the start point of the ray
+		t_entry = max(t_min, zero);
+		t_exit = t_max;
+
+		return crossed > zero && t_entry <= t_exit;
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection with the default algorithm
+	 *	\see RayTetIntersectionAlgorithm
+	 */
+	template<typename Scalar>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		Scalar& t_entry,
+		Scalar& t_exit)
+	{
+		return intersects(tet, ray, t_entry, t_exit, RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Default>{});
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection without the ray parameters
+	 *	\see RayTetIntersectionAlgorithm
+	 */
+	template<typename Scalar, RayTetIntersectionAlgorithm Algorithm>
+	typename VectorTypes<Scalar>::bool_t intersects(
+		const Tetrahedron<Scalar, 3>& tet,
+		const Ray<Scalar, 3>& ray,
+		RayTetIntersectionAlgorithmSelector<Algorithm> algorithm)
+	{
+		Scalar t_entry, t_exit;
+		return intersects(tet, ray, t_entry, t_exit, algorithm);
+	}
+
+	/*!
+	 *	\brief Ray-tetrahedron intersection with the default algorithm, without the ray parameters
+	 *	\see RayTetIntersectionAlgorithm
 	 */
 	template<typename Scalar>
 	typename VectorTypes<Scalar>::bool_t intersects(
 		const Tetrahedron<Scalar, 3>& tet,
 		const Ray<Scalar, 3>& ray)
 	{
-		Scalar t_entry, t_exit;
-		return intersects(tet, ray, t_entry, t_exit);
+		return intersects(tet, ray, RayTetIntersectionAlgorithmSelector<RayTetIntersectionAlgorithm::Default>{});
 	}
 }}

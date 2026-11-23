@@ -30,6 +30,7 @@
 // C++ Standard Library
 #include <algorithm>
 #include <array>
+#include <random>
 #include <utility>
 
 // Include the relevant parts from the library
@@ -96,6 +97,7 @@ namespace {
 	}};
 	// clang-format on
 
+	template<typename Algorithm>
 	void checkCase(const Vcl::Geometry::Tetrahedron<float, 3>& tet, const RayCase& c)
 	{
 		using namespace Vcl::Geometry;
@@ -103,8 +105,8 @@ namespace {
 		const Ray<float, 3> ray{ c.origin, c.direction };
 
 		float t_entry = -1, t_exit = -1;
-		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit)) << c.name;
-		EXPECT_EQ(c.hit, intersects(tet, ray)) << c.name;
+		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit, Algorithm{})) << c.name;
+		EXPECT_EQ(c.hit, intersects(tet, ray, Algorithm{})) << c.name;
 		if (c.hit)
 		{
 			EXPECT_FLOAT_EQ(c.t_entry, t_entry) << c.name;
@@ -119,7 +121,7 @@ namespace {
 	}
 
 	//! Runs the corner cases in parallel, one case per lane
-	template<int Width>
+	template<typename Algorithm, int Width>
 	void checkCornerCasesSimd()
 	{
 		using namespace Vcl::Geometry;
@@ -149,7 +151,7 @@ namespace {
 		const Ray<real_t, 3> ray{ origin, direction };
 
 		real_t t_entry, t_exit;
-		const real_t hit = select(intersects(tet, ray, t_entry, t_exit), real_t(1), real_t(0));
+		const real_t hit = select(intersects(tet, ray, t_entry, t_exit, Algorithm{}), real_t(1), real_t(0));
 		for (int lane = 0; lane < Width; lane++)
 		{
 			const RayCase& c = lane_case(lane);
@@ -161,6 +163,26 @@ namespace {
 			}
 		}
 	}
+
+	//! Cube split into six tetrahedra around the diagonal 0-7, which is an edge of all of them
+	const std::array<std::array<int, 4>, 6> diagonal_tetrahedra = {
+		std::make_array(0, 1, 3, 7),
+		std::make_array(0, 3, 2, 7),
+		std::make_array(0, 2, 6, 7),
+		std::make_array(0, 6, 4, 7),
+		std::make_array(0, 4, 5, 7),
+		std::make_array(0, 5, 1, 7),
+	};
+
+	template<typename Algorithm>
+	class RayTetIntersectionAlgorithms : public testing::Test
+	{};
+
+	using Algorithms = testing::Types<
+		Vcl::Geometry::RayTetIntersectionAlgorithmSelector<Vcl::Geometry::RayTetIntersectionAlgorithm::Default>,
+		Vcl::Geometry::RayTetIntersectionAlgorithmSelector<Vcl::Geometry::RayTetIntersectionAlgorithm::Haines>,
+		Vcl::Geometry::RayTetIntersectionAlgorithmSelector<Vcl::Geometry::RayTetIntersectionAlgorithm::Plucker>>;
+	TYPED_TEST_SUITE(RayTetIntersectionAlgorithms, Algorithms);
 }
 
 TEST(RayTetIntersection, IntersectCenter)
@@ -276,16 +298,31 @@ TEST(RayTetIntersection, IntersectFacePlaneNotTet)
 	}
 }
 
-TEST(RayTetIntersection, Corner)
+TEST(RayTetIntersection, DefaultAlgorithm)
 {
 	using namespace Vcl::Geometry;
 
 	const Tetrahedron<float, 3> tet{ corner[0], corner[1], corner[2], corner[3] };
 	for (const auto& c : corner_cases)
-		checkCase(tet, c);
+	{
+		const Ray<float, 3> ray{ c.origin, c.direction };
+
+		float t_entry = -1, t_exit = -1;
+		EXPECT_EQ(c.hit, intersects(tet, ray, t_entry, t_exit)) << c.name;
+		EXPECT_EQ(c.hit, intersects(tet, ray)) << c.name;
+	}
 }
 
-TEST(RayTetIntersection, VertexOrderDoesNotMatter)
+TYPED_TEST(RayTetIntersectionAlgorithms, Corner)
+{
+	using namespace Vcl::Geometry;
+
+	const Tetrahedron<float, 3> tet{ corner[0], corner[1], corner[2], corner[3] };
+	for (const auto& c : corner_cases)
+		checkCase<TypeParam>(tet, c);
+}
+
+TYPED_TEST(RayTetIntersectionAlgorithms, VertexOrderDoesNotMatter)
 {
 	using namespace Vcl::Geometry;
 
@@ -294,11 +331,11 @@ TEST(RayTetIntersection, VertexOrderDoesNotMatter)
 	{
 		const Tetrahedron<float, 3> tet{ corner[order[0]], corner[order[1]], corner[order[2]], corner[order[3]] };
 		for (const auto& c : corner_cases)
-			checkCase(tet, c);
+			checkCase<TypeParam>(tet, c);
 	} while (std::next_permutation(order.begin(), order.end()));
 }
 
-TEST(RayTetIntersection, FlatTetrahedron)
+TYPED_TEST(RayTetIntersectionAlgorithms, FlatTetrahedron)
 {
 	using namespace Vcl::Geometry;
 
@@ -306,21 +343,79 @@ TEST(RayTetIntersection, FlatTetrahedron)
 	const Ray<float, 3> through{ { 0.25f, 0.25f, -1 }, { 0, 0, 1 } };
 	const Ray<float, 3> inside_plane{ { -1, 0.25f, 0 }, { 1, 0, 0 } };
 
-	EXPECT_FALSE(intersects(tet, through));
-	EXPECT_FALSE(intersects(tet, inside_plane));
+	EXPECT_FALSE(intersects(tet, through, TypeParam{}));
+	EXPECT_FALSE(intersects(tet, inside_plane, TypeParam{}));
 }
 
-TEST(RayTetIntersection, CornerFloat4)
+TYPED_TEST(RayTetIntersectionAlgorithms, CornerFloat4)
 {
-	checkCornerCasesSimd<4>();
+	checkCornerCasesSimd<TypeParam, 4>();
 }
 
-TEST(RayTetIntersection, CornerFloat8)
+TYPED_TEST(RayTetIntersectionAlgorithms, CornerFloat8)
 {
-	checkCornerCasesSimd<8>();
+	checkCornerCasesSimd<TypeParam, 8>();
 }
 
-TEST(RayTetIntersection, CornerFloat16)
+TYPED_TEST(RayTetIntersectionAlgorithms, CornerFloat16)
 {
-	checkCornerCasesSimd<16>();
+	checkCornerCasesSimd<TypeParam, 16>();
+}
+
+//! Rays through points on an edge shared by a ring of tetrahedra must hit at least one of them
+TYPED_TEST(RayTetIntersectionAlgorithms, NoCrackAroundSharedEdge)
+{
+	using namespace Vcl::Geometry;
+
+	std::mt19937 rng{ 5489 };
+	std::uniform_real_distribution<float> uniform{ 0.0f, 1.0f };
+	std::normal_distribution<float> gauss;
+	const auto random_direction = [&]() { return Eigen::Vector3f{ gauss(rng), gauss(rng), gauss(rng) }.normalized().eval(); };
+
+	const int rings = 200;
+	const int rays_per_ring = 1000;
+	const int ring_size = 6;
+
+	int misses = 0;
+	for (int r = 0; r < rings; r++)
+	{
+		// Random edge a-b, surrounded by a ring of vertices around it
+		const Eigen::Vector3f a = random_direction() * 0.1f;
+		const Eigen::Vector3f b = (a + random_direction()).eval();
+		const Eigen::Vector3f axis = (b - a).normalized();
+		const Eigen::Vector3f side0 = axis.unitOrthogonal();
+		const Eigen::Vector3f side1 = axis.cross(side0);
+
+		std::array<Eigen::Vector3f, ring_size> ring;
+		for (int i = 0; i < ring_size; i++)
+		{
+			const float angle = (i + 0.8f * uniform(rng) - 0.4f) * 2 * 3.14159265f / ring_size;
+			const float radius = 0.5f + uniform(rng);
+			ring[i] = a + uniform(rng) * (b - a) + radius * (std::cos(angle) * side0 + std::sin(angle) * side1);
+		}
+
+		// Give every tetrahedron its own vertex order, as in an arbitrary mesh
+		std::array<std::array<Eigen::Vector3f, 4>, ring_size> tets;
+		for (int i = 0; i < ring_size; i++)
+		{
+			tets[i] = { a, b, ring[i], ring[(i + 1) % ring_size] };
+			std::shuffle(tets[i].begin(), tets[i].end(), rng);
+		}
+
+		for (int k = 0; k < rays_per_ring; k++)
+		{
+			const Eigen::Vector3f target = a + (0.05f + 0.9f * uniform(rng)) * (b - a);
+			const Eigen::Vector3f direction = random_direction();
+			const Ray<float, 3> ray{ (target - 3 * direction).eval(), direction };
+
+			bool hit = false;
+			for (int i = 0; i < ring_size; i++)
+			{
+				const Tetrahedron<float, 3> tet{ tets[i][0], tets[i][1], tets[i][2], tets[i][3] };
+				hit = hit || intersects(tet, ray, TypeParam{});
+			}
+			misses += hit ? 0 : 1;
+		}
+	}
+	EXPECT_EQ(0, misses) << "of " << rings * rays_per_ring << " rays slipped between the tetrahedra";
 }
