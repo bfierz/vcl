@@ -61,7 +61,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		wgpu_desc.label = { "Generic buffer", WGPU_STRLEN };
 		wgpu_desc.usage = toWGPU(desc.Usage);
 		wgpu_desc.size = desc.SizeInBytes;
-		wgpu_desc.mappedAtCreation = init_data != nullptr;
+		wgpu_desc.mappedAtCreation = false;
 
 		_resource = wgpuDeviceCreateBuffer(device, &wgpu_desc);
 

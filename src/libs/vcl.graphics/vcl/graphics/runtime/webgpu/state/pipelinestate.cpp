@@ -97,8 +97,8 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 
 		WGPURenderPipelineDescriptor graphics_pipeline_desc = {};
 
-		WGPUPipelineLayoutDescriptor layout_desc = {};
-		graphics_pipeline_desc.layout = wgpuDeviceCreatePipelineLayout(device, &layout_desc);
+		// Let WebGPU derive the layout from the shaders; query it with wgpuRenderPipelineGetBindGroupLayout
+		graphics_pipeline_desc.layout = nullptr;
 
 		WGPUVertexState vertex_state_desc = {};
 		auto vertex_buffer_desc = toWebGPU(desc.InputLayout);
@@ -117,7 +117,6 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		graphics_pipeline_desc.primitive.topology = convert(desc.InputAssembly.Topology);
 		graphics_pipeline_desc.primitive.stripIndexFormat = isListFormat(desc.InputAssembly.Topology) ? WGPUIndexFormat_Undefined : WGPUIndexFormat_Uint32;
 		graphics_pipeline_desc.primitive.frontFace = desc.Rasterizer.FrontCounterClockwise ? WGPUFrontFace_CCW : WGPUFrontFace_CW;
-		;
 		graphics_pipeline_desc.primitive.cullMode = toWebGPU(desc.Rasterizer.CullMode);
 		graphics_pipeline_desc.multisample.count = 1;
 		graphics_pipeline_desc.multisample.mask = UINT_MAX;
@@ -135,7 +134,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 		for (size_t i = 0; i < desc.RenderTargets.ColourFormats.size(); i++)
 		{
 			colour_states[i].format = toWebGPUEnum(desc.RenderTargets.ColourFormats[i]);
-			colour_states[i].blend = &blend_states[i];
+			colour_states[i].blend = blend_states[i] ? &*blend_states[i] : nullptr;
 			colour_states[i].writeMask = desc.Blend.RenderTarget[i].RenderTargetWriteMask.bits();
 		}
 

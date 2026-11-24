@@ -82,7 +82,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace WebGPU {
 			WGPUVertexBufferLayout webgpu_elem;
 			webgpu_elem.arrayStride = binding.Stride;
 			webgpu_elem.stepMode = binding.InputRate == VertexDataClassification::VertexDataPerObject ? WGPUVertexStepMode_Vertex : WGPUVertexStepMode_Instance;
-			webgpu_elem.attributeCount = elem.NumberLocations;
+			webgpu_elem.attributeCount = std::max(1u, elem.NumberLocations);
 			webgpu_buffer_desc.emplace_back(webgpu_elem);
 
 			for (int sub_loc = 0; sub_loc < std::max(1, (int)elem.NumberLocations); sub_loc++)
