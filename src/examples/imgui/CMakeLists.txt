@@ -84,7 +84,8 @@ foreach(VCL_IMGUI_BACKEND ${VCL_IMGUI_BACKENDS})
 endforeach()
 
 add_library(vcl_examples_imgui STATIC ${VCL_IMGUI_SOURCES})
-set_target_properties(vcl_examples_imgui PROPERTIES FOLDER examples)
+# The backends are Dear ImGui's code, so clang-tidy leaves them out
+set_target_properties(vcl_examples_imgui PROPERTIES FOLDER examples VCL_SKIP_CLANG_TIDY ON)
 target_include_directories(vcl_examples_imgui PUBLIC "${VCL_IMGUI_BACKEND_DIR}")
 if(VCL_WEBGPU_SUPPORT AND NOT EMSCRIPTEN)
 	# Use the WebGPU API of the Dawn package

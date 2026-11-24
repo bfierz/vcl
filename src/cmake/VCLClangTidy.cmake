@@ -23,34 +23,51 @@
 # SOFTWARE.
 #
 
-# Support for clang-tidy
-option(VCL_ENABLE_CLANG_TIDY "Enable clang-tidy" OFF)
+# Support for clang-tidy. The checks and the header filter come from .clang-tidy at the
+# repository root. Use clang-tidy 18, the version the curated check set is defined for.
+option(VCL_ENABLE_CLANG_TIDY "Run clang-tidy on every VCL target while compiling" OFF)
 
 if(VCL_ENABLE_CLANG_TIDY AND NOT CLANG_TIDY_EXE)
 	find_program(
 		CLANG_TIDY_EXE
-		NAMES "clang-tidy"
+		NAMES "clang-tidy-18" "clang-tidy"
 		DOC "Path to clang-tidy executable"
 	)
 	if(NOT CLANG_TIDY_EXE)
-		message(STATUS "clang-tidy not found.")
-	else()
-		message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+		message(FATAL_ERROR "VCL_ENABLE_CLANG_TIDY is set, but clang-tidy was not found. Set CLANG_TIDY_EXE.")
 	endif()
+	message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
 endif()
-	
+
 # Enable clang-tidy checking for given target
 function(enable_clang_tidy target)
-	if (${CMAKE_VERSION} VERSION_LESS "3.6.0") 
-		message(ERROR "Clang-tidy integration requires at least CMake 3.6.0")
-	endif()
-	
-	set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Generate compilation database" FORCE)
-	if(VCL_ENABLE_CLANG_TIDY AND CLANG_TIDY_EXE)
-		message(STATUS "Enable clang-tidy on ${target}")
+	if(VCL_ENABLE_CLANG_TIDY)
 		set_target_properties(
 			${target} PROPERTIES
 			CXX_CLANG_TIDY "${CLANG_TIDY_EXE}"
 		)
 	endif()
+endfunction()
+
+# Enable clang-tidy checking for every target compiling sources in 'dir' and its
+# subdirectories. Targets with the property VCL_SKIP_CLANG_TIDY set compile third-party
+# sources and are left out.
+function(enable_clang_tidy_in_directory dir)
+	if(NOT VCL_ENABLE_CLANG_TIDY)
+		return()
+	endif()
+
+	get_property(targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+	foreach(target IN LISTS targets)
+		get_target_property(type ${target} TYPE)
+		get_target_property(skip ${target} VCL_SKIP_CLANG_TIDY)
+		if(type MATCHES "^(STATIC_LIBRARY|SHARED_LIBRARY|MODULE_LIBRARY|OBJECT_LIBRARY|EXECUTABLE)$" AND NOT skip)
+			enable_clang_tidy(${target})
+		endif()
+	endforeach()
+
+	get_property(subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+	foreach(subdir IN LISTS subdirs)
+		enable_clang_tidy_in_directory("${subdir}")
+	endforeach()
 endfunction()

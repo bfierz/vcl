@@ -39,6 +39,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cmake")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Always write compile_commands.json, the input of clang-tidy, run-clang-tidy and IDEs
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# clang-tidy with the curated check set of .clang-tidy (VCL_ENABLE_CLANG_TIDY)
+include(VCLClangTidy)
+
 # For clang on Windows globally ignore unused commandline arguments
 if (WIN32 AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=unused-command-line-argument -Wno-error=deprecated-declarations")
@@ -113,3 +119,6 @@ if(VCL_BUILD_TESTS)
 
 	add_subdirectory(src/tests)
 endif()
+
+# Attach clang-tidy to every VCL target: libraries, tests, examples, tools and benchmarks
+enable_clang_tidy_in_directory("${CMAKE_CURRENT_SOURCE_DIR}")

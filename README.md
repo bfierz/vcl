@@ -48,6 +48,31 @@ cmake --build --preset conan-release   # Windows: add --config Release
 
 Dawn needs C++20 to build. VCL only uses its C API, so the profiles keep C++17 and build Dawn alone with C++20 (`dawn/*:compiler.cppstd=20`). A profile of your own needs the same line for `with_webgpu`.
 
+Running clang-tidy
+------------------
+
+`.clang-tidy` holds the curated check set: the `modernize-*` checks VCL enforces, with every diagnostic an error (see [docs/adr/0002-cpp17-idioms-enforced-by-clang-tidy.md](docs/adr/0002-cpp17-idioms-enforced-by-clang-tidy.md)).
+Use **clang-tidy 18**, the version the dev container installs and the check set is defined for. Other versions report different diagnostics.
+Its header filter covers all of `src/` except the third-party code that clang-format skips as well (`3rdparty/`, `simd/detail/`, `math/mcadams/`, `tests/vcl.geometry/ref/`).
+
+Either attach clang-tidy to the build, so that every VCL target (libraries, tests, examples, tools and benchmarks) is checked while it compiles:
+
+```sh
+cmake --preset conan-release -DVCL_ENABLE_CLANG_TIDY=ON   # finds clang-tidy-18 or clang-tidy; else set CLANG_TIDY_EXE
+cmake --build --preset conan-release
+```
+
+Or run it over the compile database, which every configure writes to `compile_commands.json` in the build folder.
+The file argument limits the run to VCL's sources; the Dear ImGui backends of the examples are compiled from the Conan package and are left out.
+
+```sh
+cmake --preset conan-release
+run-clang-tidy-18 -clang-tidy-binary clang-tidy-18 -p build/Release "$PWD/src/"   # add -fix to apply the fixes
+```
+
+`run-clang-tidy-18` calls a plain `clang-tidy` unless `-clang-tidy-binary` names the versioned one.
+Every diagnostic is an error, so until the tree is clean an attached build stops at the first file that has one.
+
 C++ feature matrices:
 A good overview on the feature support for different compiler versions can be found here: https://en.cppreference.com/w/cpp/compiler_support
 
