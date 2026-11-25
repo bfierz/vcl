@@ -39,6 +39,26 @@
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RSQRT
 //#define VCL_MATH_SELFADJOINTJACOBI_QUAT_USE_RCP
 
+// How QuaternionJacobiRotateIncremental applies a rotation to a full 3x3 matrix
+//! Build R from the rotation quaternion and compute R^T M R
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_QUATERNION_MATRIX 1
+//! Build R element by element and compute R^T M R
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_EXPLICIT_MATRIX 2
+//! Update only the matrix entries the rotation changes
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_IN_PLACE 3
+#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION
+#	define VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_IN_PLACE
+#endif
+
+// How SelfAdjointJacobiEigenQuatIncrementalSweeps stores its working matrix
+//! Full 3x3 matrix
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_FULL 1
+//! The six unique entries of the symmetric matrix
+#define VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_PACKED 2
+#ifndef VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE
+#	define VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_PACKED
+#endif
+
 namespace Vcl { namespace Mathematics {
 	template<typename Real>
 	VCL_STRONG_INLINE Eigen::Matrix<Real, 2, 1> ApproxJacobiRotationQuaternion(const Real& a11, const Real& a12, const Real& a22)
@@ -80,6 +100,10 @@ namespace Vcl { namespace Mathematics {
 	template<typename Scalar, int p, int q>
 	VCL_STRONG_INLINE void QuaternionJacobiRotateIncremental(Eigen::Matrix<Scalar, 3, 3>& M, Eigen::Quaternion<Scalar>& Q)
 	{
+		// Selecting the update at compile time and keeping the alternative implementations
+		// inflates the complexity metric, but each instantiation runs straight-line code.
+		// #lizard forgives
+
 		// Rotates A through phi in pq-plane to set M(p, q) = 0.
 		auto cs = ApproxJacobiRotationQuaternion(M(p, p), M(p, q), M(q, q));
 		Scalar c = cs(0);
@@ -90,34 +114,30 @@ namespace Vcl { namespace Mathematics {
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
 
-#if 0
+#if VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_QUATERNION_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 0
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_EXPLICIT_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R;
-			R(0, 0) = Scalar(1) - Scalar(2)*s*s;
-			R(1, 0) = Scalar(2)*s*c;
+			R(0, 0) = Scalar(1) - Scalar(2) * s * s;
+			R(1, 0) = Scalar(2) * s * c;
 			R(2, 0) = 0;
 
-			R(0, 1) = Scalar(-2)*s*c;
-			R(1, 1) = Scalar(1) - Scalar(2)*s*s;
+			R(0, 1) = Scalar(-2) * s * c;
+			R(1, 1) = Scalar(1) - Scalar(2) * s * s;
 			R(2, 1) = 0;
 
 			R(0, 2) = 0;
 			R(1, 2) = 0;
 			R(2, 2) = Scalar(1);
-			
+
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 1
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_IN_PLACE
 			// Transform the input matrix
 			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
 			Scalar b = Scalar(2) * s * c;
@@ -153,34 +173,30 @@ namespace Vcl { namespace Mathematics {
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
 
-#if 0
+#if VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_QUATERNION_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 0
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_EXPLICIT_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R;
-			R(0, 0) = Scalar(1) - Scalar(2)*s*s;
+			R(0, 0) = Scalar(1) - Scalar(2) * s * s;
 			R(1, 0) = 0;
-			R(2, 0) = Scalar(2)*s*c;
-			
+			R(2, 0) = Scalar(2) * s * c;
+
 			R(0, 1) = 0;
 			R(1, 1) = Scalar(1);
 			R(2, 1) = 0;
-			
-			R(0, 2) = Scalar(-2)*s*c;
+
+			R(0, 2) = Scalar(-2) * s * c;
 			R(1, 2) = 0;
-			R(2, 2) = Scalar(1) - Scalar(2)*s*s;
+			R(2, 2) = Scalar(1) - Scalar(2) * s * s;
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 1
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_IN_PLACE
 			// Transform the input matrix
 			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
 			Scalar b = Scalar(2) * s * c;
@@ -213,34 +229,30 @@ namespace Vcl { namespace Mathematics {
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
-#if 0
+#if VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_QUATERNION_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R = quat.toRotationMatrix();
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 0
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_EXPLICIT_MATRIX
 			// Build the rotation matrix
 			Eigen::Matrix<Scalar, 3, 3> R;
 			R(0, 0) = Scalar(1);
 			R(1, 0) = 0;
 			R(2, 0) = 0;
-			
+
 			R(0, 1) = 0;
-			R(1, 1) = Scalar(1) - Scalar(2)*s*s;
-			R(2, 1) = Scalar(2)*s*c;
-			
+			R(1, 1) = Scalar(1) - Scalar(2) * s * s;
+			R(2, 1) = Scalar(2) * s * c;
+
 			R(0, 2) = 0;
-			R(1, 2) = Scalar(-2)*s*c;
-			R(2, 2) = Scalar(1) - Scalar(2)*s*s;
+			R(1, 2) = Scalar(-2) * s * c;
+			R(2, 2) = Scalar(1) - Scalar(2) * s * s;
 
 			// Transform the matrices
 			M = R.transpose() * M * R;
-#endif
-
-#if 1
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION == VCL_MATH_SELFADJOINTJACOBI_QUAT_ROTATION_IN_PLACE
 			// Transform the input matrix
 			Scalar a /* = Scalar(1) - Scalar(2)*s*s */ = c * c - s * s;
 			Scalar b = Scalar(2) * s * c;
@@ -283,7 +295,7 @@ namespace Vcl { namespace Mathematics {
 
 		Scalar a = c * c - s * s;
 		Scalar b = Scalar(2) * s * c;
-		VCL_IF_CONSTEXPR(p == 0 && q == 1)
+		if constexpr (p == 0 && q == 1)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, 0, s };
@@ -303,8 +315,7 @@ namespace Vcl { namespace Mathematics {
 
 			// Update the rotation quaternion
 			Q *= quat;
-		}
-		else VCL_IF_CONSTEXPR(p == 0 && q == 2)
+		} else if constexpr (p == 0 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, 0, -s, 0 };
@@ -323,8 +334,7 @@ namespace Vcl { namespace Mathematics {
 			M(5) = M21;
 
 			Q *= quat;
-		}
-		else VCL_IF_CONSTEXPR(p == 1 && q == 2)
+		} else if constexpr (p == 1 && q == 2)
 		{
 			// Define the rotation quaternion
 			Eigen::Quaternion<Scalar> quat{ c, s, 0, 0 };
@@ -354,7 +364,7 @@ namespace Vcl { namespace Mathematics {
 		Eigen::Matrix<Scalar, 3, 3> R = Q.toRotationMatrix();
 		Eigen::Matrix<Scalar, 3, 3> D = R.transpose() * M * R;
 
-		VCL_IF_CONSTEXPR(p == 0 && q == 1)
+		if constexpr (p == 0 && q == 1)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 1), D(1, 1));
@@ -364,8 +374,7 @@ namespace Vcl { namespace Mathematics {
 			VclCheck(all(equal(Eigen::Quaternion<Scalar>(c, 0, 0, s).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, 0, s);
-		}
-		else VCL_IF_CONSTEXPR(p == 0 && q == 2)
+		} else if constexpr (p == 0 && q == 2)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(0, 0), D(0, 2), D(2, 2));
@@ -375,8 +384,7 @@ namespace Vcl { namespace Mathematics {
 			VclCheck(all(equal(Eigen::Quaternion<Scalar>(c, 0, -s, 0).norm(), Scalar(1), Scalar(1e-6))), "Quaternion is normalized.");
 
 			Q *= Eigen::Quaternion<Scalar>(c, 0, -s, 0);
-		}
-		else VCL_IF_CONSTEXPR(p == 1 && q == 2)
+		} else if constexpr (p == 1 && q == 2)
 		{
 			// Rotates A through phi in pq-plane to set D(p, q) = 0.
 			auto cs = ApproxJacobiRotationQuaternion(D(1, 1), D(1, 2), D(2, 2));
@@ -427,9 +435,9 @@ namespace Vcl { namespace Mathematics {
 		// intermediate result and only the final result needs to be stored.
 		// For this algorithm the compiled code looks much better.
 		Eigen::Quaternion<Scalar> U = Eigen::Quaternion<Scalar>::Identity();
-#if 0
+#if VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE == VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_FULL
 		Eigen::Matrix<Scalar, 3, 3> M = A;
-#else
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE == VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_PACKED
 		Eigen::Matrix<Scalar, 6, 1> M;
 		M(0) = A(0, 0);
 		M(1) = A(1, 1);
@@ -456,9 +464,9 @@ namespace Vcl { namespace Mathematics {
 		Q = U.coeffs() / sqrt(U.coeffs().squaredNorm());
 
 		// Return the Eigenvalues
-#if 0
+#if VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE == VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_FULL
 		A = M;
-#else
+#elif VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE == VCL_MATH_SELFADJOINTJACOBI_QUAT_STORAGE_PACKED
 		//A = Eigen::DiagonalMatrix<Scalar, 3>{ M(0), M(1), M(2) };
 		A(0, 0) = M(0);
 		A(1, 1) = M(1);

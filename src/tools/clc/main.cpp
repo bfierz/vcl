@@ -27,16 +27,7 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
-#ifdef VCL_ABI_WINAPI
-#	if VCL_HAS_STDCXX17
-#		include <filesystem>
-#	else
-#		define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-#		include <experimental/filesystem>
-#	endif
-#elif defined(VCL_ABI_POSIX)
-#	include <boost/filesystem.hpp>
-#endif
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -216,21 +207,123 @@ namespace Vcl { namespace Tools { namespace Clc {
 
 		return exit_code;
 	}
+
+	//! Host compiler used to preprocess the OpenCL source
+	struct Preprocessor
+	{
+		std::string compiler{ "cl" };
+		char param_tok{ '/' };
+		Compiler format{ Compiler::Msvc };
+	};
+
+	//! Map the value of '--compiler' to the preprocessor to invoke
+	//! \returns false if the name is not supported
+	bool selectPreprocessor(const std::string& name, Preprocessor& pp)
+	{
+		if (name == "msvc")
+			pp = { "cl", '/', Compiler::Msvc };
+		else if (name == "clang")
+			pp = { "clang", '-', Compiler::Clang };
+		else if (name == "gcc")
+			pp = { "gcc", '-', Compiler::Gcc };
+		else
+			return false;
+
+		return true;
+	}
+
+	//! Run the preprocessor on the input file, writing 'preprocess_file'
+	void preprocess(const Preprocessor& pp, const std::string& preprocess_file, const cxxopts::ParseResult& parsed_options)
+	{
+		std::stringstream cmd;
+
+		if (pp.format == Compiler::Msvc)
+		{
+			// Remove the logo
+			cmd << "/nologo ";
+
+			// Add preprocessing command
+			cmd << "/P ";
+
+			// Add the output file
+			cmd << "/Fi: " << preprocess_file << " ";
+		}
+
+		// Add include directories
+		if (parsed_options.count("include"))
+		{
+			for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
+			{
+				cmd << pp.param_tok << "I \"" << inc << "\" ";
+			}
+		}
+
+		// Add the input file
+		cmd << R"(")" << parsed_options["input-file"].as<std::string>() << R"(")";
+
+		// Invoke the preprocessor
+		exec(pp.compiler.c_str(), cmd.str().c_str());
+	}
+
+	//! Try and load the nvidia compiler and compile the preprocessed source file
+	void compileWithNvidia(const std::string& preprocess_file)
+	{
+		if (!Nvidia::loadCompiler())
+			return;
+
+		std::ifstream ifile{ preprocess_file, std::ios_base::binary | std::ios_base::in };
+		if (ifile.is_open())
+		{
+			// Copy the file to a temporary buffer
+			std::string source = read_stream_into_string(ifile);
+			ifile.close();
+
+			const char* sources[] = { source.data() };
+			size_t sizes[] = { source.size() };
+
+			const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_30";
+
+			char* log = nullptr;
+			char* binary = nullptr;
+			int result = Nvidia::compileProgram(sources, 1, sizes, options, &log, &binary);
+			if (result)
+			{
+				std::cout << log << std::endl;
+				Nvidia::freeLog(log);
+			} else
+			{
+				// Append the compiled source to the output
+				Nvidia::freeProgramBinary(binary);
+			}
+		}
+
+		Nvidia::releaseCompiler();
+	}
+
+	//! Translate the intermediate file into the output source file
+	void embedFile(const std::string& preprocess_file, const cxxopts::ParseResult& parsed_options)
+	{
+		std::stringstream cmd;
+		cmd << "--group 4 ";
+
+		if (parsed_options.count("symbol"))
+		{
+			cmd << "--symbol " << parsed_options["symbol"].as<std::string>() << " ";
+		}
+
+		cmd << "-o " << parsed_options["output-file"].as<std::string>() << " ";
+		cmd << preprocess_file;
+
+		// Invoke the binary file translator
+		exec("bin2c", cmd.str().c_str());
+	}
 }}}
 
 int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Clc;
 
-#ifdef VCL_ABI_WINAPI
-#	if VCL_HAS_STDCXX17
 	namespace fs = std::filesystem;
-#	else
-	namespace fs = std::experimental::filesystem;
-#	endif
-#elif defined(VCL_ABI_POSIX)
-	namespace fs = boost::filesystem;
-#endif
 
 	cxxopts::Options options(argv[0], "clc - command line options");
 
@@ -263,116 +356,25 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 
-		std::string compiler = "cl";
-		char param_tok = '/';
-		Compiler format = Compiler::Msvc;
-
-		if (parsed_options.count("compiler") > 0)
+		Preprocessor pp;
+		if (parsed_options.count("compiler") > 0 && !selectPreprocessor(parsed_options["compiler"].as<std::string>(), pp))
 		{
-			if (parsed_options["compiler"].as<std::string>() == "msvc")
-			{
-				compiler = "cl";
-				param_tok = '/';
-				format = Compiler::Msvc;
-			} else if (parsed_options["compiler"].as<std::string>() == "clang")
-			{
-				compiler = "clang";
-				param_tok = '-';
-				format = Compiler::Clang;
-			} else if (parsed_options["compiler"].as<std::string>() == "gcc")
-			{
-				compiler = "gcc";
-				param_tok = '-';
-				format = Compiler::Gcc;
-			} else
-			{
-				std::cerr << "Invalid compiler string" << std::endl;
-				std::cout << options.help({ "" }) << std::endl;
-				return -1;
-			}
+			std::cerr << "Invalid compiler string" << std::endl;
+			std::cout << options.help({ "" }) << std::endl;
+			return -1;
 		}
 
 		// Generate intermediate file name
 		std::string preprocess_file = fs::path{ parsed_options["input-file"].as<std::string>() }.stem().string() + ".i";
 
 		// Preprocess the source file
-		std::stringstream cmd;
+		preprocess(pp, preprocess_file, parsed_options);
 
-		if (format == Compiler::Msvc)
-		{
-			// Remove the logo
-			cmd << "/nologo ";
-
-			// Add preprocessing command
-			cmd << "/P ";
-
-			// Add the output file
-			cmd << "/Fi: " << preprocess_file << " ";
-		}
-
-		// Add include directories
-		if (parsed_options.count("include"))
-		{
-			for (auto& inc : parsed_options["include"].as<std::vector<std::string>>())
-			{
-				cmd << param_tok << "I \"" << inc << "\" ";
-			}
-		}
-
-		// Add the input file
-		cmd << R"(")" << parsed_options["input-file"].as<std::string>() << R"(")";
-
-		// Invoke the preprocessor
-		exec(compiler.c_str(), cmd.str().c_str());
-
-		// Try and load the nvidia compiler and compile the preprocessed source file
-		auto nvCompilerLoaded = Nvidia::loadCompiler();
-		if (nvCompilerLoaded)
-		{
-			std::ifstream ifile{ preprocess_file, std::ios_base::binary | std::ios_base::in };
-			if (ifile.is_open())
-			{
-				// Copy the file to a temporary buffer
-				std::string source = read_stream_into_string(ifile);
-				ifile.close();
-
-				const char* sources[] = { source.data() };
-				size_t sizes[] = { source.size() };
-
-				const char* options = "-cl-nv-cstd=CL1.2 -cl-nv-verbose -cl-nv-arch sm_30";
-
-				char* log = nullptr;
-				char* binary = nullptr;
-				int result = Nvidia::compileProgram(sources, 1, sizes, options, &log, &binary);
-				if (result)
-				{
-					std::cout << log << std::endl;
-					Nvidia::freeLog(log);
-				} else
-				{
-					// Append the compiled source to the output
-					Nvidia::freeProgramBinary(binary);
-				}
-			}
-
-			Nvidia::releaseCompiler();
-		}
+		// Compile the preprocessed source file, if the nvidia compiler is available
+		compileWithNvidia(preprocess_file);
 
 		// Load the intermediate file and generate the binary file
-		cmd.str("");
-		cmd.clear();
-		cmd << "--group 4 ";
-
-		if (parsed_options.count("symbol"))
-		{
-			cmd << "--symbol " << parsed_options["symbol"].as<std::string>() << " ";
-		}
-
-		cmd << "-o " << parsed_options["output-file"].as<std::string>() << " ";
-		cmd << preprocess_file;
-
-		// Invoke the binary file translator
-		exec("bin2c", cmd.str().c_str());
+		embedFile(preprocess_file, parsed_options);
 	} catch (const cxxopts::OptionException& e)
 	{
 		std::cout << "Error parsing options: " << e.what() << std::endl;

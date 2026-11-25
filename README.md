@@ -96,6 +96,22 @@ Compatibility
 VCL generally supports the CPU architectures x86, x86-64, and ARM. Test coverage for ARM is still in development.
 As host platforms, VCL supports Windows, Linux and MacOS.
 
+### Removed names
+
+VCL requires C++17, so the names that switched between C++ standard versions are gone.
+They were removed without deprecated aliases; downstream code has to switch to the replacement.
+
+| Removed                                | Replacement                       |
+|----------------------------------------|-----------------------------------|
+| `VCL_HAS_STDCXX11`, `VCL_HAS_STDCXX14` | None; C++17 is always available   |
+| `VCL_IF_CONSTEXPR(cond)`               | `if constexpr (cond)`             |
+| `VCL_NOEXCEPT_PARAM(cond)`             | `noexcept(cond)`                  |
+| `VCL_STL_CHRONO`                       | None; include `<chrono>` directly |
+
+`VCL_HAS_STDCXX17` and `VCL_HAS_STDCXX20` stay. They identify the C++ standard in use, reading `_MSVC_LANG` on MSVC, where `__cplusplus` is unreliable without `/Zc:__cplusplus`.
+
+The `clc`, `cuc` and `cui` tools now use `std::filesystem` unconditionally and no longer fall back to `<experimental/filesystem>` or Boost.
+
 External Libraries
 ------------------
 
