@@ -142,7 +142,7 @@ namespace Vcl { namespace Util { namespace Detail {
 		{
 		}
 
-		~ScopeGuardForNewException() VCL_NOEXCEPT_PARAM(executeOnException)
+		~ScopeGuardForNewException() noexcept(executeOnException)
 		{
 			if (executeOnException == _exceptionCounter.isNewUncaughtException())
 			{

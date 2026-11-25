@@ -27,16 +27,7 @@
 #include <vcl/config/global.h>
 
 // C++ Standard Library
-#ifdef VCL_ABI_WINAPI
-#	if VCL_HAS_STDCXX17
-#		include <filesystem>
-#	else
-#		define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-#		include <experimental/filesystem>
-#	endif
-#elif defined(VCL_ABI_POSIX)
-#	include <boost/filesystem.hpp>
-#endif
+#include <filesystem>
 #include <iostream>
 #include <vector>
 
@@ -212,15 +203,7 @@ int main(int argc, char* argv[])
 {
 	using namespace Vcl::Tools::Cui;
 
-#ifdef VCL_ABI_WINAPI
-#	if VCL_HAS_STDCXX17
 	namespace fs = std::filesystem;
-#	else
-	namespace fs = std::experimental::filesystem;
-#	endif
-#elif defined(VCL_ABI_POSIX)
-	namespace fs = boost::filesystem;
-#endif
 
 	cxxopts::Options options(argv[0], "cui - command line options");
 

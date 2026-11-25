@@ -67,18 +67,13 @@
 #endif
 
 // Identify C++ standard
+// MSVC reports __cplusplus as 199711L unless /Zc:__cplusplus is set, so use _MSVC_LANG there.
 #if defined _MSVC_LANG
 #	if _MSVC_LANG >= 202002L
 #		define VCL_HAS_STDCXX20 1
 #	endif
 #	if _MSVC_LANG >= 201703L
 #		define VCL_HAS_STDCXX17 1
-#	endif
-#	if _MSVC_LANG >= 201402L
-#		define VCL_HAS_STDCXX14 1
-#	endif
-#	if _MSVC_LANG >= 201103L
-#		define VCL_HAS_STDCXX11 1
 #	endif
 #elif defined __cplusplus
 #	if __cplusplus >= 202002L
@@ -87,24 +82,12 @@
 #	if __cplusplus >= 201703L
 #		define VCL_HAS_STDCXX17 1
 #	endif
-#	if __cplusplus >= 201402L
-#		define VCL_HAS_STDCXX14 1
-#	endif
-#	if __cplusplus >= 201103L
-#		define VCL_HAS_STDCXX11 1
-#	endif
 #endif
 #ifndef VCL_HAS_STDCXX20
 #	define VCL_HAS_STDCXX20 0
 #endif
 #ifndef VCL_HAS_STDCXX17
 #	define VCL_HAS_STDCXX17 0
-#endif
-#ifndef VCL_HAS_STDCXX14
-#	define VCL_HAS_STDCXX14 0
-#endif
-#ifndef VCL_HAS_STDCXX11
-#	define VCL_HAS_STDCXX11 0
 #endif
 
 // Identify system ABI
@@ -244,41 +227,6 @@ typedef struct
 #	endif
 #endif
 
-// if constexpr
-#if defined(VCL_COMPILER_MSVC)
-#	if (_MSC_VER >= 1912 && VCL_HAS_STDCXX17)
-#		define VCL_IF_CONSTEXPR if constexpr
-#	else
-#		define VCL_IF_CONSTEXPR if
-#	endif
-#elif defined(VCL_COMPILER_GNU)
-#	if defined(__cpp_if_constexpr) && __cpp_if_constexpr >= 201606
-#		define VCL_IF_CONSTEXPR if constexpr
-#	else
-#		define VCL_IF_CONSTEXPR if
-#	endif
-#elif defined(VCL_COMPILER_CLANG)
-#	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 9) || __cplusplus < 201703l
-#		define VCL_IF_CONSTEXPR if
-#	else
-#		define VCL_IF_CONSTEXPR if constexpr
-#	endif
-#endif
-
-// noexcept
-#if defined(VCL_COMPILER_MSVC)
-#	if (_MSC_VER <= 1800)
-#		define noexcept _NOEXCEPT
-#		define VCL_NOEXCEPT_PARAM(param)
-#	else
-#		define VCL_NOEXCEPT_PARAM(param) noexcept(param)
-#	endif // _MSC_VER
-#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG) || defined(VCL_COMPILER_ICC)
-#	define VCL_NOEXCEPT_PARAM(param) noexcept(param)
-#else
-#	define VCL_NOEXCEPT_PARAM(param)
-#endif
-
 // thread_local
 #if defined(VCL_COMPILER_MSVC)
 #	if (_MSC_VER < 1900)
@@ -291,21 +239,6 @@ typedef struct
 #elif defined(VCL_COMPILER_CLANG)
 #	if __clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ < 3)
 #		define thread_local __thread
-#	endif
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-// Evaluate standard library support
-////////////////////////////////////////////////////////////////////////////////
-
-// chrono
-#if defined(VCL_COMPILER_MSVC)
-#	if _MSC_VER >= 1700
-#		define VCL_STL_CHRONO
-#	endif
-#elif defined(VCL_COMPILER_GNU) || defined(VCL_COMPILER_CLANG)
-#	if __cplusplus >= 201103L
-#		define VCL_STL_CHRONO
 #	endif
 #endif
 

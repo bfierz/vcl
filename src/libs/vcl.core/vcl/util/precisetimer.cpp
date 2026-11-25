@@ -28,59 +28,21 @@
 
 namespace Vcl { namespace Util {
 
-#ifdef VCL_ABI_POSIX
-	timespec diff(timespec start, timespec end)
-	{
-		timespec temp;
-		if ((end.tv_nsec - start.tv_nsec) < 0)
-		{
-			temp.tv_sec = end.tv_sec - start.tv_sec - 1;
-			temp.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-		} else
-		{
-			temp.tv_sec = end.tv_sec - start.tv_sec;
-			temp.tv_nsec = end.tv_nsec - start.tv_nsec;
-		}
-		return temp;
-	}
-#endif
 	void PreciseTimer::start()
 	{
-#ifdef VCL_STL_CHRONO
 		_startTime = std::chrono::high_resolution_clock::now();
-#elif defined VCL_ABI_WINAPI
-		QueryPerformanceCounter(&_startTime);
-#elif defined VCL_ABI_POSIX
-		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &_startTime);
-#endif // VCL_STL_CHRONO
 	}
 
 	void PreciseTimer::stop()
 	{
-#ifdef VCL_STL_CHRONO
 		_stopTime = std::chrono::high_resolution_clock::now();
-#elif defined VCL_ABI_WINAPI
-		QueryPerformanceCounter(&_stopTime);
-#elif defined VCL_ABI_POSIX
-		clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &_stopTime);
-#endif // VCL_STL_CHRONO
 	}
 
 	double PreciseTimer::interval(unsigned int nr_iterations) const
 	{
 		VclRequire(nr_iterations > 0, "Number of iterations is at least 1.");
 
-#ifdef VCL_STL_CHRONO
 		auto diff = _stopTime - _startTime;
 		return std::chrono::duration<double, std::nano>(diff).count() / double(nr_iterations);
-#elif defined VCL_ABI_WINAPI
-		LARGE_INTEGER freq;
-		if (QueryPerformanceFrequency(&freq) == false) return std::numeric_limits<double>::quiet_NaN();
-
-		return (double(_stopTime.QuadPart - _startTime.QuadPart) / double(freq.QuadPart)) / double(nr_iterations);
-#elif defined VCL_ABI_POSIX
-		timespec thisdiff = diff(_startTime, _stopTime);
-		return (double(size_t(1e9) * thisdiff.tv_sec) + double(thisdiff.tv_nsec)) / double(nr_iterations);
-#endif // VCL_STL_CHRONO
 	}
 }}
