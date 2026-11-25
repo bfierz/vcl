@@ -27,11 +27,13 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <any>
+#include <string_view>
+
 // VCL
-#include <vcl/core/any.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/flags.h>
-#include <vcl/core/string_view.h>
 #include <vcl/util/hashedstring.h>
 
 namespace Vcl { namespace RTTI {
@@ -51,17 +53,17 @@ namespace Vcl { namespace RTTI {
 		virtual ~AttributeBase() = default;
 
 	public:
-		virtual void set(void* object, const stdext::any& param) const = 0;
+		virtual void set(void* object, const std::any& param) const = 0;
 		virtual void set(void* object, const std::string& param) const = 0;
 
-		virtual void get(const void* object, stdext::any& result) const = 0;
+		virtual void get(const void* object, std::any& result) const = 0;
 		virtual void get(const void* object, std::string& result) const = 0;
 
 		virtual void serialize(Serializer& ser, const void* object) const = 0;
 		virtual void deserialize(Deserializer& ser, void* object) const = 0;
 
 	public:
-		stdext::string_view name() const { return _name; }
+		std::string_view name() const { return _name; }
 		size_t hash() const { return _hash; }
 
 	public:
@@ -118,7 +120,7 @@ namespace Vcl { namespace RTTI {
 
 	private:
 		//! Readable attribute name
-		stdext::string_view _name;
+		std::string_view _name;
 
 		//! Attribute name hash
 		size_t _hash;

@@ -98,17 +98,23 @@ As host platforms, VCL supports Windows, Linux and MacOS.
 
 ### Removed names
 
-VCL requires C++17, so the names that switched between C++ standard versions are gone.
+VCL requires C++17 and uses the C++17 standard library directly, so the names that switched between C++ standard versions are gone.
 They were removed without deprecated aliases; downstream code has to switch to the replacement.
 
-| Removed                                | Replacement                       |
-|----------------------------------------|-----------------------------------|
-| `VCL_HAS_STDCXX11`, `VCL_HAS_STDCXX14` | None; C++17 is always available   |
-| `VCL_IF_CONSTEXPR(cond)`               | `if constexpr (cond)`             |
-| `VCL_NOEXCEPT_PARAM(cond)`             | `noexcept(cond)`                  |
-| `VCL_STL_CHRONO`                       | None; include `<chrono>` directly |
+| Removed                                                         | Replacement                                         |
+|-----------------------------------------------------------------|-----------------------------------------------------|
+| `VCL_HAS_STDCXX11`, `VCL_HAS_STDCXX14`                          | None; C++17 is always available                     |
+| `VCL_IF_CONSTEXPR(cond)`                                        | `if constexpr (cond)`                               |
+| `VCL_NOEXCEPT_PARAM(cond)`                                      | `noexcept(cond)`                                    |
+| `VCL_STL_CHRONO`                                                | None; include `<chrono>` directly                   |
+| `<vcl/core/optional.h>`, `stdext::optional`, `stdext::nullopt`  | `<optional>`, `std::optional`, `std::nullopt`       |
+| `<vcl/core/any.h>`, `stdext::any`, `stdext::any_cast`           | `<any>`, `std::any`, `std::any_cast`                |
+| `<vcl/core/string_view.h>`, `stdext::string_view`               | `<string_view>`, `std::string_view`                 |
+| `std::make_array` from `<vcl/core/container/array.h>`           | `std::array{ ... }` or `std::array<T, N>{ ... }`    |
 
 `VCL_HAS_STDCXX17` and `VCL_HAS_STDCXX20` stay. They identify the C++ standard in use, reading `_MSVC_LANG` on MSVC, where `__cplusplus` is unreliable without `/Zc:__cplusplus`.
+
+`stdext::span` and `stdext::make_span` (`<vcl/core/span.h>`, backed by `absl::Span`) stay until VCL requires C++20.
 
 The `clc`, `cuc` and `cui` tools now use `std::filesystem` unconditionally and no longer fall back to `<experimental/filesystem>` or Boost.
 
@@ -119,7 +125,7 @@ VCL depends on a number of external libraries. Most are resolved by Conan throug
 
 | Library                       | License    | Version        | Source                                       | Notes                                    |
 |-------------------------------|------------|----------------|----------------------------------------------|------------------------------------------|
-| Abseil Common Libraries (C++) | Apache-2.0 | 20250814.2     | https://abseil.io                            |                                          |
+| Abseil Common Libraries (C++) | Apache-2.0 | 20250814.2     | https://abseil.io                            | `absl::Span`, `absl::InlinedVector`      |
 | Eigen 3                       | MPL2       | 3.4.1          | https://eigen.tuxfamily.org                  |                                          |
 | {fmt}                         | MIT        | 11.2.0         | https://github.com/fmtlib/fmt                |                                          |
 | GLEW                          | BSD/MIT    | 2.2.0          | https://github.com/nigels-com/glew           | `with_opengl`                            |

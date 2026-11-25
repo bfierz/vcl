@@ -158,7 +158,7 @@ namespace Vcl { namespace Graphics { namespace Runtime { namespace D3D12 {
 
 		// Only render-targets and depth-stencil textures have a clear value. It
 		// uses the typed format, also for typeless resources.
-		stdext::optional<D3D12_CLEAR_VALUE> clear_value;
+		std::optional<D3D12_CLEAR_VALUE> clear_value;
 		if (desc.ClearValue && usage().isSet(TextureUsage::OutputAttachment))
 		{
 			if (is_depth)

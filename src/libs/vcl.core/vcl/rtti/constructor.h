@@ -38,10 +38,10 @@
 #include <typeinfo>
 #include <vector>
 #include <utility>
+#include <any>
 
 // VCL
 #include <vcl/core/container/array.h>
-#include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
@@ -56,17 +56,17 @@ namespace Vcl { namespace RTTI {
 	template<typename T>
 	struct extract
 	{
-		static T get(const stdext::any& value)
+		static T get(const std::any& value)
 		{
-			return stdext::any_cast<T>(value);
+			return std::any_cast<T>(value);
 		}
 	};
 	template<typename T>
 	struct extract<std::shared_ptr<T>>
 	{
-		static std::shared_ptr<T> get(const stdext::any& value)
+		static std::shared_ptr<T> get(const std::any& value)
 		{
-			return std::static_pointer_cast<T>(std::move(stdext::any_cast<std::shared_ptr<void>>(value)));
+			return std::static_pointer_cast<T>(std::move(std::any_cast<std::shared_ptr<void>>(value)));
 		}
 	};
 
@@ -88,7 +88,7 @@ namespace Vcl { namespace RTTI {
 			return new (location) T(std::forward<Params>(params)...);
 		}
 
-		virtual bool hasParam(const stdext::string_view name) const override
+		virtual bool hasParam(const std::string_view name) const override
 		{
 			return hasParamImpl(_parameters, name);
 		}
@@ -104,20 +104,20 @@ namespace Vcl { namespace RTTI {
 		}
 
 	protected:
-		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const override
+		virtual void* callImpl(void* location, stdext::span<std::any> params) const override
 		{
-			return callImplSeq(location, std::move(params), absl::make_index_sequence<sizeof...(Params)>());
+			return callImplSeq(location, std::move(params), std::make_index_sequence<sizeof...(Params)>());
 		}
 
 	private:
 		template<size_t... S>
-		void* callImplSeq(void* location, stdext::span<stdext::any>&& params, absl::index_sequence<S...>) const
+		void* callImplSeq(void* location, stdext::span<std::any>&& params, std::index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
 
 		template<typename P, int I>
-		P getParam(const stdext::span<stdext::any> params) const
+		P getParam(const stdext::span<std::any> params) const
 		{
 			return extract<P>::get(params.begin()[I]);
 		}
@@ -142,7 +142,7 @@ namespace Vcl { namespace RTTI {
 		}
 
 		template<typename... Ts>
-		bool hasParamImpl(const std::tuple<Ts...>& tuple, const stdext::string_view& name) const
+		bool hasParamImpl(const std::tuple<Ts...>& tuple, const std::string_view& name) const
 		{
 			if (head(_parameters).data().name() == name)
 				return true;
@@ -151,7 +151,7 @@ namespace Vcl { namespace RTTI {
 		}
 
 		template<typename P>
-		bool hasParamImpl(const std::tuple<P>& tuple, const stdext::string_view& name) const
+		bool hasParamImpl(const std::tuple<P>& tuple, const std::string_view& name) const
 		{
 			return std::get<0>(tuple).data().name() == name;
 		}
@@ -177,7 +177,7 @@ namespace Vcl { namespace RTTI {
 			return new (location) T;
 		}
 
-		virtual bool hasParam(const stdext::string_view name) const override
+		virtual bool hasParam(const std::string_view name) const override
 		{
 			VCL_UNREFERENCED_PARAMETER(name);
 			return false;
@@ -196,7 +196,7 @@ namespace Vcl { namespace RTTI {
 		}
 
 	protected:
-		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const override
+		virtual void* callImpl(void* location, stdext::span<std::any> params) const override
 		{
 			VclRequire(params.size() == 0, "No parameters supplied.");
 

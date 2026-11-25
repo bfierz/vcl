@@ -31,10 +31,10 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include <optional>
 
 // VCL
 #include <vcl/core/flags.h>
-#include <vcl/core/optional.h>
 #include <vcl/core/span.h>
 #include <vcl/graphics/surfaceformat.h>
 
@@ -89,7 +89,7 @@ namespace Vcl { namespace Graphics { namespace Runtime {
 		//! Value the texture is usually cleared to. Clearing a render-target or
 		//! depth-stencil texture to this value is fast on D3D12 (optimised clear
 		//! value); the other backends ignore it.
-		stdext::optional<TextureClearValue> ClearValue;
+		std::optional<TextureClearValue> ClearValue;
 	};
 
 	struct Texture1DDescription : public TextureBaseDescription

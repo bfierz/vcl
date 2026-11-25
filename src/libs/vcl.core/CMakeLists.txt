@@ -47,7 +47,6 @@ set(SOURCE
 	vcl/config/global.h
 	vcl/config/macros.h
 
-	vcl/core/any.h
 	vcl/core/contract.cpp
 	vcl/core/contract.h
 	vcl/core/convert.h
@@ -57,10 +56,8 @@ set(SOURCE
 	vcl/core/handle.cpp
 	vcl/core/handle.h
 	vcl/core/interleavedarray.h
-	vcl/core/optional.h
 	vcl/core/preprocessor.h
 	vcl/core/span.h
-	vcl/core/string_view.h
 
 	vcl/core/container/array.h
 	vcl/core/container/bitvector.h

@@ -30,9 +30,9 @@
 // C++ standard library
 #include <initializer_list>
 #include <vector>
+#include <any>
 
 // VCL
-#include <vcl/core/any.h>
 #include <vcl/core/preprocessor.h>
 #include <vcl/rtti/metatypebase.h>
 
