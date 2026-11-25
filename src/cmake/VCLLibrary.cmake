@@ -23,7 +23,6 @@
 # SOFTWARE.
 #
 include(VCLConfig)
-include(VCLClangTidy)
 
 # Create a library for VCL
 function(vcl_add_library tgt)
@@ -40,8 +39,5 @@ function(vcl_add_library tgt)
 	# Enable static code analysis
 	if(VCL_ENABLE_CORE_GUIDELINE_CHECKER)
 		enable_vs_guideline_checker(${tgt})
-	endif()
-	if(VCL_ENABLE_CLANG_TIDY)
-		enable_clang_tidy(${tgt})
 	endif()
 endfunction()
