@@ -29,6 +29,7 @@
 
 // C++ standard library
 #include <unordered_map>
+#include <string_view>
 
 // VCL
 #include <vcl/rtti/metatype.h>

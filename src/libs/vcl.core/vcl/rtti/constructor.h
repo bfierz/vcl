@@ -39,6 +39,7 @@
 #include <vector>
 #include <utility>
 #include <any>
+#include <string_view>
 
 // VCL
 #include <vcl/core/container/array.h>

@@ -27,6 +27,9 @@
 // VCL configuration
 #include <vcl/config/global.h>
 
+// C++ standard library
+#include <string_view>
+
 // VCL
 #include <vcl/rtti/metatype.h>
 #include <vcl/rtti/metatyperegistry.h>
