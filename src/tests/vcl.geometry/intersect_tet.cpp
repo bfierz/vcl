@@ -31,7 +31,6 @@
 #include <array>
 
 // Include the relevant parts from the library
-#include <vcl/core/container/array.h>
 #include <vcl/geometry/intersect.h>
 #include <vcl/geometry/meshfactory.h>
 #include <vcl/geometry/tetramesh.h>
@@ -60,11 +59,11 @@ std::array<Eigen::Vector3f, 8> small_positions = {
 	Eigen::Vector3f(0.75f, 0.75f, 0.75f),
 };
 std::array<std::array<int, 4>, 5> tetrahedra = {
-	std::make_array(0, 5, 3, 6),
-	std::make_array(0, 1, 3, 5),
-	std::make_array(0, 2, 3, 6),
-	std::make_array(0, 6, 5, 4),
-	std::make_array(3, 6, 5, 7),
+	std::array{ 0, 5, 3, 6 },
+	std::array{ 0, 1, 3, 5 },
+	std::array{ 0, 2, 3, 6 },
+	std::array{ 0, 6, 5, 4 },
+	std::array{ 3, 6, 5, 7 },
 };
 
 TEST(TetTetIntersection, Same)

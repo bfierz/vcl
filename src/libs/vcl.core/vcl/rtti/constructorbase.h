@@ -38,17 +38,13 @@
 #include <typeinfo>
 #include <vector>
 #include <utility>
-
-// Abseil
-#include <absl/utility/utility.h>
+#include <any>
+#include <string_view>
 
 // VCL
-#include <vcl/core/container/array.h>
-#include <vcl/core/any.h>
 #include <vcl/core/convert.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
-#include <vcl/core/string_view.h>
 
 namespace Vcl { namespace RTTI {
 	template<typename T, typename... Ts>
@@ -58,7 +54,7 @@ namespace Vcl { namespace RTTI {
 	}
 
 	template<std::size_t... Ns, typename... Ts>
-	auto tail_impl(absl::index_sequence<Ns...>, const std::tuple<Ts...>& t)
+	auto tail_impl(std::index_sequence<Ns...>, const std::tuple<Ts...>& t)
 	{
 		return std::forward_as_tuple(std::get<Ns + 1u>(t)...);
 	}
@@ -66,7 +62,7 @@ namespace Vcl { namespace RTTI {
 	template<typename... Ts>
 	auto tail(const std::tuple<Ts...>& t)
 	{
-		return tail_impl(absl::make_index_sequence<sizeof...(Ts) - 1u>(), t);
+		return tail_impl(std::make_index_sequence<sizeof...(Ts) - 1u>(), t);
 	}
 
 	class ParameterMetaData
@@ -82,10 +78,10 @@ namespace Vcl { namespace RTTI {
 		constexpr ParameterMetaData(ParameterMetaData&& rhs) = default;
 
 	public:
-		stdext::string_view name() const { return _name; }
+		std::string_view name() const { return _name; }
 
 	private:
-		const stdext::string_view _name;
+		const std::string_view _name;
 	};
 
 	class ParameterBase
@@ -112,17 +108,17 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual stdext::any pack(std::string value) const
+		virtual std::any pack(const std::string& value) const
 		{
 			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
 		}
-		virtual stdext::any pack(void* link) const
+		virtual std::any pack(void* link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return nullptr;
 		}
-		virtual stdext::any pack(std::shared_ptr<void> link) const
+		virtual std::any pack(std::shared_ptr<void> link) const
 		{
 			VCL_UNREFERENCED_PARAMETER(link);
 			return std::shared_ptr<void>();
@@ -146,7 +142,9 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual stdext::any pack(std::string value) const override
+		using ParameterBase::pack;
+
+		virtual std::any pack(const std::string& value) const override
 		{
 			return from_string<T>(value);
 		}
@@ -162,7 +160,9 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual stdext::any pack(void* link) const override
+		using ParameterBase::pack;
+
+		virtual std::any pack(void* link) const override
 		{
 			return link;
 		}
@@ -178,7 +178,9 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual stdext::any pack(std::shared_ptr<void> link) const override
+		using ParameterBase::pack;
+
+		virtual std::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;
 		}
@@ -205,11 +207,11 @@ namespace Vcl { namespace RTTI {
 		template<typename... Args>
 		void* call(void* location, Args... args) const
 		{
-			auto any_args = std::make_array<stdext::any>(args...);
+			std::array<std::any, sizeof...(Args)> any_args{ args... };
 			return callImpl(location, stdext::make_span(any_args));
 		}
 
-		void* call(void* location, stdext::span<stdext::any> args) const
+		void* call(void* location, stdext::span<std::any> args) const
 		{
 			return callImpl(location, args);
 		}
@@ -224,13 +226,13 @@ namespace Vcl { namespace RTTI {
 			return hasParam(name, N - 1);
 		}
 
-		virtual bool hasParam(const stdext::string_view name) const = 0;
+		virtual bool hasParam(const std::string_view name) const = 0;
 
 		virtual const ParameterBase& param(int idx) const = 0;
 		virtual const std::type_info* paramType(int idx) const = 0;
 
 	protected:
-		virtual void* callImpl(void* location, stdext::span<stdext::any> params) const = 0;
+		virtual void* callImpl(void* location, stdext::span<std::any> params) const = 0;
 
 	private:
 		//! Number of parameters for this constructor
@@ -298,11 +300,11 @@ namespace Vcl { namespace RTTI {
 			if (sizeof...(Args) != constr->numParams())
 				return false;
 
-			return checkArgsImpl<Args...>(constr, absl::make_index_sequence<sizeof...(Args)>());
+			return checkArgsImpl<Args...>(constr, std::make_index_sequence<sizeof...(Args)>());
 		}
 
 		template<typename... Args, size_t... S>
-		bool checkArgsImpl(const ConstructorBase* constr, absl::index_sequence<S...>) const
+		bool checkArgsImpl(const ConstructorBase* constr, std::index_sequence<S...>) const
 		{
 			std::array<bool, sizeof...(Args)> results{ { checkArg<Args, S>(constr)... } };
 

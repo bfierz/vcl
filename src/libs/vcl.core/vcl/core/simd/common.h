@@ -29,9 +29,7 @@
 
 // C++ standard library
 #include <type_traits>
-
-// Abseil
-#include <absl/utility/utility.h>
+#include <utility>
 
 // VCL
 #include <vcl/core/simd/intrinsics_sse.h>
@@ -594,7 +592,7 @@ namespace Vcl { namespace Core { namespace Simd {
 		}
 
 		template<typename T, size_t N, size_t... Is>
-		VCL_STRONG_INLINE void set(const T (&arr)[N], absl::index_sequence<Is...>) noexcept
+		VCL_STRONG_INLINE void set(const T (&arr)[N], std::index_sequence<Is...>) noexcept
 		{
 			set(arr[Is]...);
 		}
@@ -604,7 +602,7 @@ namespace Vcl { namespace Core { namespace Simd {
 		//! SIMD instructions for copying data
 		VCL_STRONG_INLINE VectorScalarBase<Scalar, Width, Type>& operator=(const VectorScalarBase<Scalar, Width, Type>& rhs) noexcept
 		{
-			set(rhs._data, absl::make_index_sequence<NrRegs>{});
+			set(rhs._data, std::make_index_sequence<NrRegs>{});
 			return *this;
 		}
 
@@ -787,26 +785,26 @@ namespace Vcl { namespace Core { namespace Simd {
 	}
 }}}
 
-#define VCL_SIMD_VECTORSCALAR_SETUP(SIMD_TYPE)                                                                                                       \
-	using Base = Core::Simd::VectorScalarBase<Scalar, NrValues, Core::Simd::SimdExt::SIMD_TYPE>;                                                     \
-	using Self = VectorScalar<Scalar, NrValues>;                                                                                                     \
-	using Bool = VectorScalar<bool, NrValues>;                                                                                                       \
-	using Base::operator[];                                                                                                                          \
-	using Base::get;                                                                                                                                 \
-	VCL_STRONG_INLINE VectorScalar() noexcept = default;                                                                                             \
-	VCL_STRONG_INLINE VectorScalar(Scalar s) noexcept { set(s); }                                                                                    \
-	template<typename... S>                                                                                                                          \
-	explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) noexcept                                             \
-	{                                                                                                                                                \
-		static_assert(absl::conjunction<std::is_convertible<S, Scalar>...>::value, "All parameters need to be convertible to the scalar base type"); \
-		static_assert(sizeof...(S) == NrValues - 4, "Wrong number number of parameters");                                                            \
-		set(s0, s1, s2, s3, static_cast<Scalar>(s)...);                                                                                              \
-	}                                                                                                                                                \
-	template<typename... V>                                                                                                                          \
-	VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) noexcept                                                                      \
-	{                                                                                                                                                \
-		static_assert(sizeof...(V) == NrRegs - 1, "Wrong number number of parameters");                                                              \
-		set(v0, v...);                                                                                                                               \
+#define VCL_SIMD_VECTORSCALAR_SETUP(SIMD_TYPE)                                                                                                 \
+	using Base = Core::Simd::VectorScalarBase<Scalar, NrValues, Core::Simd::SimdExt::SIMD_TYPE>;                                               \
+	using Self = VectorScalar<Scalar, NrValues>;                                                                                               \
+	using Bool = VectorScalar<bool, NrValues>;                                                                                                 \
+	using Base::operator[];                                                                                                                    \
+	using Base::get;                                                                                                                           \
+	VCL_STRONG_INLINE VectorScalar() noexcept = default;                                                                                       \
+	VCL_STRONG_INLINE VectorScalar(Scalar s) noexcept { set(s); }                                                                              \
+	template<typename... S>                                                                                                                    \
+	explicit VCL_STRONG_INLINE VectorScalar(Scalar s0, Scalar s1, Scalar s2, Scalar s3, S... s) noexcept                                       \
+	{                                                                                                                                          \
+		static_assert(std::conjunction_v<std::is_convertible<S, Scalar>...>, "All parameters need to be convertible to the scalar base type"); \
+		static_assert(sizeof...(S) == NrValues - 4, "Wrong number number of parameters");                                                      \
+		set(s0, s1, s2, s3, static_cast<Scalar>(s)...);                                                                                        \
+	}                                                                                                                                          \
+	template<typename... V>                                                                                                                    \
+	VCL_STRONG_INLINE explicit VectorScalar(const RegType& v0, V... v) noexcept                                                                \
+	{                                                                                                                                          \
+		static_assert(sizeof...(V) == NrRegs - 1, "Wrong number number of parameters");                                                        \
+		set(v0, v...);                                                                                                                         \
 	}
 
 #define VCL_SIMD_P1_1(op, i) op(get(i))

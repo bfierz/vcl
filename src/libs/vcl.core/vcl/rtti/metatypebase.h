@@ -29,11 +29,11 @@
 
 // C++ standard library
 #include <vector>
+#include <any>
+#include <string_view>
 
 // VCL
-#include <vcl/core/any.h>
 #include <vcl/core/span.h>
-#include <vcl/core/string_view.h>
 #include <vcl/rtti/constructorbase.h>
 #include <vcl/util/hashedstring.h>
 
@@ -54,7 +54,7 @@ namespace Vcl { namespace RTTI {
 		{
 		}
 
-		Type(stdext::string_view name, size_t hash, size_t size, size_t alignment);
+		Type(std::string_view name, size_t hash, size_t size, size_t alignment);
 
 		Type(const Type&) = delete;
 		Type(Type&&) noexcept;
@@ -64,14 +64,14 @@ namespace Vcl { namespace RTTI {
 		Type& operator=(const Type&) = delete;
 
 	public: // Properties
-		stdext::string_view name() const noexcept { return _name; }
+		std::string_view name() const noexcept { return _name; }
 		size_t hash() const noexcept { return _hash; }
 
 		size_t nrParents() const noexcept { return static_cast<size_t>(_parents.size()); }
 		const Type* const* parents() const noexcept { return _parents.data(); }
 
-		bool hasAttribute(const stdext::string_view name) const;
-		const AttributeBase* attribute(const stdext::string_view name) const;
+		bool hasAttribute(const std::string_view name) const;
+		const AttributeBase* attribute(const std::string_view name) const;
 
 		/*!
 		 * \brief Access the list of all attributes
@@ -109,7 +109,7 @@ namespace Vcl { namespace RTTI {
 
 	private:
 		//! Readable type name
-		stdext::string_view _name;
+		std::string_view _name;
 
 		//! Hash of the type name
 		size_t _hash;

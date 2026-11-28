@@ -35,7 +35,6 @@
 #include <vector>
 
 // VCL
-#include <vcl/core/container/array.h>
 #include <vcl/core/contract.h>
 #include <vcl/core/span.h>
 #include <vcl/geometry/cell.h>
@@ -60,7 +59,7 @@ namespace Vcl { namespace Geometry {
 		VclRequire(p1.id() < (1 << 21), "Index p1 is 21-bit.");
 		VclRequire(p2.id() < (1 << 21), "Index p2 is 21-bit.");
 
-		auto f = std::make_array(p0, p1, p2);
+		auto f = std::array{ p0, p1, p2 };
 		std::sort(std::begin(f), std::end(f));
 
 		uint64_t v0 = f[0].id();
@@ -83,7 +82,7 @@ namespace Vcl { namespace Geometry {
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				auto f = std::make_array(idx[tetra_traits::triFaces[i][0]], idx[tetra_traits::triFaces[i][1]], idx[tetra_traits::triFaces[i][2]]);
+				auto f = std::array{ idx[tetra_traits::triFaces[i][0]], idx[tetra_traits::triFaces[i][1]], idx[tetra_traits::triFaces[i][2]] };
 				auto h = makeFaceHash(f[0], f[1], f[2]);
 				auto it = face_lut.find(h);
 				if (it != face_lut.end())
@@ -126,7 +125,7 @@ namespace Vcl { namespace Geometry {
 			edge_face_lut.emplace(e1, tri[0].id());
 			edge_face_lut.emplace(e2, tri[1].id());
 
-			return std::make_array(tri[0], VertexId::InvalidId(), tri[1], VertexId::InvalidId(), tri[2], VertexId::InvalidId());
+			return std::array{ tri[0], VertexId::InvalidId(), tri[1], VertexId::InvalidId(), tri[2], VertexId::InvalidId() };
 		});
 
 		// Connect the neighbours to the central triangle
