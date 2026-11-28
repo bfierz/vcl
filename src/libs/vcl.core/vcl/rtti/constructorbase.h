@@ -108,7 +108,7 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual std::any pack(std::string value) const
+		virtual std::any pack(const std::string& value) const
 		{
 			VCL_UNREFERENCED_PARAMETER(value);
 			return 0;
@@ -142,7 +142,9 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
-		virtual std::any pack(std::string value) const override
+		using ParameterBase::pack;
+
+		virtual std::any pack(const std::string& value) const override
 		{
 			return from_string<T>(value);
 		}
@@ -158,6 +160,8 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
+		using ParameterBase::pack;
+
 		virtual std::any pack(void* link) const override
 		{
 			return link;
@@ -174,6 +178,8 @@ namespace Vcl { namespace RTTI {
 		}
 
 	public:
+		using ParameterBase::pack;
+
 		virtual std::any pack(std::shared_ptr<void> link) const override
 		{
 			return link;

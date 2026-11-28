@@ -107,12 +107,12 @@ namespace Vcl { namespace RTTI {
 	protected:
 		virtual void* callImpl(void* location, stdext::span<std::any> params) const override
 		{
-			return callImplSeq(location, std::move(params), std::make_index_sequence<sizeof...(Params)>());
+			return callImplSeq(location, params, std::make_index_sequence<sizeof...(Params)>());
 		}
 
 	private:
 		template<size_t... S>
-		void* callImplSeq(void* location, stdext::span<std::any>&& params, std::index_sequence<S...>) const
+		void* callImplSeq(void* location, stdext::span<std::any> params, std::index_sequence<S...>) const
 		{
 			return call(location, getParam<Params, S>(params)...);
 		}
